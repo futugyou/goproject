@@ -42,6 +42,7 @@ func main() {
 		log.Fatalf("cmd.execute err: %v", err)
 	}
 
+	// ord code
 	var nameFlag Name
 	flag.Var(&nameFlag, "name", "help info")
 	flag.Parse()
