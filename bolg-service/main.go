@@ -21,6 +21,10 @@ import (
 
 //go mod init github.com/goproject/blog-service
 //go get -u github.com/gin-gonic/gin
+
+// @title blog_service
+// @verson 0.1
+// @description go project
 func main() {
 	// r := gin.Default()
 	// r.GET("/ping", func(c *gin.Context) {
@@ -56,7 +60,7 @@ func init() {
 		log.Fatalf("init logger error : %v", err)
 	}
 
-	global.Logger.Infof("%s  go-project-demo/%s", "test", "blog-server")
+	//global.Logger.Infof("%s  go-project-demo/%s", "test", "blog-server")
 }
 
 func setupSetting() error {
