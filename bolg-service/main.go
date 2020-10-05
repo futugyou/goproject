@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/goproject/blog-service/pkg/logger"
+	"gopkg.in/natefinch/lumberjack.v2"
+
 	"github.com/goproject/blog-service/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +51,12 @@ func init() {
 	if err != nil {
 		log.Fatalf("init db error : %v", err)
 	}
+	err = setupLogger()
+	if err != nil {
+		log.Fatalf("init logger error : %v", err)
+	}
+
+	global.Logger.Infof("%s  go-project-demo/%s", "test", "blog-server")
 }
 
 func setupSetting() error {
@@ -79,5 +88,19 @@ func setupDBEngine() error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func setupLogger() error {
+	global.Logger = logger.NewLogger(
+		&lumberjack.Logger{
+			Filename:  global.AppSetting.LogSavaPath + "/" + global.AppSetting.LogFileName + global.AppSetting.LogFileExt,
+			MaxSize:   600,
+			MaxAge:    10,
+			LocalTime: true,
+		},
+		"",
+		log.LstdFlags,
+	).WithCaller(2)
 	return nil
 }
