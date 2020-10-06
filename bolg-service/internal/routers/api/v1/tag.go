@@ -1,12 +1,9 @@
 package v1
 
 import (
-	"log"
-
-	"github.com/goproject/blog-service/pkg/errcode"
-
 	"github.com/gin-gonic/gin"
 	"github.com/goproject/blog-service/pkg/app"
+	"github.com/goproject/blog-service/pkg/errcode"
 )
 
 type Tag struct{}
@@ -28,8 +25,18 @@ func (a Tag) Get(c *gin.Context) {}
 // @Failure 500 {object} errcode.Error "error"
 // @Router /api/v1/tags [get]
 func (a Tag) List(c *gin.Context) {
-	app.NewResponse(c).ToErrorResponse(errcode.ServiceError)
-	log.Print("this is tags list")
+	params := struct {
+		Name  string `form:"name" binding:"max=100"`
+		State uint8  `form:"state,default 1" binding:"oneof=0 1"`
+	}{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &params)
+	if valid {
+		// global.Logger.Errorf("app bindandvalid err: %v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+	response.ToResponse(gin.H{})
 }
 func (a Tag) Create(c *gin.Context) {}
 func (a Tag) Update(c *gin.Context) {}
