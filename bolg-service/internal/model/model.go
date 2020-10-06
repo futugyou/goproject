@@ -82,7 +82,7 @@ func deleteCallback(scope *gorm.Scope) {
 	if !scope.HasError() {
 		var extraoption string
 		if str, ok := scope.Get("gorm:delete_option"); ok {
-			extraoption = fmt.Sprintf(str)
+			extraoption = fmt.Sprint(str)
 		}
 		deleteOnField, hasDeletedonField := scope.FieldByName("DeletedOn")
 		isDelFiled, hasIsDelField := scope.FieldByName("IsDel")
