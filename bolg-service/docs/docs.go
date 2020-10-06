@@ -121,10 +121,10 @@ var doc = `{
                 "is_del": {
                     "type": "integer"
                 },
-                "modifed_by": {
+                "modified_by": {
                     "type": "string"
                 },
-                "modifed_on": {
+                "modified_on": {
                     "type": "integer"
                 },
                 "name": {

@@ -33,7 +33,7 @@ func (t Tag) Count(db *gorm.DB) (int, error) {
 
 }
 
-func (t Tag) list(db *gorm.DB, pageoffset, pagesize int) ([]*Tag, error) {
+func (t Tag) List(db *gorm.DB, pageoffset, pagesize int) ([]*Tag, error) {
 	var tags []*Tag
 	var err error
 	if pageoffset >= 0 && pagesize > 0 {

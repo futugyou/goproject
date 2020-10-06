@@ -13,13 +13,13 @@ import (
 )
 
 type Model struct {
-	ID          uint32 `gorm:"primary_key" json:"id"`
-	CreatedBy   string `json:"created_by"`
-	CreatedOn   uint32 `json:"created_on"`
-	ModififedBy string `json:"modifed_by"`
-	ModififedOn uint32 `json:"modifed_on"`
-	Deleted     uint32 `json:"deleted_on"`
-	IsDel       uint32 `json:"is_del"`
+	ID         uint32 `gorm:"primary_key" json:"id"`
+	CreatedBy  string `json:"created_by"`
+	CreatedOn  uint32 `json:"created_on"`
+	ModifiedBy string `json:"modified_by"`
+	ModifiedOn uint32 `json:"modified_on"`
+	DeletedOn  uint32 `json:"deleted_on"`
+	IsDel      uint32 `json:"is_del"`
 }
 
 func NewDBEngine(dbsetting *setting.DatabaseSettingS) (*gorm.DB, error) {
@@ -39,7 +39,21 @@ func NewDBEngine(dbsetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 		db.LogMode(true)
 	}
 	db.SingularTable(true)
-
+	if db.HasTable(&Tag{}) {
+		db.AutoMigrate(&Tag{})
+	} else {
+		db.CreateTable(&Tag{})
+	}
+	if db.HasTable(&Article{}) {
+		db.AutoMigrate(&Article{})
+	} else {
+		db.CreateTable(&Article{})
+	}
+	if db.HasTable(&ArticleTag{}) {
+		db.AutoMigrate(&ArticleTag{})
+	} else {
+		db.CreateTable(&ArticleTag{})
+	}
 	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
 	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
 	db.Callback().Delete().Replace("gorm:delete", deleteCallback)

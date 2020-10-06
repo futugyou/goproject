@@ -15,6 +15,12 @@ var (
 	UnauthorizedTokenTimeout  = NewError(1000005, "UnauthorizedTokenTimeout")
 	UnauthorizedTokenGenerate = NewError(1000006, "UnauthorizedTokenGenerate")
 	TooManyRequests           = NewError(1000007, "TooManyRequests")
+
+	ErrorGetListFail   = NewError(2000003, "ErrorGetListFail")
+	ErrorCreateTagFail = NewError(2000004, "ErrorCreateTagFail")
+	ErrorUpdateTagFail = NewError(2000005, "ErrorUpdateTagFail")
+	ErrorDeleteTagFail = NewError(2000006, "ErrorDeleteTagFail")
+	ErrorCountTagFail  = NewError(2000007, "ErrorCountTagFail")
 )
 
 type Error struct {

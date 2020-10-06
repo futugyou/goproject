@@ -7,5 +7,5 @@ type ArticleTag struct {
 }
 
 func (a ArticleTag) TableName() string {
-	return "article_tag"
+	return "blog_article_tag"
 }
