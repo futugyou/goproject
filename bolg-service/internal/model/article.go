@@ -8,7 +8,7 @@ type Article struct {
 	Desc          string `json:"desc"`
 	Content       string `json:"content"`
 	CoverImageUrl string `json:"cover_image_url"`
-	State         string `json:"state"`
+	State         uint8  `json:"state"`
 }
 
 func (a Article) TableName() string {
@@ -91,7 +91,7 @@ func (a Article) ListByTagId(db *gorm.DB, tagid uint32, pageoffset, pagesize int
 	return articles, nil
 }
 
-func (a Article) CountByTagid(db gorm.DB, tagid uint32) (int, error) {
+func (a Article) CountByTagid(db *gorm.DB, tagid uint32) (int, error) {
 	var count int
 	err := db.Table(ArticleTag{}.TableName()+" as at").
 		Joins("left join `"+Tag{}.TableName()+"` as t on at.tag_id =t.id ").

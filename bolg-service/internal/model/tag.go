@@ -20,6 +20,7 @@ type TagSwagger struct {
 func (t Tag) TableName() string {
 	return "blog_tag"
 }
+
 func (t Tag) Count(db *gorm.DB) (int, error) {
 	var count int
 	if t.Name != "" {
@@ -30,7 +31,15 @@ func (t Tag) Count(db *gorm.DB) (int, error) {
 		return 0, err
 	}
 	return count, nil
+}
 
+func (t Tag) Get(db *gorm.DB) (*Tag, error) {
+	var tag *Tag
+	db = db.Where("id = ? and is_del = ? and state = ?", t.ID, 0, t.State)
+	if err := db.Model(&t).Where("is_del = ?", 0).Find(&tag).Error; err != nil {
+		return nil, err
+	}
+	return tag, nil
 }
 
 func (t Tag) List(db *gorm.DB, pageoffset, pagesize int) ([]*Tag, error) {

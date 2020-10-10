@@ -21,6 +21,12 @@ var (
 	ErrorUpdateTagFail = NewError(2000005, "ErrorUpdateTagFail")
 	ErrorDeleteTagFail = NewError(2000006, "ErrorDeleteTagFail")
 	ErrorCountTagFail  = NewError(2000007, "ErrorCountTagFail")
+
+	ErrorGetArticleFail    = NewError(2000012, "ErrorGetArticleFail")
+	ErrorGetArticlesFail   = NewError(2000013, "ErrorGetArticlesFail")
+	ErrorCreateArticleFail = NewError(2000014, "ErrorCreateArticleFail")
+	ErrorUpdateArticleFail = NewError(2000015, "ErrorUpdateArticleFail")
+	ErrorDeleteArticleFail = NewError(2000016, "ErrorDeleteArticleFail")
 )
 
 type Error struct {
