@@ -27,6 +27,8 @@ var (
 	ErrorCreateArticleFail = NewError(2000014, "ErrorCreateArticleFail")
 	ErrorUpdateArticleFail = NewError(2000015, "ErrorUpdateArticleFail")
 	ErrorDeleteArticleFail = NewError(2000016, "ErrorDeleteArticleFail")
+
+	ErrorUploadFileFail = NewError(2000026, "ErrorUploadFileFail")
 )
 
 type Error struct {
