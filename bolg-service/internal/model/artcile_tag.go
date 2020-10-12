@@ -1,10 +1,12 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type ArticleTag struct {
 	*Model
-	TageID    uint32 `json:"tag_id"`
+	TagID     uint32 `json:"tag_id"`
 	ArticleID uint32 `json:"article_id"`
 }
 
@@ -12,11 +14,12 @@ func (a ArticleTag) TableName() string {
 	return "blog_article_tag"
 }
 
-func (a ArticleTag) GetByArticleId(db *gorm.DB) (*ArticleTag, error) {
-	var articleTag *ArticleTag
-	err := db.Where("article_id = ? and is_del = ? ", a.TageID, 0).
+func (a ArticleTag) GetByArticleId(db *gorm.DB) (ArticleTag, error) {
+	var articleTag ArticleTag
+	err := db.Where("article_id = ? and is_del = ? ", a.ArticleID, 0).
 		First(&articleTag).Error
-	if err != nil {
+
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return articleTag, err
 	}
 	return articleTag, nil
@@ -24,7 +27,7 @@ func (a ArticleTag) GetByArticleId(db *gorm.DB) (*ArticleTag, error) {
 
 func (a ArticleTag) ListByTid(db *gorm.DB) ([]*ArticleTag, error) {
 	var articleTag []*ArticleTag
-	if err := db.Where("tag_id = ? and is_del = ?", a.TageID, 0).Find(&articleTag).Error; err != nil {
+	if err := db.Where("tag_id = ? and is_del = ?", a.TagID, 0).Find(&articleTag).Error; err != nil {
 		return nil, err
 	}
 	return articleTag, nil

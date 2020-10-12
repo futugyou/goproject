@@ -29,7 +29,8 @@ func (svc *Service) GetArticle(param *ArticleRequest) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	tag, err := svc.dao.GetTag(articletag.TageID, param.State)
+	tag, err := svc.dao.GetTag(articletag.TagID, param.State)
+
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func (svc *Service) GetArticle(param *ArticleRequest) (*Article, error) {
 		Content:       article.Content,
 		CoverImageUrl: article.CoverImageUrl,
 		State:         article.State,
-		Tag:           tag,
+		Tag:           &tag,
 	}, nil
 }
 
@@ -75,13 +76,13 @@ func (svc *Service) GetArticleList(param *ArticleListRequest, pager *app.Pager) 
 }
 
 type CreateArticleRequest struct {
-	TagId         uint32 `form:"tag_id" binding:"required,gte=1"`
-	Name          string `form:"name" binding:"required,min=3,max=100"`
+	TagId uint32 `form:"tag_id" binding:"required,gte=1"`
+	//Name          string `form:"name" binding:"required,min=3,max=100"`
 	CreatedBy     string `form:"created_by" binding:"required,min=3,max=100"`
 	Title         string `form:"title" binding:"required,min=3,max=100"`
 	State         uint8  `form:"state,default=1" binding:"oneof=0 1"`
 	Desc          string `form:"desc" binding:"min=3,max=100"`
-	Content       string `form:"conten" binding:"min=3,max=100"`
+	Content       string `form:"content" binding:"min=3,max=100"`
 	CoverImageUrl string `form:"cover_image_url" binding:"min=3,max=100"`
 }
 

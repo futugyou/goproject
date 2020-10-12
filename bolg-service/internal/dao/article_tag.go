@@ -2,13 +2,13 @@ package dao
 
 import "github.com/goproject/blog-service/internal/model"
 
-func (a *Dao) GetArticletagByAid(articleId uint32) (*model.ArticleTag, error) {
+func (a *Dao) GetArticletagByAid(articleId uint32) (model.ArticleTag, error) {
 	articletag := model.ArticleTag{ArticleID: articleId}
 	return articletag.GetByArticleId(a.engine)
 }
 
 func (a *Dao) GetArticleListByTid(tagid uint32) ([]*model.ArticleTag, error) {
-	artciletag := model.ArticleTag{TageID: tagid}
+	artciletag := model.ArticleTag{TagID: tagid}
 	return artciletag.ListByTid(a.engine)
 }
 
@@ -23,7 +23,7 @@ func (a *Dao) CreateArticleTag(articleid, tagid uint32, createby string) error {
 			CreatedBy: createby,
 		},
 		ArticleID: articleid,
-		TageID:    tagid,
+		TagID:     tagid,
 	}
 	return articletag.Create(a.engine)
 }

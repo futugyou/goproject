@@ -33,11 +33,11 @@ func (t Tag) Count(db *gorm.DB) (int, error) {
 	return count, nil
 }
 
-func (t Tag) Get(db *gorm.DB) (*Tag, error) {
-	var tag *Tag
+func (t Tag) Get(db *gorm.DB) (Tag, error) {
+	var tag Tag
 	db = db.Where("id = ? and is_del = ? and state = ?", t.ID, 0, t.State)
 	if err := db.Model(&t).Where("is_del = ?", 0).Find(&tag).Error; err != nil {
-		return nil, err
+		return tag, err
 	}
 	return tag, nil
 }
