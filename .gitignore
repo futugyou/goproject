@@ -1,2 +1,3 @@
 
 *.log
+bolg-service/storage/logs/app.log
