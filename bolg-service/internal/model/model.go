@@ -54,6 +54,12 @@ func NewDBEngine(dbsetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 	} else {
 		db.CreateTable(&ArticleTag{})
 	}
+	if db.HasTable(&Auth{}) {
+		db.AutoMigrate(&Auth{})
+	} else {
+		db.CreateTable(&Auth{})
+	}
+
 	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
 	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
 	db.Callback().Delete().Replace("gorm:delete", deleteCallback)

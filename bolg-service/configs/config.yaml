@@ -27,3 +27,7 @@ Database:
     ParseTime: True
     MaxIdleConns: 10
     MaxOpenConns: 30
+JWT:
+    Secret: terraform
+    Issuer: blog_service
+    Expire: 7200
