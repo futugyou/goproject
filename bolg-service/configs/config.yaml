@@ -31,3 +31,12 @@ JWT:
     Secret: terraform
     Issuer: blog_service
     Expire: 7200
+Email:
+    Host: smtp.qq.com
+    Port: 465
+    UserName: aaaa@qq.com
+    Password: aaaaa
+    IsSSL: true
+    From: xxxx@qq.com
+    To:
+        - oooo@qq.com
