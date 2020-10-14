@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/goproject/blog-service/pkg/tracer"
+
 	"github.com/goproject/blog-service/pkg/logger"
 	"gopkg.in/natefinch/lumberjack.v2"
 
@@ -59,10 +61,21 @@ func init() {
 	if err != nil {
 		log.Fatalf("init logger error : %v", err)
 	}
+	err = setupTracing()
+	if err != nil {
+		log.Fatalf("init tracing error : %v", err)
+	}
 
 	//global.Logger.Infof("%s  go-project-demo/%s", "test", "blog-server")
 }
-
+func setupTracing() error {
+	tacer, _, err := tracer.NewJaegerTracer("blog_service", "127.0.0.1:6831")
+	if err != nil {
+		return err
+	}
+	global.Tracer = tacer
+	return nil
+}
 func setupSetting() error {
 	setting, err := setting.NewSetting()
 	if err != nil {
