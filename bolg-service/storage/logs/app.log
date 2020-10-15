@@ -1,7 +1,0 @@
-2020/10/13 12:22:41 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app bindandvalid errs: ","time":1602591761303325300}
-2020/10/13 12:23:59 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app bindandvalid errs: ","time":1602591839961882000}
-2020/10/13 12:25:10 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app bindandvalid errs: ","time":1602591910476626500}
-2020/10/13 12:27:21 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app bindandvalid errs: ","time":1602592041884088200}
-2020/10/13 12:28:38 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app GenerateToken err: key is of invalid type","time":1602592118218786200}
-2020/10/13 12:35:34 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app GenerateToken err: key is of invalid type","time":1602592534460751800}
-2020/10/13 12:37:06 {"callers":["C:/Users/TerraformRs/Documents/GitHub/goproject/bolg-service/main.go: 58 main.init.0"],"level":"error","message":"app GenerateToken err: key is of invalid type","time":1602592626052767900}

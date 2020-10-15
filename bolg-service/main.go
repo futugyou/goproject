@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/goproject/blog-service/pkg/tracer"
@@ -24,6 +30,12 @@ import (
 //go mod init github.com/goproject/blog-service
 //go get -u github.com/gin-gonic/gin
 
+var (
+	port    string
+	runMode string
+	config  string
+)
+
 // @title blog_service
 // @verson 0.1
 // @description go project
@@ -44,10 +56,26 @@ func main() {
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-	s.ListenAndServe()
+	go func() {
+		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("s. listenandserve err: %v", err)
+		}
+	}()
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Print("shuting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		log.Fatal("server forced to shutdown:", err)
+	}
+	log.Println("server exiting")
 }
 
 func init() {
+	setupFlag()
 	err := setupSetting()
 	if err != nil {
 		log.Fatalf("init setting error : %v", err)
@@ -68,6 +96,14 @@ func init() {
 
 	//global.Logger.Infof("%s  go-project-demo/%s", "test", "blog-server")
 }
+
+func setupFlag() error {
+	flag.StringVar(&port, "port", "", "port")
+	flag.StringVar(&runMode, "mode", "", "mode")
+	flag.StringVar(&config, "config", "configs/", "config path")
+	return nil
+}
+
 func setupTracing() error {
 	tacer, _, err := tracer.NewJaegerTracer("blog_service", "127.0.0.1:6831")
 	if err != nil {
@@ -76,11 +112,13 @@ func setupTracing() error {
 	global.Tracer = tacer
 	return nil
 }
+
 func setupSetting() error {
-	setting, err := setting.NewSetting()
+	setting, err := setting.NewSetting(strings.Split(config, ",")...)
 	if err != nil {
 		return err
 	}
+
 	err = setting.ReadSection("Server", &global.ServerSetting)
 	if err != nil {
 		return err
@@ -104,6 +142,12 @@ func setupSetting() error {
 	global.JWTSetting.Expire *= time.Second
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
+	if port != "" {
+		global.ServerSetting.HttpPort = port
+	}
+	if runMode != "" {
+		global.ServerSetting.RunModel = runMode
+	}
 	//log.Print(global.ServerSetting)
 	return nil
 }

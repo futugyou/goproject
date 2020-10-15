@@ -6,9 +6,9 @@ import (
 
 	"github.com/goproject/blog-service/global"
 
+	otgorm "github.com/eddycjy/opentracing-gorm"
 	"github.com/goproject/blog-service/pkg/setting"
 	"github.com/jinzhu/gorm"
-
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -66,6 +66,7 @@ func NewDBEngine(dbsetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 
 	db.DB().SetMaxIdleConns(dbsetting.MaxIdleConns)
 	db.DB().SetMaxOpenConns(dbsetting.MaxOpenConns)
+	otgorm.AddGormCallbacks(db)
 	return db, nil
 }
 
