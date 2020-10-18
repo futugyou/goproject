@@ -10,18 +10,18 @@ import (
 	"path"
 	"strings"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/goproject/tag-service/pkg/swagger"
 	pb "github.com/goproject/tag-service/proto"
 	"github.com/goproject/tag-service/server"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 // protoc --go_out=plugins=grpc:. ./proto/*.proto
@@ -116,10 +116,30 @@ func runHttpServer() *http.ServeMux {
 }
 
 func runGrpcServer() *grpc.Server {
-	s := grpc.NewServer()
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			HelloInterceptor,
+			WorldInterceptor,
+		)),
+	}
+	s := grpc.NewServer(opts...)
 	pb.RegisterTagServiceServer(s, server.NewTagServer())
 	reflection.Register(s)
 	return s
+}
+
+func HelloInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("Hello one")
+	resp, err := handler(ctx, req)
+	log.Println("bye one!")
+	return resp, err
+}
+
+func WorldInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("Hello two")
+	resp, err := handler(ctx, req)
+	log.Println("bye two!")
+	return resp, err
 }
 
 func runGrpcGatewayServer() *runtime.ServeMux {
