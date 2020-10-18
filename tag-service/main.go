@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log"
 	"net"
 	"net/http"
 	"strings"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/goproject/tag-service/proto"
 	"github.com/goproject/tag-service/server"
@@ -32,6 +36,33 @@ func init() {
 	flag.StringVar(&httpPort, "hppt_port", "9001", "http port")
 	flag.StringVar(&port, "port", "8001", "http&grpc port")
 	flag.Parse()
+}
+
+type httpError struct {
+	Code    int32  `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
+func grpcGatewayError(ctx context.Context, _ *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, _ *http.Request, err error) {
+	s, ok := status.FromError(err)
+	if !ok {
+		s = status.New(codes.Unknown, err.Error())
+	}
+	httpError := httpError{Code: int32(s.Code()), Message: s.Message()}
+	log.Print(httpError)
+	details := s.Details()
+	log.Print(details)
+	for _, detail := range details {
+		if v, ok := detail.(*pb.Error); ok {
+			httpError.Code = v.Code
+			httpError.Message = v.Message
+		}
+	}
+
+	resp, _ := json.Marshal(httpError)
+	w.Header().Set("Content-type", marshaler.ContentType())
+	w.WriteHeader(runtime.HTTPStatusFromCode(s.Code()))
+	_, _ = w.Write(resp)
 }
 
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
@@ -73,6 +104,7 @@ func runGrpcServer() *grpc.Server {
 
 func runGrpcGatewayServer() *runtime.ServeMux {
 	endpoint := "0.0.0.0:" + port
+	runtime.HTTPError = grpcGatewayError
 	gwmux := runtime.NewServeMux()
 	dopts := []grpc.DialOption{grpc.WithInsecure()}
 	_ = pb.RegisterTagServiceHandlerFromEndpoint(context.Background(), gwmux, endpoint, dopts)
