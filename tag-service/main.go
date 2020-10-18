@@ -7,11 +7,14 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"path"
 	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	assetfs "github.com/elazarl/go-bindata-assetfs"
+	"github.com/goproject/tag-service/pkg/swagger"
 	pb "github.com/goproject/tag-service/proto"
 	"github.com/goproject/tag-service/server"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -23,7 +26,8 @@ import (
 
 // protoc --go_out=plugins=grpc:. ./proto/*.proto
 // grpcurl -plaintext  localhost:8001 proto.TagService.GetTagList
-// protoc -IC:\Users\TerraformRs\Documents\GitHub\protobuf-3.13.0\include -I. -IC:\Users\TerraformRs\go -IC:\Users\TerraformRs\go\pkg\mod\github.com\grpc-ecosystem\grpc-gateway@v1.15.2\third_party\googleapis --go_out=plugins=grpc:.  --grpc-gateway_out=logtostderr=true:. ./proto/*.proto
+// protoc -IC:\Users\TerraformRs\Documents\GitHub\protobuf-3.13.0\include -I. -IC:\Users\TerraformRs\go -IC:\Users\TerraformRs\go\pkg\mod\github.com\grpc-ecosystem\grpc-gateway@v1.15.2\third_party\googleapis --go_out=plugins=grpc:. --swagger_out=logtostderr=true:.  --grpc-gateway_out=logtostderr=true:. ./proto/*.proto
+// go-bindata --nocompress -pkg swagger -o pkg/swagger/data.go third_party/swagger-ui/...
 
 var (
 	port     string = "8001"
@@ -91,6 +95,22 @@ func runHttpServer() *http.ServeMux {
 	serverMux := http.NewServeMux()
 	serverMux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`pong`))
+	})
+	prefix := "/swagger-ui/"
+	fileServer := http.FileServer(&assetfs.AssetFS{
+		Asset:    swagger.Asset,
+		AssetDir: swagger.AssetDir,
+		Prefix:   "third_party/swagger-ui",
+	})
+	serverMux.Handle(prefix, http.StripPrefix(prefix, fileServer))
+	serverMux.HandleFunc("/swagger/", func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "swagger.json") {
+			http.NotFound(w, r)
+			return
+		}
+		p := strings.TrimPrefix(r.URL.Path, "/swagger/")
+		p = path.Join("proto", p)
+		http.ServeFile(w, r, p)
 	})
 	return serverMux
 }
