@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
+	"github.com/goproject/tag-service/internal/middleware"
 	"github.com/goproject/tag-service/pkg/swagger"
 	pb "github.com/goproject/tag-service/proto"
 	"github.com/goproject/tag-service/server"
@@ -118,8 +119,11 @@ func runHttpServer() *http.ServeMux {
 func runGrpcServer() *grpc.Server {
 	opts := []grpc.ServerOption{
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			HelloInterceptor,
-			WorldInterceptor,
+			middleware.HelloInterceptor,
+			middleware.WorldInterceptor,
+			middleware.AccessLog,
+			middleware.ErrorLog,
+			middleware.Recovery,
 		)),
 	}
 	s := grpc.NewServer(opts...)
@@ -127,21 +131,6 @@ func runGrpcServer() *grpc.Server {
 	reflection.Register(s)
 	return s
 }
-
-func HelloInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	log.Println("Hello one")
-	resp, err := handler(ctx, req)
-	log.Println("bye one!")
-	return resp, err
-}
-
-func WorldInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	log.Println("Hello two")
-	resp, err := handler(ctx, req)
-	log.Println("bye two!")
-	return resp, err
-}
-
 func runGrpcGatewayServer() *runtime.ServeMux {
 	endpoint := "0.0.0.0:" + port
 	runtime.HTTPError = grpcGatewayError
