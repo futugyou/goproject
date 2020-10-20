@@ -13,12 +13,30 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+type Auth struct {
+	AppKey    string
+	AppSecret string
+}
+
+func (a *Auth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+	return map[string]string{"app_key": a.AppKey, "app_secret": a.AppSecret}, nil
+}
+
+func (a *Auth) RequireTransportSecurity() bool {
+	return false
+}
+
 func main() {
+	auth := Auth{
+		AppKey:    "appkey",
+		AppSecret: "terraform",
+	}
 	ctx := context.Background()
 	md := metadata.New(map[string]string{"hello": "goland", "one": "two"})
 	// newCtx := metadata.AppendToOutgoingContext(ctx, "metadata-1", "go demo")
 	newCtx := metadata.NewOutgoingContext(ctx, md)
-	clientConn, err := GetClientConn(newCtx, "localhost:8001", nil)
+	opts := []grpc.DialOption{grpc.WithPerRPCCredentials(&auth)}
+	clientConn, err := GetClientConn(newCtx, "localhost:8001", opts)
 	if err != nil {
 		log.Fatalf("err :%v", err)
 	}
