@@ -10,18 +10,22 @@ import (
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 )
 
 func main() {
 	ctx := context.Background()
-	clientConn, err := GetClientConn(ctx, "localhost:8001", nil)
+	md := metadata.New(map[string]string{"hello": "goland", "one": "two"})
+	// newCtx := metadata.AppendToOutgoingContext(ctx, "metadata-1", "go demo")
+	newCtx := metadata.NewOutgoingContext(ctx, md)
+	clientConn, err := GetClientConn(newCtx, "localhost:8001", nil)
 	if err != nil {
 		log.Fatalf("err :%v", err)
 	}
 	defer clientConn.Close()
 
 	tagServiceClient := pb.NewTagServiceClient(clientConn)
-	resp, err := tagServiceClient.GetTagList(ctx, &pb.GetTagListRequest{Name: "golang"})
+	resp, err := tagServiceClient.GetTagList(newCtx, &pb.GetTagListRequest{Name: "golang"})
 	if err != nil {
 		log.Fatalf("tagserviceclient gettaglist err: %v", err)
 	}
