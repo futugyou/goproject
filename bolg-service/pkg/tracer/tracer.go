@@ -25,5 +25,6 @@ func NewJaegerTracer(servicename, agentHostPort string) (opentracing.Tracer, io.
 	if err != nil {
 		return nil, nil, err
 	}
+	opentracing.SetGlobalTracer(tracer)
 	return tracer, closer, nil
 }
