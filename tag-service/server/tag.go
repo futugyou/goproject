@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"github.com/goproject/tag-service/pkg/bapi"
 	"github.com/goproject/tag-service/pkg/errcode"
@@ -25,7 +26,7 @@ func (a *Auth) GetAppSecret() string {
 
 func (a *Auth) check(ctx context.Context) error {
 	md, _ := metadata.FromIncomingContext(ctx)
-	//log.Printf("md: %+v", dm)
+	log.Printf("md: %+v", md)
 
 	var appKey, appSecret string
 	if value, ok := md["app_key"]; ok {

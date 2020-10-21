@@ -11,8 +11,10 @@ import (
 	"strings"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
+	"github.com/goproject/tag-service/global"
 	"github.com/goproject/tag-service/internal/middleware"
 	"github.com/goproject/tag-service/pkg/swagger"
+	"github.com/goproject/tag-service/pkg/tracer"
 	pb "github.com/goproject/tag-service/proto"
 	"github.com/goproject/tag-service/server"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -41,6 +43,8 @@ func init() {
 	flag.StringVar(&httpPort, "hppt_port", "9001", "http port")
 	flag.StringVar(&port, "port", "8001", "http&grpc port")
 	flag.Parse()
+	tacer, _, _ := tracer.NewJaegerTracer("tag_service", "127.0.0.1:6831")
+	global.Tracer = tacer
 }
 
 type httpError struct {
@@ -54,9 +58,7 @@ func grpcGatewayError(ctx context.Context, _ *runtime.ServeMux, marshaler runtim
 		s = status.New(codes.Unknown, err.Error())
 	}
 	httpError := httpError{Code: int32(s.Code()), Message: s.Message()}
-	log.Print(httpError)
 	details := s.Details()
-	log.Print(details)
 	for _, detail := range details {
 		if v, ok := detail.(*pb.Error); ok {
 			httpError.Code = v.Code
@@ -119,11 +121,11 @@ func runHttpServer() *http.ServeMux {
 func runGrpcServer() *grpc.Server {
 	opts := []grpc.ServerOption{
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			middleware.HelloInterceptor,
-			middleware.WorldInterceptor,
-			middleware.AccessLog,
-			middleware.ErrorLog,
-			middleware.Recovery,
+			// middleware.AccessLog,
+			// middleware.ErrorLog,
+			// middleware.Recovery,
+			middleware.ServerTracing,
+		//otgrpc.OpenTracingServerInterceptor(global.Tracer),
 		)),
 	}
 	s := grpc.NewServer(opts...)

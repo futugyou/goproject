@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 
+	"github.com/goproject/tag-service/global"
 	"github.com/goproject/tag-service/internal/middleware"
+	"github.com/goproject/tag-service/pkg/tracer"
 	pb "github.com/goproject/tag-service/proto"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
@@ -63,6 +65,8 @@ func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (
 					codes.DeadlineExceeded,
 				),
 			),
+			middleware.ClientTracing(),
+			//otgrpc.OpenTracingClientInterceptor(global.Tracer),
 		),
 	))
 	opts = append(opts, grpc.WithStreamInterceptor(
@@ -72,4 +76,9 @@ func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (
 	))
 
 	return grpc.DialContext(ctx, target, opts...)
+}
+
+func init() {
+	tacer, _, _ := tracer.NewJaegerTracer("tag_service", "127.0.0.1:6831")
+	global.Tracer = tacer
 }

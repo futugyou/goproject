@@ -9,7 +9,12 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway v1.15.2
+	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/soheilhy/cmux v0.1.4
+	github.com/uber/jaeger-client-go v2.25.0+incompatible
+	github.com/uber/jaeger-lib v2.4.0+incompatible // indirect
+	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20201016165138-7b1cca2348c0
 	golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13 // indirect
 	google.golang.org/genproto v0.0.0-20201019141844-1ed22bb0c154
