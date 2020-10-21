@@ -75,6 +75,21 @@ func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (
 		),
 	))
 
+	// config := clientv3.Config{
+	// 	Endpoints:   []string{"http://localhost:2379"},
+	// 	DialTimeout: time.Second * 60,
+	// }
+	// cli, err := clientv3.New(config)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// r := &naming.GRPCResolver{Client: cli}
+	// target := fmt.Sprintf("/etcdv3://goproject/grpc/%s", "tag-service")
+	// opts = append(opts,
+	// 	grpc.WithBalancer(grpc.RoundRobin(r)),
+	// 	grpc, QithBlock(),
+	// )
+
 	return grpc.DialContext(ctx, target, opts...)
 }
 

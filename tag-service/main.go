@@ -91,6 +91,19 @@ func RunServer(port string) error {
 	gatewayMux := runGrpcGatewayServer()
 	grpcS := runGrpcServer()
 	httpMux.Handle("/", gatewayMux)
+
+	// etcdClient, err := clientv3.New(clientv3.Config{
+	// 	Endpoints:   []string{"http://localhost:2379"},
+	// 	DialTimeout: time.Second * 60,
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+	// defer etcdClient.Close()
+
+	// target := fmt.Sprintf("/etcdv3://goproject/grpc/%s", "tag-service")
+	// grpcproxy.Register(etcdClient, target, ":"+port, 60)
+
 	return http.ListenAndServe(":"+port, grpcHandlerFunc(grpcS, httpMux))
 }
 
