@@ -26,3 +26,7 @@ func main() {
 	server.RegisterHandle()
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
+
+func init(){
+	global.Init()
+}
