@@ -1,17 +1,20 @@
 package server
 
 import (
+	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/goproject/chatroom/logic"
 )
 
 func RegisterHandle() {
 	inferRootDir()
 
-	//go logic.Broadcaster.Start()
+	go logic.Broadcaster.Start()
 
-	//http.HandleFunc("/", homeHandleFunc)
-	//http.HandleFunc("/ws", WebSocketHandleFunc)
+	http.HandleFunc("/", homeHandleFunc)
+	http.HandleFunc("/ws", WebSocketHandleFunc)
 }
 
 var rootDir string
