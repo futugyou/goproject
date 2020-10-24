@@ -10,13 +10,14 @@ const (
 )
 
 type Message struct {
-	User    *User            `json:"user"`
-	Type    int              `json:"type"`
-	Content string           `json:"content"`
-	MsgTime time.Time        `json:"msg_time"`
-	To      string           `json:"to"`
-	Ats     []string         `jspn:"ats"`
-	Users   map[string]*User `json:"users"`
+	User           *User            `json:"user"`
+	Type           int              `json:"type"`
+	Content        string           `json:"content"`
+	MsgTime        time.Time        `json:"msg_time"`
+	To             string           `json:"to"`
+	Ats            []string         `jspn:"ats"`
+	Users          map[string]*User `json:"users"`
+	ClientSendTime time.Time        `json:"send_time"`
 }
 
 func NewMessage(u *User, content string) *Message {

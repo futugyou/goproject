@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	_ "net/http/pprof"
+
+	"github.com/goproject/chatroom/global"
 	"github.com/goproject/chatroom/server"
 )
 
@@ -27,6 +30,6 @@ func main() {
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
-func init(){
+func init() {
 	global.Init()
 }

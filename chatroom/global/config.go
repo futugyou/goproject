@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	SensitiveWords []string
+	SensitiveWords  []string
+	MessageQueueLen = 1024
 )
 
 func initConfig() {

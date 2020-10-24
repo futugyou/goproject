@@ -1,6 +1,21 @@
 package logic
 
-import "log"
+import (
+	"expvar"
+	"fmt"
+	"log"
+
+	"github.com/goproject/chatroom/global"
+)
+
+func init() {
+	expvar.Publish("message_queue", expvar.Func(calcMessageQueueLen))
+}
+
+func calcMessageQueueLen() interface{} {
+	fmt.Println("===len===:", len(Broadcaster.messageChannel))
+	return len(Broadcaster.messageChannel)
+}
 
 type broadcaster struct {
 	users           map[string]*User
@@ -10,6 +25,8 @@ type broadcaster struct {
 
 	checkUserChannel      chan string
 	checkUserCanInChannel chan bool
+	requestUsersChannel   chan struct{}
+	usersChannel          chan []*User
 }
 
 func (b *broadcaster) CanEnterRoom(nickname string) bool {
@@ -29,6 +46,11 @@ func (b *broadcaster) Broadcast(msg *Message) {
 	b.messageChannel <- msg
 }
 
+func (b *broadcaster) GetUserList() []*User {
+	b.requestUsersChannel <- struct{}{}
+	return <-b.usersChannel
+}
+
 var Broadcaster = &broadcaster{
 	users:           make(map[string]*User),
 	enteringChannel: make(chan *User),
@@ -37,6 +59,9 @@ var Broadcaster = &broadcaster{
 
 	checkUserChannel:      make(chan string),
 	checkUserCanInChannel: make(chan bool),
+
+	requestUsersChannel: make(chan struct{}),
+	usersChannel:        make(chan []*User),
 }
 
 func (b *broadcaster) Start() {
@@ -72,10 +97,31 @@ func (b *broadcaster) Start() {
 			} else {
 				b.checkUserCanInChannel <- true
 			}
+		case <-b.requestUsersChannel:
+			userList := make([]*User, 0, len(b.users))
+			for _, user := range b.users {
+				userList = append(userList, user)
+			}
+
+			b.usersChannel <- userList
 		}
 	}
 }
 
 func (b *broadcaster) sendUserList() {
+	userList := make([]*User, 0, len(b.users))
+	for _, user := range b.users {
+		userList = append(userList, user)
+	}
+	go func() {
+		if len(b.messageChannel) < global.MessageQueueLen {
+			b.messageChannel <- NewUserListMessage(userList)
+		} else {
+			log.Println("too mach messages")
+		}
+	}()
+}
 
+func NewUserListMessage(userList []*User) *Message {
+	return &Message{}
 }
