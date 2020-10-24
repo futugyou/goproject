@@ -45,6 +45,7 @@ func (b *broadcaster) Start() {
 		case user := <-b.enteringChannel:
 			b.users[user.NickName] = user
 			b.sendUserList()
+			OfflineProcessor.Send(user)
 		case user := <-b.leavingChannel:
 			delete(b.users, user.NickName)
 			user.CloseMessageChannel()
@@ -57,6 +58,7 @@ func (b *broadcaster) Start() {
 					}
 					user.MessageChannel <- msg
 				}
+				OfflineProcessor.Save(msg)
 			} else {
 				if user, ok := b.users[msg.To]; ok {
 					user.MessageChannel <- msg

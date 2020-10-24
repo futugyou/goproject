@@ -32,7 +32,7 @@ func WebSocketHandleFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := logic.NewUser(conn, nickname, r.RemoteAddr)
+	user := logic.NewUser(conn, "", nickname, r.RemoteAddr)
 
 	go user.SendMessage(r.Context())
 
