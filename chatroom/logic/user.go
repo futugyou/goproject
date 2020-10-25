@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"regexp"
 	"strings"
 	"sync/atomic"
@@ -26,7 +27,7 @@ type User struct {
 	MessageChannel chan *Message `json:"-"`
 
 	isNew bool
-	Token string `json:"token`
+	Token string `json:"token"`
 	conn  *websocket.Conn
 }
 
@@ -49,14 +50,16 @@ func (u *User) ReceiveMessage(ctx context.Context) error {
 			var closeErr websocket.CloseError
 			if errors.As(err, &closeErr) {
 				return nil
+			} else if errors.Is(err, io.EOF) {
+				return nil
 			}
 			return err
 		}
-		sendMsg := NewMessage(u, receiveMsg["content"])
-		sendMsg.Content = strings.TrimSpace(sendMsg.Content)
-		if strings.HasPrefix(sendMsg.Content, "@") {
-			sendMsg.To = strings.SplitN(sendMsg.Content, " ", 2)[0][1:]
-		}
+		sendMsg := NewMessage(u, receiveMsg["content"], receiveMsg["send_time"])
+		sendMsg.Content = FilterSensitive(sendMsg.Content)
+		// if strings.HasPrefix(sendMsg.Content, "@") {
+		// 	sendMsg.To = strings.SplitN(sendMsg.Content, " ", 2)[0][1:]
+		// }
 		reg := regexp.MustCompile(`@[^\s@]{2,20}`)
 		sendMsg.Ats = reg.FindAllString(sendMsg.Content, -1)
 		Broadcaster.Broadcast(sendMsg)
@@ -78,7 +81,6 @@ func NewUser(conn *websocket.Conn, token string, nickname string, addr string) *
 		Token:          token,
 		conn:           conn,
 	}
-
 	if user.Token != "" {
 		uid, err := parseTokenAndValidate(token, nickname)
 		if err == nil {

@@ -69,12 +69,12 @@ func (b *broadcaster) Start() {
 		select {
 		case user := <-b.enteringChannel:
 			b.users[user.NickName] = user
-			b.sendUserList()
+			//b.sendUserList()
 			OfflineProcessor.Send(user)
 		case user := <-b.leavingChannel:
 			delete(b.users, user.NickName)
 			user.CloseMessageChannel()
-			b.sendUserList()
+			//b.sendUserList()
 		case msg := <-b.messageChannel:
 			if msg.To == "" {
 				for _, user := range b.users {
@@ -123,5 +123,7 @@ func (b *broadcaster) sendUserList() {
 }
 
 func NewUserListMessage(userList []*User) *Message {
-	return &Message{}
+	return &Message{
+		Users: userList,
+	}
 }

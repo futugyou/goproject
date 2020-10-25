@@ -19,6 +19,7 @@ func initConfig() {
 	}
 
 	SensitiveWords = viper.GetStringSlice("sensitive")
+	MessageQueueLen = viper.GetInt("message-queue")
 
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {

@@ -31,14 +31,21 @@ func WebSocketHandleFunc(w http.ResponseWriter, r *http.Request) {
 		conn.Close(websocket.StatusUnsupportedData, "nickname already existed.")
 		return
 	}
+	token := r.FormValue("token")
+	userHasToken := logic.NewUser(conn, token, nickname, r.RemoteAddr)
 
-	user := logic.NewUser(conn, "", nickname, r.RemoteAddr)
+	go userHasToken.SendMessage(r.Context())
 
-	go user.SendMessage(r.Context())
-
-	user.MessageChannel <- logic.NewWelcomeMessage(nickname)
+	userHasToken.MessageChannel <- logic.NewWelcomeMessage(nickname)
 
 	msg := logic.NewNoticeMessage(nickname + " add chatroom")
+	logic.Broadcaster.Broadcast(msg)
+
+	tmpUser := *userHasToken
+	user := &tmpUser
+	user.Token = ""
+
+	msg = logic.NewUserEnterMessage(user)
 	logic.Broadcaster.Broadcast(msg)
 
 	logic.Broadcaster.UserEntering(user)
@@ -47,7 +54,7 @@ func WebSocketHandleFunc(w http.ResponseWriter, r *http.Request) {
 	err = user.ReceiveMessage(r.Context())
 
 	logic.Broadcaster.UserLeaving(user)
-	msg = logic.NewNoticeMessage(user.NickName + " leave chatroom")
+	msg = logic.NewUserLeaveMessage(user)
 	logic.Broadcaster.Broadcast(msg)
 	log.Println("user:", nickname, "leaves chat")
 

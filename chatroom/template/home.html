@@ -276,7 +276,7 @@
                 that = this;
                 if (data.ats != null) {
                     data.ats.forEach(function(nickname) {
-                        if (nickname == '@'+that.nickname) {
+                        if (nickname == '@'+that.curUser.nickname) {
                             that.usertip = '有人 @ 你了';
                         }
                     })
@@ -303,7 +303,7 @@
             // 保活
             keepAlive: function() {
                 // 表明异常退出了
-                if (gWS.readyState == WebSocket.CLOSED && this.joined) {
+                if (gWS != undefined && gWS.readyState == WebSocket.CLOSED && this.joined) {
                     console.log("reconnect");
                     this.joinchat();
                 }
