@@ -38,6 +38,13 @@ func (t *TourCache) Get(key string) interface{} {
 	return nil
 }
 
+func (t *TourCache) Set(key string, val interface{}) {
+	if val == nil {
+		return
+	}
+	t.mainCache.set(key, val)
+}
+
 func (t *TourCache) Stat() *Stat {
 	return t.mainCache.stat()
 }

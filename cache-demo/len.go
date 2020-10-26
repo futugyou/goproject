@@ -16,6 +16,8 @@ func CalcLen(value interface{}) int {
 		} else {
 			n = 8 + len(v)
 		}
+	case []byte:
+		n = len(v)
 	case bool, uint8, int8:
 		n = 1
 	case int16, uint16:
