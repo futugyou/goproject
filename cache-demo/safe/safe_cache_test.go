@@ -1,4 +1,4 @@
-package cache_test
+package safe_test
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/goproject/cache-demo"
 	"github.com/goproject/cache-demo/lru"
+	"github.com/goproject/cache-demo/safe"
 	"github.com/matryer/is"
 )
 
@@ -20,7 +20,7 @@ func TestTourCacheGet(t *testing.T) {
 		"key3": "val3",
 		"key4": "val4",
 	}
-	getter := cache.GetFunc(func(key string) interface{} {
+	getter := safe.GetFunc(func(key string) interface{} {
 		log.Println("[From DB] find key", key)
 
 		if val, ok := db[key]; ok {
@@ -29,7 +29,7 @@ func TestTourCacheGet(t *testing.T) {
 		return nil
 	})
 
-	tourCache := cache.NewTourCache(getter, lru.New(0, nil))
+	tourCache := safe.NewTourCache(getter, lru.New(0, nil))
 	is := is.New(t)
 	var wg sync.WaitGroup
 	for k, v := range db {
@@ -62,7 +62,7 @@ func parallelKey(threadID int, counter int) string {
 }
 
 func BenchmarkTourCacheSetParallel(b *testing.B) {
-	cache := cache.NewTourCache(nil, lru.New(b.N*100, nil))
+	cache := safe.NewTourCache(nil, lru.New(b.N*100, nil))
 	rand.Seed(time.Now().Unix())
 
 	b.RunParallel(func(pb *testing.PB) {

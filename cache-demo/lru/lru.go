@@ -3,7 +3,7 @@ package lru
 import (
 	"container/list"
 
-	"github.com/goproject/cache-demo"
+	"github.com/goproject/cache-demo/cache"
 )
 
 type lru struct {

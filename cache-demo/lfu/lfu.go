@@ -3,7 +3,7 @@ package lfu
 import (
 	"container/heap"
 
-	"github.com/goproject/cache-demo"
+	"github.com/goproject/cache-demo/cache"
 )
 
 type lfu struct {

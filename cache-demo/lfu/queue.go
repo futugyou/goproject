@@ -1,6 +1,6 @@
 package lfu
 
-import "github.com/goproject/cache-demo"
+import "github.com/goproject/cache-demo/cache"
 
 type entry struct {
 	key    string
