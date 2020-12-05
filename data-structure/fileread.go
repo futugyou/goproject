@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"regexp"
 )
@@ -61,7 +62,7 @@ func wordByWord(file string) error {
 func main() {
 	flag.Parse()
 	if len(flag.Args()) == 0 {
-		fmt.Println("no file")
+		savedata()
 		return
 	}
 
@@ -77,4 +78,55 @@ func main() {
 			fmt.Println(err)
 		}
 	}
+}
+
+func savedata() {
+	s := []byte("data to write\n")
+	ff1, err := os.Create("f1.txt")
+	if err != nil {
+		fmt.Println("cannot create file:", err)
+		return
+	}
+	defer ff1.Close()
+	fmt.Fprintf(ff1, string(s))
+
+	ff2, err := os.Create("f2.txt")
+	if err != nil {
+		fmt.Println("cannot create file ", err)
+		return
+	}
+	defer ff2.Close()
+	n, err := ff2.WriteString(string(s))
+	fmt.Printf("wrote %d bytes\n", n)
+
+	ff3, err := os.Create("f3.txt")
+	if err != nil {
+		fmt.Println("cannot create file ", err)
+		return
+	}
+	defer ff3.Close()
+	w := bufio.NewWriter(ff3)
+	n2, err := w.WriteString(string(s))
+	fmt.Printf("wrote %d bytes\n", n2)
+	w.Flush()
+
+	ff4 := "f4.txt"
+	err = ioutil.WriteFile(ff4, s, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	ff5, err := os.Create("f5.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	n3, err := io.WriteString(ff5, string(s))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("wrote %d bytes\n", n3)
 }
