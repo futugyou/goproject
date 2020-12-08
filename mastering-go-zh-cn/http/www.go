@@ -197,7 +197,14 @@ func main() {
 	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
 	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
-	err := http.ListenAndServe(":8081", r)
+
+	srv := &http.Server{
+		Addr:         ":8081",
+		Handler:      r,
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 3 * time.Second,
+	}
+	err := srv.ListenAndServe()
 	if err != nil {
 		fmt.Println(err)
 		return
