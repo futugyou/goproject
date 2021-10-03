@@ -1,3 +1,4 @@
 
 *.log
 bolg-service/storage/*
+*.exe
