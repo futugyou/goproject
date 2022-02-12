@@ -37,15 +37,13 @@ func main() {
 
 	fromAddress := auth.From
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	value := big.NewInt(1000000000000000000)
-	gasLimit := uint64(21000)
+	value := big.NewInt(1000000000000000000) // in wei (1 eth)
+	gasLimit := uint64(21000)                // in units
 	gasPrice, err := client.SuggestGasPrice(context.Background())
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,9 +51,7 @@ func main() {
 	toAddress := common.HexToAddress("0x4592d8f8d7b001e72cb26a73e4fa1806a51ac79d")
 	var data []byte
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, data)
-
-	chainID := big.NewInt(1)
-	signedTx, err := types.SignNewTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	signedTx, err := types.SignTx(tx, types.HomesteadSigner{}, privateKey)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,6 +60,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("tx sent: %s\n", signedTx.Hash().Hex())
+
+	fmt.Printf("tx sent: %s\n", signedTx.Hash().Hex()) // tx sent: 0xec3ceb05642c61d33fa6c951b54080d1953ac8227be81e7b5e4e2cfed69eeb51
+
 	client.Commit()
+
+	receipt, err := client.TransactionReceipt(context.Background(), signedTx.Hash())
+	if err != nil {
+		log.Fatal(err)
+	}
+	if receipt == nil {
+		log.Fatal("receipt is nil. Forgot to commit?")
+	}
+
+	fmt.Printf("status: %v\n", receipt.Status) // status: 1
 }
