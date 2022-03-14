@@ -15,3 +15,6 @@ func quicksort(arr []int) []int {
 	}
 	return append(quicksort(left), append([]int{piovt}, quicksort(right)...)...)
 }
+func exection(arr []int, target int) {
+	panic("unimplemented")
+}
