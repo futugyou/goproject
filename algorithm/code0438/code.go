@@ -36,7 +36,7 @@ func exection(s, t string) {
 		}
 
 		for {
-			if right-left < len(need) {
+			if right-left < len(t) {
 				break
 			}
 			if valid == len(need) {
