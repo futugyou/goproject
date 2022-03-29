@@ -1,8 +1,22 @@
 package common
 
+import "fmt"
+
 type LinkList struct {
 	Val  int
 	Next *LinkList
+}
+
+func (l *LinkList) Display() {
+	curr := l
+	for {
+		if curr == nil {
+			break
+		}
+		fmt.Print(curr.Val, "")
+		curr = curr.Next
+	}
+	fmt.Println("")
 }
 
 func NewLinkList() LinkList {
