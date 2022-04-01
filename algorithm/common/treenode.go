@@ -1,9 +1,10 @@
 package common
 
 type TreeNode struct {
-	Val   int
-	Left  *TreeNode
-	Right *TreeNode
+	Val    int
+	Left   *TreeNode
+	Right  *TreeNode
+	Parent *TreeNode
 }
 
 func NewTreeNode() TreeNode {
