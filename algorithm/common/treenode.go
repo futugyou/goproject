@@ -27,3 +27,25 @@ func NewTreeNode() TreeNode {
 	}
 	return h
 }
+
+func NewBSTTreeNode() TreeNode {
+	h := TreeNode{
+		Val: 3,
+		Left: &TreeNode{
+			Val: 2,
+			Left: &TreeNode{
+				Val: 1,
+			},
+		},
+		Right: &TreeNode{
+			Val: 4,
+			Right: &TreeNode{
+				Val: 6,
+				Left: &TreeNode{
+					Val: 5,
+				},
+			},
+		},
+	}
+	return h
+}
