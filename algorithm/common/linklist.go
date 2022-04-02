@@ -7,6 +7,10 @@ type LinkList struct {
 	Next *LinkList
 }
 
+func (l LinkList) Less(other interface{}) bool {
+	return l.Val < other.(LinkList).Val
+}
+
 func (l *LinkList) Display() {
 	curr := l
 	for {
