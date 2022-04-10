@@ -1,6 +1,6 @@
 package main
 
-import "github.com/futugyousuzu/goproject/algorithm/code0234"
+import "github.com/futugyousuzu/goproject/algorithm/code0303"
 
 func main() {
 	// arr := []int{9, 3, 4, 5, 7, 1, 33, 69, 94, 84, 67}
@@ -10,5 +10,5 @@ func main() {
 	// fmt.Println(result)
 	// found := binarySearch(result, 84)
 	// fmt.Println(found)
-	code0234.Exection()
+	code0303.Exection()
 }
