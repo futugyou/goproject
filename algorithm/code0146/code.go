@@ -3,15 +3,15 @@ package code0146
 import (
 	"fmt"
 
-	"github.com/futugyousuzu/goproject/algorithm/common/LinkedHashMap"
+	"github.com/futugyousuzu/goproject/algorithm/common/cache"
 )
 
 func Exection() {
-	cache := LinkedHashMap.NewLRUCache(5)
+	cache := cache.NewLRUCache(5)
 	exection(cache)
 }
 
-func exection(cache *LinkedHashMap.LRUCache) {
+func exection(cache *cache.LRUCache) {
 	cache.Put(1, 1)
 	cache.Put(2, 2)
 	cache.Put(3, 3)

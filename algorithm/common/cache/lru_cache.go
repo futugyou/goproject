@@ -1,16 +1,20 @@
-package LinkedHashMap
+package cache
+
+import (
+	co "github.com/futugyousuzu/goproject/algorithm/common/LinkedHashMap"
+)
 
 type LRUCache struct {
-	dic   map[int]*Node
-	cache *DoubleList
+	dic   map[int]*co.Node
+	cache *co.DoubleList
 	cap   int
 }
 
 func NewLRUCache(cap int) *LRUCache {
 	l := LRUCache{}
 	l.cap = cap
-	l.cache = NewDoubleList()
-	l.dic = make(map[int]*Node)
+	l.cache = co.NewDoubleList()
+	l.dic = make(map[int]*co.Node)
 	return &l
 }
 
@@ -21,9 +25,9 @@ func (l *LRUCache) makeRecently(key int) {
 }
 
 func (l *LRUCache) addRecently(key, val int) {
-	x := NewNode(key, val)
+	x := co.NewNode(key, val)
 	l.cache.AddLast(x)
-	l.dic[key]=x
+	l.dic[key] = x
 }
 
 func (l *LRUCache) deleteKey(key int) {

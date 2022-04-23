@@ -1,6 +1,8 @@
 package common
 
-import "container/list"
+import (
+	"container/list"
+)
 
 type Stack struct {
 	list *list.List
