@@ -5,6 +5,7 @@ import "fmt"
 type TreeNode struct {
 	Val    int
 	Left   *TreeNode
+	Next   *TreeNode
 	Right  *TreeNode
 	Parent *TreeNode
 }
