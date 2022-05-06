@@ -2,6 +2,7 @@ package code0450
 
 import "github.com/futugyousuzu/goproject/algorithm/common"
 
+// 如果要递归地插入或者删除二叉树节点，递归函数一定要有返回值，且返回值要被正确的接收。
 func Exection() {
 	node := common.NewBSTTreeNode()
 	key := 5
