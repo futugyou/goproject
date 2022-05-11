@@ -36,6 +36,6 @@ func build(graph [][]int, i int) {
 	}
 }
 
-var result bool
+var result bool = true
 var color []bool
 var visited []bool
