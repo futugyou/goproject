@@ -46,7 +46,7 @@ func (u *UnionFind) Union(p, q int) {
 		u.parent[pRoot] = qRoot
 		u.size[qRoot] += u.size[pRoot]
 	}
-	u.count++
+	u.count--
 }
 
 func (u *UnionFind) Connected(p, q int) bool {
