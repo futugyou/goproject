@@ -18,7 +18,10 @@ func exection(nums []int) {
 
 func backtrack(nums []int, path []int) {
 	if len(nums) == len(path) {
-		result = append(result, path)
+		t := make([]int, len(path))
+		copy(t, path)
+		result = append(result, t)
+		fmt.Println(result)
 		return
 	}
 	for i := 0; i < len(nums); i++ {
