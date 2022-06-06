@@ -27,7 +27,8 @@ func exection(deadends []string, target string) int {
 		if queue.Empty() {
 			break
 		}
-		for i := 0; i < queue.Len(); i++ {
+		n := queue.Len()
+		for i := 0; i < n; i++ {
 			curr := queue.Pop().(string)
 			if deads.Contains(curr) {
 				continue
