@@ -6,9 +6,26 @@ func Max(a, b int) int {
 	}
 	return b
 }
+
 func Min(a, b int) int {
 	if a < b {
 		return a
 	}
 	return b
+}
+
+// 最大公因数，辗转相除法
+func Gcd(a, b int) int {
+	if a < b {
+		return Gcd(b, a)
+	}
+	if b == 0 {
+		return a
+	}
+	return Gcd(b, b%a)
+}
+
+// 最小公倍数
+func Lcm(a, b int) int {
+	return a * b / Gcd(a, b)
 }
