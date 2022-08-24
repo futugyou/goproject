@@ -11,5 +11,10 @@ func main() {
 	// cloudwatchdemo.GetDashboard()
 	// cloudwatchdemo.ListMetrics()
 	// cloudwatchdemo.GetMetricStatistics()
-	cloudwatchdemo.DescribeExportTasks()
+	// cloudwatchdemo.DescribeExportTasks()
+	// cloudwatchdemo.DescribeLogGroups()
+	// cloudwatchdemo.GetLogEvents()
+	// cloudwatchdemo.DescribeLogStreams()
+	// cloudwatchdemo.GetLogGroupFields()
+	cloudwatchdemo.DescribeQueries()
 }
