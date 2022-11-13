@@ -1,6 +1,6 @@
 package main
 
-import code "github.com/futugyousuzu/goproject/algorithm/code0205"
+import code "github.com/futugyousuzu/goproject/algorithm/code0028"
 
 func main() {
 	// arr := []int{9, 3, 4, 5, 7, 1, 33, 69, 94, 84, 67}

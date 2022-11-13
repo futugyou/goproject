@@ -7,6 +7,7 @@ import (
 	"github.com/futugyousuzu/goproject/algorithm/common"
 )
 
+// Rabin-Karp https://labuladong.gitee.io/algo/2/20/28/
 func Exection() {
 	s := "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT"
 	r := exection(s)
