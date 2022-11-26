@@ -12,7 +12,7 @@ func Exection() {
 }
 
 func isPalindrome(s string) bool {
-	s = strings.ToLower(strip(s))
+	s = strip(s)
 	i := 0
 	j := len(s) - 1
 
@@ -36,8 +36,10 @@ func strip(s string) string {
 	for i := 0; i < len(s); i++ {
 		b := s[i]
 		if ('a' <= b && b <= 'z') ||
-			('A' <= b && b <= 'Z') ||
 			('0' <= b && b <= '9') {
+			result.WriteByte(b)
+		} else if 'A' <= b && b <= 'Z' {
+			b += 'a' - 'A'
 			result.WriteByte(b)
 		}
 	}
