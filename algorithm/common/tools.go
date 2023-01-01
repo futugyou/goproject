@@ -29,3 +29,9 @@ func Gcd(a, b int) int {
 func Lcm(a, b int) int {
 	return a * b / Gcd(a, b)
 }
+
+func Reverse(nums []int) {
+	for l, r := 0, len(nums)-1; l < r; l, r = l+1, r-1 {
+		nums[l], nums[r] = nums[r], nums[l]
+	}
+}
