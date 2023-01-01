@@ -12,7 +12,7 @@ func Exection() {
 }
 
 func exection(nums []int, target int) int {
-	l, r := 0, len(nums)
+	l, r := 0, len(nums)-1
 	for l <= r {
 		mid := l + (r-l)/2
 		switch {
