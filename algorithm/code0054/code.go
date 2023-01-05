@@ -43,7 +43,7 @@ func order(matrix [][]int, left, right, up, down int, nums []int) []int {
 	}
 
 	stop = true
-	for i := right - 1; i > left; i-- {
+	for i := right - 1; i >= left; i-- {
 		stop = false
 		nums = append(nums, matrix[down][i])
 	}
@@ -51,7 +51,7 @@ func order(matrix [][]int, left, right, up, down int, nums []int) []int {
 		return nums
 	}
 
-	for i := down - 1; i >= up; i-- {
+	for i := down - 1; i > up; i-- {
 		if right > 0 {
 			nums = append(nums, matrix[i][left])
 		}
