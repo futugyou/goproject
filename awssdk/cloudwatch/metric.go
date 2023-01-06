@@ -37,19 +37,38 @@ func GetMetricData() {
 	result, err := svc.GetMetricData(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, data := range result.MetricDataResults {
+		fmt.Println("label:", *data.Label)
+	}
+
+	for _, message := range result.Messages {
+		fmt.Println("code:", *message.Code, "\tmessage:", *message.Value)
+	}
 }
 
-func GetDashboard() {
-	input := &cloudwatch.GetDashboardInput{
-		DashboardName: aws.String("CloudWatch-Default"),
-	}
-	result, err := svc.GetDashboard(awsenv.EmptyContext, input)
+func ListDashboards() {
+	input := &cloudwatch.ListDashboardsInput{}
+	result, err := svc.ListDashboards(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, entry := range result.DashboardEntries {
+		// fmt.Println("DashboardName:", *entry.DashboardName)
+		input := &cloudwatch.GetDashboardInput{
+			DashboardName: entry.DashboardName,
+		}
+		result, err := svc.GetDashboard(awsenv.EmptyContext, input)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		fmt.Println("DashboardName:", *result.DashboardName, "\tDashboardBody:", *result.DashboardBody)
+	}
 }
 
 func ListMetrics() {
