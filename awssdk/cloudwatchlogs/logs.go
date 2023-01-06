@@ -124,11 +124,15 @@ func GetLogGroupFields() {
 
 func DescribeQueries() {
 	input := &cloudwatchlogs.DescribeQueriesInput{
-		LogGroupName: aws.String("/eks/openTelemetry"),
+		// LogGroupName: aws.String("/aws/amazonmq/broker/b-da820bd9-a8ad-49ce-8bd9-95e096dc4e74/connection"),
 	}
 	result, err := svc.DescribeQueries(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, query := range result.Queries {
+		fmt.Println("LogGroupName:", *query.LogGroupName, "\tQueryString:", *query.QueryString)
+	}
 }

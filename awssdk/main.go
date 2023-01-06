@@ -12,6 +12,6 @@ func main() {
 	// cloudwatchlogs.DescribeLogGroups()
 	// cloudwatchlogs.GetLogEvents()
 	// cloudwatchlogs.DescribeLogStreams()
-	cloudwatchlogs.GetLogGroupFields()
-	// cloudwatchlogs.DescribeQueries()
+	// cloudwatchlogs.GetLogGroupFields()
+	cloudwatchlogs.DescribeQueries()
 }
