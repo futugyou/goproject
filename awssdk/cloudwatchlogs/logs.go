@@ -39,8 +39,12 @@ func DescribeLogGroups() {
 	result, err := svc.DescribeLogGroups(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, group := range result.LogGroups {
+		fmt.Println("LogGroupName:", *group.LogGroupName, "\tArn:", *group.Arn, "\tRetentionInDays:", group.RetentionInDays)
+	}
 }
 
 func GetLogEvents() {
