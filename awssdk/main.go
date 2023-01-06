@@ -9,9 +9,9 @@ func main() {
 	// cloudwatch.ListMetrics()
 	// cloudwatch.GetMetricStatistics()
 	// cloudwatchlogs.DescribeExportTasks()
-	cloudwatchlogs.DescribeLogGroups()
+	// cloudwatchlogs.DescribeLogGroups()
 	// cloudwatchlogs.GetLogEvents()
 	// cloudwatchlogs.DescribeLogStreams()
-	// cloudwatchlogs.GetLogGroupFields()
+	cloudwatchlogs.GetLogGroupFields()
 	// cloudwatchlogs.DescribeQueries()
 }

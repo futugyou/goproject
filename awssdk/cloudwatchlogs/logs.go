@@ -108,14 +108,18 @@ func DescribeLogGroups() {
 func GetLogGroupFields() {
 	d := 60 * time.Minute
 	input := &cloudwatchlogs.GetLogGroupFieldsInput{
-		LogGroupName: aws.String("/eks/openTelemetry"),
+		LogGroupName: aws.String("/aws/amazonmq/broker/b-da820bd9-a8ad-49ce-8bd9-95e096dc4e74/connection"),
 		Time:         aws.Int64(time.Now().UTC().Add(-d).Unix()),
 	}
 	result, err := svc.GetLogGroupFields(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, field := range result.LogGroupFields {
+		fmt.Println("Name:", *field.Name, "\tPercent:", field.Percent)
+	}
 }
 
 func DescribeQueries() {
