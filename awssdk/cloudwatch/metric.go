@@ -76,8 +76,16 @@ func ListMetrics() {
 	result, err := svc.ListMetrics(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, metric := range result.Metrics {
+		fmt.Print("Namespace:", *metric.Namespace, "\tMetricName:", *metric.MetricName, "\tDimensions:")
+		for _, dimension := range metric.Dimensions {
+			fmt.Print(*dimension.Name, *dimension.Value)
+		}
+		fmt.Println()
+	}
 }
 
 func GetMetricStatistics() {
@@ -95,6 +103,15 @@ func GetMetricStatistics() {
 	result, err := svc.GetMetricStatistics(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	fmt.Println("label:", *result.Label)
+	for _, point := range result.Datapoints {
+		fmt.Print("Average:", point.Average, "\tSampleCount:", point.SampleCount, "\tExtendedStatistics:")
+		for k, v := range point.ExtendedStatistics {
+			fmt.Print(k, v)
+		}
+		fmt.Println()
+	}
 }

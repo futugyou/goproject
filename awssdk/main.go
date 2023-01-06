@@ -7,9 +7,9 @@ import (
 func main() {
 	// servicediscovery.ListNamespace()
 	// cloudwatch.GetMetricData()
-	cloudwatch.ListDashboards()
+	// cloudwatch.ListDashboards()
 	// cloudwatch.ListMetrics()
-	// cloudwatch.GetMetricStatistics()
+	cloudwatch.GetMetricStatistics()
 	// cloudwatchlogs.DescribeExportTasks()
 	// cloudwatchlogs.DescribeLogGroups()
 	// cloudwatchlogs.GetLogEvents()
