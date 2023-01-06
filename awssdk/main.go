@@ -1,20 +1,21 @@
 package main
 
 import (
-	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchdemo"
-	"github.com/futugyousuzu/goproject/awsgolang/servicediscoverydemo"
+	"github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
+
+	"github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
 )
 
 func main() {
-	servicediscoverydemo.ListNamespace()
+	servicediscovery.ListNamespace()
 	// cloudwatchdemo.GetMetricData()
 	// cloudwatchdemo.GetDashboard()
 	// cloudwatchdemo.ListMetrics()
 	// cloudwatchdemo.GetMetricStatistics()
-	// cloudwatchdemo.DescribeExportTasks()
-	// cloudwatchdemo.DescribeLogGroups()
-	// cloudwatchdemo.GetLogEvents()
-	// cloudwatchdemo.DescribeLogStreams()
-	// cloudwatchdemo.GetLogGroupFields()
-	// cloudwatchdemo.DescribeQueries()
+	cloudwatchlogs.DescribeExportTasks()
+	cloudwatchlogs.DescribeLogGroups()
+	cloudwatchlogs.GetLogEvents()
+	cloudwatchlogs.DescribeLogStreams()
+	cloudwatchlogs.GetLogGroupFields()
+	cloudwatchlogs.DescribeQueries()
 }

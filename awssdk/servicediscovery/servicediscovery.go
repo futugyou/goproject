@@ -1,4 +1,4 @@
-package servicediscoverydemo
+package servicediscovery
 
 import (
 	"fmt"

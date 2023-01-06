@@ -1,4 +1,4 @@
-package cloudwatchdemo
+package cloudwatch
 
 import (
 	"fmt"
