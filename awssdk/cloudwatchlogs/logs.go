@@ -24,8 +24,12 @@ func DescribeExportTasks() {
 	result, err := svc.DescribeExportTasks(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
-	fmt.Println(result)
+
+	for _, task := range result.ExportTasks {
+		fmt.Println("TaskId:", *task.TaskId, "\tTaskName:", *task.TaskName, "\tLogGroupName:", *task.LogGroupName)
+	}
 }
 
 func DescribeLogGroups() {
