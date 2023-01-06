@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/futugyousuzu/goproject/awsgolang/cloudwatchdemo"
-	// "github.com/futugyousuzu/goproject/awsgolang/servicediscoverydemo"
+	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchdemo"
+	"github.com/futugyousuzu/goproject/awsgolang/servicediscoverydemo"
 )
 
 func main() {
-	// servicediscoverydemo.CreateNamespace()
+	servicediscoverydemo.ListNamespace()
 	// cloudwatchdemo.GetMetricData()
 	// cloudwatchdemo.GetDashboard()
 	// cloudwatchdemo.ListMetrics()
@@ -16,5 +16,5 @@ func main() {
 	// cloudwatchdemo.GetLogEvents()
 	// cloudwatchdemo.DescribeLogStreams()
 	// cloudwatchdemo.GetLogGroupFields()
-	cloudwatchdemo.DescribeQueries()
+	// cloudwatchdemo.DescribeQueries()
 }

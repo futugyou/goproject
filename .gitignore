@@ -2,3 +2,4 @@
 *.log
 bolg-service/storage/*
 *.exe
+*.env

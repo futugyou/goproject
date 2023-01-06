@@ -3,178 +3,100 @@ package servicediscoverydemo
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/servicediscovery"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/servicediscovery"
+	"github.com/aws/aws-sdk-go-v2/service/servicediscovery/types"
+
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
+var (
+	svc *servicediscovery.Client
+)
+
+func init() {
+	svc = servicediscovery.NewFromConfig(awsenv.Cfg)
+}
+
 func ListServices() {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(endpoints.ApSoutheast1RegionID)},
-	}))
-	svc := servicediscovery.New(sess)
 	input := &servicediscovery.ListServicesInput{}
 
-	result, err := svc.ListServices(input)
+	result, err := svc.ListServices(awsenv.EmptyContext, input)
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case servicediscovery.ErrCodeInvalidInput:
-				fmt.Println(servicediscovery.ErrCodeInvalidInput, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
+
+		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(result)
+	for _, service := range result.Services {
+		fmt.Println("arn:", *service.Arn, "\tName:", *service.Name)
+	}
 }
 
 func CreateService() {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(endpoints.ApSoutheast1RegionID)},
-	}))
-	svc := servicediscovery.New(sess)
 	input := &servicediscovery.CreateServiceInput{
-		DnsConfig: &servicediscovery.DnsConfig{
-			DnsRecords: []*servicediscovery.DnsRecord{
+		DnsConfig: &types.DnsConfig{
+			DnsRecords: []types.DnsRecord{
 				{
 					TTL:  aws.Int64(60),
-					Type: aws.String("A"),
+					Type: types.RecordTypeA,
 				},
 			},
-			RoutingPolicy: aws.String("WEIGHTED"),
+			RoutingPolicy: types.RoutingPolicyWeighted,
 		},
 		Name:        aws.String("oneapp-feedback"),
 		NamespaceId: aws.String("ns-3n5se3ecgsvtqebi"),
 	}
 
-	result, err := svc.CreateService(input)
+	result, err := svc.CreateService(awsenv.EmptyContext, input)
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case servicediscovery.ErrCodeInvalidInput:
-				fmt.Println(servicediscovery.ErrCodeInvalidInput, aerr.Error())
-			case servicediscovery.ErrCodeResourceLimitExceeded:
-				fmt.Println(servicediscovery.ErrCodeResourceLimitExceeded, aerr.Error())
-			case servicediscovery.ErrCodeNamespaceNotFound:
-				fmt.Println(servicediscovery.ErrCodeNamespaceNotFound, aerr.Error())
-			case servicediscovery.ErrCodeServiceAlreadyExists:
-				fmt.Println(servicediscovery.ErrCodeServiceAlreadyExists, aerr.Error())
-			case servicediscovery.ErrCodeTooManyTagsException:
-				fmt.Println(servicediscovery.ErrCodeTooManyTagsException, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
+		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(result)
+	fmt.Println("arn:", *result.Service.Arn, "\tName:", *result.Service.Name)
 }
 
 func GetNamespace() {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(endpoints.ApSoutheast1RegionID)},
-	}))
-	svc := servicediscovery.New(sess)
 	input := &servicediscovery.GetNamespaceInput{
 		Id: aws.String("ns-3n5se3ecgsvtqebi"),
 	}
 
-	result, err := svc.GetNamespace(input)
+	result, err := svc.GetNamespace(awsenv.EmptyContext, input)
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case servicediscovery.ErrCodeInvalidInput:
-				fmt.Println(servicediscovery.ErrCodeInvalidInput, aerr.Error())
-			case servicediscovery.ErrCodeNamespaceNotFound:
-				fmt.Println(servicediscovery.ErrCodeNamespaceNotFound, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
+		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(result)
+	fmt.Println("arn:", *result.Namespace.Arn, "\tName:", *result.Namespace.Name, "\tServiceCount:", result.Namespace.ServiceCount)
 }
 
 func ListNamespace() {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(endpoints.ApSoutheast1RegionID)},
-	}))
-	svc := servicediscovery.New(sess)
 	input := &servicediscovery.ListNamespacesInput{}
 
-	result, err := svc.ListNamespaces(input)
+	result, err := svc.ListNamespaces(awsenv.EmptyContext, input)
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case servicediscovery.ErrCodeInvalidInput:
-				fmt.Println(servicediscovery.ErrCodeInvalidInput, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
+
+		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(result)
+	for _, namespace := range result.Namespaces {
+		fmt.Println("arn:", *namespace.Arn, "\tName:", *namespace.Name, "\tServiceCount:", namespace.ServiceCount)
+	}
 }
 
 func CreateNamespace() {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(endpoints.ApSoutheast1RegionID)},
-	}))
-	svc := servicediscovery.New(sess)
 	input := &servicediscovery.CreateHttpNamespaceInput{
 		Name: aws.String("gateway.com"),
 	}
 
-	result, err := svc.CreateHttpNamespace(input)
+	result, err := svc.CreateHttpNamespace(awsenv.EmptyContext, input)
 	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case servicediscovery.ErrCodeInvalidInput:
-				fmt.Println(servicediscovery.ErrCodeInvalidInput, aerr.Error())
-			case servicediscovery.ErrCodeNamespaceAlreadyExists:
-				fmt.Println(servicediscovery.ErrCodeNamespaceAlreadyExists, aerr.Error())
-			case servicediscovery.ErrCodeResourceLimitExceeded:
-				fmt.Println(servicediscovery.ErrCodeResourceLimitExceeded, aerr.Error())
-			case servicediscovery.ErrCodeDuplicateRequest:
-				fmt.Println(servicediscovery.ErrCodeDuplicateRequest, aerr.Error())
-			case servicediscovery.ErrCodeTooManyTagsException:
-				fmt.Println(servicediscovery.ErrCodeTooManyTagsException, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
-		}
+
+		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(result)
+	fmt.Println(*result.OperationId)
 }
