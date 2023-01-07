@@ -1,6 +1,11 @@
 package main
 
-import "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
+import (
+	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
+	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
+	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
+	"github.com/futugyousuzu/goproject/awsgolang/ecr"
+)
 
 func main() {
 	// servicediscovery.ListNamespace()
@@ -13,5 +18,6 @@ func main() {
 	// cloudwatchlogs.GetLogEvents()
 	// cloudwatchlogs.DescribeLogStreams()
 	// cloudwatchlogs.GetLogGroupFields()
-	cloudwatchlogs.DescribeQueries()
+	// cloudwatchlogs.DescribeQueries()
+	ecr.DescribeRepositories()
 }
