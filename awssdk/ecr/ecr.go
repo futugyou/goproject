@@ -103,3 +103,17 @@ func CreateRepository() {
 
 	fmt.Println("RepositoryUri:", *output.Repository.RepositoryUri)
 }
+
+func DeleteRepository() {
+	input := &ecr.DeleteRepositoryInput{
+		RepositoryName: aws.String("jenkins"),
+	}
+
+	output, err := svc.DeleteRepository(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("RepositoryUri:", *output.Repository.RepositoryUri)
+}

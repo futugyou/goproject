@@ -20,5 +20,6 @@ func main() {
 	// cloudwatchlogs.GetLogGroupFields()
 	// cloudwatchlogs.DescribeQueries()
 	// ecr.DescribeRepositories()
-	ecr.CreateRepository()
+	// ecr.CreateRepository()
+	ecr.DeleteRepository()
 }
