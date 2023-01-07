@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -87,4 +88,18 @@ func DescribeRepositories() {
 
 		fmt.Println()
 	}
+}
+
+func CreateRepository() {
+	input := &ecr.CreateRepositoryInput{
+		RepositoryName: aws.String("jenkins"),
+	}
+
+	output, err := svc.CreateRepository(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("RepositoryUri:", *output.Repository.RepositoryUri)
 }
