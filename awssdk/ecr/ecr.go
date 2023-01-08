@@ -1,7 +1,6 @@
 package ecr
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"sort"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/tools"
 )
 
 var (
@@ -26,7 +26,7 @@ func DescribeRepositories() {
 		fmt.Println(err)
 		return
 	}
-	h := sha1.New()
+
 	for _, repository := range output.Repositories {
 		fmt.Println("RepositoryName:", *repository.RepositoryName, "\tRepositoryUri:", *repository.RepositoryUri)
 
@@ -65,11 +65,7 @@ func DescribeRepositories() {
 		}
 
 		for _, image := range batchoutput.Images {
-
-			h.Reset()
-			h.Write([]byte(*image.ImageId.ImageTag))
-			tag := fmt.Sprintf("%x", h.Sum(nil))
-
+			tag := tools.Sha1(*image.ImageId.ImageTag)
 			input := &ecr.PutImageInput{
 				ImageManifest:  image.ImageManifest,
 				RepositoryName: image.RepositoryName,
