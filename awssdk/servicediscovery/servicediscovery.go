@@ -155,7 +155,7 @@ func CreateService() {
 
 func GetNamespace() {
 	input := &servicediscovery.GetNamespaceInput{
-		Id: aws.String("ns-3n5se3ecgsvtqebi"),
+		Id: aws.String(awsenv.NamespaceId),
 	}
 
 	result, err := svc.GetNamespace(awsenv.EmptyContext, input)
