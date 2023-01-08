@@ -2,6 +2,7 @@ package servicediscovery
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/servicediscovery"
@@ -168,15 +169,50 @@ func GetNamespace() {
 
 func CreateNamespace() {
 	input := &servicediscovery.CreateHttpNamespaceInput{
-		Name: aws.String("gateway.com"),
+		Name: aws.String("gateway.internal"),
 	}
 
-	result, err := svc.CreateHttpNamespace(awsenv.EmptyContext, input)
+	output, err := svc.CreateHttpNamespace(awsenv.EmptyContext, input)
 	if err != nil {
-
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println(*result.OperationId)
+	fmt.Println("CreateOperationId:", *output.OperationId)
+
+	operationInput := &servicediscovery.GetOperationInput{
+		OperationId: output.OperationId,
+	}
+
+	namespaceid := ""
+	for {
+		time.Sleep(time.Second * 2)
+		operationOutput, err := svc.GetOperation(awsenv.EmptyContext, operationInput)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Status:", operationOutput.Operation.Status)
+
+		if operationOutput.Operation.Status == types.OperationStatusSuccess {
+			namespaceid = operationOutput.Operation.Targets["NAMESPACE"]
+			break
+		}
+	}
+
+	if namespaceid == "" {
+		return
+	}
+
+	deleteInput := &servicediscovery.DeleteNamespaceInput{
+		Id: aws.String(namespaceid),
+	}
+
+	deleteOutput, err := svc.DeleteNamespace(awsenv.EmptyContext, deleteInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("DeleteOperationId:", *deleteOutput.OperationId)
 }

@@ -11,7 +11,8 @@ func main() {
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()
-	servicediscovery.CreateService()
+	// servicediscovery.CreateService()
+	servicediscovery.CreateNamespace()
 
 	// cloudwatch.GetMetricData()
 	// cloudwatch.ListDashboards()
