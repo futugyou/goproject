@@ -1,14 +1,15 @@
 package main
 
 import (
-	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
+	"github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
-	"github.com/futugyousuzu/goproject/awsgolang/ecr"
+	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
 )
 
 func main() {
 	// servicediscovery.ListNamespace()
+	servicediscovery.ListServices()
 	// cloudwatch.GetMetricData()
 	// cloudwatch.ListDashboards()
 	// cloudwatch.ListMetrics()
@@ -21,5 +22,5 @@ func main() {
 	// cloudwatchlogs.DescribeQueries()
 	// ecr.DescribeRepositories()
 	// ecr.CreateRepository()
-	ecr.DeleteRepository()
+	// ecr.DeleteRepository()
 }

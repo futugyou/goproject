@@ -18,6 +18,21 @@ func init() {
 	svc = servicediscovery.NewFromConfig(awsenv.Cfg)
 }
 
+func ListNamespace() {
+	input := &servicediscovery.ListNamespacesInput{}
+
+	result, err := svc.ListNamespaces(awsenv.EmptyContext, input)
+	if err != nil {
+
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, namespace := range result.Namespaces {
+		fmt.Println("arn:", *namespace.Arn, "\tId", *namespace.Id, "\tName:", *namespace.Name)
+	}
+}
+
 func ListServices() {
 	input := &servicediscovery.ListServicesInput{}
 
@@ -29,7 +44,41 @@ func ListServices() {
 	}
 
 	for _, service := range result.Services {
-		fmt.Println("arn:", *service.Arn, "\tName:", *service.Name)
+		fmt.Print("Name:", *service.Name, "\tId:", *service.Id)
+
+		// ListInstances
+		input := &servicediscovery.ListInstancesInput{
+			ServiceId: service.Id,
+		}
+		output, err := svc.ListInstances(awsenv.EmptyContext, input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		for _, instance := range output.Instances {
+			fmt.Println("\tIP:", instance.Attributes["AWS_INSTANCE_IPV4"])
+			// for key, value := range instance.Attributes {
+			// 	// instance.Attributes["AWS_INSTANCE_IPV4"]
+			// 	fmt.Println("\tkey:", key, "\tvalue:", value)
+			// }
+
+			// GetInstance
+			// input := &servicediscovery.GetInstanceInput{
+			// 	InstanceId: instance.Id,
+			// 	ServiceId:  service.Id,
+			// }
+
+			// output, err := svc.GetInstance(awsenv.EmptyContext, input)
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	continue
+			// }
+
+			// for key, value := range output.Instance.Attributes {
+			// 	fmt.Println("\tkey:", key, "\tvalue:", value)
+			// }
+		}
 	}
 }
 
@@ -69,21 +118,6 @@ func GetNamespace() {
 	}
 
 	fmt.Println("arn:", *result.Namespace.Arn, "\tName:", *result.Namespace.Name, "\tServiceCount:", result.Namespace.ServiceCount)
-}
-
-func ListNamespace() {
-	input := &servicediscovery.ListNamespacesInput{}
-
-	result, err := svc.ListNamespaces(awsenv.EmptyContext, input)
-	if err != nil {
-
-		fmt.Println(err.Error())
-		return
-	}
-
-	for _, namespace := range result.Namespaces {
-		fmt.Println("arn:", *namespace.Arn, "\tName:", *namespace.Name, "\tServiceCount:", namespace.ServiceCount)
-	}
 }
 
 func CreateNamespace() {
