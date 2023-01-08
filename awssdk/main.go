@@ -10,9 +10,9 @@ import (
 func main() {
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
-	// servicediscovery.RegisterInstance()
+	servicediscovery.RegisterInstance()
 	// servicediscovery.CreateService()
-	servicediscovery.CreateNamespace()
+	// servicediscovery.CreateNamespace()
 
 	// cloudwatch.GetMetricData()
 	// cloudwatch.ListDashboards()

@@ -72,6 +72,7 @@ func RegisterInstance() {
 		return
 	}
 
+	count := 0
 	for _, service := range result.Services {
 		input := &servicediscovery.ListInstancesInput{
 			ServiceId: service.Id,
@@ -112,8 +113,30 @@ func RegisterInstance() {
 				continue
 			}
 
-			fmt.Println("OperationId:", *registerOutput.OperationId)
+			fmt.Println("RegisterInstanceOperationId:", *registerOutput.OperationId)
 		}
+
+		if count == 1 {
+			continue
+		}
+
+		for _, instance := range output.Instances {
+			deregisterInput := &servicediscovery.DeregisterInstanceInput{
+				ServiceId:  service.Id,
+				InstanceId: instance.Id,
+			}
+
+			deregisterOutput, err := svc.DeregisterInstance(awsenv.EmptyContext, deregisterInput)
+			if err != nil {
+				// DuplicateRequest: Another operation of type RegisterInstance
+				fmt.Println(err)
+				continue
+			}
+
+			fmt.Println("DeregisterInstanceOperationId:", deregisterOutput.OperationId)
+		}
+
+		count++
 	}
 }
 
