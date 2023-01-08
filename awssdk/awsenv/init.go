@@ -11,9 +11,10 @@ import (
 )
 
 var (
-	EmptyContext context.Context = context.TODO()
-	Cfg          aws.Config
-	NamespaceId  string
+	EmptyContext        context.Context = context.TODO()
+	Cfg                 aws.Config
+	NamespaceId         string
+	CloudMapServiceName string
 )
 
 func init() {
@@ -26,6 +27,7 @@ func init() {
 	// fmt.Println("AWS_REGION=" + os.Getenv("AWS_REGION"))
 
 	NamespaceId = os.Getenv("CLOUD_MAP_NAMESPACE")
+	CloudMapServiceName = os.Getenv("CLOUD_MAP_SERVICE_NAME")
 
 	// Load the Shared AWS Configuration (~/.aws/config)
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)

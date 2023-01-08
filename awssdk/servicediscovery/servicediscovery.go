@@ -151,8 +151,8 @@ func CreateService() {
 			},
 			RoutingPolicy: types.RoutingPolicyWeighted,
 		},
-		Name:        aws.String("great-ghealth"),
-		NamespaceId: aws.String("ns-3n5se3ecgsvtqebi"),
+		Name:        aws.String(awsenv.CloudMapServiceName),
+		NamespaceId: aws.String(awsenv.NamespaceId),
 	}
 
 	result, err := svc.CreateService(awsenv.EmptyContext, input)
