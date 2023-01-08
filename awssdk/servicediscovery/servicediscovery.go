@@ -58,26 +58,6 @@ func ListServices() {
 
 		for _, instance := range output.Instances {
 			fmt.Println("\t\tInstanceID:", *instance.Id, "\tIP:", instance.Attributes["AWS_INSTANCE_IPV4"])
-			// for key, value := range instance.Attributes {
-			// 	// instance.Attributes["AWS_INSTANCE_IPV4"]
-			// 	fmt.Println("\tkey:", key, "\tvalue:", value)
-			// }
-
-			// GetInstance
-			// input := &servicediscovery.GetInstanceInput{
-			// 	InstanceId: instance.Id,
-			// 	ServiceId:  service.Id,
-			// }
-
-			// output, err := svc.GetInstance(awsenv.EmptyContext, input)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	continue
-			// }
-
-			// for key, value := range output.Instance.Attributes {
-			// 	fmt.Println("\tkey:", key, "\tvalue:", value)
-			// }
 		}
 	}
 }
@@ -102,26 +82,26 @@ func RegisterInstance() {
 		}
 
 		for _, instance := range output.Instances {
-			// GetInstance
-			input := &servicediscovery.GetInstanceInput{
-				InstanceId: instance.Id,
-				ServiceId:  service.Id,
-			}
+			// // GetInstance
+			// input := &servicediscovery.GetInstanceInput{
+			// 	InstanceId: instance.Id,
+			// 	ServiceId:  service.Id,
+			// }
 
-			output, err := svc.GetInstance(awsenv.EmptyContext, input)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
+			// output, err := svc.GetInstance(awsenv.EmptyContext, input)
+			// if err != nil {
+			// 	fmt.Println(err)
+			// 	continue
+			// }
 
-			ip := output.Instance.Attributes["AWS_INSTANCE_IPV4"]
+			ip := instance.Attributes["AWS_INSTANCE_IPV4"]
 			ipint := tools.IP4ToLong(ip) + 1
-			output.Instance.Attributes["AWS_INSTANCE_IPV4"] = tools.LongToIP4(int64(ipint))
+			instance.Attributes["AWS_INSTANCE_IPV4"] = tools.LongToIP4(int64(ipint))
 
 			registerInput := &servicediscovery.RegisterInstanceInput{
 				ServiceId:  input.ServiceId,
-				InstanceId: input.InstanceId,
-				Attributes: output.Instance.Attributes,
+				InstanceId: instance.Id,
+				Attributes: instance.Attributes,
 			}
 
 			registerOutput, err := svc.RegisterInstance(awsenv.EmptyContext, registerInput)
