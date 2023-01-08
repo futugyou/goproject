@@ -9,18 +9,22 @@ import (
 
 func main() {
 	// servicediscovery.ListNamespace()
-	servicediscovery.ListServices()
-	//servicediscovery.RegisterInstance()
+	// servicediscovery.ListServices()
+	// servicediscovery.RegisterInstance()
+	servicediscovery.CreateService()
+
 	// cloudwatch.GetMetricData()
 	// cloudwatch.ListDashboards()
 	// cloudwatch.ListMetrics()
 	// cloudwatch.GetMetricStatistics()
+
 	// cloudwatchlogs.DescribeExportTasks()
 	// cloudwatchlogs.DescribeLogGroups()
 	// cloudwatchlogs.GetLogEvents()
 	// cloudwatchlogs.DescribeLogStreams()
 	// cloudwatchlogs.GetLogGroupFields()
 	// cloudwatchlogs.DescribeQueries()
+
 	// ecr.DescribeRepositories()
 	// ecr.CreateRepository()
 	// ecr.DeleteRepository()

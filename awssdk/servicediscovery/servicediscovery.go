@@ -147,7 +147,7 @@ func CreateService() {
 			},
 			RoutingPolicy: types.RoutingPolicyWeighted,
 		},
-		Name:        aws.String("oneapp-feedback"),
+		Name:        aws.String("great-ghealth"),
 		NamespaceId: aws.String("ns-3n5se3ecgsvtqebi"),
 	}
 
@@ -158,6 +158,18 @@ func CreateService() {
 	}
 
 	fmt.Println("arn:", *result.Service.Arn, "\tName:", *result.Service.Name)
+
+	deleteInput := &servicediscovery.DeleteServiceInput{
+		Id: result.Service.Id,
+	}
+
+	_, err = svc.DeleteService(awsenv.EmptyContext, deleteInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("ok")
 }
 
 func GetNamespace() {
