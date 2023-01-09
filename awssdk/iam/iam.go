@@ -210,3 +210,52 @@ func ListRoles() {
 		fmt.Println("\tPolicyNames:", output.PolicyNames)
 	}
 }
+
+func CreateGroup() {
+	input := &iam.CreateGroupInput{
+		GroupName: aws.String(awsenv.GroupName),
+	}
+	output, err := svc.CreateGroup(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Name:", *output.Group.GroupName, "\tId:", *output.Group.GroupId, "\tPath:", *output.Group.Path)
+}
+
+func DeleteGroup() {
+	input := &iam.DeleteGroupInput{
+		GroupName: aws.String(awsenv.GroupName),
+	}
+	output, err := svc.DeleteGroup(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("ResultMetadata:", output.ResultMetadata)
+}
+
+func CreateUser() {
+	input := &iam.CreateUserInput{
+		UserName: aws.String(awsenv.UserName),
+	}
+	output, err := svc.CreateUser(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("UserName:", *output.User.UserName, "\tUserId:", *output.User.UserId, "\tPath:", *output.User.Path)
+}
+
+func DeleteUser() {
+	input := &iam.DeleteUserInput{
+		UserName: aws.String(awsenv.UserName),
+	}
+	output, err := svc.DeleteUser(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("ResultMetadata:", output.ResultMetadata)
+}

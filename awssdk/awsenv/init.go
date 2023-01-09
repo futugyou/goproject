@@ -15,6 +15,8 @@ var (
 	Cfg                 aws.Config
 	NamespaceId         string
 	CloudMapServiceName string
+	UserName            string
+	GroupName           string
 )
 
 func init() {
@@ -28,6 +30,8 @@ func init() {
 
 	NamespaceId = os.Getenv("CLOUD_MAP_NAMESPACE")
 	CloudMapServiceName = os.Getenv("CLOUD_MAP_SERVICE_NAME")
+	UserName = os.Getenv("IAM_USER_NAME")
+	GroupName = os.Getenv("IAM_GROUP_NAME")
 
 	// Load the Shared AWS Configuration (~/.aws/config)
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)

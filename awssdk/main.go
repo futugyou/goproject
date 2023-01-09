@@ -39,5 +39,9 @@ func main() {
 	// iam.DeleteAccountAlias()
 	// iam.ListInstanceProfiles()
 	// iam.ListPolicies()
-	iam.ListRoles()
+	// iam.ListRoles()
+	// iam.CreateGroup()
+	// iam.DeleteGroup()
+	// iam.CreateUser()
+	iam.DeleteUser()
 }
