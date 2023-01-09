@@ -43,5 +43,6 @@ func main() {
 	// iam.CreateGroup()
 	// iam.DeleteGroup()
 	// iam.CreateUser()
-	iam.DeleteUser()
+	// iam.DeleteUser()
+	iam.GetAccountAuthorizationDetails()
 }

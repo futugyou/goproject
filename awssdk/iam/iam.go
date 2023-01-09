@@ -61,7 +61,9 @@ func ListUsers() {
 }
 
 func ListAccessKeys() {
-	input := &iam.ListAccessKeysInput{}
+	input := &iam.ListAccessKeysInput{
+		UserName: aws.String(awsenv.UserName),
+	}
 	// this method will show currect user(env) key
 	output, err := svc.ListAccessKeys(awsenv.EmptyContext, input)
 	if err != nil {
@@ -245,9 +247,30 @@ func CreateUser() {
 		return
 	}
 	fmt.Println("UserName:", *output.User.UserName, "\tUserId:", *output.User.UserId, "\tPath:", *output.User.Path)
+
+	keyInput := &iam.CreateAccessKeyInput{
+		UserName: output.User.UserName,
+	}
+	keyOutput, err := svc.CreateAccessKey(awsenv.EmptyContext, keyInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("\tAccessKeyId:", *keyOutput.AccessKey.AccessKeyId, "\tSecretAccessKey:", *keyOutput.AccessKey.SecretAccessKey)
 }
 
 func DeleteUser() {
+	// must delete referce resouce before delete user
+	// keyInput := &iam.DeleteAccessKeyInput{
+	// 	UserName:    aws.String(awsenv.UserName),
+	// 	AccessKeyId: aws.String(awsenv.UserId),
+	// }
+	// _, err := svc.DeleteAccessKey(awsenv.EmptyContext, keyInput)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
 	input := &iam.DeleteUserInput{
 		UserName: aws.String(awsenv.UserName),
 	}
@@ -258,4 +281,45 @@ func DeleteUser() {
 	}
 
 	fmt.Println("ResultMetadata:", output.ResultMetadata)
+}
+
+func GetAccountAuthorizationDetails() {
+	input := &iam.GetAccountAuthorizationDetailsInput{}
+	output, err := svc.GetAccountAuthorizationDetails(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("GroupDetailList:")
+	for _, group := range output.GroupDetailList {
+		fmt.Println("\tGroupName:", *group.GroupName)
+		for _, policy := range group.GroupPolicyList {
+			fmt.Println("\t - ", *policy.PolicyName)
+		}
+	}
+
+	fmt.Println()
+	fmt.Println("Policies:")
+	for _, policy := range output.Policies {
+		fmt.Println("\tPolicyName:", *policy.PolicyName)
+	}
+
+	fmt.Println()
+	fmt.Println("RoleDetailList:")
+	for _, role := range output.RoleDetailList {
+		fmt.Println("\tRoleName:", *role.RoleName)
+		for _, policy := range role.RolePolicyList {
+			fmt.Println("\t\tPolicyName:", *policy.PolicyName)
+		}
+	}
+
+	fmt.Println()
+	fmt.Println("UserDetailList:")
+	for _, user := range output.UserDetailList {
+		fmt.Println("\tUserName:", *user.UserName, "\tGroupList:", user.GroupList)
+		for _, policy := range user.UserPolicyList {
+			fmt.Println("\t\tPolicyName:", *policy.PolicyName)
+		}
+	}
 }
