@@ -189,3 +189,24 @@ func ListPolicies() {
 		fmt.Println("Name:", *policy.PolicyName)
 	}
 }
+
+func ListRoles() {
+	input := &iam.ListRolesInput{}
+	output, err := svc.ListRoles(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, role := range output.Roles {
+		fmt.Println("RoleName:", *role.RoleName, "\tPath:", *role.Path)
+		input := &iam.ListRolePoliciesInput{
+			RoleName: role.RoleName,
+		}
+		output, err := svc.ListRolePolicies(awsenv.EmptyContext, input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println("\tPolicyNames:", output.PolicyNames)
+	}
+}
