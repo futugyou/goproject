@@ -69,5 +69,16 @@ func ListGroups() {
 		for _, user := range output.Users {
 			fmt.Println("\tUser:", *user.UserName)
 		}
+
+		policyInput := &iam.ListGroupPoliciesInput{
+			GroupName: group.GroupName,
+		}
+
+		policyOutput, err := svc.ListGroupPolicies(awsenv.EmptyContext, policyInput)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println("\tPolicyNames:", policyOutput.PolicyNames)
 	}
 }
