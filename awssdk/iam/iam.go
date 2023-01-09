@@ -3,6 +3,7 @@ package iam
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
@@ -121,4 +122,38 @@ func ListGroups() {
 			fmt.Println("\t -", *policy.PolicyName)
 		}
 	}
+}
+
+func ListAccountAliases() {
+	input := &iam.ListAccountAliasesInput{}
+	output, err := svc.ListAccountAliases(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("AccountAliases:", output.AccountAliases)
+}
+
+func CreateAccountAlias() {
+	input := &iam.CreateAccountAliasInput{
+		AccountAlias: aws.String("jenkins-account"),
+	}
+	output, err := svc.CreateAccountAlias(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("ResultMetadata:", output.ResultMetadata)
+}
+
+func DeleteAccountAlias() {
+	input := &iam.DeleteAccountAliasInput{
+		AccountAlias: aws.String("jenkins-account"),
+	}
+	output, err := svc.DeleteAccountAlias(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("ResultMetadata:", output.ResultMetadata)
 }

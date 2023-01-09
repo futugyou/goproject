@@ -33,5 +33,8 @@ func main() {
 
 	// iam.ListUsers()
 	// iam.ListAccessKeys()
-	iam.ListGroups()
+	// iam.ListGroups()
+	// iam.ListAccountAliases()
+	// iam.CreateAccountAlias()
+	iam.DeleteAccountAlias()
 }
