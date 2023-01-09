@@ -1,16 +1,17 @@
 package main
 
 import (
-	"github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
+	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
+	"github.com/futugyousuzu/goproject/awsgolang/iam"
 )
 
 func main() {
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
-	servicediscovery.RegisterInstance()
+	// servicediscovery.RegisterInstance()
 	// servicediscovery.CreateService()
 	// servicediscovery.CreateNamespace()
 
@@ -29,4 +30,6 @@ func main() {
 	// ecr.DescribeRepositories()
 	// ecr.CreateRepository()
 	// ecr.DeleteRepository()
+
+	iam.ListUsers()
 }
