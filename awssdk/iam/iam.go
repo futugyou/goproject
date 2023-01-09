@@ -28,7 +28,34 @@ func ListUsers() {
 	// this will be nil
 	//fmt.Println("Marker:", *output.Marker)
 	for _, user := range output.Users {
-		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path, "\tTags:", user.Tags)
+		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path)
+		fmt.Println("\tTags:", user.Tags)
+		input := &iam.ListUserPoliciesInput{
+			UserName: user.UserName,
+		}
+		output, err := svc.ListUserPolicies(awsenv.EmptyContext, input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fmt.Println("\tPolicyNames:", output.PolicyNames)
+
+		attachPolicyInput := &iam.ListAttachedUserPoliciesInput{
+			UserName: input.UserName,
+		}
+		attachPolicyOutput, err := svc.ListAttachedUserPolicies(awsenv.EmptyContext, attachPolicyInput)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fmt.Println("\tAttachedPolicyName:")
+		for _, policy := range attachPolicyOutput.AttachedPolicies {
+			fmt.Println("\t- ", *policy.PolicyName)
+		}
+
+		fmt.Println()
 	}
 }
 
