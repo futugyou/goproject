@@ -28,6 +28,20 @@ func ListUsers() {
 	// this will be nil
 	//fmt.Println("Marker:", *output.Marker)
 	for _, user := range output.Users {
-		fmt.Println(*user.UserName, *user.UserId, *user.Path, user.Tags)
+		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path, "\tTags:", user.Tags)
+	}
+}
+
+func ListAccessKeys() {
+	input := &iam.ListAccessKeysInput{}
+	// this method will show currect user(env) key
+	output, err := svc.ListAccessKeys(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, data := range output.AccessKeyMetadata {
+		fmt.Println("UserName:", *data.UserName, "\tAccessKeyId:", *data.AccessKeyId)
 	}
 }
