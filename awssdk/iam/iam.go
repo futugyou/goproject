@@ -45,3 +45,29 @@ func ListAccessKeys() {
 		fmt.Println("UserName:", *data.UserName, "\tAccessKeyId:", *data.AccessKeyId)
 	}
 }
+
+func ListGroups() {
+	input := &iam.ListGroupsInput{}
+	output, err := svc.ListGroups(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, group := range output.Groups {
+		fmt.Print("GroupName:", *group.GroupName, "\tGroupId:", *group.GroupId)
+		input := &iam.GetGroupInput{
+			GroupName: group.GroupName,
+		}
+		output, err := svc.GetGroup(awsenv.EmptyContext, input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fmt.Println("\tPath:", *output.Group.Path)
+		for _, user := range output.Users {
+			fmt.Println("\tUser:", *user.UserName)
+		}
+	}
+}

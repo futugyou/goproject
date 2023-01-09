@@ -32,5 +32,6 @@ func main() {
 	// ecr.DeleteRepository()
 
 	// iam.ListUsers()
-	iam.ListAccessKeys()
+	// iam.ListAccessKeys()
+	iam.ListGroups()
 }
