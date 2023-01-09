@@ -157,3 +157,35 @@ func DeleteAccountAlias() {
 	}
 	fmt.Println("ResultMetadata:", output.ResultMetadata)
 }
+
+func ListInstanceProfiles() {
+	input := &iam.ListInstanceProfilesInput{}
+	output, err := svc.ListInstanceProfiles(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, profile := range output.InstanceProfiles {
+		fmt.Println("Name:", *profile.InstanceProfileName, "\tId:", *profile.InstanceProfileId, "\tPath:", *profile.Path)
+		fmt.Println("\tTags:")
+		for _, tag := range profile.Tags {
+			fmt.Println("\t -", *tag.Key, *tag.Value)
+		}
+		fmt.Println("\tRoles:")
+		for _, role := range profile.Roles {
+			fmt.Println("\t -", *role.RoleName, *role.AssumeRolePolicyDocument)
+		}
+	}
+}
+
+func ListPolicies() {
+	input := &iam.ListPoliciesInput{}
+	output, err := svc.ListPolicies(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, policy := range output.Policies {
+		fmt.Println("Name:", *policy.PolicyName)
+	}
+}
