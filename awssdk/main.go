@@ -1,14 +1,13 @@
 package main
 
 import (
-	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
-	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
-	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
-	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/iam"
 )
 
 func main() {
+	defer awsenv.DeleteAll()
+
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()

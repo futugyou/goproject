@@ -62,7 +62,7 @@ func ListUsers() {
 
 func ListAccessKeys() {
 	input := &iam.ListAccessKeysInput{
-		UserName: aws.String(awsenv.UserName),
+		// UserName: aws.String(awsenv.UserName),
 	}
 	// this method will show currect user(env) key
 	output, err := svc.ListAccessKeys(awsenv.EmptyContext, input)
@@ -121,7 +121,7 @@ func ListGroups() {
 		}
 		fmt.Println("\tAttachedPolicyNames:")
 		for _, policy := range attachedPolicyOutput.AttachedPolicies {
-			fmt.Println("\t -", *policy.PolicyName)
+			fmt.Println("\t -", *policy.PolicyName, *policy.PolicyArn)
 		}
 	}
 }
@@ -261,15 +261,15 @@ func CreateUser() {
 
 func DeleteUser() {
 	// must delete referce resouce before delete user
-	// keyInput := &iam.DeleteAccessKeyInput{
-	// 	UserName:    aws.String(awsenv.UserName),
-	// 	AccessKeyId: aws.String(awsenv.UserId),
-	// }
-	// _, err := svc.DeleteAccessKey(awsenv.EmptyContext, keyInput)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	keyInput := &iam.DeleteAccessKeyInput{
+		UserName:    aws.String(awsenv.UserName),
+		AccessKeyId: aws.String("AKIAVSXAPJPTNZK77PLI"),
+	}
+	_, err := svc.DeleteAccessKey(awsenv.EmptyContext, keyInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	input := &iam.DeleteUserInput{
 		UserName: aws.String(awsenv.UserName),

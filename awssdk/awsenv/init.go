@@ -17,6 +17,7 @@ var (
 	CloudMapServiceName string
 	UserName            string
 	GroupName           string
+	// groupPolicyArn      string
 )
 
 func init() {
@@ -32,10 +33,21 @@ func init() {
 	CloudMapServiceName = os.Getenv("CLOUD_MAP_SERVICE_NAME")
 	UserName = os.Getenv("IAM_USER_NAME")
 	GroupName = os.Getenv("IAM_GROUP_NAME")
+	// groupPolicyArn = os.Getenv("ATTACHED_GROUP_POLICY_ARN")
 
 	// Load the Shared AWS Configuration (~/.aws/config)
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// internal.CompleteUser(Cfg, GroupName, UserName, groupPolicyArn)
+	// Cfg, err = config.LoadDefaultConfig(EmptyContext)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+}
+
+func DeleteAll() {
+	// internal.DeleteUser(Cfg, GroupName, UserName, groupPolicyArn)
 }
