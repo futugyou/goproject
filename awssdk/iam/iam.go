@@ -107,5 +107,18 @@ func ListGroups() {
 			continue
 		}
 		fmt.Println("\tPolicyNames:", policyOutput.PolicyNames)
+
+		attachedPolicyInput := &iam.ListAttachedGroupPoliciesInput{
+			GroupName: group.GroupName,
+		}
+		attachedPolicyOutput, err := svc.ListAttachedGroupPolicies(awsenv.EmptyContext, attachedPolicyInput)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println("\tAttachedPolicyNames:")
+		for _, policy := range attachedPolicyOutput.AttachedPolicies {
+			fmt.Println("\t -", *policy.PolicyName)
+		}
 	}
 }
