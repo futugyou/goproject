@@ -96,3 +96,26 @@ func CreateAndDeleteCluster() {
 	}
 	fmt.Println("Status:", *deleteOutput.Cluster.Status)
 }
+
+func DescribeTaskDefinition() {
+	input := &ecs.ListTaskDefinitionFamiliesInput{
+		Status: types.TaskDefinitionFamilyStatusActive,
+	}
+	output, err := svc.ListTaskDefinitionFamilies(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, task := range output.Families {
+		input := &ecs.DescribeTaskDefinitionInput{
+			TaskDefinition: &task,
+		}
+		output, err := svc.DescribeTaskDefinition(awsenv.EmptyContext, input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println("Family:", *output.TaskDefinition.Family, "\tRevision:", output.TaskDefinition.Revision)
+	}
+}
