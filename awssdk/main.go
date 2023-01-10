@@ -2,7 +2,13 @@ package main
 
 import (
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
-	"github.com/futugyousuzu/goproject/awsgolang/iam"
+
+	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
+	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
+	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
+	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
+	// "github.com/futugyousuzu/goproject/awsgolang/iam"
+	"github.com/futugyousuzu/goproject/awsgolang/ecs"
 )
 
 func main() {
@@ -43,5 +49,7 @@ func main() {
 	// iam.DeleteGroup()
 	// iam.CreateUser()
 	// iam.DeleteUser()
-	iam.GetAccountAuthorizationDetails()
+	// iam.GetAccountAuthorizationDetails()
+
+	ecs.DescribeClusters()
 }

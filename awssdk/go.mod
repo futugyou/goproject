@@ -13,6 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.24.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.18.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.18.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.23.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/iam v1.19.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.21 // indirect
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.19.0 // indirect

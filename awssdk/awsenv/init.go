@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	EmptyContext        context.Context = context.TODO()
+	EmptyContext        context.Context = context.Background()
 	Cfg                 aws.Config
 	NamespaceId         string
 	CloudMapServiceName string
