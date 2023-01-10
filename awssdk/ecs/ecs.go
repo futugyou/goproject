@@ -170,3 +170,15 @@ func ListContainerInstances() {
 	}
 	fmt.Println(output.ContainerInstanceArns)
 }
+
+func ListAccountSettings() {
+	input := &ecs.ListAccountSettingsInput{}
+	output, err := svc.ListAccountSettings(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, setting := range output.Settings {
+		fmt.Println(setting.Name.Values(), *setting.PrincipalArn, *setting.Value)
+	}
+}

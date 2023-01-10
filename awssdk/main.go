@@ -55,5 +55,6 @@ func main() {
 	// ecs.DescribeCapacityProviders()
 	// ecs.CreateAndDeleteCluster()
 	// ecs.DescribeTaskDefinition()
-	ecs.ListContainerInstances()
+	// ecs.ListContainerInstances()
+	ecs.ListAccountSettings()
 }
