@@ -2,6 +2,8 @@ package ecs
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -107,6 +109,7 @@ func DescribeTaskDefinition() {
 		return
 	}
 
+	rand.Seed(time.Now().UnixNano())
 	for _, task := range output.Families {
 		input := &ecs.DescribeTaskDefinitionInput{
 			TaskDefinition: &task,
@@ -116,6 +119,36 @@ func DescribeTaskDefinition() {
 			fmt.Println(err)
 			continue
 		}
-		fmt.Println("Family:", *output.TaskDefinition.Family, "\tRevision:", output.TaskDefinition.Revision)
+
+		registerTaskInput := &ecs.RegisterTaskDefinitionInput{
+			ContainerDefinitions:    output.TaskDefinition.ContainerDefinitions,
+			Family:                  output.TaskDefinition.Family,
+			Cpu:                     output.TaskDefinition.Cpu,
+			EphemeralStorage:        output.TaskDefinition.EphemeralStorage,
+			ExecutionRoleArn:        output.TaskDefinition.ExecutionRoleArn,
+			InferenceAccelerators:   output.TaskDefinition.InferenceAccelerators,
+			IpcMode:                 output.TaskDefinition.IpcMode,
+			Memory:                  output.TaskDefinition.Memory,
+			NetworkMode:             output.TaskDefinition.NetworkMode,
+			PidMode:                 output.TaskDefinition.PidMode,
+			PlacementConstraints:    output.TaskDefinition.PlacementConstraints,
+			ProxyConfiguration:      output.TaskDefinition.ProxyConfiguration,
+			RequiresCompatibilities: output.TaskDefinition.RequiresCompatibilities,
+			RuntimePlatform:         output.TaskDefinition.RuntimePlatform,
+			//Tags:                    output.Tags,
+			TaskRoleArn: output.TaskDefinition.TaskRoleArn,
+			Volumes:     output.TaskDefinition.Volumes,
+		}
+
+		registerTaskOutput, err := svc.RegisterTaskDefinition(awsenv.EmptyContext, registerTaskInput)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println("Family:", *registerTaskOutput.TaskDefinition.Family, "\tRevision:", registerTaskOutput.TaskDefinition.Revision)
 	}
+}
+
+func ListContainerInstances() {
+
 }
