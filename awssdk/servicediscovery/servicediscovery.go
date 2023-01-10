@@ -192,7 +192,7 @@ func GetNamespace() {
 
 func CreateNamespace() {
 	input := &servicediscovery.CreateHttpNamespaceInput{
-		Name: aws.String("gateway.internal"),
+		Name: aws.String(awsenv.NamespaceName),
 	}
 
 	output, err := svc.CreateHttpNamespace(awsenv.EmptyContext, input)

@@ -14,9 +14,11 @@ var (
 	EmptyContext        context.Context = context.Background()
 	Cfg                 aws.Config
 	NamespaceId         string
+	NamespaceName       string
 	CloudMapServiceName string
 	UserName            string
 	GroupName           string
+	ECSClusterName      string
 	// groupPolicyArn      string
 )
 
@@ -29,10 +31,12 @@ func init() {
 	// fmt.Println("AWS_SECRET_ACCESS_KEY=" + os.Getenv("AWS_SECRET_ACCESS_KEY"))
 	// fmt.Println("AWS_REGION=" + os.Getenv("AWS_REGION"))
 
-	NamespaceId = os.Getenv("CLOUD_MAP_NAMESPACE")
+	NamespaceId = os.Getenv("CLOUD_MAP_NAMESPACE_ID")
+	NamespaceName = os.Getenv("CLOUD_MAP_NAMESPACE")
 	CloudMapServiceName = os.Getenv("CLOUD_MAP_SERVICE_NAME")
 	UserName = os.Getenv("IAM_USER_NAME")
 	GroupName = os.Getenv("IAM_GROUP_NAME")
+	ECSClusterName = os.Getenv("ECS_CLUSTER_NAME")
 	// groupPolicyArn = os.Getenv("ATTACHED_GROUP_POLICY_ARN")
 
 	// Load the Shared AWS Configuration (~/.aws/config)

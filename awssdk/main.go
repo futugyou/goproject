@@ -51,5 +51,7 @@ func main() {
 	// iam.DeleteUser()
 	// iam.GetAccountAuthorizationDetails()
 
-	ecs.DescribeClusters()
+	// ecs.DescribeClusters()
+	// ecs.DescribeCapacityProviders()
+	ecs.CreateAndDeleteCluster()
 }

@@ -3,7 +3,9 @@ package ecs
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
@@ -34,4 +36,63 @@ func DescribeClusters() {
 	for _, cluster := range describeOutput.Clusters {
 		fmt.Println("ClusterName:", *cluster.ClusterName, "\tArn:", *cluster.ClusterArn, "\tStatus:", *cluster.Status)
 	}
+}
+
+func DescribeCapacityProviders() {
+	input := &ecs.DescribeCapacityProvidersInput{}
+	output, err := svc.DescribeCapacityProviders(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, provider := range output.CapacityProviders {
+		fmt.Println("Name:", *provider.Name, "\tCapacityProviderArn:", *provider.CapacityProviderArn)
+	}
+}
+
+func CreateAndDeleteCluster() {
+	createInput := &ecs.CreateClusterInput{
+		CapacityProviders: []string{"FARGATE", "FARGATE_SPOT"},
+		ClusterName:       aws.String(awsenv.ECSClusterName),
+		// Configuration: &types.ClusterConfiguration{
+		// 	ExecuteCommandConfiguration: &types.ExecuteCommandConfiguration{
+		// 		Logging: types.ExecuteCommandLoggingOverride,
+		// 		LogConfiguration: &types.ExecuteCommandLogConfiguration{
+		// 			CloudWatchEncryptionEnabled: true,
+		// 			CloudWatchLogGroupName:      aws.String(awsenv.ECSClusterName),
+		// 		},
+		// 	},
+		// },
+		DefaultCapacityProviderStrategy: []types.CapacityProviderStrategyItem{{
+			CapacityProvider: aws.String("FARGATE"),
+		}},
+		ServiceConnectDefaults: &types.ClusterServiceConnectDefaultsRequest{
+			Namespace: aws.String(awsenv.NamespaceName),
+		},
+		Settings: []types.ClusterSetting{{
+			Name:  types.ClusterSettingNameContainerInsights,
+			Value: aws.String("enabled"),
+		}},
+		Tags: []types.Tag{{
+			Key:   aws.String("CreatedBy"),
+			Value: aws.String("amazon"),
+		}},
+	}
+
+	createOutput, err := svc.CreateCluster(awsenv.EmptyContext, createInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("ClusterName:", *createOutput.Cluster.ClusterName, "\tArn:", *createOutput.Cluster.ClusterArn, "\tStatus:", *createOutput.Cluster.Status)
+
+	deleteInput := &ecs.DeleteClusterInput{
+		Cluster: createOutput.Cluster.ClusterArn,
+	}
+	deleteOutput, err := svc.DeleteCluster(awsenv.EmptyContext, deleteInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Status:", *deleteOutput.Cluster.Status)
 }
