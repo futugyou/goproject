@@ -2,13 +2,12 @@ package ecs
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/tools"
 )
 
 var (
@@ -109,7 +108,6 @@ func DescribeTaskDefinition() {
 		return
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	for _, task := range output.Families {
 		input := &ecs.DescribeTaskDefinitionInput{
 			TaskDefinition: &task,
@@ -146,9 +144,29 @@ func DescribeTaskDefinition() {
 			continue
 		}
 		fmt.Println("Family:", *registerTaskOutput.TaskDefinition.Family, "\tRevision:", registerTaskOutput.TaskDefinition.Revision)
+		taskDefinition := *registerTaskOutput.TaskDefinition.Family + ":" + tools.String(registerTaskOutput.TaskDefinition.Revision)
+		updateServiceInput := &ecs.UpdateServiceInput{
+			Cluster:        aws.String(awsenv.ECSClusterName),
+			Service:        &task,
+			TaskDefinition: &taskDefinition,
+		}
+		updateServiceOutput, err := svc.UpdateService(awsenv.EmptyContext, updateServiceInput)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println("\tCurrent:", *updateServiceOutput.Service.TaskDefinition)
 	}
 }
 
 func ListContainerInstances() {
-
+	input := &ecs.ListContainerInstancesInput{
+		Cluster: aws.String(awsenv.ECSClusterName),
+	}
+	output, err := svc.ListContainerInstances(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ContainerInstanceArns)
 }
