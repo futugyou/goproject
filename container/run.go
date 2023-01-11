@@ -11,8 +11,8 @@ import (
 	"golangproject/container/container"
 )
 
-func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, volume string) {
-	parent, writePipe := container.NewParentProcess(tty, volume)
+func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerName, imageName, volume string, envs []string) {
+	parent, writePipe := container.NewParentProcess(tty, volume, containerName, imageName, envs)
 	if parent == nil {
 		logrus.Errorf("failed to new parent process")
 		return
