@@ -1,7 +1,6 @@
 package container
 
 import (
-	"fmt"
 	"golangproject/container/common"
 	"os"
 	"os/exec"
@@ -52,18 +51,4 @@ func NewParentProcess(tty bool, volume, containerName, imageName string, envs []
 	// 指定容器初始化后的工作目录
 	cmd.Dir = common.MntPath
 	return cmd, writePipe
-}
-
-// 查看容器内日志信息
-func LookContainerLog(containerName string) {
-	logFileName := path.Join(common.DefaultContainerInfoPath, containerName, common.ContainerLogFileName)
-	file, err := os.Open(logFileName)
-	if err != nil {
-		logrus.Errorf("open log file, path: %s, err: %v", logFileName, err)
-	}
-	bs, err := io.ReadAll(file)
-	if err != nil {
-		logrus.Errorf("read log file, err: %v", err)
-	}
-	_, _ = fmt.Fprint(os.Stdout, string(bs))
 }

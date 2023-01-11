@@ -104,3 +104,12 @@ var logCommand = cli.Command{
 		return nil
 	},
 }
+
+var listCommand = cli.Command{
+	Name:  "ps",
+	Usage: "list all container",
+	Action: func(ctx *cli.Context) error {
+		container.ListContainerInfo()
+		return nil
+	},
+}
