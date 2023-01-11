@@ -16,3 +16,13 @@ mkdir cgroup-demo-memory
 
 ls cgroup-demo-memory will see many file, we can write pid to 'tasks' and modify meory.limit_in_bytes to limit meory use.
 ```
+
+### read command line args
+```
+go get github.com/urfave/cli
+```
+
+### log
+```
+go get github.com/sirupsen/logrus
+```
