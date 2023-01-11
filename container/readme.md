@@ -26,3 +26,15 @@ go get github.com/urfave/cli
 ```
 go get github.com/sirupsen/logrus
 ```
+
+### export 
+```
+docker pull busybox
+docker run -d busybox top -b
+docker ps
+docker export -o busybox.tar  'ID'
+mkdir busybox && tar -xvf busybox.tar -C busybox/
+```
+
+### mount 
+ mount -t aufs -o dirs=/root/writeLayer:/root/busybox none /root/mn

@@ -32,13 +32,17 @@ var runCommand = cli.Command{
 			Name:  "cpuset",
 			Usage: "cpuset limit",
 		},
+		cli.StringFlag{
+			Name:  "v",
+			Usage: "docker volume",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("missing container args")
 		}
 		tty := context.Bool("ti")
-
+		volume := context.String("v")
 		res := &subsystem.ResourceConfig{
 			MemoryLimit: context.String("m"),
 			CpuSet:      context.String("cpuset"),
@@ -50,7 +54,7 @@ var runCommand = cli.Command{
 		for _, arg := range context.Args() {
 			cmdArray = append(cmdArray, arg)
 		}
-		Run(cmdArray, tty, res)
+		Run(cmdArray, tty, res, volume)
 		return nil
 	},
 }
