@@ -1,4 +1,4 @@
-package main
+package demo
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ const (
 	cgroupMemoryHierarchyMount = "/sys/fs/cgroup/memory"
 )
 
-func memorylimit() {
+func Memorylimit() {
 
 	if os.Args[0] == "/proc/self/exe" {
 		//容器进程

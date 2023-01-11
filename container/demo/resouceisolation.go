@@ -1,4 +1,4 @@
-package main
+package demo
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 	"syscall"
 )
 
-func resouceisolation() {
+func Resouceisolation() {
 	cmd := exec.Command("sh")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		// isolation uts,ipc,pid,mount,user,network

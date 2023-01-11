@@ -1,6 +1,8 @@
 package main
 
+import "golangproject/container/demo"
+
 func main() {
-	// resouceisolation()
-	memorylimit()
+	// demo.Resouceisolation()
+	demo.Memorylimit()
 }
