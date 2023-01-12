@@ -1,3 +1,25 @@
+### check isolation
+```
+// host/damain name
+hostname 
+
+// list ipc resource
+ipcs 
+// add new message queue
+ipcmk -Q 
+
+// curr process id
+ehco $$  
+// show all pid
+ps aux 
+
+// user namespace
+readlink /proc/$$/ns/user
+
+// check network
+ip a
+```
+
 ### mount hierarchy, but is hierarchy not link with any subsystem, so it can not use cgroup to limit resouce. 
 ```
 mkdir cgroup-demo
@@ -37,4 +59,6 @@ mkdir busybox && tar -xvf busybox.tar -C busybox/
 ```
 
 ### mount 
- mount -t aufs -o dirs=/root/writeLayer:/root/busybox none /root/mn
+```
+mount -t aufs -o dirs=/root/writeLayer:/root/busybox none /root/mn
+```
