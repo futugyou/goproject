@@ -15,4 +15,6 @@ const (
 
 	EnvExecPid = "mydocker_pid"
 	EnvExecCmd = "mydocker_cmd"
+
+	IpamDefaultAllocatorPath = "/var/run/go-docker/network/ipam/subnet.json"
 )
