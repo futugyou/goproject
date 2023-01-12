@@ -1,6 +1,7 @@
 package main
 
 import (
+	"golangproject/container/command"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -15,10 +16,12 @@ func main() {
 	app.Usage = usage
 
 	app.Commands = []cli.Command{
-		runCommand,
-		initCommand,
-		logCommand,
-		listCommand,
+		command.InitCommand,
+		command.RunCommand,
+		command.LogCommand,
+		command.ListCommand,
+		command.StopCommand,
+		command.RemoveCommand,
 	}
 	app.Before = func(context *cli.Context) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{})

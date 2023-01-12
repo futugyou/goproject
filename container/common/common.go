@@ -12,4 +12,7 @@ const (
 	Running = "running"
 	Stop    = "stopped"
 	Exit    = "exited"
+
+	EnvExecPid = "mydocker_pid"
+	EnvExecCmd = "mydocker_cmd"
 )
