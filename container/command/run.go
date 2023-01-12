@@ -46,6 +46,14 @@ var RunCommand = cli.Command{
 			Name:  "e",
 			Usage: "docker env",
 		},
+		cli.StringFlag{
+			Name:  "net",
+			Usage: "container network",
+		},
+		cli.StringSliceFlag{
+			Name:  "p",
+			Usage: "port mapping",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
@@ -71,7 +79,9 @@ var RunCommand = cli.Command{
 		envs := context.StringSlice("e")
 		tty := context.Bool("ti")
 		detach := context.Bool("d")
-		run.Run(cmdArray, tty, detach, res, containerName, imageName, volume, envs)
+		network := context.String("net")
+		portMapping := context.StringSlice("p")
+		run.Run(cmdArray, tty, detach, res, containerName, imageName, volume, envs, network, portMapping)
 		return nil
 	},
 }

@@ -26,7 +26,7 @@ type ContainerInfo struct {
 }
 
 // 记录容器信息
-func RecordContainerInfo(containerPID int, cmdArray []string, containerName string) (string, error) {
+func RecordContainerInfo(containerPID int, cmdArray []string, containerName string) (string, string, error) {
 	containerID := GenContainerID(10)
 	if containerName == "" {
 		containerName = containerID
@@ -65,7 +65,7 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName stri
 		return "", err
 	}
 
-	return containerName, nil
+	return containerID, containerName, nil
 }
 
 func GenContainerID(n int) string {
