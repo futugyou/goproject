@@ -12,10 +12,6 @@ import (
 )
 
 func Run(cmdArray []string, tty, detach bool, res *subsystem.ResourceConfig, containerName, imageName, volume string, envs []string) {
-	containerID := container.GenContainerID(10)
-	if containerName == "" {
-		containerName = containerID
-	}
 	parent, writePipe := container.NewParentProcess(tty, volume, containerName, imageName, envs)
 	if parent == nil {
 		logrus.Errorf("failed to new parent process")
@@ -26,7 +22,7 @@ func Run(cmdArray []string, tty, detach bool, res *subsystem.ResourceConfig, con
 		return
 	}
 	// 记录容器信息
-	err := container.RecordContainerInfo(parent.Process.Pid, cmdArray, containerName, containerID)
+	containerName, err := container.RecordContainerInfo(parent.Process.Pid, cmdArray, containerName)
 	if err != nil {
 		logrus.Errorf("record container info, err: %v", err)
 	}

@@ -28,7 +28,11 @@ type ContainerInfo struct {
 }
 
 // 记录容器信息
-func RecordContainerInfo(containerPID int, cmdArray []string, containerName, containerID string) error {
+func RecordContainerInfo(containerPID int, cmdArray []string, containerName string) (string, error) {
+	containerID := GenContainerID(10)
+	if containerName == "" {
+		containerName = containerID
+	}
 	info := &ContainerInfo{
 		Pid:        strconv.Itoa(containerPID),
 		Id:         containerID,
@@ -44,7 +48,7 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName, con
 		err := os.MkdirAll(dir, os.ModePerm)
 		if err != nil {
 			logrus.Errorf("mkdir container dir: %s, err: %v", dir, err)
-			return err
+			return "", err
 		}
 	}
 
@@ -52,17 +56,18 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName, con
 	file, err := os.Create(fileName)
 	if err != nil {
 		logrus.Errorf("create config.json, fileName: %s, err: %v", fileName, err)
-		return err
+		return "", err
 	}
+	defer file.Close()
 
 	bs, _ := json.Marshal(info)
 	_, err = file.WriteString(string(bs))
 	if err != nil {
 		logrus.Errorf("write config.json, fileName: %s, err: %v", fileName, err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return containerName, nil
 }
 
 func GenContainerID(n int) string {
