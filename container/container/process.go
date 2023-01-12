@@ -53,5 +53,6 @@ func NewParentProcess(tty bool, volume, containerName, imageName string, envs []
 	}
 	// 指定容器初始化后的工作目录
 	cmd.Dir = common.MntPath
+	cmd.Env = append(os.Environ(), envs...)
 	return cmd, writePipe
 }
