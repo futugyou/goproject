@@ -5,37 +5,18 @@ import (
 	"fmt"
 	"golangproject/container/common"
 	"io/ioutil"
+	"path"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 func getContainerPidByName(containerName string) (string, error) {
-	dirUrl := fmt.Sprintf(common.DefaultContainerInfoPath, containerName)
-	configFilePath := dirUrl + common.ContainerInfoFileName
-	contentBytes, err := ioutil.ReadFile(configFilePath)
+	info, err := getContainerInfo(containerName)
 	if err != nil {
-		return "", fmt.Errorf("read file %s err: %v", configFilePath, err)
+		return "", err
 	}
-
-	var containerInfo ContainerInfo
-	if err := json.Unmarshal(contentBytes, &containerInfo); err != nil {
-		return "", fmt.Errorf("json ummarshal err: %v", err)
-	}
-	return containerInfo.Pid, nil
-}
-
-func getContainerInfoByName(containerName string) (*ContainerInfo, error) {
-	dirUrl := fmt.Sprintf(common.DefaultContainerInfoPath, containerName)
-	configFilePath := dirUrl + common.ContainerInfoFileName
-	contentBytes, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("read file %s err: %v", configFilePath, err)
-	}
-
-	var containerInfo ContainerInfo
-	if err := json.Unmarshal(contentBytes, &containerInfo); err != nil {
-		return nil, fmt.Errorf("json ummarshal err: %v", err)
-	}
-	return &containerInfo, nil
+	return info.Pid, nil
 }
 
 func getEnvsByPid(pid string) ([]string, error) {
@@ -45,4 +26,16 @@ func getEnvsByPid(pid string) ([]string, error) {
 		return nil, fmt.Errorf("read file %s err: %v", path, err)
 	}
 	return strings.Split(string(contentBytes), "\u0000"), nil
+}
+
+func getContainerInfo(containerName string) (*ContainerInfo, error) {
+	filePath := path.Join(common.DefaultContainerInfoPath, containerName, common.ContainerInfoFileName)
+	bs, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		logrus.Errorf("read file, path: %s, err: %v", filePath, err)
+		return nil, err
+	}
+	info := &ContainerInfo{}
+	err = json.Unmarshal(bs, info)
+	return info, err
 }

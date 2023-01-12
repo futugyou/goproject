@@ -22,6 +22,7 @@ func main() {
 		command.ListCommand,
 		command.StopCommand,
 		command.RemoveCommand,
+		command.CommitCommand,
 	}
 	app.Before = func(context *cli.Context) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{})

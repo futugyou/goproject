@@ -1,12 +1,10 @@
 package container
 
 import (
-	"encoding/json"
 	"fmt"
 	"golangproject/container/common"
 	"io/ioutil"
 	"os"
-	"path"
 	"text/tabwriter"
 
 	"github.com/sirupsen/logrus"
@@ -39,16 +37,4 @@ func ListContainerInfo() {
 	if err := w.Flush(); err != nil {
 		logrus.Errorf("flush info, err: %v", err)
 	}
-}
-
-func getContainerInfo(containerName string) (*ContainerInfo, error) {
-	filePath := path.Join(common.DefaultContainerInfoPath, containerName, common.ContainerInfoFileName)
-	bs, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		logrus.Errorf("read file, path: %s, err: %v", filePath, err)
-		return nil, err
-	}
-	info := &ContainerInfo{}
-	err = json.Unmarshal(bs, info)
-	return info, err
 }
