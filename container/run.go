@@ -11,7 +11,7 @@ import (
 	"golangproject/container/container"
 )
 
-func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerName, imageName, volume string, envs []string) {
+func Run(cmdArray []string, tty, detach bool, res *subsystem.ResourceConfig, containerName, imageName, volume string, envs []string) {
 	containerID := container.GenContainerID(10)
 	if containerName == "" {
 		containerName = containerID
@@ -43,7 +43,7 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerNa
 	// 设置初始化命令
 	sendInitCommand(cmdArray, writePipe)
 
-	if tty {
+	if !detach {
 		// 等待父进程结束
 		err := parent.Wait()
 		if err != nil {

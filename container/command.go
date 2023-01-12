@@ -53,11 +53,6 @@ var runCommand = cli.Command{
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("missing container args")
 		}
-		tty := context.Bool("ti")
-		detach := context.Bool("d")
-		if tty && detach {
-			return fmt.Errorf("ti and d paramter can not both provided")
-		}
 
 		res := &subsystem.ResourceConfig{
 			MemoryLimit: context.String("m"),
@@ -71,13 +66,14 @@ var runCommand = cli.Command{
 			cmdArray = append(cmdArray, arg)
 		}
 
-		containerName := context.String("name")
-		volume := context.String("v")
 		// 要运行的镜像名
 		imageName := context.Args().Get(0)
+		containerName := context.String("name")
+		volume := context.String("v")
 		envs := context.StringSlice("e")
-
-		Run(cmdArray, tty, res, containerName, imageName, volume, envs)
+		tty := context.Bool("ti")
+		detach := context.Bool("d")
+		Run(cmdArray, tty, detach, res, containerName, imageName, volume, envs)
 		return nil
 	},
 }
