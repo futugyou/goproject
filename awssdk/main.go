@@ -60,5 +60,6 @@ func main() {
 	// ecs.ListAccountSettings()
 
 	// ssm.ListAssociations()
-	ssm.ListCommands()
+	// ssm.ListCommands()
+	ssm.GetParametersByPath()
 }

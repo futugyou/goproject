@@ -3,6 +3,7 @@ package ssm
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
@@ -37,5 +38,19 @@ func ListCommands() {
 	}
 	for _, command := range output.Commands {
 		fmt.Println(&command.Comment)
+	}
+}
+
+func GetParametersByPath() {
+	input := &ssm.GetParametersByPathInput{
+		Path: aws.String("/"),
+	}
+	output, err := svc.GetParametersByPath(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, parameter := range output.Parameters {
+		fmt.Println(*parameter.Name)
 	}
 }
