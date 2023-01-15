@@ -68,3 +68,19 @@ func GetParameters() {
 		fmt.Println(*parameter.Name)
 	}
 }
+
+func DescribeParameters() {
+	input := &ssm.DescribeParametersInput{
+		// max value 50
+		MaxResults: aws.Int32(50),
+	}
+	output, err := svc.DescribeParameters(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, p := range output.Parameters {
+		fmt.Println("Name:", *p.Name, "\tDataType:", *p.DataType, "\tTier:", p.Tier, "\tType:", p.Type, "\tPolicies:", p.Policies)
+	}
+}
