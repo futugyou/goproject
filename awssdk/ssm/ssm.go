@@ -55,17 +55,17 @@ func GetParametersByPath() {
 	}
 }
 
-func GetParameters() {
+func GetParameters(name string) {
 	input := &ssm.GetParametersInput{
-		Names: []string{"/"},
+		Names: []string{name},
 	}
 	output, err := svc.GetParameters(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	for _, parameter := range output.Parameters {
-		fmt.Println(*parameter.Name)
+	for _, p := range output.Parameters {
+		fmt.Println("Value:\n", *p.Value)
 	}
 }
 
@@ -82,5 +82,7 @@ func DescribeParameters() {
 
 	for _, p := range output.Parameters {
 		fmt.Println("Name:", *p.Name, "\tDataType:", *p.DataType, "\tTier:", p.Tier, "\tType:", p.Type, "\tPolicies:", p.Policies)
+		GetParameters(*p.Name)
+		fmt.Println()
 	}
 }
