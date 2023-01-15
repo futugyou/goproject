@@ -43,7 +43,8 @@ func ListCommands() {
 
 func GetParametersByPath() {
 	input := &ssm.GetParametersByPathInput{
-		Path: aws.String("/"),
+		Path:           aws.String("/"),
+		WithDecryption: aws.Bool(true),
 	}
 	output, err := svc.GetParametersByPath(awsenv.EmptyContext, input)
 	if err != nil {
@@ -57,7 +58,8 @@ func GetParametersByPath() {
 
 func GetParameters(name string) {
 	input := &ssm.GetParametersInput{
-		Names: []string{name},
+		Names:          []string{name},
+		WithDecryption: aws.Bool(true),
 	}
 	output, err := svc.GetParameters(awsenv.EmptyContext, input)
 	if err != nil {
