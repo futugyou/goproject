@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
@@ -67,6 +68,7 @@ func GetParameters(name string) {
 		return
 	}
 	for _, p := range output.Parameters {
+		fmt.Println("Version:\n", p.Version)
 		fmt.Println("Value:\n", *p.Value)
 	}
 }
@@ -87,4 +89,20 @@ func DescribeParameters() {
 		GetParameters(*p.Name)
 		fmt.Println()
 	}
+}
+
+func PutParameter() {
+	putInput := &ssm.PutParameterInput{
+		Name:      aws.String("/Terrform/Configuration/NetworkPolicy"),
+		Value:     aws.String("{\"apiVersion\":{\"kind\":\"PodSecurityConfiguration\",\"defaults\":{\"enforce\":\"baseline\",\"enforce-version\":\"latest\",\"audit\":\"restricted\",\"audit-version\":\"latest\",\"warn\":\"restricted\",\"warn-version\":\"latest\"}}}"),
+		Overwrite: aws.Bool(true),
+		Type:      types.ParameterTypeString,
+	}
+	putOutput, err := svc.PutParameter(awsenv.EmptyContext, putInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Name:", &putInput.Name, "\tTier:", putOutput.Tier, "\tVersion:", putOutput.Version)
+	GetParameters(*putInput.Name)
 }
