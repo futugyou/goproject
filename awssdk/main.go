@@ -64,5 +64,6 @@ func main() {
 	// ssm.GetParametersByPath()
 	// ssm.GetParameters("/")
 	// ssm.DescribeParameters()
-	ssm.PutParameter()
+	// ssm.PutParameter()
+	ssm.DeleteParameter()
 }

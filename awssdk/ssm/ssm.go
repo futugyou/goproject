@@ -106,3 +106,15 @@ func PutParameter() {
 	fmt.Println("Name:", &putInput.Name, "\tTier:", putOutput.Tier, "\tVersion:", putOutput.Version)
 	GetParameters(*putInput.Name)
 }
+
+func DeleteParameter() {
+	input := ssm.DeleteParameterInput{
+		Name: aws.String("/Terrform/Configuration/NetworkPolicy"),
+	}
+	output, err := svc.DeleteParameter(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
