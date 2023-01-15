@@ -8,7 +8,8 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/iam"
-	"github.com/futugyousuzu/goproject/awsgolang/ecs"
+	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/ssm"
 )
 
 func main() {
@@ -56,5 +57,8 @@ func main() {
 	// ecs.CreateAndDeleteCluster()
 	// ecs.DescribeTaskDefinition()
 	// ecs.ListContainerInstances()
-	ecs.ListAccountSettings()
+	// ecs.ListAccountSettings()
+
+	// ssm.ListAssociations()
+	ssm.ListCommands()
 }
