@@ -9,7 +9,8 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
-	"github.com/futugyousuzu/goproject/awsgolang/ssm"
+	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
+	"github.com/futugyousuzu/goproject/awsgolang/ec2"
 )
 
 func main() {
@@ -65,5 +66,7 @@ func main() {
 	// ssm.GetParameters("/")
 	// ssm.DescribeParameters()
 	// ssm.PutParameter()
-	ssm.DeleteParameter()
+	// ssm.DeleteParameter()
+
+	ec2.DescribeSecurityGroups()
 }
