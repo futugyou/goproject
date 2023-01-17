@@ -10,7 +10,8 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
-	"github.com/futugyousuzu/goproject/awsgolang/ec2"
+	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
+	"github.com/futugyousuzu/goproject/awsgolang/s3"
 )
 
 func main() {
@@ -68,5 +69,7 @@ func main() {
 	// ssm.PutParameter()
 	// ssm.DeleteParameter()
 
-	ec2.DescribeSecurityGroups()
+	// ec2.DescribeSecurityGroups()
+
+	s3.ListBuckets()
 }
