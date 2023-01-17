@@ -26,3 +26,21 @@ func ListBuckets() {
 		fmt.Println(*bucket.Name)
 	}
 }
+
+func ListObjectsV2(bucketName string) {
+	objInput := s3.ListObjectsV2Input{
+		Bucket: &bucketName,
+	}
+	ojbOutput, err := svc.ListObjectsV2(awsenv.EmptyContext, &objInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("name:", *ojbOutput.Name)
+	for _, obj := range ojbOutput.Contents {
+		fmt.Println("\tKey:", *obj.Key, "\tLastModified:", obj.LastModified)
+	}
+	for _, obj := range ojbOutput.CommonPrefixes {
+		fmt.Println("\tPrefix:", *obj.Prefix)
+	}
+}
