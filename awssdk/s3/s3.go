@@ -70,3 +70,24 @@ func GetObject(bucket, key string) {
 		fmt.Println(err)
 	}
 }
+
+func PutObject(bucket, key string) {
+	outFile, err := os.Open("./test.tx")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer outFile.Close()
+
+	input := s3.PutObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+		Body:   outFile,
+	}
+	output, err := svc.PutObject(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
