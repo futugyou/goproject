@@ -71,6 +71,7 @@ func main() {
 
 	// ec2.DescribeSecurityGroups()
 
-	// s3.ListBuckets()
-	s3.ListObjectsV2("/")
+	s3.ListBuckets()
+	// s3.ListObjectsV2("/")
+	// s3.GetObject("", "")
 }

@@ -2,7 +2,10 @@ package s3
 
 import (
 	"fmt"
+	"io"
+	"os"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
@@ -23,7 +26,7 @@ func ListBuckets() {
 		return
 	}
 	for _, bucket := range output.Buckets {
-		fmt.Println(*bucket.Name)
+		fmt.Println(*bucket.Name, bucket.CreationDate)
 	}
 }
 
@@ -42,5 +45,28 @@ func ListObjectsV2(bucketName string) {
 	}
 	for _, obj := range ojbOutput.CommonPrefixes {
 		fmt.Println("\tPrefix:", *obj.Prefix)
+	}
+}
+
+func GetObject(bucket, key string) {
+	input := s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}
+	output, err := svc.GetObject(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	outFile, err := os.Create("./test.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	// handle err
+	defer outFile.Close()
+	_, err = io.Copy(outFile, output.Body)
+	if err != nil {
+		fmt.Println(err)
 	}
 }
