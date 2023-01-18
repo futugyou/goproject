@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
@@ -67,4 +68,25 @@ func DescribeTable(tableName string) {
 		fmt.Print("\t", *schema.AttributeName, "\t", schema.KeyType)
 	}
 	fmt.Println()
+}
+
+func CreateTable() {
+	input := dynamodb.CreateTableInput{
+		AttributeDefinitions: []types.AttributeDefinition{{
+			AttributeName: aws.String("LockId"),
+			AttributeType: types.ScalarAttributeTypeS,
+		}},
+		KeySchema: []types.KeySchemaElement{{
+			AttributeName: aws.String("LockId"),
+			KeyType:       types.KeyTypeHash,
+		}},
+		TableName:   aws.String("Terraform-Lock"),
+		BillingMode: types.BillingModePayPerRequest,
+	}
+	output, err := svc.CreateTable(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(*output.TableDescription.TableId)
 }
