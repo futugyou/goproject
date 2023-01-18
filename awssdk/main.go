@@ -78,6 +78,6 @@ func main() {
 	// s3.PutObject("", "")
 
 	// dynamodb.ListGlobalTables()
-	dynamodb.ListTables()
-
+	// dynamodb.ListTables()
+	dynamodb.DescribeTable("/")
 }

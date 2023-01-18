@@ -41,5 +41,30 @@ func ListTables() {
 
 	for _, table := range output.TableNames {
 		fmt.Println(table)
+		DescribeTable(table)
 	}
+}
+
+func DescribeTable(tableName string) {
+	input := dynamodb.DescribeTableInput{
+		TableName: aws.String(tableName),
+	}
+	output, err := svc.DescribeTable(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, attr := range output.Table.AttributeDefinitions {
+		fmt.Print("\t", *attr.AttributeName)
+	}
+	fmt.Print("\t",
+		output.Table.BillingModeSummary.BillingMode.Values(), "\t",
+		output.Table.CreationDateTime, "\t",
+		*output.Table.ItemCount, "\t",
+		// *output.Table.TableArn, "\t",
+		output.Table.TableStatus)
+	for _, schema := range output.Table.KeySchema {
+		fmt.Print("\t", *schema.AttributeName, "\t", schema.KeyType)
+	}
+	fmt.Println()
 }
