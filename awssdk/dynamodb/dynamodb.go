@@ -90,3 +90,16 @@ func CreateTable() {
 	}
 	fmt.Println(*output.TableDescription.TableId)
 }
+
+func CreateBackup() {
+	input := dynamodb.CreateBackupInput{
+		BackupName: aws.String("Terraform-Lock-Back"),
+		TableName:  aws.String("Terraform-Lock"),
+	}
+	output, err := svc.CreateBackup(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.BackupDetails.BackupType, output.BackupDetails.BackupStatus, output.BackupDetails.BackupCreationDateTime, output.BackupDetails.BackupExpiryDateTime)
+}
