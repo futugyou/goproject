@@ -30,3 +30,16 @@ func ListGlobalTables() {
 		fmt.Println(*table.GlobalTableName, table.ReplicationGroup)
 	}
 }
+
+func ListTables() {
+	input := dynamodb.ListTablesInput{}
+	output, err := svc.ListTables(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, table := range output.TableNames {
+		fmt.Println(table)
+	}
+}

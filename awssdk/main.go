@@ -77,6 +77,7 @@ func main() {
 	// s3.GetObject("", "")
 	// s3.PutObject("", "")
 
-	dynamodb.ListGlobalTables()
+	// dynamodb.ListGlobalTables()
+	dynamodb.ListTables()
 
 }
