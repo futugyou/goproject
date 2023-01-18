@@ -22,6 +22,8 @@ github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.18.0 h1:Ai+CjJw+5/s3r6k5p
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.18.0/go.mod h1:xHK1ta0bQEa5jL6rahKRJvsibjzDO7NTIs5itzsF4w8=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.19.0 h1:p+OcsLTwgm2nYEohXLtvgcH85uw7hZM4RS5Q3wear6E=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.19.0/go.mod h1:xHK1ta0bQEa5jL6rahKRJvsibjzDO7NTIs5itzsF4w8=
+github.com/aws/aws-sdk-go-v2/service/dynamodb v1.18.0 h1:ytPUxPttkqtX8ducnFlimxa75RTwWfox+y8FwhIzMQE=
+github.com/aws/aws-sdk-go-v2/service/dynamodb v1.18.0/go.mod h1:uP2wpt43//qh6NqMFslaRu53A2YbnFStkV4Wn1Ldels=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.78.0 h1:pQAJaGmq6CYduJkI078q/G1GYtJBXHlzmAeCWt8ain8=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.78.0/go.mod h1:mV0E7631M1eXdB+tlGFIw6JxfsC7Pz7+7Aw15oLVhZw=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.18.0 h1:5RVanD+P+L2W9WU07/8J/A52vnQi7F3ClBdWQttgYlg=
@@ -34,6 +36,8 @@ github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.11 h1:y2+VQzC
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.11/go.mod h1:iV4q2hsqtNECrfmlXyord9u4zyuFEJX9eLgLpSPzWA8=
 github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.1.22 h1:kv5vRAl00tozRxSnI0IszPWGXsJOyA7hmEUHFYqsyvw=
 github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.1.22/go.mod h1:Od+GU5+Yx41gryN/ZGZzAJMZ9R1yn6lgA0fD5Lo5SkQ=
+github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.7.21 h1:UYhcXvg66FBsZKRpXtNc4w+2rwaTHzST/zhpQBxzhPo=
+github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.7.21/go.mod h1:NXJls8x8f9zVSaf+EKKoonqaahWK69MUWm6w6ob0FHs=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.21 h1:5C6XgTViSb0bunmU57b3CT+MhxULqHH2721FVA+/kDM=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.21/go.mod h1:lRToEJsn+DRA9lW4O9L9+/3hjTkUzlzyzHqn8MTds5k=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.13.21 h1:vY5siRXvW5TrOKm2qKEf9tliBfdLxdfy0i02LOcmqUo=
