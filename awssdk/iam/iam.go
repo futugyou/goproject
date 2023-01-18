@@ -56,13 +56,14 @@ func ListUsers() {
 			fmt.Println("\t- ", *policy.PolicyName)
 		}
 
+		ListAccessKeys(*user.UserName)
 		fmt.Println()
 	}
 }
 
-func ListAccessKeys() {
+func ListAccessKeys(userName string) {
 	input := &iam.ListAccessKeysInput{
-		// UserName: aws.String(awsenv.UserName),
+		UserName: aws.String(userName),
 	}
 	// this method will show currect user(env) key
 	output, err := svc.ListAccessKeys(awsenv.EmptyContext, input)
@@ -72,7 +73,7 @@ func ListAccessKeys() {
 	}
 
 	for _, data := range output.AccessKeyMetadata {
-		fmt.Println("UserName:", *data.UserName, "\tAccessKeyId:", *data.AccessKeyId)
+		fmt.Println("UserName:", *data.UserName, "\tAccessKeyId:", *data.AccessKeyId, "\tStatus:", data.Status, "\tCreateDate:", data.CreateDate)
 	}
 }
 

@@ -7,11 +7,11 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
-	// "github.com/futugyousuzu/goproject/awsgolang/iam"
+	"github.com/futugyousuzu/goproject/awsgolang/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
-	"github.com/futugyousuzu/goproject/awsgolang/s3"
+	// "github.com/futugyousuzu/goproject/awsgolang/s3"
 )
 
 func main() {
@@ -39,8 +39,8 @@ func main() {
 	// ecr.CreateRepository()
 	// ecr.DeleteRepository()
 
-	// iam.ListUsers()
-	// iam.ListAccessKeys()
+	iam.ListUsers()
+	// iam.ListAccessKeys("")
 	// iam.ListGroups()
 	// iam.ListAccountAliases()
 	// iam.CreateAccountAlias()
@@ -74,5 +74,5 @@ func main() {
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
 	// s3.GetObject("", "")
-	s3.PutObject("", "")
+	// s3.PutObject("", "")
 }
