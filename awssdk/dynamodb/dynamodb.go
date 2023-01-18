@@ -130,3 +130,15 @@ func DeleteBackup(backupArn string) {
 	}
 	fmt.Println(output.BackupDescription)
 }
+
+func DeleteTable() {
+	input := dynamodb.DeleteTableInput{
+		TableName: aws.String("Terraform-Lock"),
+	}
+	output, err := svc.DeleteTable(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.TableDescription)
+}
