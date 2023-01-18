@@ -115,5 +115,18 @@ func ListBackups() {
 	}
 	for _, backup := range output.BackupSummaries {
 		fmt.Println(*backup.BackupName)
+		DeleteBackup(*backup.BackupArn)
 	}
+}
+
+func DeleteBackup(backupArn string) {
+	input := dynamodb.DeleteBackupInput{
+		BackupArn: aws.String(backupArn),
+	}
+	output, err := svc.DeleteBackup(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.BackupDescription)
 }

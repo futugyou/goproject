@@ -82,5 +82,6 @@ func main() {
 	// dynamodb.DescribeTable("/")
 	// dynamodb.CreateTable()
 	// dynamodb.CreateBackup()
-	dynamodb.ListBackups()
+	// dynamodb.ListBackups()
+	dynamodb.DeleteBackup("/")
 }
