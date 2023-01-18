@@ -103,3 +103,17 @@ func CreateBackup() {
 	}
 	fmt.Println(output.BackupDetails.BackupType, output.BackupDetails.BackupStatus, output.BackupDetails.BackupCreationDateTime, output.BackupDetails.BackupExpiryDateTime)
 }
+
+func ListBackups() {
+	input := dynamodb.ListBackupsInput{
+		TableName: aws.String("Terraform-Lock"),
+	}
+	output, err := svc.ListBackups(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, backup := range output.BackupSummaries {
+		fmt.Println(*backup.BackupName)
+	}
+}
