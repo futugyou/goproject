@@ -261,3 +261,22 @@ func UpdateItem() {
 		fmt.Println(key, value)
 	}
 }
+
+func DeleteItem() {
+	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
+	input := dynamodb.DeleteItemInput{
+		Key: map[string]types.AttributeValue{
+			"PK": &attrValue,
+		},
+		TableName:    aws.String("some name"),
+		ReturnValues: types.ReturnValueAllOld,
+	}
+	output, err := svc.DeleteItem(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for key, value := range output.Attributes {
+		fmt.Println(key, value)
+	}
+}
