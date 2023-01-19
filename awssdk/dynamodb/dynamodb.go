@@ -188,3 +188,25 @@ func Query(tableName string) {
 		fmt.Println()
 	}
 }
+
+func GetItem() {
+	tableName := "some value"
+	var pk types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
+	var sk types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
+	input := dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]types.AttributeValue{
+			"PK": &pk,
+			"SK": &sk,
+		},
+	}
+	output, err := svc.GetItem(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("ConsumedCapacity:", output.ConsumedCapacity)
+	for key, value := range output.Item {
+		fmt.Println(key, value)
+	}
+}
