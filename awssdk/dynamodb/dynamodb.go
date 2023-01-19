@@ -212,6 +212,7 @@ func GetItem() {
 	}
 }
 
+// this mothed will use 'Item' to replace all data
 func PutItem() {
 	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
 	var time types.AttributeValueMemberS = types.AttributeValueMemberS{Value: time.Now().Format("2006/01/02 15:04:05")}
@@ -231,4 +232,32 @@ func PutItem() {
 		return
 	}
 	fmt.Println(output.Attributes)
+}
+
+// it can do part update
+func UpdateItem() {
+	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
+	var time types.AttributeValueMemberS = types.AttributeValueMemberS{Value: time.Now().Format("2006/01/02 15:04:05")}
+	input := dynamodb.UpdateItemInput{
+		Key: map[string]types.AttributeValue{
+			"PK": &attrValue,
+		},
+		TableName:           aws.String("some name"),
+		UpdateExpression:    aws.String("set Time = :time"),
+		ConditionExpression: aws.String("PK = :val"),
+
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":val":  &attrValue,
+			":time": &time,
+		},
+		ReturnValues: types.ReturnValueAllNew,
+	}
+	output, err := svc.UpdateItem(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for key, value := range output.Attributes {
+		fmt.Println(key, value)
+	}
 }

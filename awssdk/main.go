@@ -88,5 +88,6 @@ func main() {
 	// dynamodb.Scan("/")
 	// dynamodb.Query("/")
 	// dynamodb.GetItem()
-	dynamodb.PutItem()
+	// dynamodb.PutItem()
+	dynamodb.UpdateItem()
 }
