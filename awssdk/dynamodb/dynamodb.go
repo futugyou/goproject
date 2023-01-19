@@ -2,6 +2,7 @@ package dynamodb
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -209,4 +210,25 @@ func GetItem() {
 	for key, value := range output.Item {
 		fmt.Println(key, value)
 	}
+}
+
+func PutItem() {
+	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
+	var time types.AttributeValueMemberS = types.AttributeValueMemberS{Value: time.Now().Format("2006/01/02 15:04:05")}
+	input := dynamodb.PutItemInput{
+		Item: map[string]types.AttributeValue{
+			"LockTime": &time,
+			"PK":       &attrValue,
+		},
+		TableName:                 aws.String("some name"),
+		ConditionExpression:       aws.String("#P = :val"),
+		ExpressionAttributeNames:  map[string]string{"#P": "PK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{":val": (types.AttributeValue)(&attrValue)},
+	}
+	output, err := svc.PutItem(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.Attributes)
 }
