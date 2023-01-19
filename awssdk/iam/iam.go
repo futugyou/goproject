@@ -29,7 +29,7 @@ func ListUsers() {
 	// this will be nil
 	//fmt.Println("Marker:", *output.Marker)
 	for _, user := range output.Users {
-		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path)
+		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path, user.PasswordLastUsed)
 		fmt.Println("\tTags:", user.Tags)
 		input := &iam.ListUserPoliciesInput{
 			UserName: user.UserName,
