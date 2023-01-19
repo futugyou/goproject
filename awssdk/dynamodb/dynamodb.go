@@ -144,7 +144,7 @@ func DeleteTable() {
 }
 
 func Scan(tableName string) {
-	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "*"}
+	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
 	input := dynamodb.ScanInput{
 		TableName:                 aws.String(tableName),
 		ConsistentRead:            aws.Bool(false), // default false
@@ -162,6 +162,25 @@ func Scan(tableName string) {
 	fmt.Println(output.LastEvaluatedKey)
 	fmt.Println(output.ConsumedCapacity)
 	fmt.Println(output.ScannedCount)
+	for _, item := range output.Items {
+		for key, value := range item {
+			fmt.Println(key, value)
+		}
+		fmt.Println()
+	}
+}
+
+func Query(tableName string) {
+	var attrValue types.AttributeValueMemberS = types.AttributeValueMemberS{Value: "some value"}
+	input := dynamodb.QueryInput{
+		TableName:     aws.String(tableName),
+		KeyConditions: map[string]types.Condition{"PK": {ComparisonOperator: types.ComparisonOperatorEq, AttributeValueList: []types.AttributeValue{&attrValue}}},
+	}
+	output, err := svc.Query(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	for _, item := range output.Items {
 		for key, value := range item {
 			fmt.Println(key, value)

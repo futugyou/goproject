@@ -85,5 +85,6 @@ func main() {
 	// dynamodb.ListBackups()
 	// dynamodb.DeleteBackup("/")
 	// dynamodb.DeleteTable()
-	dynamodb.Scan("/")
+	// dynamodb.Scan("/")
+	dynamodb.Query("/")
 }
