@@ -71,7 +71,8 @@ func main() {
 	// ssm.DeleteParameter()
 
 	// ec2.DescribeSecurityGroups()
-	ec2.DescribeVpcs()
+	// ec2.DescribeVpcs()
+	ec2.CreateVpc()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")

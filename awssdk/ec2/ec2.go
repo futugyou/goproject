@@ -3,6 +3,7 @@ package ec2
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -84,5 +85,33 @@ func DescribeVpcs() {
 		fmt.Println("\tEnableNetworkAddressUsageMetrics:", *output.EnableNetworkAddressUsageMetrics.Value)
 
 		fmt.Println()
+	}
+}
+
+func CreateVpc() {
+	input := ec2.CreateVpcInput{
+		CidrBlock:       aws.String("10.0.0.0/16"), // this must >=16 and <=28
+		InstanceTenancy: types.TenancyDedicated,
+		TagSpecifications: []types.TagSpecification{
+			{
+				ResourceType: types.ResourceTypeVpc,
+				Tags: []types.Tag{
+					{
+						Key:   aws.String("Name"),
+						Value: aws.String("Terraform-Vpc-01"),
+					},
+				},
+			},
+		},
+	}
+	output, err := svc.CreateVpc(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	vpc := output.Vpc
+	fmt.Println(*vpc.VpcId, *vpc.CidrBlock, *vpc.DhcpOptionsId, vpc.InstanceTenancy, *vpc.IsDefault, *vpc.OwnerId, vpc.State)
+	for _, set := range vpc.CidrBlockAssociationSet {
+		fmt.Println("\t", *set.AssociationId, *set.CidrBlock, set.CidrBlockState.State)
 	}
 }
