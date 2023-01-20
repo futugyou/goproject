@@ -32,3 +32,15 @@ func DescribeSecurityGroups() {
 		}
 	}
 }
+
+func DescribeVpcs() {
+	input := ec2.DescribeVpcsInput{}
+	output, err := svc.DescribeVpcs(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, vpc := range output.Vpcs {
+		fmt.Println(*vpc.VpcId, *vpc.CidrBlock, *vpc.DhcpOptionsId, vpc.InstanceTenancy, *vpc.IsDefault, *vpc.OwnerId, vpc.State)
+	}
+}

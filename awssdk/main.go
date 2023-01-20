@@ -10,9 +10,9 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
-	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
+	"github.com/futugyousuzu/goproject/awsgolang/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/s3"
-	"github.com/futugyousuzu/goproject/awsgolang/dynamodb"
+	// "github.com/futugyousuzu/goproject/awsgolang/dynamodb"
 )
 
 func main() {
@@ -71,6 +71,7 @@ func main() {
 	// ssm.DeleteParameter()
 
 	// ec2.DescribeSecurityGroups()
+	ec2.DescribeVpcs()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
@@ -90,5 +91,5 @@ func main() {
 	// dynamodb.GetItem()
 	// dynamodb.PutItem()
 	// dynamodb.UpdateItem()
-	dynamodb.DeleteItem()
+	// dynamodb.DeleteItem()
 }
