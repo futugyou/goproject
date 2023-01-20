@@ -115,3 +115,16 @@ func CreateVpc() {
 		fmt.Println("\t", *set.AssociationId, *set.CidrBlock, set.CidrBlockState.State)
 	}
 }
+
+func AssociateVpcCidrBlock() {
+	input := ec2.AssociateVpcCidrBlockInput{
+		VpcId:     aws.String("vpc-0e6c30199bc54494b"),
+		CidrBlock: aws.String("10.1.0.0/16"),
+	}
+	output, err := svc.AssociateVpcCidrBlock(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(*output.CidrBlockAssociation.AssociationId, *output.CidrBlockAssociation.CidrBlock, output.CidrBlockAssociation.CidrBlockState.State)
+}
