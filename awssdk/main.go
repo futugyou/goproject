@@ -74,7 +74,8 @@ func main() {
 	// ec2.DescribeVpcs()
 	// ec2.CreateVpc()
 	// ec2.AssociateVpcCidrBlock()
-	ec2.DisassociateVpcCidrBlock()
+	// ec2.DisassociateVpcCidrBlock()
+	ec2.DeleteVpc()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")

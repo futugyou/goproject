@@ -140,3 +140,15 @@ func DisassociateVpcCidrBlock() {
 	}
 	fmt.Println(output.CidrBlockAssociation.CidrBlockState.State)
 }
+
+func DeleteVpc() {
+	input := ec2.DeleteVpcInput{
+		VpcId: aws.String("vpc-0e6c30199bc54494b"),
+	}
+	output, err := svc.DeleteVpc(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
