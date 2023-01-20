@@ -128,3 +128,15 @@ func AssociateVpcCidrBlock() {
 	}
 	fmt.Println(*output.CidrBlockAssociation.AssociationId, *output.CidrBlockAssociation.CidrBlock, output.CidrBlockAssociation.CidrBlockState.State)
 }
+
+func DisassociateVpcCidrBlock() {
+	input := ec2.DisassociateVpcCidrBlockInput{
+		AssociationId: aws.String("vpc-cidr-assoc-0f5582b9236bb592a"),
+	}
+	output, err := svc.DisassociateVpcCidrBlock(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.CidrBlockAssociation.CidrBlockState.State)
+}
