@@ -186,6 +186,20 @@ func DescribeSubnets() {
 	}
 }
 
+func CreateSubnetCidrReservation() {
+	input := ec2.CreateSubnetCidrReservationInput{
+		Cidr:            aws.String("10.0.84.0/23"),
+		SubnetId:        aws.String("subnet-0ac563926878c2e84"),
+		ReservationType: types.SubnetCidrReservationTypeExplicit,
+	}
+	output, err := svc.CreateSubnetCidrReservation(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(*output.SubnetCidrReservation.SubnetCidrReservationId)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
