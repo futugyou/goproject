@@ -143,7 +143,7 @@ func DisassociateVpcCidrBlock() {
 
 func DeleteVpc() {
 	input := ec2.DeleteVpcInput{
-		VpcId: aws.String("vpc-0e6c30199bc54494b"),
+		VpcId: aws.String("vpc-006ba5fb389c1ccba"),
 	}
 	output, err := svc.DeleteVpc(awsenv.EmptyContext, &input)
 	if err != nil {
@@ -151,4 +151,32 @@ func DeleteVpc() {
 		return
 	}
 	fmt.Println(output.ResultMetadata)
+}
+
+func CreateSubnet() {
+	input := ec2.CreateSubnetInput{
+		VpcId:     aws.String("vpc-006ba5fb389c1ccba"),
+		CidrBlock: aws.String("10.0.84.0/22"),
+	}
+	output, err := svc.CreateSubnet(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	subnet := output.Subnet
+	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
+		*subnet.AvailabilityZone,
+		*subnet.AvailabilityZoneId,
+		*subnet.AvailableIpAddressCount,
+		*subnet.CidrBlock,
+		*subnet.DefaultForAz,
+		*subnet.EnableDns64,
+		*subnet.Ipv6Native,
+		*subnet.MapPublicIpOnLaunch,
+		*subnet.OwnerId,
+		*subnet.PrivateDnsNameOptionsOnLaunch,
+		subnet.State,
+		*subnet.SubnetArn,
+		*subnet.SubnetId,
+	)
 }
