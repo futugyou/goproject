@@ -228,6 +228,18 @@ func AssociateSubnetCidrBlock() {
 	fmt.Println(*output.Ipv6CidrBlockAssociation.AssociationId, *output.Ipv6CidrBlockAssociation.Ipv6CidrBlock, output.Ipv6CidrBlockAssociation.Ipv6CidrBlockState)
 }
 
+func DisassociateSubnetCidrBlock() {
+	input := ec2.DisassociateSubnetCidrBlockInput{
+		AssociationId: aws.String("associate-subnet-0ac563926878c2e84"),
+	}
+	output, err := svc.DisassociateSubnetCidrBlock(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
