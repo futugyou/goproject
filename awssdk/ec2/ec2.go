@@ -252,6 +252,18 @@ func DeleteSubnetCidrReservation() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DeleteSubnet() {
+	input := ec2.DeleteSubnetInput{
+		SubnetId: aws.String("subnet-0ac563926878c2e84"),
+	}
+	output, err := svc.DeleteSubnet(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
