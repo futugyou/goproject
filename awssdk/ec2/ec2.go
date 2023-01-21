@@ -215,6 +215,19 @@ func GetSubnetCidrReservations() {
 	}
 }
 
+func AssociateSubnetCidrBlock() {
+	input := ec2.AssociateSubnetCidrBlockInput{
+		Ipv6CidrBlock: aws.String("2001:db8:1234:1a00::/64"),
+		SubnetId:      aws.String("subnet-0ac563926878c2e84"),
+	}
+	output, err := svc.AssociateSubnetCidrBlock(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(*output.Ipv6CidrBlockAssociation.AssociationId, *output.Ipv6CidrBlockAssociation.Ipv6CidrBlock, output.Ipv6CidrBlockAssociation.Ipv6CidrBlockState)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,

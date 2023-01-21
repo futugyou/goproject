@@ -79,7 +79,8 @@ func main() {
 	// ec2.CreateSubnet()
 	// ec2.DescribeSubnets()
 	// ec2.CreateSubnetCidrReservation()
-	ec2.GetSubnetCidrReservations()
+	// ec2.GetSubnetCidrReservations()
+	ec2.AssociateSubnetCidrBlock()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
