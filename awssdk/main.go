@@ -76,7 +76,8 @@ func main() {
 	// ec2.AssociateVpcCidrBlock()
 	// ec2.DisassociateVpcCidrBlock()
 	// ec2.DeleteVpc()
-	ec2.CreateSubnet()
+	// ec2.CreateSubnet()
+	ec2.DescribeSubnets()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")

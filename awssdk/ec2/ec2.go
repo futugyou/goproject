@@ -164,6 +164,29 @@ func CreateSubnet() {
 		return
 	}
 	subnet := output.Subnet
+	displaySubnet(*subnet)
+}
+
+func DescribeSubnets() {
+	input := ec2.DescribeSubnetsInput{
+		Filters: []types.Filter{{
+			Name:   aws.String("vpc-id"),
+			Values: []string{"vpc-006ba5fb389c1ccba"},
+		},
+		},
+	}
+	onput, err := svc.DescribeSubnets(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, subnet := range onput.Subnets {
+		displaySubnet(subnet)
+		fmt.Println()
+	}
+}
+
+func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
 		*subnet.AvailabilityZoneId,
