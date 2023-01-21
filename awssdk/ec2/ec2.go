@@ -240,6 +240,18 @@ func DisassociateSubnetCidrBlock() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DeleteSubnetCidrReservation() {
+	input := ec2.DeleteSubnetCidrReservationInput{
+		SubnetCidrReservationId: aws.String("scr-0eee42ae462d56a1a"),
+	}
+	output, err := svc.DeleteSubnetCidrReservation(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
