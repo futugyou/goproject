@@ -84,7 +84,8 @@ func main() {
 	// ec2.DisassociateSubnetCidrBlock()
 	// ec2.DeleteSubnetCidrReservation()
 	// ec2.DeleteSubnet()
-	ec2.DescribeNetworkAcls()
+	// ec2.DescribeNetworkAcls()
+	ec2.CreateNetworkAcl()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")

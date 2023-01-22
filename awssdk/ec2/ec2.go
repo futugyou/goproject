@@ -143,7 +143,7 @@ func DisassociateVpcCidrBlock() {
 
 func DeleteVpc() {
 	input := ec2.DeleteVpcInput{
-		VpcId: aws.String("vpc-006ba5fb389c1ccba"),
+		VpcId: aws.String("vpc-0664da5448a5dc3f0"),
 	}
 	output, err := svc.DeleteVpc(awsenv.EmptyContext, &input)
 	if err != nil {
@@ -272,14 +272,20 @@ func DescribeNetworkAcls() {
 		return
 	}
 	for _, acl := range output.NetworkAcls {
-		fmt.Println(*acl.VpcId, *acl.OwnerId, *acl.NetworkAclId, *acl.IsDefault)
-		for _, a := range acl.Associations {
-			fmt.Println("\t", *a.SubnetId, *a.NetworkAclId, *a.NetworkAclAssociationId)
-		}
-		for _, v := range acl.Entries {
-			fmt.Println("\t", *v.CidrBlock, *v.Egress, *v.Protocol, v.RuleAction, *v.RuleNumber)
-		}
+		displayAcl(acl)
 	}
+}
+
+func CreateNetworkAcl() {
+	input := ec2.CreateNetworkAclInput{
+		VpcId: aws.String("vpc-0664da5448a5dc3f0"),
+	}
+	output, err := svc.CreateNetworkAcl(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	displayAcl(*output.NetworkAcl)
 }
 
 func displaySubnet(subnet types.Subnet) {
@@ -298,4 +304,14 @@ func displaySubnet(subnet types.Subnet) {
 		*subnet.SubnetArn,
 		*subnet.SubnetId,
 	)
+}
+
+func displayAcl(acl types.NetworkAcl) {
+	fmt.Println(*acl.VpcId, *acl.OwnerId, *acl.NetworkAclId, *acl.IsDefault)
+	for _, a := range acl.Associations {
+		fmt.Println("\t", *a.SubnetId, *a.NetworkAclId, *a.NetworkAclAssociationId)
+	}
+	for _, v := range acl.Entries {
+		fmt.Println("\t", *v.CidrBlock, *v.Egress, *v.Protocol, v.RuleAction, *v.RuleNumber)
+	}
 }
