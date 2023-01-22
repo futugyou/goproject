@@ -309,6 +309,20 @@ func CreateNetworkAclEntry() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DeleteNetworkAclEntry() {
+	input := ec2.DeleteNetworkAclEntryInput{
+		RuleNumber:   aws.Int32(100),
+		NetworkAclId: aws.String("acl-00419da83c857ade9"),
+		Egress:       aws.Bool(true),
+	}
+	output, err := svc.DeleteNetworkAclEntry(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
