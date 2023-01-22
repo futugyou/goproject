@@ -420,6 +420,18 @@ func DetachInternetGateway() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DeleteInternetGateway() {
+	input := ec2.DeleteInternetGatewayInput{
+		InternetGatewayId: aws.String("igw-078cf9209f27c2fc5"),
+	}
+	output, err := svc.DeleteInternetGateway(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,

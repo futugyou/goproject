@@ -95,7 +95,8 @@ func main() {
 	// ec2.DescribeInternetGateways()
 	// ec2.CreateInternetGateway()
 	// ec2.AttachInternetGateway()
-	ec2.DetachInternetGateway()
+	// ec2.DetachInternetGateway()
+	ec2.DeleteInternetGateway()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
