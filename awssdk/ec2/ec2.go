@@ -343,8 +343,21 @@ func DescribeNatGateways() {
 		return
 	}
 	for _, nat := range output.NatGateways {
-		fmt.Println(*nat.NatGatewayId, nat.NatGatewayAddresses, nat.State, nat.ConnectivityType)
+		displayNatgateway(nat)
 	}
+}
+
+func CreateNatGateway() {
+	input := ec2.CreateNatGatewayInput{
+		SubnetId:         aws.String("subnet-0505218e5192b90be"),
+		ConnectivityType: types.ConnectivityTypePrivate,
+	}
+	output, err := svc.CreateNatGateway(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	displayNatgateway(*output.NatGateway)
 }
 
 func displaySubnet(subnet types.Subnet) {
@@ -373,4 +386,28 @@ func displayAcl(acl types.NetworkAcl) {
 	for _, v := range acl.Entries {
 		fmt.Println("\t", *v.CidrBlock, *v.Egress, *v.Protocol, v.RuleAction, *v.RuleNumber)
 	}
+}
+
+func displayNatgateway(nat types.NatGateway) {
+	fmt.Print(
+		*nat.NatGatewayId, "\t",
+		nat.ConnectivityType, "\t",
+		nat.CreateTime, "\t",
+		nat.State,
+	)
+	for _, v := range nat.NatGatewayAddresses {
+		if v.AllocationId != nil {
+			fmt.Print("\t", *v.AllocationId)
+		}
+		if v.NetworkInterfaceId != nil {
+			fmt.Print("\t", *v.NetworkInterfaceId)
+		}
+		if v.PrivateIp != nil {
+			fmt.Print("\t", *v.PrivateIp)
+		}
+		if v.PublicIp != nil {
+			fmt.Print("\t", *v.PublicIp)
+		}
+	}
+	fmt.Println()
 }
