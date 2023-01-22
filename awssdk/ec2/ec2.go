@@ -288,6 +288,27 @@ func CreateNetworkAcl() {
 	displayAcl(*output.NetworkAcl)
 }
 
+func CreateNetworkAclEntry() {
+	input := ec2.CreateNetworkAclEntryInput{
+		NetworkAclId: aws.String("acl-00419da83c857ade9"),
+		Egress:       aws.Bool(true),
+		RuleAction:   types.RuleActionAllow,
+		RuleNumber:   aws.Int32(100),
+		Protocol:     aws.String("88"),
+		PortRange: &types.PortRange{
+			From: aws.Int32(77),
+			To:   aws.Int32(77),
+		},
+		CidrBlock: aws.String("10.0.0.0/16"),
+	}
+	output, err := svc.CreateNetworkAclEntry(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
