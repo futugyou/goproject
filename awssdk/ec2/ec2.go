@@ -407,6 +407,19 @@ func AttachInternetGateway() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DetachInternetGateway() {
+	input := ec2.DetachInternetGatewayInput{
+		InternetGatewayId: aws.String("igw-078cf9209f27c2fc5"),
+		VpcId:             aws.String("vpc-0664da5448a5dc3f0"),
+	}
+	output, err := svc.DetachInternetGateway(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
