@@ -335,6 +335,18 @@ func DeleteNetworkAcl() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DescribeNatGateways() {
+	input := ec2.DescribeNatGatewaysInput{}
+	output, err := svc.DescribeNatGateways(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, nat := range output.NatGateways {
+		fmt.Println(*nat.NatGatewayId, nat.NatGatewayAddresses, nat.State, nat.ConnectivityType)
+	}
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
