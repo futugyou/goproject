@@ -372,6 +372,18 @@ func DeleteNatGateway() {
 	fmt.Println(*output.NatGatewayId)
 }
 
+func DescribeInternetGateways() {
+	input := ec2.DescribeInternetGatewaysInput{}
+	output, err := svc.DescribeInternetGateways(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, gateway := range output.InternetGateways {
+		displayInternetGateway(gateway)
+	}
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
@@ -422,4 +434,11 @@ func displayNatgateway(nat types.NatGateway) {
 		}
 	}
 	fmt.Println()
+}
+
+func displayInternetGateway(gateway types.InternetGateway) {
+	fmt.Print(*gateway.InternetGatewayId, "\t", *gateway.OwnerId, "\t")
+	for _, v := range gateway.Attachments {
+		fmt.Println(*v.VpcId, v.State)
+	}
 }
