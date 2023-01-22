@@ -90,7 +90,8 @@ func main() {
 	// ec2.DeleteNetworkAclEntry()
 	// ec2.DeleteNetworkAcl()
 	// ec2.DescribeNatGateways()
-	ec2.CreateNatGateway()
+	// ec2.CreateNatGateway()
+	ec2.DeleteNatGateway()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")

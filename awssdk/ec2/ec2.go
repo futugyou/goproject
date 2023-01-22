@@ -360,6 +360,18 @@ func CreateNatGateway() {
 	displayNatgateway(*output.NatGateway)
 }
 
+func DeleteNatGateway() {
+	input := ec2.DeleteNatGatewayInput{
+		NatGatewayId: aws.String("nat-0f7863130dd048954"),
+	}
+	output, err := svc.DeleteNatGateway(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(*output.NatGatewayId)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
