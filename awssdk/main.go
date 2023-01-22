@@ -93,7 +93,8 @@ func main() {
 	// ec2.CreateNatGateway()
 	// ec2.DeleteNatGateway()
 	// ec2.DescribeInternetGateways()
-	ec2.CreateInternetGateway()
+	// ec2.CreateInternetGateway()
+	ec2.AttachInternetGateway()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
