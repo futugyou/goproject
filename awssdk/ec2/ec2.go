@@ -264,6 +264,24 @@ func DeleteSubnet() {
 	fmt.Println(output.ResultMetadata)
 }
 
+func DescribeNetworkAcls() {
+	input := ec2.DescribeNetworkAclsInput{}
+	output, err := svc.DescribeNetworkAcls(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, acl := range output.NetworkAcls {
+		fmt.Println(*acl.VpcId, *acl.OwnerId, *acl.NetworkAclId, *acl.IsDefault)
+		for _, a := range acl.Associations {
+			fmt.Println("\t", *a.SubnetId, *a.NetworkAclId, *a.NetworkAclAssociationId)
+		}
+		for _, v := range acl.Entries {
+			fmt.Println("\t", *v.CidrBlock, *v.Egress, *v.Protocol, v.RuleAction, *v.RuleNumber)
+		}
+	}
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
