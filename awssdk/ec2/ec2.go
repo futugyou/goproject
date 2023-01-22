@@ -384,6 +384,16 @@ func DescribeInternetGateways() {
 	}
 }
 
+func CreateInternetGateway() {
+	input := ec2.CreateInternetGatewayInput{}
+	output, err := svc.CreateInternetGateway(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	displayInternetGateway(*output.InternetGateway)
+}
+
 func displaySubnet(subnet types.Subnet) {
 	fmt.Println(*subnet.AssignIpv6AddressOnCreation,
 		*subnet.AvailabilityZone,
@@ -438,6 +448,9 @@ func displayNatgateway(nat types.NatGateway) {
 
 func displayInternetGateway(gateway types.InternetGateway) {
 	fmt.Print(*gateway.InternetGatewayId, "\t", *gateway.OwnerId, "\t")
+	if len(gateway.Attachments) == 0 {
+		fmt.Println()
+	}
 	for _, v := range gateway.Attachments {
 		fmt.Println(*v.VpcId, v.State)
 	}
