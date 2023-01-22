@@ -155,7 +155,7 @@ func DeleteVpc() {
 
 func CreateSubnet() {
 	input := ec2.CreateSubnetInput{
-		VpcId:     aws.String("vpc-006ba5fb389c1ccba"),
+		VpcId:     aws.String("vpc-0664da5448a5dc3f0"),
 		CidrBlock: aws.String("10.0.84.0/22"),
 	}
 	output, err := svc.CreateSubnet(awsenv.EmptyContext, &input)
@@ -316,6 +316,18 @@ func DeleteNetworkAclEntry() {
 		Egress:       aws.Bool(true),
 	}
 	output, err := svc.DeleteNetworkAclEntry(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(output.ResultMetadata)
+}
+
+func DeleteNetworkAcl() {
+	input := ec2.DeleteNetworkAclInput{
+		NetworkAclId: aws.String("acl-00419da83c857ade9"),
+	}
+	output, err := svc.DeleteNetworkAcl(awsenv.EmptyContext, &input)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -87,7 +87,8 @@ func main() {
 	// ec2.DescribeNetworkAcls()
 	// ec2.CreateNetworkAcl()
 	// ec2.CreateNetworkAclEntry()
-	ec2.DeleteNetworkAclEntry()
+	// ec2.DeleteNetworkAclEntry()
+	ec2.DeleteNetworkAcl()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
