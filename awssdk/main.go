@@ -10,9 +10,10 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
-	"github.com/futugyousuzu/goproject/awsgolang/ec2"
+	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/s3"
 	// "github.com/futugyousuzu/goproject/awsgolang/dynamodb"
+	"github.com/futugyousuzu/goproject/awsgolang/efs"
 )
 
 func main() {
@@ -96,7 +97,7 @@ func main() {
 	// ec2.CreateInternetGateway()
 	// ec2.AttachInternetGateway()
 	// ec2.DetachInternetGateway()
-	ec2.DeleteInternetGateway()
+	// ec2.DeleteInternetGateway()
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
@@ -117,4 +118,6 @@ func main() {
 	// dynamodb.PutItem()
 	// dynamodb.UpdateItem()
 	// dynamodb.DeleteItem()
+
+	efs.DescribeFileSystems()
 }
