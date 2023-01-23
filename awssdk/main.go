@@ -119,6 +119,6 @@ func main() {
 	// dynamodb.UpdateItem()
 	// dynamodb.DeleteItem()
 
-	// efs.DescribeFileSystems()
-	efs.DescribeAccessPoints()
+	efs.DescribeFileSystems()
+	// efs.DescribeAccessPoints()
 }

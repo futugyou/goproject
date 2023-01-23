@@ -40,6 +40,18 @@ func DescribeFileSystems() {
 			// *fs.ProvisionedThroughputInMibps,
 			fs.ThroughputMode,
 		)
+
+		input := efs.DescribeFileSystemPolicyInput{
+			FileSystemId: fs.FileSystemId,
+		}
+		output, err := svc.DescribeFileSystemPolicy(awsenv.EmptyContext, &input)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if output.Policy != nil {
+			fmt.Println(*output.Policy)
+		}
 	}
 }
 
