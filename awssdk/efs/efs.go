@@ -42,3 +42,24 @@ func DescribeFileSystems() {
 		)
 	}
 }
+
+func DescribeAccessPoints() {
+	input := efs.DescribeAccessPointsInput{}
+	output, err := svc.DescribeAccessPoints(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, point := range output.AccessPoints {
+		fmt.Println(
+			*point.AccessPointArn,
+			*point.AccessPointId,
+			*point.ClientToken,
+			*point.FileSystemId,
+			point.LifeCycleState,
+			*point.Name,
+			*point.OwnerId,
+			*point.RootDirectory.Path,
+		)
+	}
+}
