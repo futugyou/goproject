@@ -7,13 +7,13 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
-	// "github.com/futugyousuzu/goproject/awsgolang/iam"
+	"github.com/futugyousuzu/goproject/awsgolang/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/s3"
 	// "github.com/futugyousuzu/goproject/awsgolang/dynamodb"
-	"github.com/futugyousuzu/goproject/awsgolang/efs"
+	// "github.com/futugyousuzu/goproject/awsgolang/efs"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 	// ecr.CreateRepository()
 	// ecr.DeleteRepository()
 
-	// iam.ListUsers()
+	iam.ListUsers()
 	// iam.ListAccessKeys("")
 	// iam.ListGroups()
 	// iam.ListAccountAliases()
@@ -119,6 +119,6 @@ func main() {
 	// dynamodb.UpdateItem()
 	// dynamodb.DeleteItem()
 
-	efs.DescribeFileSystems()
+	// efs.DescribeFileSystems()
 	// efs.DescribeAccessPoints()
 }
