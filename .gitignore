@@ -4,3 +4,4 @@ bolg-service/storage/*
 *.exe
 *.env
 */*/app.conf
+openai/static/*
