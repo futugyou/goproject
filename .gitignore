@@ -3,3 +3,4 @@
 bolg-service/storage/*
 *.exe
 *.env
+*/*/app.conf

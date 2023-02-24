@@ -7,9 +7,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-)
 
-const ASAK = "s"
+	"github.com/beego/beego/v2/core/config"
+)
 
 type Payload struct {
 	Prompt           string  `json:"prompt"`
@@ -45,7 +45,8 @@ func Completions() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", ASAK))
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
