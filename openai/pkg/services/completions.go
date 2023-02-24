@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-const ASAK = "sk-..."
+const ASAK = "s"
 
 type Payload struct {
 	Prompt           string  `json:"prompt"`
@@ -21,7 +21,7 @@ type Payload struct {
 	Model            string  `json:"model"`
 }
 
-func main() {
+func Completions() string {
 
 	data := Payload{
 		Prompt:           "how to use github",
@@ -35,14 +35,14 @@ func main() {
 	payloadBytes, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return ""
 	}
 	body := bytes.NewReader(payloadBytes)
 
 	req, err := http.NewRequest("POST", "https://api.openai.com/v1/completions", body)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", ASAK))
@@ -50,14 +50,14 @@ func main() {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return ""
 	}
 	defer resp.Body.Close()
 	all, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+		return ""
 	}
-	fmt.Println(string(all))
 
+	return string(all)
 }
