@@ -3,9 +3,9 @@ package pkg
 const listModelsPath string = "models"
 
 type ListModelResponse struct {
-	Error  OpenaiError `json:"error"`
-	Object string      `json:"object"`
-	Datas  []model     `json:"data"`
+	Error  *OpenaiError `json:"error,omitempty"`
+	Object string       `json:"object,omitempty"`
+	Datas  []model      `json:"data,omitempty"`
 }
 
 type model struct {
@@ -35,6 +35,6 @@ type permission struct {
 
 func (client *openaiClient) Listmodels() *ListModelResponse {
 	result := &ListModelResponse{}
-	client.doRequest(listModelsPath, "GET", nil, result)
+	client.Get(listModelsPath, result)
 	return result
 }

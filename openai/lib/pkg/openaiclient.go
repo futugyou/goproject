@@ -22,9 +22,9 @@ func NewClient(apikey string) *openaiClient {
 		panic("apikey can not be null")
 	}
 	return &openaiClient{
-		apikey,
-		"",
-		baseUrl,
+		apikey:       apikey,
+		organization: "",
+		baseurl:      baseUrl,
 	}
 }
 
@@ -36,26 +36,46 @@ func (c *openaiClient) SetBaseUrl(baseurl string) {
 	c.baseurl = baseurl
 }
 
+func (c *openaiClient) Post(path string, request, response interface{}) {
+	c.doRequest(path, "POST", request, response)
+}
+
+func (c *openaiClient) Get(path string, response interface{}) {
+	c.doRequest(path, "GET", nil, response)
+}
+
 func (c *openaiClient) doRequest(path, method string, request, response interface{}) {
 	path = c.baseurl + path
 	var body io.Reader
+
 	if request != nil {
 		payloadBytes, _ := json.Marshal(request)
 		body = bytes.NewReader(payloadBytes)
 	}
+
 	req, _ := http.NewRequest(method, path, body)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.apikey))
+
+	if len(c.organization) > 0 {
+		req.Header.Set("organization", c.organization)
+	}
+
 	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+
 	defer resp.Body.Close()
+
 	all, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+
 	json.Unmarshal(all, response)
 }

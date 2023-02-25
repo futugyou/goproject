@@ -10,7 +10,7 @@ import (
 
 	"github.com/beego/beego/v2/core/config"
 
-	lib "openai/openai/pkg"
+	lib "openai/lib/pkg"
 )
 
 type Payload struct {
@@ -92,5 +92,5 @@ func ListModels() string {
 func CallLib() interface{} {
 	openaikey, _ := config.String("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Listmodels().Datas
+	return client.Listmodels()
 }
