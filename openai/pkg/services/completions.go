@@ -62,3 +62,27 @@ func Completions() string {
 
 	return string(all)
 }
+
+func ListModels() string {
+	req, err := http.NewRequest("GET", "https://api.openai.com/v1/models", nil)
+	if err != nil {
+		return err.Error()
+	}
+	req.Header.Set("Content-Type", "application/json")
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
