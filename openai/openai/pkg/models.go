@@ -1,24 +1,24 @@
 package pkg
 
-const ListModelsPath string = "models"
+const listModelsPath string = "models"
 
 type ListModelResponse struct {
 	Error  OpenaiError `json:"error"`
 	Object string      `json:"object"`
-	Datas  []Model     `json:"data"`
+	Datas  []model     `json:"data"`
 }
 
-type Model struct {
+type model struct {
 	ID         string       `json:"id"`
 	Object     string       `json:"object"`
 	Created    int          `json:"created"`
 	OwnedBy    string       `json:"owned_by"`
-	Permission []Permission `json:"permission"`
+	Permission []permission `json:"permission"`
 	Root       string       `json:"root"`
 	Parent     interface{}  `json:"parent"`
 }
 
-type Permission struct {
+type permission struct {
 	ID                 string      `json:"id"`
 	Object             string      `json:"object"`
 	Created            int         `json:"created"`
@@ -31,4 +31,10 @@ type Permission struct {
 	Organization       string      `json:"organization"`
 	Group              interface{} `json:"group"`
 	IsBlocking         bool        `json:"is_blocking"`
+}
+
+func (client *openaiClient) Listmodels() *ListModelResponse {
+	result := &ListModelResponse{}
+	client.doRequest(listModelsPath, "GET", nil, result)
+	return result
 }
