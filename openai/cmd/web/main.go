@@ -8,7 +8,8 @@ import (
 
 func main() {
 	web.SetStaticPath("/", "static")
-	web.AutoRouter(&controller.UserController{})
+	ctrl := &controller.UserController{}
+	web.AutoPrefix("api", ctrl)
 	web.Run()
 
 }
