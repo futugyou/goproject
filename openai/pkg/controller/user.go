@@ -13,6 +13,8 @@ type UserController struct {
 func (u *UserController) HelloWorld() {
 	u.Ctx.WriteString("hello, world")
 	// result := services.Completions()
-	result := services.ListModels()
-	u.Ctx.WriteString(result)
+	// result := services.ListModels()
+	// u.Ctx.WriteString(result)
+	result := services.CallLib()
+	u.Ctx.JSONResp(result)
 }
