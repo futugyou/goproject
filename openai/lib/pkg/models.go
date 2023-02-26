@@ -20,7 +20,7 @@ type model struct {
 	Error      *OpenaiError `json:"error,omitempty"`
 	ID         string       `json:"id"`
 	Object     string       `json:"object"`
-	Created    int          `json:"created"`
+	Created    int32        `json:"created"`
 	OwnedBy    string       `json:"owned_by"`
 	Permission []permission `json:"permission"`
 	Root       string       `json:"root"`
@@ -30,7 +30,7 @@ type model struct {
 type permission struct {
 	ID                 string      `json:"id"`
 	Object             string      `json:"object"`
-	Created            int         `json:"created"`
+	Created            int32       `json:"created"`
 	AllowCreateEngine  bool        `json:"allow_create_engine"`
 	AllowSampling      bool        `json:"allow_sampling"`
 	AllowLogprobs      bool        `json:"allow_logprobs"`

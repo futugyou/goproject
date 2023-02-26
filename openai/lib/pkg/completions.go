@@ -20,3 +20,26 @@ type CreateCompletionRequest struct {
 	LogitBias        map[string]int8 `json:"logit_bias,omitempty"`
 	User             string          `json:"user,omitempty"`
 }
+
+type CreateCompletionResponse struct {
+	Error   *OpenaiError `json:"error,omitempty"`
+	ID      string       `json:"id,omitempty"`
+	Object  string       `json:"object,omitempty"`
+	Created int32        `json:"created,omitempty"`
+	Model   string       `json:"model,omitempty"`
+	Choices []Choices    `json:"choices,omitempty"`
+	Usage   *Usage       `json:"usage,omitempty"`
+}
+
+type Choices struct {
+	Text         string `json:"text"`
+	Index        int32  `json:"index"`
+	Logprobs     int32  `json:"logprobs"`
+	FinishReason string `json:"finish_reason"`
+}
+
+type Usage struct {
+	PromptTokens     int32 `json:"prompt_tokens"`
+	CompletionTokens int32 `json:"completion_tokens"`
+	TotalTokens      int32 `json:"total_tokens"`
+}
