@@ -1,6 +1,9 @@
 package pkg
 
+import "fmt"
+
 const listModelsPath string = "models"
+const retrieveModelPath string = "models/%s"
 
 type ListModelResponse struct {
 	Error  *OpenaiError `json:"error,omitempty"`
@@ -8,7 +11,13 @@ type ListModelResponse struct {
 	Datas  []model      `json:"data,omitempty"`
 }
 
+type ModelResponse struct {
+	Error *OpenaiError `json:"error,omitempty"`
+	model
+}
+
 type model struct {
+	Error      *OpenaiError `json:"error,omitempty"`
 	ID         string       `json:"id"`
 	Object     string       `json:"object"`
 	Created    int          `json:"created"`
@@ -36,5 +45,11 @@ type permission struct {
 func (client *openaiClient) Listmodels() *ListModelResponse {
 	result := &ListModelResponse{}
 	client.Get(listModelsPath, result)
+	return result
+}
+
+func (client *openaiClient) RetrieveModel(model string) *ModelResponse {
+	result := &ModelResponse{}
+	client.Get(fmt.Sprintf(retrieveModelPath, model), result)
 	return result
 }

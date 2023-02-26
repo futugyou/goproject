@@ -14,8 +14,10 @@ func (u *UserController) HelloWorld() {
 	// u.Ctx.WriteString("hello, world")
 	// result := services.Completions()
 	// result := services.ListModels()
-	result := services.RetrieveModel()
-	u.Ctx.WriteString(result)
+	// result := services.RetrieveModel()
+	// u.Ctx.WriteString(result)
 	// result := services.CallLib()
 	// u.Ctx.JSONResp(result)
+	result := services.RetrieveModelLib()
+	u.Ctx.JSONResp(result)
 }

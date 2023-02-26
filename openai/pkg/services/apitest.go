@@ -118,3 +118,8 @@ func RetrieveModel() string {
 
 	return string(all)
 }
+func RetrieveModelLib() interface{} {
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.RetrieveModel("text-davinci-003")
+}
