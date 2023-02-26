@@ -34,8 +34,8 @@ type CreateCompletionResponse struct {
 type choices struct {
 	Text         string    `json:"text"`
 	Index        int32     `json:"index"`
-	Logprobs     *logprobs `json:"logprobs"`
-	FinishReason string    `json:"finish_reason"`
+	Logprobs     *logprobs `json:"logprobs,omitempty"`
+	FinishReason string    `json:"finish_reason,omitempty"`
 }
 
 type usage struct {
