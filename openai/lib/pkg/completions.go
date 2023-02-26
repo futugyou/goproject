@@ -27,19 +27,25 @@ type CreateCompletionResponse struct {
 	Object  string       `json:"object,omitempty"`
 	Created int32        `json:"created,omitempty"`
 	Model   string       `json:"model,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Choices []choices    `json:"choices,omitempty"`
+	Usage   *usage       `json:"usage,omitempty"`
 }
 
-type Choices struct {
+type choices struct {
 	Text         string `json:"text"`
 	Index        int32  `json:"index"`
 	Logprobs     int32  `json:"logprobs"`
 	FinishReason string `json:"finish_reason"`
 }
 
-type Usage struct {
+type usage struct {
 	PromptTokens     int32 `json:"prompt_tokens"`
 	CompletionTokens int32 `json:"completion_tokens"`
 	TotalTokens      int32 `json:"total_tokens"`
+}
+
+func (client *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
+	result := &CreateCompletionResponse{}
+	client.Post(completionsPath, request, result)
+	return result
 }
