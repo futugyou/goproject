@@ -18,6 +18,8 @@ func (u *UserController) HelloWorld() {
 	// u.Ctx.WriteString(result)
 	// result := services.CallLib()
 	// u.Ctx.JSONResp(result)
-	result := services.RetrieveModelLib()
+	// result := services.RetrieveModelLib()
+	result := services.CreateCompletionLib()
 	u.Ctx.JSONResp(result)
+
 }

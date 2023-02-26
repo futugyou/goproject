@@ -65,6 +65,22 @@ func Completions() string {
 	return string(all)
 }
 
+func CreateCompletionLib() interface{} {
+	request := lib.CreateCompletionRequest{
+		Prompt:           "how to use github",
+		MaxTokens:        2048,
+		Temperature:      0.5,
+		Top_p:            0,
+		FrequencyPenalty: 0,
+		PresencePenalty:  0,
+		Model:            "text-davinci-003",
+	}
+
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.CreateCompletion(request)
+}
+
 func ListModels() string {
 	req, err := http.NewRequest("GET", "https://api.openai.com/v1/models", nil)
 	if err != nil {
