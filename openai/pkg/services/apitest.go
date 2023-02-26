@@ -74,6 +74,7 @@ func CreateCompletionLib() interface{} {
 		FrequencyPenalty: 0,
 		PresencePenalty:  0,
 		Model:            "text-davinci-003",
+		Logprobs:         1,
 	}
 
 	openaikey, _ := config.String("openaikey")
