@@ -196,3 +196,40 @@ func CreateEditsLib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.CreateEdits(request)
 }
+
+func CreateImages() string {
+	data := lib.CreateImagesRequest{
+		Prompt: "A cute baby sea otter",
+		N:      1,
+		Size:   "1024x1024",
+	}
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/images/generations", body)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	req.Header.Set("Content-Type", "application/json")
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
