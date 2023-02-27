@@ -16,13 +16,14 @@ func (u *UserController) HelloWorld() {
 	// result := services.ListModels()
 	// result := services.RetrieveModel()
 	// result := services.CreateEdits()
-	result := services.CreateImages()
-	u.Ctx.WriteString(result)
+	// result := services.CreateImages()
+	// u.Ctx.WriteString(result)
 
 	// result := services.CallLib()
 	// result := services.RetrieveModelLib()
 	// result := services.CreateCompletionLib()
 	// result := services.CreateEditsLib()
-	// u.Ctx.JSONResp(result)
+	result := services.CreateImagesLib()
+	u.Ctx.JSONResp(result)
 
 }

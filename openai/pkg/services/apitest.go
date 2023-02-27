@@ -233,3 +233,15 @@ func CreateImages() string {
 
 	return string(all)
 }
+
+func CreateImagesLib() interface{} {
+	data := lib.CreateImagesRequest{
+		Prompt: "A cute baby sea otter",
+		N:      1,
+		Size:   "1024x1024",
+	}
+
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.CreateImages(data)
+}
