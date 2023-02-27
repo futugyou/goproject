@@ -3,7 +3,7 @@ package pkg
 import "os"
 
 const createImagesPath string = "images/generations"
-const editImagesPath string = "images/edit"
+const editImagesPath string = "images/edits"
 
 type CreateImagesRequest struct {
 	Prompt         string `json:"prompt"`
@@ -20,8 +20,8 @@ type CreateImagesResponse struct {
 }
 
 type data struct {
-	URL     string `json:"url"`
-	B64Json string `json:"b64_json"`
+	URL     string `json:"url,omitempty"`
+	B64Json string `json:"b64_json,omitempty"`
 }
 
 type EditImagesRequest struct {
@@ -43,5 +43,11 @@ type EditImagesResponse struct {
 func (client *openaiClient) CreateImages(request CreateImagesRequest) *CreateImagesResponse {
 	result := &CreateImagesResponse{}
 	client.Post(createImagesPath, request, result)
+	return result
+}
+
+func (client *openaiClient) EditImages(request EditImagesRequest) *EditImagesResponse {
+	result := &EditImagesResponse{}
+	client.PostWithFile(editImagesPath, &request, result)
 	return result
 }

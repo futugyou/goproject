@@ -304,3 +304,28 @@ func EditImages() string {
 
 	return string(all)
 }
+
+func EditImageslib() interface{} {
+	// image, _ := os.Create("./otter.png")
+	// mask, _ := os.Create("./mask.png")
+	image, _ := os.Open("./otter.png")
+	// mask, _ := os.Open("./mask.png")
+	defer func() {
+		// mask.Close()
+		image.Close()
+		// os.Remove("mask.png")
+		// os.Remove("otter.png")
+	}()
+
+	data := lib.EditImagesRequest{
+		Image: image,
+		// Mask:   mask,
+		Prompt: "A cute baby sea otter",
+		// N:      1,
+		Size: "512x512",
+	}
+
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.EditImages(data)
+}
