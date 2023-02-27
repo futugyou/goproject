@@ -329,3 +329,19 @@ func EditImageslib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.EditImages(data)
 }
+
+func VariationImagesLib() interface{} {
+	image, _ := os.Open("./otter.png")
+	defer func() {
+		image.Close()
+	}()
+
+	data := lib.VariationImagesRequest{
+		Image: image,
+		Size:  "512x512",
+	}
+
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.VariationImages(data)
+}

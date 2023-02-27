@@ -25,7 +25,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.CreateCompletionLib()
 	// result := services.CreateEditsLib()
 	// result := services.CreateImagesLib()
-	result := services.EditImageslib()
+	// result := services.EditImageslib()
+	result := services.VariationImagesLib()
 	u.Ctx.JSONResp(result)
 
 }
