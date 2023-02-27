@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/beego/beego/v2/core/config"
 
@@ -199,9 +202,10 @@ func CreateEditsLib() interface{} {
 
 func CreateImages() string {
 	data := lib.CreateImagesRequest{
-		Prompt: "A cute baby sea otter",
-		N:      1,
-		Size:   "1024x1024",
+		Prompt:         "A cute baby sea otter",
+		N:              1,
+		Size:           "1024x1024",
+		ResponseFormat: "b64_json",
 	}
 	payloadBytes, err := json.Marshal(data)
 	if err != nil {
@@ -244,4 +248,58 @@ func CreateImagesLib() interface{} {
 	openaikey, _ := config.String("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateImages(data)
+}
+
+func EditImages() string {
+	image, _ := os.Create("./otter.png")
+	mask, _ := os.Create("./mask.png")
+
+	defer func() {
+		mask.Close()
+		image.Close()
+		os.Remove("mask.png")
+		os.Remove("otter.png")
+	}()
+
+	data := lib.EditImagesRequest{
+		Image:  image,
+		Mask:   mask,
+		Prompt: "A cute baby sea otter",
+		N:      1,
+		Size:   "1024x1024",
+	}
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	wimage, _ := writer.CreateFormFile("image", data.Image.Name())
+	io.Copy(wimage, data.Image)
+	wmask, _ := writer.CreateFormFile("image", data.Mask.Name())
+	io.Copy(wmask, data.Mask)
+	writer.WriteField("n", strconv.FormatInt(int64(data.N), 10))
+	writer.WriteField("prompt", data.Prompt)
+	writer.WriteField("size", data.Size)
+
+	writer.Close()
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/images/edits", body)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
 }
