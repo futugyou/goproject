@@ -29,7 +29,7 @@ type EditImagesRequest struct {
 	Mask           *os.File `json:"mask,omitempty"`
 	Prompt         string   `json:"prompt"`
 	N              int32    `json:"n,omitempty"`
-	Size           string   `json:"size,omitempty"`
+	Size           string   `json:"size,omitempty"` //'256x256', '512x512', '1024x1024'
 	ResponseFormat string   `json:"response_format,omitempty"`
 	User           string   `json:"user,omitempty"`
 }
