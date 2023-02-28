@@ -8,6 +8,7 @@ import (
 const listFilesPath string = "files"
 const uploadFilesPath string = "files"
 const retrieveFilePath string = "files/%s"
+const retrieveFileContentPath string = "files/%s/content"
 
 type UploadFilesRequest struct {
 	File    *os.File `json:"file"`
@@ -41,6 +42,13 @@ type RetrieveFileResponse struct {
 	fileModel
 }
 
+type RetrieveFileContentResponse struct {
+	Error *OpenaiError `json:"error,omitempty"`
+	content
+}
+
+type content interface{}
+
 func (client *openaiClient) ListFiles() *ListFilesResponse {
 	result := &ListFilesResponse{}
 	client.Get(listFilesPath, result)
@@ -56,5 +64,13 @@ func (client *openaiClient) UploadFiles(request UploadFilesRequest) *UploadFiles
 func (client *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
 	result := &RetrieveFileResponse{}
 	client.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
+	return result
+}
+
+// To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts
+// so i do not know the response type
+func (client *openaiClient) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
+	result := &RetrieveFileContentResponse{}
+	client.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
 	return result
 }
