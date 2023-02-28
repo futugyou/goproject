@@ -10,9 +10,9 @@ type CreateCompletionRequest struct {
 	Temperature      float32          `json:"temperature,omitempty"`
 	Top_p            float32          `json:"top_p,omitempty"`
 	N                int32            `json:"n,omitempty"`
-	Stream           bool             `json:"stream,omitempty"`
+	Stream           bool             `json:"stream"`
 	Logprobs         int32            `json:"logprobs,omitempty"`
-	Echo             bool             `json:"echo,omitempty"`
+	Echo             bool             `json:"echo"`
 	Stop             interface{}      `json:"stop,omitempty"`
 	PresencePenalty  float32          `json:"presence_penalty,omitempty"`
 	FrequencyPenalty float32          `json:"frequency_penalty,omitempty"`

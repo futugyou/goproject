@@ -12,7 +12,7 @@ type UserController struct {
 
 func (u *UserController) HelloWorld() {
 	// u.Ctx.WriteString("hello, world")
-	// result := services.Completions()
+	result := services.Completions()
 	// result := services.ListModels()
 	// result := services.RetrieveModel()
 	// result := services.CreateEdits()
@@ -27,7 +27,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.CreateFinetune()
 	// result := services.CancelFinetune()
 	// result := services.ListFinetunes()
-	// u.Ctx.WriteString(result)
+	// result := services.CreateModeration()
+	u.Ctx.WriteString(result)
 
 	// result := services.ListModelsLib()
 	// result := services.RetrieveModelLib()
@@ -46,7 +47,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.ListFinetunesLib()
 	// result := services.RetrieveFinetunelib()
 	// result := services.ListFinetuneEventslib()
-	result := services.DeleteFinetuneMdelLib()
-	u.Ctx.JSONResp(result)
+	// result := services.DeleteFinetuneMdelLib()
+	// result := services.CreateModerationLib()
+	// u.Ctx.JSONResp(result)
 
 }

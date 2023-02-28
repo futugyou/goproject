@@ -24,6 +24,7 @@ type Payload struct {
 	FrequencyPenalty int64   `json:"frequency_penalty"`
 	PresencePenalty  int64   `json:"presence_penalty"`
 	Model            string  `json:"model"`
+	Stream           bool    `json:"stream"`
 }
 
 func Completions() string {
@@ -36,6 +37,7 @@ func Completions() string {
 		FrequencyPenalty: 0,
 		PresencePenalty:  0,
 		Model:            "text-davinci-003",
+		Stream:           true,
 	}
 	payloadBytes, err := json.Marshal(data)
 	if err != nil {
@@ -689,4 +691,51 @@ func DeleteFinetuneMdelLib() interface{} {
 	openaikey, _ := config.String("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.DeleteFinetuneMdel("curie:ft-personal-2023-02-28-05-52-07")
+}
+
+func CreateModeration() string {
+	data := lib.CreateModerationRequest{
+		Input: "how to use github",
+		Model: "text-moderation-latest",
+	}
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/moderations", body)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	req.Header.Set("Content-Type", "application/json")
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
+
+func CreateModerationLib() interface{} {
+	request := lib.CreateModerationRequest{
+		Input: "how to use github",
+		Model: "text-moderation-latest",
+	}
+
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.CreateModeration(request)
 }
