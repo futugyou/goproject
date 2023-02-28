@@ -684,3 +684,9 @@ func ListFinetuneEventslib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.ListFinetuneEvents("ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
+
+func DeleteFinetuneMdelLib() interface{} {
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.DeleteFinetuneMdel("curie:ft-personal-2023-02-28-05-52-07")
+}

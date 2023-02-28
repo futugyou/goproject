@@ -45,7 +45,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.CancelFinetunelib()
 	// result := services.ListFinetunesLib()
 	// result := services.RetrieveFinetunelib()
-	result := services.ListFinetuneEventslib()
+	// result := services.ListFinetuneEventslib()
+	result := services.DeleteFinetuneMdelLib()
 	u.Ctx.JSONResp(result)
 
 }

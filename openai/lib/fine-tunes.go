@@ -7,6 +7,7 @@ const listFinetunesPath string = "fine-tunes"
 const retrieveFintunePath string = "fine-tunes/%s"
 const cancelFinetunesPath string = "fine-tunes/%s/cancel"
 const listFinetuneEventPath string = "fine-tunes/%s/events"
+const deleteFinetuneModelPath string = "models/%s"
 
 type CreateFinetuneRequest struct {
 	TrainingFile                 string      `json:"training_file"`
@@ -80,6 +81,13 @@ type ListFinetuneEventResponse struct {
 	Data   []Events     `json:"data,omitempty"`
 }
 
+type DeleteFinetuneModelResponse struct {
+	Error   *OpenaiError `json:"error,omitempty"`
+	Object  string       `json:"object,omitempty"`
+	ID      string       `json:"id,omitempty"`
+	Deleted bool         `json:"deleted,omitempty"`
+}
+
 func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
 	result := &CreateFinetuneResponse{}
 	client.Post(finetunesPath, request, result)
@@ -107,5 +115,11 @@ func (client *openaiClient) RetrieveFinetune(fine_tune_id string) *RetrieveFinet
 func (client *openaiClient) ListFinetuneEvents(fine_tune_id string) *ListFinetuneEventResponse {
 	result := &ListFinetuneEventResponse{}
 	client.Get(fmt.Sprintf(listFinetuneEventPath, fine_tune_id), result)
+	return result
+}
+
+func (client *openaiClient) DeleteFinetuneMdel(model string) *DeleteFinetuneModelResponse {
+	result := &DeleteFinetuneModelResponse{}
+	client.Delete(fmt.Sprintf(deleteFinetuneModelPath, model), result)
 	return result
 }
