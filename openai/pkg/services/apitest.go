@@ -13,7 +13,7 @@ import (
 
 	"github.com/beego/beego/v2/core/config"
 
-	lib "openai/lib/pkg"
+	"openai/lib"
 )
 
 type Payload struct {

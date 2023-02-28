@@ -1,4 +1,4 @@
-package pkg
+package lib
 
 const embeddingsPath string = "embeddings"
 

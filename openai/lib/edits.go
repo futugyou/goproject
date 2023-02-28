@@ -1,4 +1,4 @@
-package pkg
+package lib
 
 const editsPath string = "edits"
 

@@ -1,4 +1,4 @@
-package pkg
+package lib
 
 type OpenaiError struct {
 	ErrorMessage string `json:"message"`
