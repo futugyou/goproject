@@ -18,6 +18,7 @@ func (u *UserController) HelloWorld() {
 	// result := services.CreateEdits()
 	// result := services.CreateImages()
 	// result := services.EditImages()
+	// result := services.CreateEmbeddings()
 	// u.Ctx.WriteString(result)
 
 	// result := services.CallLib()
@@ -26,7 +27,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.CreateEditsLib()
 	// result := services.CreateImagesLib()
 	// result := services.EditImageslib()
-	result := services.VariationImagesLib()
+	// result := services.VariationImagesLib()
+	result := services.CreateEmbeddingslib()
 	u.Ctx.JSONResp(result)
 
 }
