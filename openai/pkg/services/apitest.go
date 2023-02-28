@@ -678,3 +678,9 @@ func RetrieveFinetunelib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.RetrieveFinetune("ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
+
+func ListFinetuneEventslib() interface{} {
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.ListFinetuneEvents("ft-W0GCdkAnSKNIoyWhfbe86zzv")
+}
