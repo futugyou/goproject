@@ -1,9 +1,13 @@
 package lib
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 const listFilesPath string = "files"
 const uploadFilesPath string = "files"
+const retrieveFilePath string = "files/%s"
 
 type UploadFilesRequest struct {
 	File    *os.File `json:"file"`
@@ -32,6 +36,11 @@ type fileModel struct {
 	StatusDetails interface{} `json:"status_details"`
 }
 
+type RetrieveFileResponse struct {
+	Error *OpenaiError `json:"error,omitempty"`
+	fileModel
+}
+
 func (client *openaiClient) ListFiles() *ListFilesResponse {
 	result := &ListFilesResponse{}
 	client.Get(listFilesPath, result)
@@ -41,5 +50,11 @@ func (client *openaiClient) ListFiles() *ListFilesResponse {
 func (client *openaiClient) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
 	result := &UploadFilesResponse{}
 	client.PostWithFile(uploadFilesPath, &request, result)
+	return result
+}
+
+func (client *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
+	result := &RetrieveFileResponse{}
+	client.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
 	return result
 }

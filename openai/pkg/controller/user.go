@@ -21,6 +21,7 @@ func (u *UserController) HelloWorld() {
 	// result := services.CreateEmbeddings()
 	// result := services.ListFiles()
 	// result := services.UploadFiles()
+	// result := services.RetrieveFile()
 	// u.Ctx.WriteString(result)
 
 	// result := services.ListModelsLib()
@@ -32,7 +33,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.VariationImagesLib()
 	// result := services.CreateEmbeddingslib()
 	// result := services.ListFilesLib()
-	result := services.UploadFileslib()
+	// result := services.UploadFileslib()
+	result := services.RetrieveFileLib()
 	u.Ctx.JSONResp(result)
 
 }
