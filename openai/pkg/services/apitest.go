@@ -109,10 +109,10 @@ func ListModels() string {
 	return string(all)
 }
 
-func CallLib() interface{} {
+func ListModelsLib() interface{} {
 	openaikey, _ := config.String("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Listmodels()
+	return client.ListModels()
 }
 
 func RetrieveModel() string {
@@ -391,4 +391,77 @@ func CreateEmbeddingslib() interface{} {
 	openaikey, _ := config.String("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateEmbeddings(data)
+}
+
+func ListFiles() string {
+	req, err := http.NewRequest("GET", "https://api.openai.com/v1/files", nil)
+	if err != nil {
+		return err.Error()
+	}
+	req.Header.Set("Content-Type", "application/json")
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
+
+func UploadFiles() string {
+
+	file, _ := os.Open("./files.jsonl")
+	defer func() {
+		file.Close()
+	}()
+
+	data := lib.UploadFilesRequest{
+		File:    file,
+		Purpose: "fine-tune",
+	}
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	wimage, _ := writer.CreateFormFile("file", data.File.Name())
+	io.Copy(wimage, data.File)
+	writer.WriteField("purpose", data.Purpose)
+
+	writer.Close()
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/files", body)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
+
+func ListFilesLib() interface{} {
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.ListFiles()
 }

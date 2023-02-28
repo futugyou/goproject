@@ -42,7 +42,7 @@ type permission struct {
 	IsBlocking         bool        `json:"is_blocking"`
 }
 
-func (client *openaiClient) Listmodels() *ListModelResponse {
+func (client *openaiClient) ListModels() *ListModelResponse {
 	result := &ListModelResponse{}
 	client.Get(listModelsPath, result)
 	return result

@@ -19,16 +19,19 @@ func (u *UserController) HelloWorld() {
 	// result := services.CreateImages()
 	// result := services.EditImages()
 	// result := services.CreateEmbeddings()
+	// result := services.ListFiles()
+	// result := services.UploadFiles()
 	// u.Ctx.WriteString(result)
 
-	// result := services.CallLib()
+	// result := services.ListModelsLib()
 	// result := services.RetrieveModelLib()
 	// result := services.CreateCompletionLib()
 	// result := services.CreateEditsLib()
 	// result := services.CreateImagesLib()
 	// result := services.EditImageslib()
 	// result := services.VariationImagesLib()
-	result := services.CreateEmbeddingslib()
+	// result := services.CreateEmbeddingslib()
+	result := services.ListFilesLib()
 	u.Ctx.JSONResp(result)
 
 }
