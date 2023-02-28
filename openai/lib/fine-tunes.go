@@ -4,6 +4,7 @@ import "fmt"
 
 const finetunesPath string = "fine-tunes"
 const listFinetunesPath string = "fine-tunes"
+const retrieveFintunePath string = "fine-tunes/%s"
 const cancelFinetunesPath string = "fine-tunes/%s/cancel"
 
 type CreateFinetuneRequest struct {
@@ -67,6 +68,11 @@ type ListFinetuneResponse struct {
 	Data   []FinetuneMoel `json:"data,omitempty"`
 }
 
+type RetrieveFinetuneResponse struct {
+	Error *OpenaiError `json:"error,omitempty"`
+	FinetuneMoel
+}
+
 func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
 	result := &CreateFinetuneResponse{}
 	client.Post(finetunesPath, request, result)
@@ -82,5 +88,11 @@ func (client *openaiClient) CancelFinetune(fine_tune_id string) *CancelFinetuneR
 func (client *openaiClient) ListFinetune() *ListFinetuneResponse {
 	result := &ListFinetuneResponse{}
 	client.Get(listFinetunesPath, result)
+	return result
+}
+
+func (client *openaiClient) RetrieveFinetune(fine_tune_id string) *RetrieveFinetuneResponse {
+	result := &RetrieveFinetuneResponse{}
+	client.Get(fmt.Sprintf(retrieveFintunePath, fine_tune_id), result)
 	return result
 }
