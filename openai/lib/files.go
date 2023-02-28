@@ -34,8 +34,8 @@ type fileModel struct {
 	Filename      string      `json:"filename"`
 	Bytes         int         `json:"bytes"`
 	CreatedAt     int         `json:"created_at"`
-	Status        string      `json:"status"`
-	StatusDetails interface{} `json:"status_details"`
+	Status        string      `json:"status,omitempty"`
+	StatusDetails interface{} `json:"status_details,omitempty"`
 }
 
 type RetrieveFileResponse struct {

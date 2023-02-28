@@ -564,3 +564,50 @@ func DeleteFileLib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.DeleteFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
+
+func CreateFinetune() string {
+	data := lib.CreateFinetuneRequest{
+		TrainingFile:   "file-YUco6HX1ikrEK9CCUnVfDCLs",
+		ValidationFile: "file-NXWeVnozaOT7ckA5gUtuVvhJ",
+	}
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/fine-tunes", body)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	req.Header.Set("Content-Type", "application/json")
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
+
+func CreateFinetunelib() interface{} {
+	data := lib.CreateFinetuneRequest{
+		TrainingFile:   "file-YUco6HX1ikrEK9CCUnVfDCLs",
+		ValidationFile: "file-NXWeVnozaOT7ckA5gUtuVvhJ",
+	}
+
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.CreateFinetune(data)
+}
