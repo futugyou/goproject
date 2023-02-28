@@ -1,6 +1,9 @@
 package lib
 
+import "fmt"
+
 const finetunesPath string = "fine-tunes"
+const cancelFinetunesPath string = "fine-tunes/%s/cancel"
 
 type CreateFinetuneRequest struct {
 	TrainingFile                 string      `json:"training_file"`
@@ -18,7 +21,11 @@ type CreateFinetuneRequest struct {
 }
 
 type CreateFinetuneResponse struct {
-	Error           *OpenaiError      `json:"error,omitempty"`
+	Error *OpenaiError `json:"error,omitempty"`
+	FinetuneMoel
+}
+
+type FinetuneMoel struct {
 	Object          string            `json:"object,omitempty"`
 	ID              string            `json:"id,omitempty"`
 	Hyperparams     *Hyperparams      `json:"hyperparams,omitempty"`
@@ -26,11 +33,11 @@ type CreateFinetuneResponse struct {
 	Model           string            `json:"model,omitempty"`
 	TrainingFiles   []TrainingFiles   `json:"training_files,omitempty"`
 	ValidationFiles []ValidationFiles `json:"validation_files,omitempty"`
-	ResultFiles     []fileModel       `json:"result_files,omitempty"`
-	CreatedAt       int32             `json:"created_at,omitempty"`
-	UpdatedAt       int32             `json:"updated_at,omitempty"`
+	ResultFiles     []interface{}     `json:"result_files,omitempty"`
+	CreatedAt       int               `json:"created_at,omitempty"`
+	UpdatedAt       int               `json:"updated_at,omitempty"`
 	Status          string            `json:"status,omitempty"`
-	FineTunedModel  string            `json:"fine_tuned_model,omitempty"`
+	FineTunedModel  interface{}       `json:"fine_tuned_model,omitempty"`
 	Events          []Events          `json:"events,omitempty"`
 }
 
@@ -70,8 +77,19 @@ type Events struct {
 	CreatedAt int32  `json:"created_at"`
 }
 
+type CancelFinetuneResponse struct {
+	Error *OpenaiError `json:"error,omitempty"`
+	FinetuneMoel
+}
+
 func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
 	result := &CreateFinetuneResponse{}
 	client.Post(finetunesPath, request, result)
+	return result
+}
+
+func (client *openaiClient) CancelFinetune(fine_tune_id string) *CancelFinetuneResponse {
+	result := &CancelFinetuneResponse{}
+	client.Post(fmt.Sprintf(cancelFinetunesPath, fine_tune_id), nil, result)
 	return result
 }

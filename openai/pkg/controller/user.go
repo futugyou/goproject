@@ -25,6 +25,7 @@ func (u *UserController) HelloWorld() {
 	// result := services.RetrieveFileContent()
 	// result := services.DeleteFile()
 	// result := services.CreateFinetune()
+	// result := services.CancelFinetune()
 	// u.Ctx.WriteString(result)
 
 	// result := services.ListModelsLib()
@@ -39,7 +40,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.UploadFileslib()
 	// result := services.RetrieveFileLib()
 	// result := services.DeleteFileLib()
-	result := services.CreateFinetunelib()
+	// result := services.CreateFinetunelib()
+	result := services.CancelFinetunelib()
 	u.Ctx.JSONResp(result)
 
 }
