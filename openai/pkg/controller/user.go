@@ -31,7 +31,8 @@ func (u *UserController) HelloWorld() {
 	// result := services.EditImageslib()
 	// result := services.VariationImagesLib()
 	// result := services.CreateEmbeddingslib()
-	result := services.ListFilesLib()
+	// result := services.ListFilesLib()
+	result := services.UploadFileslib()
 	u.Ctx.JSONResp(result)
 
 }

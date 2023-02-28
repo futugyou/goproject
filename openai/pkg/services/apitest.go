@@ -417,8 +417,13 @@ func ListFiles() string {
 	return string(all)
 }
 
-func UploadFiles() string {
+func ListFilesLib() interface{} {
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.ListFiles()
+}
 
+func UploadFiles() string {
 	file, _ := os.Open("./files.jsonl")
 	defer func() {
 		file.Close()
@@ -460,8 +465,18 @@ func UploadFiles() string {
 	return string(all)
 }
 
-func ListFilesLib() interface{} {
+func UploadFileslib() interface{} {
+	file, _ := os.Open("./files.jsonl")
+	defer func() {
+		file.Close()
+	}()
+
+	data := lib.UploadFilesRequest{
+		File:    file,
+		Purpose: "fine-tune",
+	}
+
 	openaikey, _ := config.String("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.ListFiles()
+	return client.UploadFiles(data)
 }

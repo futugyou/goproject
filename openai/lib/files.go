@@ -37,3 +37,9 @@ func (client *openaiClient) ListFiles() *ListFilesResponse {
 	client.Get(listFilesPath, result)
 	return result
 }
+
+func (client *openaiClient) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
+	result := &UploadFilesResponse{}
+	client.PostWithFile(uploadFilesPath, &request, result)
+	return result
+}
