@@ -642,3 +642,33 @@ func CancelFinetunelib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.CancelFinetune("ft-wVjb6K7ngTeYeW6QT1eDQikZ")
 }
+
+func ListFinetunes() string {
+	req, err := http.NewRequest("GET", "https://api.openai.com/v1/fine-tunes", nil)
+	if err != nil {
+		return err.Error()
+	}
+	req.Header.Set("Content-Type", "application/json")
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+		return ""
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
+
+func ListFinetunesLib() interface{} {
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.ListFinetune()
+}

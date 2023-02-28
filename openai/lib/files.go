@@ -18,29 +18,29 @@ type UploadFilesRequest struct {
 
 type UploadFilesResponse struct {
 	Error *OpenaiError `json:"error,omitempty"`
-	fileModel
+	FileModel
 }
 
 type ListFilesResponse struct {
 	Error  *OpenaiError `json:"error,omitempty"`
 	Object string       `json:"object,omitempty"`
-	Data   []fileModel  `json:"data,omitempty"`
+	Data   []FileModel  `json:"data,omitempty"`
 }
 
-type fileModel struct {
-	Object        string      `json:"object"`
-	ID            string      `json:"id"`
-	Purpose       string      `json:"purpose"`
-	Filename      string      `json:"filename"`
-	Bytes         int         `json:"bytes"`
-	CreatedAt     int         `json:"created_at"`
+type FileModel struct {
+	Object        string      `json:"object,omitempty"`
+	ID            string      `json:"id,omitempty"`
+	Purpose       string      `json:"purpose,omitempty"`
+	Filename      string      `json:"filename,omitempty"`
+	Bytes         int         `json:"bytes,omitempty"`
+	CreatedAt     int         `json:"created_at,omitempty"`
 	Status        string      `json:"status,omitempty"`
 	StatusDetails interface{} `json:"status_details,omitempty"`
 }
 
 type RetrieveFileResponse struct {
 	Error *OpenaiError `json:"error,omitempty"`
-	fileModel
+	FileModel
 }
 
 type RetrieveFileContentResponse struct {

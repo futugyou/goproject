@@ -3,6 +3,7 @@ package lib
 import "fmt"
 
 const finetunesPath string = "fine-tunes"
+const listFinetunesPath string = "fine-tunes"
 const cancelFinetunesPath string = "fine-tunes/%s/cancel"
 
 type CreateFinetuneRequest struct {
@@ -26,19 +27,19 @@ type CreateFinetuneResponse struct {
 }
 
 type FinetuneMoel struct {
-	Object          string            `json:"object,omitempty"`
-	ID              string            `json:"id,omitempty"`
-	Hyperparams     *Hyperparams      `json:"hyperparams,omitempty"`
-	OrganizationID  string            `json:"organization_id,omitempty"`
-	Model           string            `json:"model,omitempty"`
-	TrainingFiles   []TrainingFiles   `json:"training_files,omitempty"`
-	ValidationFiles []ValidationFiles `json:"validation_files,omitempty"`
-	ResultFiles     []interface{}     `json:"result_files,omitempty"`
-	CreatedAt       int               `json:"created_at,omitempty"`
-	UpdatedAt       int               `json:"updated_at,omitempty"`
-	Status          string            `json:"status,omitempty"`
-	FineTunedModel  interface{}       `json:"fine_tuned_model,omitempty"`
-	Events          []Events          `json:"events,omitempty"`
+	Object          string       `json:"object,omitempty"`
+	ID              string       `json:"id,omitempty"`
+	Hyperparams     *Hyperparams `json:"hyperparams,omitempty"`
+	OrganizationID  string       `json:"organization_id,omitempty"`
+	Model           string       `json:"model,omitempty"`
+	TrainingFiles   []FileModel  `json:"training_files,omitempty"`
+	ValidationFiles []FileModel  `json:"validation_files,omitempty"`
+	ResultFiles     []FileModel  `json:"result_files,omitempty"`
+	CreatedAt       int          `json:"created_at,omitempty"`
+	UpdatedAt       int          `json:"updated_at,omitempty"`
+	Status          string       `json:"status,omitempty"`
+	FineTunedModel  string       `json:"fine_tuned_model,omitempty"`
+	Events          []Events     `json:"events,omitempty"`
 }
 
 type Hyperparams struct {
@@ -46,28 +47,6 @@ type Hyperparams struct {
 	BatchSize              int32   `json:"batch_size"`
 	PromptLossWeight       float32 `json:"prompt_loss_weight"`
 	LearningRateMultiplier float32 `json:"learning_rate_multiplier"`
-}
-
-type TrainingFiles struct {
-	Object        string      `json:"object"`
-	ID            string      `json:"id"`
-	Purpose       string      `json:"purpose"`
-	Filename      string      `json:"filename"`
-	Bytes         int32       `json:"bytes"`
-	CreatedAt     int32       `json:"created_at"`
-	Status        string      `json:"status"`
-	StatusDetails interface{} `json:"status_details"`
-}
-
-type ValidationFiles struct {
-	Object        string      `json:"object"`
-	ID            string      `json:"id"`
-	Purpose       string      `json:"purpose"`
-	Filename      string      `json:"filename"`
-	Bytes         int32       `json:"bytes"`
-	CreatedAt     int32       `json:"created_at"`
-	Status        string      `json:"status"`
-	StatusDetails interface{} `json:"status_details"`
 }
 
 type Events struct {
@@ -82,6 +61,12 @@ type CancelFinetuneResponse struct {
 	FinetuneMoel
 }
 
+type ListFinetuneResponse struct {
+	Error  *OpenaiError   `json:"error,omitempty"`
+	Object string         `json:"object,omitempty"`
+	Data   []FinetuneMoel `json:"data,omitempty"`
+}
+
 func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
 	result := &CreateFinetuneResponse{}
 	client.Post(finetunesPath, request, result)
@@ -91,5 +76,11 @@ func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *Creat
 func (client *openaiClient) CancelFinetune(fine_tune_id string) *CancelFinetuneResponse {
 	result := &CancelFinetuneResponse{}
 	client.Post(fmt.Sprintf(cancelFinetunesPath, fine_tune_id), nil, result)
+	return result
+}
+
+func (client *openaiClient) ListFinetune() *ListFinetuneResponse {
+	result := &ListFinetuneResponse{}
+	client.Get(listFinetunesPath, result)
 	return result
 }
