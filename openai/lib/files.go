@@ -9,6 +9,7 @@ const listFilesPath string = "files"
 const uploadFilesPath string = "files"
 const retrieveFilePath string = "files/%s"
 const retrieveFileContentPath string = "files/%s/content"
+const deleteFilePath string = "files/%s"
 
 type UploadFilesRequest struct {
 	File    *os.File `json:"file"`
@@ -49,6 +50,13 @@ type RetrieveFileContentResponse struct {
 
 type content interface{}
 
+type DeleteFileResponse struct {
+	Error   *OpenaiError `json:"error,omitempty"`
+	Object  string       `json:"object,omitempty"`
+	ID      string       `json:"id,omitempty"`
+	Deleted bool         `json:"deleted,omitempty"`
+}
+
 func (client *openaiClient) ListFiles() *ListFilesResponse {
 	result := &ListFilesResponse{}
 	client.Get(listFilesPath, result)
@@ -72,5 +80,11 @@ func (client *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
 func (client *openaiClient) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
 	result := &RetrieveFileContentResponse{}
 	client.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
+	return result
+}
+
+func (client *openaiClient) DeleteFile(file_id string) *DeleteFileResponse {
+	result := &DeleteFileResponse{}
+	client.Delete(fmt.Sprintf(deleteFilePath, file_id), result)
 	return result
 }

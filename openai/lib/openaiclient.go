@@ -49,6 +49,10 @@ func (c *openaiClient) Get(path string, response interface{}) {
 	c.doRequest(path, "GET", nil, response)
 }
 
+func (c *openaiClient) Delete(path string, response interface{}) {
+	c.doRequest(path, "DELETE", nil, response)
+}
+
 func (c *openaiClient) doRequest(path, method string, request, response interface{}) {
 	path = c.baseurl + path
 	var body io.Reader

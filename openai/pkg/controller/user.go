@@ -22,8 +22,9 @@ func (u *UserController) HelloWorld() {
 	// result := services.ListFiles()
 	// result := services.UploadFiles()
 	// result := services.RetrieveFile()
-	result := services.RetrieveFileContent()
-	u.Ctx.WriteString(result)
+	// result := services.RetrieveFileContent()
+	// result := services.DeleteFile()
+	// u.Ctx.WriteString(result)
 
 	// result := services.ListModelsLib()
 	// result := services.RetrieveModelLib()
@@ -36,6 +37,7 @@ func (u *UserController) HelloWorld() {
 	// result := services.ListFilesLib()
 	// result := services.UploadFileslib()
 	// result := services.RetrieveFileLib()
-	// u.Ctx.JSONResp(result)
+	result := services.DeleteFileLib()
+	u.Ctx.JSONResp(result)
 
 }
