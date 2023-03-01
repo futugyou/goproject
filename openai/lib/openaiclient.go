@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -164,4 +165,61 @@ func (c *openaiClient) PostWithFile(path string, request, response interface{}) 
 	}
 
 	json.Unmarshal(all, response)
+}
+
+func (c *openaiClient) doStreamRequest(path, method string, request, response interface{}) {
+	path = c.baseurl + path
+	var body io.Reader
+
+	if request != nil {
+		payloadBytes, _ := json.Marshal(request)
+		body = bytes.NewReader(payloadBytes)
+	}
+
+	req, _ := http.NewRequest(method, path, body)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.apikey))
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Connection", "keep-alive")
+
+	if len(c.organization) > 0 {
+		req.Header.Set("organization", c.organization)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	defer resp.Body.Close()
+
+	reType := reflect.TypeOf(response)
+	fmt.Println(reType)
+	channelType := reflect.ValueOf(response).Type().Elem()
+	headerData := []byte("data: ")
+	for {
+		reader := bufio.NewReader(resp.Body)
+		line, err := reader.ReadBytes('\n')
+		if err != nil {
+			break
+		}
+
+		line = bytes.TrimPrefix(line, headerData)
+		responseStr := string(line)
+		if responseStr == "[DONE]" {
+			break
+		}
+
+		if len(line) == 0 {
+			continue
+		}
+
+		i := reflect.New(channelType)
+		json.Unmarshal(line, &i)
+		// response <- i
+	}
+
 }
