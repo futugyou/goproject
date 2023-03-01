@@ -11,6 +11,7 @@ type ModelController struct {
 }
 
 func (c *ModelController) ListModel() {
-	result := services.ListModels()
+	modelService := services.ModelService{}
+	result := modelService.GetAllModels()
 	c.Ctx.JSONResp(result)
 }

@@ -16,8 +16,8 @@ func main() {
 	}
 
 	web.SetStaticPath("/", "static")
-	ctrl := &controller.UserController{}
-	web.AutoPrefix("api", ctrl)
+	web.AutoPrefix("api", &controller.UserController{})
+	web.AutoPrefix("api", &controller.ModelController{})
 	web.Run()
 
 }
