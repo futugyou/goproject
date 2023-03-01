@@ -7,3 +7,8 @@ init web api project
 ```
 bee api openai
 ```
+
+swagger doc
+```
+bee generate docs
+```
