@@ -4,7 +4,10 @@ go 1.19
 
 require github.com/beego/beego/v2 v2.0.7
 
-require github.com/smartystreets/goconvey v1.6.4
+require (
+	github.com/smartystreets/goconvey v1.6.4
+	golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -24,7 +27,7 @@ require (
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
