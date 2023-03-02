@@ -13,7 +13,7 @@ type CreateEmbeddingsResponse struct {
 	Object string           `json:"object,omitempty"`
 	Data   []embeddingsData `json:"data,omitempty"`
 	Model  string           `json:"model,omitempty"`
-	Usage  *usage           `json:"usage,omitempty"`
+	Usage  *Usage           `json:"usage,omitempty"`
 }
 type embeddingsData struct {
 	Object    string    `json:"object"`

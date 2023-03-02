@@ -27,28 +27,8 @@ type CreateCompletionResponse struct {
 	Object  string       `json:"object,omitempty"`
 	Created int32        `json:"created,omitempty"`
 	Model   string       `json:"model,omitempty"`
-	Choices []choices    `json:"choices,omitempty"`
-	Usage   *usage       `json:"usage,omitempty"`
-}
-
-type choices struct {
-	Text         string    `json:"text"`
-	Index        int32     `json:"index"`
-	Logprobs     *logprobs `json:"logprobs,omitempty"`
-	FinishReason string    `json:"finish_reason,omitempty"`
-}
-
-type usage struct {
-	PromptTokens     int32 `json:"prompt_tokens"`
-	CompletionTokens int32 `json:"completion_tokens"`
-	TotalTokens      int32 `json:"total_tokens"`
-}
-
-type logprobs struct {
-	TextOffset    []int32              `json:"text_offset"`
-	TokenLogprobs []float32            `json:"token_logprobs"`
-	Tokens        []string             `json:"tokens"`
-	TopLogprobs   []map[string]float32 `json:"top_logprobs"`
+	Choices []Choices    `json:"choices,omitempty"`
+	Usage   *Usage       `json:"usage,omitempty"`
 }
 
 func (client *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {

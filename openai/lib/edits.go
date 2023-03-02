@@ -15,8 +15,8 @@ type CreateEditsResponse struct {
 	Error   *OpenaiError `json:"error,omitempty"`
 	Object  string       `json:"object,omitempty"`
 	Created int          `json:"created,omitempty"`
-	Choices []choices    `json:"choices,omitempty"`
-	Usage   *usage       `json:"usage,omitempty"`
+	Choices []Choices    `json:"choices,omitempty"`
+	Usage   *Usage       `json:"usage,omitempty"`
 }
 
 func (client *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEditsResponse {

@@ -207,6 +207,10 @@ func (c *openaiClient) doStreamRequest(path, method string, request, response in
 			break
 		}
 
+		if len(line) == 0 {
+			continue
+		}
+
 		line = bytes.TrimPrefix(line, headerData)
 		responseStr := string(line)
 		if responseStr == "[DONE]" {
