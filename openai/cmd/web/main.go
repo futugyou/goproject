@@ -18,6 +18,7 @@ func main() {
 	web.SetStaticPath("/", "static")
 	web.AutoPrefix("api", &controller.UserController{})
 	web.AutoPrefix("api", &controller.ModelController{})
+	web.AutoPrefix("api", &controller.ChatController{})
 	web.Run()
 
 }
