@@ -1,6 +1,10 @@
 package lib
 
+import "golang.org/x/exp/slices"
+
 const createModerationPath string = "moderations"
+
+var supportedModerationModel = []string{Text_moderation_stable, Text_moderation_latest}
 
 type CreateModerationRequest struct {
 	Input string `json:"input,omitempty"`
@@ -42,6 +46,21 @@ type ModerationResult struct {
 
 func (client *openaiClient) CreateModeration(request CreateModerationRequest) *CreateModerationResponse {
 	result := &CreateModerationResponse{}
+
+	err := validateModerationModel(request.Model)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	client.Post(createModerationPath, request, result)
 	return result
+}
+
+func validateModerationModel(model string) *OpenaiError {
+	if len(model) > 0 && !slices.Contains(supportedModerationModel, model) {
+		return NewError(model, supportedModerationModel)
+	}
+
+	return nil
 }

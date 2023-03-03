@@ -36,3 +36,6 @@ const Ada string = "ada"
 const Babbage string = "babbage"
 const Curie string = "curie"
 const Davinci string = "davinci"
+
+const Text_moderation_stable string = "text-moderation-stable"
+const Text_moderation_latest string = "text-moderation-latest"
