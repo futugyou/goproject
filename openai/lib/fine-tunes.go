@@ -1,6 +1,11 @@
 package lib
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+
+	"golang.org/x/exp/slices"
+)
 
 const finetunesPath string = "fine-tunes"
 const listFinetunesPath string = "fine-tunes"
@@ -9,9 +14,13 @@ const cancelFinetunesPath string = "fine-tunes/%s/cancel"
 const listFinetuneEventPath string = "fine-tunes/%s/events"
 const deleteFinetuneModelPath string = "models/%s"
 
+var supportedFineTunesModel = []string{Ada, Babbage, Curie, Davinci}
+
 type CreateFinetuneRequest struct {
-	TrainingFile                 string      `json:"training_file"`
-	ValidationFile               string      `json:"validation_file,omitempty"`
+	TrainingFile   string `json:"training_file"`
+	ValidationFile string `json:"validation_file,omitempty"`
+	// The name of the base model to fine-tune. You can select one of "ada", "babbage", "curie", "davinci",
+	// or a fine-tuned model created after 2022-04-21.
 	Model                        string      `json:"model,omitempty"`
 	N_epochs                     int32       `json:"n_epochs,omitempty"`
 	BatchSize                    int32       `json:"batch_size,omitempty"`
@@ -90,6 +99,28 @@ type DeleteFinetuneModelResponse struct {
 
 func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
 	result := &CreateFinetuneResponse{}
+
+	if len(request.Model) > 19 {
+		l := request.Model[len(request.Model)-19 : len(request.Model)-9]
+		modelDate, err := time.Parse("2006-01-02", l)
+		if err != nil {
+			result.Error = NewError("fine tune model error", nil)
+			return result
+		}
+
+		baseDate, _ := time.Parse("2006-01-02", "2022-04-21")
+		if baseDate.After(modelDate) {
+			result.Error = NewError("fine tune model date can not earlier than 2022-04-21.", nil)
+			return result
+		}
+
+	} else if len(request.Model) > 0 {
+		if !slices.Contains(supportedFineTunesModel, request.Model) {
+			result.Error = NewError("fine tune model error", nil)
+			return result
+		}
+	}
+
 	client.Post(finetunesPath, request, result)
 	return result
 }

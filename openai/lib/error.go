@@ -15,7 +15,7 @@ type OpenaiError struct {
 func NewError(value string, list []string) *OpenaiError {
 	message := ""
 	if list != nil {
-		message = fmt.Sprintf("only support  %s", strings.Join(list, ","))
+		message = fmt.Sprintf("only support %s", strings.Join(list, ","))
 	}
 
 	return &OpenaiError{

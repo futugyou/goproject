@@ -15,6 +15,7 @@ type CreateEmbeddingsResponse struct {
 	Model  string           `json:"model,omitempty"`
 	Usage  *Usage           `json:"usage,omitempty"`
 }
+
 type embeddingsData struct {
 	Object    string    `json:"object"`
 	Index     int       `json:"index"`
