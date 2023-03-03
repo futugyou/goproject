@@ -13,13 +13,13 @@ type OpenaiError struct {
 }
 
 func NewError(value string, list []string) *OpenaiError {
-	message := value
+	message := ""
 	if list != nil {
-		message = strings.Join(list, ",")
+		message = fmt.Sprintf("only support  %s", strings.Join(list, ","))
 	}
 
 	return &OpenaiError{
-		ErrorMessage: fmt.Sprintf("only support  %s", message),
+		ErrorMessage: message,
 		ErrorType:    "invalid parameters",
 		Param:        fmt.Sprintf("current value is: %s", value),
 	}

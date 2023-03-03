@@ -1,10 +1,19 @@
 package lib
 
-import "os"
+import (
+	"os"
+	"strings"
+
+	"golang.org/x/exp/slices"
+)
 
 const createImagesPath string = "images/generations"
 const editImagesPath string = "images/edits"
 const variationImagesPath string = "images/variations"
+
+var supportededImageSize = []string{"256x256", "512x512", "1024x1024"}
+var supportedImageResponseFormat = []string{"url", "b64_json"}
+var supportedImageType = []string{"png"}
 
 type CreateImagesRequest struct {
 	Prompt         string `json:"prompt"`
@@ -57,18 +66,119 @@ type VariationImagesResponse struct {
 
 func (client *openaiClient) CreateImages(request CreateImagesRequest) *CreateImagesResponse {
 	result := &CreateImagesResponse{}
+
+	err := validateImageSize(request.Size)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
+	err = validateImageResponseFormat(request.ResponseFormat)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	client.Post(createImagesPath, request, result)
 	return result
 }
 
 func (client *openaiClient) EditImages(request EditImagesRequest) *EditImagesResponse {
 	result := &EditImagesResponse{}
+
+	err := validateImageSize(request.Size)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
+	err = validateImageResponseFormat(request.ResponseFormat)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
+	if request.Image == nil {
+		result.Error = NewError("nil", nil)
+		return result
+	}
+
+	err = validateImageType(request.Image)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
+	err = validateImageType(request.Mask)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	client.PostWithFile(editImagesPath, &request, result)
 	return result
 }
 
 func (client *openaiClient) VariationImages(request VariationImagesRequest) *VariationImagesResponse {
 	result := &VariationImagesResponse{}
+
+	err := validateImageSize(request.Size)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
+	err = validateImageResponseFormat(request.ResponseFormat)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
+	if request.Image == nil {
+		result.Error = NewError("nil", nil)
+		return result
+	}
+
+	err = validateImageType(request.Image)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	client.PostWithFile(variationImagesPath, &request, result)
 	return result
+}
+
+func validateImageSize(size string) *OpenaiError {
+	if len(size) == 0 || !slices.Contains(supportedAudioModel, size) {
+		return NewError(size, supportededImageSize)
+	}
+
+	return nil
+}
+
+func validateImageResponseFormat(format string) *OpenaiError {
+	if len(format) == 0 || !slices.Contains(supportedAudioModel, format) {
+		return NewError(format, supportedImageResponseFormat)
+	}
+
+	return nil
+}
+
+func validateImageType(file *os.File) *OpenaiError {
+	if file == nil {
+		return nil
+	}
+
+	segmentations := strings.Split(file.Name(), ".")
+	if len(segmentations) <= 1 {
+		return NewError("null", supportedImageType)
+	}
+
+	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
+	if !slices.Contains(supportedAudioType, suffix) {
+		return NewError(suffix, supportedImageType)
+	}
+
+	return nil
 }
