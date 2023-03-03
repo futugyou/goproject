@@ -13,7 +13,7 @@ const audioTranslationPath string = "audio/translations"
 
 var supportededResponseFormatType = []string{"json", "text", "srt", "verbose_json", "vtt"}
 var supportedAudioType = []string{"mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"}
-var supportedAudioModel = []string{"whisper-1"}
+var supportedAudioModel = []string{Whisper_1}
 
 var responseFormatTypeError = func(message string) *OpenaiError {
 	return &OpenaiError{
@@ -69,7 +69,7 @@ type CreateAudioTranslationResponse struct {
 func (client *openaiClient) CreateAudioTranscription(request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
 	result := &CreateAudioTranscriptionResponse{}
 
-	err := validateAudioModel(request.ResponseFormat)
+	err := validateAudioModel(request.Model)
 	if err != nil {
 		result.Error = err
 		return result
@@ -94,7 +94,7 @@ func (client *openaiClient) CreateAudioTranscription(request CreateAudioTranscri
 func (client *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequest) *CreateAudioTranslationResponse {
 	result := &CreateAudioTranslationResponse{}
 
-	err := validateAudioModel(request.ResponseFormat)
+	err := validateAudioModel(request.Model)
 	if err != nil {
 		result.Error = err
 		return result

@@ -25,3 +25,9 @@ type ChatCompletionMessage struct {
 	Role    string `json:"role,omitempty"`
 	Content string `json:"content,omitempty"`
 }
+
+const GPT35_turbo string = "gpt-3.5-turbo"
+const GPT35_turbo_0301 string = "gpt-3.5-turbo-0301"
+const Whisper_1 string = "whisper-1"
+const Text_davinci_edit_001 string = "text-davinci-edit-001"
+const Code_davinci_edit_001 string = "code-davinci-edit-001"
