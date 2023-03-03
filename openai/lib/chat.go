@@ -1,22 +1,12 @@
 package lib
 
 import (
-	"fmt"
-
 	"golang.org/x/exp/slices"
 )
 
 const chatCompletionPath string = "chat/completions"
 
 var supportedChatModel = []string{GPT35_turbo, GPT35_turbo_0301}
-
-var chatModelError = func(model string) *OpenaiError {
-	return &OpenaiError{
-		ErrorMessage: "Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.",
-		ErrorType:    "invalid parameters",
-		Param:        fmt.Sprintf("current chat model is: %s", model),
-	}
-}
 
 type CreateChatCompletionRequest struct {
 	Model            string                `json:"model"`
@@ -58,7 +48,7 @@ func (client *openaiClient) CreateChatCompletion(request CreateChatCompletionReq
 
 func validateChatModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedChatModel, model) {
-		return chatModelError(model)
+		return NewError(model, supportedChatModel)
 	}
 
 	return nil

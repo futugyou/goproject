@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -14,30 +13,6 @@ const audioTranslationPath string = "audio/translations"
 var supportededResponseFormatType = []string{"json", "text", "srt", "verbose_json", "vtt"}
 var supportedAudioType = []string{"mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"}
 var supportedAudioModel = []string{Whisper_1}
-
-var responseFormatTypeError = func(message string) *OpenaiError {
-	return &OpenaiError{
-		ErrorMessage: "response format only json, text, srt, verbose_json, or vtt",
-		ErrorType:    "invalid parameters",
-		Param:        fmt.Sprintf("current response format is: %s", message),
-	}
-}
-
-var audioTypeError = func(message string) *OpenaiError {
-	return &OpenaiError{
-		ErrorMessage: "audio type only mp3, mp4, mpeg, mpga, m4a, wav, or webm",
-		ErrorType:    "invalid parameters",
-		Param:        fmt.Sprintf("current audio type is: %s", message),
-	}
-}
-
-var audioModelError = func(message string) *OpenaiError {
-	return &OpenaiError{
-		ErrorMessage: "Only whisper-1 is currently available.",
-		ErrorType:    "invalid parameters",
-		Param:        fmt.Sprintf("current model is: %s", message),
-	}
-}
 
 type CreateAudioTranscriptionRequest struct {
 	File           *os.File `json:"file"`
@@ -118,7 +93,7 @@ func (client *openaiClient) CreateAudioTranslation(request CreateAudioTranslatio
 
 func validateAudioResponseFormat(responseFormat string) *OpenaiError {
 	if len(responseFormat) > 0 && !slices.Contains(supportededResponseFormatType, responseFormat) {
-		return responseFormatTypeError(responseFormat)
+		return NewError(responseFormat, supportededResponseFormatType)
 	}
 
 	return nil
@@ -126,7 +101,7 @@ func validateAudioResponseFormat(responseFormat string) *OpenaiError {
 
 func validateAudioModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedAudioModel, model) {
-		return audioModelError(model)
+		return NewError(model, supportedAudioModel)
 	}
 
 	return nil
@@ -135,12 +110,12 @@ func validateAudioModel(model string) *OpenaiError {
 func validateAudioFile(file os.File) *OpenaiError {
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return audioTypeError("no file extension")
+		return NewError("null", supportedAudioType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return responseFormatTypeError(suffix)
+		return NewError(suffix, supportedAudioType)
 	}
 
 	return nil

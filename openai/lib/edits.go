@@ -1,22 +1,12 @@
 package lib
 
 import (
-	"fmt"
-
 	"golang.org/x/exp/slices"
 )
 
 const editsPath string = "edits"
 
 var supportedEditModel = []string{GPT35_turbo, Code_davinci_edit_001}
-
-var editModelError = func(model string) *OpenaiError {
-	return &OpenaiError{
-		ErrorMessage: "Currently, only text-davinci-edit-001 and code-davinci-edit-001 are supported.",
-		ErrorType:    "invalid parameters",
-		Param:        fmt.Sprintf("current edit model is: %s", model),
-	}
-}
 
 type CreateEditsRequest struct {
 	Model       string  `json:"model"`
@@ -50,7 +40,7 @@ func (client *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEdits
 
 func validateEditModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEditModel, model) {
-		return editModelError(model)
+		return NewError(model, supportedEditModel)
 	}
 
 	return nil
