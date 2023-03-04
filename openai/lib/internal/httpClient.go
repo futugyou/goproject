@@ -16,12 +16,18 @@ import (
 )
 
 const baseUrl string = "https://api.openai.com/v1/"
+const endTag string = "[DONE]"
+
+var headerData []byte = []byte("data: ")
 
 type HttpClient struct {
-	http         *http.Client
-	apikey       string
-	organization string
-	baseurl      string
+	http           *http.Client
+	apikey         string
+	organization   string
+	baseurl        string
+	streamResponse *http.Response
+	streamReader   *bufio.Reader
+	StreamEnd      bool
 }
 
 func NewHttpClient(apikey string) *HttpClient {
@@ -166,7 +172,15 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 	json.Unmarshal(all, response)
 }
 
-func (c *HttpClient) doStreamRequest(path, method string, request, response interface{}) {
+func (c *HttpClient) PostStream(path string, request, response interface{}) {
+	c.doStreamRequest(path, "POST", request)
+}
+
+func (c *HttpClient) GetStream(path string, response interface{}) {
+	c.doStreamRequest(path, "GET", nil)
+}
+
+func (c *HttpClient) doStreamRequest(path, method string, request interface{}) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -193,39 +207,38 @@ func (c *HttpClient) doStreamRequest(path, method string, request, response inte
 		return
 	}
 
-	defer resp.Body.Close()
+	c.streamReader = bufio.NewReader(resp.Body)
+	c.streamResponse = resp
+}
 
-	reType := reflect.TypeOf(response)
-	fmt.Println(reType)
-	channelType := reflect.ValueOf(response).Type().Elem()
-	headerData := []byte("data: ")
-	for {
-		reader := bufio.NewReader(resp.Body)
-		line, err := reader.ReadBytes('\n')
-		if err != nil {
-			break
-		}
+func (c *HttpClient) ReadStream(response interface{}) {
+	reader := c.streamReader
 
-		if len(line) == 0 {
-			continue
-		}
-
-		line = bytes.TrimPrefix(line, headerData)
-		responseStr := string(line)
-		if responseStr == "[DONE]" {
-			break
-		}
-
-		if len(line) == 0 {
-			continue
-		}
-
-		i := reflect.New(channelType)
-		json.Unmarshal(line, &i)
-		// response <- i
+	if reader == nil {
+		c.StreamEnd = true
+		return
 	}
 
-}
-func (c *HttpClient) readStream() {
+	line, err := reader.ReadBytes('\n')
 
+	if err != nil {
+		c.StreamEnd = true
+		return
+	}
+
+	line = bytes.TrimPrefix(line, headerData)
+	responseStr := string(line)
+
+	if responseStr == endTag {
+		c.StreamEnd = true
+		return
+	}
+
+	json.Unmarshal(line, response)
+}
+
+func (c *HttpClient) Close() {
+	if c.streamResponse != nil {
+		c.streamResponse.Body.Close()
+	}
 }
