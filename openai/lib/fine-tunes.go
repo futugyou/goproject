@@ -12,6 +12,7 @@ const listFinetunesPath string = "fine-tunes"
 const retrieveFintunePath string = "fine-tunes/%s"
 const cancelFinetunesPath string = "fine-tunes/%s/cancel"
 const listFinetuneEventPath string = "fine-tunes/%s/events"
+const listFinetuneEventStreamPath string = "fine-tunes/%s/events?stream=true"
 const deleteFinetuneModelPath string = "models/%s"
 
 var supportedFineTunesModel = []string{Ada, Babbage, Curie, Davinci}
@@ -152,5 +153,29 @@ func (c *openaiClient) ListFinetuneEvents(fine_tune_id string) *ListFinetuneEven
 func (c *openaiClient) DeleteFinetuneMdel(model string) *DeleteFinetuneModelResponse {
 	result := &DeleteFinetuneModelResponse{}
 	c.httpClient.Delete(fmt.Sprintf(deleteFinetuneModelPath, model), result)
+	return result
+}
+
+func (c *openaiClient) ListFinetuneEventsStream(fine_tune_id string) *ListFinetuneEventResponse {
+	result := &ListFinetuneEventResponse{
+		Object: "list",
+	}
+
+	c.httpClient.GetStream(fmt.Sprintf(listFinetuneEventStreamPath, fine_tune_id))
+
+	defer c.httpClient.Close()
+
+	for {
+		if c.httpClient.StreamEnd {
+			break
+		}
+
+		event := &Events{}
+		c.httpClient.ReadStream(event)
+		if !c.httpClient.StreamEnd {
+			result.Data = append(result.Data, *event)
+		}
+	}
+
 	return result
 }
