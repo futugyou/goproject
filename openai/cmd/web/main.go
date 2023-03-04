@@ -19,6 +19,7 @@ func main() {
 	web.AutoPrefix("api", &controller.UserController{})
 	web.AutoPrefix("api", &controller.ModelController{})
 	web.AutoPrefix("api", &controller.ChatController{})
+	web.AutoPrefix("api", &controller.FineTuneController{})
 	web.Run()
 
 }
