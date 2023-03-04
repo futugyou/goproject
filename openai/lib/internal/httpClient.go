@@ -1,4 +1,4 @@
-package lib
+package internal
 
 import (
 	"bufio"
@@ -15,26 +15,45 @@ import (
 	"strings"
 )
 
-type httpClient struct {
+const baseUrl string = "https://api.openai.com/v1/"
+
+type HttpClient struct {
 	http         *http.Client
 	apikey       string
 	organization string
 	baseurl      string
 }
 
-func (c *httpClient) Post(path string, request, response interface{}) {
+func NewHttpClient(apikey string) *HttpClient {
+	return &HttpClient{
+		apikey:       apikey,
+		organization: "",
+		baseurl:      baseUrl,
+		http:         &http.Client{},
+	}
+}
+
+func (c *HttpClient) SetOrganization(organization string) {
+	c.organization = organization
+}
+
+func (c *HttpClient) SetBaseUrl(baseurl string) {
+	c.baseurl = baseurl
+}
+
+func (c *HttpClient) Post(path string, request, response interface{}) {
 	c.doRequest(path, "POST", request, response)
 }
 
-func (c *httpClient) Get(path string, response interface{}) {
+func (c *HttpClient) Get(path string, response interface{}) {
 	c.doRequest(path, "GET", nil, response)
 }
 
-func (c *httpClient) Delete(path string, response interface{}) {
+func (c *HttpClient) Delete(path string, response interface{}) {
 	c.doRequest(path, "DELETE", nil, response)
 }
 
-func (c *httpClient) doRequest(path, method string, request, response interface{}) {
+func (c *HttpClient) doRequest(path, method string, request, response interface{}) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -70,7 +89,7 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 	json.Unmarshal(all, response)
 }
 
-func (c *httpClient) PostWithFile(path string, request, response interface{}) {
+func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 	path = c.baseurl + path
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -147,7 +166,7 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) {
 	json.Unmarshal(all, response)
 }
 
-func (c *httpClient) doStreamRequest(path, method string, request, response interface{}) {
+func (c *HttpClient) doStreamRequest(path, method string, request, response interface{}) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -205,5 +224,8 @@ func (c *httpClient) doStreamRequest(path, method string, request, response inte
 		json.Unmarshal(line, &i)
 		// response <- i
 	}
+
+}
+func (c *HttpClient) readStream() {
 
 }

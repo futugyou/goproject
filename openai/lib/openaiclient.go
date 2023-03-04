@@ -1,11 +1,11 @@
 package lib
 
-import "net/http"
-
-const baseUrl string = "https://api.openai.com/v1/"
+import (
+	c "openai/lib/internal"
+)
 
 type openaiClient struct {
-	httpClient *httpClient
+	httpClient *c.HttpClient
 }
 
 func NewClient(apikey string) *openaiClient {
@@ -14,19 +14,14 @@ func NewClient(apikey string) *openaiClient {
 	}
 
 	return &openaiClient{
-		httpClient: &httpClient{
-			apikey:       apikey,
-			organization: "",
-			baseurl:      baseUrl,
-			http:         &http.Client{},
-		},
+		httpClient: c.NewHttpClient(apikey),
 	}
 }
 
 func (c *openaiClient) SetOrganization(organization string) {
-	c.httpClient.organization = organization
+	c.httpClient.SetOrganization(organization)
 }
 
 func (c *openaiClient) SetBaseUrl(baseurl string) {
-	c.httpClient.baseurl = baseurl
+	c.httpClient.SetBaseUrl(baseurl)
 }

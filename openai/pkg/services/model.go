@@ -14,7 +14,6 @@ func (s *ModelService) GetAllModels() []string {
 	client := lib.NewClient(openaikey)
 	result := make([]string, 0)
 	models := client.ListModels()
-
 	if len(models.Datas) > 0 {
 		for _, model := range models.Datas {
 			result = append(result, model.ID)
