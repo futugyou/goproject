@@ -22,8 +22,8 @@ type embeddingsData struct {
 	Embedding []float64 `json:"embedding"`
 }
 
-func (client *openaiClient) CreateEmbeddings(request CreateEmbeddingsRequest) *CreateEmbeddingsResponse {
+func (c *openaiClient) CreateEmbeddings(request CreateEmbeddingsRequest) *CreateEmbeddingsResponse {
 	result := &CreateEmbeddingsResponse{}
-	client.Post(embeddingsPath, request, result)
+	c.httpClient.Post(embeddingsPath, request, result)
 	return result
 }

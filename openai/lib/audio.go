@@ -41,7 +41,7 @@ type CreateAudioTranslationResponse struct {
 	Text  string       `json:"text,omitempty"`
 }
 
-func (client *openaiClient) CreateAudioTranscription(request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
+func (c *openaiClient) CreateAudioTranscription(request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
 	result := &CreateAudioTranscriptionResponse{}
 
 	err := validateAudioModel(request.Model)
@@ -62,11 +62,11 @@ func (client *openaiClient) CreateAudioTranscription(request CreateAudioTranscri
 		return result
 	}
 
-	client.PostWithFile(audioTranscriptionPath, &request, result)
+	c.httpClient.PostWithFile(audioTranscriptionPath, &request, result)
 	return result
 }
 
-func (client *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequest) *CreateAudioTranslationResponse {
+func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequest) *CreateAudioTranslationResponse {
 	result := &CreateAudioTranslationResponse{}
 
 	err := validateAudioModel(request.Model)
@@ -87,7 +87,7 @@ func (client *openaiClient) CreateAudioTranslation(request CreateAudioTranslatio
 		return result
 	}
 
-	client.PostWithFile(audioTranslationPath, &request, result)
+	c.httpClient.PostWithFile(audioTranslationPath, &request, result)
 	return result
 }
 

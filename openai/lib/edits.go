@@ -25,7 +25,7 @@ type CreateEditsResponse struct {
 	Usage   *Usage       `json:"usage,omitempty"`
 }
 
-func (client *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEditsResponse {
+func (c *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEditsResponse {
 	result := &CreateEditsResponse{}
 
 	err := validateEditModel(request.Model)
@@ -34,7 +34,7 @@ func (client *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEdits
 		return result
 	}
 
-	client.Post(editsPath, request, result)
+	c.httpClient.Post(editsPath, request, result)
 	return result
 }
 

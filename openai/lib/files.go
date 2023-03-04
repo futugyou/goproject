@@ -57,34 +57,34 @@ type DeleteFileResponse struct {
 	Deleted bool         `json:"deleted,omitempty"`
 }
 
-func (client *openaiClient) ListFiles() *ListFilesResponse {
+func (c *openaiClient) ListFiles() *ListFilesResponse {
 	result := &ListFilesResponse{}
-	client.Get(listFilesPath, result)
+	c.httpClient.Get(listFilesPath, result)
 	return result
 }
 
-func (client *openaiClient) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
+func (c *openaiClient) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
 	result := &UploadFilesResponse{}
-	client.PostWithFile(uploadFilesPath, &request, result)
+	c.httpClient.PostWithFile(uploadFilesPath, &request, result)
 	return result
 }
 
-func (client *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
+func (c *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
 	result := &RetrieveFileResponse{}
-	client.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
+	c.httpClient.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
 	return result
 }
 
 // To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts
 // so i do not know the response type
-func (client *openaiClient) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
+func (c *openaiClient) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
 	result := &RetrieveFileContentResponse{}
-	client.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
+	c.httpClient.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
 	return result
 }
 
-func (client *openaiClient) DeleteFile(file_id string) *DeleteFileResponse {
+func (c *openaiClient) DeleteFile(file_id string) *DeleteFileResponse {
 	result := &DeleteFileResponse{}
-	client.Delete(fmt.Sprintf(deleteFilePath, file_id), result)
+	c.httpClient.Delete(fmt.Sprintf(deleteFilePath, file_id), result)
 	return result
 }

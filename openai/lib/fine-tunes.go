@@ -97,7 +97,7 @@ type DeleteFinetuneModelResponse struct {
 	Deleted bool         `json:"deleted,omitempty"`
 }
 
-func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
+func (c *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
 	result := &CreateFinetuneResponse{}
 
 	if len(request.Model) > 19 {
@@ -121,36 +121,36 @@ func (client *openaiClient) CreateFinetune(request CreateFinetuneRequest) *Creat
 		}
 	}
 
-	client.Post(finetunesPath, request, result)
+	c.httpClient.Post(finetunesPath, request, result)
 	return result
 }
 
-func (client *openaiClient) CancelFinetune(fine_tune_id string) *CancelFinetuneResponse {
+func (c *openaiClient) CancelFinetune(fine_tune_id string) *CancelFinetuneResponse {
 	result := &CancelFinetuneResponse{}
-	client.Post(fmt.Sprintf(cancelFinetunesPath, fine_tune_id), nil, result)
+	c.httpClient.Post(fmt.Sprintf(cancelFinetunesPath, fine_tune_id), nil, result)
 	return result
 }
 
-func (client *openaiClient) ListFinetune() *ListFinetuneResponse {
+func (c *openaiClient) ListFinetune() *ListFinetuneResponse {
 	result := &ListFinetuneResponse{}
-	client.Get(listFinetunesPath, result)
+	c.httpClient.Get(listFinetunesPath, result)
 	return result
 }
 
-func (client *openaiClient) RetrieveFinetune(fine_tune_id string) *RetrieveFinetuneResponse {
+func (c *openaiClient) RetrieveFinetune(fine_tune_id string) *RetrieveFinetuneResponse {
 	result := &RetrieveFinetuneResponse{}
-	client.Get(fmt.Sprintf(retrieveFintunePath, fine_tune_id), result)
+	c.httpClient.Get(fmt.Sprintf(retrieveFintunePath, fine_tune_id), result)
 	return result
 }
 
-func (client *openaiClient) ListFinetuneEvents(fine_tune_id string) *ListFinetuneEventResponse {
+func (c *openaiClient) ListFinetuneEvents(fine_tune_id string) *ListFinetuneEventResponse {
 	result := &ListFinetuneEventResponse{}
-	client.Get(fmt.Sprintf(listFinetuneEventPath, fine_tune_id), result)
+	c.httpClient.Get(fmt.Sprintf(listFinetuneEventPath, fine_tune_id), result)
 	return result
 }
 
-func (client *openaiClient) DeleteFinetuneMdel(model string) *DeleteFinetuneModelResponse {
+func (c *openaiClient) DeleteFinetuneMdel(model string) *DeleteFinetuneModelResponse {
 	result := &DeleteFinetuneModelResponse{}
-	client.Delete(fmt.Sprintf(deleteFinetuneModelPath, model), result)
+	c.httpClient.Delete(fmt.Sprintf(deleteFinetuneModelPath, model), result)
 	return result
 }

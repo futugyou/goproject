@@ -31,8 +31,8 @@ type CreateCompletionResponse struct {
 	Usage   *Usage       `json:"usage,omitempty"`
 }
 
-func (client *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
+func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
-	client.Post(completionsPath, request, result)
+	c.httpClient.Post(completionsPath, request, result)
 	return result
 }

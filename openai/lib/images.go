@@ -64,7 +64,7 @@ type VariationImagesResponse struct {
 	Data    []data       `json:"data,omitempty"`
 }
 
-func (client *openaiClient) CreateImages(request CreateImagesRequest) *CreateImagesResponse {
+func (c *openaiClient) CreateImages(request CreateImagesRequest) *CreateImagesResponse {
 	result := &CreateImagesResponse{}
 
 	err := validateImageSize(request.Size)
@@ -79,11 +79,11 @@ func (client *openaiClient) CreateImages(request CreateImagesRequest) *CreateIma
 		return result
 	}
 
-	client.Post(createImagesPath, request, result)
+	c.httpClient.Post(createImagesPath, request, result)
 	return result
 }
 
-func (client *openaiClient) EditImages(request EditImagesRequest) *EditImagesResponse {
+func (c *openaiClient) EditImages(request EditImagesRequest) *EditImagesResponse {
 	result := &EditImagesResponse{}
 
 	err := validateImageSize(request.Size)
@@ -115,11 +115,11 @@ func (client *openaiClient) EditImages(request EditImagesRequest) *EditImagesRes
 		return result
 	}
 
-	client.PostWithFile(editImagesPath, &request, result)
+	c.httpClient.PostWithFile(editImagesPath, &request, result)
 	return result
 }
 
-func (client *openaiClient) VariationImages(request VariationImagesRequest) *VariationImagesResponse {
+func (c *openaiClient) VariationImages(request VariationImagesRequest) *VariationImagesResponse {
 	result := &VariationImagesResponse{}
 
 	err := validateImageSize(request.Size)
@@ -145,7 +145,7 @@ func (client *openaiClient) VariationImages(request VariationImagesRequest) *Var
 		return result
 	}
 
-	client.PostWithFile(variationImagesPath, &request, result)
+	c.httpClient.PostWithFile(variationImagesPath, &request, result)
 	return result
 }
 

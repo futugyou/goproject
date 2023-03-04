@@ -42,14 +42,14 @@ type permission struct {
 	IsBlocking         bool        `json:"is_blocking"`
 }
 
-func (client *openaiClient) ListModels() *ListModelResponse {
+func (c *openaiClient) ListModels() *ListModelResponse {
 	result := &ListModelResponse{}
-	client.Get(listModelsPath, result)
+	c.httpClient.Get(listModelsPath, result)
 	return result
 }
 
-func (client *openaiClient) RetrieveModel(model string) *ModelResponse {
+func (c *openaiClient) RetrieveModel(model string) *ModelResponse {
 	result := &ModelResponse{}
-	client.Get(fmt.Sprintf(retrieveModelPath, model), result)
+	c.httpClient.Get(fmt.Sprintf(retrieveModelPath, model), result)
 	return result
 }

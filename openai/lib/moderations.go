@@ -44,7 +44,7 @@ type ModerationResult struct {
 	CategoryScores *CategoryScores `json:"category_scores,omitempty"`
 }
 
-func (client *openaiClient) CreateModeration(request CreateModerationRequest) *CreateModerationResponse {
+func (c *openaiClient) CreateModeration(request CreateModerationRequest) *CreateModerationResponse {
 	result := &CreateModerationResponse{}
 
 	err := validateModerationModel(request.Model)
@@ -53,7 +53,7 @@ func (client *openaiClient) CreateModeration(request CreateModerationRequest) *C
 		return result
 	}
 
-	client.Post(createModerationPath, request, result)
+	c.httpClient.Post(createModerationPath, request, result)
 	return result
 }
 

@@ -33,7 +33,7 @@ type CreateChatCompletionResponse struct {
 	Usage   *Usage       `json:"usage,omitempty"`
 }
 
-func (client *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest) *CreateChatCompletionResponse {
+func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest) *CreateChatCompletionResponse {
 	result := &CreateChatCompletionResponse{}
 
 	err := validateChatModel(request.Model)
@@ -42,7 +42,7 @@ func (client *openaiClient) CreateChatCompletion(request CreateChatCompletionReq
 		return result
 	}
 
-	client.Post(chatCompletionPath, request, result)
+	c.httpClient.Post(chatCompletionPath, request, result)
 	return result
 }
 
