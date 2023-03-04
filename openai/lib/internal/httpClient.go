@@ -172,11 +172,11 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 	json.Unmarshal(all, response)
 }
 
-func (c *HttpClient) PostStream(path string, request, response interface{}) {
+func (c *HttpClient) PostStream(path string, request interface{}) {
 	c.doStreamRequest(path, "POST", request)
 }
 
-func (c *HttpClient) GetStream(path string, response interface{}) {
+func (c *HttpClient) GetStream(path string) {
 	c.doStreamRequest(path, "GET", nil)
 }
 
@@ -220,14 +220,23 @@ func (c *HttpClient) ReadStream(response interface{}) {
 	}
 
 	line, err := reader.ReadBytes('\n')
+	responseStr := ""
 
-	if err != nil {
-		c.StreamEnd = true
-		return
+	for {
+		if err != nil {
+			c.StreamEnd = true
+			return
+		}
+
+		line = bytes.TrimSpace(line)
+		if bytes.HasPrefix(line, headerData) {
+			line = bytes.TrimPrefix(line, headerData)
+			responseStr = string(line)
+			break
+		} else {
+			line, err = reader.ReadBytes('\n')
+		}
 	}
-
-	line = bytes.TrimPrefix(line, headerData)
-	responseStr := string(line)
 
 	if responseStr == endTag {
 		c.StreamEnd = true
