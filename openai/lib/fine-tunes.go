@@ -15,7 +15,7 @@ const listFinetuneEventPath string = "fine-tunes/%s/events"
 const listFinetuneEventStreamPath string = "fine-tunes/%s/events?stream=true"
 const deleteFinetuneModelPath string = "models/%s"
 
-var supportedFineTunesModel = []string{Ada, Babbage, Curie, Davinci}
+var supportedFineTunesModel = []string{GPT3_ada, GPT3_babbage, GPT3_curie, GPT3_davinci}
 
 type CreateFinetuneRequest struct {
 	TrainingFile   string `json:"training_file"`
