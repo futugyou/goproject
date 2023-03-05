@@ -33,6 +33,30 @@ type CreateCompletionResponse struct {
 
 func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
+	request.Stream = false
 	c.httpClient.Post(completionsPath, request, result)
+	return result
+}
+
+func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) []*CreateCompletionResponse {
+	result := make([]*CreateCompletionResponse, 0)
+	request.Stream = true
+
+	c.httpClient.PostStream(completionsPath, request)
+
+	defer c.httpClient.Close()
+
+	for {
+		if c.httpClient.StreamEnd {
+			break
+		}
+
+		response := &CreateCompletionResponse{}
+		c.httpClient.ReadStream(response)
+		if !c.httpClient.StreamEnd {
+			result = append(result, response)
+		}
+	}
+
 	return result
 }
