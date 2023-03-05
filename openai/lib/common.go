@@ -58,18 +58,72 @@ const Curie string = "curie"
 const Babbage string = "babbage"
 const Ada string = "ada"
 
+var GPT35Family = []string{
+	GPT35_turbo,
+	GPT35_turbo_0301,
+	Text_davinci_003,
+	Text_davinci_002,
+	Code_davinci_002,
+}
+
 const GPT35_turbo string = "gpt-3.5-turbo"
 const GPT35_turbo_0301 string = "gpt-3.5-turbo-0301"
 const Text_davinci_003 string = "text-davinci-003"
 const Text_davinci_002 string = "text-davinci-002"
 const Code_davinci_002 string = "code-davinci-002"
 
+var DALLeFamily = []string{
+	DALLe_2,
+}
+
+const DALLe_2 string = "dalle-2"
+
+var WhisperFamily = []string{
+	Whisper_1,
+}
+
 const Whisper_1 string = "whisper-1"
+
+var EmbeddingsFamily = []string{
+	Text_embedding_ada_002,
+}
+
+const Text_embedding_ada_002 string = "text-embedding-ada-002"
+
+var CodexFamily = []string{
+	Code_davinci_002,
+	Code_cushman_001,
+}
+
+const Code_cushman_001 string = "code-cushman-001"
+
 const Text_davinci_edit_001 string = "text-davinci-edit-001"
 const Code_davinci_edit_001 string = "code-davinci-edit-001"
 
+var ModerationFamily = []string{
+	Text_moderation_stable,
+	Text_moderation_latest,
+}
+
 const Text_moderation_stable string = "text-moderation-stable"
 const Text_moderation_latest string = "text-moderation-latest"
+
+var GPT3Family = []string{
+	Text_curie_001,
+	Text_babbage_001,
+	GPT3_davinci,
+	GPT3_curie,
+	GPT3_babbage,
+	GPT3_ada,
+}
+
+const Text_curie_001 string = "text-curie-001"
+const Text_babbage_001 string = "text-babbage-001"
+const Text_ada_001 string = "text-ada-001"
+const GPT3_davinci string = "davinci"
+const GPT3_curie string = "curie"
+const GPT3_babbage string = "babbage"
+const GPT3_ada string = "ada"
 
 var ModelTokenLimitList = map[string]int32{
 	GPT35_turbo:      4096,
@@ -77,4 +131,34 @@ var ModelTokenLimitList = map[string]int32{
 	Text_davinci_003: 4000,
 	Text_davinci_002: 4000,
 	Code_davinci_002: 4000,
+	Code_cushman_001: 2048,
+	Text_curie_001:   2048,
+	Text_babbage_001: 2048,
+	GPT3_davinci:     2048,
+	GPT3_curie:       2048,
+	GPT3_babbage:     2048,
+	GPT3_ada:         2048,
+}
+
+func MaxTokenValidate(model string, token int32, prompt []string) *OpenaiError {
+	promptLen := 0
+	for _, p := range prompt {
+		promptLen += len(p) / 4
+	}
+
+	if promptLen > int(token) {
+		return &OpenaiError{
+			ErrorMessage: "Maximum token limit exceeded",
+		}
+	}
+
+	if mt, ok := ModelTokenLimitList[model]; ok {
+		if token > mt {
+			return &OpenaiError{
+				ErrorMessage: "Maximum token limit exceeded",
+			}
+		}
+	}
+
+	return nil
 }
