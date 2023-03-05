@@ -14,7 +14,7 @@ type CreateChatCompletionRequest struct {
 	Temperature      float32               `json:"temperature,omitempty"`
 	Top_p            float32               `json:"top_p,omitempty"`
 	N                int32                 `json:"n,omitempty"`
-	Stream           bool                  `json:"stream,omitempty"`
+	stream           bool                  `json:"stream,omitempty"`
 	Stop             []string              `json:"stop,omitempty"`
 	MaxTokens        int32                 `json:"max_tokens,omitempty"`
 	PresencePenalty  float32               `json:"presence_penalty,omitempty"`
@@ -52,4 +52,34 @@ func validateChatModel(model string) *OpenaiError {
 	}
 
 	return nil
+}
+
+func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) []*CreateChatCompletionResponse {
+	result := make([]*CreateChatCompletionResponse, 0)
+
+	err := validateChatModel(request.Model)
+	if err != nil {
+		result = append(result, &CreateChatCompletionResponse{Error: err})
+		return result
+	}
+
+	request.stream = true
+
+	c.httpClient.PostStream(chatCompletionPath, request)
+
+	defer c.httpClient.Close()
+
+	for {
+		if c.httpClient.StreamEnd {
+			break
+		}
+
+		response := &CreateChatCompletionResponse{}
+		c.httpClient.ReadStream(response)
+		if !c.httpClient.StreamEnd {
+			result = append(result, response)
+		}
+	}
+
+	return result
 }
