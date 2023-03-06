@@ -1,7 +1,7 @@
-package controller
+package controllers
 
 import (
-	"openai/pkg/services"
+	"openai/services"
 
 	"github.com/beego/beego/v2/server/web"
 )

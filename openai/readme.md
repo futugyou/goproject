@@ -12,3 +12,12 @@ swagger doc
 ```
 bee generate docs
 ```
+
+route
+```
+bee generate routers
+```
+
+```
+bee run 
+```

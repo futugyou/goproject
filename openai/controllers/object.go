@@ -1,9 +1,9 @@
-package controller
+package controllers
 
 import (
 	"encoding/json"
 
-	models "openai/pkg/services"
+	models "openai/services"
 
 	beego "github.com/beego/beego/v2/server/web"
 )
