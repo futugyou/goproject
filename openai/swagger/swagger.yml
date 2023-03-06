@@ -110,6 +110,28 @@ paths:
       responses:
         "200":
           description: "{list model} \t[]string"
+  /qa/:
+    post:
+      tags:
+      - qa
+      description: |-
+        create q&a
+        <br>
+      operationId: QuestionController.Createq&a
+      parameters:
+      - in: body
+        name: body
+        description: body for create q&a content
+        required: true
+        schema:
+          $ref: '#/definitions/models.QuestionAnswer'
+      - in: query
+        name: request
+        schema:
+          $ref: '#/definitions/models.QuestionAnswer'
+      responses:
+        "200":
+          description: "{test} \tstring"
 definitions:
   lib.ChatCompletionMessage:
     title: ChatCompletionMessage
@@ -321,6 +343,41 @@ definitions:
   models.Object:
     title: Object
     type: object
+  models.QuestionAnswer:
+    title: QuestionAnswer
+    type: object
+    properties:
+      best_of:
+        type: integer
+        format: int64
+      echo:
+        type: boolean
+      frequency_penalty:
+        type: number
+        format: float
+      logprobs:
+        type: integer
+        format: int64
+      max_tokens:
+        type: integer
+        format: int32
+      presence_penalty:
+        type: number
+        format: float
+      prompt:
+        type: string
+      stop:
+        type: array
+        items:
+          type: string
+      stream:
+        type: boolean
+      temperature:
+        type: number
+        format: float
+      top_p:
+        type: number
+        format: float
   models.User:
     title: User
     type: object
@@ -340,3 +397,6 @@ tags:
 - name: autio
   description: |
     Operations about Chat
+- name: qa
+  description: |
+    Operations about q&a

@@ -103,6 +103,17 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["openai/controllers:QuestionController"] = append(beego.GlobalControllerRouter["openai/controllers:QuestionController"],
+        beego.ControllerComments{
+            Method: "CreateQAndA",
+            Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(
+				param.New("request"),
+			),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["openai/controllers:UserController"] = append(beego.GlobalControllerRouter["openai/controllers:UserController"],
         beego.ControllerComments{
             Method: "Post",
