@@ -23,6 +23,10 @@ func init() {
 			beego.NSInclude(
 				&controllers.FineTuneController{}),
 		),
+		beego.NSNamespace("/autio",
+			beego.NSInclude(
+				&controllers.AudioController{}),
+		),
 	)
 	beego.AddNamespace(ns)
 }

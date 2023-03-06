@@ -7,6 +7,28 @@ import (
 
 func init() {
 
+    beego.GlobalControllerRouter["openai/controllers:AudioController"] = append(beego.GlobalControllerRouter["openai/controllers:AudioController"],
+        beego.ControllerComments{
+            Method: "CreateAudioTranscription",
+            Router: `/transcription`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(
+				param.New("request"),
+			),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["openai/controllers:AudioController"] = append(beego.GlobalControllerRouter["openai/controllers:AudioController"],
+        beego.ControllerComments{
+            Method: "CreateAudioTranslation",
+            Router: `/translation`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(
+				param.New("request"),
+			),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["openai/controllers:ChatController"] = append(beego.GlobalControllerRouter["openai/controllers:ChatController"],
         beego.ControllerComments{
             Method: "CreateChat",

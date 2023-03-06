@@ -8,6 +8,76 @@
     },
     "basePath": "/api/v1",
     "paths": {
+        "/autio/transcription": {
+            "post": {
+                "tags": [
+                    "autio"
+                ],
+                "description": "create audio transcription\n\u003cbr\u003e",
+                "operationId": "AudioController.CreateAudioTranscription",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for create audio transcription content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lib.CreateAudioTranscriptionRequest"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.CreateAudioTranscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/lib.CreateAudioTranscriptionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/autio/translation": {
+            "post": {
+                "tags": [
+                    "autio"
+                ],
+                "description": "create audio translation\n\u003cbr\u003e",
+                "operationId": "AudioController.CreateAudioTranslation",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for create audio translation content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/lib.CreateAudioTranslationRequest"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.CreateAudioTranslationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/lib.CreateAudioTranslationResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/chat/": {
             "post": {
                 "tags": [
@@ -119,6 +189,79 @@
                     "items": {
                         "$ref": "#/definitions/lib.ChatCompletionMessage"
                     }
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "lib.CreateAudioTranscriptionRequest": {
+            "title": "CreateAudioTranscriptionRequest",
+            "type": "object",
+            "properties": {
+                "file": {
+                    "$ref": "#/definitions/os.File"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "prompt": {
+                    "type": "string"
+                },
+                "response_format": {
+                    "description": "json, text, srt, verbose_json, or vtt.",
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number",
+                    "format": "float"
+                }
+            }
+        },
+        "lib.CreateAudioTranscriptionResponse": {
+            "title": "CreateAudioTranscriptionResponse",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/lib.OpenaiError"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "lib.CreateAudioTranslationRequest": {
+            "title": "CreateAudioTranslationRequest",
+            "type": "object",
+            "properties": {
+                "file": {
+                    "$ref": "#/definitions/os.File"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "prompt": {
+                    "type": "string"
+                },
+                "response_format": {
+                    "description": "json, text, srt, verbose_json, or vtt.",
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number",
+                    "format": "float"
+                }
+            }
+        },
+        "lib.CreateAudioTranslationResponse": {
+            "title": "CreateAudioTranslationResponse",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/lib.OpenaiError"
                 },
                 "text": {
                     "type": "string"
@@ -323,6 +466,10 @@
         "models.User": {
             "title": "User",
             "type": "object"
+        },
+        "os.File": {
+            "title": "File",
+            "type": "object"
         }
     },
     "tags": [
@@ -337,6 +484,10 @@
         {
             "name": "fine-tune",
             "description": "Operations about fine tune\n"
+        },
+        {
+            "name": "autio",
+            "description": "Operations about Chat\n"
         }
     ]
 }
