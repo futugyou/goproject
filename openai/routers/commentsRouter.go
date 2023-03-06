@@ -7,6 +7,35 @@ import (
 
 func init() {
 
+    beego.GlobalControllerRouter["openai/controllers:ChatController"] = append(beego.GlobalControllerRouter["openai/controllers:ChatController"],
+        beego.ControllerComments{
+            Method: "CreateChat",
+            Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(
+				param.New("request"),
+			),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["openai/controllers:FineTuneController"] = append(beego.GlobalControllerRouter["openai/controllers:FineTuneController"],
+        beego.ControllerComments{
+            Method: "ListFineTuneEvent",
+            Router: `/:fine_tune_id/events`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["openai/controllers:ModelController"] = append(beego.GlobalControllerRouter["openai/controllers:ModelController"],
+        beego.ControllerComments{
+            Method: "ListModel",
+            Router: `/`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["openai/controllers:ObjectController"] = append(beego.GlobalControllerRouter["openai/controllers:ObjectController"],
         beego.ControllerComments{
             Method: "Post",

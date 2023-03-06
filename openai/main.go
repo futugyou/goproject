@@ -16,14 +16,12 @@ func main() {
 	}
 
 	web.SetStaticPath("/", "static")
-	// web.AutoPrefix("api", &controller.UserController{})
-	// web.AutoPrefix("api", &controller.ModelController{})
-	// web.AutoPrefix("api", &controller.ChatController{})
-	// web.AutoPrefix("api", &controller.FineTuneController{})
+
 	// tree := web.PrintTree()
 	// methods := tree["Data"].(web.M)
 	// for k, v := range methods {
 	// 	fmt.Printf("%s => %v\n", k, v)
 	// }
+
 	web.Run()
 }

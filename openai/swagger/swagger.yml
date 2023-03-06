@@ -1,289 +1,238 @@
 swagger: "2.0"
 info:
-  title: beego Test API
+  title: openai web API
   description: |
-    beego has a very cool tools to autogenerate documents for your API
+    provider some api for openai demo.
   version: 1.0.0
-  termsOfService: http://beego.me/
-  contact:
-    email: astaxie@gmail.com
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-basePath: /v1
+basePath: /api/v1
 paths:
-  /object/:
-    get:
-      tags:
-      - object
-      description: |-
-        get all objects
-        <br>
-      operationId: ObjectController.GetAll
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Object'
-        "403":
-          description: :objectId is empty
+  /chat/:
     post:
       tags:
-      - object
+      - chat
       description: |-
-        create object
+        create chat
         <br>
-      operationId: ObjectController.Create
+      operationId: ChatController.CreateChat
       parameters:
       - in: body
         name: body
-        description: The object content
+        description: body for create chat content
         required: true
         schema:
-          $ref: '#/definitions/models.Object'
-      responses:
-        "200":
-          description: '{string} models.Object.Id'
-        "403":
-          description: body is empty
-  /object/{objectId}:
-    get:
-      tags:
-      - object
-      description: |-
-        find object by objectid
-        <br>
-      operationId: ObjectController.Get
-      parameters:
-      - in: path
-        name: objectId
-        description: the objectid you want to get
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Object'
-        "403":
-          description: :objectId is empty
-    put:
-      tags:
-      - object
-      description: |-
-        update the object
-        <br>
-      operationId: ObjectController.Update
-      parameters:
-      - in: path
-        name: objectId
-        description: The objectid you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: The body
-        required: true
-        schema:
-          $ref: '#/definitions/models.Object'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Object'
-        "403":
-          description: :objectId is empty
-    delete:
-      tags:
-      - object
-      description: |-
-        delete the object
-        <br>
-      operationId: ObjectController.Delete
-      parameters:
-      - in: path
-        name: objectId
-        description: The objectId you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: objectId is empty
-  /user/:
-    get:
-      tags:
-      - user
-      description: |-
-        get all Users
-        <br>
-      operationId: UserController.GetAll
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.User'
-    post:
-      tags:
-      - user
-      description: |-
-        create users
-        <br>
-      operationId: UserController.CreateUser
-      parameters:
-      - in: body
-        name: body
-        description: body for user content
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      responses:
-        "200":
-          description: '{int} models.User.Id'
-        "403":
-          description: body is empty
-  /user/{uid}:
-    get:
-      tags:
-      - user
-      description: |-
-        get user by uid
-        <br>
-      operationId: UserController.Get
-      parameters:
-      - in: path
-        name: uid
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.User'
-        "403":
-          description: :uid is empty
-    put:
-      tags:
-      - user
-      description: |-
-        update the user
-        <br>
-      operationId: UserController.Update
-      parameters:
-      - in: path
-        name: uid
-        description: The uid you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for user content
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.User'
-        "403":
-          description: :uid is not int
-    delete:
-      tags:
-      - user
-      description: |-
-        delete the user
-        <br>
-      operationId: UserController.Delete
-      parameters:
-      - in: path
-        name: uid
-        description: The uid you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: uid is empty
-  /user/login:
-    get:
-      tags:
-      - user
-      description: |-
-        Logs user into the system
-        <br>
-      operationId: UserController.Login
-      parameters:
+          $ref: '#/definitions/lib.CreateChatCompletionRequest'
       - in: query
-        name: username
-        description: The username for login
-        required: true
-        type: string
-      - in: query
-        name: password
-        description: The password for login
-        required: true
-        type: string
+        name: request
+        schema:
+          $ref: '#/definitions/lib.CreateChatCompletionRequest'
       responses:
         "200":
-          description: '{string} login success'
-        "403":
-          description: user not exist
-  /user/logout:
+          description: ""
+          schema:
+            $ref: '#/definitions/lib.CreateChatCompletionResponse'
+  /fine-tune/{fine_tune_id}/events:
     get:
       tags:
-      - user
+      - fine-tune
       description: |-
-        Logs out current logged in user session
+        get fine tune by fine_tune_id
         <br>
-      operationId: UserController.logout
+      operationId: FineTuneController.Get Fine Tune Events
+      parameters:
+      - in: path
+        name: fine_tune_id
+        description: The key for fine_tune
+        required: true
+        type: string
       responses:
         "200":
-          description: '{string} logout success'
+          description: ""
+          schema:
+            $ref: '#/definitions/lib.ListFinetuneEventResponse'
+        "403":
+          description: fine_tune_id is empty
+  /model/:
+    get:
+      tags:
+      - model
+      description: |-
+        list model
+        <br>
+      operationId: ModelController.ListModel
+      responses:
+        "200":
+          description: "{list model} \t[]string"
 definitions:
+  lib.ChatCompletionMessage:
+    title: ChatCompletionMessage
+    type: object
+    properties:
+      content:
+        type: string
+      role:
+        type: string
+  lib.Choices:
+    title: Choices
+    type: object
+    properties:
+      finish_reason:
+        type: string
+      index:
+        type: integer
+        format: int32
+      logprobs:
+        $ref: '#/definitions/lib.Logprobs'
+      message:
+        type: array
+        items:
+          $ref: '#/definitions/lib.ChatCompletionMessage'
+      text:
+        type: string
+  lib.CreateChatCompletionRequest:
+    title: CreateChatCompletionRequest
+    type: object
+    properties:
+      frequency_penalty:
+        type: number
+        format: float
+      logit_bias:
+        additionalProperties:
+          type: integer
+          format: int32
+      max_tokens:
+        type: integer
+        format: int32
+      messages:
+        $ref: '#/definitions/lib.ChatCompletionMessage'
+      model:
+        type: string
+      "n":
+        type: integer
+        format: int32
+      presence_penalty:
+        type: number
+        format: float
+      stop:
+        type: array
+        items:
+          type: string
+      stream:
+        type: boolean
+      temperature:
+        type: number
+        format: float
+      top_p:
+        type: number
+        format: float
+      user:
+        type: string
+  lib.CreateChatCompletionResponse:
+    title: CreateChatCompletionResponse
+    type: object
+    properties:
+      choices:
+        type: array
+        items:
+          $ref: '#/definitions/lib.Choices'
+      created:
+        type: integer
+        format: int32
+      error:
+        $ref: '#/definitions/lib.OpenaiError'
+      id:
+        type: string
+      model:
+        type: string
+      object:
+        type: string
+      usage:
+        $ref: '#/definitions/lib.Usage'
+  lib.Events:
+    title: Events
+    type: object
+    properties:
+      created_at:
+        type: integer
+        format: int32
+      level:
+        type: string
+      message:
+        type: string
+      object:
+        type: string
+  lib.ListFinetuneEventResponse:
+    title: ListFinetuneEventResponse
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/lib.Events'
+      error:
+        $ref: '#/definitions/lib.OpenaiError'
+      object:
+        type: string
+  lib.Logprobs:
+    title: Logprobs
+    type: object
+    properties:
+      text_offset:
+        type: array
+        items:
+          type: integer
+          format: int32
+      token_logprobs:
+        type: array
+        items:
+          type: number
+          format: float
+      tokens:
+        type: array
+        items:
+          type: string
+      top_logprobs:
+        $ref: '#/definitions/lib.map[string][float32]'
+  lib.OpenaiError:
+    title: OpenaiError
+    type: object
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      param:
+        type: string
+      type:
+        type: string
+  lib.Usage:
+    title: Usage
+    type: object
+    properties:
+      completion_tokens:
+        type: integer
+        format: int32
+      prompt_tokens:
+        type: integer
+        format: int32
+      total_tokens:
+        type: integer
+        format: int32
+  lib.map[string][float32]:
+    title: map[string][float32]
+    type: object
   models.Object:
     title: Object
     type: object
-    properties:
-      ObjectId:
-        type: string
-      PlayerName:
-        type: string
-      Score:
-        type: integer
-        format: int64
-  models.Profile:
-    title: Profile
-    type: object
-    properties:
-      Address:
-        type: string
-      Age:
-        type: integer
-        format: int64
-      Email:
-        type: string
-      Gender:
-        type: string
   models.User:
     title: User
     type: object
-    properties:
-      Id:
-        type: string
-      Password:
-        type: string
-      Profile:
-        $ref: '#/definitions/models.Profile'
-      Username:
-        type: string
 tags:
-- name: object
+- name: model
   description: |
-    Operations about object
-- name: user
+    Operations about Models
+- name: chat
   description: |
-    Operations about Users
+    Operations about Chat
+- name: fine-tune
+  description: |
+    Operations about fine tune
