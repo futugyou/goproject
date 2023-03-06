@@ -11,12 +11,12 @@ type CreateEmbeddingsRequest struct {
 type CreateEmbeddingsResponse struct {
 	Error  *OpenaiError     `json:"error,omitempty"`
 	Object string           `json:"object,omitempty"`
-	Data   []embeddingsData `json:"data,omitempty"`
+	Data   []EmbeddingsData `json:"data,omitempty"`
 	Model  string           `json:"model,omitempty"`
 	Usage  *Usage           `json:"usage,omitempty"`
 }
 
-type embeddingsData struct {
+type EmbeddingsData struct {
 	Object    string    `json:"object"`
 	Index     int       `json:"index"`
 	Embedding []float64 `json:"embedding"`

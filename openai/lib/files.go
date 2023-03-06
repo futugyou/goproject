@@ -36,6 +36,7 @@ type FileModel struct {
 	CreatedAt     int         `json:"created_at,omitempty"`
 	Status        string      `json:"status,omitempty"`
 	StatusDetails interface{} `json:"status_details,omitempty"`
+	Owner         string      `json:"owner,omitempty"`
 }
 
 type RetrieveFileResponse struct {
@@ -45,10 +46,8 @@ type RetrieveFileResponse struct {
 
 type RetrieveFileContentResponse struct {
 	Error *OpenaiError `json:"error,omitempty"`
-	content
+	FileModel
 }
-
-type content interface{}
 
 type DeleteFileResponse struct {
 	Error   *OpenaiError `json:"error,omitempty"`
@@ -77,6 +76,7 @@ func (c *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
 
 // To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts
 // so i do not know the response type
+// And saw some other lib, and i think it is a FileModel type.
 func (c *openaiClient) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
 	result := &RetrieveFileContentResponse{}
 	c.httpClient.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)

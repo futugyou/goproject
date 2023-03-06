@@ -1,5 +1,9 @@
 package lib
 
+import (
+	"math"
+)
+
 type Choices struct {
 	Text         string                  `json:"text"`
 	Index        int32                   `json:"index"`
@@ -161,4 +165,31 @@ func MaxTokenValidate(model string, token int32, prompt []string) *OpenaiError {
 	}
 
 	return nil
+}
+
+func CosineSimilarity(listA, listB []float64) float64 {
+	count, lenA, lenB := 0, len(listA), len(listB)
+
+	if lenA > lenB {
+		count = lenA
+	} else {
+		count = lenB
+	}
+
+	sumA, sumB, sumC := 0.0, 0.0, 0.0
+	for i := 0; i < count; i++ {
+		if i >= lenA {
+			sumC += math.Pow(listB[i], 2)
+			continue
+		}
+		if i >= lenB {
+			sumB += math.Pow(listA[i], 2)
+			continue
+		}
+		sumA += listA[i] * listB[i]
+		sumB += math.Pow(listA[i], 2)
+		sumC += math.Pow(listB[i], 2)
+	}
+
+	return sumA / (math.Sqrt(sumB) * math.Sqrt(sumC))
 }

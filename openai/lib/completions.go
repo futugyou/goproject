@@ -3,7 +3,9 @@ package lib
 const completionsPath string = "completions"
 
 type CreateCompletionRequest struct {
-	Model            string           `json:"model,omitempty"`
+	Model string `json:"model,omitempty"`
+	// The prompt(s) to generate completions for,
+	// encoded as a string, array of strings, array of tokens, or array of token arrays.
 	Prompt           interface{}      `json:"prompt,omitempty"`
 	Suffix           string           `json:"suffix,omitempty"`
 	MaxTokens        int32            `json:"max_tokens,omitempty"`
@@ -13,7 +15,7 @@ type CreateCompletionRequest struct {
 	Stream           bool             `json:"stream"`
 	Logprobs         int32            `json:"logprobs,omitempty"`
 	Echo             bool             `json:"echo"`
-	Stop             interface{}      `json:"stop,omitempty"`
+	Stop             []string         `json:"stop,omitempty"`
 	PresencePenalty  float32          `json:"presence_penalty,omitempty"`
 	FrequencyPenalty float32          `json:"frequency_penalty,omitempty"`
 	BestOf           int32            `json:"best_of,omitempty"`
