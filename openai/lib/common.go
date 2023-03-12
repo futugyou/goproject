@@ -25,11 +25,6 @@ type Logprobs struct {
 	TopLogprobs   []map[string]float32 `json:"top_logprobs"`
 }
 
-type ChatCompletionMessage struct {
-	Role    string `json:"role,omitempty"`
-	Content string `json:"content,omitempty"`
-}
-
 var Family = []string{
 	GPT35,
 	DALLE,

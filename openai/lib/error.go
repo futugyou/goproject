@@ -12,11 +12,15 @@ type OpenaiError struct {
 	ErrorCode    string `json:"code"`
 }
 
-func NewError(value string, list []string) *OpenaiError {
-	message := ""
-	if list != nil {
-		message = fmt.Sprintf("only support %s", strings.Join(list, ","))
+func MessageError(message string) *OpenaiError {
+	return &OpenaiError{
+		ErrorMessage: message,
+		ErrorType:    "invalid parameters",
 	}
+}
+
+func UnsupportedTypeError(field, value string, list []string) *OpenaiError {
+	message := fmt.Sprintf("%s only support [%s], but current value is: %s.", field, strings.Join(list, ","), value)
 
 	return &OpenaiError{
 		ErrorMessage: message,

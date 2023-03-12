@@ -105,19 +105,19 @@ func (c *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFine
 		l := request.Model[len(request.Model)-19 : len(request.Model)-9]
 		modelDate, err := time.Parse("2006-01-02", l)
 		if err != nil {
-			result.Error = NewError("fine tune model error", nil)
+			result.Error = MessageError("fine tune model format error, plaese check your model.")
 			return result
 		}
 
 		baseDate, _ := time.Parse("2006-01-02", "2022-04-21")
 		if baseDate.After(modelDate) {
-			result.Error = NewError("fine tune model date can not earlier than 2022-04-21.", nil)
+			result.Error = MessageError(fmt.Sprintf("fine tune model date can not earlier than 2022-04-21, current is %s", modelDate.Format("2006-01-02")))
 			return result
 		}
 
 	} else if len(request.Model) > 0 {
 		if !slices.Contains(supportedFineTunesModel, request.Model) {
-			result.Error = NewError("fine tune model error", nil)
+			result.Error = UnsupportedTypeError("Model", request.Model, supportedFineTunesModel)
 			return result
 		}
 	}

@@ -66,7 +66,7 @@ func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest)
 
 func validateChatModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedChatModel, model) {
-		return NewError(model, supportedChatModel)
+		return UnsupportedTypeError("Model", model, supportedChatModel)
 	}
 
 	return nil
@@ -74,12 +74,12 @@ func validateChatModel(model string) *OpenaiError {
 
 func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
 	if len(messages) == 0 {
-		return NewError("messages can not be nil.", nil)
+		return MessageError("messages can not be nil.")
 	}
 
 	for _, message := range messages {
 		if !slices.Contains(supportedChatRoles, message.Role) {
-			return NewError(message.Role, supportedChatRoles)
+			return UnsupportedTypeError("Message role", message.Role, supportedChatRoles)
 		}
 	}
 	return nil

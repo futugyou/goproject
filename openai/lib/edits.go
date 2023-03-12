@@ -40,7 +40,7 @@ func (c *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEditsRespo
 
 func validateEditModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEditModel, model) {
-		return NewError(model, supportedEditModel)
+		return UnsupportedTypeError("Model", model, supportedEditModel)
 	}
 
 	return nil

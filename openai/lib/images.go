@@ -99,7 +99,7 @@ func (c *openaiClient) EditImages(request EditImagesRequest) *EditImagesResponse
 	}
 
 	if request.Image == nil {
-		result.Error = NewError("nil", nil)
+		result.Error = MessageError("Images can nod be nil.")
 		return result
 	}
 
@@ -135,7 +135,7 @@ func (c *openaiClient) VariationImages(request VariationImagesRequest) *Variatio
 	}
 
 	if request.Image == nil {
-		result.Error = NewError("nil", nil)
+		result.Error = MessageError("Images can nod be nil.")
 		return result
 	}
 
@@ -151,7 +151,7 @@ func (c *openaiClient) VariationImages(request VariationImagesRequest) *Variatio
 
 func validateImageSize(size string) *OpenaiError {
 	if len(size) == 0 || !slices.Contains(supportedAudioModel, size) {
-		return NewError(size, supportededImageSize)
+		return UnsupportedTypeError("images size", size, supportededImageSize)
 	}
 
 	return nil
@@ -159,7 +159,7 @@ func validateImageSize(size string) *OpenaiError {
 
 func validateImageResponseFormat(format string) *OpenaiError {
 	if len(format) == 0 || !slices.Contains(supportedAudioModel, format) {
-		return NewError(format, supportedImageResponseFormat)
+		return UnsupportedTypeError("ResponseFormat", format, supportedImageResponseFormat)
 	}
 
 	return nil
@@ -172,12 +172,12 @@ func validateImageType(file *os.File) *OpenaiError {
 
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return NewError("null", supportedImageType)
+		return UnsupportedTypeError("Image type", "nil", supportedImageType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return NewError(suffix, supportedImageType)
+		return UnsupportedTypeError("Image type", suffix, supportedImageType)
 	}
 
 	return nil

@@ -93,7 +93,7 @@ func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequ
 
 func validateAudioResponseFormat(responseFormat string) *OpenaiError {
 	if len(responseFormat) > 0 && !slices.Contains(supportededResponseFormatType, responseFormat) {
-		return NewError(responseFormat, supportededResponseFormatType)
+		return UnsupportedTypeError("ResponseFormat", responseFormat, supportededResponseFormatType)
 	}
 
 	return nil
@@ -101,7 +101,7 @@ func validateAudioResponseFormat(responseFormat string) *OpenaiError {
 
 func validateAudioModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedAudioModel, model) {
-		return NewError(model, supportedAudioModel)
+		return UnsupportedTypeError("Model", model, supportedAudioModel)
 	}
 
 	return nil
@@ -110,12 +110,12 @@ func validateAudioModel(model string) *OpenaiError {
 func validateAudioFile(file os.File) *OpenaiError {
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return NewError("null", supportedAudioType)
+		return UnsupportedTypeError("audio type", "nil", supportedAudioType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return NewError(suffix, supportedAudioType)
+		return UnsupportedTypeError("audio type", suffix, supportedAudioType)
 	}
 
 	return nil

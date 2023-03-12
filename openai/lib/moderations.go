@@ -59,7 +59,7 @@ func (c *openaiClient) CreateModeration(request CreateModerationRequest) *Create
 
 func validateModerationModel(model string) *OpenaiError {
 	if len(model) > 0 && !slices.Contains(supportedModerationModel, model) {
-		return NewError(model, supportedModerationModel)
+		return UnsupportedTypeError("Model", model, supportedModerationModel)
 	}
 
 	return nil
