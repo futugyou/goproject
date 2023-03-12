@@ -8,19 +8,30 @@ const chatCompletionPath string = "chat/completions"
 
 var supportedChatModel = []string{GPT35_turbo, GPT35_turbo_0301}
 
+const chatRoleSystem = "system"
+const chatRoleUser = "user"
+const chatRoleAssistant = "assistant"
+
+var supportedChatRoles = []string{chatRoleSystem, chatRoleUser, chatRoleAssistant}
+
 type CreateChatCompletionRequest struct {
-	Model            string                `json:"model"`
-	Messages         ChatCompletionMessage `json:"messages"`
-	Temperature      float32               `json:"temperature,omitempty"`
-	Top_p            float32               `json:"top_p,omitempty"`
-	N                int32                 `json:"n,omitempty"`
-	Stream           bool                  `json:"stream,omitempty"`
-	Stop             []string              `json:"stop,omitempty"`
-	MaxTokens        int32                 `json:"max_tokens,omitempty"`
-	PresencePenalty  float32               `json:"presence_penalty,omitempty"`
-	FrequencyPenalty float32               `json:"frequency_penalty,omitempty"`
-	LogitBias        map[string]int32      `json:"logit_bias,omitempty"`
-	User             string                `json:"user,omitempty"`
+	Model            string                  `json:"model"`
+	Messages         []ChatCompletionMessage `json:"messages"`
+	Temperature      float32                 `json:"temperature,omitempty"`
+	Top_p            float32                 `json:"top_p,omitempty"`
+	N                int32                   `json:"n,omitempty"`
+	Stream           bool                    `json:"stream,omitempty"`
+	Stop             []string                `json:"stop,omitempty"`
+	MaxTokens        int32                   `json:"max_tokens,omitempty"`
+	PresencePenalty  float32                 `json:"presence_penalty,omitempty"`
+	FrequencyPenalty float32                 `json:"frequency_penalty,omitempty"`
+	LogitBias        map[string]int32        `json:"logit_bias,omitempty"`
+	User             string                  `json:"user,omitempty"`
+}
+
+type ChatCompletionMessage struct {
+	Role    string `json:"role,omitempty"`
+	Content string `json:"content,omitempty"`
 }
 
 type CreateChatCompletionResponse struct {
@@ -42,6 +53,12 @@ func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest)
 		return result
 	}
 
+	err = validateChatRole(request.Messages)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	request.Stream = false
 	c.httpClient.Post(chatCompletionPath, request, result)
 	return result
@@ -55,10 +72,29 @@ func validateChatModel(model string) *OpenaiError {
 	return nil
 }
 
+func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
+	if len(messages) == 0 {
+		return NewError("messages can not be nil.", nil)
+	}
+
+	for _, message := range messages {
+		if !slices.Contains(supportedChatRoles, message.Role) {
+			return NewError(message.Role, supportedChatRoles)
+		}
+	}
+	return nil
+}
+
 func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) []*CreateChatCompletionResponse {
 	result := make([]*CreateChatCompletionResponse, 0)
 
 	err := validateChatModel(request.Model)
+	if err != nil {
+		result = append(result, &CreateChatCompletionResponse{Error: err})
+		return result
+	}
+
+	err = validateChatRole(request.Messages)
 	if err != nil {
 		result = append(result, &CreateChatCompletionResponse{Error: err})
 		return result
