@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "openai/routers"
+	_ "openai/tokenizer"
 
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/filter/cors"
