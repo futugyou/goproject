@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/dlclark/regexp2"
 	"golang.org/x/exp/slices"
 )
 
@@ -75,8 +75,8 @@ func Encode(text string) []int {
 		return []int{}
 	}
 
-	re := regexp.MustCompile(encodingRegex)
-	matches := re.FindAllString(text, -1)
+	re := regexp2.MustCompile(encodingRegex, 0)
+	matches := regexp2FindAllString(re, text)
 	bpeTokens := make([]int, len(matches))
 	for i := 0; i < len(matches); i++ {
 		match := matches[i]
@@ -93,6 +93,16 @@ func Encode(text string) []int {
 	}
 
 	return bpeTokens
+}
+
+func regexp2FindAllString(re *regexp2.Regexp, s string) []string {
+	var matches []string
+	m, _ := re.FindStringMatch(s)
+	for m != nil {
+		matches = append(matches, m.String())
+		m, _ = re.FindNextMatch(m)
+	}
+	return matches
 }
 
 func getPairs(word []string) (result map[string][]string) {
