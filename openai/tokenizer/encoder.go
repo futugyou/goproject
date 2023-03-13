@@ -3,6 +3,7 @@ package tokenizer
 import (
 	"encoding/json"
 	"fmt"
+	"openai/common"
 	"os"
 	"sort"
 	"strings"
@@ -56,7 +57,7 @@ func createVocab() {
 	}
 
 	raws := strings.Split(string(en), "\n")[1:]
-	raws = filter(raws, vocabFilter)
+	raws = common.ArrayFilter(raws, vocabFilter)
 
 	for i := 0; i < len(raws); i++ {
 		t := strings.Split(raws[i], " ")
@@ -69,23 +70,13 @@ var vocabFilter = func(s string) bool {
 	return len(strings.TrimSpace(s)) > 0
 }
 
-func filter(raws []string, filter func(string) bool) (ret []string) {
-	for i := 0; i < len(raws); i++ {
-		if filter(raws[i]) {
-			ret = append(ret, raws[i])
-		}
-	}
-
-	return
-}
-
 func Encode(text string) []int {
 	if len(text) == 0 {
 		return []int{}
 	}
 
 	re := regexp2.MustCompile(encodingRegex, 0)
-	matches := regexp2FindAllString(re, text)
+	matches := common.Regexp2FindAllString(re, text)
 	bpeTokens := make([]int, 0)
 	for i := 0; i < len(matches); i++ {
 		match := matches[i]
@@ -118,16 +109,6 @@ func Decode(tokens []int) string {
 	}
 
 	return string(byteArr)
-}
-
-func regexp2FindAllString(re *regexp2.Regexp, s string) []string {
-	var matches []string
-	m, _ := re.FindStringMatch(s)
-	for m != nil {
-		matches = append(matches, m.String())
-		m, _ = re.FindNextMatch(m)
-	}
-	return matches
 }
 
 func getPairs(word []string) (result map[string][]string) {
@@ -169,7 +150,7 @@ func bytePairEncoding(token string) string {
 			}
 		}
 
-		mapkey := getMapKeys(minPairs)
+		mapkey := common.GetMapKeys(minPairs)
 		sort.Ints(mapkey)
 		minKey := mapkey[0]
 		var biGram = minPairs[minKey]
@@ -188,7 +169,7 @@ func bytePairEncoding(token string) string {
 			if i >= len(word) {
 				break
 			}
-			j := indexArrayWithOffset(word, first, i)
+			j := common.IndexArrayWithOffset(word, first, i)
 
 			if j == -1 {
 				newWord = append(newWord, word[i:]...)
@@ -219,37 +200,6 @@ func bytePairEncoding(token string) string {
 	result := strings.Join(word, " ")
 	bpeCache[token] = result
 	return result
-}
-
-func indexArrayWithOffset(array []string, first string, offset int) int {
-	if len(array) < offset {
-		return -1
-	}
-	arr := array[offset:]
-	for i := 0; i < len(arr); i++ {
-		if arr[i] == first {
-			return i + offset
-		}
-	}
-	return -1
-}
-
-func indexWithOffset(s, substr string, offset int) int {
-	if len(s) < offset {
-		return -1
-	}
-	if idx := strings.Index(s[offset:], substr); idx >= 0 {
-		return offset + idx
-	}
-	return -1
-}
-
-func getMapKeys(m map[int]vacabItem) []int {
-	keys := make([]int, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	return keys
 }
 
 func initiByteEncoderAndDecoder() {
