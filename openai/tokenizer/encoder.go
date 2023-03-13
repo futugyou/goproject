@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -80,6 +81,83 @@ func getPairs(word []string) (result map[string][]string) {
 		prevChar = curr
 	}
 	return
+}
+
+func bytePairEncoding(token string) string {
+	if v, ok := bpeCache[token]; ok {
+		return v
+	}
+
+	word := strings.Split(token, "")
+	pairs := getPairs(word)
+	if len(pairs) == 0 {
+		bpeCache[token] = token
+		return token
+	}
+
+	for {
+		minPairs := make(map[int]vacabItem)
+		for key, pair := range pairs {
+			for _, p := range pair {
+				v := vacabItem{x: key, y: p}
+				if rank, ok := vocab[v]; ok {
+					minPairs[rank] = v
+				} else {
+					minPairs[100000000000] = v
+				}
+			}
+		}
+
+		mapkey := getMapKeys(minPairs)
+		sort.Ints(mapkey)
+		minKey := mapkey[0]
+		var biGram = minPairs[minKey]
+
+		if _, ok := vocab[biGram]; ok {
+			break
+		}
+
+		first := biGram.x
+		second := biGram.y
+
+		newWord := make([]string, 0)
+		i := 0
+
+		for {
+			if i >= len(word) {
+				break
+			}
+			j := indexArrayWithOffset(word, first, i)
+
+			if j == -1 {
+				newWord = append(newWord, word[i:]...)
+				break
+			}
+
+			newWord = append(newWord, word[i:j]...)
+			i = j
+
+			if word[i] == first && i < len(word)-1 && word[i+1] == second {
+				newWord = append(newWord, first+second)
+				i += 2
+			} else {
+				newWord = append(newWord, word[i])
+				i += 1
+			}
+		}
+
+		word = newWord
+
+		if len(word) == 1 {
+			break
+		}
+
+		pairs = getPairs(word)
+	}
+
+	result := strings.Join(word, " ")
+	bpeCache[token] = result
+	return result
 }
 
 func indexArrayWithOffset(array []string, first string, offset int) int {
