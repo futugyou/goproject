@@ -10,8 +10,9 @@ import (
 )
 
 var encoder map[string]int
-var vocab map[*vacabItem]int = make(map[*vacabItem]int)
+var vocab map[vacabItem]int = make(map[vacabItem]int)
 var bpeCache map[string]string = make(map[string]string)
+var bytesToUnicodeCache map[int]string = make(map[int]string)
 
 const encodingRegex string = `'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+`
 
@@ -48,7 +49,7 @@ func createVocab() {
 
 	for i := 0; i < len(raws); i++ {
 		t := strings.Split(raws[i], " ")
-		item := &vacabItem{x: t[0], y: t[1]}
+		item := vacabItem{x: t[0], y: t[1]}
 		vocab[item] = i
 	}
 }
@@ -67,8 +68,22 @@ func filter(raws []string, filter func(string) bool) (ret []string) {
 	return
 }
 
-func initializeBytesToUnicodeCache() []string {
-	result := make([]string, 0)
+func getPairs(word []string) (result map[string][]string) {
+	result = make(map[string][]string)
+	prevChar := word[0]
+	for i := 1; i < len(word); i++ {
+		curr := word[i]
+		if _, ok := result[prevChar]; !ok {
+			result[prevChar] = make([]string, 0)
+		}
+		result[prevChar] = append(result[prevChar], curr)
+		prevChar = curr
+	}
+	return
+}
+
+func initializeBytesToUnicodeCache() {
+	result := make(map[int]string)
 	list, list2 := []rune{}, []rune{}
 
 	for i := '!'; i < '~'+1; i++ {
@@ -96,8 +111,8 @@ func initializeBytesToUnicodeCache() []string {
 	}
 
 	for i := 0; i < len(list2); i++ {
-		result = append(result, string(rune(list2[i])))
+		result[int(list[i])] = string(rune(list2[i]))
 	}
 
-	return result
+	bytesToUnicodeCache = result
 }
