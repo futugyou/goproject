@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dlclark/regexp2"
 	"golang.org/x/exp/slices"
 )
 
@@ -75,8 +74,7 @@ func Encode(text string) []int {
 		return []int{}
 	}
 
-	re := regexp2.MustCompile(encodingRegex, 0)
-	matches := common.Regexp2FindAllString(re, text)
+	matches := common.Regexp2FindAllString(encodingRegex, text)
 	bpeTokens := make([]int, 0)
 	for i := 0; i < len(matches); i++ {
 		match := matches[i]
