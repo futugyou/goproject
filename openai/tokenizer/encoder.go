@@ -11,10 +11,12 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var encoder map[string]int
+var encoder map[string]int = make(map[string]int)
+var decoder map[int]string = make(map[int]string)
 var vocab map[vacabItem]int = make(map[vacabItem]int)
 var bpeCache map[string]string = make(map[string]string)
-var bytesToUnicodeCache map[int]string = make(map[int]string)
+var byte_encoder map[int]string = make(map[int]string)
+var byte_decoder map[string]int = make(map[string]int)
 
 const encodingRegex string = `'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+`
 
@@ -24,12 +26,16 @@ type vacabItem struct {
 }
 
 func init() {
-	initializeBytesToUnicodeCache()
-	createEncoder()
+	initiByteEncoderAndDecoder()
+	createEncoderAndDecoder()
 	createVocab()
 }
 
-func createEncoder() {
+func Test() (map[int]string, map[string]int) {
+	return byte_encoder, byte_decoder
+}
+
+func createEncoderAndDecoder() {
 	en, err := os.ReadFile("./tokenizer/encoder.json")
 	if err != nil {
 		fmt.Println(err.Error())
@@ -37,6 +43,9 @@ func createEncoder() {
 	}
 
 	json.Unmarshal(en, &encoder)
+	for k, v := range encoder {
+		decoder[v] = k
+	}
 }
 
 func createVocab() {
@@ -77,13 +86,13 @@ func Encode(text string) []int {
 
 	re := regexp2.MustCompile(encodingRegex, 0)
 	matches := regexp2FindAllString(re, text)
-	bpeTokens := make([]int, len(matches))
+	bpeTokens := make([]int, 0)
 	for i := 0; i < len(matches); i++ {
 		match := matches[i]
 		tokenBytes := []byte(match)
 		ts := make([]string, 0)
 		for j := 0; j < len(tokenBytes); j++ {
-			ts = append(ts, bytesToUnicodeCache[int(tokenBytes[j])])
+			ts = append(ts, byte_encoder[int(tokenBytes[j])])
 		}
 
 		token := strings.Join(ts, "")
@@ -93,6 +102,22 @@ func Encode(text string) []int {
 	}
 
 	return bpeTokens
+}
+
+func Decode(tokens []int) string {
+	t := make([]string, 0)
+	for i := 0; i < len(tokens); i++ {
+		t = append(t, decoder[tokens[i]])
+	}
+
+	text := strings.Join(t, "")
+	textSplit := strings.Split(text, "")
+	byteArr := make([]byte, 0)
+	for i := 0; i < len(textSplit); i++ {
+		byteArr = append(byteArr, byte(byte_decoder[textSplit[i]]))
+	}
+
+	return string(byteArr)
 }
 
 func regexp2FindAllString(re *regexp2.Regexp, s string) []string {
@@ -149,7 +174,7 @@ func bytePairEncoding(token string) string {
 		minKey := mapkey[0]
 		var biGram = minPairs[minKey]
 
-		if _, ok := vocab[biGram]; ok {
+		if _, ok := vocab[biGram]; !ok {
 			break
 		}
 
@@ -227,8 +252,7 @@ func getMapKeys(m map[int]vacabItem) []int {
 	return keys
 }
 
-func initializeBytesToUnicodeCache() {
-	result := make(map[int]string)
+func initiByteEncoderAndDecoder() {
 	list, list2 := []rune{}, []rune{}
 
 	for i := '!'; i < '~'+1; i++ {
@@ -246,7 +270,7 @@ func initializeBytesToUnicodeCache() {
 		list2 = append(list2, i)
 	}
 
-	n := 1
+	n := 0
 	for i := 0; i < 256; i++ {
 		if !slices.Contains(list, rune(i)) {
 			list = append(list, rune(i))
@@ -256,8 +280,7 @@ func initializeBytesToUnicodeCache() {
 	}
 
 	for i := 0; i < len(list2); i++ {
-		result[int(list[i])] = string(rune(list2[i]))
+		byte_encoder[int(list[i])] = string(rune(list2[i]))
+		byte_decoder[string(rune(list2[i]))] = int(list[i])
 	}
-
-	bytesToUnicodeCache = result
 }
