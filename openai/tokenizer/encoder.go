@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -67,6 +68,31 @@ func filter(raws []string, filter func(string) bool) (ret []string) {
 	}
 
 	return
+}
+
+func Encode(text string) []int {
+	if len(text) == 0 {
+		return []int{}
+	}
+
+	re := regexp.MustCompile(encodingRegex)
+	matches := re.FindAllString(text, -1)
+	bpeTokens := make([]int, len(matches))
+	for i := 0; i < len(matches); i++ {
+		match := matches[i]
+		tokenBytes := []byte(match)
+		ts := make([]string, 0)
+		for j := 0; j < len(tokenBytes); j++ {
+			ts = append(ts, bytesToUnicodeCache[int(tokenBytes[j])])
+		}
+
+		token := strings.Join(ts, "")
+		for _, v := range strings.Split(bytePairEncoding(token), " ") {
+			bpeTokens = append(bpeTokens, encoder[v])
+		}
+	}
+
+	return bpeTokens
 }
 
 func getPairs(word []string) (result map[string][]string) {
