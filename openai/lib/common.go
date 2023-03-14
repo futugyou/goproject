@@ -9,7 +9,7 @@ type Choices struct {
 	Index        int32                   `json:"index"`
 	Logprobs     *Logprobs               `json:"logprobs,omitempty"`
 	FinishReason string                  `json:"finish_reason,omitempty"`
-	Message      []ChatCompletionMessage `json:"message,omitempty"`
+	Message      []chatCompletionMessage `json:"message,omitempty"`
 }
 
 type Usage struct {
@@ -23,6 +23,18 @@ type Logprobs struct {
 	TokenLogprobs []float32            `json:"token_logprobs"`
 	Tokens        []string             `json:"tokens"`
 	TopLogprobs   []map[string]float32 `json:"top_logprobs"`
+}
+
+type FileModel struct {
+	Object        string      `json:"object,omitempty"`
+	ID            string      `json:"id,omitempty"`
+	Purpose       string      `json:"purpose,omitempty"`
+	Filename      string      `json:"filename,omitempty"`
+	Bytes         int         `json:"bytes,omitempty"`
+	CreatedAt     int         `json:"created_at,omitempty"`
+	Status        string      `json:"status,omitempty"`
+	StatusDetails interface{} `json:"status_details,omitempty"`
+	Owner         string      `json:"owner,omitempty"`
 }
 
 var Family = []string{

@@ -27,18 +27,6 @@ type ListFilesResponse struct {
 	Data   []FileModel  `json:"data,omitempty"`
 }
 
-type FileModel struct {
-	Object        string      `json:"object,omitempty"`
-	ID            string      `json:"id,omitempty"`
-	Purpose       string      `json:"purpose,omitempty"`
-	Filename      string      `json:"filename,omitempty"`
-	Bytes         int         `json:"bytes,omitempty"`
-	CreatedAt     int         `json:"created_at,omitempty"`
-	Status        string      `json:"status,omitempty"`
-	StatusDetails interface{} `json:"status_details,omitempty"`
-	Owner         string      `json:"owner,omitempty"`
-}
-
 type RetrieveFileResponse struct {
 	Error *OpenaiError `json:"error,omitempty"`
 	FileModel

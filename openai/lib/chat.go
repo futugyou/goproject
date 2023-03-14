@@ -10,15 +10,15 @@ var supportedChatModel = []string{GPT35_turbo, GPT35_turbo_0301}
 
 type ChatRole string
 
-const chatRoleSystem ChatRole = "system"
-const chatRoleUser ChatRole = "user"
-const chatRoleAssistant ChatRole = "assistant"
+const ChatRoleSystem ChatRole = "system"
+const ChatRoleUser ChatRole = "user"
+const ChatRoleAssistant ChatRole = "assistant"
 
-var supportedChatRoles = []ChatRole{chatRoleSystem, chatRoleUser, chatRoleAssistant}
+var supportedChatRoles = []ChatRole{ChatRoleSystem, ChatRoleUser, ChatRoleAssistant}
 
 type CreateChatCompletionRequest struct {
 	Model            string                  `json:"model"`
-	Messages         []ChatCompletionMessage `json:"messages"`
+	Messages         []chatCompletionMessage `json:"messages"`
 	Temperature      float32                 `json:"temperature,omitempty"`
 	Top_p            float32                 `json:"top_p,omitempty"`
 	N                int32                   `json:"n,omitempty"`
@@ -31,28 +31,35 @@ type CreateChatCompletionRequest struct {
 	User             string                  `json:"user,omitempty"`
 }
 
-type ChatCompletionMessage struct {
+type chatCompletionMessage struct {
 	Role    ChatRole `json:"role,omitempty"`
 	Content string   `json:"content,omitempty"`
 }
 
-func ChatCompletionMessageFromUser(message string) ChatCompletionMessage {
-	return ChatCompletionMessage{
-		Role:    chatRoleUser,
+func NewChatCompletionMessage(role ChatRole, message string) chatCompletionMessage {
+	return chatCompletionMessage{
+		Role:    role,
 		Content: message,
 	}
 }
 
-func ChatCompletionMessageFromSystem(message string) ChatCompletionMessage {
-	return ChatCompletionMessage{
-		Role:    chatRoleSystem,
+func ChatCompletionMessageFromUser(message string) chatCompletionMessage {
+	return chatCompletionMessage{
+		Role:    ChatRoleUser,
 		Content: message,
 	}
 }
 
-func ChatCompletionMessageFromAssistant(message string) ChatCompletionMessage {
-	return ChatCompletionMessage{
-		Role:    chatRoleAssistant,
+func ChatCompletionMessageFromSystem(message string) chatCompletionMessage {
+	return chatCompletionMessage{
+		Role:    ChatRoleSystem,
+		Content: message,
+	}
+}
+
+func ChatCompletionMessageFromAssistant(message string) chatCompletionMessage {
+	return chatCompletionMessage{
+		Role:    ChatRoleAssistant,
 		Content: message,
 	}
 }
@@ -95,7 +102,7 @@ func validateChatModel(model string) *OpenaiError {
 	return nil
 }
 
-func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
+func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
 	if len(messages) == 0 {
 		return MessageError("messages can not be nil.")
 	}
