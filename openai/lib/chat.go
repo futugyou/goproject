@@ -8,11 +8,13 @@ const chatCompletionPath string = "chat/completions"
 
 var supportedChatModel = []string{GPT35_turbo, GPT35_turbo_0301}
 
-const chatRoleSystem = "system"
-const chatRoleUser = "user"
-const chatRoleAssistant = "assistant"
+type ChatRole string
 
-var supportedChatRoles = []string{chatRoleSystem, chatRoleUser, chatRoleAssistant}
+const chatRoleSystem ChatRole = "system"
+const chatRoleUser ChatRole = "user"
+const chatRoleAssistant ChatRole = "assistant"
+
+var supportedChatRoles = []ChatRole{chatRoleSystem, chatRoleUser, chatRoleAssistant}
 
 type CreateChatCompletionRequest struct {
 	Model            string                  `json:"model"`
@@ -30,8 +32,8 @@ type CreateChatCompletionRequest struct {
 }
 
 type ChatCompletionMessage struct {
-	Role    string `json:"role,omitempty"`
-	Content string `json:"content,omitempty"`
+	Role    ChatRole `json:"role,omitempty"`
+	Content string   `json:"content,omitempty"`
 }
 
 func ChatCompletionMessageFromUser(message string) ChatCompletionMessage {
