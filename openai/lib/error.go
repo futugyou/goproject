@@ -19,12 +19,34 @@ func MessageError(message string) *OpenaiError {
 	}
 }
 
-func UnsupportedTypeError(field, value string, list []string) *OpenaiError {
-	message := fmt.Sprintf("%s only support [%s], but current value is: %s.", field, strings.Join(list, ","), value)
+func UnsupportedTypeError[T any](field string, value T, list []T) *OpenaiError {
+	message := fmt.Sprintf("%s only support [%s], but current value is: %v.", field, enumjoin(list, ","), value)
 
 	return &OpenaiError{
 		ErrorMessage: message,
 		ErrorType:    "invalid parameters",
-		Param:        fmt.Sprintf("current value is: %s", value),
+		Param:        fmt.Sprintf("current value is: %v", value),
 	}
+}
+
+func enumjoin[T any](elems []T, sep string) string {
+	switch len(elems) {
+	case 0:
+		return ""
+	case 1:
+		return fmt.Sprintf("%v", elems[0])
+	}
+	n := len(sep) * (len(elems) - 1)
+	for i := 0; i < len(elems); i++ {
+		n += len(fmt.Sprintf("%v", elems[i]))
+	}
+
+	var b strings.Builder
+	b.Grow(n)
+	b.WriteString(fmt.Sprintf("%v", elems[0]))
+	for _, s := range elems[1:] {
+		b.WriteString(sep)
+		b.WriteString(fmt.Sprintf("%v", s))
+	}
+	return b.String()
 }
