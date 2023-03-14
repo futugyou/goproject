@@ -34,6 +34,27 @@ type ChatCompletionMessage struct {
 	Content string `json:"content,omitempty"`
 }
 
+func ChatCompletionMessageFromUser(message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
+		Role:    chatRoleUser,
+		Content: message,
+	}
+}
+
+func ChatCompletionMessageFromSystem(message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
+		Role:    chatRoleSystem,
+		Content: message,
+	}
+}
+
+func ChatCompletionMessageFromAssistant(message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
+		Role:    chatRoleAssistant,
+		Content: message,
+	}
+}
+
 type CreateChatCompletionResponse struct {
 	Error   *OpenaiError `json:"error,omitempty"`
 	ID      string       `json:"id,omitempty"`
