@@ -92,7 +92,12 @@ func (c *HttpClient) doRequest(path, method string, request, response interface{
 		return
 	}
 
-	json.Unmarshal(all, response)
+	switch result := response.(type) {
+	case *string:
+		*result = string(all)
+	default:
+		json.Unmarshal(all, response)
+	}
 }
 
 func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
@@ -169,7 +174,12 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 		return
 	}
 
-	json.Unmarshal(all, response)
+	switch result := response.(type) {
+	case *string:
+		*result = string(all)
+	default:
+		json.Unmarshal(all, response)
+	}
 }
 
 func (c *HttpClient) PostStream(path string, request interface{}) {
