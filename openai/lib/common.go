@@ -38,6 +38,7 @@ type FileModel struct {
 }
 
 var Family = []string{
+	GPT4,
 	GPT35,
 	DALLE,
 	Whisper,
@@ -47,6 +48,7 @@ var Family = []string{
 	GPT3,
 }
 
+const GPT4 string = "gpt-4"
 const GPT35 string = "gpt-3.5"
 const DALLE string = "dalle"
 const Whisper string = "whisper"
@@ -54,6 +56,18 @@ const Embeddings string = "embedding"
 const Codex string = "code"
 const Moderation string = "moderation"
 const GPT3 string = "gpt-3"
+
+var GPT4Family = []string{
+	GPT_4,
+	GPT_4_0314,
+	GPT_4_32k,
+	GPT_4_32k_0314,
+}
+
+const GPT_4 string = "gpt-4"
+const GPT_4_0314 string = "gpt-4-0314"
+const GPT_4_32k string = "gpt-4-32k"
+const GPT_4_32k_0314 string = "gpt-4-32k-0314"
 
 var Capability = []string{
 	Turbo,
@@ -137,6 +151,10 @@ const GPT3_babbage string = "babbage"
 const GPT3_ada string = "ada"
 
 var ModelTokenLimitList = map[string]int32{
+	GPT_4:            8192,
+	GPT_4_0314:       8192,
+	GPT_4_32k:        32768,
+	GPT_4_32k_0314:   32768,
 	GPT35_turbo:      4096,
 	GPT35_turbo_0301: 4096,
 	Text_davinci_003: 4000,
