@@ -4,6 +4,9 @@ import "golang.org/x/exp/slices"
 
 const completionsPath string = "completions"
 
+// the model in https://platform.openai.com/docs/models/model-endpoint-compatibility
+// is not same as https://platform.openai.com/playground.
+// i think i need add those two code models.
 var supportedCompletionModel = []string{
 	Text_davinci_003,
 	Text_davinci_002,
@@ -14,6 +17,8 @@ var supportedCompletionModel = []string{
 	GPT3_curie,
 	GPT3_babbage,
 	GPT3_ada,
+	Code_davinci_002,
+	Code_cushman_001,
 }
 
 type CreateCompletionRequest struct {
