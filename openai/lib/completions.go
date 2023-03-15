@@ -1,6 +1,20 @@
 package lib
 
+import "golang.org/x/exp/slices"
+
 const completionsPath string = "completions"
+
+var supportedCompletionModel = []string{
+	Text_davinci_003,
+	Text_davinci_002,
+	Text_curie_001,
+	Text_babbage_001,
+	Text_ada_001,
+	GPT3_davinci,
+	GPT3_curie,
+	GPT3_babbage,
+	GPT3_ada,
+}
 
 type CreateCompletionRequest struct {
 	Model string `json:"model,omitempty"`
@@ -36,6 +50,12 @@ type CreateCompletionResponse struct {
 func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
 	request.Stream = false
+	err := validateCompletionModel(request.Model)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	c.httpClient.Post(completionsPath, request, result)
 	return result
 }
@@ -43,6 +63,11 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) []*CreateCompletionResponse {
 	result := make([]*CreateCompletionResponse, 0)
 	request.Stream = true
+	err := validateCompletionModel(request.Model)
+	if err != nil {
+		result = append(result, &CreateCompletionResponse{Error: err})
+		return result
+	}
 
 	c.httpClient.PostStream(completionsPath, request)
 
@@ -61,4 +86,12 @@ func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) [
 	}
 
 	return result
+}
+
+func validateCompletionModel(model string) *OpenaiError {
+	if len(model) == 0 || !slices.Contains(supportedCompletionModel, model) {
+		return UnsupportedTypeError("Model", model, supportedCompletionModel)
+	}
+
+	return nil
 }

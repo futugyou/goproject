@@ -1,6 +1,13 @@
 package lib
 
+import "golang.org/x/exp/slices"
+
 const embeddingsPath string = "embeddings"
+
+var supportedEmbeddingsModel = []string{
+	Text_embedding_ada_002,
+	Text_search_ada_doc_001,
+}
 
 type CreateEmbeddingsRequest struct {
 	Model string   `json:"model"`
@@ -24,6 +31,20 @@ type EmbeddingsData struct {
 
 func (c *openaiClient) CreateEmbeddings(request CreateEmbeddingsRequest) *CreateEmbeddingsResponse {
 	result := &CreateEmbeddingsResponse{}
+	err := validateEmbeddingsModel(request.Model)
+	if err != nil {
+		result.Error = err
+		return result
+	}
+
 	c.httpClient.Post(embeddingsPath, request, result)
 	return result
+}
+
+func validateEmbeddingsModel(model string) *OpenaiError {
+	if len(model) == 0 || !slices.Contains(supportedEmbeddingsModel, model) {
+		return UnsupportedTypeError("Model", model, supportedEmbeddingsModel)
+	}
+
+	return nil
 }

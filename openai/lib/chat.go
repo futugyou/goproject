@@ -6,7 +6,14 @@ import (
 
 const chatCompletionPath string = "chat/completions"
 
-var supportedChatModel = []string{GPT35_turbo, GPT35_turbo_0301}
+var supportedChatModel = []string{
+	GPT_4,
+	GPT_4_0314,
+	GPT_4_32k,
+	GPT_4_32k_0314,
+	GPT35_turbo,
+	GPT35_turbo_0301,
+}
 
 type ChatRole string
 

@@ -12,7 +12,9 @@ const audioTranslationPath string = "audio/translations"
 
 var supportededResponseFormatType = []string{"json", "text", "srt", "verbose_json", "vtt"}
 var supportedAudioType = []string{"mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"}
-var supportedAudioModel = []string{Whisper_1}
+var supportedAudioModel = []string{
+	Whisper_1,
+}
 
 type CreateAudioTranscriptionRequest struct {
 	File           *os.File `json:"file"`

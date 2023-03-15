@@ -4,7 +4,10 @@ import "golang.org/x/exp/slices"
 
 const createModerationPath string = "moderations"
 
-var supportedModerationModel = []string{Text_moderation_stable, Text_moderation_latest}
+var supportedModerationModel = []string{
+	Text_moderation_stable,
+	Text_moderation_latest,
+}
 
 type CreateModerationRequest struct {
 	Input string `json:"input,omitempty"`

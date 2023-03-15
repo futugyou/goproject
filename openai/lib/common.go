@@ -111,9 +111,11 @@ const Whisper_1 string = "whisper-1"
 
 var EmbeddingsFamily = []string{
 	Text_embedding_ada_002,
+	Text_search_ada_doc_001,
 }
 
 const Text_embedding_ada_002 string = "text-embedding-ada-002"
+const Text_search_ada_doc_001 string = "text-search-ada-doc-001"
 
 var CodexFamily = []string{
 	Code_davinci_002,

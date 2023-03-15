@@ -6,7 +6,10 @@ import (
 
 const editsPath string = "edits"
 
-var supportedEditModel = []string{GPT35_turbo, Code_davinci_edit_001}
+var supportedEditModel = []string{
+	Text_davinci_edit_001,
+	Code_davinci_edit_001,
+}
 
 type CreateEditsRequest struct {
 	Model       string  `json:"model"`
