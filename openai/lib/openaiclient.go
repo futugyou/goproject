@@ -5,7 +5,7 @@ import (
 )
 
 type openaiClient struct {
-	httpClient *c.HttpClient
+	httpClient c.IHttpClient
 }
 
 func NewClient(apikey string) *openaiClient {

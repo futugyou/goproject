@@ -15,6 +15,20 @@ import (
 	"strings"
 )
 
+type IHttpClient interface {
+	SetOrganization(organization string)
+	SetBaseUrl(baseurl string)
+	Get(path string, response interface{})
+	Post(path string, request, response interface{})
+	Delete(path string, response interface{})
+	PostWithFile(path string, request, response interface{})
+	PostStream(path string, request interface{})
+	GetStream(path string)
+	ReadStream(response interface{})
+	Close()
+	CanReadStream() bool
+}
+
 const baseUrl string = "https://api.openai.com/v1/"
 const endTag string = "[DONE]"
 
@@ -262,4 +276,8 @@ func (c *HttpClient) Close() {
 	if c.streamResponse != nil {
 		c.streamResponse.Body.Close()
 	}
+}
+
+func (c *HttpClient) CanReadStream() bool {
+	return c.StreamEnd
 }
