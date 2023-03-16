@@ -145,6 +145,8 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 		case *os.File:
 			wimage, _ := writer.CreateFormFile(fieldName, v.Name())
 			io.Copy(wimage, v)
+		default:
+			writer.WriteField(fieldName, fmt.Sprintf("%v", v))
 		}
 	}
 
