@@ -79,13 +79,13 @@ func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) [
 	defer c.httpClient.Close()
 
 	for {
-		if c.httpClient.CanReadStream() {
+		if !c.httpClient.CanReadStream() {
 			break
 		}
 
 		response := &CreateCompletionResponse{}
 		c.httpClient.ReadStream(response)
-		if !c.httpClient.CanReadStream() {
+		if c.httpClient.CanReadStream() {
 			result = append(result, response)
 		}
 	}

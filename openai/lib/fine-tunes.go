@@ -171,13 +171,13 @@ func (c *openaiClient) ListFinetuneEventsStream(fine_tune_id string) *ListFinetu
 	defer c.httpClient.Close()
 
 	for {
-		if c.httpClient.CanReadStream() {
+		if !c.httpClient.CanReadStream() {
 			break
 		}
 
 		event := &Events{}
 		c.httpClient.ReadStream(event)
-		if !c.httpClient.CanReadStream() {
+		if c.httpClient.CanReadStream() {
 			result.Data = append(result.Data, *event)
 		}
 	}

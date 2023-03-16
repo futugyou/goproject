@@ -144,13 +144,13 @@ func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRe
 	defer c.httpClient.Close()
 
 	for {
-		if c.httpClient.CanReadStream() {
+		if !c.httpClient.CanReadStream() {
 			break
 		}
 
 		response := &CreateChatCompletionResponse{}
 		c.httpClient.ReadStream(response)
-		if !c.httpClient.CanReadStream() {
+		if c.httpClient.CanReadStream() {
 			result = append(result, response)
 		}
 	}

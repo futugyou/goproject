@@ -19,6 +19,13 @@ func MessageError(message string) *OpenaiError {
 	}
 }
 
+func SystemError(message string) *OpenaiError {
+	return &OpenaiError{
+		ErrorMessage: message,
+		ErrorType:    "system error",
+	}
+}
+
 func UnsupportedTypeError[T any](field string, value T, list []T) *OpenaiError {
 	message := fmt.Sprintf("%s only support [%s], but current value is: %v.", field, enumjoin(list, ","), value)
 

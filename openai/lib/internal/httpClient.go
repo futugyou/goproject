@@ -18,12 +18,12 @@ import (
 type IHttpClient interface {
 	SetOrganization(organization string)
 	SetBaseUrl(baseurl string)
-	Get(path string, response interface{})
-	Post(path string, request, response interface{})
-	Delete(path string, response interface{})
-	PostWithFile(path string, request, response interface{})
-	PostStream(path string, request interface{})
-	GetStream(path string)
+	Get(path string, response interface{}) error
+	Post(path string, request, response interface{}) error
+	Delete(path string, response interface{}) error
+	PostWithFile(path string, request, response interface{}) error
+	PostStream(path string, request interface{}) error
+	GetStream(path string) error
 	ReadStream(response interface{})
 	Close()
 	CanReadStream() bool
@@ -34,7 +34,7 @@ const endTag string = "[DONE]"
 
 var headerData []byte = []byte("data: ")
 
-type HttpClient struct {
+type httpClient struct {
 	http           *http.Client
 	apikey         string
 	organization   string
@@ -44,8 +44,8 @@ type HttpClient struct {
 	StreamEnd      bool
 }
 
-func NewHttpClient(apikey string) *HttpClient {
-	return &HttpClient{
+func NewHttpClient(apikey string) *httpClient {
+	return &httpClient{
 		apikey:       apikey,
 		organization: "",
 		baseurl:      baseUrl,
@@ -53,27 +53,27 @@ func NewHttpClient(apikey string) *HttpClient {
 	}
 }
 
-func (c *HttpClient) SetOrganization(organization string) {
+func (c *httpClient) SetOrganization(organization string) {
 	c.organization = organization
 }
 
-func (c *HttpClient) SetBaseUrl(baseurl string) {
+func (c *httpClient) SetBaseUrl(baseurl string) {
 	c.baseurl = baseurl
 }
 
-func (c *HttpClient) Post(path string, request, response interface{}) {
-	c.doRequest(path, "POST", request, response)
+func (c *httpClient) Post(path string, request, response interface{}) error {
+	return c.doRequest(path, "POST", request, response)
 }
 
-func (c *HttpClient) Get(path string, response interface{}) {
-	c.doRequest(path, "GET", nil, response)
+func (c *httpClient) Get(path string, response interface{}) error {
+	return c.doRequest(path, "GET", nil, response)
 }
 
-func (c *HttpClient) Delete(path string, response interface{}) {
-	c.doRequest(path, "DELETE", nil, response)
+func (c *httpClient) Delete(path string, response interface{}) error {
+	return c.doRequest(path, "DELETE", nil, response)
 }
 
-func (c *HttpClient) doRequest(path, method string, request, response interface{}) {
+func (c *httpClient) doRequest(path, method string, request, response interface{}) (err error) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -110,18 +110,19 @@ func (c *HttpClient) doRequest(path, method string, request, response interface{
 	case *string:
 		*result = string(all)
 	default:
-		json.Unmarshal(all, response)
+		err = json.Unmarshal(all, response)
 	}
+	return
 }
 
-func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
+func (c *httpClient) PostWithFile(path string, request, response interface{}) (err error) {
 	path = c.baseurl + path
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
 	reType := reflect.TypeOf(request)
 	if reType.Kind() != reflect.Ptr || reType.Elem().Kind() != reflect.Struct {
-		fmt.Println("request must ptr")
+		err = fmt.Errorf("request must ptr")
 		return
 	}
 
@@ -157,8 +158,13 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 		case string:
 			writer.WriteField(fieldName, v)
 		case *os.File:
-			wimage, _ := writer.CreateFormFile(fieldName, v.Name())
-			io.Copy(wimage, v)
+			if wimage, e := writer.CreateFormFile(fieldName, v.Name()); e != nil {
+				err = e
+				return
+			} else {
+				io.Copy(wimage, v)
+			}
+
 		default:
 			writer.WriteField(fieldName, fmt.Sprintf("%v", v))
 		}
@@ -194,19 +200,21 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) {
 	case *string:
 		*result = string(all)
 	default:
-		json.Unmarshal(all, response)
+		err = json.Unmarshal(all, response)
 	}
+
+	return
 }
 
-func (c *HttpClient) PostStream(path string, request interface{}) {
-	c.doStreamRequest(path, "POST", request)
+func (c *httpClient) PostStream(path string, request interface{}) error {
+	return c.doStreamRequest(path, "POST", request)
 }
 
-func (c *HttpClient) GetStream(path string) {
-	c.doStreamRequest(path, "GET", nil)
+func (c *httpClient) GetStream(path string) error {
+	return c.doStreamRequest(path, "GET", nil)
 }
 
-func (c *HttpClient) doStreamRequest(path, method string, request interface{}) {
+func (c *httpClient) doStreamRequest(path, method string, request interface{}) (err error) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -235,9 +243,10 @@ func (c *HttpClient) doStreamRequest(path, method string, request interface{}) {
 
 	c.streamReader = bufio.NewReader(resp.Body)
 	c.streamResponse = resp
+	return
 }
 
-func (c *HttpClient) ReadStream(response interface{}) {
+func (c *httpClient) ReadStream(response interface{}) {
 	reader := c.streamReader
 
 	if reader == nil {
@@ -272,12 +281,12 @@ func (c *HttpClient) ReadStream(response interface{}) {
 	json.Unmarshal(line, response)
 }
 
-func (c *HttpClient) Close() {
+func (c *httpClient) Close() {
 	if c.streamResponse != nil {
 		c.streamResponse.Body.Close()
 	}
 }
 
-func (c *HttpClient) CanReadStream() bool {
-	return c.StreamEnd
+func (c *httpClient) CanReadStream() bool {
+	return !c.StreamEnd
 }
