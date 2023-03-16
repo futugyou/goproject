@@ -85,9 +85,9 @@ func (c *openaiClient) CreateAudioTranscription(request CreateAudioTranscription
 	if request.ResponseFormat == "verbose_json" || request.ResponseFormat == "json" {
 		c.httpClient.PostWithFile(audioTranscriptionPath, &request, result)
 	} else {
-		response := ""
-		c.httpClient.PostWithFile(audioTranscriptionPath, &request, &response)
-		result.Text = response
+		if err := c.httpClient.PostWithFile(audioTranscriptionPath, &request, &result.Text); err != nil {
+			result.Error = SystemError(err.Error())
+		}
 	}
 
 	return result
@@ -117,10 +117,11 @@ func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequ
 	if request.ResponseFormat == "verbose_json" || request.ResponseFormat == "json" {
 		c.httpClient.PostWithFile(audioTranslationPath, &request, result)
 	} else {
-		response := ""
-		c.httpClient.PostWithFile(audioTranslationPath, &request, &response)
-		result.Text = response
+		if err := c.httpClient.PostWithFile(audioTranslationPath, &request, &result.Text); err != nil {
+			result.Error = SystemError(err.Error())
+		}
 	}
+
 	return result
 }
 
