@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 
+	e "openai/lib/internal"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -24,9 +26,9 @@ type CreateImagesRequest struct {
 }
 
 type CreateImagesResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Created int          `json:"created,omitempty"`
-	Data    []data       `json:"data,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	Created int            `json:"created,omitempty"`
+	Data    []data         `json:"data,omitempty"`
 }
 
 type data struct {
@@ -45,9 +47,9 @@ type EditImagesRequest struct {
 }
 
 type EditImagesResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Created int          `json:"created,omitempty"`
-	Data    []data       `json:"data,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	Created int            `json:"created,omitempty"`
+	Data    []data         `json:"data,omitempty"`
 }
 
 type VariationImagesRequest struct {
@@ -59,9 +61,9 @@ type VariationImagesRequest struct {
 }
 
 type VariationImagesResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Created int          `json:"created,omitempty"`
-	Data    []data       `json:"data,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	Created int            `json:"created,omitempty"`
+	Data    []data         `json:"data,omitempty"`
 }
 
 func (c *openaiClient) CreateImages(request CreateImagesRequest) *CreateImagesResponse {
@@ -99,7 +101,7 @@ func (c *openaiClient) EditImages(request EditImagesRequest) *EditImagesResponse
 	}
 
 	if request.Image == nil {
-		result.Error = MessageError("Images can nod be nil.")
+		result.Error = e.MessageError("Images can nod be nil.")
 		return result
 	}
 
@@ -135,7 +137,7 @@ func (c *openaiClient) VariationImages(request VariationImagesRequest) *Variatio
 	}
 
 	if request.Image == nil {
-		result.Error = MessageError("Images can nod be nil.")
+		result.Error = e.MessageError("Images can nod be nil.")
 		return result
 	}
 
@@ -149,35 +151,35 @@ func (c *openaiClient) VariationImages(request VariationImagesRequest) *Variatio
 	return result
 }
 
-func validateImageSize(size string) *OpenaiError {
+func validateImageSize(size string) *e.OpenaiError {
 	if len(size) == 0 || !slices.Contains(supportedAudioModel, size) {
-		return UnsupportedTypeError("images size", size, supportededImageSize)
+		return e.UnsupportedTypeError("images size", size, supportededImageSize)
 	}
 
 	return nil
 }
 
-func validateImageResponseFormat(format string) *OpenaiError {
+func validateImageResponseFormat(format string) *e.OpenaiError {
 	if len(format) == 0 || !slices.Contains(supportedAudioModel, format) {
-		return UnsupportedTypeError("ResponseFormat", format, supportedImageResponseFormat)
+		return e.UnsupportedTypeError("ResponseFormat", format, supportedImageResponseFormat)
 	}
 
 	return nil
 }
 
-func validateImageType(file *os.File) *OpenaiError {
+func validateImageType(file *os.File) *e.OpenaiError {
 	if file == nil {
 		return nil
 	}
 
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return UnsupportedTypeError("Image type", "nil", supportedImageType)
+		return e.UnsupportedTypeError("Image type", "nil", supportedImageType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return UnsupportedTypeError("Image type", suffix, supportedImageType)
+		return e.UnsupportedTypeError("Image type", suffix, supportedImageType)
 	}
 
 	return nil

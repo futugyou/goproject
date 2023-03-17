@@ -1,6 +1,10 @@
 package lib
 
-import "golang.org/x/exp/slices"
+import (
+	"golang.org/x/exp/slices"
+
+	e "openai/lib/internal"
+)
 
 const completionsPath string = "completions"
 
@@ -43,13 +47,13 @@ type CreateCompletionRequest struct {
 }
 
 type CreateCompletionResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	Created int32        `json:"created,omitempty"`
-	Model   string       `json:"model,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	ID      string         `json:"id,omitempty"`
+	Object  string         `json:"object,omitempty"`
+	Created int32          `json:"created,omitempty"`
+	Model   string         `json:"model,omitempty"`
+	Choices []Choices      `json:"choices,omitempty"`
+	Usage   *Usage         `json:"usage,omitempty"`
 }
 
 func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
@@ -93,9 +97,9 @@ func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) [
 	return result
 }
 
-func validateCompletionModel(model string) *OpenaiError {
+func validateCompletionModel(model string) *e.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedCompletionModel, model) {
-		return UnsupportedTypeError("Model", model, supportedCompletionModel)
+		return e.UnsupportedTypeError("Model", model, supportedCompletionModel)
 	}
 
 	return nil

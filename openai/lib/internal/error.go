@@ -1,6 +1,7 @@
-package lib
+package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -10,6 +11,15 @@ type OpenaiError struct {
 	ErrorType    string `json:"type"`
 	Param        string `json:"param"`
 	ErrorCode    string `json:"code"`
+}
+
+func (e *OpenaiError) Error() string {
+	if e == nil {
+		return ""
+	}
+
+	result, _ := json.Marshal(e)
+	return string(result)
 }
 
 func MessageError(message string) *OpenaiError {

@@ -1,6 +1,10 @@
 package lib
 
-import "golang.org/x/exp/slices"
+import (
+	e "openai/lib/internal"
+
+	"golang.org/x/exp/slices"
+)
 
 const embeddingsPath string = "embeddings"
 
@@ -16,7 +20,7 @@ type CreateEmbeddingsRequest struct {
 }
 
 type CreateEmbeddingsResponse struct {
-	Error  *OpenaiError     `json:"error,omitempty"`
+	Error  *e.OpenaiError   `json:"error,omitempty"`
 	Object string           `json:"object,omitempty"`
 	Data   []EmbeddingsData `json:"data,omitempty"`
 	Model  string           `json:"model,omitempty"`
@@ -41,9 +45,9 @@ func (c *openaiClient) CreateEmbeddings(request CreateEmbeddingsRequest) *Create
 	return result
 }
 
-func validateEmbeddingsModel(model string) *OpenaiError {
+func validateEmbeddingsModel(model string) *e.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEmbeddingsModel, model) {
-		return UnsupportedTypeError("Model", model, supportedEmbeddingsModel)
+		return e.UnsupportedTypeError("Model", model, supportedEmbeddingsModel)
 	}
 
 	return nil

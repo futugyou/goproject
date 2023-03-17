@@ -1,6 +1,8 @@
 package lib
 
 import (
+	e "openai/lib/internal"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -21,11 +23,11 @@ type CreateEditsRequest struct {
 }
 
 type CreateEditsResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	Created int          `json:"created,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	Object  string         `json:"object,omitempty"`
+	Created int            `json:"created,omitempty"`
+	Choices []Choices      `json:"choices,omitempty"`
+	Usage   *Usage         `json:"usage,omitempty"`
 }
 
 func (c *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEditsResponse {
@@ -41,9 +43,9 @@ func (c *openaiClient) CreateEdits(request CreateEditsRequest) *CreateEditsRespo
 	return result
 }
 
-func validateEditModel(model string) *OpenaiError {
+func validateEditModel(model string) *e.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEditModel, model) {
-		return UnsupportedTypeError("Model", model, supportedEditModel)
+		return e.UnsupportedTypeError("Model", model, supportedEditModel)
 	}
 
 	return nil

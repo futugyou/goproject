@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 
+	e "openai/lib/internal"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -26,12 +28,12 @@ type CreateAudioTranscriptionRequest struct {
 }
 
 type CreateAudioTranscriptionResponse struct {
-	Error    *OpenaiError `json:"error,omitempty"`
-	Text     string       `json:"text,omitempty"`
-	Task     string       `json:"task,omitempty"`
-	Language string       `json:"language,omitempty"`
-	Duration float64      `json:"duration,omitempty"`
-	Segments []Segments   `json:"segments,omitempty"`
+	Error    *e.OpenaiError `json:"error,omitempty"`
+	Text     string         `json:"text,omitempty"`
+	Task     string         `json:"task,omitempty"`
+	Language string         `json:"language,omitempty"`
+	Duration float64        `json:"duration,omitempty"`
+	Segments []Segments     `json:"segments,omitempty"`
 }
 
 type Segments struct {
@@ -57,8 +59,8 @@ type CreateAudioTranslationRequest struct {
 }
 
 type CreateAudioTranslationResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
-	Text  string       `json:"text,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
+	Text  string         `json:"text,omitempty"`
 }
 
 func (c *openaiClient) CreateAudioTranscription(request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
@@ -86,7 +88,7 @@ func (c *openaiClient) CreateAudioTranscription(request CreateAudioTranscription
 		c.httpClient.PostWithFile(audioTranscriptionPath, &request, result)
 	} else {
 		if err := c.httpClient.PostWithFile(audioTranscriptionPath, &request, &result.Text); err != nil {
-			result.Error = SystemError(err.Error())
+			result.Error = e.SystemError(err.Error())
 		}
 	}
 
@@ -118,38 +120,38 @@ func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequ
 		c.httpClient.PostWithFile(audioTranslationPath, &request, result)
 	} else {
 		if err := c.httpClient.PostWithFile(audioTranslationPath, &request, &result.Text); err != nil {
-			result.Error = SystemError(err.Error())
+			result.Error = e.SystemError(err.Error())
 		}
 	}
 
 	return result
 }
 
-func validateAudioResponseFormat(responseFormat string) *OpenaiError {
+func validateAudioResponseFormat(responseFormat string) *e.OpenaiError {
 	if len(responseFormat) > 0 && !slices.Contains(supportededResponseFormatType, responseFormat) {
-		return UnsupportedTypeError("ResponseFormat", responseFormat, supportededResponseFormatType)
+		return e.UnsupportedTypeError("ResponseFormat", responseFormat, supportededResponseFormatType)
 	}
 
 	return nil
 }
 
-func validateAudioModel(model string) *OpenaiError {
+func validateAudioModel(model string) *e.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedAudioModel, model) {
-		return UnsupportedTypeError("Model", model, supportedAudioModel)
+		return e.UnsupportedTypeError("Model", model, supportedAudioModel)
 	}
 
 	return nil
 }
 
-func validateAudioFile(file os.File) *OpenaiError {
+func validateAudioFile(file os.File) *e.OpenaiError {
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return UnsupportedTypeError("audio type", "nil", supportedAudioType)
+		return e.UnsupportedTypeError("audio type", "nil", supportedAudioType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return UnsupportedTypeError("audio type", suffix, supportedAudioType)
+		return e.UnsupportedTypeError("audio type", suffix, supportedAudioType)
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package lib
 
 import (
 	"math"
+	e "openai/lib/internal"
 )
 
 type Choices struct {
@@ -171,21 +172,21 @@ var ModelTokenLimitList = map[string]int32{
 	GPT3_ada:         2049,
 }
 
-func MaxTokenValidate(model string, token int32, prompt []string) *OpenaiError {
+func MaxTokenValidate(model string, token int32, prompt []string) *e.OpenaiError {
 	promptLen := 0
 	for _, p := range prompt {
 		promptLen += len(p) / 4
 	}
 
 	if promptLen > int(token) {
-		return &OpenaiError{
+		return &e.OpenaiError{
 			ErrorMessage: "Maximum token limit exceeded",
 		}
 	}
 
 	if mt, ok := ModelTokenLimitList[model]; ok {
 		if token > mt {
-			return &OpenaiError{
+			return &e.OpenaiError{
 				ErrorMessage: "Maximum token limit exceeded",
 			}
 		}

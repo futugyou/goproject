@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	e "openai/lib/internal"
 	"os"
 )
 
@@ -17,31 +18,31 @@ type UploadFilesRequest struct {
 }
 
 type UploadFilesResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
 	FileModel
 }
 
 type ListFilesResponse struct {
-	Error  *OpenaiError `json:"error,omitempty"`
-	Object string       `json:"object,omitempty"`
-	Data   []FileModel  `json:"data,omitempty"`
+	Error  *e.OpenaiError `json:"error,omitempty"`
+	Object string         `json:"object,omitempty"`
+	Data   []FileModel    `json:"data,omitempty"`
 }
 
 type RetrieveFileResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
 	FileModel
 }
 
 type RetrieveFileContentResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
 	FileModel
 }
 
 type DeleteFileResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Deleted bool         `json:"deleted,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	Object  string         `json:"object,omitempty"`
+	ID      string         `json:"id,omitempty"`
+	Deleted bool           `json:"deleted,omitempty"`
 }
 
 func (c *openaiClient) ListFiles() *ListFilesResponse {

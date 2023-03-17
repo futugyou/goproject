@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	e "openai/lib/internal"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -40,7 +42,7 @@ type CreateFinetuneRequest struct {
 }
 
 type CreateFinetuneResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
 	FinetuneMoel
 }
 
@@ -75,32 +77,32 @@ type Events struct {
 }
 
 type CancelFinetuneResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
 	FinetuneMoel
 }
 
 type ListFinetuneResponse struct {
-	Error  *OpenaiError   `json:"error,omitempty"`
+	Error  *e.OpenaiError `json:"error,omitempty"`
 	Object string         `json:"object,omitempty"`
 	Data   []FinetuneMoel `json:"data,omitempty"`
 }
 
 type RetrieveFinetuneResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *e.OpenaiError `json:"error,omitempty"`
 	FinetuneMoel
 }
 
 type ListFinetuneEventResponse struct {
-	Error  *OpenaiError `json:"error,omitempty"`
-	Object string       `json:"object,omitempty"`
-	Data   []Events     `json:"data,omitempty"`
+	Error  *e.OpenaiError `json:"error,omitempty"`
+	Object string         `json:"object,omitempty"`
+	Data   []Events       `json:"data,omitempty"`
 }
 
 type DeleteFinetuneModelResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Deleted bool         `json:"deleted,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	Object  string         `json:"object,omitempty"`
+	ID      string         `json:"id,omitempty"`
+	Deleted bool           `json:"deleted,omitempty"`
 }
 
 func (c *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFinetuneResponse {
@@ -110,19 +112,19 @@ func (c *openaiClient) CreateFinetune(request CreateFinetuneRequest) *CreateFine
 		l := request.Model[len(request.Model)-19 : len(request.Model)-9]
 		modelDate, err := time.Parse("2006-01-02", l)
 		if err != nil {
-			result.Error = MessageError("fine tune model format error, plaese check your model.")
+			result.Error = e.MessageError("fine tune model format error, plaese check your model.")
 			return result
 		}
 
 		baseDate, _ := time.Parse("2006-01-02", "2022-04-21")
 		if baseDate.After(modelDate) {
-			result.Error = MessageError(fmt.Sprintf("fine tune model date can not earlier than 2022-04-21, current is %s", modelDate.Format("2006-01-02")))
+			result.Error = e.MessageError(fmt.Sprintf("fine tune model date can not earlier than 2022-04-21, current is %s", modelDate.Format("2006-01-02")))
 			return result
 		}
 
 	} else if len(request.Model) > 0 {
 		if !slices.Contains(supportedFineTunesModel, request.Model) {
-			result.Error = UnsupportedTypeError("Model", request.Model, supportedFineTunesModel)
+			result.Error = e.UnsupportedTypeError("Model", request.Model, supportedFineTunesModel)
 			return result
 		}
 	}

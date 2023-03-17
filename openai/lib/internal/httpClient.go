@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -24,7 +23,7 @@ type IHttpClient interface {
 	PostWithFile(path string, request, response interface{}) error
 	PostStream(path string, request interface{}) error
 	GetStream(path string) error
-	ReadStream(response interface{})
+	ReadStream(response interface{}) error
 	Close()
 	CanReadStream() bool
 }
@@ -73,7 +72,7 @@ func (c *httpClient) Delete(path string, response interface{}) error {
 	return c.doRequest(path, "DELETE", nil, response)
 }
 
-func (c *httpClient) doRequest(path, method string, request, response interface{}) (err error) {
+func (c *httpClient) doRequest(path, method string, request, response interface{}) error {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -90,40 +89,74 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 		req.Header.Set("organization", c.organization)
 	}
 
+	return c.readHttpResponse(req, response)
+}
+
+func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) error {
 	resp, err := c.http.Do(req)
 
 	if err != nil {
-		log.Println(err.Error())
-		return
+		return SystemError(err.Error())
 	}
 
 	defer resp.Body.Close()
 
+	if err := c.readErrorFromResponse(resp); err != nil {
+		return err
+	}
+
 	all, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Println(err.Error())
-		return
+		return SystemError(err.Error())
 	}
 
 	switch result := response.(type) {
 	case *string:
 		*result = string(all)
 	default:
-		err = json.Unmarshal(all, response)
+		if err = json.Unmarshal(all, response); err != nil {
+			return SystemError(err.Error())
+		}
 	}
-	return
+
+	return nil
 }
 
-func (c *httpClient) PostWithFile(path string, request, response interface{}) (err error) {
+func (c *httpClient) readErrorFromResponse(resp *http.Response) error {
+	var apiError *OpenaiError
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
+		all, err := io.ReadAll(resp.Body)
+
+		if err != nil {
+			// raw error message
+			return SystemError(err.Error())
+		}
+
+		if jsonError := json.Unmarshal(all, apiError); jsonError != nil {
+			// raw error message
+			return SystemError(err.Error())
+		}
+
+		if apiError == nil || len(apiError.ErrorMessage) == 0 {
+			// raw error message
+			return SystemError(err.Error())
+		}
+
+		return apiError
+	}
+
+	return nil
+}
+
+func (c *httpClient) PostWithFile(path string, request, response interface{}) error {
 	path = c.baseurl + path
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
 	reType := reflect.TypeOf(request)
 	if reType.Kind() != reflect.Ptr || reType.Elem().Kind() != reflect.Struct {
-		err = fmt.Errorf("request must ptr")
-		return
+		return SystemError("request must ptr")
 	}
 
 	v := reflect.ValueOf(request).Elem()
@@ -159,8 +192,7 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) (e
 			writer.WriteField(fieldName, v)
 		case *os.File:
 			if wimage, e := writer.CreateFormFile(fieldName, v.Name()); e != nil {
-				err = e
-				return
+				return SystemError(e.Error())
 			} else {
 				io.Copy(wimage, v)
 			}
@@ -180,30 +212,7 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) (e
 		req.Header.Set("organization", c.organization)
 	}
 
-	resp, err := c.http.Do(req)
-
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-
-	defer resp.Body.Close()
-
-	all, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-
-	switch result := response.(type) {
-	case *string:
-		*result = string(all)
-	default:
-		err = json.Unmarshal(all, response)
-	}
-
-	return
+	return c.readHttpResponse(req, response)
 }
 
 func (c *httpClient) PostStream(path string, request interface{}) error {
@@ -214,7 +223,7 @@ func (c *httpClient) GetStream(path string) error {
 	return c.doStreamRequest(path, "GET", nil)
 }
 
-func (c *httpClient) doStreamRequest(path, method string, request interface{}) (err error) {
+func (c *httpClient) doStreamRequest(path, method string, request interface{}) error {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -235,18 +244,20 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) (
 	}
 
 	resp, err := c.http.Do(req)
-
 	if err != nil {
-		log.Println(err.Error())
-		return
+		return SystemError(err.Error())
+	}
+
+	if err = c.readErrorFromResponse(resp); err != nil {
+		return SystemError(err.Error())
 	}
 
 	c.streamReader = bufio.NewReader(resp.Body)
 	c.streamResponse = resp
-	return
+	return nil
 }
 
-func (c *httpClient) ReadStream(response interface{}) {
+func (c *httpClient) ReadStream(response interface{}) (e error) {
 	reader := c.streamReader
 
 	if reader == nil {
@@ -257,10 +268,11 @@ func (c *httpClient) ReadStream(response interface{}) {
 	line, err := reader.ReadBytes('\n')
 	responseStr := ""
 
+	// for loop is for skip the row which is not start with 'data:'
 	for {
 		if err != nil {
 			c.StreamEnd = true
-			return
+			return SystemError(err.Error())
 		}
 
 		line = bytes.TrimSpace(line)
@@ -278,7 +290,11 @@ func (c *httpClient) ReadStream(response interface{}) {
 		return
 	}
 
-	json.Unmarshal(line, response)
+	if err = json.Unmarshal(line, response); err != nil {
+		return SystemError(err.Error())
+	}
+
+	return
 }
 
 func (c *httpClient) Close() {

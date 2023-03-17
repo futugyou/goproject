@@ -2,6 +2,8 @@ package lib
 
 import (
 	"golang.org/x/exp/slices"
+
+	e "openai/lib/internal"
 )
 
 const chatCompletionPath string = "chat/completions"
@@ -72,13 +74,13 @@ func ChatCompletionMessageFromAssistant(message string) chatCompletionMessage {
 }
 
 type CreateChatCompletionResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	Created int32        `json:"created,omitempty"`
-	Model   string       `json:"model,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Error   *e.OpenaiError `json:"error,omitempty"`
+	ID      string         `json:"id,omitempty"`
+	Object  string         `json:"object,omitempty"`
+	Created int32          `json:"created,omitempty"`
+	Model   string         `json:"model,omitempty"`
+	Choices []Choices      `json:"choices,omitempty"`
+	Usage   *Usage         `json:"usage,omitempty"`
 }
 
 func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest) *CreateChatCompletionResponse {
@@ -101,22 +103,22 @@ func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest)
 	return result
 }
 
-func validateChatModel(model string) *OpenaiError {
+func validateChatModel(model string) *e.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedChatModel, model) {
-		return UnsupportedTypeError("Model", model, supportedChatModel)
+		return e.UnsupportedTypeError("Model", model, supportedChatModel)
 	}
 
 	return nil
 }
 
-func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
+func validateChatRole(messages []chatCompletionMessage) *e.OpenaiError {
 	if len(messages) == 0 {
-		return MessageError("messages can not be nil.")
+		return e.MessageError("messages can not be nil.")
 	}
 
 	for _, message := range messages {
 		if !slices.Contains(supportedChatRoles, message.Role) {
-			return UnsupportedTypeError("Message role", message.Role, supportedChatRoles)
+			return e.UnsupportedTypeError("Message role", message.Role, supportedChatRoles)
 		}
 	}
 	return nil
