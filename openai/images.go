@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 
+	formattype "github.com/futugyousuzu/go-openai/imageformattype"
+	imagesize "github.com/futugyousuzu/go-openai/imagesize"
 	e "github.com/futugyousuzu/go-openai/internal"
 
 	"golang.org/x/exp/slices"
@@ -13,16 +15,14 @@ const createImagesPath string = "images/generations"
 const editImagesPath string = "images/edits"
 const variationImagesPath string = "images/variations"
 
-var supportededImageSize = []string{"256x256", "512x512", "1024x1024"}
-var supportedImageResponseFormat = []string{"url", "b64_json"}
 var supportedImageType = []string{"png"}
 
 type CreateImagesRequest struct {
-	Prompt         string `json:"prompt"`
-	N              int32  `json:"n,omitempty"`
-	Size           string `json:"size,omitempty"`
-	ResponseFormat string `json:"response_format,omitempty"`
-	User           string `json:"user,omitempty"`
+	Prompt         string                     `json:"prompt"`
+	N              int32                      `json:"n,omitempty"`
+	Size           imagesize.ImageSize        `json:"size,omitempty"`
+	ResponseFormat formattype.ImageFormatType `json:"response_format,omitempty"`
+	User           string                     `json:"user,omitempty"`
 }
 
 type CreateImagesResponse struct {
@@ -37,13 +37,13 @@ type data struct {
 }
 
 type EditImagesRequest struct {
-	Image          *os.File `json:"image"`
-	Mask           *os.File `json:"mask,omitempty"`
-	Prompt         string   `json:"prompt"`
-	N              int32    `json:"n,omitempty"`
-	Size           string   `json:"size,omitempty"` //'256x256', '512x512', '1024x1024'
-	ResponseFormat string   `json:"response_format,omitempty"`
-	User           string   `json:"user,omitempty"`
+	Image          *os.File                   `json:"image"`
+	Mask           *os.File                   `json:"mask,omitempty"`
+	Prompt         string                     `json:"prompt"`
+	N              int32                      `json:"n,omitempty"`
+	Size           imagesize.ImageSize        `json:"size,omitempty"` //'256x256', '512x512', '1024x1024'
+	ResponseFormat formattype.ImageFormatType `json:"response_format,omitempty"`
+	User           string                     `json:"user,omitempty"`
 }
 
 type EditImagesResponse struct {
@@ -53,11 +53,11 @@ type EditImagesResponse struct {
 }
 
 type VariationImagesRequest struct {
-	Image          *os.File `json:"image"`
-	N              int32    `json:"n,omitempty"`
-	Size           string   `json:"size,omitempty"` //'256x256', '512x512', '1024x1024'
-	ResponseFormat string   `json:"response_format,omitempty"`
-	User           string   `json:"user,omitempty"`
+	Image          *os.File                   `json:"image"`
+	N              int32                      `json:"n,omitempty"`
+	Size           imagesize.ImageSize        `json:"size,omitempty"` //'256x256', '512x512', '1024x1024'
+	ResponseFormat formattype.ImageFormatType `json:"response_format,omitempty"`
+	User           string                     `json:"user,omitempty"`
 }
 
 type VariationImagesResponse struct {
@@ -151,17 +151,17 @@ func (c *openaiClient) VariationImages(request VariationImagesRequest) *Variatio
 	return result
 }
 
-func validateImageSize(size string) *e.OpenaiError {
-	if len(size) == 0 || !slices.Contains(supportedAudioModel, size) {
-		return e.UnsupportedTypeError("images size", size, supportededImageSize)
+func validateImageSize(size imagesize.ImageSize) *e.OpenaiError {
+	if len(size) == 0 || !slices.Contains(imagesize.SupportededImageSize, size) {
+		return e.UnsupportedTypeError("images size", size, imagesize.SupportededImageSize)
 	}
 
 	return nil
 }
 
-func validateImageResponseFormat(format string) *e.OpenaiError {
-	if len(format) == 0 || !slices.Contains(supportedAudioModel, format) {
-		return e.UnsupportedTypeError("ResponseFormat", format, supportedImageResponseFormat)
+func validateImageResponseFormat(format formattype.ImageFormatType) *e.OpenaiError {
+	if len(format) == 0 || !slices.Contains(formattype.SupportedImageResponseFormat, format) {
+		return e.UnsupportedTypeError("ResponseFormat", format, formattype.SupportedImageResponseFormat)
 	}
 
 	return nil
