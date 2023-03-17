@@ -1,1 +1,0 @@
-![openai document](https://platform.openai.com/docs/introduction/overview)

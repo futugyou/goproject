@@ -1,23 +1,15 @@
-install bee tool
-```
-go install github.com/beego/bee/v2@develop
-```
+![openai document](https://platform.openai.com/docs/introduction/overview)
 
-init web api project
-```
-bee api openai
-```
-
-swagger doc
-```
-bee generate docs
-```
-
-route
-```
-bee generate routers
-```
-
-```
-bee run 
-```
+## Features
+- [x] [Auth](https://platform.openai.com/docs/api-reference/authentication)
+- [x] [Models](https://platform.openai.com/docs/api-reference/models)
+- [x] [Completions](https://platform.openai.com/docs/api-reference/completions)
+- [x] [Chat](https://platform.openai.com/docs/api-reference/chat)
+- [x] [Edits](https://platform.openai.com/docs/api-reference/edits)
+- [x] [Images](https://platform.openai.com/docs/api-reference/images)
+- [x] [Embeddings](https://platform.openai.com/docs/api-reference/embeddings)
+- [x] [Audio](https://platform.openai.com/docs/api-reference/audio)
+- [x] [Files](https://platform.openai.com/docs/api-reference/files)
+- [x] [Fine-tunes](https://platform.openai.com/docs/api-reference/fine-tunes)
+- [x] [Moderation](https://platform.openai.com/docs/api-reference/moderations)
+- [x] Tokenizer
