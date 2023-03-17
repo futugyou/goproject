@@ -280,7 +280,7 @@ func EditImages() string {
 	io.Copy(wmask, data.Mask)
 	writer.WriteField("n", strconv.FormatInt(int64(data.N), 10))
 	writer.WriteField("prompt", data.Prompt)
-	writer.WriteField("size", data.Size)
+	writer.WriteField("size", fmt.Sprintf("%v", data.Size))
 
 	writer.Close()
 	req, err := http.NewRequest("POST", "https://api.openai.com/v1/images/edits", body)
