@@ -739,3 +739,72 @@ func CreateModerationLib() interface{} {
 	client := lib.NewClient(openaikey)
 	return client.CreateModeration(request)
 }
+
+func CreateAudioTranscriptionLib() interface{} {
+	file, _ := os.Open("./multilingual.mp3")
+	defer func() {
+		file.Close()
+	}()
+
+	data := lib.CreateAudioTranscriptionRequest{
+		File:           file,
+		Model:          "whisper-1",
+		Prompt:         "this is test",
+		ResponseFormat: "json",
+		Temperature:    0.5,
+		Language:       "en",
+	}
+	openaikey, _ := config.String("openaikey")
+	client := lib.NewClient(openaikey)
+	return client.CreateAudioTranscription(data)
+}
+
+func CreateAudioTranscription() string {
+	file, _ := os.Open("./multilingual.mp3")
+	defer func() {
+		file.Close()
+	}()
+
+	data := lib.CreateAudioTranscriptionRequest{
+		File:           file,
+		Model:          "whisper-1",
+		Prompt:         "this is test",
+		ResponseFormat: "json",
+		Temperature:    0.5,
+		Language:       "en",
+	}
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	wimage, _ := writer.CreateFormFile("file", data.File.Name())
+	io.Copy(wimage, data.File)
+	writer.WriteField("model", data.Model)
+	writer.WriteField("prompt", data.Prompt)
+	writer.WriteField("response_format", data.ResponseFormat)
+	writer.WriteField("temperature", fmt.Sprintf("%f", data.Temperature))
+	writer.WriteField("language", data.Language)
+
+	writer.Close()
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/audio/transcriptions", body)
+	if err != nil {
+		log.Println(err.Error())
+
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	openaikey, _ := config.String("openaikey")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println(err.Error())
+
+	}
+	defer resp.Body.Close()
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+
+	return string(all)
+}
