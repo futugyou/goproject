@@ -5,11 +5,9 @@ go 1.19
 require github.com/beego/beego/v2 v2.0.7
 
 require (
-	github.com/dlclark/regexp2 v1.8.1
 	github.com/futugyousuzu/go-openai v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
 	github.com/smartystreets/goconvey v1.6.4
-	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
 )
 
 replace github.com/futugyousuzu/go-openai v0.0.0 => ../openai
@@ -19,6 +17,7 @@ replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => ../openai-tokenizer
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
@@ -33,6 +32,7 @@ require (
 	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
+	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect

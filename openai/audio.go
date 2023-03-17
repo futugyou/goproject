@@ -4,27 +4,26 @@ import (
 	"os"
 	"strings"
 
+	types "github.com/futugyousuzu/go-openai/audioformattype"
 	e "github.com/futugyousuzu/go-openai/internal"
-
 	"golang.org/x/exp/slices"
 )
 
 const audioTranscriptionPath string = "audio/transcriptions"
 const audioTranslationPath string = "audio/translations"
 
-var supportededResponseFormatType = []string{"json", "text", "srt", "verbose_json", "vtt"}
 var supportedAudioType = []string{"mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"}
 var supportedAudioModel = []string{
 	Whisper_1,
 }
 
 type CreateAudioTranscriptionRequest struct {
-	File           *os.File `json:"file"`
-	Model          string   `json:"model"`
-	Prompt         string   `json:"prompt,omitempty"`
-	ResponseFormat string   `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
-	Temperature    float32  `json:"temperature,omitempty"`
-	Language       string   `json:"language,omitempty"`
+	File           *os.File              `json:"file"`
+	Model          string                `json:"model"`
+	Prompt         string                `json:"prompt,omitempty"`
+	ResponseFormat types.AudioFormatType `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
+	Temperature    float32               `json:"temperature,omitempty"`
+	Language       string                `json:"language,omitempty"`
 }
 
 type CreateAudioTranscriptionResponse struct {
@@ -51,11 +50,11 @@ type Segments struct {
 }
 
 type CreateAudioTranslationRequest struct {
-	File           *os.File `json:"file"`
-	Model          string   `json:"model"`
-	Prompt         string   `json:"prompt,omitempty"`
-	ResponseFormat string   `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
-	Temperature    float32  `json:"temperature,omitempty"`
+	File           *os.File              `json:"file"`
+	Model          string                `json:"model"`
+	Prompt         string                `json:"prompt,omitempty"`
+	ResponseFormat types.AudioFormatType `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
+	Temperature    float32               `json:"temperature,omitempty"`
 }
 
 type CreateAudioTranslationResponse struct {
@@ -127,9 +126,9 @@ func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequ
 	return result
 }
 
-func validateAudioResponseFormat(responseFormat string) *e.OpenaiError {
-	if len(responseFormat) > 0 && !slices.Contains(supportededResponseFormatType, responseFormat) {
-		return e.UnsupportedTypeError("ResponseFormat", responseFormat, supportededResponseFormatType)
+func validateAudioResponseFormat(responseFormat types.AudioFormatType) *e.OpenaiError {
+	if len(responseFormat) > 0 && !slices.Contains(types.SupportededResponseFormatType, responseFormat) {
+		return e.UnsupportedTypeError("ResponseFormat", responseFormat, types.SupportededResponseFormatType)
 	}
 
 	return nil
