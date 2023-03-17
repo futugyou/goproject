@@ -3,6 +3,7 @@ package openai
 import (
 	"golang.org/x/exp/slices"
 
+	role "github.com/futugyousuzu/go-openai/chatrole"
 	e "github.com/futugyousuzu/go-openai/internal"
 )
 
@@ -16,14 +17,6 @@ var supportedChatModel = []string{
 	GPT35_turbo,
 	GPT35_turbo_0301,
 }
-
-type ChatRole string
-
-const ChatRoleSystem ChatRole = "system"
-const ChatRoleUser ChatRole = "user"
-const ChatRoleAssistant ChatRole = "assistant"
-
-var supportedChatRoles = []ChatRole{ChatRoleSystem, ChatRoleUser, ChatRoleAssistant}
 
 type CreateChatCompletionRequest struct {
 	Model            string                  `json:"model"`
@@ -41,11 +34,11 @@ type CreateChatCompletionRequest struct {
 }
 
 type chatCompletionMessage struct {
-	Role    ChatRole `json:"role,omitempty"`
-	Content string   `json:"content,omitempty"`
+	Role    role.ChatRole `json:"role,omitempty"`
+	Content string        `json:"content,omitempty"`
 }
 
-func NewChatCompletionMessage(role ChatRole, message string) chatCompletionMessage {
+func NewChatCompletionMessage(role role.ChatRole, message string) chatCompletionMessage {
 	return chatCompletionMessage{
 		Role:    role,
 		Content: message,
@@ -54,21 +47,21 @@ func NewChatCompletionMessage(role ChatRole, message string) chatCompletionMessa
 
 func ChatCompletionMessageFromUser(message string) chatCompletionMessage {
 	return chatCompletionMessage{
-		Role:    ChatRoleUser,
+		Role:    role.ChatRoleUser,
 		Content: message,
 	}
 }
 
 func ChatCompletionMessageFromSystem(message string) chatCompletionMessage {
 	return chatCompletionMessage{
-		Role:    ChatRoleSystem,
+		Role:    role.ChatRoleSystem,
 		Content: message,
 	}
 }
 
 func ChatCompletionMessageFromAssistant(message string) chatCompletionMessage {
 	return chatCompletionMessage{
-		Role:    ChatRoleAssistant,
+		Role:    role.ChatRoleAssistant,
 		Content: message,
 	}
 }
@@ -117,8 +110,8 @@ func validateChatRole(messages []chatCompletionMessage) *e.OpenaiError {
 	}
 
 	for _, message := range messages {
-		if !slices.Contains(supportedChatRoles, message.Role) {
-			return e.UnsupportedTypeError("Message role", message.Role, supportedChatRoles)
+		if !slices.Contains(role.SupportedChatRoles, message.Role) {
+			return e.UnsupportedTypeError("Message role", message.Role, role.SupportedChatRoles)
 		}
 	}
 	return nil

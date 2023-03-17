@@ -780,7 +780,7 @@ func CreateAudioTranscription() string {
 	io.Copy(wimage, data.File)
 	writer.WriteField("model", data.Model)
 	writer.WriteField("prompt", data.Prompt)
-	writer.WriteField("response_format", data.ResponseFormat)
+	writer.WriteField("response_format", fmt.Sprintf("%v", data.ResponseFormat))
 	writer.WriteField("temperature", fmt.Sprintf("%f", data.Temperature))
 	writer.WriteField("language", data.Language)
 
