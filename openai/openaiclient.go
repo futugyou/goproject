@@ -1,11 +1,7 @@
 package openai
-
-import (
-	c "github.com/futugyousuzu/go-openai/internal"
-)
-
+ 
 type openaiClient struct {
-	httpClient c.IHttpClient
+	httpClient IHttpClient
 }
 
 func NewClient(apikey string) *openaiClient {
@@ -14,7 +10,7 @@ func NewClient(apikey string) *openaiClient {
 	}
 
 	return &openaiClient{
-		httpClient: c.NewHttpClient(apikey),
+		httpClient: NewHttpClient(apikey),
 	}
 }
 

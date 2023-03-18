@@ -3,8 +3,6 @@ package openai
 import (
 	"fmt"
 	"os"
-
-	e "github.com/futugyousuzu/go-openai/internal"
 )
 
 const listFilesPath string = "files"
@@ -19,31 +17,31 @@ type UploadFilesRequest struct {
 }
 
 type UploadFilesResponse struct {
-	Error *e.OpenaiError `json:"error,omitempty"`
+	Error *OpenaiError `json:"error,omitempty"`
 	FileModel
 }
 
 type ListFilesResponse struct {
-	Error  *e.OpenaiError `json:"error,omitempty"`
-	Object string         `json:"object,omitempty"`
-	Data   []FileModel    `json:"data,omitempty"`
+	Error  *OpenaiError `json:"error,omitempty"`
+	Object string       `json:"object,omitempty"`
+	Data   []FileModel  `json:"data,omitempty"`
 }
 
 type RetrieveFileResponse struct {
-	Error *e.OpenaiError `json:"error,omitempty"`
+	Error *OpenaiError `json:"error,omitempty"`
 	FileModel
 }
 
 type RetrieveFileContentResponse struct {
-	Error *e.OpenaiError `json:"error,omitempty"`
+	Error *OpenaiError `json:"error,omitempty"`
 	FileModel
 }
 
 type DeleteFileResponse struct {
-	Error   *e.OpenaiError `json:"error,omitempty"`
-	Object  string         `json:"object,omitempty"`
-	ID      string         `json:"id,omitempty"`
-	Deleted bool           `json:"deleted,omitempty"`
+	Error   *OpenaiError `json:"error,omitempty"`
+	Object  string       `json:"object,omitempty"`
+	ID      string       `json:"id,omitempty"`
+	Deleted bool         `json:"deleted,omitempty"`
 }
 
 func (c *openaiClient) ListFiles() *ListFilesResponse {

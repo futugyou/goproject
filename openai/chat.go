@@ -4,7 +4,6 @@ import (
 	"golang.org/x/exp/slices"
 
 	role "github.com/futugyousuzu/go-openai/chatrole"
-	e "github.com/futugyousuzu/go-openai/internal"
 )
 
 const chatCompletionPath string = "chat/completions"
@@ -67,13 +66,13 @@ func ChatCompletionMessageFromAssistant(message string) chatCompletionMessage {
 }
 
 type CreateChatCompletionResponse struct {
-	Error   *e.OpenaiError `json:"error,omitempty"`
-	ID      string         `json:"id,omitempty"`
-	Object  string         `json:"object,omitempty"`
-	Created int32          `json:"created,omitempty"`
-	Model   string         `json:"model,omitempty"`
-	Choices []Choices      `json:"choices,omitempty"`
-	Usage   *Usage         `json:"usage,omitempty"`
+	Error   *OpenaiError `json:"error,omitempty"`
+	ID      string       `json:"id,omitempty"`
+	Object  string       `json:"object,omitempty"`
+	Created int32        `json:"created,omitempty"`
+	Model   string       `json:"model,omitempty"`
+	Choices []Choices    `json:"choices,omitempty"`
+	Usage   *Usage       `json:"usage,omitempty"`
 }
 
 func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest) *CreateChatCompletionResponse {
@@ -96,59 +95,59 @@ func (c *openaiClient) CreateChatCompletion(request CreateChatCompletionRequest)
 	return result
 }
 
-func validateChatModel(model string) *e.OpenaiError {
+func validateChatModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedChatModel, model) {
-		return e.UnsupportedTypeError("Model", model, supportedChatModel)
+		return UnsupportedTypeError("Model", model, supportedChatModel)
 	}
 
 	return nil
 }
 
-func validateChatRole(messages []chatCompletionMessage) *e.OpenaiError {
+func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
 	if len(messages) == 0 {
-		return e.MessageError("messages can not be nil.")
+		return MessageError("messages can not be nil.")
 	}
 
 	for _, message := range messages {
 		if !slices.Contains(role.SupportedChatRoles, message.Role) {
-			return e.UnsupportedTypeError("Message role", message.Role, role.SupportedChatRoles)
+			return UnsupportedTypeError("Message role", message.Role, role.SupportedChatRoles)
 		}
 	}
 	return nil
 }
 
-func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) []*CreateChatCompletionResponse {
-	result := make([]*CreateChatCompletionResponse, 0)
+// func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) []*CreateChatCompletionResponse {
+// 	result := make([]*CreateChatCompletionResponse, 0)
 
-	err := validateChatModel(request.Model)
-	if err != nil {
-		result = append(result, &CreateChatCompletionResponse{Error: err})
-		return result
-	}
+// 	err := validateChatModel(request.Model)
+// 	if err != nil {
+// 		result = append(result, &CreateChatCompletionResponse{Error: err})
+// 		return result
+// 	}
 
-	err = validateChatRole(request.Messages)
-	if err != nil {
-		result = append(result, &CreateChatCompletionResponse{Error: err})
-		return result
-	}
+// 	err = validateChatRole(request.Messages)
+// 	if err != nil {
+// 		result = append(result, &CreateChatCompletionResponse{Error: err})
+// 		return result
+// 	}
 
-	request.Stream = true
+// 	request.Stream = true
 
-	c.httpClient.PostStream(chatCompletionPath, request)
+// 	c.httpClient.PostStream(chatCompletionPath, request)
 
-	defer c.httpClient.Close()
+// 	defer c.httpClient.Close()
 
-	for {
-		if !c.httpClient.CanReadStream() {
-			break
-		}
+// 	for {
+// 		if !c.httpClient.CanReadStream() {
+// 			break
+// 		}
 
-		response := &CreateChatCompletionResponse{}
-		c.httpClient.ReadStream(response)
-		if c.httpClient.CanReadStream() {
-			result = append(result, response)
-		}
-	}
+// 		response := &CreateChatCompletionResponse{}
+// 		c.httpClient.ReadStream(response)
+// 		if c.httpClient.CanReadStream() {
+// 			result = append(result, response)
+// 		}
+// 	}
 
-	return result
-}
+// 	return result
+// }

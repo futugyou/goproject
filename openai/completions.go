@@ -2,8 +2,6 @@ package openai
 
 import (
 	"golang.org/x/exp/slices"
-
-	e "github.com/futugyousuzu/go-openai/internal"
 )
 
 const completionsPath string = "completions"
@@ -47,13 +45,13 @@ type CreateCompletionRequest struct {
 }
 
 type CreateCompletionResponse struct {
-	Error   *e.OpenaiError `json:"error,omitempty"`
-	ID      string         `json:"id,omitempty"`
-	Object  string         `json:"object,omitempty"`
-	Created int32          `json:"created,omitempty"`
-	Model   string         `json:"model,omitempty"`
-	Choices []Choices      `json:"choices,omitempty"`
-	Usage   *Usage         `json:"usage,omitempty"`
+	Error   *OpenaiError `json:"error,omitempty"`
+	ID      string       `json:"id,omitempty"`
+	Object  string       `json:"object,omitempty"`
+	Created int32        `json:"created,omitempty"`
+	Model   string       `json:"model,omitempty"`
+	Choices []Choices    `json:"choices,omitempty"`
+	Usage   *Usage       `json:"usage,omitempty"`
 }
 
 func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
@@ -69,37 +67,37 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 	return result
 }
 
-func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) []*CreateCompletionResponse {
-	result := make([]*CreateCompletionResponse, 0)
-	request.Stream = true
-	err := validateCompletionModel(request.Model)
-	if err != nil {
-		result = append(result, &CreateCompletionResponse{Error: err})
-		return result
-	}
+// func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) []*CreateCompletionResponse {
+// 	result := make([]*CreateCompletionResponse, 0)
+// 	request.Stream = true
+// 	err := validateCompletionModel(request.Model)
+// 	if err != nil {
+// 		result = append(result, &CreateCompletionResponse{Error: err})
+// 		return result
+// 	}
 
-	c.httpClient.PostStream(completionsPath, request)
+// 	c.httpClient.PostStream(completionsPath, request)
 
-	defer c.httpClient.Close()
+// 	defer c.httpClient.Close()
 
-	for {
-		if !c.httpClient.CanReadStream() {
-			break
-		}
+// 	for {
+// 		if !c.httpClient.CanReadStream() {
+// 			break
+// 		}
 
-		response := &CreateCompletionResponse{}
-		c.httpClient.ReadStream(response)
-		if c.httpClient.CanReadStream() {
-			result = append(result, response)
-		}
-	}
+// 		response := &CreateCompletionResponse{}
+// 		c.httpClient.ReadStream(response)
+// 		if c.httpClient.CanReadStream() {
+// 			result = append(result, response)
+// 		}
+// 	}
 
-	return result
-}
+// 	return result
+// }
 
-func validateCompletionModel(model string) *e.OpenaiError {
+func validateCompletionModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedCompletionModel, model) {
-		return e.UnsupportedTypeError("Model", model, supportedCompletionModel)
+		return UnsupportedTypeError("Model", model, supportedCompletionModel)
 	}
 
 	return nil

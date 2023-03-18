@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-
-	er "github.com/futugyousuzu/go-openai/internal"
 )
 
 const endTag string = "[DONE]"
@@ -33,7 +31,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 	for {
 		if err != nil {
 			c.StreamEnd = true
-			return er.SystemError(err.Error())
+			return SystemError(err.Error())
 		}
 
 		line = bytes.TrimSpace(line)
@@ -52,7 +50,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 	}
 
 	if err = json.Unmarshal(line, response); err != nil {
-		return er.SystemError(err.Error())
+		return SystemError(err.Error())
 	}
 
 	return

@@ -1,8 +1,6 @@
 package openai
 
 import (
-	e "github.com/futugyousuzu/go-openai/internal"
-
 	"golang.org/x/exp/slices"
 )
 
@@ -19,7 +17,7 @@ type CreateModerationRequest struct {
 }
 
 type CreateModerationResponse struct {
-	Error   *e.OpenaiError     `json:"error,omitempty"`
+	Error   *OpenaiError       `json:"error,omitempty"`
 	ID      string             `json:"id,omitempty"`
 	Model   string             `json:"model,omitempty"`
 	Results []ModerationResult `json:"results,omitempty"`
@@ -64,9 +62,9 @@ func (c *openaiClient) CreateModeration(request CreateModerationRequest) *Create
 	return result
 }
 
-func validateModerationModel(model string) *e.OpenaiError {
+func validateModerationModel(model string) *OpenaiError {
 	if len(model) > 0 && !slices.Contains(supportedModerationModel, model) {
-		return e.UnsupportedTypeError("Model", model, supportedModerationModel)
+		return UnsupportedTypeError("Model", model, supportedModerationModel)
 	}
 
 	return nil

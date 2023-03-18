@@ -1,4 +1,4 @@
-package internal
+package openai
 
 import (
 	"bufio"
@@ -21,17 +21,11 @@ type IHttpClient interface {
 	Post(path string, request, response interface{}) error
 	Delete(path string, response interface{}) error
 	PostWithFile(path string, request, response interface{}) error
-	PostStream(path string, request interface{}) error
-	GetStream(path string) error
-	ReadStream(response interface{}) error
-	Close()
-	CanReadStream() bool
+	PostStream(path string, request interface{}) (*StreamResponse, error)
+	GetStream(path string) (*StreamResponse, error)
 }
 
 const baseUrl string = "https://api.openai.com/v1/"
-const endTag string = "[DONE]"
-
-var headerData []byte = []byte("data: ")
 
 type httpClient struct {
 	http           *http.Client
@@ -215,15 +209,15 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) er
 	return c.readHttpResponse(req, response)
 }
 
-func (c *httpClient) PostStream(path string, request interface{}) error {
+func (c *httpClient) PostStream(path string, request interface{}) (*StreamResponse, error) {
 	return c.doStreamRequest(path, "POST", request)
 }
 
-func (c *httpClient) GetStream(path string) error {
+func (c *httpClient) GetStream(path string) (*StreamResponse, error) {
 	return c.doStreamRequest(path, "GET", nil)
 }
 
-func (c *httpClient) doStreamRequest(path, method string, request interface{}) error {
+func (c *httpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, error) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -245,64 +239,18 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) e
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return SystemError(err.Error())
+		return nil, SystemError(err.Error())
 	}
 
 	if err = c.readErrorFromResponse(resp); err != nil {
-		return SystemError(err.Error())
+		return nil, SystemError(err.Error())
 	}
 
-	c.streamReader = bufio.NewReader(resp.Body)
-	c.streamResponse = resp
-	return nil
-}
-
-func (c *httpClient) ReadStream(response interface{}) (e error) {
-	reader := c.streamReader
-
-	if reader == nil {
-		c.StreamEnd = true
-		return
+	streamResponse := &StreamResponse{
+		Reader:    bufio.NewReader(resp.Body),
+		Response:  resp,
+		StreamEnd: false,
 	}
 
-	line, err := reader.ReadBytes('\n')
-	responseStr := ""
-
-	// for loop is for skip the row which is not start with 'data:'
-	for {
-		if err != nil {
-			c.StreamEnd = true
-			return SystemError(err.Error())
-		}
-
-		line = bytes.TrimSpace(line)
-		if bytes.HasPrefix(line, headerData) {
-			line = bytes.TrimPrefix(line, headerData)
-			responseStr = string(line)
-			break
-		} else {
-			line, err = reader.ReadBytes('\n')
-		}
-	}
-
-	if responseStr == endTag {
-		c.StreamEnd = true
-		return
-	}
-
-	if err = json.Unmarshal(line, response); err != nil {
-		return SystemError(err.Error())
-	}
-
-	return
-}
-
-func (c *httpClient) Close() {
-	if c.streamResponse != nil {
-		c.streamResponse.Body.Close()
-	}
-}
-
-func (c *httpClient) CanReadStream() bool {
-	return !c.StreamEnd
+	return streamResponse, nil
 }

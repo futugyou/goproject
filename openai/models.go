@@ -2,33 +2,31 @@ package openai
 
 import (
 	"fmt"
-
-	e "github.com/futugyousuzu/go-openai/internal"
 )
 
 const listModelsPath string = "models"
 const retrieveModelPath string = "models/%s"
 
 type ListModelResponse struct {
-	Error  *e.OpenaiError `json:"error,omitempty"`
-	Object string         `json:"object,omitempty"`
-	Datas  []model        `json:"data,omitempty"`
+	Error  *OpenaiError `json:"error,omitempty"`
+	Object string       `json:"object,omitempty"`
+	Datas  []model      `json:"data,omitempty"`
 }
 
 type ModelResponse struct {
-	Error *e.OpenaiError `json:"error,omitempty"`
+	Error *OpenaiError `json:"error,omitempty"`
 	model
 }
 
 type model struct {
-	Error      *e.OpenaiError `json:"error,omitempty"`
-	ID         string         `json:"id"`
-	Object     string         `json:"object"`
-	Created    int32          `json:"created"`
-	OwnedBy    string         `json:"owned_by"`
-	Permission []permission   `json:"permission"`
-	Root       string         `json:"root"`
-	Parent     interface{}    `json:"parent"`
+	Error      *OpenaiError `json:"error,omitempty"`
+	ID         string       `json:"id"`
+	Object     string       `json:"object"`
+	Created    int32        `json:"created"`
+	OwnedBy    string       `json:"owned_by"`
+	Permission []permission `json:"permission"`
+	Root       string       `json:"root"`
+	Parent     interface{}  `json:"parent"`
 }
 
 type permission struct {
