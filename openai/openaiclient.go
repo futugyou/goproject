@@ -1,5 +1,5 @@
 package openai
- 
+
 type openaiClient struct {
 	httpClient IHttpClient
 }
@@ -10,7 +10,7 @@ func NewClient(apikey string) *openaiClient {
 	}
 
 	return &openaiClient{
-		httpClient: NewHttpClient(apikey),
+		httpClient: newHttpClient(apikey),
 	}
 }
 

@@ -86,7 +86,7 @@ func (c *openaiClient) CreateAudioTranscription(request CreateAudioTranscription
 		c.httpClient.PostWithFile(audioTranscriptionPath, &request, result)
 	} else {
 		if err := c.httpClient.PostWithFile(audioTranscriptionPath, &request, &result.Text); err != nil {
-			result.Error = SystemError(err.Error())
+			result.Error = systemError(err.Error())
 		}
 	}
 
@@ -118,7 +118,7 @@ func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequ
 		c.httpClient.PostWithFile(audioTranslationPath, &request, result)
 	} else {
 		if err := c.httpClient.PostWithFile(audioTranslationPath, &request, &result.Text); err != nil {
-			result.Error = SystemError(err.Error())
+			result.Error = systemError(err.Error())
 		}
 	}
 
@@ -127,7 +127,7 @@ func (c *openaiClient) CreateAudioTranslation(request CreateAudioTranslationRequ
 
 func validateAudioResponseFormat(responseFormat types.AudioFormatType) *OpenaiError {
 	if len(responseFormat) > 0 && !slices.Contains(types.SupportededResponseFormatType, responseFormat) {
-		return UnsupportedTypeError("ResponseFormat", responseFormat, types.SupportededResponseFormatType)
+		return unsupportedTypeError("ResponseFormat", responseFormat, types.SupportededResponseFormatType)
 	}
 
 	return nil
@@ -135,7 +135,7 @@ func validateAudioResponseFormat(responseFormat types.AudioFormatType) *OpenaiEr
 
 func validateAudioModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedAudioModel, model) {
-		return UnsupportedTypeError("Model", model, supportedAudioModel)
+		return unsupportedTypeError("Model", model, supportedAudioModel)
 	}
 
 	return nil
@@ -144,12 +144,12 @@ func validateAudioModel(model string) *OpenaiError {
 func validateAudioFile(file os.File) *OpenaiError {
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return UnsupportedTypeError("audio type", "nil", supportedAudioType)
+		return unsupportedTypeError("audio type", "nil", supportedAudioType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return UnsupportedTypeError("audio type", suffix, supportedAudioType)
+		return unsupportedTypeError("audio type", suffix, supportedAudioType)
 	}
 
 	return nil

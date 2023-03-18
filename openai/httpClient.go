@@ -34,7 +34,7 @@ type httpClient struct {
 	baseurl      string
 }
 
-func NewHttpClient(apikey string) *httpClient {
+func newHttpClient(apikey string) *httpClient {
 	return &httpClient{
 		apikey:       apikey,
 		organization: "",
@@ -87,7 +87,7 @@ func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) e
 	resp, err := c.http.Do(req)
 
 	if err != nil {
-		return SystemError(err.Error())
+		return systemError(err.Error())
 	}
 
 	defer resp.Body.Close()
@@ -99,7 +99,7 @@ func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) e
 	all, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return SystemError(err.Error())
+		return systemError(err.Error())
 	}
 
 	switch result := response.(type) {
@@ -107,7 +107,7 @@ func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) e
 		*result = string(all)
 	default:
 		if err = json.Unmarshal(all, response); err != nil {
-			return SystemError(err.Error())
+			return systemError(err.Error())
 		}
 	}
 
@@ -121,17 +121,17 @@ func (c *httpClient) readErrorFromResponse(resp *http.Response) error {
 
 		if err != nil {
 			// raw error message
-			return SystemError(err.Error())
+			return systemError(err.Error())
 		}
 
 		if jsonError := json.Unmarshal(all, apiError); jsonError != nil {
 			// raw error message
-			return SystemError(err.Error())
+			return systemError(err.Error())
 		}
 
 		if apiError == nil || len(apiError.ErrorMessage) == 0 {
 			// raw error message
-			return SystemError(err.Error())
+			return systemError(err.Error())
 		}
 
 		return apiError
@@ -147,7 +147,7 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) er
 
 	reType := reflect.TypeOf(request)
 	if reType.Kind() != reflect.Ptr || reType.Elem().Kind() != reflect.Struct {
-		return SystemError("request must ptr")
+		return systemError("request must ptr")
 	}
 
 	v := reflect.ValueOf(request).Elem()
@@ -183,7 +183,7 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) er
 			writer.WriteField(fieldName, v)
 		case *os.File:
 			if wimage, e := writer.CreateFormFile(fieldName, v.Name()); e != nil {
-				return SystemError(e.Error())
+				return systemError(e.Error())
 			} else {
 				io.Copy(wimage, v)
 			}
@@ -236,11 +236,11 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) (
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, SystemError(err.Error())
+		return nil, systemError(err.Error())
 	}
 
 	if err = c.readErrorFromResponse(resp); err != nil {
-		return nil, SystemError(err.Error())
+		return nil, systemError(err.Error())
 	}
 
 	streamResponse := &StreamResponse{

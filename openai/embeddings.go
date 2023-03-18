@@ -45,7 +45,7 @@ func (c *openaiClient) CreateEmbeddings(request CreateEmbeddingsRequest) *Create
 
 func validateEmbeddingsModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEmbeddingsModel, model) {
-		return UnsupportedTypeError("Model", model, supportedEmbeddingsModel)
+		return unsupportedTypeError("Model", model, supportedEmbeddingsModel)
 	}
 
 	return nil

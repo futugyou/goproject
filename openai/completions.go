@@ -114,7 +114,7 @@ func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (
 
 func validateCompletionModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedCompletionModel, model) {
-		return UnsupportedTypeError("Model", model, supportedCompletionModel)
+		return unsupportedTypeError("Model", model, supportedCompletionModel)
 	}
 
 	return nil

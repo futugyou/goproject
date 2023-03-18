@@ -21,7 +21,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 	reader := c.Reader
 	if reader == nil {
 		c.StreamEnd = true
-		return SystemError("stream reader is nil.")
+		return systemError("stream reader is nil.")
 	}
 
 	line, err := reader.ReadBytes('\n')
@@ -31,7 +31,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 	for {
 		if err != nil {
 			c.StreamEnd = true
-			return SystemError(err.Error())
+			return systemError(err.Error())
 		}
 
 		line = bytes.TrimSpace(line)
@@ -42,7 +42,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 		} else {
 			if line, err = reader.ReadBytes('\n'); err != nil {
 				c.StreamEnd = true
-				return SystemError(err.Error())
+				return systemError(err.Error())
 			}
 		}
 	}
@@ -54,7 +54,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 
 	if err = json.Unmarshal(line, response); err != nil {
 		c.StreamEnd = true
-		return SystemError(err.Error())
+		return systemError(err.Error())
 	}
 
 	return
