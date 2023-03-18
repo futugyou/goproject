@@ -116,38 +116,17 @@ func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
 	return nil
 }
 
-// func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) []*CreateChatCompletionResponse {
-// 	result := make([]*CreateChatCompletionResponse, 0)
+func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) (*StreamResponse, error) {
+	err := validateChatModel(request.Model)
+	if err != nil {
+		return nil, err
+	}
 
-// 	err := validateChatModel(request.Model)
-// 	if err != nil {
-// 		result = append(result, &CreateChatCompletionResponse{Error: err})
-// 		return result
-// 	}
+	err = validateChatRole(request.Messages)
+	if err != nil {
+		return nil, err
+	}
 
-// 	err = validateChatRole(request.Messages)
-// 	if err != nil {
-// 		result = append(result, &CreateChatCompletionResponse{Error: err})
-// 		return result
-// 	}
-
-// 	request.Stream = true
-
-// 	c.httpClient.PostStream(chatCompletionPath, request)
-
-// 	defer c.httpClient.Close()
-
-// 	for {
-// 		if !c.httpClient.CanReadStream() {
-// 			break
-// 		}
-
-// 		response := &CreateChatCompletionResponse{}
-// 		c.httpClient.ReadStream(response)
-// 		if c.httpClient.CanReadStream() {
-// 			result = append(result, response)
-// 		}
-// 	}
-
-// 	return result
-// }
+	request.Stream = true
+	return c.httpClient.PostStream(chatCompletionPath, request)
+}

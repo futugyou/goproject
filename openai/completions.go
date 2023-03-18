@@ -67,33 +67,15 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 	return result
 }
 
-// func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) []*CreateCompletionResponse {
-// 	result := make([]*CreateCompletionResponse, 0)
-// 	request.Stream = true
-// 	err := validateCompletionModel(request.Model)
-// 	if err != nil {
-// 		result = append(result, &CreateCompletionResponse{Error: err})
-// 		return result
-// 	}
+func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, error) {
+	err := validateCompletionModel(request.Model)
+	if err != nil {
+		return nil, err
+	}
 
-// 	c.httpClient.PostStream(completionsPath, request)
-
-// 	defer c.httpClient.Close()
-
-// 	for {
-// 		if !c.httpClient.CanReadStream() {
-// 			break
-// 		}
-
-// 		response := &CreateCompletionResponse{}
-// 		c.httpClient.ReadStream(response)
-// 		if c.httpClient.CanReadStream() {
-// 			result = append(result, response)
-// 		}
-// 	}
-
-// 	return result
-// }
+	request.Stream = true
+	return c.httpClient.PostStream(completionsPath, request)
+}
 
 func validateCompletionModel(model string) *OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedCompletionModel, model) {

@@ -161,26 +161,6 @@ func (c *openaiClient) DeleteFinetuneMdel(model string) *DeleteFinetuneModelResp
 	return result
 }
 
-// func (c *openaiClient) ListFinetuneEventsStream(fine_tune_id string) *ListFinetuneEventResponse {
-// 	result := &ListFinetuneEventResponse{
-// 		Object: "list",
-// 	}
-
-// 	c.httpClient.GetStream(fmt.Sprintf(listFinetuneEventStreamPath, fine_tune_id))
-
-// 	defer c.httpClient.Close()
-
-// 	for {
-// 		if !c.httpClient.CanReadStream() {
-// 			break
-// 		}
-
-// 		event := &Events{}
-// 		c.httpClient.ReadStream(event)
-// 		if c.httpClient.CanReadStream() {
-// 			result.Data = append(result.Data, *event)
-// 		}
-// 	}
-
-// 	return result
-// }
+func (c *openaiClient) ListFinetuneEventsStream(fine_tune_id string) (*StreamResponse, error) {
+	return c.httpClient.GetStream(fmt.Sprintf(listFinetuneEventStreamPath, fine_tune_id))
+}
