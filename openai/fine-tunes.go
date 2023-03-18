@@ -161,6 +161,29 @@ func (c *openaiClient) DeleteFinetuneMdel(model string) *DeleteFinetuneModelResp
 	return result
 }
 
+// you can read stream in this way.
+//
+// stream, err := openai.ListFinetuneEventsStream(fine_tune_id)
+//
+//	if err != nil {
+//		doSomething()
+//	}
+//
+// defer stream.Close()
+//
+// result := &ListFinetuneEventResponse{Object: "list"}
+//
+//	for {
+//		if !stream.CanReadStream() {
+//			break
+//		}
+//		event := &Events{}
+//		if err = stream.ReadStream(event); err != nil {
+//			doSomething()
+//		} else {
+//			result.Data = append(result.Data, *event)
+//		}
+//	}
 func (c *openaiClient) ListFinetuneEventsStream(fine_tune_id string) (*StreamResponse, error) {
 	return c.httpClient.GetStream(fmt.Sprintf(listFinetuneEventStreamPath, fine_tune_id))
 }

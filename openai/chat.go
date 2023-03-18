@@ -124,6 +124,29 @@ func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
 	return nil
 }
 
+// you can read stream in this way.
+//
+// stream,err:= openai.CreateChatStreamCompletion(CreateChatCompletionRequest{})
+//
+//	if err!=nil {
+//		doSomething()
+//	}
+//
+// defer stream.Close()
+//
+// result := make([]*CreateChatCompletionResponse, 0)
+//
+//	for {
+//			if !stream.CanReadStream() {
+//				break
+//			}
+//			response := &CreateChatCompletionResponse{}
+//			if err=stream.ReadStream(response);err!=nil {
+//				doSomething()
+//			}else{
+//				result = append(result, response)
+//			}
+//		}
 func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) (*StreamResponse, error) {
 	err := validateChatModel(request.Model)
 	if err != nil {

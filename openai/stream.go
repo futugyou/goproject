@@ -21,7 +21,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 	reader := c.Reader
 	if reader == nil {
 		c.StreamEnd = true
-		return
+		return SystemError("stream reader is nil.")
 	}
 
 	line, err := reader.ReadBytes('\n')
@@ -40,7 +40,10 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 			responseStr = string(line)
 			break
 		} else {
-			line, err = reader.ReadBytes('\n')
+			if line, err = reader.ReadBytes('\n'); err != nil {
+				c.StreamEnd = true
+				return SystemError(err.Error())
+			}
 		}
 	}
 
@@ -50,6 +53,7 @@ func (c *StreamResponse) ReadStream(response interface{}) (e error) {
 	}
 
 	if err = json.Unmarshal(line, response); err != nil {
+		c.StreamEnd = true
 		return SystemError(err.Error())
 	}
 

@@ -75,6 +75,29 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 	return result
 }
 
+// you can read stream in this way.
+//
+// stream,err:= openai.CreateStreamCompletion(CreateCompletionRequest{})
+//
+//	if err!=nil {
+//		doSomething()
+//	}
+//
+// defer stream.Close()
+//
+// result := make([]*CreateCompletionResponse, 0)
+//
+//	for {
+//			if !stream.CanReadStream() {
+//				break
+//			}
+//			response := &CreateCompletionResponse{}
+//			if err=stream.ReadStream(response);err!=nil {
+//				doSomething()
+//			}else{
+//				result = append(result, response)
+//			}
+//		}
 func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, error) {
 	err := validateCompletionModel(request.Model)
 	if err != nil {
