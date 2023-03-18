@@ -132,213 +132,35 @@ paths:
       responses:
         "200":
           description: "{test} \tstring"
+  /test/:
+    get:
+      tags:
+      - test
+      description: |-
+        do the test
+        <br>
+      operationId: TestController.test openai lib
 definitions:
-  lib.ChatCompletionMessage:
-    title: ChatCompletionMessage
-    type: object
-    properties:
-      content:
-        type: string
-      role:
-        type: string
-  lib.Choices:
-    title: Choices
-    type: object
-    properties:
-      finish_reason:
-        type: string
-      index:
-        type: integer
-        format: int32
-      logprobs:
-        $ref: '#/definitions/lib.Logprobs'
-      message:
-        type: array
-        items:
-          $ref: '#/definitions/lib.ChatCompletionMessage'
-      text:
-        type: string
   lib.CreateAudioTranscriptionRequest:
     title: CreateAudioTranscriptionRequest
     type: object
-    properties:
-      file:
-        $ref: '#/definitions/os.File'
-      language:
-        type: string
-      model:
-        type: string
-      prompt:
-        type: string
-      response_format:
-        description: json, text, srt, verbose_json, or vtt.
-        type: string
-      temperature:
-        type: number
-        format: float
   lib.CreateAudioTranscriptionResponse:
     title: CreateAudioTranscriptionResponse
     type: object
-    properties:
-      error:
-        $ref: '#/definitions/lib.OpenaiError'
-      text:
-        type: string
   lib.CreateAudioTranslationRequest:
     title: CreateAudioTranslationRequest
     type: object
-    properties:
-      file:
-        $ref: '#/definitions/os.File'
-      model:
-        type: string
-      prompt:
-        type: string
-      response_format:
-        description: json, text, srt, verbose_json, or vtt.
-        type: string
-      temperature:
-        type: number
-        format: float
   lib.CreateAudioTranslationResponse:
     title: CreateAudioTranslationResponse
     type: object
-    properties:
-      error:
-        $ref: '#/definitions/lib.OpenaiError'
-      text:
-        type: string
   lib.CreateChatCompletionRequest:
     title: CreateChatCompletionRequest
     type: object
-    properties:
-      frequency_penalty:
-        type: number
-        format: float
-      logit_bias:
-        additionalProperties:
-          type: integer
-          format: int32
-      max_tokens:
-        type: integer
-        format: int32
-      messages:
-        $ref: '#/definitions/lib.ChatCompletionMessage'
-      model:
-        type: string
-      "n":
-        type: integer
-        format: int32
-      presence_penalty:
-        type: number
-        format: float
-      stop:
-        type: array
-        items:
-          type: string
-      stream:
-        type: boolean
-      temperature:
-        type: number
-        format: float
-      top_p:
-        type: number
-        format: float
-      user:
-        type: string
   lib.CreateChatCompletionResponse:
     title: CreateChatCompletionResponse
     type: object
-    properties:
-      choices:
-        type: array
-        items:
-          $ref: '#/definitions/lib.Choices'
-      created:
-        type: integer
-        format: int32
-      error:
-        $ref: '#/definitions/lib.OpenaiError'
-      id:
-        type: string
-      model:
-        type: string
-      object:
-        type: string
-      usage:
-        $ref: '#/definitions/lib.Usage'
-  lib.Events:
-    title: Events
-    type: object
-    properties:
-      created_at:
-        type: integer
-        format: int32
-      level:
-        type: string
-      message:
-        type: string
-      object:
-        type: string
   lib.ListFinetuneEventResponse:
     title: ListFinetuneEventResponse
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: '#/definitions/lib.Events'
-      error:
-        $ref: '#/definitions/lib.OpenaiError'
-      object:
-        type: string
-  lib.Logprobs:
-    title: Logprobs
-    type: object
-    properties:
-      text_offset:
-        type: array
-        items:
-          type: integer
-          format: int32
-      token_logprobs:
-        type: array
-        items:
-          type: number
-          format: float
-      tokens:
-        type: array
-        items:
-          type: string
-      top_logprobs:
-        $ref: '#/definitions/lib.map[string][float32]'
-  lib.OpenaiError:
-    title: OpenaiError
-    type: object
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-      param:
-        type: string
-      type:
-        type: string
-  lib.Usage:
-    title: Usage
-    type: object
-    properties:
-      completion_tokens:
-        type: integer
-        format: int32
-      prompt_tokens:
-        type: integer
-        format: int32
-      total_tokens:
-        type: integer
-        format: int32
-  lib.map[string][float32]:
-    title: map[string][float32]
     type: object
   models.Object:
     title: Object
@@ -349,7 +171,7 @@ definitions:
     properties:
       best_of:
         type: integer
-        format: int64
+        format: int32
       echo:
         type: boolean
       frequency_penalty:
@@ -381,9 +203,6 @@ definitions:
   models.User:
     title: User
     type: object
-  os.File:
-    title: File
-    type: object
 tags:
 - name: model
   description: |
@@ -400,3 +219,6 @@ tags:
 - name: qa
   description: |
     Operations about q&a
+- name: test
+  description: |
+    Operations about test

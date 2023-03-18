@@ -114,6 +114,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:TestController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:TestController"],
+        beego.ControllerComments{
+            Method: "Test",
+            Router: `/`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:UserController"],
         beego.ControllerComments{
             Method: "Post",
