@@ -28,13 +28,10 @@ type IHttpClient interface {
 const baseUrl string = "https://api.openai.com/v1/"
 
 type httpClient struct {
-	http           *http.Client
-	apikey         string
-	organization   string
-	baseurl        string
-	streamResponse *http.Response
-	streamReader   *bufio.Reader
-	StreamEnd      bool
+	http         *http.Client
+	apikey       string
+	organization string
+	baseurl      string
 }
 
 func NewHttpClient(apikey string) *httpClient {

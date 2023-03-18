@@ -33,7 +33,6 @@ type CreateCompletionRequest struct {
 	Temperature      float32          `json:"temperature,omitempty"`
 	Top_p            float32          `json:"top_p,omitempty"`
 	N                int32            `json:"n,omitempty"`
-	Stream           bool             `json:"stream"`
 	Logprobs         int32            `json:"logprobs,omitempty"`
 	Echo             bool             `json:"echo"`
 	Stop             []string         `json:"stop,omitempty"`
@@ -42,6 +41,11 @@ type CreateCompletionRequest struct {
 	BestOf           int32            `json:"best_of,omitempty"`
 	LogitBias        map[string]int32 `json:"logit_bias,omitempty"`
 	User             string           `json:"user,omitempty"`
+}
+
+type completionRequest struct {
+	CreateCompletionRequest
+	Stream bool `json:"stream"`
 }
 
 type CreateCompletionResponse struct {
@@ -56,14 +60,18 @@ type CreateCompletionResponse struct {
 
 func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
-	request.Stream = false
 	err := validateCompletionModel(request.Model)
 	if err != nil {
 		result.Error = err
 		return result
 	}
 
-	c.httpClient.Post(completionsPath, request, result)
+	newRequest := completionRequest{
+		CreateCompletionRequest: request,
+		Stream:                  false,
+	}
+
+	c.httpClient.Post(completionsPath, newRequest, result)
 	return result
 }
 
@@ -73,8 +81,12 @@ func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (
 		return nil, err
 	}
 
-	request.Stream = true
-	return c.httpClient.PostStream(completionsPath, request)
+	newRequest := completionRequest{
+		CreateCompletionRequest: request,
+		Stream:                  true,
+	}
+
+	return c.httpClient.PostStream(completionsPath, newRequest)
 }
 
 func validateCompletionModel(model string) *OpenaiError {
