@@ -46,12 +46,16 @@ type permission struct {
 
 func (c *openaiClient) ListModels() *ListModelResponse {
 	result := &ListModelResponse{}
-	c.httpClient.Get(listModelsPath, result)
+	if err := c.httpClient.Get(listModelsPath, result); err != nil {
+		result.Error = err
+	}
 	return result
 }
 
 func (c *openaiClient) RetrieveModel(model string) *ModelResponse {
 	result := &ModelResponse{}
-	c.httpClient.Get(fmt.Sprintf(retrieveModelPath, model), result)
+	if err := c.httpClient.Get(fmt.Sprintf(retrieveModelPath, model), result); err != nil {
+		result.Error = err
+	}
 	return result
 }
