@@ -17,12 +17,12 @@ import (
 type IHttpClient interface {
 	SetOrganization(organization string)
 	SetBaseUrl(baseurl string)
-	Get(path string, response interface{}) error
-	Post(path string, request, response interface{}) error
-	Delete(path string, response interface{}) error
-	PostWithFile(path string, request, response interface{}) error
-	PostStream(path string, request interface{}) (*StreamResponse, error)
-	GetStream(path string) (*StreamResponse, error)
+	Get(path string, response interface{}) *OpenaiError
+	Post(path string, request, response interface{}) *OpenaiError
+	Delete(path string, response interface{}) *OpenaiError
+	PostWithFile(path string, request, response interface{}) *OpenaiError
+	PostStream(path string, request interface{}) (*StreamResponse, *OpenaiError)
+	GetStream(path string) (*StreamResponse, *OpenaiError)
 }
 
 const baseUrl string = "https://api.openai.com/v1/"
@@ -51,19 +51,19 @@ func (c *httpClient) SetBaseUrl(baseurl string) {
 	c.baseurl = baseurl
 }
 
-func (c *httpClient) Post(path string, request, response interface{}) error {
+func (c *httpClient) Post(path string, request, response interface{}) *OpenaiError {
 	return c.doRequest(path, "POST", request, response)
 }
 
-func (c *httpClient) Get(path string, response interface{}) error {
+func (c *httpClient) Get(path string, response interface{}) *OpenaiError {
 	return c.doRequest(path, "GET", nil, response)
 }
 
-func (c *httpClient) Delete(path string, response interface{}) error {
+func (c *httpClient) Delete(path string, response interface{}) *OpenaiError {
 	return c.doRequest(path, "DELETE", nil, response)
 }
 
-func (c *httpClient) doRequest(path, method string, request, response interface{}) error {
+func (c *httpClient) doRequest(path, method string, request, response interface{}) *OpenaiError {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -83,7 +83,7 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 	return c.readHttpResponse(req, response)
 }
 
-func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) error {
+func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) *OpenaiError {
 	resp, err := c.http.Do(req)
 
 	if err != nil {
@@ -114,8 +114,7 @@ func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) e
 	return nil
 }
 
-func (c *httpClient) readErrorFromResponse(resp *http.Response) error {
-	var apiError *OpenaiError
+func (c *httpClient) readErrorFromResponse(resp *http.Response) *OpenaiError {
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
 		all, err := io.ReadAll(resp.Body)
 
@@ -124,6 +123,7 @@ func (c *httpClient) readErrorFromResponse(resp *http.Response) error {
 			return systemError(err.Error())
 		}
 
+		var apiError *OpenaiError
 		if jsonError := json.Unmarshal(all, apiError); jsonError != nil {
 			// raw error message
 			return systemError(err.Error())
@@ -140,7 +140,7 @@ func (c *httpClient) readErrorFromResponse(resp *http.Response) error {
 	return nil
 }
 
-func (c *httpClient) PostWithFile(path string, request, response interface{}) error {
+func (c *httpClient) PostWithFile(path string, request, response interface{}) *OpenaiError {
 	path = c.baseurl + path
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -206,15 +206,15 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) er
 	return c.readHttpResponse(req, response)
 }
 
-func (c *httpClient) PostStream(path string, request interface{}) (*StreamResponse, error) {
+func (c *httpClient) PostStream(path string, request interface{}) (*StreamResponse, *OpenaiError) {
 	return c.doStreamRequest(path, "POST", request)
 }
 
-func (c *httpClient) GetStream(path string) (*StreamResponse, error) {
+func (c *httpClient) GetStream(path string) (*StreamResponse, *OpenaiError) {
 	return c.doStreamRequest(path, "GET", nil)
 }
 
-func (c *httpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, error) {
+func (c *httpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
 	path = c.baseurl + path
 	var body io.Reader
 
@@ -239,8 +239,8 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) (
 		return nil, systemError(err.Error())
 	}
 
-	if err = c.readErrorFromResponse(resp); err != nil {
-		return nil, systemError(err.Error())
+	if er := c.readErrorFromResponse(resp); er != nil {
+		return nil, er
 	}
 
 	streamResponse := &StreamResponse{
