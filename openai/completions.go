@@ -1,27 +1,6 @@
 package openai
 
-import (
-	"golang.org/x/exp/slices"
-)
-
 const completionsPath string = "completions"
-
-// the model in https://platform.openai.com/docs/models/model-endpoint-compatibility
-// is not same as https://platform.openai.com/playground.
-// i think i need add those two code models.
-var supportedCompletionModel = []string{
-	Text_davinci_003,
-	Text_davinci_002,
-	Text_curie_001,
-	Text_babbage_001,
-	Text_ada_001,
-	GPT3_davinci,
-	GPT3_curie,
-	GPT3_babbage,
-	GPT3_ada,
-	Code_davinci_002,
-	Code_cushman_001,
-}
 
 type CreateCompletionRequest struct {
 	Model string `json:"model,omitempty"`
@@ -60,12 +39,6 @@ type CreateCompletionResponse struct {
 
 func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
-	err := validateCompletionModel(request.Model)
-	if err != nil {
-		result.Error = err
-		return result
-	}
-
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  false,
@@ -99,23 +72,10 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 //			}
 //		}
 func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, error) {
-	err := validateCompletionModel(request.Model)
-	if err != nil {
-		return nil, err
-	}
-
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  true,
 	}
 
 	return c.httpClient.PostStream(completionsPath, newRequest)
-}
-
-func validateCompletionModel(model string) *OpenaiError {
-	if len(model) == 0 || !slices.Contains(supportedCompletionModel, model) {
-		return unsupportedTypeError("Model", model, supportedCompletionModel)
-	}
-
-	return nil
 }
