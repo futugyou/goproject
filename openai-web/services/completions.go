@@ -1,6 +1,10 @@
 package services
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
+
 	openai "github.com/futugyousuzu/go-openai"
 
 	"github.com/beego/beego/v2/core/config"
@@ -10,14 +14,20 @@ import (
 type CompletionService struct {
 }
 
+type CompletionModel struct {
+	Model            string   `json:"model"`
+	Prompt           string   `json:"prompt"`
+	Temperature      int32    `json:"temperature"`
+	MaxTokens        int32    `json:"max_tokens"`
+	Top_p            int32    `json:"top_p"`
+	FrequencyPenalty float32  `json:"frequency_penalty"`
+	PresencePenalty  float32  `json:"presence_penalty"`
+	Stop             []string `json:"stop"`
+	BestOf           int      `json:"best_of"`
+}
+
 type CreateCompletionRequest struct {
-	Prompt           string  `json:"prompt"`
-	MaxTokens        int     `json:"max_tokens"`
-	Temperature      float64 `json:"temperature"`
-	TopP             int     `json:"top_p"`
-	FrequencyPenalty int     `json:"frequency_penalty"`
-	PresencePenalty  int     `json:"presence_penalty"`
-	BestOf           int     `json:"best_of"`
+	CompletionModel
 }
 
 func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) *openai.CreateCompletionResponse {
@@ -26,5 +36,15 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) *o
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request, &req)
 	result := client.CreateCompletion(req)
+	return result
+}
+
+func (s *CompletionService) GetExampleSettings(exampleName string) CompletionModel {
+	result := CompletionModel{}
+	if settings, err := os.ReadFile(fmt.Sprintf("./examples/%s.json", exampleName)); err == nil {
+
+		json.Unmarshal(settings, &result)
+	}
+
 	return result
 }

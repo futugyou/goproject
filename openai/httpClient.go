@@ -92,7 +92,7 @@ func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) *
 
 	defer resp.Body.Close()
 
-	if err := c.readErrorFromResponse(resp); err != nil {
+	if err := checkResponseStatusCode(resp); err != nil {
 		return err
 	}
 
@@ -114,7 +114,7 @@ func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) *
 	return nil
 }
 
-func (c *httpClient) readErrorFromResponse(resp *http.Response) *OpenaiError {
+func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
 		all, err := io.ReadAll(resp.Body)
 
@@ -239,7 +239,7 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) (
 		return nil, systemError(err.Error())
 	}
 
-	if er := c.readErrorFromResponse(resp); er != nil {
+	if er := checkResponseStatusCode(resp); er != nil {
 		return nil, er
 	}
 
