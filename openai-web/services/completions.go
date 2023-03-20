@@ -15,15 +15,15 @@ type CompletionService struct {
 }
 
 type CompletionModel struct {
-	Model            string   `json:"model"`
-	Prompt           string   `json:"prompt"`
-	Temperature      int32    `json:"temperature"`
-	MaxTokens        int32    `json:"max_tokens"`
-	Top_p            int32    `json:"top_p"`
-	FrequencyPenalty float32  `json:"frequency_penalty"`
-	PresencePenalty  float32  `json:"presence_penalty"`
-	Stop             []string `json:"stop"`
-	BestOf           int      `json:"best_of"`
+	Model            string   `json:"model,omitempty"`
+	Prompt           string   `json:"prompt,omitempty"`
+	Temperature      int32    `json:"temperature,omitempty"`
+	MaxTokens        int32    `json:"max_tokens,omitempty"`
+	Top_p            int32    `json:"top_p,omitempty"`
+	FrequencyPenalty float32  `json:"frequency_penalty,omitempty"`
+	PresencePenalty  float32  `json:"presence_penalty,omitempty"`
+	Stop             []string `json:"stop,omitempty"`
+	BestOf           int      `json:"best_of,omitempty"`
 }
 
 type CreateCompletionRequest struct {
@@ -39,9 +39,9 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) *o
 	return result
 }
 
-func (s *CompletionService) GetExampleSettings(exampleName string) CompletionModel {
+func (s *CompletionService) GetExampleSettings(settingName string) CompletionModel {
 	result := CompletionModel{}
-	if settings, err := os.ReadFile(fmt.Sprintf("./examples/%s.json", exampleName)); err == nil {
+	if settings, err := os.ReadFile(fmt.Sprintf("./examples/%s.json", settingName)); err == nil {
 
 		json.Unmarshal(settings, &result)
 	}

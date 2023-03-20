@@ -40,6 +40,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"],
+        beego.ControllerComments{
+            Method: "Setting",
+            Router: `/:settingName`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:FineTuneController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:FineTuneController"],
         beego.ControllerComments{
             Method: "ListFineTuneEvent",

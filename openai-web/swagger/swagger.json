@@ -113,6 +113,31 @@
                 }
             }
         },
+        "/completion/{settingName}": {
+            "get": {
+                "tags": [
+                    "completion"
+                ],
+                "operationId": "CompletionController.get settings",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "settingName",
+                        "description": "setting name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/services.CompletionModel"
+                        }
+                    }
+                }
+            }
+        },
         "/fine-tune/{fine_tune_id}/events": {
             "get": {
                 "tags": [
@@ -283,6 +308,48 @@
         "models.User": {
             "title": "User",
             "type": "object"
+        },
+        "services.CompletionModel": {
+            "title": "CompletionModel",
+            "type": "object",
+            "properties": {
+                "best_of": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "frequency_penalty": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "max_tokens": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "presence_penalty": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "prompt": {
+                    "type": "string"
+                },
+                "stop": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "temperature": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "top_p": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            }
         }
     },
     "tags": [
@@ -309,6 +376,10 @@
         {
             "name": "test",
             "description": "Operations about test\n"
+        },
+        {
+            "name": "completion",
+            "description": "Operations about Completion\n"
         }
     ]
 }
