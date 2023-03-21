@@ -10,6 +10,7 @@ FROM gcr.io/distroless/base-debian11
 WORKDIR /
 COPY --from=build /openai /openai
 COPY ./openai-web/conf/app.conf conf/app.conf
+COPY ./openai-web/examples examples
 EXPOSE 8080
 USER nonroot:nonroot
 ENTRYPOINT ["/openai"]

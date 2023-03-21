@@ -21,3 +21,9 @@ bee generate routers
 ```
 bee run 
 ```
+
+use docker command in parent folder
+```
+docker build -t openai -f ./openai-web/Dockerfile .
+docker run  --name openai -p 8080:8080 -d openai
+```
