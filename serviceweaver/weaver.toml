@@ -2,4 +2,4 @@
 binary = "./serviceweaver"
 
 ["github.com/futugyousuzu/serviceweaver/IModel"]
-OpenAIKey = "Bonjour"
+openai_key = "Bonjour"

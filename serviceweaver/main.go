@@ -8,7 +8,12 @@ import (
 	"net/http"
 
 	"github.com/ServiceWeaver/weaver"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
+
+//go:generate weaver generate ./...
 
 func main() {
 	// Get a network listener on address "localhost:12345".
@@ -16,9 +21,10 @@ func main() {
 	opts := weaver.ListenerOptions{LocalAddress: "localhost:12345"}
 	lis, err := root.Listener("hello", opts)
 	if err != nil {
-		log.Fatal(err)
+		root.Logger().Error("Listener localhost:12345", err)
 	}
-	fmt.Printf("hello listener available on %v\n", lis)
+
+	root.Logger().Info(fmt.Sprintf("hello listener available on %v\n", lis))
 
 	// Get a client to the Reverser component.
 	reverser, err := weaver.Get[Reverser](root)
@@ -50,7 +56,14 @@ func main() {
 		w.Header().Set("content-type", "text/json")
 		msg, _ := json.Marshal(models)
 		w.Write(msg)
+		trace.SpanFromContext(r.Context()).AddEvent("writing response",
+			trace.WithAttributes(
+				attribute.String("content", "hello "),
+				attribute.String("answer", r.URL.Query().Get("name")),
+			))
 	})
 
-	http.Serve(lis, nil)
+	// Create an otel handler to enable tracing.
+	otelHandler := otelhttp.NewHandler(http.DefaultServeMux, "http")
+	http.Serve(lis, otelHandler)
 }

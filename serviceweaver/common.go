@@ -1,5 +1,5 @@
 package main
 
 type openAIOptions struct {
-	OpenAIKey string `toml:"OpenAIKey"`
+	OpenAIKey string `toml:"openai_key"`
 }
