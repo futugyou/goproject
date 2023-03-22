@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -33,5 +34,23 @@ func main() {
 		}
 		fmt.Fprintf(w, "Hello, %s!\n", reversed)
 	})
+
+	// Get a client to the IModel component.
+	model, err := weaver.Get[IModel](root)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Serve the /model endpoint.
+	http.HandleFunc("/model", func(w http.ResponseWriter, r *http.Request) {
+		models, err := model.ListModel(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Header().Set("content-type", "text/json")
+		msg, _ := json.Marshal(models)
+		w.Write(msg)
+	})
+
 	http.Serve(lis, nil)
 }
