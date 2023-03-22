@@ -16,6 +16,7 @@ func init() {
 		Name:        "github.com\\futugyousuzu\\serviceweaver\\IModel",
 		Iface:       reflect.TypeOf((*IModel)(nil)).Elem(),
 		New:         func() any { return &model{} },
+		ConfigFn:    func(i any) any { return i.(*model).WithConfig.Config() },
 		LocalStubFn: func(impl any, tracer trace.Tracer) any { return iModel_local_stub{impl: impl.(IModel), tracer: tracer} },
 		ClientStubFn: func(stub codegen.Stub, caller string) any {
 			return iModel_client_stub{stub: stub, listModelMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com\\futugyousuzu\\serviceweaver\\IModel", Method: "ListModel"})}

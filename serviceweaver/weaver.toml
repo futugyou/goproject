@@ -1,2 +1,5 @@
 [serviceweaver]
-binary = "./serviceweaver.exe"
+binary = "./serviceweaver"
+
+["github.com/futugyousuzu/serviceweaver/IModel"]
+OpenAIKey = "Bonjour"

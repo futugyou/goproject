@@ -7,7 +7,7 @@ import (
 	openai "github.com/futugyousuzu/go-openai"
 )
 
-// Setting component.
+// IModel component.
 type IModel interface {
 	ListModel(context.Context) (ListModel, error)
 }
@@ -15,10 +15,14 @@ type IModel interface {
 // Implementation of the Setting component.
 type model struct {
 	weaver.Implements[IModel]
+	weaver.WithConfig[openAIOptions]
 }
 
 func (r *model) ListModel(_ context.Context) (ListModel, error) {
-	response := &openai.ListModelResponse{}
+	option := r.Config()
+	client := openai.NewClient(option.OpenAIKey)
+	response := client.ListModels()
+
 	items := make([]item, 0)
 	for _, data := range response.Datas {
 		i := item{
