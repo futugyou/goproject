@@ -31,7 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	batchv1 "github.com/futugyousuzu/k8sbuilder/api/batch/v1"
 	webappv1 "github.com/futugyousuzu/k8sbuilder/api/webapp/v1"
+	batchcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/batch"
 	webappcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/webapp"
 	//+kubebuilder:scaffold:imports
 )
@@ -45,6 +47,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(webappv1.AddToScheme(scheme))
+	utilruntime.Must(batchv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -94,6 +97,13 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Guestbook")
+		os.Exit(1)
+	}
+	if err = (&batchcontroller.CronJobReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "CronJob")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

@@ -12,3 +12,4 @@ spec:
   # TODO(user): Add fields here
   size: 5
   configMapName: check 
+  alias: Name

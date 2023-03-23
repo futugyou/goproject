@@ -18,4 +18,13 @@ resources:
   kind: Guestbook
   path: github.com/futugyousuzu/k8sbuilder/api/webapp/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: vishel.io
+  group: batch
+  kind: CronJob
+  path: github.com/futugyousuzu/k8sbuilder/api/batch/v1
+  version: v1
 version: "3"
