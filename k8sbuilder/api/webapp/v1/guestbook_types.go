@@ -54,8 +54,9 @@ type GuestbookStatus struct {
 	Standby []string `json:"standby"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:scope=Cluster
 
 // Guestbook is the Schema for the guestbooks API
 type Guestbook struct {

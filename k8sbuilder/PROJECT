@@ -2,19 +2,20 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: k8s.domain
+domain: vishel.io
 layout:
 - go.kubebuilder.io/v4-alpha
-projectName: k8s-controller-manager
+multigroup: true
+projectName: k8sbuilder
 repo: github.com/futugyousuzu/k8sbuilder
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: k8s.domain
+  domain: vishel.io
   group: webapp
   kind: Guestbook
-  path: github.com/futugyousuzu/k8sbuilder/api/v1
+  path: github.com/futugyousuzu/k8sbuilder/api/webapp/v1
   version: v1
 version: "3"

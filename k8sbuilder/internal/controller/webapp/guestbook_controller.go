@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package webapp
 
 import (
 	"context"
@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	webappv1 "github.com/futugyousuzu/k8sbuilder/api/v1"
+	webappv1 "github.com/futugyousuzu/k8sbuilder/api/webapp/v1"
 )
 
 // GuestbookReconciler reconciles a Guestbook object
@@ -33,9 +33,9 @@ type GuestbookReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=webapp.k8s.domain,resources=guestbooks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=webapp.k8s.domain,resources=guestbooks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=webapp.k8s.domain,resources=guestbooks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=webapp.vishel.io,resources=guestbooks,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=webapp.vishel.io,resources=guestbooks/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=webapp.vishel.io,resources=guestbooks/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

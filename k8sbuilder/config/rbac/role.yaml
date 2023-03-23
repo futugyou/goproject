@@ -6,7 +6,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - webapp.k8s.domain
+  - webapp.vishel.io
   resources:
   - guestbooks
   verbs:
@@ -18,13 +18,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - webapp.k8s.domain
+  - webapp.vishel.io
   resources:
   - guestbooks/finalizers
   verbs:
   - update
 - apiGroups:
-  - webapp.k8s.domain
+  - webapp.vishel.io
   resources:
   - guestbooks/status
   verbs:

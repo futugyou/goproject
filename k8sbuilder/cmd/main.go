@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	webappv1 "github.com/futugyousuzu/k8sbuilder/api/v1"
-	"github.com/futugyousuzu/k8sbuilder/internal/controller"
+	webappv1 "github.com/futugyousuzu/k8sbuilder/api/webapp/v1"
+	webappcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/webapp"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -71,7 +71,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "ec2a7b99.k8s.domain",
+		LeaderElectionID:       "ec2a7b99.vishel.io",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -89,7 +89,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.GuestbookReconciler{
+	if err = (&webappcontroller.GuestbookReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
