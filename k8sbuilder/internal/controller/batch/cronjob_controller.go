@@ -60,6 +60,7 @@ type Clock interface {
 var (
 	scheduledTimeAnnotation = "batch.tutorial.kubebuilder.io/scheduled-at"
 	jobOwnerKey             = ".metadata.controller"
+	apiGVStr                = batchv1.GroupVersion.String()
 )
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -374,7 +375,31 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *CronJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	// set up a real clock, since we're not in a test
+	if r.Clock == nil {
+		r.Clock = realClock{}
+	}
+
+	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &kbatch.Job{}, jobOwnerKey, func(rawObj client.Object) []string {
+		// grab the job object, extract the owner...
+		job := rawObj.(*kbatch.Job)
+		owner := metav1.GetControllerOf(job)
+		if owner == nil {
+			return nil
+		}
+		// ...make sure it's a CronJob...
+		if owner.APIVersion != apiGVStr || owner.Kind != "CronJob" {
+			return nil
+		}
+
+		// ...and if so, return it
+		return []string{owner.Name}
+	}); err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&batchv1.CronJob{}).
+		Owns(&kbatch.Job{}).
 		Complete(r)
 }
