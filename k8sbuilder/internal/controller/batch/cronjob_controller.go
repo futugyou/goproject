@@ -18,10 +18,12 @@ package batch
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
 	batchv1 "github.com/futugyousuzu/k8sbuilder/api/batch/v1"
+	"github.com/robfig/cron"
 	kbatch "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -212,6 +214,79 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			}
 		}
 	}
+
+	// 4: Check if we’re suspended
+	if cronJob.Spec.Suspend != nil && *cronJob.Spec.Suspend {
+		log.V(1).Info("cronjob suspended, skipping")
+		return ctrl.Result{}, nil
+	}
+
+	// 5: Get the next scheduled run
+	getNextSchedule := func(cronJob *batchv1.CronJob, now time.Time) (lastMissed time.Time, next time.Time, err error) {
+		sched, err := cron.ParseStandard(cronJob.Spec.Schedule)
+		if err != nil {
+			return time.Time{}, time.Time{}, fmt.Errorf("Unparseable schedule %q: %v", cronJob.Spec.Schedule, err)
+		}
+
+		// for optimization purposes, cheat a bit and start from our last observed run time
+		// we could reconstitute this here, but there's not much point, since we've
+		// just updated it.
+		var earliestTime time.Time
+		if cronJob.Status.LastScheduleTime != nil {
+			earliestTime = cronJob.Status.LastScheduleTime.Time
+		} else {
+			earliestTime = cronJob.ObjectMeta.CreationTimestamp.Time
+		}
+		if cronJob.Spec.StartingDeadlineSeconds != nil {
+			// controller is not going to schedule anything below this point
+			schedulingDeadline := now.Add(-time.Second * time.Duration(*cronJob.Spec.StartingDeadlineSeconds))
+
+			if schedulingDeadline.After(earliestTime) {
+				earliestTime = schedulingDeadline
+			}
+		}
+		if earliestTime.After(now) {
+			return time.Time{}, sched.Next(now), nil
+		}
+
+		starts := 0
+		for t := sched.Next(earliestTime); !t.After(now); t = sched.Next(t) {
+			lastMissed = t
+			// An object might miss several starts. For example, if
+			// controller gets wedged on Friday at 5:01pm when everyone has
+			// gone home, and someone comes in on Tuesday AM and discovers
+			// the problem and restarts the controller, then all the hourly
+			// jobs, more than 80 of them for one hourly scheduledJob, should
+			// all start running with no further intervention (if the scheduledJob
+			// allows concurrency and late starts).
+			//
+			// However, if there is a bug somewhere, or incorrect clock
+			// on controller's server or apiservers (for setting creationTimestamp)
+			// then there could be so many missed start times (it could be off
+			// by decades or more), that it would eat up all the CPU and memory
+			// of this controller. In that case, we want to not try to list
+			// all the missed start times.
+			starts++
+			if starts > 100 {
+				// We can't get the most recent times so just return an empty slice
+				return time.Time{}, time.Time{}, fmt.Errorf("Too many missed start times (> 100). Set or decrease .spec.startingDeadlineSeconds or check clock skew.")
+			}
+		}
+		return lastMissed, sched.Next(now), nil
+	}
+
+	// figure out the next times that we need to create
+	// jobs at (or anything we missed).
+	_, nextRun, err := getNextSchedule(&cronJob, r.Now())
+	if err != nil {
+		log.Error(err, "unable to figure out CronJob schedule")
+		// we don't really care about requeuing until we get an update that
+		// fixes the schedule, so don't return an error
+		return ctrl.Result{}, nil
+	}
+
+	_ = ctrl.Result{RequeueAfter: nextRun.Sub(r.Now())} // save this so we can re-use it elsewhere
+	log = log.WithValues("now", r.Now(), "next run", nextRun)
 
 	return ctrl.Result{}, nil
 }
