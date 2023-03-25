@@ -27,4 +27,8 @@ resources:
   kind: CronJob
   path: github.com/futugyousuzu/k8sbuilder/api/batch/v1
   version: v1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"
