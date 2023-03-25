@@ -2268,7 +2268,8 @@ spec:
                                             that are used by this container. \n This
                                             is an alpha field and requires enabling
                                             the DynamicResourceAllocation feature
-                                            gate. \n This field is immutable."
+                                            gate. \n This field is immutable. It can
+                                            only be set for containers."
                                           items:
                                             description: ResourceClaim references
                                               one entry in PodSpec.ResourceClaims.
@@ -2284,7 +2285,9 @@ spec:
                                             - name
                                             type: object
                                           type: array
-                                          x-kubernetes-list-type: set
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -3775,7 +3778,8 @@ spec:
                                             that are used by this container. \n This
                                             is an alpha field and requires enabling
                                             the DynamicResourceAllocation feature
-                                            gate. \n This field is immutable."
+                                            gate. \n This field is immutable. It can
+                                            only be set for containers."
                                           items:
                                             description: ResourceClaim references
                                               one entry in PodSpec.ResourceClaims.
@@ -3791,7 +3795,9 @@ spec:
                                             - name
                                             type: object
                                           type: array
-                                          x-kubernetes-list-type: set
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -5323,7 +5329,8 @@ spec:
                                             that are used by this container. \n This
                                             is an alpha field and requires enabling
                                             the DynamicResourceAllocation feature
-                                            gate. \n This field is immutable."
+                                            gate. \n This field is immutable. It can
+                                            only be set for containers."
                                           items:
                                             description: ResourceClaim references
                                               one entry in PodSpec.ResourceClaims.
@@ -5339,7 +5346,9 @@ spec:
                                             - name
                                             type: object
                                           type: array
-                                          x-kubernetes-list-type: set
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -7305,7 +7314,8 @@ spec:
                                                         and requires enabling the
                                                         DynamicResourceAllocation
                                                         feature gate. \n This field
-                                                        is immutable."
+                                                        is immutable. It can only
+                                                        be set for containers."
                                                       items:
                                                         description: ResourceClaim
                                                           references one entry in
@@ -7324,7 +7334,9 @@ spec:
                                                         - name
                                                         type: object
                                                       type: array
-                                                      x-kubernetes-list-type: set
+                                                      x-kubernetes-list-map-keys:
+                                                      - name
+                                                      x-kubernetes-list-type: map
                                                     limits:
                                                       additionalProperties:
                                                         anyOf:
