@@ -43,7 +43,7 @@ type CronJobReconciler struct {
 
 type realClock struct{}
 
-func (_ realClock) Now() time.Time { return time.Now() }
+func (realClock) Now() time.Time { return time.Now() }
 
 // clock knows how to get the current time.
 // It can be used to fake out timing for testing.
@@ -226,7 +226,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	getNextSchedule := func(cronJob *batchv1.CronJob, now time.Time) (lastMissed time.Time, next time.Time, err error) {
 		sched, err := cron.ParseStandard(cronJob.Spec.Schedule)
 		if err != nil {
-			return time.Time{}, time.Time{}, fmt.Errorf("Unparseable schedule %q: %v", cronJob.Spec.Schedule, err)
+			return time.Time{}, time.Time{}, fmt.Errorf("unparseable schedule %q: %v", cronJob.Spec.Schedule, err)
 		}
 
 		// for optimization purposes, cheat a bit and start from our last observed run time
@@ -270,7 +270,7 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			starts++
 			if starts > 100 {
 				// We can't get the most recent times so just return an empty slice
-				return time.Time{}, time.Time{}, fmt.Errorf("Too many missed start times (> 100). Set or decrease .spec.startingDeadlineSeconds or check clock skew.")
+				return time.Time{}, time.Time{}, fmt.Errorf("too many missed start times (> 100). Set or decrease .spec.startingDeadlineSeconds or check clock skew")
 			}
 		}
 		return lastMissed, sched.Next(now), nil
