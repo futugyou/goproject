@@ -58,7 +58,7 @@ type Clock interface {
 //+kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get
 
 var (
-	scheduledTimeAnnotation = "batch.tutorial.kubebuilder.io/scheduled-at"
+	scheduledTimeAnnotation = "batch.vishel.io/scheduled-at"
 	jobOwnerKey             = ".metadata.controller"
 	apiGVStr                = batchv1.GroupVersion.String()
 )
