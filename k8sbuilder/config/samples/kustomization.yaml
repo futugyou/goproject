@@ -2,4 +2,5 @@
 resources:
 - webapp_v1_guestbook.yaml
 - batch_v1_cronjob.yaml
+- batch_v2_cronjob.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples
