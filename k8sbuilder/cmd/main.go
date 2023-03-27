@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	batchv1 "github.com/futugyousuzu/k8sbuilder/api/batch/v1"
+	batchv2 "github.com/futugyousuzu/k8sbuilder/api/batch/v2"
 	webappv1 "github.com/futugyousuzu/k8sbuilder/api/webapp/v1"
 	batchcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/batch"
 	webappcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/webapp"
@@ -48,6 +49,7 @@ func init() {
 
 	utilruntime.Must(webappv1.AddToScheme(scheme))
 	utilruntime.Must(batchv1.AddToScheme(scheme))
+	utilruntime.Must(batchv2.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -109,6 +111,10 @@ func main() {
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&batchv1.CronJob{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "CronJob")
+			os.Exit(1)
+		}
+		if err = (&batchv2.CronJob{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "CronJob")
 			os.Exit(1)
 		}
