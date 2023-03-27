@@ -105,7 +105,7 @@ type CronJobStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-// +kubebuilder:storageversion
+//+kubebuilder:storageversion
 
 // CronJob is the Schema for the cronjobs API
 type CronJob struct {

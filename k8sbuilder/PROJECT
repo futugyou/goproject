@@ -4,7 +4,7 @@
 # More info: https://book.kubebuilder.io/reference/project-config.html
 domain: vishel.io
 layout:
-- go.kubebuilder.io/v4-alpha
+- go.kubebuilder.io/v4
 multigroup: true
 projectName: k8sbuilder
 repo: github.com/futugyousuzu/k8sbuilder
