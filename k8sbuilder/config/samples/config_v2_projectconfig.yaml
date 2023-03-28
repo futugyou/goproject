@@ -1,0 +1,12 @@
+apiVersion: config.vishel.io/v2
+kind: ProjectConfig
+metadata:
+  labels:
+    app.kubernetes.io/name: projectconfig
+    app.kubernetes.io/instance: projectconfig-sample
+    app.kubernetes.io/part-of: k8sbuilder
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: k8sbuilder
+  name: projectconfig-sample
+spec:
+  # TODO(user): Add fields here

@@ -2,9 +2,10 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
+componentConfig: true
 domain: vishel.io
 layout:
-- go.kubebuilder.io/v4
+- go.kubebuilder.io/v4-alpha
 multigroup: true
 projectName: k8sbuilder
 repo: github.com/futugyousuzu/k8sbuilder
@@ -45,4 +46,12 @@ resources:
     defaulting: true
     validation: true
     webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: vishel.io
+  group: config
+  kind: ProjectConfig
+  path: github.com/futugyousuzu/k8sbuilder/api/config/v2
+  version: v2
 version: "3"

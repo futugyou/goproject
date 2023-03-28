@@ -34,6 +34,7 @@ import (
 
 	batchv1 "github.com/futugyousuzu/k8sbuilder/api/batch/v1"
 	batchv2 "github.com/futugyousuzu/k8sbuilder/api/batch/v2"
+	configv2 "github.com/futugyousuzu/k8sbuilder/api/config/v2"
 	webappv1 "github.com/futugyousuzu/k8sbuilder/api/webapp/v1"
 	batchcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/batch"
 	webappcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/webapp"
@@ -52,6 +53,7 @@ func init() {
 	utilruntime.Must(webappv1.AddToScheme(scheme))
 	utilruntime.Must(batchv1.AddToScheme(scheme))
 	utilruntime.Must(batchv2.AddToScheme(scheme))
+	utilruntime.Must(configv2.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -79,6 +81,7 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	var err error
+	ctrlConfig := configv2.ProjectConfig{}
 	options := ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
@@ -100,7 +103,7 @@ func main() {
 	}
 
 	if configFile != "" {
-		options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile))
+		options, err = options.AndFrom(ctrl.ConfigFile().AtPath(configFile).OfKind(&ctrlConfig))
 		if err != nil {
 			setupLog.Error(err, "unable to load the config file")
 			os.Exit(1)
