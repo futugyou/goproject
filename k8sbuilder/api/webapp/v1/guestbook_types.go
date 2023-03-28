@@ -57,7 +57,9 @@ type GuestbookStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster
-
+// +kubebuilder:printcolumn:name="size",type=integer,JSONPath=`.spec.size`,description="Quantity of instances"
+// +kubebuilder:printcolumn:name="configMapName",type=string,JSONPath=`.spec.configMapName`,description="Name of the ConfigMap for GuestbookSpec's configuration"
+// +kubebuilder:printcolumn:name="alias",type=string,JSONPath=`.spec.alias`
 // Guestbook is the Schema for the guestbooks API
 type Guestbook struct {
 	metav1.TypeMeta   `json:",inline"`

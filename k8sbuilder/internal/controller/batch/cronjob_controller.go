@@ -31,6 +31,7 @@ import (
 	ref "k8s.io/client-go/tools/reference"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -85,6 +86,42 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// 1.1: using finalizers
+	// name of our custom finalizer
+	myFinalizerName := "batch.vishel.io/finalizer"
+
+	// examine DeletionTimestamp to determine if object is under deletion
+	if cronJob.ObjectMeta.DeletionTimestamp.IsZero() {
+		// The object is not being deleted, so if it does not have our finalizer,
+		// then lets add the finalizer and update the object. This is equivalent
+		// registering our finalizer.
+		if !controllerutil.ContainsFinalizer(&cronJob, myFinalizerName) {
+			controllerutil.AddFinalizer(&cronJob, myFinalizerName)
+			if err := r.Update(ctx, &cronJob); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+	} else {
+		// The object is being deleted
+		if controllerutil.ContainsFinalizer(&cronJob, myFinalizerName) {
+			// our finalizer is present, so lets handle any external dependency
+			if err := r.deleteExternalResources(&cronJob); err != nil {
+				// if fail to delete the external dependency here, return with error
+				// so that it can be retried
+				return ctrl.Result{}, err
+			}
+
+			// remove our finalizer from the list and update it.
+			controllerutil.RemoveFinalizer(&cronJob, myFinalizerName)
+			if err := r.Update(ctx, &cronJob); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+
+		// Stop reconciliation as the item is being deleted
+		return ctrl.Result{}, nil
 	}
 
 	// 2: List all active jobs, and update the status
@@ -371,6 +408,15 @@ func (r *CronJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	// we'll requeue once we see the running job, and update our status
 	return scheduledResult, nil
+}
+
+func (r *CronJobReconciler) deleteExternalResources(cronJob *batchv1.CronJob) error {
+	//
+	// delete any external resources associated with the cronJob
+	//
+	// Ensure that delete implementation is idempotent and safe to invoke
+	// multiple times for same object.
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
