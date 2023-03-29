@@ -22,6 +22,8 @@ kubebuilder create api --group webapp --kind Welcome --version v1
 
 kubebuilder create api --group apps --kind SimpleDeployment --version v1
 
+kubebuilder create api --group apps --kind ConfigDeployment --version v1
+
 make docker-build IMG=cronjobs:latest
 // minikube
 minikube image load cronjobs

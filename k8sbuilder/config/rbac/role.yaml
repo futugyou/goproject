@@ -11,11 +11,44 @@ rules:
   - deployments
   verbs:
   - create
+  - delete
   - get
   - list
   - patch
   - update
   - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments/status
+  verbs:
+  - get
+- apiGroups:
+  - apps.vishel.io
+  resources:
+  - configdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.vishel.io
+  resources:
+  - configdeployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - apps.vishel.io
+  resources:
+  - configdeployments/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - apps.vishel.io
   resources:

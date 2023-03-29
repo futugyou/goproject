@@ -6,4 +6,5 @@ resources:
 - config_v2_projectconfig.yaml
 - webapp_v1_welcome.yaml
 - apps_v1_simpledeployment.yaml
+- apps_v1_configdeployment.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples
