@@ -32,10 +32,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	appsv1 "github.com/futugyousuzu/k8sbuilder/api/apps/v1"
 	batchv1 "github.com/futugyousuzu/k8sbuilder/api/batch/v1"
 	batchv2 "github.com/futugyousuzu/k8sbuilder/api/batch/v2"
 	configv2 "github.com/futugyousuzu/k8sbuilder/api/config/v2"
 	webappv1 "github.com/futugyousuzu/k8sbuilder/api/webapp/v1"
+	appscontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/apps"
 	batchcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/batch"
 	webappcontroller "github.com/futugyousuzu/k8sbuilder/internal/controller/webapp"
 	//+kubebuilder:scaffold:imports
@@ -54,6 +56,7 @@ func init() {
 	utilruntime.Must(batchv1.AddToScheme(scheme))
 	utilruntime.Must(batchv2.AddToScheme(scheme))
 	utilruntime.Must(configv2.AddToScheme(scheme))
+	utilruntime.Must(appsv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -146,6 +149,13 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Welcome")
+		os.Exit(1)
+	}
+	if err = (&appscontroller.SimpleDeploymentReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "SimpleDeployment")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

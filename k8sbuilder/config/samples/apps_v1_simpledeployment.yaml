@@ -1,0 +1,12 @@
+apiVersion: apps.vishel.io/v1
+kind: SimpleDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: simpledeployment
+    app.kubernetes.io/instance: simpledeployment-sample
+    app.kubernetes.io/part-of: k8sbuilder
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: k8sbuilder
+  name: simpledeployment-sample
+spec:
+  # TODO(user): Add fields here

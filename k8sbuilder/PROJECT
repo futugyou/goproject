@@ -63,4 +63,13 @@ resources:
   kind: Welcome
   path: github.com/futugyousuzu/k8sbuilder/api/webapp/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: vishel.io
+  group: apps
+  kind: SimpleDeployment
+  path: github.com/futugyousuzu/k8sbuilder/api/apps/v1
+  version: v1
 version: "3"
