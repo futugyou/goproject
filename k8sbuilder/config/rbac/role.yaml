@@ -6,6 +6,17 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - batch
   resources:
   - jobs
@@ -50,6 +61,17 @@ rules:
   - patch
   - update
 - apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - webapp.vishel.io
   resources:
   - guestbooks
@@ -71,6 +93,32 @@ rules:
   - webapp.vishel.io
   resources:
   - guestbooks/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - webapp.vishel.io
+  resources:
+  - welcomes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - webapp.vishel.io
+  resources:
+  - welcomes/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - webapp.vishel.io
+  resources:
+  - welcomes/status
   verbs:
   - get
   - patch

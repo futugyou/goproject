@@ -1,5 +1,73 @@
-# k8sbuilder
-// TODO(user): Add simple overview of use/purpose
+# [k8sbuilder](https://go.kubebuilder.io/introduction.html)
+```
+curl -L -o kubebuilder https://go.kubebuilder.io/dl/latest/$(go env GOOS)/$(go env GOARCH)
+chmod +x kubebuilder && sudo mv kubebuilder /usr/local/bin/
+
+mkdir demo
+cd demo
+go mod init github.com/futugyousuzu/k8sbuilder
+kubebuilder init --domain vishel.io --repo github.com/futugyousuzu/k8sbuilder --component-config
+kubebuilder edit --multigroup=true
+
+kubebuilder create api --group webapp --kind Guestbook --version v1
+
+kubebuilder create api --group batch  --kind CronJob --version v1
+kubebuilder create api --group batch  --kind CronJob --version v2 
+kubebuilder create webhook --group batch --version v1 --kind CronJob --defaulting --programmatic-validation 
+kubebuilder create webhook --group batch --version v2 --kind CronJob --conversion
+
+kubebuilder create api --group config --version v2 --kind ProjectConfig --resource=true --controller=false --make=false
+
+kubebuilder create api --group webapp --kind Welcome --version v1
+
+make docker-build IMG=cronjobs:latest
+// minikube
+minikube image load cronjobs
+minikube image ls --format table
+make deploy IMG=cronjobs
+
+kubectl apply -f config/samples/batch_v1_cronjob.yaml
+kubectl apply -f config/samples/batch_v2_cronjob.yaml
+kubectl get cronjob.batch.vishel.io -o yaml
+kubectl get job
+```
+
+update DeepCopy, DeepCopyInto, and DeepCopyObject
+```
+make generate
+```
+
+after etid CRDs
+```
+make manifests
+```
+
+Install the CRDs into the cluster: 
+```
+make install
+make install deploy
+```
+
+Install Instances of CR:
+```
+kubectl apply -f config/crd/patches/  ??
+kubectl apply -f config/samples
+```
+
+Check:
+```
+kubectl get crd
+kubectl get welcome
+```
+
+Run your controller:
+```
+make run
+make run ENABLE_WEBHOOKS=false
+
+make uninstall
+make undeploy
+```
 
 ## Description
 // TODO(user): An in-depth paragraph about your project and overview of use

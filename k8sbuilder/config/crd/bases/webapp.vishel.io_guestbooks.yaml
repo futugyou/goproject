@@ -15,7 +15,19 @@ spec:
     singular: guestbook
   scope: Cluster
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - description: Quantity of instances
+      jsonPath: .spec.size
+      name: size
+      type: integer
+    - description: Name of the ConfigMap for GuestbookSpec's configuration
+      jsonPath: .spec.configMapName
+      name: configMapName
+      type: string
+    - jsonPath: .spec.alias
+      name: alias
+      type: string
+    name: v1
     schema:
       openAPIV3Schema:
         properties:
