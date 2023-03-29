@@ -5,6 +5,7 @@ resources:
 - bases/webapp.vishel.io_guestbooks.yaml
 - bases/batch.vishel.io_cronjobs.yaml
 - bases/config.vishel.io_projectconfigs.yaml
+- bases/webapp.vishel.io_welcomes.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
@@ -13,6 +14,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_guestbooks.yaml
 - patches/webhook_in_batch_cronjobs.yaml
 #- patches/webhook_in_projectconfigs.yaml
+#- patches/webhook_in_welcomes.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.
@@ -20,6 +22,7 @@ patchesStrategicMerge:
 #- patches/cainjection_in_guestbooks.yaml
 - patches/cainjection_in_batch_cronjobs.yaml
 #- patches/cainjection_in_projectconfigs.yaml
+#- patches/cainjection_in_welcomes.yaml
 #+kubebuilder:scaffold:crdkustomizecainjectionpatch
 
 # the following config is for teaching kustomize how to do kustomization for CRDs.
