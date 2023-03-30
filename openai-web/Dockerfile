@@ -1,12 +1,19 @@
 FROM golang:1.20.0 AS build
+ARG TARGETOS
+ARG TARGETARCH
+
 WORKDIR /app
 COPY ./openai ./openai
 COPY ./openai-tokenizer ./openai-tokenizer
-COPY ./openai-web   ./openai-web
-RUN cd ./openai-web && go mod tidy
-RUN cd ./openai-web && go build -o /openai
+COPY ./openai-web/go.mod ./openai-web/go.mod
+COPY ./openai-web/go.sum ./openai-web/go.sum
+RUN cd ./openai-web && go mod download
 
-FROM gcr.io/distroless/base-debian11
+
+COPY ./openai-web   ./openai-web
+RUN cd ./openai-web && CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o /openai ./main.go
+
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=build /openai /openai
 COPY ./openai-web/conf/app.conf conf/app.conf
