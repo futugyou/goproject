@@ -2,10 +2,11 @@ package services
 
 import (
 	"encoding/json"
-
-	lib "github.com/futugyousuzu/go-openai"
+	"fmt"
 
 	"github.com/beego/beego/v2/core/config"
+	"github.com/beego/beego/v2/core/logs"
+	lib "github.com/futugyousuzu/go-openai"
 )
 
 type ModelListResponse struct {
@@ -22,12 +23,13 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 	result := make([]ModelListResponse, 0)
 	rmap, _ := Rbd.HGetAll(ctx, GetAllModelsKey).Result()
 
-	if rmap != nil {
+	if len(rmap) > 0 {
 		for _, r := range rmap {
 			m := lib.Model{}
 			json.Unmarshal([]byte(r), &m)
 			result = append(result, ModelListResponse{Name: m.ID})
 		}
+
 		return result
 	}
 
@@ -38,10 +40,22 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 	if len(models.Datas) > 0 {
 		for _, model := range models.Datas {
 			result = append(result, ModelListResponse{Name: model.ID})
-			rset[model.ID] = model
+			modelstring, _ := json.Marshal(model)
+			rset[model.ID] = string(modelstring)
 		}
 	}
 
-	Rbd.HSet(ctx, GetAllModelsKey, rset)
+	count, err := Rbd.HSet(ctx, GetAllModelsKey, rset).Result()
+	if err != nil {
+		logs.Error(err)
+	} else {
+		logs.Info(fmt.Sprintf("data count: %d", count))
+	}
+
 	return result
+}
+
+type MyHash struct {
+	Key1 string `redis:"key1"`
+	Key2 int    `redis:"key2"`
 }
