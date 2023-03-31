@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "github.com/futugyousuzu/go-openai-web/routers"
+	_ "github.com/futugyousuzu/go-openai-web/services"
 	_ "github.com/futugyousuzu/openai-tokenizer"
 
 	"github.com/beego/beego/v2/server/web"

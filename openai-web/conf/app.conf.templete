@@ -8,3 +8,6 @@ sqlconn =
 openaikey=""
 AutoRender=false
 CopyRequestBody=true
+redisAddress=localhost:6379
+redisPassword=
+redisDB=0
