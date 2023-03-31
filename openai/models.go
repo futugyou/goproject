@@ -10,15 +10,15 @@ const retrieveModelPath string = "models/%s"
 type ListModelResponse struct {
 	Error  *OpenaiError `json:"error,omitempty"`
 	Object string       `json:"object,omitempty"`
-	Datas  []model      `json:"data,omitempty"`
+	Datas  []Model      `json:"data,omitempty"`
 }
 
 type ModelResponse struct {
 	Error *OpenaiError `json:"error,omitempty"`
-	model
+	Model
 }
 
-type model struct {
+type Model struct {
 	Error      *OpenaiError `json:"error,omitempty"`
 	ID         string       `json:"id"`
 	Object     string       `json:"object"`
