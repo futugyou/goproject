@@ -117,9 +117,7 @@ func init() {
             Method: "CreateQAndA",
             Router: `/`,
             AllowHTTPMethods: []string{"post"},
-            MethodParams: param.Make(
-				param.New("request"),
-			),
+            MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 

@@ -7,6 +7,9 @@ import (
 
 	"github.com/beego/beego/v2/core/validation"
 	"github.com/beego/beego/v2/server/web"
+
+	"github.com/devfeel/mapper"
+	"github.com/futugyousuzu/go-openai-web/services"
 )
 
 // Operations about q&a
@@ -19,7 +22,7 @@ type QuestionController struct {
 // @Param	body		body 	models.QuestionAnswer	true		"body for create q&a content"
 // @Success 200 {test} 	string
 // @router / [post]
-func (c *QuestionController) CreateQAndA(request models.QuestionAnswer) {
+func (c *QuestionController) CreateQAndA() {
 	var r models.QuestionAnswer
 	json.Unmarshal(c.Ctx.Input.RequestBody, &r)
 
@@ -38,5 +41,9 @@ func (c *QuestionController) CreateQAndA(request models.QuestionAnswer) {
 		}
 	}
 
-	c.Ctx.WriteString("ok")
+	completionService := services.CompletionService{}
+	re := services.CreateCompletionRequest{}
+	mapper.AutoMapper(&r, &re)
+	result := completionService.CreateCompletion(re)
+	c.Ctx.JSONResp(result)
 }

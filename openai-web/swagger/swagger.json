@@ -197,13 +197,6 @@
                         "schema": {
                             "$ref": "#/definitions/models.QuestionAnswer"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "request",
-                        "schema": {
-                            "$ref": "#/definitions/models.QuestionAnswer"
-                        }
                     }
                 ],
                 "responses": {
