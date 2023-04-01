@@ -126,12 +126,12 @@ func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 		var apiError *OpenaiError
 		if jsonError := json.Unmarshal(all, apiError); jsonError != nil {
 			// raw error message
-			return systemError(err.Error())
+			return systemError(string(all))
 		}
 
 		if apiError == nil || len(apiError.ErrorMessage) == 0 {
 			// raw error message
-			return systemError(err.Error())
+			return systemError(string(all))
 		}
 
 		return apiError
