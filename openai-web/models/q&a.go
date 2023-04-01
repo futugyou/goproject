@@ -5,6 +5,7 @@ import (
 )
 
 type QuestionAnswer struct {
+	Model            string   `json:"model"`
 	Prompt           string   `json:"prompt"`
 	MaxTokens        int32    `json:"max_tokens"`
 	Temperature      float32  `json:"temperature" valid:"ValidateTemperature"`
