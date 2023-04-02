@@ -25,7 +25,6 @@ type QuestionController struct {
 func (c *QuestionController) CreateQAndA() {
 	var r models.QuestionAnswer
 	json.Unmarshal(c.Ctx.Input.RequestBody, &r)
-
 	valid := validation.Validation{}
 	b, err := valid.Valid(&r)
 
@@ -42,8 +41,13 @@ func (c *QuestionController) CreateQAndA() {
 	}
 
 	completionService := services.CompletionService{}
-	re := services.CreateCompletionRequest{}
-	mapper.AutoMapper(&r, &re)
+	co := services.CompletionModel{}
+	mapper.AutoMapper(&r, &co)
+
+	re := services.CreateCompletionRequest{
+		CompletionModel: co,
+	}
+
 	result := completionService.CreateCompletion(re)
 	c.Ctx.JSONResp(result)
 }
