@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	openai "github.com/futugyousuzu/go-openai"
 
@@ -30,12 +31,48 @@ type CreateCompletionRequest struct {
 	CompletionModel
 }
 
-func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) *openai.CreateCompletionResponse {
+type CreateCompletionResponse struct {
+	ErrorMessage     string   `json:"error,omitempty"`
+	Created          string   `json:"created,omitempty"`
+	PromptTokens     int32    `json:"prompt_tokens,omitempty"`
+	CompletionTokens int32    `json:"completion_tokens,omitempty"`
+	TotalTokens      int32    `json:"total_tokens,omitempty"`
+	Texts            []string `json:"texts,omitempty"`
+}
+
+func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) CreateCompletionResponse {
 	openaikey, _ := config.String("openaikey")
 	client := openai.NewClient(openaikey)
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
-	result := client.CreateCompletion(req)
+	apiresult := client.CreateCompletion(req)
+
+	result := CreateCompletionResponse{}
+	if apiresult != nil {
+		if apiresult.Error != nil {
+			result.ErrorMessage = apiresult.Error.Error()
+		}
+
+		if apiresult.Created != 0 {
+			result.Created = time.Unix((int64)(apiresult.Created), 0).Format(time.DateTime)
+		}
+
+		if apiresult.Usage != nil {
+			result.TotalTokens = apiresult.Usage.TotalTokens
+			result.CompletionTokens = apiresult.Usage.CompletionTokens
+			result.PromptTokens = apiresult.Usage.PromptTokens
+		}
+
+		if apiresult.Choices != nil {
+			texts := make([]string, 0)
+			for i := 0; i < len(apiresult.Choices); i++ {
+				texts = append(texts, apiresult.Choices[i].Text)
+			}
+
+			result.Texts = texts
+		}
+	}
+
 	return result
 }
 
