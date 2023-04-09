@@ -12,12 +12,10 @@ type ExampleController struct {
 }
 
 // @Title get examples
-// @Param exampleName path string true "example name"
-// @Success 200 {object} 	services.CompletionModel
-// @router /:exampleName [get]
+// @Success 200 {object} 	services.ExampleModel
+// @router / [get]
 func (c *ExampleController) ExampleDetail() {
-	exampleName := c.Ctx.Input.Param(":exampleName")
 	chatService := services.ExampleService{}
-	result := chatService.GetExampleSettings(exampleName)
+	result := chatService.GetExampleSettings()
 	c.Ctx.JSONResp(result)
 }

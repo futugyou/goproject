@@ -2,11 +2,13 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
-type ExampleDetailModel struct {
+type ExampleModel struct {
+	Key              string   `json:"key,omitempty"`
+	Title            string   `json:"title,omitempty"`
+	SubTitle         string   `json:"subTitle,omitempty"`
 	Model            string   `json:"model,omitempty"`
 	Prompt           string   `json:"prompt,omitempty"`
 	Temperature      float32  `json:"temperature,omitempty"`
@@ -15,18 +17,18 @@ type ExampleDetailModel struct {
 	FrequencyPenalty float32  `json:"frequency_penalty,omitempty"`
 	PresencePenalty  float32  `json:"presence_penalty,omitempty"`
 	Stop             []string `json:"stop,omitempty"`
+	Tags             []string `json:"tags,omitempty"`
+	Description      string   `json:"description,omitempty"`
+	SampleResponse   string   `json:"sample_response,omitempty"`
 }
 
 type ExampleService struct {
 }
 
-func (s *ExampleService) GetExampleSettings(settingName string) ExampleDetailModel {
-	if len(settingName) == 0 {
-		settingName = "default"
-	}
+func (s *ExampleService) GetExampleSettings() []ExampleModel {
 
-	result := ExampleDetailModel{}
-	if settings, err := os.ReadFile(fmt.Sprintf("./examples/%s.json", settingName)); err == nil {
+	result := make([]ExampleModel, 0)
+	if settings, err := os.ReadFile("./examples/examples.json"); err == nil {
 		json.Unmarshal(settings, &result)
 	}
 
