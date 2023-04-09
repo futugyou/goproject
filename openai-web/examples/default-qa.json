@@ -8,5 +8,12 @@
     "presence_penalty": 0.0,
     "stop": [
         "\n"
-    ]
+    ],
+    "tags": [
+        "Answers",
+        "Generation",
+        "Conversation"
+    ],
+    "description": "Answer questions based on existing knowledge.",
+    "sample_response": "The Valley of Kings is located in Luxor, Egypt."
 }

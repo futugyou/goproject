@@ -1,0 +1,15 @@
+{
+    "model": "text-davinci-003",
+    "prompt": "Correct this to standard English:\n\nShe no went to the market.",
+    "temperature": 0,
+    "max_tokens": 60,
+    "top_p": 1.0,
+    "frequency_penalty": 0.0,
+    "presence_penalty": 0.0,
+    "tags": [
+        "Transformation",
+        "Generation"
+    ],
+    "description": "Corrects sentences into standard English.",
+    "sample_response": "She did not go to the market."
+}

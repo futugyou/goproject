@@ -1,9 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
 	"time"
 
 	openai "github.com/futugyousuzu/go-openai"
@@ -71,15 +68,6 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) Cr
 
 			result.Texts = texts
 		}
-	}
-
-	return result
-}
-
-func (s *CompletionService) GetExampleSettings(settingName string) CompletionModel {
-	result := CompletionModel{}
-	if settings, err := os.ReadFile(fmt.Sprintf("./examples/%s.json", settingName)); err == nil {
-		json.Unmarshal(settings, &result)
 	}
 
 	return result

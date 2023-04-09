@@ -64,7 +64,7 @@ func (c *httpClient) Delete(path string, response interface{}) *OpenaiError {
 }
 
 func (c *httpClient) doRequest(path, method string, request, response interface{}) *OpenaiError {
-	path = c.baseurl + path
+	path = c.createSubpath(path)
 	var body io.Reader
 
 	if request != nil {
@@ -141,7 +141,7 @@ func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 }
 
 func (c *httpClient) PostWithFile(path string, request, response interface{}) *OpenaiError {
-	path = c.baseurl + path
+	path = c.createSubpath(path)
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -215,7 +215,7 @@ func (c *httpClient) GetStream(path string) (*StreamResponse, *OpenaiError) {
 }
 
 func (c *httpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
-	path = c.baseurl + path
+	path = c.createSubpath(path)
 	var body io.Reader
 
 	if request != nil {
@@ -250,4 +250,8 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) (
 	}
 
 	return streamResponse, nil
+}
+
+func (c *httpClient) createSubpath(path string) string {
+	return c.baseurl + path
 }
