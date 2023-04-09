@@ -72,3 +72,62 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) Cr
 
 	return result
 }
+
+func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest) <-chan CreateCompletionResponse {
+	openaikey, _ := config.String("openaikey")
+	client := openai.NewClient(openaikey)
+	req := openai.CreateCompletionRequest{}
+	mapper.AutoMapper(&request.CompletionModel, &req)
+	stream, err := client.CreateStreamCompletion(req)
+	result := make(chan CreateCompletionResponse)
+
+	if err != nil {
+		go func() {
+			defer close(result)
+			result <- CreateCompletionResponse{ErrorMessage: err.Error()}
+		}()
+
+		return result
+	}
+
+	defer stream.Close()
+
+	go func() {
+		defer close(result)
+		for {
+			if !stream.CanReadStream() {
+				break
+			}
+
+			response := &openai.CreateCompletionResponse{}
+			ch := CreateCompletionResponse{}
+
+			if err = stream.ReadStream(response); err != nil {
+				ch.ErrorMessage = err.Error()
+			} else {
+				if response.Created != 0 {
+					ch.Created = time.Unix((int64)(response.Created), 0).Format(time.DateTime)
+				}
+
+				if response.Usage != nil {
+					ch.TotalTokens = response.Usage.TotalTokens
+					ch.CompletionTokens = response.Usage.CompletionTokens
+					ch.PromptTokens = response.Usage.PromptTokens
+				}
+
+				if response.Choices != nil {
+					texts := make([]string, 0)
+					for i := 0; i < len(response.Choices); i++ {
+						texts = append(texts, response.Choices[i].Text)
+					}
+
+					ch.Texts = texts
+				}
+			}
+
+			result <- ch
+		}
+	}()
+
+	return result
+}
