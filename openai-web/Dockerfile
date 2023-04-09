@@ -18,6 +18,7 @@ WORKDIR /
 COPY --from=build /openai /openai
 COPY ./openai-web/conf/app.conf conf/app.conf
 COPY ./openai-web/examples examples
+COPY ./openai-web/swagger swagger
 EXPOSE 8080
 USER nonroot:nonroot
 ENTRYPOINT ["/openai"]

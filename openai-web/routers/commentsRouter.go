@@ -40,10 +40,10 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"],
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"],
         beego.ControllerComments{
-            Method: "Setting",
-            Router: `/:settingName`,
+            Method: "ExampleDetail",
+            Router: `/`,
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,

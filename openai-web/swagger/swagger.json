@@ -113,26 +113,17 @@
                 }
             }
         },
-        "/completion/{settingName}": {
+        "/examples/": {
             "get": {
                 "tags": [
-                    "completion"
+                    "examples"
                 ],
-                "operationId": "CompletionController.get settings",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "settingName",
-                        "description": "setting name",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
+                "operationId": "ExampleController.get examples",
                 "responses": {
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/services.CompletionModel"
+                            "$ref": "#/definitions/services.ExampleModel"
                         }
                     }
                 }
@@ -217,6 +208,10 @@
         }
     },
     "definitions": {
+        "github.com/futugyousuzu/go-openai-web/services.Object": {
+            "title": "Object",
+            "type": "object"
+        },
         "lib.CreateAudioTranscriptionRequest": {
             "title": "CreateAudioTranscriptionRequest",
             "type": "object"
@@ -272,6 +267,9 @@
                     "type": "integer",
                     "format": "int32"
                 },
+                "model": {
+                    "type": "string"
+                },
                 "presence_penalty": {
                     "type": "number",
                     "format": "float"
@@ -302,17 +300,19 @@
             "title": "User",
             "type": "object"
         },
-        "services.CompletionModel": {
-            "title": "CompletionModel",
+        "services.ExampleModel": {
+            "title": "ExampleModel",
             "type": "object",
             "properties": {
-                "best_of": {
-                    "type": "integer",
-                    "format": "int64"
+                "description": {
+                    "type": "string"
                 },
                 "frequency_penalty": {
                     "type": "number",
                     "format": "float"
+                },
+                "key": {
+                    "type": "string"
                 },
                 "max_tokens": {
                     "type": "integer",
@@ -328,19 +328,34 @@
                 "prompt": {
                     "type": "string"
                 },
+                "sample_response": {
+                    "type": "string"
+                },
                 "stop": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
+                "subTitle": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "temperature": {
-                    "type": "integer",
-                    "format": "int32"
+                    "type": "number",
+                    "format": "float"
+                },
+                "title": {
+                    "type": "string"
                 },
                 "top_p": {
-                    "type": "integer",
-                    "format": "int32"
+                    "type": "number",
+                    "format": "float"
                 }
             }
         }
@@ -371,8 +386,8 @@
             "description": "Operations about test\n"
         },
         {
-            "name": "completion",
-            "description": "Operations about Completion\n"
+            "name": "examples",
+            "description": "Operations about Examples\n"
         }
     ]
 }
