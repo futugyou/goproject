@@ -147,9 +147,6 @@ paths:
         <br>
       operationId: TestController.test openai lib
 definitions:
-  github.com/futugyousuzu/go-openai-web/services.Object:
-    title: Object
-    type: object
   lib.CreateAudioTranscriptionRequest:
     title: CreateAudioTranscriptionRequest
     type: object
@@ -277,3 +274,6 @@ tags:
 - name: examples
   description: |
     Operations about Examples
+- name: completions
+  description: |
+    Operations about completion

@@ -40,6 +40,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ChatController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ChatController"],
+        beego.ControllerComments{
+            Method: "CreateCompletionWithSSE",
+            Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"],
         beego.ControllerComments{
             Method: "ExampleDetail",

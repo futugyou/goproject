@@ -208,10 +208,6 @@
         }
     },
     "definitions": {
-        "github.com/futugyousuzu/go-openai-web/services.Object": {
-            "title": "Object",
-            "type": "object"
-        },
         "lib.CreateAudioTranscriptionRequest": {
             "title": "CreateAudioTranscriptionRequest",
             "type": "object"
@@ -388,6 +384,10 @@
         {
             "name": "examples",
             "description": "Operations about Examples\n"
+        },
+        {
+            "name": "completions",
+            "description": "Operations about completion\n"
         }
     ]
 }

@@ -39,6 +39,10 @@ func init() {
 			beego.NSInclude(
 				&controllers.ExampleController{}),
 		),
+		beego.NSNamespace("/completions",
+			beego.NSInclude(
+				&controllers.CompletionController{}),
+		),
 	)
 	beego.AddNamespace(ns)
 }
