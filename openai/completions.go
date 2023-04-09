@@ -71,7 +71,7 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 //				result = append(result, response)
 //			}
 //		}
-func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, error) {
+func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, *OpenaiError) {
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  true,

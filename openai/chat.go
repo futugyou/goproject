@@ -147,7 +147,7 @@ func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
 //				result = append(result, response)
 //			}
 //		}
-func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) (*StreamResponse, error) {
+func (c *openaiClient) CreateChatStreamCompletion(request CreateChatCompletionRequest) (*StreamResponse, *OpenaiError) {
 	err := validateChatModel(request.Model)
 	if err != nil {
 		return nil, err

@@ -17,7 +17,7 @@ type StreamResponse struct {
 	StreamEnd bool
 }
 
-func (c *StreamResponse) ReadStream(response interface{}) (e error) {
+func (c *StreamResponse) ReadStream(response interface{}) (e *OpenaiError) {
 	reader := c.Reader
 	if reader == nil {
 		c.StreamEnd = true
