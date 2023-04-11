@@ -61,16 +61,12 @@ paths:
       description: |-
         create chat
         <br>
-      operationId: ChatController.CreateChat
+      operationId: ChatController.Create Completion With SSE
       parameters:
       - in: body
         name: body
-        description: body for create chat content
+        description: body for create completion content
         required: true
-        schema:
-          $ref: '#/definitions/lib.CreateChatCompletionRequest'
-      - in: query
-        name: request
         schema:
           $ref: '#/definitions/lib.CreateChatCompletionRequest'
       responses:
@@ -78,6 +74,24 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/lib.CreateChatCompletionResponse'
+  /edits/:
+    post:
+      tags:
+      - edits
+      description: |-
+        create edit
+        <br>
+      operationId: EditController.Create edit
+      parameters:
+      - in: body
+        name: body
+        description: body for create edit content
+        required: true
+        schema:
+          $ref: '#/definitions/services.CreateEditsRequest'
+      responses:
+        "200":
+          description: "{test} \tstring"
   /examples/:
     get:
       tags:
@@ -211,6 +225,25 @@ definitions:
   models.User:
     title: User
     type: object
+  services.CreateEditsRequest:
+    title: CreateEditsRequest
+    type: object
+    properties:
+      input:
+        type: string
+      instruction:
+        type: string
+      model:
+        type: string
+      "n":
+        type: integer
+        format: int32
+      temperature:
+        type: number
+        format: float
+      top_p:
+        type: number
+        format: float
   services.ExampleModel:
     title: ExampleModel
     type: object
@@ -277,3 +310,6 @@ tags:
 - name: completions
   description: |
     Operations about completion
+- name: edits
+  description: |
+    Operations about edit

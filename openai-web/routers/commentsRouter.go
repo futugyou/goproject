@@ -49,6 +49,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:EditController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:EditController"],
+        beego.ControllerComments{
+            Method: "CreateEdit",
+            Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"],
         beego.ControllerComments{
             Method: "ExampleDetail",

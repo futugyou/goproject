@@ -43,6 +43,10 @@ func init() {
 			beego.NSInclude(
 				&controllers.CompletionController{}),
 		),
+		beego.NSNamespace("/edits",
+			beego.NSInclude(
+				&controllers.EditController{}),
+		),
 	)
 	beego.AddNamespace(ns)
 }
