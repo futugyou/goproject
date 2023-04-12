@@ -90,10 +90,10 @@ func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest)
 		return result
 	}
 
-	defer stream.Close()
-
 	go func() {
 		defer close(result)
+		defer stream.Close()
+
 		for {
 			if !stream.CanReadStream() {
 				break
