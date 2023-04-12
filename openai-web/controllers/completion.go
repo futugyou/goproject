@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/futugyousuzu/go-openai-web/services"
 
@@ -24,13 +26,20 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 	json.Unmarshal(c.Ctx.Input.RequestBody, &completion)
 	result := completionService.CreateCompletionSSE(completion)
 
+	var rw = c.Ctx.ResponseWriter
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	rw.Header().Set(`Content-Type`, `text/event-stream;charset-utf-8`)
+	rw.Header().Set("Cache-Control", "no-cache")
+	rw.Header().Set("Connection", "keep-alive")
+
 	for response := range result {
-		var rw = c.Ctx.ResponseWriter
-		rw.Header().Set("Access-Control-Allow-Origin", "*")
-		rw.Header().Set(`Content-Type`, `text/event-stream;charset-utf-8`)
-		rw.Header().Set("Cache-Control", "no-cache")
-		data, _ := json.Marshal(&response)
-		rw.Write(data)
+		message := strings.Join(response.Texts, ",")
+		if len(message) == 0 {
+			continue
+		}
+
+		data := fmt.Sprintf("data: %s\n\n", message)
+		rw.Write([]byte(data))
 		rw.Flush()
 	}
 }
