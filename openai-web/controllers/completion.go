@@ -18,7 +18,7 @@ type CompletionController struct {
 // @Param	body		body 	lib.CreateChatCompletionRequest	true		"body for create completion content"
 // @Success 200 {object} 	lib.CreateChatCompletionResponse
 // @router / [post]
-func (c *ChatController) CreateCompletionWithSSE() {
+func (c *CompletionController) CreateCompletionWithSSE() {
 	completionService := services.CompletionService{}
 	var completion services.CreateCompletionRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &completion)

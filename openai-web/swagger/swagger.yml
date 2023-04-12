@@ -61,7 +61,31 @@ paths:
       description: |-
         create chat
         <br>
-      operationId: ChatController.Create Completion With SSE
+      operationId: ChatController.CreateChat
+      parameters:
+      - in: body
+        name: body
+        description: body for create chat content
+        required: true
+        schema:
+          $ref: '#/definitions/lib.CreateChatCompletionRequest'
+      - in: query
+        name: request
+        schema:
+          $ref: '#/definitions/lib.CreateChatCompletionRequest'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/lib.CreateChatCompletionResponse'
+  /completions/:
+    post:
+      tags:
+      - completions
+      description: |-
+        create chat
+        <br>
+      operationId: CompletionController.Create Completion With SSE
       parameters:
       - in: body
         name: body
