@@ -42,4 +42,6 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 		rw.Write([]byte(data))
 		rw.Flush()
 	}
+	rw.Write([]byte("data: [DONE]\n\n"))
+	rw.Flush()
 }
