@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"fmt"  
+	"net/url"
 	"strings"
 
 	"github.com/futugyousuzu/go-openai-web/services"
@@ -38,6 +39,7 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 			continue
 		}
 
+		message  = url.QueryEscape(message)
 		data := fmt.Sprintf("data: %s\n\n", message)
 		rw.Write([]byte(data))
 		rw.Flush()
