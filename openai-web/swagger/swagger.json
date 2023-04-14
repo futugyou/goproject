@@ -118,7 +118,27 @@
                 "tags": [
                     "completions"
                 ],
-                "description": "create chat\n\u003cbr\u003e",
+                "description": "create completion\n\u003cbr\u003e",
+                "operationId": "CompletionController.Create Completion",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for create completion content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CompletionModel"
+                        }
+                    }
+                ]
+            }
+        },
+        "/completions/sse": {
+            "post": {
+                "tags": [
+                    "completions"
+                ],
+                "description": "create completion stream\n\u003cbr\u003e",
                 "operationId": "CompletionController.Create Completion With SSE",
                 "parameters": [
                     {
@@ -127,7 +147,7 @@
                         "description": "body for create completion content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/lib.CreateChatCompletionRequest"
+                            "$ref": "#/definitions/lib.CreateCompletionRequest"
                         }
                     }
                 ],
@@ -135,7 +155,7 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/lib.CreateChatCompletionResponse"
+                            "$ref": "#/definitions/lib.CreateCompletionResponse"
                         }
                     }
                 }
@@ -225,31 +245,6 @@
                 }
             }
         },
-        "/qa/": {
-            "post": {
-                "tags": [
-                    "qa"
-                ],
-                "description": "create q\u0026a\n\u003cbr\u003e",
-                "operationId": "QuestionController.Createq\u0026a",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for create q\u0026a content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.QuestionAnswer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{test} \tstring"
-                    }
-                }
-            }
-        },
         "/test/": {
             "get": {
                 "tags": [
@@ -285,16 +280,20 @@
             "title": "CreateChatCompletionResponse",
             "type": "object"
         },
+        "lib.CreateCompletionRequest": {
+            "title": "CreateCompletionRequest",
+            "type": "object"
+        },
+        "lib.CreateCompletionResponse": {
+            "title": "CreateCompletionResponse",
+            "type": "object"
+        },
         "lib.ListFinetuneEventResponse": {
             "title": "ListFinetuneEventResponse",
             "type": "object"
         },
-        "models.Object": {
-            "title": "Object",
-            "type": "object"
-        },
-        "models.QuestionAnswer": {
-            "title": "QuestionAnswer",
+        "models.CompletionModel": {
+            "title": "CompletionModel",
             "type": "object",
             "properties": {
                 "best_of": {
@@ -344,6 +343,10 @@
                     "format": "float"
                 }
             }
+        },
+        "models.Object": {
+            "title": "Object",
+            "type": "object"
         },
         "models.User": {
             "title": "User",
@@ -452,10 +455,6 @@
         {
             "name": "autio",
             "description": "Operations about Chat\n"
-        },
-        {
-            "name": "qa",
-            "description": "Operations about q\u0026a\n"
         },
         {
             "name": "test",

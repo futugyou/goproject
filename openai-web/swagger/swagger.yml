@@ -83,7 +83,22 @@ paths:
       tags:
       - completions
       description: |-
-        create chat
+        create completion
+        <br>
+      operationId: CompletionController.Create Completion
+      parameters:
+      - in: body
+        name: body
+        description: body for create completion content
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompletionModel'
+  /completions/sse:
+    post:
+      tags:
+      - completions
+      description: |-
+        create completion stream
         <br>
       operationId: CompletionController.Create Completion With SSE
       parameters:
@@ -92,12 +107,12 @@ paths:
         description: body for create completion content
         required: true
         schema:
-          $ref: '#/definitions/lib.CreateChatCompletionRequest'
+          $ref: '#/definitions/lib.CreateCompletionRequest'
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/lib.CreateChatCompletionResponse'
+            $ref: '#/definitions/lib.CreateCompletionResponse'
   /edits/:
     post:
       tags:
@@ -158,24 +173,6 @@ paths:
       responses:
         "200":
           description: "{list model} \t[]string"
-  /qa/:
-    post:
-      tags:
-      - qa
-      description: |-
-        create q&a
-        <br>
-      operationId: QuestionController.Createq&a
-      parameters:
-      - in: body
-        name: body
-        description: body for create q&a content
-        required: true
-        schema:
-          $ref: '#/definitions/models.QuestionAnswer'
-      responses:
-        "200":
-          description: "{test} \tstring"
   /test/:
     get:
       tags:
@@ -203,14 +200,17 @@ definitions:
   lib.CreateChatCompletionResponse:
     title: CreateChatCompletionResponse
     type: object
+  lib.CreateCompletionRequest:
+    title: CreateCompletionRequest
+    type: object
+  lib.CreateCompletionResponse:
+    title: CreateCompletionResponse
+    type: object
   lib.ListFinetuneEventResponse:
     title: ListFinetuneEventResponse
     type: object
-  models.Object:
-    title: Object
-    type: object
-  models.QuestionAnswer:
-    title: QuestionAnswer
+  models.CompletionModel:
+    title: CompletionModel
     type: object
     properties:
       best_of:
@@ -246,6 +246,9 @@ definitions:
       top_p:
         type: number
         format: float
+  models.Object:
+    title: Object
+    type: object
   models.User:
     title: User
     type: object
@@ -322,9 +325,6 @@ tags:
 - name: autio
   description: |
     Operations about Chat
-- name: qa
-  description: |
-    Operations about q&a
 - name: test
   description: |
     Operations about test

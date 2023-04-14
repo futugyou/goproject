@@ -42,8 +42,17 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"],
         beego.ControllerComments{
-            Method: "CreateCompletionWithSSE",
+            Method: "CreateCompletion",
             Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:CompletionController"],
+        beego.ControllerComments{
+            Method: "CreateCompletionWithSSE",
+            Router: `/sse`,
             AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
@@ -126,15 +135,6 @@ func init() {
             Method: "Delete",
             Router: `/:objectId`,
             AllowHTTPMethods: []string{"delete"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:QuestionController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:QuestionController"],
-        beego.ControllerComments{
-            Method: "CreateQAndA",
-            Router: `/`,
-            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
