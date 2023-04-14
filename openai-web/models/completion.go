@@ -4,12 +4,12 @@ import (
 	"github.com/beego/beego/v2/adapter/validation"
 )
 
-type QuestionAnswer struct {
+type CompletionModel struct {
 	Model            string   `json:"model"`
 	Prompt           string   `json:"prompt"`
 	MaxTokens        int32    `json:"max_tokens"`
 	Temperature      float32  `json:"temperature" valid:"ValidateTemperature"`
-	TopP             float32  `json:"top_p" valid:"ValidateTemperature"`
+	Top_P            float32  `json:"top_p" valid:"ValidateTemperature"`
 	FrequencyPenalty float32  `json:"frequency_penalty" valid:"ValidatePenalty"`
 	PresencePenalty  float32  `json:"presence_penalty" valid:"ValidatePenalty"`
 	BestOf           int32    `json:"best_of" valid:"Range(1, 20)"`

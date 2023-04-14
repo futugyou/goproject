@@ -27,10 +27,6 @@ func init() {
 			beego.NSInclude(
 				&controllers.AudioController{}),
 		),
-		beego.NSNamespace("/qa",
-			beego.NSInclude(
-				&controllers.QuestionController{}),
-		),
 		beego.NSNamespace("/test",
 			beego.NSInclude(
 				&controllers.TestController{}),
