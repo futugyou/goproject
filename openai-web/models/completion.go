@@ -17,6 +17,7 @@ type CompletionModel struct {
 	Logprobs         int      `json:"logprobs"`
 	Stop             []string `json:"stop"`
 	Stream           bool     `json:"stream"`
+	Suffix           string   `json:"suffix,omitempty"`
 }
 
 func init() {

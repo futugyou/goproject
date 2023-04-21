@@ -255,6 +255,8 @@ definitions:
           type: string
       stream:
         type: boolean
+      suffix:
+        type: string
       temperature:
         type: number
         format: float

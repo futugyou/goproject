@@ -22,6 +22,7 @@ type CompletionModel struct {
 	PresencePenalty  float32  `json:"presence_penalty,omitempty"`
 	Stop             []string `json:"stop,omitempty"`
 	BestOf           int32    `json:"best_of,omitempty"`
+	Suffix           string   `json:"suffix,omitempty"`
 }
 
 type CreateCompletionRequest struct {
