@@ -9,7 +9,7 @@ type Choices struct {
 	Index        int32                   `json:"index"`
 	Logprobs     *Logprobs               `json:"logprobs,omitempty"`
 	FinishReason string                  `json:"finish_reason,omitempty"`
-	Message      []chatCompletionMessage `json:"message,omitempty"`
+	Message      []ChatCompletionMessage `json:"message,omitempty"`
 }
 
 type Usage struct {

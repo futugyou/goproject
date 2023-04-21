@@ -19,7 +19,7 @@ var supportedChatModel = []string{
 
 type CreateChatCompletionRequest struct {
 	Model            string                  `json:"model"`
-	Messages         []chatCompletionMessage `json:"messages"`
+	Messages         []ChatCompletionMessage `json:"messages"`
 	Temperature      float32                 `json:"temperature,omitempty"`
 	Top_p            float32                 `json:"top_p,omitempty"`
 	N                int32                   `json:"n,omitempty"`
@@ -36,34 +36,35 @@ type chatCompletionRequest struct {
 	Stream bool `json:"stream,omitempty"`
 }
 
-type chatCompletionMessage struct {
+type ChatCompletionMessage struct {
 	Role    role.ChatRole `json:"role,omitempty"`
 	Content string        `json:"content,omitempty"`
+	Name    string        `json:"name,omitempty"`
 }
 
-func NewChatCompletionMessage(role role.ChatRole, message string) chatCompletionMessage {
-	return chatCompletionMessage{
+func NewChatCompletionMessage(role role.ChatRole, message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
 		Role:    role,
 		Content: message,
 	}
 }
 
-func ChatCompletionMessageFromUser(message string) chatCompletionMessage {
-	return chatCompletionMessage{
+func ChatCompletionMessageFromUser(message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
 		Role:    role.ChatRoleUser,
 		Content: message,
 	}
 }
 
-func ChatCompletionMessageFromSystem(message string) chatCompletionMessage {
-	return chatCompletionMessage{
+func ChatCompletionMessageFromSystem(message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
 		Role:    role.ChatRoleSystem,
 		Content: message,
 	}
 }
 
-func ChatCompletionMessageFromAssistant(message string) chatCompletionMessage {
-	return chatCompletionMessage{
+func ChatCompletionMessageFromAssistant(message string) ChatCompletionMessage {
+	return ChatCompletionMessage{
 		Role:    role.ChatRoleAssistant,
 		Content: message,
 	}
@@ -111,7 +112,7 @@ func validateChatModel(model string) *OpenaiError {
 	return nil
 }
 
-func validateChatRole(messages []chatCompletionMessage) *OpenaiError {
+func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
 	if len(messages) == 0 {
 		return messageError("messages can not be nil.")
 	}
