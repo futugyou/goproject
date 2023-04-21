@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/url"
 
 	lib "github.com/futugyousuzu/go-openai"
 
@@ -26,4 +28,37 @@ func (c *ChatController) CreateChat(request lib.CreateChatCompletionRequest) {
 	json.Unmarshal(c.Ctx.Input.RequestBody, &chat)
 	result := chatService.CreateChatCompletion(chat)
 	c.Ctx.JSONResp(result)
+}
+
+// @Title Create Chat With SSE
+// @Description Create Chat Stream
+// @Param	body		body 	services.CreateChatRequest	true		"body for create Chat content"
+// @router /sse [post]
+func (c *ChatController) CreateChatWithSSE() {
+	chatService := services.ChatService{}
+	var request services.CreateChatRequest
+	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
+
+	result := chatService.CreateChatSSE(request)
+
+	var rw = c.Ctx.ResponseWriter
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	rw.Header().Set(`Content-Type`, `text/event-stream;charset-utf-8`)
+	rw.Header().Set("Cache-Control", "no-cache")
+	rw.Header().Set("Connection", "keep-alive")
+
+	for response := range result {
+		if response.Messages == nil || len(response.Messages) == 0 {
+			continue
+		}
+
+		messageData, _ := json.Marshal(&response.Messages)
+		message := url.QueryEscape(string(messageData))
+		data := fmt.Sprintf("data: %s\n\n", message)
+		rw.Write([]byte(data))
+		rw.Flush()
+	}
+
+	rw.Write([]byte("data: [DONE]\n\n"))
+	rw.Flush()
 }

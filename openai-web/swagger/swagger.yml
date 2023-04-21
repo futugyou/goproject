@@ -78,6 +78,21 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/lib.CreateChatCompletionResponse'
+  /chat/sse:
+    post:
+      tags:
+      - chat
+      description: |-
+        Create Chat Stream
+        <br>
+      operationId: ChatController.Create Chat With SSE
+      parameters:
+      - in: body
+        name: body
+        description: body for create Chat content
+        required: true
+        schema:
+          $ref: '#/definitions/services.CreateChatRequest'
   /completions/:
     post:
       tags:
@@ -252,6 +267,39 @@ definitions:
   models.User:
     title: User
     type: object
+  services.Chat:
+    title: Chat
+    type: object
+    properties:
+      content:
+        type: string
+      role:
+        type: string
+  services.CreateChatRequest:
+    title: CreateChatRequest
+    type: object
+    properties:
+      frequency_penalty:
+        type: number
+        format: float
+      max_tokens:
+        type: integer
+        format: int32
+      messages:
+        type: array
+        items:
+          $ref: '#/definitions/services.Chat'
+      model:
+        type: string
+      presence_penalty:
+        type: number
+        format: float
+      temperature:
+        type: number
+        format: float
+      top_p:
+        type: number
+        format: float
   services.CreateEditsRequest:
     title: CreateEditsRequest
     type: object

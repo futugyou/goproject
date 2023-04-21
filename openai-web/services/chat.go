@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/config"
-	lib "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyousuzu/go-openai"
 )
 
 type CreateChatRequest struct {
@@ -35,30 +35,30 @@ type Chat struct {
 type ChatService struct {
 }
 
-func (s *ChatService) CreateChatCompletion(request lib.CreateChatCompletionRequest) *lib.CreateChatCompletionResponse {
+func (s *ChatService) CreateChatCompletion(request openai.CreateChatCompletionRequest) *openai.CreateChatCompletionResponse {
 	openaikey, _ := config.String("openaikey")
-	client := lib.NewClient(openaikey)
+	client := openai.NewClient(openaikey)
 	response := client.CreateChatCompletion(request)
 	return response
 }
 
 func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChatResponse {
 	openaikey, _ := config.String("openaikey")
-	client := lib.NewClient(openaikey)
+	client := openai.NewClient(openaikey)
 
-	messages := make([]lib.ChatCompletionMessage, 0)
+	messages := make([]openai.ChatCompletionMessage, 0)
 	for i := 0; i < len(request.Messages); i++ {
 		switch strings.ToLower(request.Messages[i].Role) {
 		case "user":
-			messages = append(messages, lib.ChatCompletionMessageFromUser(request.Messages[i].Content))
+			messages = append(messages, openai.ChatCompletionMessageFromUser(request.Messages[i].Content))
 		case "system":
-			messages = append(messages, lib.ChatCompletionMessageFromSystem(request.Messages[i].Content))
+			messages = append(messages, openai.ChatCompletionMessageFromSystem(request.Messages[i].Content))
 		case "assistant":
-			messages = append(messages, lib.ChatCompletionMessageFromAssistant(request.Messages[i].Content))
+			messages = append(messages, openai.ChatCompletionMessageFromAssistant(request.Messages[i].Content))
 		}
 	}
 
-	chatRequest := lib.CreateChatCompletionRequest{
+	chatRequest := openai.CreateChatCompletionRequest{
 		Model:            request.Model,
 		Messages:         messages,
 		Temperature:      request.Temperature,
@@ -89,7 +89,7 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 				break
 			}
 
-			response := &lib.CreateChatCompletionResponse{}
+			response := &openai.CreateChatCompletionResponse{}
 			ch := CreateChatResponse{}
 
 			if err = stream.ReadStream(response); err != nil {
