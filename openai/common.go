@@ -5,11 +5,12 @@ import (
 )
 
 type Choices struct {
-	Text         string                  `json:"text"`
+	Text         string                  `json:"text,omitempty"`
 	Index        int32                   `json:"index"`
 	Logprobs     *Logprobs               `json:"logprobs,omitempty"`
 	FinishReason string                  `json:"finish_reason,omitempty"`
 	Message      []ChatCompletionMessage `json:"message,omitempty"`
+	Delta        ChatCompletionMessage   `json:"delta,omitempty"`
 }
 
 type Usage struct {
