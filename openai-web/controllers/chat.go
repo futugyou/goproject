@@ -52,8 +52,15 @@ func (c *ChatController) CreateChatWithSSE() {
 			continue
 		}
 
-		messageData, _ := json.Marshal(&response.Messages)
-		message := url.QueryEscape(string(messageData))
+		message := ""
+		for i := 0; i < len(response.Messages); i++ {
+			content := response.Messages[i].Content
+			if len(content) > 0 {
+				message += content
+			}
+		}
+
+		message = url.QueryEscape(message)
 		data := fmt.Sprintf("data: %s\n\n", message)
 		rw.Write([]byte(data))
 		rw.Flush()

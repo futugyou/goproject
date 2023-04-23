@@ -108,13 +108,11 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 				if response.Choices != nil {
 					messages := make([]Chat, 0)
 					for i := 0; i < len(response.Choices); i++ {
-						for j := 0; j < len(response.Choices[i].Message); j++ {
-							message := Chat{
-								Role:    string(response.Choices[i].Message[j].Role),
-								Content: response.Choices[i].Message[j].Content,
-							}
-							messages = append(messages, message)
+						message := Chat{
+							Role:    string(response.Choices[i].Delta.Role),
+							Content: response.Choices[i].Delta.Content,
 						}
+						messages = append(messages, message)
 					}
 
 					ch.Messages = messages
