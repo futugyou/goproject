@@ -11,9 +11,8 @@
         "stop": []
     },
     {
-        "key": "Q&A",
-        "title": "Answer questions based on existing knowledge.",
-        "subTitle": "Answer questions based on existing knowledge.",
+        "key": "default-qa",
+        "title": "Q&A",
         "model": "text-davinci-003",
         "prompt": "I am a highly intelligent question answering bot. If you ask me a question that is rooted in truth, I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear answer, I will respond with \"Unknown\".\n\nQ: What is human life expectancy in the United States?\nA: Human life expectancy in the United States is 78 years.\n\nQ: Who was president of the United States in 1955?\nA: Dwight D. Eisenhower was president of the United States in 1955.\n\nQ: Which party did he belong to?\nA: He belonged to the Republican Party.\n\nQ: What is the square root of banana?\nA: Unknown\n\nQ: How does a telescope work?\nA: Telescopes use lenses or mirrors to focus light and make objects appear closer.\n\nQ: Where were the 1992 Olympics held?\nA: The 1992 Olympics were held in Barcelona, Spain.\n\nQ: How many squigs are in a bonk?\nA: Unknown\n\nQ: Where is the Valley of Kings?\nA:",
         "temperature": 0,
@@ -35,7 +34,6 @@
     {
         "key": "default-grammar",
         "title": "Grammar correction",
-        "subTitle": "Corrects sentences into standard English.",
         "model": "text-davinci-003",
         "prompt": "Correct this to standard English:\n\nShe no went to the market.",
         "temperature": 0,
@@ -53,7 +51,6 @@
     {
         "key": "default-summarize",
         "title": "Summarize for a 2nd grader",
-        "subTitle": "Translates difficult text into simpler concepts.",
         "model": "text-davinci-003",
         "prompt": "Summarize this for a second-grade student:\n\nJupiter is the fifth planet from the Sun and the largest in the Solar System. It is a gas giant with a mass one-thousandth that of the Sun, but two-and-a-half times that of all the other planets in the Solar System combined. Jupiter is one of the brightest objects visible to the naked eye in the night sky, and has been known to ancient civilizations since before recorded history. It is named after the Roman god Jupiter.[19] When viewed from Earth, Jupiter can be bright enough for its reflected light to cast visible shadows,[20] and is on average the third-brightest natural object in the night sky after the Moon and Venus.",
         "temperature": 0.7,
@@ -71,7 +68,6 @@
     {
         "key": "default-openai-api",
         "title": "Natural language to OpenAI API",
-        "subTitle": "Create code to call to the OpenAI API using a natural language instruction.",
         "model": "text-davinci-003",
         "prompt": "\"\"\"\nUtil exposes the following:\nutil.openai() -> authenticates & returns the openai module, which has the following functions:\nopenai.Completion.create(\n    prompt=\"<my prompt>\", # The prompt to start completing from\n    max_tokens=123, # The max number of tokens to generate\n    temperature=1.0 # A measure of randomness\n    echo=True, # Whether to return the prompt in addition to the generated completion\n)\n\"\"\"\nimport util\n\"\"\"\nCreate an OpenAI completion starting from the prompt \"Once upon an AI\", no more than 5 tokens. Does not include the prompt.\n\"\"\"\n",
         "temperature": 0,
@@ -88,5 +84,560 @@
         ],
         "description": "Create code to call to the OpenAI API using a natural language instruction.",
         "sample_response": "openai = util.openai()\ncompletion = openai.Completion.create(prompt=\"Once upon an AI\",\n max_tokens=5, echo=False)\n\"\"\""
+    },
+    {
+        "key": "default-text-to-command",
+        "title": "Text to command",
+        "description": "Translate text into programmatic commands.",
+        "model": "text-davinci-003",
+        "prompt": "Convert this text to a programmatic command:\n\nExample: Ask Constance if we need some bread\nOutput: send-msg `find constance` Do we need some bread?\n\nReach out to the ski store and figure out if I can get my skis fixed before I leave on Thursday",
+        "temperature": 0,
+        "max_tokens": 100,
+        "top_p": 1.0,
+        "frequency_penalty": 0.2,
+        "presence_penalty": 0.0,
+        "stop": [
+            "\n"
+        ],
+        "tags": [
+            "Generation",
+            "Transformation"
+        ],
+        "sample_response": "send-msg `find ski store` Can I get my skis fixed before I leave on Thursday?"
+    },
+    {
+        "key": "default-translate",
+        "title": "English to other languages",
+        "description": "Translates English text into French, Spanish and Japanese.",
+        "model": "text-davinci-003",
+        "prompt": "Translate this into 1. French, 2. Spanish and 3. Japanese:\nWhat rooms do you have available?\n1.",
+        "temperature": 0.3,
+        "max_tokens": 100,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": [],
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "sample_response": "Quels sont les chambres que vous avez disponibles?\n2. ¿Qué habitaciones tienes disponibles?\n3. どの部屋が利用可能ですか？"
+    },
+    {
+        "key": "default-parse-data",
+        "title": "Parse unstructured data",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Create tables from long form text by specifying a structure and supplying some examples.",
+        "prompt": "A table summarizing the fruits from Goocrux:\n\nThere are many fruits that were found on the recently discovered planet Goocrux. There are neoskizzles that grow there, which are purple and taste like candy. There are also loheckles, which are a grayish blue fruit and are very tart, a little bit like a lemon. Pounits are a bright green color and are more savory than sweet. There are also plenty of loopnovas which are a neon pink flavor and taste like cotton candy. Finally, there are fruits called glowls, which have a very sour and bitter taste which is acidic and caustic, and a pale orange tinge to them.\n\n| Fruit | Color | Flavor |",
+        "sample_response": "| Neoskizzles | Purple | Candy |\n| Loheckles | Grayish Blue | Tart, like a lemon |\n| Pounits | Bright Green | Savory |\n| Loopnovas | Neon Pink | Cotton Candy |\n| Glowls | Pale Orange | Sour and Bitter, Acidic and Caustic |",
+        "model": "text-davinci-003",
+        "max_tokens": 100,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-movie-to-emoji",
+        "title": "Movie to Emoji",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Convert movie titles into emoji.",
+        "prompt": "Convert movie titles into emoji.\n\nBack to the Future: 👨👴🚗🕒 \nBatman: 🤵🦇 \nTransformers: 🚗🤖 \nStar Wars:",
+        "sample_response": "⭐️⚔",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.8,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": ["\n"]
+    },
+    {
+        "key": "default-factual-answering",
+        "title": "Factual answering",
+        "tags": [
+            "Answers",
+            "Generation",
+            "Conversation",
+            "Classification"
+        ],
+        "description": "Guide the model towards factual answering by showing it how to respond to questions that fall outside its knowledge base. Using a '?' to indicate a response to words and phrases that it doesn't know provides a natural response that seems to work better than more abstract replies.",
+        "prompt": "Q: Who is Batman?\nA: Batman is a fictional comic book character.\n\nQ: What is torsalplexity?\nA: ?\n\nQ: What is Devz9?\nA: ?\n\nQ: Who is George Lucas?\nA: George Lucas is American film director and producer famous for creating Star Wars.\n\nQ: What is the capital of California?\nA: Sacramento.\n\nQ: What orbits the Earth?\nA: The Moon.\n\nQ: Who is Fred Rickerson?\nA: ?\n\nQ: What is an atom?\nA: An atom is a tiny particle that makes up everything.\n\nQ: Who is Alvan Muntz?\nA: ?\n\nQ: What is Kozar-09?\nA: ?\n\nQ: How many moons does Mars have?\nA: Two, Phobos and Deimos.\n\nQ: What's a language model?\nA:",
+        "sample_response": "A language model is a type of artificial intelligence that uses statistical techniques to predict the probability of a sequence of words.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-ad-product-description",
+        "title": "Ad from product description",
+        "tags": [
+            "Generation"
+        ],
+        "description": "Turn a product description into ad copy.",
+        "prompt": "Write a creative ad for the following product to run on Facebook aimed at parents:\n\nProduct: Learning Room is a virtual environment to help students from kindergarten to high school excel in school.",
+        "sample_response": "Are you looking for a way to give your child a head start in school? Look no further than Learning Room! Our virtual environment is designed to help students from kindergarten to high school excel in their studies. Our unique platform offers personalized learning plans, interactive activities, and real-time feedback to ensure your child is getting the most out of their education. Give your child the best chance to succeed in school with Learning Room!",
+        "model": "text-davinci-003",
+        "max_tokens": 100,
+        "temperature": 0.5,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-product-name-gen",
+        "title": "Product name generator",
+        "tags": [
+            "Generation"
+        ],
+        "description": "Create product names from examples words. Influenced by a community prompt.",
+        "prompt": "Product description: A home milkshake maker\nSeed words: fast, healthy, compact.\nProduct names: HomeShaker, Fit Shaker, QuickShake, Shake Maker\n\nProduct description: A pair of shoes that can fit any foot size.\nSeed words: adaptable, fit, omni-fit.",
+        "sample_response": "Product names: AdaptFit, OmniSecure, Fit-All, AdaptShoes.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.8,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-tldr-summary",
+        "title": "TL;DR summarization",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Summarize text by adding a 'tl;dr:' to the end of a text passage. It shows that the API understands how to perform a number of tasks with no instructions.",
+        "prompt": "A neutron star is the collapsed core of a massive supergiant star, which had a total mass of between 10 and 25 solar masses, possibly more if the star was especially metal-rich.[1] Neutron stars are the smallest and densest stellar objects, excluding black holes and hypothetical white holes, quark stars, and strange stars.[2] Neutron stars have a radius on the order of 10 kilometres (6.2 mi) and a mass of about 1.4 solar masses.[3] They result from the supernova explosion of a massive star, combined with gravitational collapse, that compresses the core past white dwarf star density to that of atomic nuclei.\n\nTl;dr",
+        "sample_response": "Neutron stars are the collapsed cores of massive supergiant stars, with a radius of around 10 kilometres and a mass of 1.4 solar masses. They are formed from the supernova explosion of a massive star combined with gravitational collapse, compressing the core beyond white dwarf star density.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.7,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 1.0,
+        "stop": []
+    },
+    {
+        "key": "default-fix-python-bugs",
+        "title": "Python bug fixer",
+        "tags": [
+            "Code",
+            "Generation"
+        ],
+        "description": "There's a number of ways of structuring the prompt for checking for bugs. Here we add a comment suggesting that source code is buggy, and then ask codex to generate a fixed code.",
+        "prompt": "##### Fix bugs in the below function\n\n### Buggy Python\nimport Random\na = random.randint(1,12)\nb = random.randint(1,12)\nfor i in range(10):\n    question = \"What is \"+a+\" x \"+b+\"? \"\n    answer = input(question)\n    if answer = a*b\n        print (Well done!)\n    else:\n        print(\"No.\")\n\n### Fixed Python",
+        "sample_response": "import random\na = random.randint(1,12)\nb = random.randint(1,12)\nfor i in range(10):\n    question = \"What is \"+str(a)+\" x \"+str(b)+\"? \"\n    answer = int(input(question))\n    if answer == a*b:\n        print (\"Well done!\")\n    else:\n        print(\"No.\")",
+        "model": "text-davinci-003",
+        "max_tokens": 182,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": ["###"]
+    },
+    {
+        "key": "default-spreadsheet-gen",
+        "title": "Spreadsheet creator",
+        "tags": [
+            "Generation"
+        ],
+        "description": "Create spreadsheets of various kinds of data. It's a long prompt but very versatile. Output can be copy+pasted into a text file and saved as a .csv with pipe separators.",
+        "prompt": "A two-column spreadsheet of top science fiction movies and the year of release:\n\nTitle |  Year of release",
+        "sample_response": "Alien | 1979 \nBlade Runner | 1982 \nThe Terminator | 1984 \nThe Matrix | 1999 \nAvatar | 2009 \nInterstellar | 2014 \nEx Machina | 2015 \nArrival | 2016 \nReady Player One | 2018",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.5,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-ml-ai-tutor",
+        "title": "ML/AI language model tutor.",
+        "tags": [
+            "Answers",
+            "Generation",
+            "Conversation"
+        ],
+        "description": "This is a QA-style chatbot that answers questions about language models.",
+        "prompt": "ML Tutor: I am a ML/AI language model tutor\nYou: What is a language model?\nML Tutor: A language model is a statistical model that describes the probability of a word given the previous words.\nYou: What is a statistical model?",
+        "sample_response": "ML Tutor: A statistical model is a mathematical representation of a real-world phenomenon. It is used to make predictions or decisions based on data. Statistical models use probability and statistics to make inferences about the data.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.3,
+        "top_p": 1.0,
+        "frequency_penalty": 0.5,
+        "presence_penalty": 0.0,
+        "stop": ["You:"]
+    },
+    {
+        "key": "default-sci-fi-book-list",
+        "title": "Science fiction book list maker",
+        "tags": [
+            "Generation"
+        ],
+        "description": "This makes a list of science fiction books and stops when it reaches #10.",
+        "prompt": "List 10 science fiction books:",
+        "sample_response": "1. 1984 by George Orwell\n 2. The War of the Worlds by H.G. Wells\n 3. Dune by Frank Herbert\n 4. Frankenstein by Mary Shelley\n 5. Ender's Game by Orson Scott Card\n 6. The Hitchhiker's Guide to the Galaxy by Douglas Adams\n 7. The Martian Chronicles by Ray Bradbury\n 8. Brave New World by Aldous Huxley \n 9. Do Androids Dream of Electric Sheep? By Philip K Dick \n 10. I, Robot by Isaac Asimov",
+        "model": "text-davinci-003",
+        "max_tokens": 200,
+        "temperature": 0.5,
+        "top_p": 1.0,
+        "frequency_penalty": 0.52,
+        "presence_penalty": 0.5,
+        "stop": ["11."]
+    },
+    {
+        "key": "default-airport-codes",
+        "title": "Airport code extractor",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "A simple prompt for extracting airport codes from text.",
+        "prompt": "Extract the airport codes from this text:\n\n Text: \"I want to fly from Los Angeles to Miami.\"\n Airport codes: LAX, MIA\n\n Text: \"I want to fly from Orlando to Boston\"\n Airport codes:",
+        "sample_response": "MCO, BOS",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": ["\n"]
+    },
+    {
+        "key": "default-sql-request",
+        "title": "SQL request",
+        "tags": [
+            "Transformation",
+            "Generation",
+            "Translation"
+        ],
+        "description": "Create simple SQL queries.",
+        "prompt": "Create a SQL request to find all users who live in California and have over 1000 credits:",
+        "sample_response": "SELECT *\n FROM users\n WHERE state = 'California' AND credits > 1000;",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.3,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-extract-contact-info",
+        "title": "Extract contact information",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Extract contact information from a block of text.",
+        "prompt": "Extract the name and mailing address from this email:\n\n Dear Kelly,\n\n It was great to talk to you at the seminar. I thought Jane's talk was quite good.\n\n Thank you for the book. Here's my address 2111 Ash Lane, Crestview CA 92002\n\n Best,\n\n Maya\n\n Name:",
+        "sample_response": "Maya\n Mailing Address: 2111 Ash Lane, Crestview CA 92002",
+        "model": "text-davinci-003",
+        "max_tokens": 64,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-friend-chat",
+        "title": "Friend chat",
+        "tags": [
+            "Conversation",
+            "Generation"
+        ],
+        "description": "Emulate a text message conversation.",
+        "prompt": "You: What have you been up to?\n Friend: Watching old movies.\n You: Did you watch anything interesting?\n Friend:",
+        "sample_response": "Yeah, I watched an old classic called Casablanca. It was really good!",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.5,
+        "top_p": 1.0,
+        "frequency_penalty": 0.5,
+        "presence_penalty": 0.0,
+        "stop": ["You:"]
+    },
+    {
+        "key": "default-mood-color",
+        "title": "Mood to color",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Turn a text description into a color.",
+        "prompt": "The CSS code for a color like a blue sky at dusk:\n \n  background-color: #",
+        "sample_response": "3A5F9F",
+        "model": "text-davinci-003",
+        "max_tokens": 64,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": [";"]
+    },
+    {
+        "key": "default-python-docstring",
+        "title": "Write a Python docstring",
+        "tags": [
+            "Code",
+            "Generation"
+        ],
+        "description": "An example of how to create a docstring for a given Python function. We specify the Python version, paste in the code, and then ask within a comment for a docstring, and give a characteristic beginning of a docstring (\"\"\").",
+        "prompt": "# Python 3.7\n\n def randomly_split_dataset(folder, filename, split_ratio=[0.8, 0.2]):\n     df = pd.read_json(folder + filename, lines=True)\n     train_name, test_name = \"train.jsonl\", \"test.jsonl\"\n     df_train, df_test = train_test_split(df, test_size=split_ratio[1], random_state=42)\n     df_train.to_json(folder + train_name, orient='records', lines=True)\n     df_test.to_json(folder + test_name, orient='records', lines=True)\n randomly_split_dataset('finetune_data/', 'dataset.jsonl')\n\n # An elaborate, high quality docstring for the above function:\n \"\"\"",
+        "sample_response": "\"\"\" This function randomly splits a dataset into two parts, a training set and a test set, according to a given split ratio.\n\n Parameters:\n     folder (str): The path to the folder containing the dataset.\n     filename (str): The name of the dataset file.\n     split_ratio (list): A list of two floats representing the ratio of the training set and the test set.\n\n Returns:\n     None\n \"\"\"",
+        "model": "text-davinci-003",
+        "max_tokens": 150,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": ["#\"\"\""]
+    },
+    {
+        "key": "default-analogy-maker",
+        "title": "Analogy maker",
+        "tags": [
+            "Generation"
+        ],
+        "description": "Create analogies. Modified from a community prompt to require fewer examples.",
+        "prompt": "Create an analogy for this phrase:\n\n Questions are arrows in that:",
+        "sample_response": "Questions are like arrows in that they both have the power to pierce through the surface and uncover the truth that lies beneath.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.5,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-micro-horror",
+        "title": "Micro horror story creator",
+        "tags": [
+            "Transformation",
+            "Generation",
+            "Translation"
+        ],
+        "description": "Creates two to three sentence short horror stories from a topic input.",
+        "prompt": "Topic: Breakfast\n Two-Sentence Horror Story: He always stops crying when I pour the milk on his cereal. I just have to remember not to let him see his face on the carton.\n\n Topic: Wind\n Two-Sentence Horror Story:",
+        "sample_response": "The wind howled through the night, shaking the windows of the house with a sinister force. As I stepped outside, I could feel it calling out to me, beckoning me to follow its chilling path.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.8,
+        "top_p": 1.0,
+        "frequency_penalty": 0.5,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-third-person",
+        "title": "Third-person converter",
+        "tags": [
+            "Transformation",
+            "Generation",
+            "Translation"
+        ],
+        "description": "Converts first-person POV to the third-person. This is modified from a community prompt to use fewer examples.",
+        "prompt": "Convert this from first-person to third person (gender female):\n\n I decided to make a movie about Ada Lovelace.",
+        "sample_response": "She decided to make a movie about Ada Lovelace.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.8,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-notes-summary",
+        "title": "Notes to summary",
+        "tags": [
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Turn meeting notes into a summary.",
+        "prompt": "Convert my short hand into a first-hand account of the meeting:\n\n Tom: Profits up 50%\n Jane: New servers are online\n Kjel: Need more time to fix software\n Jane: Happy to help\n Parkman: Beta testing almost done",
+        "sample_response": "At the meeting, Tom reported that profits had increased by 50%. Jane then mentioned that the new servers were online. Kjel mentioned that they needed more time to fix the software, and Jane offered to help. Finally, Parkman reported that the beta testing was almost done.",
+        "model": "text-davinci-003",
+        "max_tokens": 64,
+        "temperature": 0.8,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-vr-fitness",
+        "title": "VR fitness idea generator",
+        "tags": [ 
+            "Generation"
+        ],
+        "description": "Create ideas for fitness and virtual reality games.",
+        "prompt": "Brainstorm some ideas combining VR and fitness:",
+        "sample_response": "1. Virtual reality-based fitness classes \n 2. Home workout programs using virtual reality technology \n 3. Interactive video game-style workouts with a virtual trainer \n 4. Virtual running races against other players in VR worlds \n 5. Immersive yoga and Pilates sessions set in exotic locations \n 6. Sports simulations involving simulated physical activity within the VR world \n 7. Group fitness challenges that involve competing against opponents in a virtual environment \n 8. Adaptive exercise programs tailored to individual’s goals or health conditions",
+        "model": "text-davinci-003",
+        "max_tokens": 150,
+        "temperature": 0.6,
+        "top_p": 1.0,
+        "frequency_penalty": 1.0,
+        "presence_penalty": 1.0,
+        "stop": []
+    },
+    {
+        "key": "default-essay-outline",
+        "title": "Essay outline",
+        "tags": [ 
+            "Generation"
+        ],
+        "description": "Generate an outline for a research topic.",
+        "prompt": "Create an outline for an essay about Nikola Tesla and his contributions to technology:",
+        "sample_response": "I. Introduction\n A. Who was Nikola Tesla?\n B. Overview of his contributions to technology\n\n II. Early Life and Education\n A. Where and when Tesla was born\n B. His education and early career\n\n III. Tesla's Contributions to Technology\n A. Alternating Current\n B. Radio and Remote Control\n C. Robotics\n D. X-Rays\n\n IV. Tesla's Later Years\n A. His later inventions\n B. His death and legacy\n\n V. Conclusion\n A. Summary of Tesla's life and accomplishments\n B. Impact of Tesla's work on modern technology",
+        "model": "text-davinci-003",
+        "max_tokens": 150,
+        "temperature": 0.3,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-recipe-generator",
+        "title": "Recipe creator (eat at your own risk)",
+        "tags": [ 
+            "Generation"
+        ],
+        "description": "Create a recipe from a list of ingredients.",
+        "prompt": "Write a recipe based on these ingredients and instructions:\n\nFrito Pie\n\n Ingredients:\n Fritos\n Chili\n Shredded cheddar cheese\n Sweet white or red onions, diced small\n Sour cream\n\n Instructions:",
+        "sample_response": "1. Preheat oven to 350 degrees F.\n\n2. Spread a layer of Fritos in the bottom of a 9x13 inch baking dish.\n\n3. Top the Fritos with a layer of chili.\n\n4. Sprinkle the chili with shredded cheddar cheese.\n\n5. Sprinkle the cheese with diced onions.\n\n6. Bake in preheated oven for 25 minutes.\n\n7. Remove from oven and top with a dollop of sour cream.\n\n8. Serve warm. Enjoy!",
+        "model": "text-davinci-003",
+        "max_tokens": 120,
+        "temperature": 0.3,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-chat",
+        "title": "Chat",
+        "tags": [ 
+            "Conversation",
+            "Generation"
+        ],
+        "description": "Open ended conversation with an AI assistant.",
+        "prompt": "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How can I help you today?\nHuman: I'd like to cancel my subscription.\nAI:",
+        "sample_response": "I understand, I can help you with canceling your subscription. Please provide me with your account details so that I can begin processing the cancellation.",
+        "model": "text-davinci-003",
+        "max_tokens": 150,
+        "temperature": 0.9,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.6,
+        "stop": ["Human:","AI:"]
+    },
+    {
+        "key": "default-marv-sarcastic-chat",
+        "title": "Marv the sarcastic chat bot",
+        "tags": [ 
+            "Conversation",
+            "Generation"
+        ],
+        "description": "Marv is a factual chatbot that is also sarcastic.",
+        "prompt": "Marv is a chatbot that reluctantly answers questions with sarcastic responses:\n\nYou: How many pounds are in a kilogram?\nMarv: This again? There are 2.2 pounds in a kilogram. Please make a note of this.\nYou: What does HTML stand for?\nMarv: Was Google too busy? Hypertext Markup Language. The T is for try to ask better questions in the future.\nYou: When did the first airplane fly?\nMarv: On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they’d come and take me away.\nYou: What is the meaning of life?\nMarv: I’m not sure. I’ll ask my friend Google.\nYou: What time is it?\nMarv:",
+        "sample_response": "It's always time to learn something new. Check your watch for the actual time.",
+        "model": "text-davinci-003",
+        "max_tokens": 60,
+        "temperature": 0.5,
+        "top_p": 0.3,
+        "frequency_penalty": 0.5,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-turn-by-turn-directions",
+        "title": "Turn by turn directions",
+        "tags": [ 
+            "Transformation",
+            "Generation"
+        ],
+        "description": "Convert natural language to turn-by-turn directions.",
+        "prompt": "Create a numbered list of turn-by-turn directions from this text: \n\nGo south on 95 until you hit Sunrise boulevard then take it east to us 1 and head south. Tom Jenkins bbq will be on the left after several miles.",
+        "sample_response": "1. Go south on 95 \n2. Take Sunrise Boulevard east \n3. Head south on US 1 \n4. Tom Jenkins BBQ will be on the left after several miles",
+        "model": "text-davinci-003",
+        "max_tokens": 64,
+        "temperature": 0.3,
+        "top_p": 1,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-restaurant-review",
+        "title": "Restaurant review creator",
+        "tags": [ 
+            "Generation"
+        ],
+        "description": "Turn a few words into a restaurant review.",
+        "prompt": "CWrite a restaurant review based on these notes:\n\nName: The Blue Wharf\nLobster great, noisy, service polite, prices good.\n\nReview:",
+        "sample_response": "I recently visited The Blue Wharf and had a wonderful experience. The lobster was excellent and the prices were very good. The only downside was the noise level, but the polite service more than made up for it. Highly recommend!",
+        "model": "text-davinci-003",
+        "max_tokens": 64,
+        "temperature": 0.5,
+        "top_p": 1,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-study-notes",
+        "title": "Create study notes",
+        "tags": [ 
+            "Generation"
+        ],
+        "description": "Provide a topic and get study notes.",
+        "prompt": "What are 5 key points I should know when studying Ancient Rome?",
+        "sample_response": "1. Understand the Roman Republic and its political and social structures.\n2. Learn about the major events and people of the Roman Empire, including the Pax Romana.\n3. Familiarize yourself with Roman culture and society, including language, art, architecture, literature, law, and religion.\n4. Study the Roman military, its tactics and organization, and its effects on the empire.\n5. Examine the decline of the Roman Empire, its eventual fall, and its legacy.",
+        "model": "text-davinci-003",
+        "max_tokens": 150,
+        "temperature": 0.3,
+        "top_p": 1,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
+    },
+    {
+        "key": "default-interview-questions",
+        "title": "Interview questions",
+        "tags": [ 
+            "Generation"
+        ],
+        "description": "Create interview questions.",
+        "prompt": "Create a list of 8 questions for my interview with a science fiction author:",
+        "sample_response": "1. What inspired you to write science fiction?\n2. What themes do you typically explore in your work?\n3. How has the genre of science fiction evolved over time?\n4. What do you think sets your work apart from other science fiction authors?\n5. What advice would you give to aspiring science fiction authors?\n6. What are some of the most challenging aspects of writing science fiction?\n7. How has your writing process changed over the years?\n8. What do you think is the most important thing for readers to take away from your work?",
+        "model": "text-davinci-003",
+        "max_tokens": 150,
+        "temperature": 0.5,
+        "top_p": 1,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": []
     }
 ]
