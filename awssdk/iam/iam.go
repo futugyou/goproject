@@ -338,3 +338,19 @@ func CreateLoginProfile() {
 	}
 	fmt.Println("UserName:", *output.LoginProfile.UserName, "\tCreateDate:", *output.LoginProfile.CreateDate)
 }
+
+func UpdateLoginProfile() {
+	input := &iam.UpdateLoginProfileInput{
+		UserName:              aws.String(awsenv.UserName),
+		Password:              aws.String(awsenv.Password),
+		PasswordResetRequired: aws.Bool(false),
+	}
+
+	_, err := svc.UpdateLoginProfile(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("ok")
+}

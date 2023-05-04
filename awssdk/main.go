@@ -55,7 +55,8 @@ func main() {
 	// iam.CreateUser()
 	// iam.DeleteUser()
 	// iam.GetAccountAuthorizationDetails()
-	iam.CreateLoginProfile()
+	// iam.CreateLoginProfile()
+	iam.UpdateLoginProfile()
 
 	// ecs.DescribeClusters()
 	// ecs.DescribeCapacityProviders()
