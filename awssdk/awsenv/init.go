@@ -17,6 +17,7 @@ var (
 	NamespaceName       string
 	CloudMapServiceName string
 	UserName            string
+	Password            string
 	GroupName           string
 	ECSClusterName      string
 	// groupPolicyArn      string
@@ -35,6 +36,7 @@ func init() {
 	NamespaceName = os.Getenv("CLOUD_MAP_NAMESPACE")
 	CloudMapServiceName = os.Getenv("CLOUD_MAP_SERVICE_NAME")
 	UserName = os.Getenv("IAM_USER_NAME")
+	Password = os.Getenv("IAM_USER_PASSWORD")
 	GroupName = os.Getenv("IAM_GROUP_NAME")
 	ECSClusterName = os.Getenv("ECS_CLUSTER_NAME")
 	// groupPolicyArn = os.Getenv("ATTACHED_GROUP_POLICY_ARN")

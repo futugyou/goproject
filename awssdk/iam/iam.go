@@ -324,3 +324,17 @@ func GetAccountAuthorizationDetails() {
 		}
 	}
 }
+
+func CreateLoginProfile() {
+	input := &iam.CreateLoginProfileInput{
+		UserName:              aws.String(awsenv.UserName),
+		Password:              aws.String(awsenv.Password),
+		PasswordResetRequired: false,
+	}
+	output, err := svc.CreateLoginProfile(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("UserName:", *output.LoginProfile.UserName, "\tCreateDate:", *output.LoginProfile.CreateDate)
+}
