@@ -354,3 +354,17 @@ func UpdateLoginProfile() {
 
 	fmt.Println("ok")
 }
+
+func AddUserToGroup() {
+	input := &iam.AddUserToGroupInput{
+		UserName:  aws.String(awsenv.UserName),
+		GroupName: aws.String(awsenv.GroupName),
+	}
+
+	_, err := svc.AddUserToGroup(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("ok")
+}
