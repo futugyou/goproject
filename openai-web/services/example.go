@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
+	"golang.org/x/exp/slices"
 )
 
 type ExampleModel struct {
@@ -74,4 +75,46 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	}
 
 	return result
+}
+
+func (s *ExampleService) CreateCustomExample(model ExampleModel) []ExampleModel {
+	// system examples
+	result := s.GetExampleSettings()
+
+	var examples []byte
+	var err error
+
+	if examples, err = os.ReadFile("./examples/custom.json"); err != nil {
+		logs.Error(err)
+		return result
+	}
+
+	if err = json.Unmarshal(examples, &result); err != nil {
+		logs.Error(err)
+		return result
+	}
+
+	idx := slices.IndexFunc(result, func(c ExampleModel) bool { return c.Key == model.Key })
+	if idx >= 0 {
+		return result
+	}
+
+	customefile, err := os.Open("./examples/custom.json")
+	if err != nil {
+		logs.Error(err)
+		return result
+	}
+
+	example, err := json.Marshal(model)
+	if err != nil {
+		logs.Error(err)
+		return result
+	}
+
+	_, err = customefile.Write(example)
+	if err != nil {
+		logs.Error(err)
+		return result
+	}
+	return append(result, model)
 }
