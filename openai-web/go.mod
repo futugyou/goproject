@@ -12,9 +12,9 @@ require (
 	github.com/smartystreets/goconvey v1.6.4
 )
 
-replace github.com/futugyousuzu/go-openai v0.0.0 => ../openai
+replace github.com/futugyousuzu/go-openai v0.0.0 => github.com/futugyou/goproject/openai v0.0.0-20230504105143-00ca81260dbf
 
-replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => ../openai-tokenizer
+replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => github.com/futugyou/goproject/openai-tokenizer v0.0.0-20230504105143-00ca81260dbf
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

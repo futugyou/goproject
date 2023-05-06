@@ -15,6 +15,10 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cu
 github.com/dlclark/regexp2 v1.9.0 h1:pTK/l/3qYIKaRXuHnEnIf7Y5NxfRPfpb7dis6/gdlVI=
 github.com/dlclark/regexp2 v1.9.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
 github.com/elazarl/go-bindata-assetfs v1.0.1 h1:m0kkaHRKEu7tUIUFVwhGGGYClXvyl4RE03qmvRTNfbw=
+github.com/futugyou/goproject/openai v0.0.0-20230504105143-00ca81260dbf h1:dB1Jvnmjd0BnBy2WQehjbnLUsXNyLML7I47KJSV6qjE=
+github.com/futugyou/goproject/openai v0.0.0-20230504105143-00ca81260dbf/go.mod h1:rvteJ58g5ExOHH/8x942Z4WIwW/s8YhP3TSNMf7Peqo=
+github.com/futugyou/goproject/openai-tokenizer v0.0.0-20230504105143-00ca81260dbf h1:onffgUES2lSITB50PQyswkmV2VbA3zcZifaqw2oQBKc=
+github.com/futugyou/goproject/openai-tokenizer v0.0.0-20230504105143-00ca81260dbf/go.mod h1:YsV0V1OeCIhVIsqfubOBJPpgIAN0WOaDkbcrxOl+9QA=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.5/go.mod h1:6O5/vntMXwX2lRkT1hjjk0nAC1IDOTvTlVgjlRvqsdk=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
