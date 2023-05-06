@@ -84,28 +84,34 @@ func (s *ExampleService) CreateCustomExample(model ExampleModel) []ExampleModel 
 	var examples []byte
 	var err error
 
+	customExamples := make([]ExampleModel, 0)
 	if examples, err = os.ReadFile("./examples/custom.json"); err != nil {
 		logs.Error(err)
 		return result
 	}
 
-	if err = json.Unmarshal(examples, &result); err != nil {
-		logs.Error(err)
-		return result
+	if len(examples) > 0 {
+		if err = json.Unmarshal(examples, &customExamples); err != nil {
+			logs.Error(err)
+			return result
+		}
 	}
 
-	idx := slices.IndexFunc(result, func(c ExampleModel) bool { return c.Key == model.Key })
+	idx := slices.IndexFunc(customExamples, func(c ExampleModel) bool { return c.Key == model.Key })
 	if idx >= 0 {
-		return result
+		return append(result, customExamples...)
 	}
 
-	customefile, err := os.Open("./examples/custom.json")
+	result = append(result, customExamples...)
+	customefile, err := os.OpenFile("./examples/custom.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		logs.Error(err)
 		return result
 	}
 
-	example, err := json.Marshal(model)
+	defer customefile.Close()
+
+	example, err := json.Marshal(append(customExamples, model))
 	if err != nil {
 		logs.Error(err)
 		return result
