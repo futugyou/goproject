@@ -156,6 +156,22 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/services.ExampleModel'
+    post:
+      tags:
+      - examples
+      operationId: ExampleController.create examples
+      parameters:
+      - in: body
+        name: body
+        description: body for create example content
+        required: true
+        schema:
+          $ref: '#/definitions/services.ExampleModel'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/services.ExampleModel[]'
   /fine-tune/{fine_tune_id}/events:
     get:
       tags:
@@ -362,6 +378,9 @@ definitions:
       top_p:
         type: number
         format: float
+  services.ExampleModel[]:
+    title: ExampleModel[]
+    type: object
 tags:
 - name: model
   description: |
