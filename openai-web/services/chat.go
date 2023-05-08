@@ -1,10 +1,10 @@
 package services
 
 import (
+	"os"
 	"strings"
 	"time"
 
-	"github.com/beego/beego/v2/core/config"
 	openai "github.com/futugyousuzu/go-openai"
 )
 
@@ -36,14 +36,14 @@ type ChatService struct {
 }
 
 func (s *ChatService) CreateChatCompletion(request openai.CreateChatCompletionRequest) *openai.CreateChatCompletionResponse {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := openai.NewClient(openaikey)
 	response := client.CreateChatCompletion(request)
 	return response
 }
 
 func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChatResponse {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := openai.NewClient(openaikey)
 
 	messages := make([]openai.ChatCompletionMessage, 0)

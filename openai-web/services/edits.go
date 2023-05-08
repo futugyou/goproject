@@ -1,9 +1,9 @@
 package services
 
 import (
+	"os"
 	"time"
 
-	"github.com/beego/beego/v2/core/config"
 	"github.com/devfeel/mapper"
 	openai "github.com/futugyousuzu/go-openai"
 )
@@ -30,7 +30,7 @@ type CreateEditsResponse struct {
 }
 
 func (s *EditService) CreateEdit(request CreateEditsRequest) CreateEditsResponse {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := openai.NewClient(openaikey)
 	req := openai.CreateEditsRequest{}
 	mapper.AutoMapper(&request, &req)

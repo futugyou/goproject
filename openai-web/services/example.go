@@ -1,29 +1,32 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/exp/slices"
 )
 
 type ExampleModel struct {
-	Key              string   `json:"key,omitempty"`
-	Title            string   `json:"title,omitempty"`
-	SubTitle         string   `json:"subTitle,omitempty"`
-	Model            string   `json:"model,omitempty"`
-	Prompt           string   `json:"prompt,omitempty"`
-	Temperature      float32  `json:"temperature,omitempty"`
-	MaxTokens        int32    `json:"max_tokens,omitempty"`
-	Top_p            float32  `json:"top_p,omitempty"`
-	FrequencyPenalty float32  `json:"frequency_penalty,omitempty"`
-	PresencePenalty  float32  `json:"presence_penalty,omitempty"`
-	Stop             []string `json:"stop,omitempty"`
-	Tags             []string `json:"tags,omitempty"`
-	Description      string   `json:"description,omitempty"`
-	SampleResponse   string   `json:"sample_response,omitempty"`
+	Key              string   `json:"key,omitempty" bson:"key,omitempty"`
+	Title            string   `json:"title,omitempty" bson:"title,omitempty"`
+	SubTitle         string   `json:"subTitle,omitempty" bson:"subTitle,omitempty"`
+	Model            string   `json:"model,omitempty" bson:"model,omitempty"`
+	Prompt           string   `json:"prompt,omitempty" bson:"prompt,omitempty"`
+	Temperature      float32  `json:"temperature,omitempty" bson:"temperature,omitempty"`
+	MaxTokens        int32    `json:"max_tokens,omitempty" bson:"max_tokens,omitempty"`
+	Top_p            float32  `json:"top_p,omitempty" bson:"top_p,omitempty"`
+	FrequencyPenalty float32  `json:"frequency_penalty,omitempty" bson:"frequency_penalty,omitempty"`
+	PresencePenalty  float32  `json:"presence_penalty,omitempty" bson:"presence_penalty,omitempty"`
+	Stop             []string `json:"stop,omitempty" bson:"stop,omitempty"`
+	Tags             []string `json:"tags,omitempty" bson:"tags,omitempty"`
+	Description      string   `json:"description,omitempty" bson:"description,omitempty"`
+	SampleResponse   string   `json:"sample_response,omitempty" bson:"sample_response,omitempty"`
 }
 
 type ExampleService struct {
@@ -35,8 +38,11 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	result := make([]ExampleModel, 0)
 	// get data from redis,
 	// it is not necessary at the moment, but examples.json data will migrate to db in the future
-	rmap, _ := Rbd.HGetAll(ctx, GetAllExamplesKey).Result()
+	rmap, e := Rbd.HGetAll(ctx, GetAllExamplesKey).Result()
 
+	if e != nil {
+		fmt.Println(e)
+	}
 	if len(rmap) > 0 {
 		for _, r := range rmap {
 			example := ExampleModel{}
@@ -66,6 +72,32 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 		examplestring, _ := json.Marshal(example)
 		examplesCache[example.Key] = examplestring
 	}
+
+	uri := os.Getenv("mongodb_url")
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database("sample_mflix").Collection("examples")
+
+	newResults := make([]interface{}, len(result))
+	for i, v := range result {
+		newResults[i] = v
+	}
+
+	operateResult, err := coll.InsertMany(context.TODO(), newResults)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s\n", operateResult)
 
 	count, err := Rbd.HSet(ctx, GetAllExamplesKey, examplesCache).Result()
 	if err != nil {

@@ -1,16 +1,16 @@
 package services
 
 import (
-	lib "github.com/futugyousuzu/go-openai"
+	"os"
 
-	"github.com/beego/beego/v2/core/config"
+	lib "github.com/futugyousuzu/go-openai"
 )
 
 type FineTuneService struct {
 }
 
 func (s *FineTuneService) ListFinetuneEvents(fine_tune_id string) *lib.ListFinetuneEventResponse {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	result := client.ListFinetuneEvents(fine_tune_id)
 	return result

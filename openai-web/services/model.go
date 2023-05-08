@@ -3,8 +3,8 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
-	"github.com/beego/beego/v2/core/config"
 	"github.com/beego/beego/v2/core/logs"
 	lib "github.com/futugyousuzu/go-openai"
 )
@@ -33,7 +33,7 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 		return result
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	models := client.ListModels()
 	rset := make(map[string]interface{})

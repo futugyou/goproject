@@ -11,8 +11,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/beego/beego/v2/core/config"
-
 	lib "github.com/futugyousuzu/go-openai"
 )
 
@@ -52,7 +50,7 @@ func Completions() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -82,7 +80,7 @@ func CreateCompletionLib() interface{} {
 		Logprobs:         1,
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateCompletion(request)
 }
@@ -93,7 +91,7 @@ func ListModels() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -112,7 +110,7 @@ func ListModels() string {
 }
 
 func ListModelsLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.ListModels()
 }
@@ -123,7 +121,7 @@ func RetrieveModel() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -142,7 +140,7 @@ func RetrieveModel() string {
 }
 
 func RetrieveModelLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.RetrieveModel("text-davinci-003")
 }
@@ -172,7 +170,7 @@ func CreateEdits() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -197,7 +195,7 @@ func CreateEditsLib() interface{} {
 		Instruction: "Fix the spelling mistakes",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateEdits(request)
 }
@@ -222,7 +220,7 @@ func CreateImages() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -247,7 +245,7 @@ func CreateImagesLib() interface{} {
 		Size:   "1024x1024",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateImages(data)
 }
@@ -289,7 +287,7 @@ func EditImages() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -327,7 +325,7 @@ func EditImageslib() interface{} {
 		Size: "512x512",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.EditImages(data)
 }
@@ -343,7 +341,7 @@ func VariationImagesLib() interface{} {
 		Size:  "512x512",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.VariationImages(data)
 }
@@ -366,7 +364,7 @@ func CreateEmbeddings() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -390,7 +388,7 @@ func CreateEmbeddingslib() interface{} {
 		Input: []string{"The food was delicious and the waiter..."},
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateEmbeddings(data)
 }
@@ -401,7 +399,7 @@ func ListFiles() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -420,7 +418,7 @@ func ListFiles() string {
 }
 
 func ListFilesLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.ListFiles()
 }
@@ -449,7 +447,7 @@ func UploadFiles() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -478,7 +476,7 @@ func UploadFileslib() interface{} {
 		Purpose: "fine-tune",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.UploadFiles(data)
 }
@@ -489,7 +487,7 @@ func RetrieveFile() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -508,7 +506,7 @@ func RetrieveFile() string {
 }
 
 func RetrieveFileLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.RetrieveFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
@@ -519,7 +517,7 @@ func RetrieveFileContent() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -543,7 +541,7 @@ func DeleteFile() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -562,7 +560,7 @@ func DeleteFile() string {
 }
 
 func DeleteFileLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.DeleteFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
@@ -585,7 +583,7 @@ func CreateFinetune() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -609,7 +607,7 @@ func CreateFinetunelib() interface{} {
 		ValidationFile: "file-NXWeVnozaOT7ckA5gUtuVvhJ",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateFinetune(data)
 }
@@ -621,7 +619,7 @@ func CancelFinetune() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -640,7 +638,7 @@ func CancelFinetune() string {
 }
 
 func CancelFinetunelib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CancelFinetune("ft-wVjb6K7ngTeYeW6QT1eDQikZ")
 }
@@ -651,7 +649,7 @@ func ListFinetunes() string {
 		return err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -670,25 +668,25 @@ func ListFinetunes() string {
 }
 
 func ListFinetunesLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.ListFinetune()
 }
 
 func RetrieveFinetunelib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.RetrieveFinetune("ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
 
 func ListFinetuneEventslib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.ListFinetuneEvents("ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
 
 func DeleteFinetuneMdelLib() interface{} {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.DeleteFinetuneMdel("curie:ft-personal-2023-02-28-05-52-07")
 }
@@ -711,7 +709,7 @@ func CreateModeration() string {
 		return ""
 	}
 	req.Header.Set("Content-Type", "application/json")
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)
@@ -735,7 +733,7 @@ func CreateModerationLib() interface{} {
 		Model: "text-moderation-latest",
 	}
 
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateModeration(request)
 }
@@ -754,7 +752,7 @@ func CreateAudioTranscriptionLib() interface{} {
 		Temperature:    0.5,
 		Language:       "en",
 	}
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
 	return client.CreateAudioTranscription(data)
 }
@@ -791,7 +789,7 @@ func CreateAudioTranscription() string {
 
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", openaikey))
 
 	resp, err := http.DefaultClient.Do(req)

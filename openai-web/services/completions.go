@@ -1,11 +1,11 @@
 package services
 
 import (
+	"os"
 	"time"
 
 	openai "github.com/futugyousuzu/go-openai"
 
-	"github.com/beego/beego/v2/core/config"
 	"github.com/devfeel/mapper"
 )
 
@@ -39,7 +39,7 @@ type CreateCompletionResponse struct {
 }
 
 func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) CreateCompletionResponse {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := openai.NewClient(openaikey)
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
@@ -75,7 +75,7 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) Cr
 }
 
 func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest) <-chan CreateCompletionResponse {
-	openaikey, _ := config.String("openaikey")
+	openaikey := os.Getenv("openaikey")
 	client := openai.NewClient(openaikey)
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
