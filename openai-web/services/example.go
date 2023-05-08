@@ -11,7 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/exp/slices"
 )
 
 type ExampleModel struct {
@@ -109,52 +108,32 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	return result
 }
 
-func (s *ExampleService) CreateCustomExample(model ExampleModel) []ExampleModel {
-	// system examples
-	result := s.GetExampleSettings()
-
-	var examples []byte
-	var err error
-
-	customExamples := make([]ExampleModel, 0)
-	if examples, err = os.ReadFile("./examples/custom.json"); err != nil {
-		logs.Error(err)
-		return result
+func (s *ExampleService) CreateCustomExample(model ExampleModel) {
+	uri := os.Getenv("mongodb_url")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
 	}
 
-	if len(examples) > 0 {
-		if err = json.Unmarshal(examples, &customExamples); err != nil {
-			logs.Error(err)
-			return result
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database("sample_mflix").Collection("custome_examples")
+	var example ExampleModel
+	upsert := true
+	option := options.FindOneAndReplaceOptions{
+		Upsert: &upsert,
+	}
+
+	err = coll.FindOneAndReplace(context.TODO(), bson.D{{Key: "key", Value: model.Key}}, model, &option).Decode(&example)
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			panic(err)
 		}
 	}
-
-	idx := slices.IndexFunc(customExamples, func(c ExampleModel) bool { return c.Key == model.Key })
-	if idx >= 0 {
-		return append(result, customExamples...)
-	}
-
-	result = append(result, customExamples...)
-	customefile, err := os.OpenFile("./examples/custom.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		logs.Error(err)
-		return result
-	}
-
-	defer customefile.Close()
-
-	example, err := json.Marshal(append(customExamples, model))
-	if err != nil {
-		logs.Error(err)
-		return result
-	}
-
-	_, err = customefile.Write(example)
-	if err != nil {
-		logs.Error(err)
-		return result
-	}
-	return append(result, model)
 }
 
 func (s *ExampleService) InitExamples() {

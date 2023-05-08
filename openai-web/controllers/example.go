@@ -30,8 +30,8 @@ func (c *ExampleController) CreateExample() {
 	exampleService := services.ExampleService{}
 	var request services.ExampleModel
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
-	result := exampleService.CreateCustomExample(request)
-	c.Ctx.JSONResp(result)
+	exampleService.CreateCustomExample(request)
+	c.Ctx.WriteString("ok")
 }
 
 // @Title get examples
