@@ -54,20 +54,6 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 		return result
 	}
 
-	// get data from file
-	// var examples []byte
-	// var err error
-
-	// if examples, err = os.ReadFile("./examples/examples.json"); err != nil {
-	// 	logs.Error(err)
-	// 	return result
-	// }
-
-	// if err = json.Unmarshal(examples, &result); err != nil {
-	// 	logs.Error(err)
-	// 	return result
-	// }
-
 	uri := os.Getenv("mongodb_url")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
@@ -94,23 +80,12 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 
 	for _, data := range result {
 		cursor.Decode(&data)
-		output, err := json.MarshalIndent(data, "", "    ")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%s\n", output)
+		// output, err := json.MarshalIndent(data, "", "    ")
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// fmt.Printf("%s\n", output)
 	}
-
-	// newResults := make([]interface{}, len(result))
-	// for i, v := range result {
-	// 	newResults[i] = v
-	// }
-
-	// operateResult, err := coll.InsertMany(context.TODO(), newResults)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("%s\n", operateResult)
 
 	examplesCache := make(map[string]interface{})
 	for _, example := range result {
@@ -174,4 +149,55 @@ func (s *ExampleService) CreateCustomExample(model ExampleModel) []ExampleModel 
 		return result
 	}
 	return append(result, model)
+}
+
+func (s *ExampleService) InitExamples() {
+	result := make([]ExampleModel, 0)
+
+	// get data from file
+	var examples []byte
+	var err error
+
+	if examples, err = os.ReadFile("./examples/examples.json"); err != nil {
+		logs.Error(err)
+		return
+	}
+
+	if err = json.Unmarshal(examples, &result); err != nil {
+		logs.Error(err)
+		return
+	}
+
+	uri := os.Getenv("mongodb_url")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database("sample_mflix").Collection("examples")
+	cursor, err := coll.Find(context.TODO(), bson.D{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if cursor.TryNext(context.TODO()) {
+		return
+	}
+
+	newResults := make([]interface{}, len(result))
+	for i, v := range result {
+		newResults[i] = v
+	}
+
+	_, err = coll.InsertMany(context.TODO(), newResults)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
