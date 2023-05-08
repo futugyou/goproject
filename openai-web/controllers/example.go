@@ -16,7 +16,7 @@ type ExampleController struct {
 // @Title get examples
 // @Success 200 {object} 	services.ExampleModel
 // @router / [get]
-func (c *ExampleController) ExampleDetail() {
+func (c *ExampleController) Examples() {
 	exampleService := services.ExampleService{}
 	result := exampleService.GetExampleSettings()
 	c.Ctx.JSONResp(result)
@@ -32,4 +32,13 @@ func (c *ExampleController) CreateExample() {
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
 	result := exampleService.CreateCustomExample(request)
 	c.Ctx.JSONResp(result)
+}
+
+// @Title get examples
+// @Success 200 {string}
+// @router /init [post]
+func (c *ExampleController) InitExamples() {
+	exampleService := services.ExampleService{}
+	exampleService.InitExamples()
+	c.Ctx.WriteString("ok")
 }

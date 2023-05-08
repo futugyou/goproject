@@ -247,6 +247,19 @@
                 }
             }
         },
+        "/examples/init": {
+            "post": {
+                "tags": [
+                    "examples"
+                ],
+                "operationId": "ExampleController.get examples",
+                "responses": {
+                    "200": {
+                        "description": "{string}"
+                    }
+                }
+            }
+        },
         "/fine-tune/{fine_tune_id}/events": {
             "get": {
                 "tags": [

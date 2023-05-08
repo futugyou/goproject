@@ -78,7 +78,7 @@ func init() {
 
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"],
         beego.ControllerComments{
-            Method: "ExampleDetail",
+            Method: "Examples",
             Router: `/`,
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
@@ -89,6 +89,15 @@ func init() {
         beego.ControllerComments{
             Method: "CreateExample",
             Router: `/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"],
+        beego.ControllerComments{
+            Method: "InitExamples",
+            Router: `/init`,
             AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
