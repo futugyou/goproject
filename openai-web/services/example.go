@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/beego/beego/v2/core/logs"
 	"go.mongodb.org/mongo-driver/bson"
@@ -97,7 +98,12 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	if err != nil {
 		logs.Error(err)
 	} else {
-		logs.Info(fmt.Sprintf("example data count: %d", count))
+		_, err := Rbd.Expire(ctx, GetAllExamplesKey, time.Hour).Result()
+		if err != nil {
+			logs.Error(err)
+		} else {
+			logs.Info(fmt.Sprintf("example data count: %d", count))
+		}
 	}
 
 	return result
