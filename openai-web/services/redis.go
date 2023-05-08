@@ -13,8 +13,8 @@ var ctx = context.Background()
 
 func init() {
 	redisAddress := os.Getenv("redisAddress")
-	redisPassword := os.Getenv("redisAddress")
-	redisDBString := os.Getenv("redisAddress")
+	redisPassword := os.Getenv("redisPassword")
+	redisDBString := os.Getenv("redisDB")
 	redisDB, _ := strconv.Atoi(redisDBString)
 	Rbd = redis.NewClient(&redis.Options{
 		Addr:     redisAddress,
