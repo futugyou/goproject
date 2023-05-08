@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/exp/slices"
@@ -54,27 +55,20 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	}
 
 	// get data from file
-	var examples []byte
-	var err error
+	// var examples []byte
+	// var err error
 
-	if examples, err = os.ReadFile("./examples/examples.json"); err != nil {
-		logs.Error(err)
-		return result
-	}
+	// if examples, err = os.ReadFile("./examples/examples.json"); err != nil {
+	// 	logs.Error(err)
+	// 	return result
+	// }
 
-	if err = json.Unmarshal(examples, &result); err != nil {
-		logs.Error(err)
-		return result
-	}
-
-	examplesCache := make(map[string]interface{})
-	for _, example := range result {
-		examplestring, _ := json.Marshal(example)
-		examplesCache[example.Key] = examplestring
-	}
+	// if err = json.Unmarshal(examples, &result); err != nil {
+	// 	logs.Error(err)
+	// 	return result
+	// }
 
 	uri := os.Getenv("mongodb_url")
-
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -87,17 +81,42 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	}()
 
 	coll := client.Database("sample_mflix").Collection("examples")
-
-	newResults := make([]interface{}, len(result))
-	for i, v := range result {
-		newResults[i] = v
-	}
-
-	operateResult, err := coll.InsertMany(context.TODO(), newResults)
+	filter := bson.D{}
+	cursor, err := coll.Find(context.TODO(), filter)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%s\n", operateResult)
+	// end find
+
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		panic(err)
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+		output, err := json.MarshalIndent(data, "", "    ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s\n", output)
+	}
+
+	// newResults := make([]interface{}, len(result))
+	// for i, v := range result {
+	// 	newResults[i] = v
+	// }
+
+	// operateResult, err := coll.InsertMany(context.TODO(), newResults)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("%s\n", operateResult)
+
+	examplesCache := make(map[string]interface{})
+	for _, example := range result {
+		examplestring, _ := json.Marshal(example)
+		examplesCache[example.Key] = examplestring
+	}
 
 	count, err := Rbd.HSet(ctx, GetAllExamplesKey, examplesCache).Result()
 	if err != nil {
