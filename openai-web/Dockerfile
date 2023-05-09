@@ -16,6 +16,7 @@ RUN cd ./openai-web && CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=build /openai /openai
+COPY ./openai-web/conf/app.conf conf/app.conf
 COPY ./openai-web/.env .env
 COPY ./openai-web/examples examples
 COPY ./openai-web/swagger swagger

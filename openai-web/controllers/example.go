@@ -38,6 +38,10 @@ func (c *ExampleController) CreateExample() {
 	exampleService := services.ExampleService{}
 	var request services.ExampleModel
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
+	if len(request.Key) == 0 {
+		c.Ctx.WriteString("error")
+		return
+	}
 
 	if typestring == "custom" {
 		exampleService.CreateCustomExample(request)
