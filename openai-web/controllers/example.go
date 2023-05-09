@@ -17,8 +17,15 @@ type ExampleController struct {
 // @Success 200 {object} 	services.ExampleModel
 // @router / [get]
 func (c *ExampleController) Examples() {
+	typestring := c.GetString("type")
+
 	exampleService := services.ExampleService{}
-	result := exampleService.GetExampleSettings()
+	var result []services.ExampleModel
+	if typestring == "custom" {
+		result = exampleService.GetCustomExamples()
+	} else {
+		result = exampleService.GetSystemExamples()
+	}
 	c.Ctx.JSONResp(result)
 }
 
@@ -27,10 +34,17 @@ func (c *ExampleController) Examples() {
 // @Param	body		body 	services.ExampleModel	true		"body for create example content"
 // @router / [post]
 func (c *ExampleController) CreateExample() {
+	typestring := c.GetString("type")
 	exampleService := services.ExampleService{}
 	var request services.ExampleModel
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
-	exampleService.CreateCustomExample(request)
+
+	if typestring == "custom" {
+		exampleService.CreateCustomExample(request)
+	} else {
+		exampleService.CreateSystemExample(request)
+	}
+
 	c.Ctx.WriteString("ok")
 }
 

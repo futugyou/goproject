@@ -35,7 +35,7 @@ type ExampleService struct {
 
 const GetAllExamplesKey string = "GetAllExamplesKey"
 
-func (s *ExampleService) GetExampleSettings() []ExampleModel {
+func (s *ExampleService) GetSystemExamples() []ExampleModel {
 	result := make([]ExampleModel, 0)
 	// get data from redis,
 	// it is not necessary at the moment, but examples.json data will migrate to db in the future
@@ -54,38 +54,7 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 		return result
 	}
 
-	uri := os.Getenv("mongodb_url")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database("sample_mflix").Collection("examples")
-	filter := bson.D{}
-	cursor, err := coll.Find(context.TODO(), filter)
-	if err != nil {
-		panic(err)
-	}
-	// end find
-
-	if err = cursor.All(context.TODO(), &result); err != nil {
-		panic(err)
-	}
-
-	for _, data := range result {
-		cursor.Decode(&data)
-		// output, err := json.MarshalIndent(data, "", "    ")
-		// if err != nil {
-		// 	panic(err)
-		// }
-		// fmt.Printf("%s\n", output)
-	}
+	result = s.getExamples("examples")
 
 	examplesCache := make(map[string]interface{})
 	for _, example := range result {
@@ -108,7 +77,19 @@ func (s *ExampleService) GetExampleSettings() []ExampleModel {
 	return result
 }
 
+func (s *ExampleService) CreateSystemExample(model ExampleModel) {
+	s.createExample(model, "examples")
+}
+
+func (s *ExampleService) GetCustomExamples() []ExampleModel {
+	return s.getExamples("custome_examples")
+}
+
 func (s *ExampleService) CreateCustomExample(model ExampleModel) {
+	s.createExample(model, "custome_examples")
+}
+
+func (s *ExampleService) createExample(model ExampleModel, tableName string) {
 	uri := os.Getenv("mongodb_url")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
@@ -121,7 +102,7 @@ func (s *ExampleService) CreateCustomExample(model ExampleModel) {
 		}
 	}()
 
-	coll := client.Database("sample_mflix").Collection("custome_examples")
+	coll := client.Database("sample_mflix").Collection(tableName)
 	var example ExampleModel
 	upsert := true
 	option := options.FindOneAndReplaceOptions{
@@ -134,6 +115,40 @@ func (s *ExampleService) CreateCustomExample(model ExampleModel) {
 			panic(err)
 		}
 	}
+}
+
+func (s *ExampleService) getExamples(tableName string) []ExampleModel {
+	result := make([]ExampleModel, 0)
+
+	uri := os.Getenv("mongodb_url")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database("sample_mflix").Collection(tableName)
+	filter := bson.D{}
+	cursor, err := coll.Find(context.TODO(), filter)
+	if err != nil {
+		panic(err)
+	}
+	// end find
+
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		panic(err)
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result
 }
 
 func (s *ExampleService) InitExamples() {
