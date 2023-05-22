@@ -13,7 +13,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/futugyousuzu/identity/mongo"
 	"github.com/go-oauth2/oauth2/v4/generates"
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/go-oauth2/oauth2/v4/manage"
@@ -41,6 +43,7 @@ func init() {
 
 func main() {
 	flag.Parse()
+	dumpvar = false
 	if dumpvar {
 		log.Println("Dumping requests")
 	}
@@ -48,8 +51,16 @@ func main() {
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
 
 	// token store
-	manager.MustTokenStorage(store.NewMemoryTokenStore())
+	// manager.MustTokenStorage(store.NewMemoryTokenStore())
+	mongodb_uri := os.Getenv("mongodb_url")
+	mongodb_name := os.Getenv("db_name")
 
+	manager.MapTokenStorage(
+		mongo.NewTokenStore(mongo.NewConfig(
+			mongodb_uri,
+			mongodb_name,
+		)),
+	)
 	// generate jwt access token
 	// manager.MapAccessGenerate(generates.NewJWTAccessGenerate("", []byte("00000000"), jwt.SigningMethodHS512))
 	manager.MapAccessGenerate(generates.NewAccessGenerate())
@@ -224,12 +235,14 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(1)
 	if _, ok := store.Get("LoggedInUserID"); !ok {
+		fmt.Println(2)
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusFound)
 		return
 	}
-
+	fmt.Println(3)
 	outputHTML(w, r, "static/auth.html")
 }
 
