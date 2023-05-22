@@ -89,7 +89,7 @@ func (cs *ClientStore) Set(info oauth2.ClientInfo) (err error) {
 func (cs *ClientStore) GetByID(id string) (info oauth2.ClientInfo, err error) {
 	cs.cHandler(cs.ccfg.ClientsCName, func(c *mongo.Collection) {
 		entity := new(client)
-		filter := bson.D{{"ID", id}}
+		filter := bson.D{{Key: "ID", Value: id}}
 
 		if err = c.FindOne(context.TODO(), filter).Decode(&entity); err != nil {
 			return
@@ -109,7 +109,7 @@ func (cs *ClientStore) GetByID(id string) (info oauth2.ClientInfo, err error) {
 // RemoveByID use the client id to delete the client information
 func (cs *ClientStore) RemoveByID(id string) (err error) {
 	cs.cHandler(cs.ccfg.ClientsCName, func(c *mongo.Collection) {
-		filter := bson.D{{"ID", id}}
+		filter := bson.D{{Key: "ID", Value: id}}
 		if _, err = c.DeleteOne(context.TODO(), filter); err != nil {
 			return
 		}
