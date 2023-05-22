@@ -118,6 +118,7 @@ func (ts *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) (err er
 		session.EndSession(ctx)
 	}()
 
+	session.StartTransaction()
 	id := primitive.NewObjectID().Hex()
 	base := ts.client.Database(ts.dbName).Collection(ts.tcfg.BasicCName)
 	base.InsertOne(ctx, basicData{
@@ -148,7 +149,7 @@ func (ts *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) (err er
 // RemoveByCode use the authorization code to delete the token information
 func (ts *TokenStore) RemoveByCode(ctx context.Context, code string) (err error) {
 	ts.cHandler(ts.tcfg.BasicCName, ctx, func(c *mongo.Collection) {
-		filter := bson.D{{Key: "ID", Value: code}}
+		filter := bson.D{{Key: "_id", Value: code}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
@@ -159,7 +160,7 @@ func (ts *TokenStore) RemoveByCode(ctx context.Context, code string) (err error)
 // RemoveByAccess use the access token to delete the token information
 func (ts *TokenStore) RemoveByAccess(ctx context.Context, access string) (err error) {
 	ts.cHandler(ts.tcfg.AccessCName, ctx, func(c *mongo.Collection) {
-		filter := bson.D{{Key: "ID", Value: access}}
+		filter := bson.D{{Key: "_id", Value: access}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
@@ -170,7 +171,7 @@ func (ts *TokenStore) RemoveByAccess(ctx context.Context, access string) (err er
 // RemoveByRefresh use the refresh token to delete the token information
 func (ts *TokenStore) RemoveByRefresh(ctx context.Context, refresh string) (err error) {
 	ts.cHandler(ts.tcfg.RefreshCName, ctx, func(c *mongo.Collection) {
-		filter := bson.D{{Key: "ID", Value: refresh}}
+		filter := bson.D{{Key: "_id", Value: refresh}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
@@ -181,7 +182,7 @@ func (ts *TokenStore) RemoveByRefresh(ctx context.Context, refresh string) (err 
 func (ts *TokenStore) getData(ctx context.Context, basicID string) (ti oauth2.TokenInfo, err error) {
 	ts.cHandler(ts.tcfg.BasicCName, ctx, func(c *mongo.Collection) {
 		var bd basicData
-		filter := bson.D{{Key: "ID", Value: basicID}}
+		filter := bson.D{{Key: "_id", Value: basicID}}
 		if err = c.FindOne(ctx, filter).Decode(&bd); err != nil {
 			return
 		}
@@ -198,7 +199,7 @@ func (ts *TokenStore) getData(ctx context.Context, basicID string) (ti oauth2.To
 func (ts *TokenStore) getBasicID(ctx context.Context, cname, token string) (basicID string, err error) {
 	ts.cHandler(cname, ctx, func(c *mongo.Collection) {
 		var td tokenData
-		filter := bson.D{{Key: "ID", Value: token}}
+		filter := bson.D{{Key: "_id", Value: token}}
 		if err = c.FindOne(ctx, filter).Decode(&td); err != nil {
 			return
 		}
