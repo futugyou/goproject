@@ -69,36 +69,36 @@ type TokenStore struct {
 }
 
 // Close close the mongo client
-func (ts *TokenStore) Close() {
-	ts.client.Disconnect(context.TODO())
+func (ts *TokenStore) Close(ctx context.Context) {
+	ts.client.Disconnect(ctx)
 }
 
 func (ts *TokenStore) c(name string) *mongo.Collection {
 	return ts.client.Database(ts.dbName).Collection(name)
 }
 
-func (ts *TokenStore) cHandler(name string, handler func(c *mongo.Collection)) {
-	defer ts.Close()
+func (ts *TokenStore) cHandler(name string, ctx context.Context, handler func(c *mongo.Collection)) {
+	defer ts.Close(ctx)
 	handler(ts.c(name))
 	return
 }
 
 // Create create and store the new token information
-func (ts *TokenStore) Create(info oauth2.TokenInfo) (err error) {
+func (ts *TokenStore) Create(ctx context.Context, info oauth2.TokenInfo) (err error) {
 	jv, err := json.Marshal(info)
 	if err != nil {
 		return
 	}
 
 	if code := info.GetCode(); code != "" {
-		ts.cHandler(ts.tcfg.BasicCName, func(c *mongo.Collection) {
+		ts.cHandler(ts.tcfg.BasicCName, ctx, func(c *mongo.Collection) {
 			entity := basicData{
 				ID:        code,
 				Data:      jv,
 				ExpiredAt: info.GetCodeCreateAt().Add(info.GetCodeExpiresIn()),
 			}
 
-			_, err = c.InsertOne(context.TODO(), entity)
+			_, err = c.InsertOne(ctx, entity)
 		})
 
 		return
@@ -113,22 +113,21 @@ func (ts *TokenStore) Create(info oauth2.TokenInfo) (err error) {
 		}
 	}
 
-	var bgCtx = context.Background()
 	session, err := ts.client.StartSession()
 	defer func() {
-		session.EndSession(bgCtx)
+		session.EndSession(ctx)
 	}()
 
 	id := primitive.NewObjectID().Hex()
 	base := ts.client.Database(ts.dbName).Collection(ts.tcfg.BasicCName)
-	base.InsertOne(bgCtx, basicData{
+	base.InsertOne(ctx, basicData{
 		ID:        id,
 		Data:      jv,
 		ExpiredAt: rexp,
 	})
 
 	access := ts.client.Database(ts.dbName).Collection(ts.tcfg.AccessCName)
-	access.InsertOne(bgCtx, tokenData{
+	access.InsertOne(ctx, tokenData{
 		ID:        info.GetAccess(),
 		BasicID:   id,
 		ExpiredAt: aexp,
@@ -136,21 +135,21 @@ func (ts *TokenStore) Create(info oauth2.TokenInfo) (err error) {
 
 	if refresh := info.GetRefresh(); refresh != "" {
 		fresh := ts.client.Database(ts.dbName).Collection(ts.tcfg.RefreshCName)
-		fresh.InsertOne(bgCtx, tokenData{
+		fresh.InsertOne(ctx, tokenData{
 			ID:        refresh,
 			BasicID:   id,
 			ExpiredAt: rexp,
 		})
 	}
 
-	return session.CommitTransaction(bgCtx)
+	return session.CommitTransaction(ctx)
 }
 
 // RemoveByCode use the authorization code to delete the token information
-func (ts *TokenStore) RemoveByCode(code string) (err error) {
-	ts.cHandler(ts.tcfg.BasicCName, func(c *mongo.Collection) {
+func (ts *TokenStore) RemoveByCode(ctx context.Context, code string) (err error) {
+	ts.cHandler(ts.tcfg.BasicCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "ID", Value: code}}
-		if _, err = c.DeleteOne(context.TODO(), filter); err != nil {
+		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
 	})
@@ -158,10 +157,10 @@ func (ts *TokenStore) RemoveByCode(code string) (err error) {
 }
 
 // RemoveByAccess use the access token to delete the token information
-func (ts *TokenStore) RemoveByAccess(access string) (err error) {
-	ts.cHandler(ts.tcfg.AccessCName, func(c *mongo.Collection) {
+func (ts *TokenStore) RemoveByAccess(ctx context.Context, access string) (err error) {
+	ts.cHandler(ts.tcfg.AccessCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "ID", Value: access}}
-		if _, err = c.DeleteOne(context.TODO(), filter); err != nil {
+		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
 	})
@@ -169,21 +168,21 @@ func (ts *TokenStore) RemoveByAccess(access string) (err error) {
 }
 
 // RemoveByRefresh use the refresh token to delete the token information
-func (ts *TokenStore) RemoveByRefresh(refresh string) (err error) {
-	ts.cHandler(ts.tcfg.RefreshCName, func(c *mongo.Collection) {
+func (ts *TokenStore) RemoveByRefresh(ctx context.Context, refresh string) (err error) {
+	ts.cHandler(ts.tcfg.RefreshCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "ID", Value: refresh}}
-		if _, err = c.DeleteOne(context.TODO(), filter); err != nil {
+		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
 	})
 	return
 }
 
-func (ts *TokenStore) getData(basicID string) (ti oauth2.TokenInfo, err error) {
-	ts.cHandler(ts.tcfg.BasicCName, func(c *mongo.Collection) {
+func (ts *TokenStore) getData(ctx context.Context, basicID string) (ti oauth2.TokenInfo, err error) {
+	ts.cHandler(ts.tcfg.BasicCName, ctx, func(c *mongo.Collection) {
 		var bd basicData
 		filter := bson.D{{Key: "ID", Value: basicID}}
-		if err = c.FindOne(context.TODO(), filter).Decode(&bd); err != nil {
+		if err = c.FindOne(ctx, filter).Decode(&bd); err != nil {
 			return
 		}
 		var tm models.Token
@@ -196,11 +195,11 @@ func (ts *TokenStore) getData(basicID string) (ti oauth2.TokenInfo, err error) {
 	return
 }
 
-func (ts *TokenStore) getBasicID(cname, token string) (basicID string, err error) {
-	ts.cHandler(cname, func(c *mongo.Collection) {
+func (ts *TokenStore) getBasicID(ctx context.Context, cname, token string) (basicID string, err error) {
+	ts.cHandler(cname, ctx, func(c *mongo.Collection) {
 		var td tokenData
 		filter := bson.D{{Key: "ID", Value: token}}
-		if err = c.FindOne(context.TODO(), filter).Decode(&td); err != nil {
+		if err = c.FindOne(ctx, filter).Decode(&td); err != nil {
 			return
 		}
 		basicID = td.BasicID
@@ -209,28 +208,28 @@ func (ts *TokenStore) getBasicID(cname, token string) (basicID string, err error
 }
 
 // GetByCode use the authorization code for token information data
-func (ts *TokenStore) GetByCode(code string) (ti oauth2.TokenInfo, err error) {
-	ti, err = ts.getData(code)
+func (ts *TokenStore) GetByCode(ctx context.Context, code string) (ti oauth2.TokenInfo, err error) {
+	ti, err = ts.getData(ctx, code)
 	return
 }
 
 // GetByAccess use the access token for token information data
-func (ts *TokenStore) GetByAccess(access string) (ti oauth2.TokenInfo, err error) {
-	basicID, err := ts.getBasicID(ts.tcfg.AccessCName, access)
+func (ts *TokenStore) GetByAccess(ctx context.Context, access string) (ti oauth2.TokenInfo, err error) {
+	basicID, err := ts.getBasicID(ctx, ts.tcfg.AccessCName, access)
 	if err != nil && basicID == "" {
 		return
 	}
-	ti, err = ts.getData(basicID)
+	ti, err = ts.getData(ctx, basicID)
 	return
 }
 
 // GetByRefresh use the refresh token for token information data
-func (ts *TokenStore) GetByRefresh(refresh string) (ti oauth2.TokenInfo, err error) {
-	basicID, err := ts.getBasicID(ts.tcfg.RefreshCName, refresh)
+func (ts *TokenStore) GetByRefresh(ctx context.Context, refresh string) (ti oauth2.TokenInfo, err error) {
+	basicID, err := ts.getBasicID(ctx, ts.tcfg.RefreshCName, refresh)
 	if err != nil && basicID == "" {
 		return
 	}
-	ti, err = ts.getData(basicID)
+	ti, err = ts.getData(ctx, basicID)
 	return
 }
 

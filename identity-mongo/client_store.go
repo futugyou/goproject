@@ -55,23 +55,23 @@ type ClientStore struct {
 }
 
 // Close close the mongo client
-func (cs *ClientStore) Close() {
-	cs.client.Disconnect(context.TODO())
+func (cs *ClientStore) Close(ctx context.Context) {
+	cs.client.Disconnect(ctx)
 }
 
 func (cs *ClientStore) c(name string) *mongo.Collection {
 	return cs.client.Database(cs.dbName).Collection(name)
 }
 
-func (cs *ClientStore) cHandler(name string, handler func(c *mongo.Collection)) {
-	defer cs.Close()
+func (cs *ClientStore) cHandler(name string, ctx context.Context, handler func(c *mongo.Collection)) {
+	defer cs.Close(ctx)
 	handler(cs.c(name))
 	return
 }
 
 // Set set client information
-func (cs *ClientStore) Set(info oauth2.ClientInfo) (err error) {
-	cs.cHandler(cs.ccfg.ClientsCName, func(c *mongo.Collection) {
+func (cs *ClientStore) Set(ctx context.Context, info oauth2.ClientInfo) (err error) {
+	cs.cHandler(cs.ccfg.ClientsCName, ctx, func(c *mongo.Collection) {
 		entity := &client{
 			ID:     info.GetID(),
 			Secret: info.GetSecret(),
@@ -79,19 +79,19 @@ func (cs *ClientStore) Set(info oauth2.ClientInfo) (err error) {
 			UserID: info.GetUserID(),
 		}
 
-		_, err = c.InsertOne(context.TODO(), entity)
+		_, err = c.InsertOne(ctx, entity)
 	})
 
 	return
 }
 
 // GetByID according to the ID for the client information
-func (cs *ClientStore) GetByID(id string) (info oauth2.ClientInfo, err error) {
-	cs.cHandler(cs.ccfg.ClientsCName, func(c *mongo.Collection) {
+func (cs *ClientStore) GetByID(ctx context.Context, id string) (info oauth2.ClientInfo, err error) {
+	cs.cHandler(cs.ccfg.ClientsCName, ctx, func(c *mongo.Collection) {
 		entity := new(client)
 		filter := bson.D{{Key: "ID", Value: id}}
 
-		if err = c.FindOne(context.TODO(), filter).Decode(&entity); err != nil {
+		if err = c.FindOne(ctx, filter).Decode(&entity); err != nil {
 			return
 		}
 
@@ -107,10 +107,10 @@ func (cs *ClientStore) GetByID(id string) (info oauth2.ClientInfo, err error) {
 }
 
 // RemoveByID use the client id to delete the client information
-func (cs *ClientStore) RemoveByID(id string) (err error) {
-	cs.cHandler(cs.ccfg.ClientsCName, func(c *mongo.Collection) {
+func (cs *ClientStore) RemoveByID(ctx context.Context, id string) (err error) {
+	cs.cHandler(cs.ccfg.ClientsCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "ID", Value: id}}
-		if _, err = c.DeleteOne(context.TODO(), filter); err != nil {
+		if _, err = c.DeleteOne(ctx, filter); err != nil {
 			return
 		}
 	})
