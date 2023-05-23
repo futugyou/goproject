@@ -1,0 +1,23 @@
+{
+    "functions": {
+        "api/auth.go": {
+          "includeFiles": "./static/**"
+        },
+        "api/authorize.go": {
+          "includeFiles": "./static/**"
+        },
+        "api/login.go": {
+          "includeFiles": "./static/**"
+        },
+        "api/token.go": {
+          "includeFiles": "./static/**"
+        } 
+    },
+    "rewrites": [
+        { "source": "/auth", "destination": "/api/auth" } ,
+        { "source": "/authorize", "destination": "/api/authorize" } ,
+        { "source": "/login", "destination": "/api/login" } ,
+        { "source": "/test", "destination": "/api/test" } ,
+        { "source": "/token", "destination": "/api/token" }  
+      ]
+  }

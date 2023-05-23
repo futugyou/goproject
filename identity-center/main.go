@@ -1,28 +1,16 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"flag"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"os"
-	"time"
-
-	"github.com/futugyousuzu/identity/mongo"
-	"github.com/go-oauth2/oauth2/v4/generates"
-	"github.com/golang-jwt/jwt"
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/go-oauth2/oauth2/v4/errors"
-	"github.com/go-oauth2/oauth2/v4/manage"
-	"github.com/go-oauth2/oauth2/v4/models"
-	"github.com/go-oauth2/oauth2/v4/server"
-	"github.com/go-session/session"
+	_ "github.com/futugyousuzu/identity/server"
+
+	"flag"
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/futugyousuzu/identity/api"
 )
 
 var (
@@ -43,224 +31,16 @@ func init() {
 
 func main() {
 	flag.Parse()
-	dumpvar = false
-	if dumpvar {
-		log.Println("Dumping requests")
-	}
-	manager := manage.NewDefaultManager()
-	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
 
-	// token store
-	// manager.MustTokenStorage(store.NewMemoryTokenStore())
-	mongodb_uri := os.Getenv("mongodb_url")
-	mongodb_name := os.Getenv("db_name")
-
-	manager.MapTokenStorage(
-		mongo.NewTokenStore(mongo.NewConfig(
-			mongodb_uri,
-			mongodb_name,
-		)),
-	)
-	// generate jwt access token
-	signed_key_id := os.Getenv("signed_key_id")
-	signed_key := os.Getenv("signed_key")
-	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwt.SigningMethodHS512))
-	// manager.MapAccessGenerate(generates.NewAccessGenerate())
-
-	clientStore := mongo.NewClientStore(mongo.NewConfig(
-		mongodb_uri,
-		mongodb_name,
-	))
-
-	clientStore.Set(context.Background(), &models.Client{
-		ID:     idvar,
-		Secret: secretvar,
-		Domain: domainvar,
-	})
-	manager.MapClientStorage(clientStore)
-
-	srv := server.NewServer(server.NewConfig(), manager)
-
-	srv.SetPasswordAuthorizationHandler(func(ctx context.Context, clientID, username, password string) (userID string, err error) {
-		store := NewUserSore()
-		user, err := store.Login(ctx, username, password)
-		if err == nil {
-			userID = user.Name
-		}
-		return
-	})
-
-	srv.SetUserAuthorizationHandler(userAuthorizeHandler)
-
-	srv.SetInternalErrorHandler(func(err error) (re *errors.Response) {
-		log.Println("Internal Error:", err.Error())
-		return
-	})
-
-	srv.SetResponseErrorHandler(func(re *errors.Response) {
-		log.Println("Response Error:", re.Error.Error())
-	})
-
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/auth", authHandler)
-
-	http.HandleFunc("/oauth/authorize", func(w http.ResponseWriter, r *http.Request) {
-		if dumpvar {
-			dumpRequest(os.Stdout, "authorize", r)
-		}
-
-		store, err := session.Start(r.Context(), w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		var form url.Values
-		if v, ok := store.Get("ReturnUri"); ok {
-			form = v.(url.Values)
-		}
-		r.Form = form
-
-		store.Delete("ReturnUri")
-		store.Save()
-
-		err = srv.HandleAuthorizeRequest(w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-	})
-
-	http.HandleFunc("/oauth/token", func(w http.ResponseWriter, r *http.Request) {
-		if dumpvar {
-			_ = dumpRequest(os.Stdout, "token", r) // Ignore the error
-		}
-
-		err := srv.HandleTokenRequest(w, r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	})
-
-	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		if dumpvar {
-			_ = dumpRequest(os.Stdout, "test", r) // Ignore the error
-		}
-		token, err := srv.ValidationBearerToken(r)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		data := map[string]interface{}{
-			"expires_in": int64(token.GetAccessCreateAt().Add(token.GetAccessExpiresIn()).Sub(time.Now()).Seconds()),
-			"client_id":  token.GetClientID(),
-			"user_id":    token.GetUserID(),
-		}
-		e := json.NewEncoder(w)
-		e.SetIndent("", "  ")
-		e.Encode(data)
-	})
+	http.HandleFunc("/login", api.Login)
+	http.HandleFunc("/auth", api.Auth)
+	http.HandleFunc("/authorize", api.Authorize)
+	http.HandleFunc("/token", api.Token)
+	http.HandleFunc("/test", api.Test)
 
 	log.Printf("Server is running at %d port.\n", portvar)
 	log.Printf("Point your OAuth client Auth endpoint to %s:%d%s", "http://localhost", portvar, "/oauth/authorize")
 	log.Printf("Point your OAuth client Token endpoint to %s:%d%s", "http://localhost", portvar, "/oauth/token")
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", portvar), nil))
-}
-
-func dumpRequest(writer io.Writer, header string, r *http.Request) error {
-	data, err := httputil.DumpRequest(r, true)
-	if err != nil {
-		return err
-	}
-	writer.Write([]byte("\n" + header + ": \n"))
-	writer.Write(data)
-	return nil
-}
-
-func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-	if dumpvar {
-		_ = dumpRequest(os.Stdout, "userAuthorizeHandler", r) // Ignore the error
-	}
-	store, err := session.Start(r.Context(), w, r)
-	if err != nil {
-		return
-	}
-
-	uid, ok := store.Get("LoggedInUserID")
-	if !ok {
-		if r.Form == nil {
-			r.ParseForm()
-		}
-
-		store.Set("ReturnUri", r.Form)
-		store.Save()
-
-		w.Header().Set("Location", "/login")
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-
-	userID = uid.(string)
-	store.Delete("LoggedInUserID")
-	store.Save()
-	return
-}
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if dumpvar {
-		_ = dumpRequest(os.Stdout, "login", r) // Ignore the error
-	}
-	store, err := session.Start(r.Context(), w, r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if r.Method == "POST" {
-		if r.Form == nil {
-			if err := r.ParseForm(); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-		store.Set("LoggedInUserID", r.Form.Get("username"))
-		store.Save()
-
-		w.Header().Set("Location", "/auth")
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-	outputHTML(w, r, "static/login.html")
-}
-
-func authHandler(w http.ResponseWriter, r *http.Request) {
-	if dumpvar {
-		_ = dumpRequest(os.Stdout, "auth", r) // Ignore the error
-	}
-	store, err := session.Start(nil, w, r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Println(1)
-	if _, ok := store.Get("LoggedInUserID"); !ok {
-		fmt.Println(2)
-		w.Header().Set("Location", "/login")
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-	fmt.Println(3)
-	outputHTML(w, r, "static/auth.html")
-}
-
-func outputHTML(w http.ResponseWriter, req *http.Request, filename string) {
-	file, err := os.Open(filename)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	defer file.Close()
-	fi, _ := file.Stat()
-	http.ServeContent(w, req, file.Name(), fi.ModTime(), file)
 }
