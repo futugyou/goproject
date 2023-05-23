@@ -36,7 +36,7 @@ var (
 func init() {
 	flag.BoolVar(&dumpvar, "d", true, "Dump requests and responses")
 	flag.StringVar(&idvar, "i", "222222", "The client id being passed in")
-	flag.StringVar(&secretvar, "s", "222222223", "The client secret being passed in")
+	flag.StringVar(&secretvar, "s", "22222222", "The client secret being passed in")
 	flag.StringVar(&domainvar, "r", "http://localhost:9094", "The domain of the redirect url")
 	flag.IntVar(&portvar, "p", 9096, "the base port for the server")
 }
@@ -82,8 +82,10 @@ func main() {
 	srv := server.NewServer(server.NewConfig(), manager)
 
 	srv.SetPasswordAuthorizationHandler(func(ctx context.Context, clientID, username, password string) (userID string, err error) {
-		if username == "test" && password == "test" {
-			userID = "test"
+		store := NewUserSore()
+		user, err := store.Login(ctx, username, password)
+		if err == nil {
+			userID = user.Name
 		}
 		return
 	})

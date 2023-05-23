@@ -13,6 +13,7 @@ import (
 
 type UserStore interface {
 	GetByName(ctx context.Context, name string) (User, error)
+	Login(ctx context.Context, name, password string) (User, error)
 	CreateUser(ctx context.Context, user User) error
 	UpdatePassword(ctx context.Context, name, password string) error
 	ListUser(ctx context.Context) []User
@@ -61,6 +62,19 @@ func (u *MongoUserSore) GetByName(ctx context.Context, name string) (User, error
 	entity := new(User)
 	filter := bson.D{{Key: "name", Value: name}}
 
+	err := c.FindOne(ctx, filter).Decode(&entity)
+	if err == nil {
+		entity.Password = ""
+	}
+	return *entity, err
+}
+
+func (u *MongoUserSore) Login(ctx context.Context, name, password string) (User, error) {
+	c := u.client.Database(u.DBName).Collection(u.CollectionName)
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(password), 8)
+	password = string(hashed)
+	entity := new(User)
+	filter := bson.D{{Key: "name", Value: name}, {Key: "password", Value: password}}
 	err := c.FindOne(ctx, filter).Decode(&entity)
 	if err == nil {
 		entity.Password = ""
