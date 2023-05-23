@@ -64,9 +64,7 @@ func (cs *ClientStore) c(name string) *mongo.Collection {
 }
 
 func (cs *ClientStore) cHandler(name string, ctx context.Context, handler func(c *mongo.Collection)) {
-	defer cs.Close(ctx)
 	handler(cs.c(name))
-	return
 }
 
 // Set set client information

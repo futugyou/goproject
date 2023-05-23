@@ -78,9 +78,7 @@ func (ts *TokenStore) c(name string) *mongo.Collection {
 }
 
 func (ts *TokenStore) cHandler(name string, ctx context.Context, handler func(c *mongo.Collection)) {
-	defer ts.Close(ctx)
 	handler(ts.c(name))
-	return
 }
 
 // Create create and store the new token information
