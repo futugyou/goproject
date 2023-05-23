@@ -31,6 +31,17 @@ type MongoUserSore struct {
 	client         *mongo.Client
 }
 
+func init() {
+	store := NewUserSore()
+	name := os.Getenv("init_user_name")
+	passwod := os.Getenv("init_user_password")
+	store.CreateUser(context.Background(), User{
+		Name:     name,
+		Password: passwod,
+		Email:    "",
+	})
+}
+
 func NewUserSore() *MongoUserSore {
 	db := os.Getenv("db_name")
 	c_name := "oauth2_users"
