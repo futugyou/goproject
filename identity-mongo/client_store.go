@@ -77,7 +77,12 @@ func (cs *ClientStore) Set(ctx context.Context, info oauth2.ClientInfo) (err err
 			UserID: info.GetUserID(),
 		}
 
-		_, err = c.InsertOne(ctx, entity)
+		upsert := true
+		option := options.FindOneAndReplaceOptions{
+			Upsert: &upsert,
+		}
+
+		err = c.FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: entity.ID}}, entity, &option).Decode(&entity)
 	})
 
 	return
