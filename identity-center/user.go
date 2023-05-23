@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserStore interface {
@@ -50,6 +51,9 @@ func (u *MongoUserSore) GetByName(ctx context.Context, name string) (User, error
 	filter := bson.D{{Key: "name", Value: name}}
 
 	err := c.FindOne(ctx, filter).Decode(&entity)
+	if err == nil {
+		entity.Password = ""
+	}
 	return *entity, err
 }
 
@@ -62,7 +66,8 @@ func (u *MongoUserSore) CreateUser(ctx context.Context, user User) error {
 	if len(entity.Name) != 0 {
 		return errors.New("use exist!")
 	}
-
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+	user.Password = string(hashed)
 	_, err := c.InsertOne(ctx, user)
 
 	return err
@@ -76,7 +81,9 @@ func (u *MongoUserSore) UpdatePassword(ctx context.Context, name, password strin
 		Upsert: &upsert,
 	}
 
-	return c.FindOneAndUpdate(ctx, bson.D{{Key: "name", Value: name}}, bson.D{{Key: "password", Value: password}}, &option).Decode(&entity)
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(password), 8)
+
+	return c.FindOneAndUpdate(ctx, bson.D{{Key: "name", Value: name}}, bson.D{{Key: "password", Value: string(hashed)}}, &option).Decode(&entity)
 }
 
 func (u *MongoUserSore) ListUser(ctx context.Context) []User {
@@ -87,6 +94,7 @@ func (u *MongoUserSore) ListUser(ctx context.Context) []User {
 	cursor.All(ctx, &result)
 	for _, data := range result {
 		cursor.Decode(&data)
+		data.Password = ""
 	}
 
 	return result
