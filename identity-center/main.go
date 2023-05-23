@@ -15,6 +15,7 @@ import (
 
 	"github.com/futugyousuzu/identity/mongo"
 	"github.com/go-oauth2/oauth2/v4/generates"
+	"github.com/golang-jwt/jwt"
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/go-oauth2/oauth2/v4/errors"
@@ -62,8 +63,10 @@ func main() {
 		)),
 	)
 	// generate jwt access token
-	// manager.MapAccessGenerate(generates.NewJWTAccessGenerate("", []byte("00000000"), jwt.SigningMethodHS512))
-	manager.MapAccessGenerate(generates.NewAccessGenerate())
+	signed_key_id := os.Getenv("signed_key_id")
+	signed_key := os.Getenv("signed_key")
+	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwt.SigningMethodHS512))
+	// manager.MapAccessGenerate(generates.NewAccessGenerate())
 
 	clientStore := store.NewClientStore()
 	clientStore.Set(idvar, &models.Client{
