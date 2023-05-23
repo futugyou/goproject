@@ -1,4 +1,4 @@
-module github.com/futugyousuzu/identity-mongo
+module github.com/futugyousuzu/identity/mongo
 
 go 1.20
 
