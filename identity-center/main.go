@@ -22,7 +22,6 @@ import (
 	"github.com/go-oauth2/oauth2/v4/manage"
 	"github.com/go-oauth2/oauth2/v4/models"
 	"github.com/go-oauth2/oauth2/v4/server"
-	"github.com/go-oauth2/oauth2/v4/store"
 	"github.com/go-session/session"
 )
 
@@ -37,7 +36,7 @@ var (
 func init() {
 	flag.BoolVar(&dumpvar, "d", true, "Dump requests and responses")
 	flag.StringVar(&idvar, "i", "222222", "The client id being passed in")
-	flag.StringVar(&secretvar, "s", "22222222", "The client secret being passed in")
+	flag.StringVar(&secretvar, "s", "222222223", "The client secret being passed in")
 	flag.StringVar(&domainvar, "r", "http://localhost:9094", "The domain of the redirect url")
 	flag.IntVar(&portvar, "p", 9096, "the base port for the server")
 }
@@ -68,8 +67,12 @@ func main() {
 	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwt.SigningMethodHS512))
 	// manager.MapAccessGenerate(generates.NewAccessGenerate())
 
-	clientStore := store.NewClientStore()
-	clientStore.Set(idvar, &models.Client{
+	clientStore := mongo.NewClientStore(mongo.NewConfig(
+		mongodb_uri,
+		mongodb_name,
+	))
+
+	clientStore.Set(context.Background(), &models.Client{
 		ID:     idvar,
 		Secret: secretvar,
 		Domain: domainvar,
