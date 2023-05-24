@@ -71,14 +71,19 @@ func (u *MongoUserSore) GetByName(ctx context.Context, name string) (User, error
 
 func (u *MongoUserSore) Login(ctx context.Context, name, password string) (User, error) {
 	c := u.client.Database(u.DBName).Collection(u.CollectionName)
-	hashed, _ := bcrypt.GenerateFromPassword([]byte(password), 8)
-	password = string(hashed)
 	entity := new(User)
-	filter := bson.D{{Key: "name", Value: name}, {Key: "password", Value: password}}
+	filter := bson.D{{Key: "name", Value: name}}
 	err := c.FindOne(ctx, filter).Decode(&entity)
-	if err == nil {
-		entity.Password = ""
+	if err != nil {
+		return *entity, err
 	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(entity.Password), []byte(password))
+	if err != nil {
+		return *entity, err
+	}
+
+	entity.Password = ""
 	return *entity, err
 }
 
@@ -91,7 +96,7 @@ func (u *MongoUserSore) CreateUser(ctx context.Context, user User) error {
 	if len(entity.Name) != 0 {
 		return errors.New("use exist!")
 	}
-	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	user.Password = string(hashed)
 	_, err := c.InsertOne(ctx, user)
 
@@ -106,7 +111,7 @@ func (u *MongoUserSore) UpdatePassword(ctx context.Context, name, password strin
 		Upsert: &upsert,
 	}
 
-	hashed, _ := bcrypt.GenerateFromPassword([]byte(password), 8)
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
 
 	return c.FindOneAndUpdate(ctx, bson.D{{Key: "name", Value: name}}, bson.D{{Key: "password", Value: string(hashed)}}, &option).Decode(&entity)
 }
