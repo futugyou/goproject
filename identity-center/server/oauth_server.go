@@ -5,7 +5,6 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"context"
 	"log"
 	"os"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/go-oauth2/oauth2/v4/generates"
 	"github.com/go-oauth2/oauth2/v4/manage"
-	"github.com/go-oauth2/oauth2/v4/models"
 	"github.com/go-oauth2/oauth2/v4/server"
 	"github.com/golang-jwt/jwt"
 
@@ -50,11 +48,7 @@ func init() {
 		mongodb_name,
 	))
 
-	clientStore.Set(context.Background(), &models.Client{
-		ID:     "222222",
-		Secret: "22222222",
-		Domain: "http://localhost:9094",
-	})
+	initClient(clientStore)
 	manager.MapClientStorage(clientStore)
 
 	OAuthServer = server.NewServer(server.NewConfig(), manager)
