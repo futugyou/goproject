@@ -17,11 +17,9 @@ import (
 	"github.com/go-oauth2/oauth2/v4/manage"
 	"github.com/go-oauth2/oauth2/v4/models"
 	"github.com/go-oauth2/oauth2/v4/server"
-	"github.com/go-session/session"
 	"github.com/golang-jwt/jwt"
 
 	"github.com/futugyousuzu/identity/mongo"
-	"github.com/futugyousuzu/identity/user"
 )
 
 var OAuthServer *server.Server
@@ -60,14 +58,7 @@ func init() {
 	manager.MapClientStorage(clientStore)
 
 	OAuthServer = server.NewServer(server.NewConfig(), manager)
-	OAuthServer.SetPasswordAuthorizationHandler(func(ctx context.Context, clientID, username, password string) (userID string, err error) {
-		store := user.NewUserSore()
-		user, err := store.Login(ctx, username, password)
-		if err == nil {
-			userID = user.Name
-		}
-		return
-	})
+	OAuthServer.SetPasswordAuthorizationHandler(PasswordAuthorizationHandler)
 
 	OAuthServer.SetUserAuthorizationHandler(UserAuthorizeHandler)
 
@@ -90,31 +81,6 @@ func OutputHTML(w http.ResponseWriter, req *http.Request, filename string) {
 	defer file.Close()
 	fi, _ := file.Stat()
 	http.ServeContent(w, req, file.Name(), fi.ModTime(), file)
-}
-
-func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-	store, err := session.Start(r.Context(), w, r)
-	if err != nil {
-		return
-	}
-
-	uid, ok := store.Get("LoggedInUserID")
-	if !ok {
-		if r.Form == nil {
-			r.ParseForm()
-		}
-		store.Set("ReturnUri", r.Form)
-		store.Save()
-
-		w.Header().Set("Location", "/login")
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-
-	userID = uid.(string)
-	store.Delete("LoggedInUserID")
-	store.Save()
-	return
 }
 
 func DumpRequest(writer io.Writer, header string, r *http.Request) error {
