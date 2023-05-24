@@ -18,6 +18,7 @@ import (
 	"github.com/golang-jwt/jwt"
 
 	"github.com/futugyousuzu/identity/mongo"
+	assets "github.com/futugyousuzu/identity/static"
 )
 
 var OAuthServer *server.Server
@@ -67,14 +68,15 @@ func init() {
 }
 
 func OutputHTML(w http.ResponseWriter, req *http.Request, filename string) {
-	file, err := os.Open(filename)
+	a := &assets.Assets
+	file, err := a.Open(filename)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	defer file.Close()
 	fi, _ := file.Stat()
-	http.ServeContent(w, req, file.Name(), fi.ModTime(), file)
+	http.ServeContent(w, req, filename, fi.ModTime(), file.(io.ReadSeeker))
 }
 
 func DumpRequest(writer io.Writer, header string, r *http.Request) error {

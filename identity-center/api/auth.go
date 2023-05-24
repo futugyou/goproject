@@ -23,5 +23,5 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server.OutputHTML(w, r, "static/auth.html")
+	server.OutputHTML(w, r, "auth.html")
 }

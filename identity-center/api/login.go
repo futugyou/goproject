@@ -40,5 +40,5 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server.OutputHTML(w, r, "static/login.html")
+	server.OutputHTML(w, r, "login.html")
 }
