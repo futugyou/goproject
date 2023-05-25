@@ -35,7 +35,7 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 }
 
 func PasswordAuthorizationHandler(ctx context.Context, clientID, username, password string) (userID string, err error) {
-	store := user.NewUserSore()
+	store := user.NewUserStore()
 	user, err := store.Login(ctx, username, password)
 	if err == nil {
 		userID = user.UserID
