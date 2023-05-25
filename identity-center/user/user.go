@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -34,9 +35,11 @@ type MongoUserSore struct {
 
 func init() {
 	store := NewUserSore()
+	id := os.Getenv("init_user_id")
 	name := os.Getenv("init_user_name")
 	passwod := os.Getenv("init_user_password")
 	store.CreateUser(context.Background(), User{
+		ID:       id,
 		Name:     name,
 		Password: passwod,
 		Email:    "",
@@ -98,6 +101,9 @@ func (u *MongoUserSore) CreateUser(ctx context.Context, user User) error {
 	}
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	user.Password = string(hashed)
+	if len(user.ID) == 0 {
+		user.ID = uuid.New().String()
+	}
 	_, err := c.InsertOne(ctx, user)
 
 	return err

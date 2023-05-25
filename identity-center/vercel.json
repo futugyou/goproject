@@ -1,16 +1,16 @@
 {
     "functions": {
         "api/auth.go": {
-          "includeFiles": "./static/**"
+          "includeFiles": "static/**"
         },
         "api/authorize.go": {
-          "includeFiles": "./static/**"
+          "includeFiles": "static/**"
         },
         "api/login.go": {
-          "includeFiles": "./static/**"
+          "includeFiles": "static/**"
         },
         "api/token.go": {
-          "includeFiles": "./static/**"
+          "includeFiles": "static/**"
         } 
     },
     "rewrites": [
