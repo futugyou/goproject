@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/futugyousuzu/identity/server"
-	"github.com/futugyousuzu/identity/user"
 	session "github.com/go-session/session/v3"
 )
 
@@ -25,7 +24,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
-		userstore := user.NewUserStore()
+		userstore := server.NewUserStore()
 		user, err := userstore.Login(r.Context(), username, password)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/futugyousuzu/identity/user"
 	session "github.com/go-session/session/v3"
 )
 
@@ -35,7 +34,7 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 }
 
 func PasswordAuthorizationHandler(ctx context.Context, clientID, username, password string) (userID string, err error) {
-	store := user.NewUserStore()
+	store := NewUserStore()
 	user, err := store.Login(ctx, username, password)
 	if err == nil {
 		userID = user.UserID
