@@ -19,6 +19,7 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 		if r.Form == nil {
 			r.ParseForm()
 		}
+
 		store.Set("ReturnUri", r.Form)
 		store.Save()
 
@@ -37,7 +38,7 @@ func PasswordAuthorizationHandler(ctx context.Context, clientID, username, passw
 	store := user.NewUserSore()
 	user, err := store.Login(ctx, username, password)
 	if err == nil {
-		userID = user.Name
+		userID = user.UserID
 	}
 	return
 }

@@ -32,7 +32,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		store.Set("LoggedInUserID", user.Name)
+		store.Set("LoggedInUserID", user.ID)
 		store.Save()
 
 		w.Header().Set("Location", "/auth")

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"time"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,7 +15,7 @@ import (
 
 type UserStore interface {
 	GetByName(ctx context.Context, name string) (User, error)
-	Login(ctx context.Context, name, password string) (User, error)
+	Login(ctx context.Context, name, password string) (UserLogin, error)
 	CreateUser(ctx context.Context, user User) error
 	UpdatePassword(ctx context.Context, name, password string) error
 	ListUser(ctx context.Context) []User
@@ -25,6 +26,12 @@ type User struct {
 	Name     string `bson:"name"`
 	Password string `bson:"password"`
 	Email    string `bson:"email"`
+}
+
+type UserLogin struct {
+	ID        string `bson:"_id"`
+	UserID    string `bson:"userid"`
+	Timestamp int64  `bson:"timestamp"`
 }
 
 type MongoUserSore struct {
@@ -72,22 +79,33 @@ func (u *MongoUserSore) GetByName(ctx context.Context, name string) (User, error
 	return *entity, err
 }
 
-func (u *MongoUserSore) Login(ctx context.Context, name, password string) (User, error) {
+func (u *MongoUserSore) Login(ctx context.Context, name, password string) (UserLogin, error) {
 	c := u.client.Database(u.DBName).Collection(u.CollectionName)
 	entity := new(User)
+	userLogin := new(UserLogin)
 	filter := bson.D{{Key: "name", Value: name}}
 	err := c.FindOne(ctx, filter).Decode(&entity)
 	if err != nil {
-		return *entity, err
+		return *userLogin, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(entity.Password), []byte(password))
 	if err != nil {
-		return *entity, err
+		return *userLogin, err
 	}
 
-	entity.Password = ""
-	return *entity, err
+	c = u.client.Database(u.DBName).Collection("oauth2_login")
+	now := time.Now()
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(now.Format("20060102150405")+entity.ID), 14)
+	userLogin = &UserLogin{
+		ID:        string(hashed),
+		UserID:    entity.ID,
+		Timestamp: now.Unix(),
+	}
+
+	_, err = c.InsertOne(ctx, *userLogin)
+
+	return *userLogin, err
 }
 
 func (u *MongoUserSore) CreateUser(ctx context.Context, user User) error {
