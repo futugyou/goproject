@@ -18,19 +18,28 @@ import (
 	"github.com/golang-jwt/jwt"
 
 	"github.com/futugyousuzu/identity/mongo"
+	sessionstore "github.com/futugyousuzu/identity/session"
 	assets "github.com/futugyousuzu/identity/static"
+	session "github.com/go-session/session/v3"
 )
 
 var OAuthServer *server.Server
 
 func init() {
+	mongodb_uri := os.Getenv("mongodb_url")
+	mongodb_name := os.Getenv("db_name")
+	signed_key_id := os.Getenv("signed_key_id")
+	signed_key := os.Getenv("signed_key")
+
+	session.InitManager(
+		session.SetStore(sessionstore.NewStore(mongodb_uri, mongodb_name, "session")),
+	)
+
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
 
 	// token store
 	// manager.MustTokenStorage(store.NewMemoryTokenStore())
-	mongodb_uri := os.Getenv("mongodb_url")
-	mongodb_name := os.Getenv("db_name")
 
 	manager.MapTokenStorage(
 		mongo.NewTokenStore(mongo.NewConfig(
@@ -39,8 +48,6 @@ func init() {
 		)),
 	)
 	// generate jwt access token
-	signed_key_id := os.Getenv("signed_key_id")
-	signed_key := os.Getenv("signed_key")
 	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwt.SigningMethodHS512))
 	// manager.MapAccessGenerate(generates.NewAccessGenerate())
 
