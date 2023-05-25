@@ -31,7 +31,7 @@ type MongoRequestAuthorizeInfoStore struct {
 
 func NewMongoRequestAuthorizeInfoStore() *MongoRequestAuthorizeInfoStore {
 	db := os.Getenv("db_name")
-	c_name := "oauth2_users"
+	c_name := "oauth2_authorize_infos"
 	url := os.Getenv("mongodb_url")
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
 

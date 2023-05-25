@@ -35,9 +35,10 @@ type UserLogin struct {
 }
 
 type MongoUserStore struct {
-	DBName         string
-	CollectionName string
-	client         *mongo.Client
+	DBName                  string
+	UserCollectionName      string
+	UserLoginCollectionName string
+	client                  *mongo.Client
 }
 
 func init() {
@@ -55,19 +56,21 @@ func init() {
 
 func NewUserStore() *MongoUserStore {
 	db := os.Getenv("db_name")
-	c_name := "oauth2_users"
+	u_name := "oauth2_users"
+	l_name := "oauth2_login"
 	url := os.Getenv("mongodb_url")
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
 
 	return &MongoUserStore{
-		DBName:         db,
-		CollectionName: c_name,
-		client:         client,
+		DBName:                  db,
+		UserCollectionName:      u_name,
+		UserLoginCollectionName: l_name,
+		client:                  client,
 	}
 }
 
 func (u *MongoUserStore) GetByName(ctx context.Context, name string) (User, error) {
-	c := u.client.Database(u.DBName).Collection(u.CollectionName)
+	c := u.client.Database(u.DBName).Collection(u.UserCollectionName)
 
 	entity := new(User)
 	filter := bson.D{{Key: "name", Value: name}}
@@ -80,7 +83,7 @@ func (u *MongoUserStore) GetByName(ctx context.Context, name string) (User, erro
 }
 
 func (u *MongoUserStore) Login(ctx context.Context, name, password string) (UserLogin, error) {
-	c := u.client.Database(u.DBName).Collection(u.CollectionName)
+	c := u.client.Database(u.DBName).Collection(u.UserCollectionName)
 	entity := new(User)
 	userLogin := new(UserLogin)
 	filter := bson.D{{Key: "name", Value: name}}
@@ -94,7 +97,7 @@ func (u *MongoUserStore) Login(ctx context.Context, name, password string) (User
 		return *userLogin, err
 	}
 
-	c = u.client.Database(u.DBName).Collection("oauth2_login")
+	c = u.client.Database(u.DBName).Collection(u.UserLoginCollectionName)
 	now := time.Now()
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(now.Format("20060102150405")+entity.ID), 14)
 	userLogin = &UserLogin{
@@ -109,7 +112,7 @@ func (u *MongoUserStore) Login(ctx context.Context, name, password string) (User
 }
 
 func (u *MongoUserStore) CreateUser(ctx context.Context, user User) error {
-	c := u.client.Database(u.DBName).Collection(u.CollectionName)
+	c := u.client.Database(u.DBName).Collection(u.UserCollectionName)
 	entity := new(User)
 	filter := bson.D{{Key: "name", Value: user.Name}}
 	c.FindOne(ctx, filter).Decode(&entity)
@@ -128,7 +131,7 @@ func (u *MongoUserStore) CreateUser(ctx context.Context, user User) error {
 }
 
 func (u *MongoUserStore) UpdatePassword(ctx context.Context, name, password string) error {
-	c := u.client.Database(u.DBName).Collection(u.CollectionName)
+	c := u.client.Database(u.DBName).Collection(u.UserCollectionName)
 	entity := new(User)
 	upsert := true
 	option := options.FindOneAndUpdateOptions{
@@ -142,7 +145,7 @@ func (u *MongoUserStore) UpdatePassword(ctx context.Context, name, password stri
 
 func (u *MongoUserStore) ListUser(ctx context.Context) []User {
 	result := make([]User, 0)
-	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
+	coll := u.client.Database(u.DBName).Collection(u.UserCollectionName)
 	filter := bson.D{}
 	cursor, _ := coll.Find(ctx, filter)
 	cursor.All(ctx, &result)
