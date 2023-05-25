@@ -5,7 +5,7 @@ import (
 
 	"github.com/futugyousuzu/identity/server"
 	"github.com/futugyousuzu/identity/user"
-	"github.com/go-session/session"
+	session "github.com/go-session/session/v3"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {

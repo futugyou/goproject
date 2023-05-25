@@ -7,7 +7,7 @@ import (
 
 	"net/http"
 
-	"github.com/go-session/session"
+	session "github.com/go-session/session/v3"
 )
 
 func Auth(w http.ResponseWriter, r *http.Request) {

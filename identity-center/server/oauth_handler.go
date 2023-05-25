@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/futugyousuzu/identity/user"
-	"github.com/go-session/session"
+	session "github.com/go-session/session/v3"
 )
 
 func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
