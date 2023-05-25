@@ -12,14 +12,20 @@ import (
 func Authorize(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(r.Context(), w, r)
 	if err != nil {
-		fmt.Print("sss")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	var form url.Values
-	if v, ok := store.Get("ReturnUri"); ok {
-		form = v.(url.Values)
+	var form url.Values = make(url.Values)
+	if dic, ok := store.Get("ReturnUri"); ok {
+		for k, v := range dic.(map[string]interface{}) {
+			vv := v.([]interface{})
+			s := make([]string, len(vv))
+			for i, v := range vv {
+				s[i] = fmt.Sprint(v)
+			}
+			form[k] = s
+		}
 	}
 	r.Form = form
 
@@ -28,8 +34,6 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 
 	err = server.OAuthServer.HandleAuthorizeRequest(w, r)
 	if err != nil {
-		fmt.Print("bbbb")
-
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

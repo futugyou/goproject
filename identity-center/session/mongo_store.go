@@ -2,7 +2,6 @@ package session
 
 import (
 	"context"
-	"encoding/json"
 	"sync"
 	"time"
 
@@ -10,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 var (
@@ -44,9 +45,10 @@ func (s *managerStore) getValue(ctx context.Context, sid string) (string, error)
 	filter := bson.D{{Key: "_id", Value: sid}}
 	err := coll.FindOne(ctx, filter).Decode(&item)
 	if err != nil {
-		if err == mongo.ErrNilDocument {
+		if err == mongo.ErrNoDocuments {
 			return "", nil
 		}
+
 		return "", err
 	} else if item.ExpiredAt.Before(time.Now()) {
 		return "", nil
@@ -57,7 +59,7 @@ func (s *managerStore) getValue(ctx context.Context, sid string) (string, error)
 func (s *managerStore) parseValue(value string) (map[string]interface{}, error) {
 	var values map[string]interface{}
 	if len(value) > 0 {
-		err := json.Unmarshal([]byte(value), &values)
+		err := jsoniter.Unmarshal([]byte(value), &values)
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +226,7 @@ func (s *store) Save() error {
 
 	s.RLock()
 	if len(s.values) > 0 {
-		buf, err := json.Marshal(s.values)
+		buf, err := jsoniter.Marshal(s.values)
 		if err != nil {
 			s.RUnlock()
 			return err
