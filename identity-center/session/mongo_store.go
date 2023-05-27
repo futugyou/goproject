@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -45,11 +46,7 @@ func (s *managerStore) getValue(ctx context.Context, sid string) (string, error)
 	filter := bson.D{{Key: "_id", Value: sid}}
 	err := coll.FindOne(ctx, filter).Decode(&item)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return "", nil
-		}
-
-		return "", err
+		return "", errors.New(sid + " can not find in db")
 	} else if item.ExpiredAt.Before(time.Now()) {
 		return "", nil
 	}
@@ -96,7 +93,7 @@ func (s *managerStore) Update(ctx context.Context, sid string, expired int64) (s
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Update data error: " + sid + " can not find in db")
 	}
 
 	values, err := s.parseValue(value)
@@ -111,7 +108,10 @@ func (s *managerStore) Delete(ctx context.Context, sid string) error {
 	coll := s.client.Database(s.dbName).Collection(s.cName)
 	filter := bson.D{{Key: "_id", Value: sid}}
 	_, err := coll.DeleteOne(ctx, filter)
-	return err
+	if err != nil {
+		return errors.New("Delete data error: " + sid + " can not find in db")
+	}
+	return nil
 }
 
 func (s *managerStore) Refresh(ctx context.Context, oldsid, sid string, expired int64) (session.Store, error) {
@@ -134,11 +134,11 @@ func (s *managerStore) Refresh(ctx context.Context, oldsid, sid string, expired 
 		ExpiredAt: time.Now().Add(time.Duration(expired) * time.Second),
 	}, op)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Refresh ReplaceOne data error: " + sid + " can not find in db")
 	}
 	_, err = coll.DeleteOne(ctx, filter)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Refresh DeleteOne data error: " + sid + " can not find in db")
 	}
 
 	values, err := s.parseValue(value)
@@ -235,6 +235,10 @@ func (s *store) Save() error {
 	}
 	s.RUnlock()
 
+	if len(value) == 0 {
+		return nil
+	}
+
 	coll := s.client.Database(s.dbName).Collection(s.cName)
 	filter := bson.D{{Key: "_id", Value: s.sid}}
 	upsert := true
@@ -246,7 +250,11 @@ func (s *store) Save() error {
 		Value:     value,
 		ExpiredAt: time.Now().Add(time.Duration(s.expired) * time.Second),
 	}, op)
-	return err
+	if err != nil {
+		return errors.New("Save data error: " + s.sid + " can not find in db")
+	}
+
+	return nil
 }
 
 // Data items stored in mongo
