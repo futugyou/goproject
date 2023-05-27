@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"context"
@@ -149,6 +150,7 @@ func (ts *TokenStore) RemoveByCode(ctx context.Context, code string) (err error)
 	ts.cHandler(ts.tcfg.BasicCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "_id", Value: code}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
+			err = errors.New("code: " + code + " can not find")
 			return
 		}
 	})
@@ -160,6 +162,7 @@ func (ts *TokenStore) RemoveByAccess(ctx context.Context, access string) (err er
 	ts.cHandler(ts.tcfg.AccessCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "_id", Value: access}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
+			err = errors.New("access code: " + access + " can not find")
 			return
 		}
 	})
@@ -171,6 +174,7 @@ func (ts *TokenStore) RemoveByRefresh(ctx context.Context, refresh string) (err 
 	ts.cHandler(ts.tcfg.RefreshCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "_id", Value: refresh}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
+			err = errors.New("refresh code: " + refresh + " can not find")
 			return
 		}
 	})
@@ -182,6 +186,7 @@ func (ts *TokenStore) getData(ctx context.Context, basicID string) (ti oauth2.To
 		var bd basicData
 		filter := bson.D{{Key: "_id", Value: basicID}}
 		if err = c.FindOne(ctx, filter).Decode(&bd); err != nil {
+			err = errors.New("basicID: " + basicID + " can not find")
 			return
 		}
 		var tm models.Token
@@ -199,6 +204,7 @@ func (ts *TokenStore) getBasicID(ctx context.Context, cname, token string) (basi
 		var td tokenData
 		filter := bson.D{{Key: "_id", Value: token}}
 		if err = c.FindOne(ctx, filter).Decode(&td); err != nil {
+			err = errors.New("token: " + token + " can not find")
 			return
 		}
 		basicID = td.BasicID

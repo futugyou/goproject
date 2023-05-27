@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	session "github.com/go-session/session/v3"
@@ -10,6 +11,7 @@ import (
 func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
 	store, err := session.Start(r.Context(), w, r)
 	if err != nil {
+		fmt.Println("something error, sid: " + store.SessionID() + ", info: " + err.Error())
 		return
 	}
 

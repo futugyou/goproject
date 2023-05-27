@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/models"
@@ -95,6 +96,7 @@ func (cs *ClientStore) GetByID(ctx context.Context, id string) (info oauth2.Clie
 		filter := bson.D{{Key: "_id", Value: id}}
 
 		if err = c.FindOne(ctx, filter).Decode(&entity); err != nil {
+			err = errors.New("client id: " + id + " can not find")
 			return
 		}
 
@@ -114,6 +116,7 @@ func (cs *ClientStore) RemoveByID(ctx context.Context, id string) (err error) {
 	cs.cHandler(cs.ccfg.ClientsCName, ctx, func(c *mongo.Collection) {
 		filter := bson.D{{Key: "_id", Value: id}}
 		if _, err = c.DeleteOne(ctx, filter); err != nil {
+			err = errors.New("client id: " + id + " can not find")
 			return
 		}
 	})

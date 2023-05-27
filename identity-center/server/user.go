@@ -89,7 +89,7 @@ func (u *MongoUserStore) Login(ctx context.Context, name, password string) (User
 	filter := bson.D{{Key: "name", Value: name}}
 	err := c.FindOne(ctx, filter).Decode(&entity)
 	if err != nil {
-		return *userLogin, err
+		return *userLogin, errors.New("user " + name + " can not find")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(entity.Password), []byte(password))
