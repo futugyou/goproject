@@ -16,8 +16,9 @@ func Authorize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var form url.Values = make(url.Values)
+	var form url.Values
 	if dic, ok := store.Get("ReturnUri"); ok {
+		form = make(url.Values)
 		for k, v := range dic.(map[string]interface{}) {
 			vv := v.([]interface{})
 			s := make([]string, len(vv))
