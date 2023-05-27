@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -46,7 +47,12 @@ func (s *managerStore) getValue(ctx context.Context, sid string) (string, error)
 	filter := bson.D{{Key: "_id", Value: sid}}
 	err := coll.FindOne(ctx, filter).Decode(&item)
 	if err != nil {
-		return "", errors.New(sid + " can not find in db")
+		fmt.Println(sid + " can not find in db")
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+
+		return "", err
 	} else if item.ExpiredAt.Before(time.Now()) {
 		return "", nil
 	}
