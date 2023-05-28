@@ -41,16 +41,9 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 
 	return func(ctx *context.Context) {
 		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
-			urlquery := ctx.Request.URL.Query()
-			code := ""
-			state := ""
-			if len(urlquery["code"]) == 1 {
-				code = urlquery["code"][0]
-			}
-
-			if len(urlquery["state"]) == 1 {
-				state = urlquery["state"][0]
-			}
+			ctx.Request.ParseForm()
+			code := ctx.Request.Form.Get("code")
+			state := ctx.Request.Form.Get("state")
 
 			fmt.Println(code, state)
 			return
