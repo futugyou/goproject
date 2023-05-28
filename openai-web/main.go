@@ -9,6 +9,7 @@ import (
 
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/filter/cors"
+	"github.com/futugyousuzu/go-openai-web/middleware/oauth"
 )
 
 func init() {
@@ -18,6 +19,16 @@ func init() {
 		AllowHeaders:     []string{"Access-Control-Allow-Origin", "Origin", "Authorization", "Access-Control-Allow-Headers", "Content-Type"},
 		ExposeHeaders:    []string{"Access-Control-Allow-Origin", "Content-Length", "Access-Control-Allow-Headers", "Content-Type"},
 		AllowCredentials: true,
+	}))
+
+	web.InsertFilter("*", web.BeforeRouter, oauth.OAuthConfig(&oauth.Options{
+		AuthServerURL: "https://identity-center.vercel.app/",
+		ClientID:      "222222",
+		ClientSecret:  "22222222",
+		Scopes:        []string{"all"},
+		RedirectURL:   "http://localhost:8080/oauth2",
+		AuthURL:       "authorize",
+		TokenURL:      "token",
 	}))
 }
 
