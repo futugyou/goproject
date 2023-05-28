@@ -4,7 +4,10 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"path"
+	"strings"
 
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
@@ -37,12 +40,34 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 	}
 
 	return func(ctx *context.Context) {
+		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
+			urlquery := ctx.Request.URL.Query()
+			code := ""
+			state := ""
+			if len(urlquery["code"]) == 1 {
+				code = urlquery["code"][0]
+			}
+
+			if len(urlquery["state"]) == 1 {
+				state = urlquery["state"][0]
+			}
+
+			fmt.Println(code, state)
+			return
+		}
+
+		if !strings.HasPrefix(ctx.Request.RequestURI, "/api/") {
+			return
+		}
+
 		authorization := ctx.Request.Header.Get("Authorization")
 		if len(authorization) == 0 {
 			u := config.AuthCodeURL("xyz",
 				oauth2.SetAuthURLParam("code_challenge", genCodeChallengeS256("s256example")),
 				oauth2.SetAuthURLParam("code_challenge_method", "S256"))
 			http.Redirect(ctx.ResponseWriter, ctx.Request, u, http.StatusFound)
+
+			return
 		}
 	}
 }
