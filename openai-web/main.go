@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	_ "github.com/futugyousuzu/go-openai-web/routers"
@@ -22,13 +24,13 @@ func init() {
 	}))
 
 	web.InsertFilter("*", web.BeforeRouter, oauth.OAuthConfig(&oauth.Options{
-		AuthServerURL: "https://identity-center.vercel.app/",
-		ClientID:      "222222",
-		ClientSecret:  "22222222",
-		Scopes:        []string{"all"},
-		RedirectURL:   "http://localhost:8080/oauth2",
-		AuthURL:       "authorize",
-		TokenURL:      "token",
+		AuthServerURL: os.Getenv("auth_server_url"),
+		ClientID:      os.Getenv("client_id"),
+		ClientSecret:  os.Getenv("client_secret"),
+		Scopes:        os.Getenv("scopes"),
+		RedirectURL:   os.Getenv("redirect_url"),
+		AuthURL:       os.Getenv("auth_url"),
+		TokenURL:      os.Getenv("token_url"),
 	}))
 }
 
