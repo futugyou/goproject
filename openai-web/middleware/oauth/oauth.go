@@ -24,6 +24,8 @@ type Options struct {
 	TokenURL      string
 }
 
+var rawRequestUrl = ""
+
 func OAuthConfig(opts *Options) web.FilterFunc {
 	scopes := make([]string, 0)
 	json.Unmarshal([]byte(opts.Scopes), &scopes)
@@ -45,7 +47,19 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 			code := ctx.Request.Form.Get("code")
 			state := ctx.Request.Form.Get("state")
 
-			fmt.Println(code, state)
+			if len(code) == 0 || len(state) == 0 {
+				http.Error(ctx.ResponseWriter, "State invalid", http.StatusBadRequest)
+				return
+			}
+
+			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", "s256example"))
+			if err != nil {
+				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			ctx.ResponseWriter.Header().Set("Authorization", token.TokenType+" "+token.AccessToken)
+			http.Redirect(ctx.ResponseWriter, ctx.Request, rawRequestUrl, http.StatusFound)
 			return
 		}
 
@@ -54,7 +68,9 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 		}
 
 		authorization := ctx.Request.Header.Get("Authorization")
+		fmt.Println(ctx.Request.RequestURI, authorization)
 		if len(authorization) == 0 {
+			rawRequestUrl = ctx.Request.RequestURI
 			u := config.AuthCodeURL("xyz",
 				oauth2.SetAuthURLParam("code_challenge", genCodeChallengeS256("s256example")),
 				oauth2.SetAuthURLParam("code_challenge_method", "S256"))
