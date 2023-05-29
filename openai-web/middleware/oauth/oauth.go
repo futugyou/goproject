@@ -32,7 +32,7 @@ type Options struct {
 
 var rawRequestUrl = ""
 
-var tableName = "oauth"
+var oauth_request_table = "oauth_request"
 
 func OAuthConfig(opts *Options) web.FilterFunc {
 	scopes := make([]string, 0)
@@ -76,15 +76,12 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 		}
 
 		authorization := ctx.Request.Header.Get("Authorization")
-		fmt.Println(ctx.Request.RequestURI, authorization)
+
 		if len(authorization) == 0 {
 			rawRequestUrl = ctx.Request.RequestURI
-			code_challenge, code_challenge_method, state := createCodeChallenge(ctx)
 
-			u := config.AuthCodeURL(state,
-				oauth2.SetAuthURLParam("code_challenge", code_challenge),
-				oauth2.SetAuthURLParam("code_challenge_method", code_challenge_method))
-			http.Redirect(ctx.ResponseWriter, ctx.Request, u, http.StatusFound)
+			authCodeURL := createAuthCodeURL(ctx, config)
+			http.Redirect(ctx.ResponseWriter, ctx.Request, authCodeURL, http.StatusFound)
 
 			return
 		}
@@ -96,8 +93,9 @@ func genCodeChallengeS256(s string) string {
 	return base64.URLEncoding.EncodeToString(s256[:])
 }
 
-func createCodeChallenge(ctx *context.Context) (code_challenge, code_challenge_method, state string) {
+func createAuthCodeURL(ctx *context.Context, config oauth2.Config) string {
 	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
 	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -110,22 +108,26 @@ func createCodeChallenge(ctx *context.Context) (code_challenge, code_challenge_m
 	}()
 
 	code_verifier := uuid.New().String()
-	code_challenge = genCodeChallengeS256(code_verifier)
-	code_challenge_method = "S256"
-	state = ctx.Request.RequestURI
+	code_challenge := genCodeChallengeS256(code_verifier)
+	code_challenge_method := "S256"
+	state := strings.ReplaceAll(uuid.New().String(), "-", "")
 
-	coll := client.Database("sample_mflix").Collection(tableName)
+	coll := client.Database(db_name).Collection(oauth_request_table)
 	var model AuthModel = AuthModel{
-		ID:                  uuid.New().String(),
+		ID:                  state,
 		CodeVerifier:        code_verifier,
 		CodeChallenge:       code_challenge,
 		CodeChallengeMethod: code_challenge_method,
 		State:               state,
+		RequestURI:          ctx.Request.RequestURI,
 		CreateAt:            time.Now(),
 	}
 
 	coll.InsertOne(ctx.Request.Context(), model)
-	return
+
+	return config.AuthCodeURL(state,
+		oauth2.SetAuthURLParam("code_challenge", code_challenge),
+		oauth2.SetAuthURLParam("code_challenge_method", code_challenge_method))
 }
 
 type AuthModel struct {
@@ -134,5 +136,6 @@ type AuthModel struct {
 	CodeChallenge       string    `bson:"code_challenge"`
 	CodeChallengeMethod string    `bson:"code_challenge_method"`
 	State               string    `bson:"state"`
+	RequestURI          string    `bson:"request_uri"`
 	CreateAt            time.Time `bson:"create_at"`
 }

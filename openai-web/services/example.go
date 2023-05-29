@@ -91,6 +91,7 @@ func (s *ExampleService) CreateCustomExample(model ExampleModel) {
 
 func (s *ExampleService) createExample(model ExampleModel, tableName string) {
 	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -102,7 +103,7 @@ func (s *ExampleService) createExample(model ExampleModel, tableName string) {
 		}
 	}()
 
-	coll := client.Database("sample_mflix").Collection(tableName)
+	coll := client.Database(db_name).Collection(tableName)
 	var example ExampleModel
 	upsert := true
 	option := options.FindOneAndReplaceOptions{
@@ -121,6 +122,7 @@ func (s *ExampleService) getExamples(tableName string) []ExampleModel {
 	result := make([]ExampleModel, 0)
 
 	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -132,7 +134,7 @@ func (s *ExampleService) getExamples(tableName string) []ExampleModel {
 		}
 	}()
 
-	coll := client.Database("sample_mflix").Collection(tableName)
+	coll := client.Database(db_name).Collection(tableName)
 	filter := bson.D{}
 	cursor, err := coll.Find(context.TODO(), filter)
 	if err != nil {
@@ -169,6 +171,7 @@ func (s *ExampleService) InitExamples() {
 	}
 
 	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -180,7 +183,7 @@ func (s *ExampleService) InitExamples() {
 		}
 	}()
 
-	coll := client.Database("sample_mflix").Collection("examples")
+	coll := client.Database(db_name).Collection("examples")
 	cursor, err := coll.Find(context.TODO(), bson.D{})
 	if err != nil {
 		fmt.Println(err)
