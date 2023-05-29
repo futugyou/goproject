@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -60,7 +61,8 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 				return
 			}
 
-			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", "s256example"))
+			code_verifier := getCodeVerifier(ctx, state)
+			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", code_verifier))
 			if err != nil {
 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
 				return
@@ -86,6 +88,30 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 			return
 		}
 	}
+}
+
+func getCodeVerifier(ctx *context.Context, state string) string {
+	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
+	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(ctx.Request.Context()); err != nil {
+			panic(err)
+		}
+	}()
+
+	var model AuthModel
+	coll := client.Database(db_name).Collection(oauth_request_table)
+	err = coll.FindOne(ctx.Request.Context(), bson.D{{Key: "_id", Value: state}}).Decode(&model)
+	if err != nil {
+		panic(err)
+	}
+
+	return model.CodeVerifier
 }
 
 func genCodeChallengeS256(s string) string {
