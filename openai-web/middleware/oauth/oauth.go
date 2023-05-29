@@ -31,8 +31,6 @@ type Options struct {
 	TokenURL      string
 }
 
-var rawRequestUrl = ""
-
 var oauth_request_table = "oauth_request"
 
 func OAuthConfig(opts *Options) web.FilterFunc {
@@ -61,15 +59,21 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 				return
 			}
 
-			code_verifier := getCodeVerifier(ctx, state)
-			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", code_verifier))
+			authModel := getAuthRequestInfo(ctx, state)
+			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", authModel.CodeVerifier))
 			if err != nil {
 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
 				return
 			}
 
-			ctx.ResponseWriter.Header().Set("Authorization", token.TokenType+" "+token.AccessToken)
-			http.Redirect(ctx.ResponseWriter, ctx.Request, rawRequestUrl, http.StatusFound)
+			err = saveToken(ctx, token)
+			if err != nil {
+				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// ctx.ResponseWriter.Header().Set("Authorization", token.TokenType+" "+token.AccessToken)
+			// http.Redirect(ctx.ResponseWriter, ctx.Request, rawRequestUrl, http.StatusFound)
 			return
 		}
 
@@ -80,8 +84,6 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 		authorization := ctx.Request.Header.Get("Authorization")
 
 		if len(authorization) == 0 {
-			rawRequestUrl = ctx.Request.RequestURI
-
 			authCodeURL := createAuthCodeURL(ctx, config)
 			http.Redirect(ctx.ResponseWriter, ctx.Request, authCodeURL, http.StatusFound)
 
@@ -90,7 +92,34 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 	}
 }
 
-func getCodeVerifier(ctx *context.Context, state string) string {
+func saveToken(ctx *context.Context, token *oauth2.Token) error {
+	model := TokenModel{
+		ID:           token.AccessToken,
+		AccessToken:  token.AccessToken,
+		TokenType:    token.TokenType,
+		RefreshToken: token.RefreshToken,
+		Expiry:       token.Expiry,
+	}
+
+	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
+	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(ctx.Request.Context()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database(db_name).Collection(oauth_request_table)
+	_, err = coll.InsertOne(ctx.Request.Context(), model)
+	return err
+}
+
+func getAuthRequestInfo(ctx *context.Context, state string) AuthModel {
 	uri := os.Getenv("mongodb_url")
 	db_name := os.Getenv("db_name")
 	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
@@ -111,7 +140,7 @@ func getCodeVerifier(ctx *context.Context, state string) string {
 		panic(err)
 	}
 
-	return model.CodeVerifier
+	return model
 }
 
 func genCodeChallengeS256(s string) string {
@@ -154,6 +183,14 @@ func createAuthCodeURL(ctx *context.Context, config oauth2.Config) string {
 	return config.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("code_challenge", code_challenge),
 		oauth2.SetAuthURLParam("code_challenge_method", code_challenge_method))
+}
+
+type TokenModel struct {
+	ID           string    `bson:"_id"`
+	AccessToken  string    `bson:"access_token"`
+	TokenType    string    `bson:"token_type"`
+	RefreshToken string    `bson:"refresh_token"`
+	Expiry       time.Time `bson:"expiry"`
 }
 
 type AuthModel struct {
