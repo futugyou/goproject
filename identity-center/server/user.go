@@ -111,6 +111,13 @@ func (u *MongoUserStore) Login(ctx context.Context, name, password string) (User
 	return *userLogin, err
 }
 
+func (u *MongoUserStore) GetLoginInfo(ctx context.Context, login_id string) (UserLogin, error) {
+	c := u.client.Database(u.DBName).Collection(u.UserLoginCollectionName)
+	var login UserLogin
+	err := c.FindOne(ctx, bson.D{{Key: "_id", Value: login_id}}).Decode(&login)
+	return login, err
+}
+
 func (u *MongoUserStore) CreateUser(ctx context.Context, user User) error {
 	c := u.client.Database(u.DBName).Collection(u.UserCollectionName)
 	entity := new(User)

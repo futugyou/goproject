@@ -29,7 +29,10 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 		return
 	}
 
-	userID = uid.(string)
+	loginid := uid.(string)
+	userstore := NewUserStore()
+	user, _ := userstore.GetLoginInfo(r.Context(), loginid)
+	userID = user.UserID
 	store.Delete("LoggedInUserID")
 	store.Save()
 	return

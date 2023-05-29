@@ -8,12 +8,12 @@ require (
 	github.com/devfeel/mapper v0.7.13
 	github.com/futugyousuzu/go-openai v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
-	github.com/redis/go-redis/v9 v9.0.4
+	github.com/google/uuid v1.3.0
+	github.com/redis/go-redis/v9 v9.0.5
 	github.com/smartystreets/goconvey v1.6.4
 )
 
 require (
-	github.com/google/uuid v1.3.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )
@@ -42,7 +42,7 @@ require (
 	github.com/prometheus/client_golang v1.15.1 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
-	github.com/prometheus/procfs v0.10.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/shiena/ansicolor v0.0.0-20230509054315-a9deabde6e02 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
