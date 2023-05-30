@@ -29,6 +29,7 @@ func main() {
 	http.HandleFunc("/authorize", api.Authorize)
 	http.HandleFunc("/token", api.Token)
 	http.HandleFunc("/test", api.Test)
+	http.HandleFunc("/jwks", api.Jwks)
 
 	log.Printf("Server is running at %d port.\n", portvar)
 	log.Printf("Point your OAuth client Auth endpoint to %s:%d%s", "http://localhost", portvar, "/oauth/authorize")
