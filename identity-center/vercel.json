@@ -14,11 +14,12 @@
         } 
     },
     "rewrites": [
-        { "source": "/auth", "destination": "/api/auth" } ,
+        { "source": "/auth", "destination": "/api/auth" },
         { "source": "/authorize", "destination": "/api/authorize" } ,
-        { "source": "/login", "destination": "/api/login" } ,
+        { "source": "/login", "destination": "/api/login" },
         { "source": "/test", "destination": "/api/test" } ,
-        { "source": "/token", "destination": "/api/token" }  ,
-        { "source": "/jwks", "destination": "/api/jwks" }  
+        { "source": "/token", "destination": "/api/token" },
+        { "source": "/jwks", "destination": "/api/jwkpoint" },  
+        { "source": "/", "destination": "/api/jwkpoint" }  
       ]
   }
