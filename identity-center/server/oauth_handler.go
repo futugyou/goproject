@@ -38,6 +38,17 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	return
 }
 
+func AuthorizeScopeHandler(w http.ResponseWriter, r *http.Request) (scope string, err error) {
+	scope = r.FormValue("scope")
+	if len(scope) == 0 {
+		scope = "offline"
+	} else {
+		scope += ",offline"
+	}
+
+	return
+}
+
 func PasswordAuthorizationHandler(ctx context.Context, clientID, username, password string) (userID string, err error) {
 	store := NewUserStore()
 	user, err := store.Login(ctx, username, password)

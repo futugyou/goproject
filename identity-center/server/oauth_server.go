@@ -63,6 +63,7 @@ func init() {
 	OAuthServer.SetPasswordAuthorizationHandler(PasswordAuthorizationHandler)
 
 	OAuthServer.SetUserAuthorizationHandler(UserAuthorizeHandler)
+	OAuthServer.SetAuthorizeScopeHandler(AuthorizeScopeHandler)
 
 	OAuthServer.SetInternalErrorHandler(func(err error) (re *errors.Response) {
 		log.Println("Internal Error:", err.Error())

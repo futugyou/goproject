@@ -182,7 +182,8 @@ func createAuthCodeURL(ctx *context.Context, config oauth2.Config) string {
 
 	return config.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("code_challenge", code_challenge),
-		oauth2.SetAuthURLParam("code_challenge_method", code_challenge_method))
+		oauth2.SetAuthURLParam("code_challenge_method", code_challenge_method),
+		oauth2.AccessTypeOffline)
 }
 
 type TokenModel struct {
