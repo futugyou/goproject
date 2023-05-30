@@ -32,8 +32,8 @@ func main() {
 	http.HandleFunc("/jwks", api.Jwks)
 
 	log.Printf("Server is running at %d port.\n", portvar)
-	log.Printf("Point your OAuth client Auth endpoint to %s:%d%s", "http://localhost", portvar, "/oauth/authorize")
-	log.Printf("Point your OAuth client Token endpoint to %s:%d%s", "http://localhost", portvar, "/oauth/token")
+	log.Printf("Point your OAuth client Auth endpoint to %s:%d%s", "http://localhost", portvar, "/authorize")
+	log.Printf("Point your OAuth client Token endpoint to %s:%d%s", "http://localhost", portvar, "/token")
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", portvar), nil))
 }
