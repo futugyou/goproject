@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"io"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -30,6 +31,8 @@ func init() {
 	mongodb_name := os.Getenv("db_name")
 	signed_key_id := os.Getenv("signed_key_id")
 	signed_key := os.Getenv("signed_key")
+
+	NewJwksStore().CreateJwks(context.Background(), signed_key_id)
 
 	session.InitManager(
 		session.SetStore(sessionstore.NewStore(mongodb_uri, mongodb_name, "session")),

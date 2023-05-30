@@ -66,8 +66,8 @@ func (u *MongoJwksStore) GetJwksList(ctx context.Context) (string, error) {
 	}
 
 	s := make([]string, len(result))
-	for _, v := range result {
-		s = append(s, v.Payload)
+	for i, v := range result {
+		s[i] = v.Payload
 	}
 
 	return "{ \"keys\": [ " + strings.Join(s, ",") + " ] }", err
