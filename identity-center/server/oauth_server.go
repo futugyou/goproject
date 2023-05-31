@@ -13,14 +13,14 @@ import (
 	"net/http/httputil"
 
 	"github.com/go-oauth2/oauth2/v4/errors"
-	"github.com/go-oauth2/oauth2/v4/generates"
 	"github.com/go-oauth2/oauth2/v4/manage"
 	"github.com/go-oauth2/oauth2/v4/server"
-	"github.com/golang-jwt/jwt"
+	"github.com/lestrrat-go/jwx/v2/jwa"
 
 	"github.com/futugyousuzu/identity/mongo"
 	sessionstore "github.com/futugyousuzu/identity/session"
 	assets "github.com/futugyousuzu/identity/static"
+	generates "github.com/futugyousuzu/identity/token"
 	session "github.com/go-session/session/v3"
 )
 
@@ -51,7 +51,7 @@ func init() {
 		)),
 	)
 	// generate jwt access token
-	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwt.SigningMethodHS512))
+	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwa.HS512))
 	// manager.MapAccessGenerate(generates.NewAccessGenerate())
 
 	clientStore := mongo.NewClientStore(mongo.NewConfig(

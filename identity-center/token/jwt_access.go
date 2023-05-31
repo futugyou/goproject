@@ -59,7 +59,7 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
 	signingKey.Set(jwk.KeyIDKey, a.SignedKey)
 
-	signed, err := jwt.Sign(token, jwt.WithKey(jwa.RS256, signingKey))
+	signed, err := jwt.Sign(token, jwt.WithKey(a.SignedMethod, signingKey))
 
 	access := string(signed)
 	if err != nil {
