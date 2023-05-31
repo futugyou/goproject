@@ -1,0 +1,77 @@
+package token
+
+import (
+	"context"
+	"encoding/base64"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/go-oauth2/oauth2/v4"
+	"github.com/go-oauth2/oauth2/v4/errors"
+	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwt"
+)
+
+// JWTAccessClaims jwt claims
+type JWTAccessClaims struct {
+	jwt.Token
+}
+
+// Valid claims verification
+func (a *JWTAccessClaims) Valid() error {
+	if time.Unix(a.Expiration().Unix(), 0).Before(time.Now()) {
+		return errors.ErrInvalidAccessToken
+	}
+	return nil
+}
+
+// NewJWTAccessGenerate create to generate the jwt access token instance
+func NewJWTAccessGenerate(kid string, key []byte, method jwa.SignatureAlgorithm) *JWTAccessGenerate {
+	return &JWTAccessGenerate{
+		SignedKeyID:  kid,
+		SignedKey:    key,
+		SignedMethod: method,
+	}
+}
+
+// JWTAccessGenerate generate the jwt access token
+type JWTAccessGenerate struct {
+	SignedKeyID  string
+	SignedKey    []byte
+	SignedMethod jwa.SignatureAlgorithm
+}
+
+// Token based on the UUID generated token
+func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasic, isGenRefresh bool) (string, string, error) {
+	token := jwt.New()
+	token.Set(jwt.AudienceKey, data.Client.GetID())
+	token.Set(jwt.SubjectKey, data.UserID)
+	token.Set(jwt.ExpirationKey, data.TokenInfo.GetAccessCreateAt().Add(data.TokenInfo.GetAccessExpiresIn()).Unix())
+
+	signingKey, err := jwk.FromRaw(a.SignedKey)
+	if err != nil {
+		fmt.Printf("failed to create bogus JWK: %s\n", err)
+		return "", "", err
+	}
+	signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
+	signingKey.Set(jwk.KeyIDKey, a.SignedKey)
+
+	signed, err := jwt.Sign(token, jwt.WithKey(jwa.RS256, signingKey))
+
+	access := string(signed)
+	if err != nil {
+		return "", "", err
+	}
+	refresh := ""
+
+	if isGenRefresh {
+		t := uuid.NewSHA1(uuid.Must(uuid.NewRandom()), []byte(access)).String()
+		refresh = base64.URLEncoding.EncodeToString([]byte(t))
+		refresh = strings.ToUpper(strings.TrimRight(refresh, "="))
+	}
+
+	return access, refresh, nil
+}
