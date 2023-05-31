@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -46,10 +47,23 @@ type JWTAccessGenerate struct {
 
 // Token based on the UUID generated token
 func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasic, isGenRefresh bool) (string, string, error) {
+	token_time := data.TokenInfo.GetAccessCreateAt()
+
 	token := jwt.New()
 	token.Set(jwt.AudienceKey, data.Client.GetID())
 	token.Set(jwt.SubjectKey, data.UserID)
-	token.Set(jwt.ExpirationKey, data.TokenInfo.GetAccessCreateAt().Add(data.TokenInfo.GetAccessExpiresIn()).Unix())
+	token.Set(jwt.ExpirationKey, token_time.Add(data.TokenInfo.GetAccessExpiresIn()).Unix())
+	token.Set(jwt.IssuedAtKey, token_time)
+	token.Set(jwt.JwtIDKey, a.SignedKeyID)
+
+	issuer_key := os.Getenv("issuer_key")
+	if len(issuer_key) > 0 {
+		token.Set(jwt.IssuerKey, issuer_key)
+	}
+
+	if len(data.TokenInfo.GetScope()) > 0 {
+		token.Set("scope", data.TokenInfo.GetScope())
+	}
 
 	signingKey, err := jwk.FromRaw(a.SignedKey)
 	if err != nil {
