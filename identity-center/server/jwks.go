@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -83,22 +82,22 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key string) erro
 
 	raw, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to generate new rsa private key: %s\n", err))
+		return fmt.Errorf("failed to generate new rsa private key: %s", err)
 	}
 
 	key, err := jwk.FromRaw(raw)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to create RSA key: %s\n", err))
+		return fmt.Errorf("failed to create RSA key: %s", err)
 	}
 	if _, ok := key.(jwk.RSAPrivateKey); !ok {
-		return errors.New(fmt.Sprintf("expected jwk.RSAPrivateKey, got %T\n", err))
+		return fmt.Errorf("expected jwk.RSAPrivateKey, got %T", err)
 	}
 
 	key.Set(jwk.KeyIDKey, signed_key)
 
 	buf, err := json.MarshalIndent(key, "", "  ")
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to marshal key into JSON: %s\n", err))
+		return fmt.Errorf("failed to marshal key into JSON: %s", err)
 	}
 
 	jwkModel = JwkModel{

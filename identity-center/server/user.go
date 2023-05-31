@@ -125,7 +125,7 @@ func (u *MongoUserStore) CreateUser(ctx context.Context, user User) error {
 	c.FindOne(ctx, filter).Decode(&entity)
 
 	if len(entity.Name) != 0 {
-		return errors.New("use exist!")
+		return errors.New("use exist")
 	}
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	user.Password = string(hashed)
