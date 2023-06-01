@@ -29,7 +29,7 @@ func main() {
 	http.HandleFunc("/authorize", api.Authorize)
 	http.HandleFunc("/token", api.Token)
 	http.HandleFunc("/test", api.Test)
-	http.HandleFunc("/jwks", api.Jwks)
+	http.HandleFunc("/.well-known/jwks.json", api.Jwks)
 	http.HandleFunc("/", api.Jwks)
 
 	log.Printf("Server is running at %d port.\n", portvar)

@@ -19,7 +19,7 @@
         { "source": "/login", "destination": "/api/login" },
         { "source": "/test", "destination": "/api/test" } ,
         { "source": "/token", "destination": "/api/token" },
-        { "source": "/jwks", "destination": "/api/jwkpoint" },  
+        { "source": "/.well-known/jwks.json", "destination": "/api/jwkpoint" },  
         { "source": "/", "destination": "/api/jwkpoint" }  
       ]
   }
