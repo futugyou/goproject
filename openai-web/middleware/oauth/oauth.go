@@ -14,6 +14,8 @@ import (
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
 	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"golang.org/x/oauth2"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -72,8 +74,20 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 				return
 			}
 
-			// ctx.ResponseWriter.Header().Set("Authorization", token.TokenType+" "+token.AccessToken)
-			// http.Redirect(ctx.ResponseWriter, ctx.Request, rawRequestUrl, http.StatusFound)
+			// verification
+			set, err := jwk.Fetch(ctx.Request.Context(), opts.AuthServerURL+".well-known/jwks.json")
+			if err != nil {
+				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			tok, err := jwt.Parse([]byte(token.AccessToken), jwt.WithKeySet(set))
+			if err != nil {
+				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			fmt.Println(tok)
 			return
 		}
 

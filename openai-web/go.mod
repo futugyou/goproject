@@ -9,11 +9,19 @@ require (
 	github.com/futugyousuzu/go-openai v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
 	github.com/google/uuid v1.3.0
+	github.com/lestrrat-go/jwx/v2 v2.0.9
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/smartystreets/goconvey v1.6.4
 )
 
 require (
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
+	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/lestrrat-go/blackmagic v1.0.1 // indirect
+	github.com/lestrrat-go/httpcc v1.0.1 // indirect
+	github.com/lestrrat-go/httprc v1.0.4 // indirect
+	github.com/lestrrat-go/iter v1.0.2 // indirect
+	github.com/lestrrat-go/option v1.0.1 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )
