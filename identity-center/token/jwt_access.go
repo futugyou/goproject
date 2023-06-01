@@ -12,7 +12,6 @@ import (
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
-	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
@@ -61,17 +60,25 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 		token.Set(jwt.IssuerKey, issuer_key)
 	}
 
-	if len(data.TokenInfo.GetScope()) > 0 {
-		token.Set("scope", data.TokenInfo.GetScope())
-	}
+	// if len(data.TokenInfo.GetScope()) > 0 {
+	// 	token.Set("scope", data.TokenInfo.GetScope())
+	// }
 
-	signingKey, err := jwk.FromRaw(a.SignedKey)
+	// signingKey, err := jwk.FromRaw(a.SignedKey)
+	// if err != nil {
+	// 	fmt.Printf("failed to create bogus JWK: %s\n", err)
+	// 	return "", "", err
+	// }
+
+	// signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
+	// signingKey.Set(jwk.KeyIDKey, a.SignedKey)
+
+	store := NewJwksStore()
+	signingKey, err := store.GetJwkByKeyID(ctx, a.SignedKeyID)
 	if err != nil {
 		fmt.Printf("failed to create bogus JWK: %s\n", err)
 		return "", "", err
 	}
-	signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
-	signingKey.Set(jwk.KeyIDKey, a.SignedKey)
 
 	signed, err := jwt.Sign(token, jwt.WithKey(a.SignedMethod, signingKey))
 

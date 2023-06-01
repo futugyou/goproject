@@ -1,4 +1,4 @@
-package server
+package token
 
 import (
 	"context"
@@ -18,7 +18,8 @@ import (
 
 type JwksStore interface {
 	GetPublicJwksList(ctx context.Context) (string, error)
-	CreateJwks(ctx context.Context, signed_key string) error
+	CreateJwks(ctx context.Context, signed_key_id string) error
+	GetJwkByKeyID(ctx context.Context, signed_key_id string) (jwk.Key, error)
 }
 
 type JwkModel struct {
@@ -89,10 +90,10 @@ func (u *MongoJwksStore) GetPublicJwksList(ctx context.Context) (string, error) 
 	return string(buf), err
 }
 
-func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key string) error {
+func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) error {
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
 	var jwkModel JwkModel
-	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key}}).Decode(&jwkModel)
+	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key_id}}).Decode(&jwkModel)
 	if err == nil {
 		return nil
 	}
@@ -110,7 +111,7 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key string) erro
 		return fmt.Errorf("expected jwk.RSAPrivateKey, got %T", err)
 	}
 
-	key.Set(jwk.KeyIDKey, signed_key)
+	key.Set(jwk.KeyIDKey, signed_key_id)
 	key.Set(jwk.AlgorithmKey, jwa.RS256)
 
 	buf, err := json.MarshalIndent(key, "", "  ")
@@ -119,10 +120,21 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key string) erro
 	}
 
 	jwkModel = JwkModel{
-		ID:      signed_key,
+		ID:      signed_key_id,
 		Payload: string(buf),
 	}
 
 	_, err = coll.InsertOne(ctx, jwkModel)
 	return err
+}
+
+func (u *MongoJwksStore) GetJwkByKeyID(ctx context.Context, signed_key_id string) (jwk.Key, error) {
+	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
+	var jwkModel JwkModel
+	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key_id}}).Decode(&jwkModel)
+	if err == nil {
+		return nil, err
+	}
+
+	return jwk.ParseKey([]byte(jwkModel.Payload))
 }

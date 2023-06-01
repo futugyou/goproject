@@ -20,7 +20,7 @@ import (
 	"github.com/futugyousuzu/identity/mongo"
 	sessionstore "github.com/futugyousuzu/identity/session"
 	assets "github.com/futugyousuzu/identity/static"
-	generates "github.com/futugyousuzu/identity/token"
+	"github.com/futugyousuzu/identity/token"
 	session "github.com/go-session/session/v3"
 )
 
@@ -32,7 +32,7 @@ func init() {
 	signed_key_id := os.Getenv("signed_key_id")
 	signed_key := os.Getenv("signed_key")
 
-	NewJwksStore().CreateJwks(context.Background(), signed_key_id)
+	token.NewJwksStore().CreateJwks(context.Background(), signed_key_id)
 
 	session.InitManager(
 		session.SetStore(sessionstore.NewStore(mongodb_uri, mongodb_name, "session")),
@@ -51,8 +51,7 @@ func init() {
 		)),
 	)
 	// generate jwt access token
-	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwa.RS256))
-	// manager.MapAccessGenerate(generates.NewAccessGenerate())
+	manager.MapAccessGenerate(token.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwa.RS256))
 
 	clientStore := mongo.NewClientStore(mongo.NewConfig(
 		mongodb_uri,
