@@ -132,7 +132,7 @@ func (u *MongoJwksStore) GetJwkByKeyID(ctx context.Context, signed_key_id string
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
 	var jwkModel JwkModel
 	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key_id}}).Decode(&jwkModel)
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 
