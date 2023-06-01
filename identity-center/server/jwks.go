@@ -7,17 +7,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
 type JwksStore interface {
-	GetJwksList(ctx context.Context) (string, error)
+	GetPublicJwksList(ctx context.Context) (string, error)
 	CreateJwks(ctx context.Context, signed_key string) error
 }
 
@@ -45,7 +45,7 @@ func NewJwksStore() *MongoJwksStore {
 	}
 }
 
-func (u *MongoJwksStore) GetJwksList(ctx context.Context) (string, error) {
+func (u *MongoJwksStore) GetPublicJwksList(ctx context.Context) (string, error) {
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
 
 	result := make([]JwkModel, 0)
@@ -65,11 +65,28 @@ func (u *MongoJwksStore) GetJwksList(ctx context.Context) (string, error) {
 	}
 
 	s := make([]string, len(result))
+	privset := jwk.NewSet()
 	for i, v := range result {
 		s[i] = v.Payload
+		key, err := jwk.ParseKey([]byte(v.Payload))
+		if err != nil {
+			panic(err)
+		}
+
+		privset.AddKey(key)
 	}
 
-	return "{ \"keys\": [ " + strings.Join(s, ",") + " ] }", err
+	v, err := jwk.PublicSetOf(privset)
+	if err != nil {
+		panic(err)
+	}
+
+	buf, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal key into JSON: %s", err)
+	}
+
+	return string(buf), err
 }
 
 func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key string) error {
@@ -94,6 +111,7 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key string) erro
 	}
 
 	key.Set(jwk.KeyIDKey, signed_key)
+	key.Set(jwk.AlgorithmKey, jwa.RS256)
 
 	buf, err := json.MarshalIndent(key, "", "  ")
 	if err != nil {

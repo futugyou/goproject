@@ -51,7 +51,7 @@ func init() {
 		)),
 	)
 	// generate jwt access token
-	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwa.HS512))
+	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwa.RS256))
 	// manager.MapAccessGenerate(generates.NewAccessGenerate())
 
 	clientStore := mongo.NewClientStore(mongo.NewConfig(
