@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	session "github.com/go-session/session/v3"
+
+	"github.com/futugyousuzu/identity/user"
 )
 
 func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
@@ -29,10 +31,11 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 		return
 	}
 
-	loginid := uid.(string)
-	userstore := NewUserStore()
-	user, _ := userstore.GetLoginInfo(r.Context(), loginid)
-	userID = user.UserID
+	// loginid := uid.(string)
+	// userstore := NewUserStore()
+	// user, _ := userstore.GetLoginInfo(r.Context(), loginid)
+	// userID = user.UserID
+	userID = uid.(string)
 	store.Delete("LoggedInUserID")
 	store.Save()
 	return
@@ -50,7 +53,7 @@ func AuthorizeScopeHandler(w http.ResponseWriter, r *http.Request) (scope string
 }
 
 func PasswordAuthorizationHandler(ctx context.Context, clientID, username, password string) (userID string, err error) {
-	store := NewUserStore()
+	store := user.NewUserStore()
 	user, err := store.Login(ctx, username, password)
 	if err == nil {
 		userID = user.UserID

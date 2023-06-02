@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/futugyousuzu/identity/server"
 	session "github.com/go-session/session/v3"
+
+	"github.com/futugyousuzu/identity/server"
 )
 
 func Authorize(w http.ResponseWriter, r *http.Request) {

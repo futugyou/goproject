@@ -3,8 +3,10 @@ package api
 import (
 	"net/http"
 
-	"github.com/futugyousuzu/identity/server"
 	session "github.com/go-session/session/v3"
+
+	"github.com/futugyousuzu/identity/server"
+	"github.com/futugyousuzu/identity/user"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -24,14 +26,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
-		userstore := server.NewUserStore()
+		userstore := user.NewUserStore()
 		user, err := userstore.Login(r.Context(), username, password)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		store.Set("LoggedInUserID", user.ID)
+		store.Set("LoggedInUserID", user.UserID)
 		store.Save()
 
 		w.Header().Set("Location", "/auth")

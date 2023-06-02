@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/futugyousuzu/identity/mongo"
 	"github.com/go-oauth2/oauth2/v4/models"
+
+	"github.com/futugyousuzu/identity/mongo"
 )
 
 func initClient(stor *mongo.ClientStore) {

@@ -1,4 +1,4 @@
-package server
+package user
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 
 type UserStore interface {
 	GetByName(ctx context.Context, name string) (User, error)
+	GetByUID(ctx context.Context, uid string) (User, error)
 	Login(ctx context.Context, name, password string) (UserLogin, error)
 	CreateUser(ctx context.Context, user User) error
 	UpdatePassword(ctx context.Context, name, password string) error
@@ -74,6 +75,19 @@ func NewUserStore() *MongoUserStore {
 		UserLoginCollectionName: l_name,
 		client:                  client,
 	}
+}
+
+func (u *MongoUserStore) GetByUID(ctx context.Context, uid string) (User, error) {
+	c := u.client.Database(u.DBName).Collection(u.UserCollectionName)
+
+	entity := new(User)
+	filter := bson.D{{Key: "_id", Value: uid}}
+
+	err := c.FindOne(ctx, filter).Decode(&entity)
+	if err == nil {
+		entity.Password = ""
+	}
+	return *entity, err
 }
 
 func (u *MongoUserStore) GetByName(ctx context.Context, name string) (User, error) {

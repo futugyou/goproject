@@ -1,27 +1,26 @@
 package server
 
 import (
-	"context"
-	"io"
-
 	_ "github.com/joho/godotenv/autoload"
 
+	"context"
+	"io"
 	"log"
-	"os"
-
 	"net/http"
 	"net/http/httputil"
+	"os"
 
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/go-oauth2/oauth2/v4/manage"
 	"github.com/go-oauth2/oauth2/v4/server"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 
+	session "github.com/go-session/session/v3"
+
 	"github.com/futugyousuzu/identity/mongo"
 	sessionstore "github.com/futugyousuzu/identity/session"
 	assets "github.com/futugyousuzu/identity/static"
 	"github.com/futugyousuzu/identity/token"
-	session "github.com/go-session/session/v3"
 )
 
 var OAuthServer *server.Server

@@ -3,11 +3,11 @@ package api
 import (
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/futugyousuzu/identity/server"
-
 	"net/http"
 
 	session "github.com/go-session/session/v3"
+
+	"github.com/futugyousuzu/identity/server"
 )
 
 func Auth(w http.ResponseWriter, r *http.Request) {

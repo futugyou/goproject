@@ -13,6 +13,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwt"
+
+	"github.com/futugyousuzu/identity/user"
 )
 
 // JWTAccessClaims jwt claims
@@ -75,10 +77,18 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 		jwtBuilder.Claim("scope", data.TokenInfo.GetScope())
 	}
 
-	// set some fake claim
-	jwtBuilder.Claim("brth", "2000/09/09")
-	jwtBuilder.Claim("phone", "1345789545")
-	jwtBuilder.Claim("name", "tom")
+	// set some claim
+	userstore := user.NewUserStore()
+	user, err := userstore.GetByUID(ctx, data.UserID)
+	if err != nil {
+		fmt.Printf("failed to get user data: %s\n", err)
+		return "", "", err
+	}
+
+	jwtBuilder.Claim("brth", user.Birth)
+	jwtBuilder.Claim("phone", user.Phone)
+	jwtBuilder.Claim("name", user.Name)
+	jwtBuilder.Claim("email", user.Email)
 
 	issuer_key := os.Getenv("issuer_key")
 	if len(issuer_key) > 0 {
