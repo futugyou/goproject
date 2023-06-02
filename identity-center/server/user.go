@@ -26,6 +26,8 @@ type User struct {
 	Name     string `bson:"name"`
 	Password string `bson:"password"`
 	Email    string `bson:"email"`
+	Birth    string `bson:"brth"`
+	Phone    string `bson:"phone"`
 }
 
 type UserLogin struct {
@@ -46,11 +48,16 @@ func init() {
 	id := os.Getenv("init_user_id")
 	name := os.Getenv("init_user_name")
 	passwod := os.Getenv("init_user_password")
+	email := os.Getenv("init_user_email")
+	brth := os.Getenv("init_user_brth")
+	phone := os.Getenv("init_user_phone")
 	store.CreateUser(context.Background(), User{
 		ID:       id,
 		Name:     name,
 		Password: passwod,
-		Email:    "",
+		Email:    email,
+		Birth:    brth,
+		Phone:    phone,
 	})
 }
 
@@ -127,6 +134,7 @@ func (u *MongoUserStore) CreateUser(ctx context.Context, user User) error {
 	if len(entity.Name) != 0 {
 		return errors.New("use exist")
 	}
+
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	user.Password = string(hashed)
 	if len(user.ID) == 0 {

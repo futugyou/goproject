@@ -76,7 +76,7 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	}
 
 	// set some fake claim
-	jwtBuilder.Claim("brith", "2000/09/09")
+	jwtBuilder.Claim("brth", "2000/09/09")
 	jwtBuilder.Claim("phone", "1345789545")
 	jwtBuilder.Claim("name", "tom")
 
