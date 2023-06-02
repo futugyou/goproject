@@ -60,9 +60,9 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 		token.Set(jwt.IssuerKey, issuer_key)
 	}
 
-	// if len(data.TokenInfo.GetScope()) > 0 {
-	// 	token.Set("scope", data.TokenInfo.GetScope())
-	// }
+	if len(data.TokenInfo.GetScope()) > 0 {
+		token.Set("scope", data.TokenInfo.GetScope())
+	}
 
 	// signingKey, err := jwk.FromRaw(a.SignedKey)
 	// if err != nil {

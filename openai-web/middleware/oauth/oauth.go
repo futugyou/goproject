@@ -51,6 +51,7 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 	}
 
 	return func(ctx *context.Context) {
+		fmt.Println(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL)))
 		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
 			ctx.Request.ParseForm()
 			code := ctx.Request.Form.Get("code")
@@ -87,7 +88,15 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 				return
 			}
 
-			fmt.Println(tok)
+			scope, _ := tok.Get("scope")
+			fmt.Println(tok.Issuer())
+			fmt.Println(scope)
+			fmt.Println(tok.JwtID())
+			fmt.Println(tok.Subject())
+			for k, v := range tok.PrivateClaims() {
+				fmt.Println(k, v)
+			}
+
 			return
 		}
 
