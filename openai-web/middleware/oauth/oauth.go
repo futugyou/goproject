@@ -88,9 +88,11 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 				return
 			}
 
+			// "scope" can get from tok.PrivateClaims() or directly
 			scope, _ := tok.Get("scope")
-			fmt.Println(tok.Issuer())
 			fmt.Println(scope)
+
+			fmt.Println(tok.Issuer())
 			fmt.Println(tok.JwtID())
 			fmt.Println(tok.Subject())
 			for k, v := range tok.PrivateClaims() {

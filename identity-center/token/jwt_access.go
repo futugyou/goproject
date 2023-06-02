@@ -48,22 +48,44 @@ type JWTAccessGenerate struct {
 func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasic, isGenRefresh bool) (string, string, error) {
 	token_time := data.TokenInfo.GetAccessCreateAt()
 
-	token := jwt.New()
-	token.Set(jwt.AudienceKey, data.Client.GetID())
-	token.Set(jwt.SubjectKey, data.UserID)
-	token.Set(jwt.ExpirationKey, token_time.Add(data.TokenInfo.GetAccessExpiresIn()).Unix())
-	token.Set(jwt.IssuedAtKey, token_time)
-	token.Set(jwt.JwtIDKey, a.SignedKeyID)
+	// token := jwt.New()
+	// token.Set(jwt.AudienceKey, data.Client.GetID())
+	// token.Set(jwt.SubjectKey, data.UserID)
+	// token.Set(jwt.ExpirationKey, token_time.Add(data.TokenInfo.GetAccessExpiresIn()).Unix())
+	// token.Set(jwt.IssuedAtKey, token_time)
+	// token.Set(jwt.JwtIDKey, a.SignedKeyID)
+
+	// issuer_key := os.Getenv("issuer_key")
+	// if len(issuer_key) > 0 {
+	// 	token.Set(jwt.IssuerKey, issuer_key)
+	// }
+
+	// if len(data.TokenInfo.GetScope()) > 0 {
+	// 	token.Set("scope", data.TokenInfo.GetScope())
+	// }
+
+	jwtBuilder := jwt.NewBuilder()
+	jwtBuilder.Audience([]string{data.Client.GetID()})
+	jwtBuilder.Subject(data.UserID)
+	jwtBuilder.Expiration(token_time.Add(data.TokenInfo.GetAccessExpiresIn()))
+	jwtBuilder.IssuedAt(token_time)
+	jwtBuilder.JwtID(a.SignedKeyID)
+
+	if len(data.TokenInfo.GetScope()) > 0 {
+		jwtBuilder.Claim("scope", data.TokenInfo.GetScope())
+	}
+
+	// set some fake claim
+	jwtBuilder.Claim("brith", "2000/09/09")
+	jwtBuilder.Claim("phone", "1345789545")
+	jwtBuilder.Claim("name", "tom")
 
 	issuer_key := os.Getenv("issuer_key")
 	if len(issuer_key) > 0 {
-		token.Set(jwt.IssuerKey, issuer_key)
+		jwtBuilder.Issuer(issuer_key)
 	}
 
-	if len(data.TokenInfo.GetScope()) > 0 {
-		token.Set("scope", data.TokenInfo.GetScope())
-	}
-
+	token, _ := jwtBuilder.Build()
 	// signingKey, err := jwk.FromRaw(a.SignedKey)
 	// if err != nil {
 	// 	fmt.Printf("failed to create bogus JWK: %s\n", err)
