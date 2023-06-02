@@ -12,6 +12,7 @@ import (
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 
 	"github.com/futugyousuzu/identity/user"
@@ -112,7 +113,11 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 		return "", "", err
 	}
 
-	signed, err := jwt.Sign(token, jwt.WithKey(a.SignedMethod, signingKey))
+	// including arbitrary headers
+	hdrs := jws.NewHeaders()
+	hdrs.Set(`x-example`, true)
+
+	signed, err := jwt.Sign(token, jwt.WithKey(a.SignedMethod, signingKey, jws.WithProtectedHeaders(hdrs)))
 
 	access := string(signed)
 	if err != nil {

@@ -113,6 +113,7 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) e
 
 	key.Set(jwk.KeyIDKey, signed_key_id)
 	key.Set(jwk.AlgorithmKey, jwa.RS256)
+	key.Set(`my-custom-field`, `unbelievable-value`)
 
 	buf, err := json.MarshalIndent(key, "", "  ")
 	if err != nil {

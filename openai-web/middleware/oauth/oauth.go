@@ -11,12 +11,15 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/oauth2"
+
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
 	"github.com/google/uuid"
+
 	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-	"golang.org/x/oauth2"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -51,7 +54,6 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 	}
 
 	return func(ctx *context.Context) {
-		fmt.Println(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL)))
 		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
 			ctx.Request.ParseForm()
 			code := ctx.Request.Form.Get("code")
@@ -75,6 +77,8 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 				return
 			}
 
+			fmt.Println(token.AccessToken)
+
 			// verification
 			set, err := jwk.Fetch(ctx.Request.Context(), opts.AuthServerURL+".well-known/jwks.json")
 			if err != nil {
@@ -97,6 +101,14 @@ func OAuthConfig(opts *Options) web.FilterFunc {
 			fmt.Println(tok.Subject())
 			for k, v := range tok.PrivateClaims() {
 				fmt.Println(k, v)
+			}
+
+			//jws
+			msg, _ := jws.Parse([]byte(token.AccessToken))
+			for _, v := range msg.Signatures() {
+				fmt.Println(v.ProtectedHeaders().KeyID())
+				fmt.Println(v.ProtectedHeaders().Algorithm())
+				fmt.Println(v.ProtectedHeaders().Get("x-example"))
 			}
 
 			return
