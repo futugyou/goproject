@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -37,29 +38,7 @@ var oauth_request_table = "oauth_request"
 
 // 	return func(ctx *context.Context) {
 // 		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
-// 			ctx.Request.ParseForm()
-// 			code := ctx.Request.Form.Get("code")
-// 			state := ctx.Request.Form.Get("state")
-
-// 			if len(code) == 0 || len(state) == 0 {
-// 				http.Error(ctx.ResponseWriter, "State invalid", http.StatusBadRequest)
-// 				return
-// 			}
-
-// 			authModel := getAuthRequestInfo(ctx, state)
-// 			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", authModel.CodeVerifier))
-// 			if err != nil {
-// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-// 				return
-// 			}
-
-// 			err = saveToken(ctx, token)
-// 			if err != nil {
-// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-// 				return
-// 			}
-
-// 			fmt.Println(token.AccessToken)
+//
 
 // 			// verification
 // 			set, err := jwk.Fetch(ctx.Request.Context(), opts.AuthServerURL+".well-known/jwks.json")
@@ -185,34 +164,60 @@ type AuthOptions struct {
 }
 
 type AuthService struct {
-	Client  *mongo.Client
-	Options AuthOptions
+	Client      *mongo.Client
+	Options     AuthOptions
+	OauthConfig oauth2.Config
 }
 
 func NewAuthService(opts AuthOptions) *AuthService {
 	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(opts.DbUrl))
+	scopes := make([]string, 0)
+	json.Unmarshal([]byte(opts.Scopes), &scopes)
 
+	config := oauth2.Config{
+		ClientID:     opts.ClientID,
+		ClientSecret: opts.ClientSecret,
+		Scopes:       scopes,
+		RedirectURL:  opts.RedirectURL,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  opts.AuthServerURL + opts.AuthURL,
+			TokenURL: opts.AuthServerURL + opts.TokenURL,
+		},
+	}
 	return &AuthService{
-		Client:  client,
-		Options: opts,
+		Client:      client,
+		Options:     opts,
+		OauthConfig: config,
 	}
 }
 
 func (a *AuthService) RedirectToAuthorizationEndPoint(w http.ResponseWriter, r *http.Request) {
-	scopes := make([]string, 0)
-	json.Unmarshal([]byte(a.Options.Scopes), &scopes)
+	authCodeURL := a.createAuthCodeURL(r, a.OauthConfig)
+	http.Redirect(w, r, authCodeURL, http.StatusFound)
+}
 
-	config := oauth2.Config{
-		ClientID:     a.Options.ClientID,
-		ClientSecret: a.Options.ClientSecret,
-		Scopes:       scopes,
-		RedirectURL:  a.Options.RedirectURL,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  a.Options.AuthServerURL + a.Options.AuthURL,
-			TokenURL: a.Options.AuthServerURL + a.Options.TokenURL,
-		},
+func (a *AuthService) Oauth2(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	code := r.Form.Get("code")
+	state := r.Form.Get("state")
+
+	if len(code) == 0 || len(state) == 0 {
+		http.Error(w, "State invalid", http.StatusBadRequest)
+		return
 	}
 
-	authCodeURL := a.createAuthCodeURL(r, config)
-	http.Redirect(w, r, authCodeURL, http.StatusFound)
+	authModel := a.getAuthRequestInfo(r.Context(), state)
+	token, err := a.OauthConfig.Exchange(r.Context(), code, oauth2.SetAuthURLParam("code_verifier", authModel.CodeVerifier))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = a.saveToken(r.Context(), token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(token.AccessToken)
 }
