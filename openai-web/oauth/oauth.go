@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"os"
 	"strings"
@@ -17,16 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-type Options struct {
-	AuthServerURL string
-	ClientID      string
-	ClientSecret  string
-	Scopes        string
-	RedirectURL   string
-	AuthURL       string
-	TokenURL      string
-}
 
 var oauth_request_table = "oauth_request"
 
@@ -221,8 +212,44 @@ type AuthModel struct {
 	CreateAt            time.Time `bson:"create_at"`
 }
 
+type AuthOptions struct {
+	AuthServerURL string
+	ClientID      string
+	ClientSecret  string
+	Scopes        string
+	RedirectURL   string
+	AuthURL       string
+	TokenURL      string
+	DbUrl         string
+	DbName        string
+}
+
 type AuthService struct {
 	Config oauth2.Config
+	Client *mongo.Client
+}
+
+func NewAuthService(opts AuthOptions) *AuthService {
+	scopes := make([]string, 0)
+	json.Unmarshal([]byte(opts.Scopes), &scopes)
+
+	config := oauth2.Config{
+		ClientID:     opts.ClientID,
+		ClientSecret: opts.ClientSecret,
+		Scopes:       scopes,
+		RedirectURL:  opts.RedirectURL,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  opts.AuthServerURL + opts.AuthURL,
+			TokenURL: opts.AuthServerURL + opts.TokenURL,
+		},
+	}
+
+	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(opts.DbUrl))
+
+	return &AuthService{
+		Config: config,
+		Client: client,
+	}
 }
 
 func (a *AuthService) RedirectToAuthorizationEndPoint(w http.ResponseWriter, r *http.Request) {
