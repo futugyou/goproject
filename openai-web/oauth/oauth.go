@@ -13,6 +13,9 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jws"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,63 +23,6 @@ import (
 )
 
 var oauth_request_table = "oauth_request"
-
-// func OAuthConfig(opts *Options) web.FilterFunc {
-// 	scopes := make([]string, 0)
-// 	json.Unmarshal([]byte(opts.Scopes), &scopes)
-
-// 	config := oauth2.Config{
-// 		ClientID:     opts.ClientID,
-// 		ClientSecret: opts.ClientSecret,
-// 		Scopes:       scopes,
-// 		RedirectURL:  opts.RedirectURL,
-// 		Endpoint: oauth2.Endpoint{
-// 			AuthURL:  opts.AuthServerURL + opts.AuthURL,
-// 			TokenURL: opts.AuthServerURL + opts.TokenURL,
-// 		},
-// 	}
-
-// 	return func(ctx *context.Context) {
-// 		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
-//
-
-// 			// verification
-// 			set, err := jwk.Fetch(ctx.Request.Context(), opts.AuthServerURL+".well-known/jwks.json")
-// 			if err != nil {
-// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-// 				return
-// 			}
-
-// 			tok, err := jwt.Parse([]byte(token.AccessToken), jwt.WithKeySet(set))
-// 			if err != nil {
-// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-// 				return
-// 			}
-
-// 			// "scope" can get from tok.PrivateClaims() or directly
-// 			scope, _ := tok.Get("scope")
-// 			fmt.Println(scope)
-
-// 			fmt.Println(tok.Issuer())
-// 			fmt.Println(tok.JwtID())
-// 			fmt.Println(tok.Subject())
-// 			for k, v := range tok.PrivateClaims() {
-// 				fmt.Println(k, v)
-// 			}
-
-// 			//jws
-// 			msg, _ := jws.Parse([]byte(token.AccessToken))
-// 			for _, v := range msg.Signatures() {
-// 				fmt.Println(v.ProtectedHeaders().KeyID())
-// 				fmt.Println(v.ProtectedHeaders().Algorithm())
-// 				fmt.Println(v.ProtectedHeaders().Get("x-example"))
-// 			}
-
-// 			return
-// 		}
-
-// 	}
-// }
 
 func (a *AuthService) saveToken(ctx context.Context, token *oauth2.Token) error {
 	model := TokenModel{
@@ -220,4 +166,37 @@ func (a *AuthService) Oauth2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(token.AccessToken)
+}
+
+func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
+	set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tok, err := jwt.Parse([]byte(token.AccessToken), jwt.WithKeySet(set))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// "scope" can get from tok.PrivateClaims() or directly
+	scope, _ := tok.Get("scope")
+	fmt.Println(scope)
+
+	fmt.Println(tok.Issuer())
+	fmt.Println(tok.JwtID())
+	fmt.Println(tok.Subject())
+	for k, v := range tok.PrivateClaims() {
+		fmt.Println(k, v)
+	}
+
+	//jws
+	msg, _ := jws.Parse([]byte(token.AccessToken))
+	for _, v := range msg.Signatures() {
+		fmt.Println(v.ProtectedHeaders().KeyID())
+		fmt.Println(v.ProtectedHeaders().Algorithm())
+		fmt.Println(v.ProtectedHeaders().Get("x-example"))
+	}
 }
