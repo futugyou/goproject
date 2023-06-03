@@ -1,25 +1,17 @@
 package oauth
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
-	"path"
 	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
 
-	"github.com/beego/beego/v2/server/web"
-	"github.com/beego/beego/v2/server/web/context"
 	"github.com/google/uuid"
-
-	"github.com/lestrrat-go/jwx/v2/jwk"
-	"github.com/lestrrat-go/jwx/v2/jws"
-	"github.com/lestrrat-go/jwx/v2/jwt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,98 +30,86 @@ type Options struct {
 
 var oauth_request_table = "oauth_request"
 
-func OAuthConfig(opts *Options) web.FilterFunc {
-	scopes := make([]string, 0)
-	json.Unmarshal([]byte(opts.Scopes), &scopes)
+// func OAuthConfig(opts *Options) web.FilterFunc {
+// 	scopes := make([]string, 0)
+// 	json.Unmarshal([]byte(opts.Scopes), &scopes)
 
-	config := oauth2.Config{
-		ClientID:     opts.ClientID,
-		ClientSecret: opts.ClientSecret,
-		Scopes:       scopes,
-		RedirectURL:  opts.RedirectURL,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  opts.AuthServerURL + opts.AuthURL,
-			TokenURL: opts.AuthServerURL + opts.TokenURL,
-		},
-	}
+// 	config := oauth2.Config{
+// 		ClientID:     opts.ClientID,
+// 		ClientSecret: opts.ClientSecret,
+// 		Scopes:       scopes,
+// 		RedirectURL:  opts.RedirectURL,
+// 		Endpoint: oauth2.Endpoint{
+// 			AuthURL:  opts.AuthServerURL + opts.AuthURL,
+// 			TokenURL: opts.AuthServerURL + opts.TokenURL,
+// 		},
+// 	}
 
-	return func(ctx *context.Context) {
-		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
-			ctx.Request.ParseForm()
-			code := ctx.Request.Form.Get("code")
-			state := ctx.Request.Form.Get("state")
+// 	return func(ctx *context.Context) {
+// 		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
+// 			ctx.Request.ParseForm()
+// 			code := ctx.Request.Form.Get("code")
+// 			state := ctx.Request.Form.Get("state")
 
-			if len(code) == 0 || len(state) == 0 {
-				http.Error(ctx.ResponseWriter, "State invalid", http.StatusBadRequest)
-				return
-			}
+// 			if len(code) == 0 || len(state) == 0 {
+// 				http.Error(ctx.ResponseWriter, "State invalid", http.StatusBadRequest)
+// 				return
+// 			}
 
-			authModel := getAuthRequestInfo(ctx, state)
-			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", authModel.CodeVerifier))
-			if err != nil {
-				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-				return
-			}
+// 			authModel := getAuthRequestInfo(ctx, state)
+// 			token, err := config.Exchange(ctx.Request.Context(), code, oauth2.SetAuthURLParam("code_verifier", authModel.CodeVerifier))
+// 			if err != nil {
+// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+// 				return
+// 			}
 
-			err = saveToken(ctx, token)
-			if err != nil {
-				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-				return
-			}
+// 			err = saveToken(ctx, token)
+// 			if err != nil {
+// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+// 				return
+// 			}
 
-			fmt.Println(token.AccessToken)
+// 			fmt.Println(token.AccessToken)
 
-			// verification
-			set, err := jwk.Fetch(ctx.Request.Context(), opts.AuthServerURL+".well-known/jwks.json")
-			if err != nil {
-				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-				return
-			}
+// 			// verification
+// 			set, err := jwk.Fetch(ctx.Request.Context(), opts.AuthServerURL+".well-known/jwks.json")
+// 			if err != nil {
+// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+// 				return
+// 			}
 
-			tok, err := jwt.Parse([]byte(token.AccessToken), jwt.WithKeySet(set))
-			if err != nil {
-				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
-				return
-			}
+// 			tok, err := jwt.Parse([]byte(token.AccessToken), jwt.WithKeySet(set))
+// 			if err != nil {
+// 				http.Error(ctx.ResponseWriter, err.Error(), http.StatusInternalServerError)
+// 				return
+// 			}
 
-			// "scope" can get from tok.PrivateClaims() or directly
-			scope, _ := tok.Get("scope")
-			fmt.Println(scope)
+// 			// "scope" can get from tok.PrivateClaims() or directly
+// 			scope, _ := tok.Get("scope")
+// 			fmt.Println(scope)
 
-			fmt.Println(tok.Issuer())
-			fmt.Println(tok.JwtID())
-			fmt.Println(tok.Subject())
-			for k, v := range tok.PrivateClaims() {
-				fmt.Println(k, v)
-			}
+// 			fmt.Println(tok.Issuer())
+// 			fmt.Println(tok.JwtID())
+// 			fmt.Println(tok.Subject())
+// 			for k, v := range tok.PrivateClaims() {
+// 				fmt.Println(k, v)
+// 			}
 
-			//jws
-			msg, _ := jws.Parse([]byte(token.AccessToken))
-			for _, v := range msg.Signatures() {
-				fmt.Println(v.ProtectedHeaders().KeyID())
-				fmt.Println(v.ProtectedHeaders().Algorithm())
-				fmt.Println(v.ProtectedHeaders().Get("x-example"))
-			}
+// 			//jws
+// 			msg, _ := jws.Parse([]byte(token.AccessToken))
+// 			for _, v := range msg.Signatures() {
+// 				fmt.Println(v.ProtectedHeaders().KeyID())
+// 				fmt.Println(v.ProtectedHeaders().Algorithm())
+// 				fmt.Println(v.ProtectedHeaders().Get("x-example"))
+// 			}
 
-			return
-		}
+// 			return
+// 		}
 
-		if !strings.HasPrefix(ctx.Request.RequestURI, "/api/") {
-			return
-		}
+// 	}
+// }
 
-		authorization := ctx.Request.Header.Get("Authorization")
-
-		if len(authorization) == 0 {
-			authCodeURL := createAuthCodeURL(ctx, config)
-			http.Redirect(ctx.ResponseWriter, ctx.Request, authCodeURL, http.StatusFound)
-
-			return
-		}
-	}
-}
-
-func saveToken(ctx *context.Context, token *oauth2.Token) error {
+func saveToken(ctx context.Context, token *oauth2.Token) error {
 	model := TokenModel{
 		ID:           token.AccessToken,
 		AccessToken:  token.AccessToken,
@@ -140,39 +120,39 @@ func saveToken(ctx *context.Context, token *oauth2.Token) error {
 
 	uri := os.Getenv("mongodb_url")
 	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() {
-		if err := client.Disconnect(ctx.Request.Context()); err != nil {
+		if err := client.Disconnect(ctx); err != nil {
 			panic(err)
 		}
 	}()
 
 	coll := client.Database(db_name).Collection(oauth_request_table)
-	_, err = coll.InsertOne(ctx.Request.Context(), model)
+	_, err = coll.InsertOne(ctx, model)
 	return err
 }
 
-func getAuthRequestInfo(ctx *context.Context, state string) AuthModel {
+func getAuthRequestInfo(ctx context.Context, state string) AuthModel {
 	uri := os.Getenv("mongodb_url")
 	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() {
-		if err := client.Disconnect(ctx.Request.Context()); err != nil {
+		if err := client.Disconnect(ctx); err != nil {
 			panic(err)
 		}
 	}()
 
 	var model AuthModel
 	coll := client.Database(db_name).Collection(oauth_request_table)
-	err = coll.FindOne(ctx.Request.Context(), bson.D{{Key: "_id", Value: state}}).Decode(&model)
+	err = coll.FindOne(ctx, bson.D{{Key: "_id", Value: state}}).Decode(&model)
 	if err != nil {
 		panic(err)
 	}
@@ -185,16 +165,16 @@ func genCodeChallengeS256(s string) string {
 	return base64.URLEncoding.EncodeToString(s256[:])
 }
 
-func createAuthCodeURL(ctx *context.Context, config oauth2.Config) string {
+func createAuthCodeURL(ctx context.Context, config oauth2.Config) string {
 	uri := os.Getenv("mongodb_url")
 	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(ctx.Request.Context(), options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() {
-		if err := client.Disconnect(ctx.Request.Context()); err != nil {
+		if err := client.Disconnect(ctx); err != nil {
 			panic(err)
 		}
 	}()
@@ -211,11 +191,11 @@ func createAuthCodeURL(ctx *context.Context, config oauth2.Config) string {
 		CodeChallenge:       code_challenge,
 		CodeChallengeMethod: code_challenge_method,
 		State:               state,
-		RequestURI:          ctx.Request.RequestURI,
-		CreateAt:            time.Now(),
+		// RequestURI:          ctx.Request.RequestURI,
+		CreateAt: time.Now(),
 	}
 
-	coll.InsertOne(ctx.Request.Context(), model)
+	coll.InsertOne(ctx, model)
 
 	return config.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("code_challenge", code_challenge),
@@ -239,4 +219,13 @@ type AuthModel struct {
 	State               string    `bson:"state"`
 	RequestURI          string    `bson:"request_uri"`
 	CreateAt            time.Time `bson:"create_at"`
+}
+
+type AuthService struct {
+	Config oauth2.Config
+}
+
+func (a *AuthService) RedirectToAuthorizationEndPoint(w http.ResponseWriter, r *http.Request) {
+	authCodeURL := createAuthCodeURL(r.Context(), a.Config)
+	http.Redirect(w, r, authCodeURL, http.StatusFound)
 }
