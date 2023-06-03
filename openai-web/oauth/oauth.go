@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -100,7 +99,7 @@ var oauth_request_table = "oauth_request"
 // 	}
 // }
 
-func saveToken(ctx context.Context, token *oauth2.Token) error {
+func (a *AuthService) saveToken(ctx context.Context, token *oauth2.Token) error {
 	model := TokenModel{
 		ID:           token.AccessToken,
 		AccessToken:  token.AccessToken,
@@ -109,41 +108,15 @@ func saveToken(ctx context.Context, token *oauth2.Token) error {
 		Expiry:       token.Expiry,
 	}
 
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database(db_name).Collection(oauth_request_table)
-	_, err = coll.InsertOne(ctx, model)
+	coll := a.Client.Database(a.Options.DbName).Collection(oauth_request_table)
+	_, err := coll.InsertOne(ctx, model)
 	return err
 }
 
-func getAuthRequestInfo(ctx context.Context, state string) AuthModel {
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-
+func (a *AuthService) getAuthRequestInfo(ctx context.Context, state string) AuthModel {
 	var model AuthModel
-	coll := client.Database(db_name).Collection(oauth_request_table)
-	err = coll.FindOne(ctx, bson.D{{Key: "_id", Value: state}}).Decode(&model)
+	coll := a.Client.Database(a.Options.DbName).Collection(oauth_request_table)
+	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: state}}).Decode(&model)
 	if err != nil {
 		panic(err)
 	}
@@ -156,37 +129,24 @@ func genCodeChallengeS256(s string) string {
 	return base64.URLEncoding.EncodeToString(s256[:])
 }
 
-func createAuthCodeURL(ctx context.Context, config oauth2.Config) string {
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-
+func (a *AuthService) createAuthCodeURL(r *http.Request, config oauth2.Config) string {
 	code_verifier := uuid.New().String()
 	code_challenge := genCodeChallengeS256(code_verifier)
 	code_challenge_method := "S256"
 	state := strings.ReplaceAll(uuid.New().String(), "-", "")
 
-	coll := client.Database(db_name).Collection(oauth_request_table)
+	coll := a.Client.Database(a.Options.DbName).Collection(oauth_request_table)
 	var model AuthModel = AuthModel{
 		ID:                  state,
 		CodeVerifier:        code_verifier,
 		CodeChallenge:       code_challenge,
 		CodeChallengeMethod: code_challenge_method,
 		State:               state,
-		// RequestURI:          ctx.Request.RequestURI,
-		CreateAt: time.Now(),
+		RequestURI:          r.RequestURI,
+		CreateAt:            time.Now(),
 	}
 
-	coll.InsertOne(ctx, model)
+	coll.InsertOne(r.Context(), model)
 
 	return config.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("code_challenge", code_challenge),
@@ -225,34 +185,34 @@ type AuthOptions struct {
 }
 
 type AuthService struct {
-	Config oauth2.Config
-	Client *mongo.Client
+	Client  *mongo.Client
+	Options AuthOptions
 }
 
 func NewAuthService(opts AuthOptions) *AuthService {
-	scopes := make([]string, 0)
-	json.Unmarshal([]byte(opts.Scopes), &scopes)
-
-	config := oauth2.Config{
-		ClientID:     opts.ClientID,
-		ClientSecret: opts.ClientSecret,
-		Scopes:       scopes,
-		RedirectURL:  opts.RedirectURL,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  opts.AuthServerURL + opts.AuthURL,
-			TokenURL: opts.AuthServerURL + opts.TokenURL,
-		},
-	}
-
 	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(opts.DbUrl))
 
 	return &AuthService{
-		Config: config,
-		Client: client,
+		Client:  client,
+		Options: opts,
 	}
 }
 
 func (a *AuthService) RedirectToAuthorizationEndPoint(w http.ResponseWriter, r *http.Request) {
-	authCodeURL := createAuthCodeURL(r.Context(), a.Config)
+	scopes := make([]string, 0)
+	json.Unmarshal([]byte(a.Options.Scopes), &scopes)
+
+	config := oauth2.Config{
+		ClientID:     a.Options.ClientID,
+		ClientSecret: a.Options.ClientSecret,
+		Scopes:       scopes,
+		RedirectURL:  a.Options.RedirectURL,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  a.Options.AuthServerURL + a.Options.AuthURL,
+			TokenURL: a.Options.AuthServerURL + a.Options.TokenURL,
+		},
+	}
+
+	authCodeURL := a.createAuthCodeURL(r, config)
 	http.Redirect(w, r, authCodeURL, http.StatusFound)
 }
