@@ -5,6 +5,18 @@ info:
     provider some api for openai demo.
   version: 1.0.0
 basePath: /api/v1
+securityDefinitions:
+  OauthSecurity:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'http://localhost:9096/authorize'
+    tokenUrl: 'http://localhost:9096/token'
+    usePkceWithAuthorizationCodeGrant: true
+    scopes:
+      all: all scope
+security:
+  - OauthSecurity:
+    - all
 paths:
   /autio/transcription:
     post:
