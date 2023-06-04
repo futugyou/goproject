@@ -169,13 +169,17 @@ func (a *AuthService) Oauth2(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
+	a.VerifyTokenString(w, r, token.AccessToken)
+}
+
+func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, authorization string) {
 	set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	tok, err := jwt.Parse([]byte(token.AccessToken), jwt.WithKeySet(set))
+	tok, err := jwt.Parse([]byte(authorization), jwt.WithKeySet(set))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -193,7 +197,7 @@ func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token 
 	}
 
 	//jws
-	msg, _ := jws.Parse([]byte(token.AccessToken))
+	msg, _ := jws.Parse([]byte(authorization))
 	for _, v := range msg.Signatures() {
 		fmt.Println(v.ProtectedHeaders().KeyID())
 		fmt.Println(v.ProtectedHeaders().Algorithm())

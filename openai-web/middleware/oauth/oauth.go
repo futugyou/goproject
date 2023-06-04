@@ -1,10 +1,15 @@
 package oauth
 
 import (
+	"fmt"
+	"os"
+	"path"
 	"strings"
 
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
+
+	oauthService "github.com/futugyousuzu/go-openai-web/oauth"
 )
 
 type Options struct {
@@ -18,30 +23,39 @@ type Options struct {
 }
 
 func OAuthConfig(opts *Options) web.FilterFunc {
-	// scopes := make([]string, 0)
-	// json.Unmarshal([]byte(opts.Scopes), &scopes)
-
-	// config := oauth2.Config{
-	// 	ClientID:     opts.ClientID,
-	// 	ClientSecret: opts.ClientSecret,
-	// 	Scopes:       scopes,
-	// 	RedirectURL:  opts.RedirectURL,
-	// 	Endpoint: oauth2.Endpoint{
-	// 		AuthURL:  opts.AuthServerURL + opts.AuthURL,
-	// 		TokenURL: opts.AuthServerURL + opts.TokenURL,
-	// 	},
-	// }
+	authOptions := oauthService.AuthOptions{
+		AuthServerURL: opts.AuthServerURL,
+		ClientID:      opts.ClientID,
+		ClientSecret:  opts.ClientSecret,
+		Scopes:        opts.Scopes,
+		RedirectURL:   opts.RedirectURL,
+		AuthURL:       opts.AuthURL,
+		TokenURL:      opts.TokenURL,
+		DbUrl:         os.Getenv("mongodb_url"),
+		DbName:        os.Getenv("db_name"),
+	}
 
 	return func(ctx *context.Context) {
+		oauthsvc := oauthService.NewAuthService(authOptions)
+
+		if strings.HasPrefix(ctx.Request.RequestURI, fmt.Sprintf("/%s?code=", path.Base(opts.RedirectURL))) {
+			oauthsvc.Oauth2(ctx.ResponseWriter, ctx.Request)
+			return
+		}
+
+		// maybe swagger
 		if !strings.HasPrefix(ctx.Request.RequestURI, "/api/") {
 			return
 		}
 
-		authorization := ctx.Request.Header.Get("Authorization")
-
-		if len(authorization) == 0 {
+		auth := ctx.Request.Header.Get("Authorization")
+		authorization := strings.ReplaceAll(auth, "Bearer ", "")
+		if !strings.HasPrefix(auth, "Bearer ") || len(authorization) == 0 {
 			ctx.ResponseWriter.WriteHeader(401)
 			return
 		}
+
+		authorization = strings.ReplaceAll(authorization, "Bearer ", "")
+		oauthsvc.VerifyTokenString(ctx.ResponseWriter, ctx.Request, authorization)
 	}
 }
