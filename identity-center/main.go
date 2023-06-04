@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/futugyousuzu/identity/api"
+	"github.com/futugyousuzu/identity/middleware"
 )
 
 var (
@@ -24,13 +25,13 @@ func init() {
 func main() {
 	flag.Parse()
 
-	http.HandleFunc("/login", api.Login)
-	http.HandleFunc("/auth", api.Auth)
-	http.HandleFunc("/authorize", api.Authorize)
-	http.HandleFunc("/token", api.Token)
-	http.HandleFunc("/test", api.Test)
-	http.HandleFunc("/.well-known/jwks.json", api.Jwks)
-	http.HandleFunc("/", api.Jwks)
+	http.HandleFunc("/login", middleware.Cors(api.Login))
+	http.HandleFunc("/auth", middleware.Cors(api.Auth))
+	http.HandleFunc("/authorize", middleware.Cors(api.Authorize))
+	http.HandleFunc("/token", middleware.Cors(api.Token))
+	http.HandleFunc("/test", middleware.Cors(api.Test))
+	http.HandleFunc("/.well-known/jwks.json", middleware.Cors(api.Jwks))
+	http.HandleFunc("/", middleware.Cors(api.Jwks))
 
 	log.Printf("Server is running at %d port.\n", portvar)
 	log.Printf("Point your OAuth client Auth endpoint to %s:%d%s", "http://localhost", portvar, "/authorize")
