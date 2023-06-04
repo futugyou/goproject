@@ -17,7 +17,7 @@ import (
 func init() {
 	web.InsertFilter("*", web.BeforeRouter, cors.Allow(&cors.Options{
 		AllowAllOrigins:  true,
-		AllowMethods:     []string{"'GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"},
 		AllowHeaders:     []string{"Access-Control-Allow-Origin", "Origin", "Authorization", "Access-Control-Allow-Headers", "Content-Type"},
 		ExposeHeaders:    []string{"Access-Control-Allow-Origin", "Content-Length", "Access-Control-Allow-Headers", "Content-Type"},
 		AllowCredentials: true,
