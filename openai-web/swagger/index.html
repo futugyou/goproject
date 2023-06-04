@@ -47,10 +47,19 @@
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl
         ],
-        layout: "StandaloneLayout"
+        layout: "StandaloneLayout",
+        validatorUrl: "https://validator.swagger.io/validator",
       });
       // End Swagger UI call region
 
+      ui.initOAuth({
+        clientId: "",
+        clientSecret: "",
+        scopeSeparator: ",",
+        scopes: "all,openai",
+        useBasicAuthenticationWithAccessCodeGrant: true,
+        usePkceWithAuthorizationCodeGrant: true
+      })
       window.ui = ui;
     };
   </script>

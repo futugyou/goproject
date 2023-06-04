@@ -11,9 +11,9 @@ securityDefinitions:
     flow: accessCode
     authorizationUrl: 'http://localhost:9096/authorize'
     tokenUrl: 'http://localhost:9096/token'
-    usePkceWithAuthorizationCodeGrant: true
     scopes:
       all: all scope
+      openai: openai scope
 security:
   - OauthSecurity:
     - all
