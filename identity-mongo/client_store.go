@@ -76,6 +76,7 @@ func (cs *ClientStore) Set(ctx context.Context, info oauth2.ClientInfo) (err err
 			Secret: info.GetSecret(),
 			Domain: info.GetDomain(),
 			UserID: info.GetUserID(),
+			Public: info.IsPublic(),
 		}
 
 		upsert := true
@@ -105,6 +106,7 @@ func (cs *ClientStore) GetByID(ctx context.Context, id string) (info oauth2.Clie
 			Secret: entity.Secret,
 			Domain: entity.Domain,
 			UserID: entity.UserID,
+			Public: entity.Public,
 		}
 	})
 
@@ -129,4 +131,5 @@ type client struct {
 	Secret string `bson:"secret"`
 	Domain string `bson:"domain"`
 	UserID string `bson:"userid"`
+	Public bool   `bson:"public"`
 }
