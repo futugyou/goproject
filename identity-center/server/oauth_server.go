@@ -60,7 +60,9 @@ func init() {
 	initClient(clientStore)
 	manager.MapClientStorage(clientStore)
 
-	OAuthServer = server.NewServer(server.NewConfig(), manager)
+	authServerConfig := server.NewConfig()
+	authServerConfig.ForcePKCE = true
+	OAuthServer = server.NewServer(authServerConfig, manager)
 	OAuthServer.SetPasswordAuthorizationHandler(PasswordAuthorizationHandler)
 
 	OAuthServer.SetUserAuthorizationHandler(UserAuthorizeHandler)
