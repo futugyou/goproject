@@ -46,7 +46,7 @@
   "crons": [
     {
       "path": "/api/cron?key=E86ZaWHjHnRqn",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 3 * * *"
     }
   ]
 }
