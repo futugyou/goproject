@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/bytedance/gopkg v0.0.0-20230512060433-7f5f1dee0b1e // indirect
+	github.com/bytedance/gopkg v0.0.0-20230531144706-a12972768317 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
@@ -42,4 +42,4 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 )
 
-replace github.com/futugyousuzu/identity/mongo v0.0.0 => github.com/futugyou/goproject/identity-mongo v0.0.0-20230527062835-f55b68467538
+replace github.com/futugyousuzu/identity/mongo v0.0.0 => github.com/futugyou/goproject/identity-mongo v0.0.0-20230605025133-670abd240497
