@@ -92,11 +92,6 @@ func (u *MongoJwksStore) GetPublicJwksList(ctx context.Context) (string, error) 
 
 func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) error {
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
-	var jwkModel JwkModel
-	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key_id}}).Decode(&jwkModel)
-	if err == nil {
-		return nil
-	}
 
 	raw, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -120,12 +115,16 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) e
 		return fmt.Errorf("failed to marshal key into JSON: %s", err)
 	}
 
-	jwkModel = JwkModel{
+	jwkModel := JwkModel{
 		ID:      signed_key_id,
 		Payload: string(buf),
 	}
 
-	_, err = coll.InsertOne(ctx, jwkModel)
+	upsert := true
+	replaceOptions := &options.FindOneAndReplaceOptions{
+		Upsert: &upsert,
+	}
+	err = coll.FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: signed_key_id}}, jwkModel, replaceOptions).Decode(&jwkModel)
 	return err
 }
 
