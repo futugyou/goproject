@@ -12,6 +12,7 @@ import (
 
 	"github.com/futugyousuzu/identity/api"
 	"github.com/futugyousuzu/identity/middleware"
+	"github.com/futugyousuzu/identity/scheduler"
 )
 
 var (
@@ -24,7 +25,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-
+	scheduler.JwksGenerate()
 	http.HandleFunc("/login", middleware.Cors(api.Login))
 	http.HandleFunc("/auth", middleware.Cors(api.Auth))
 	http.HandleFunc("/authorize", middleware.Cors(api.Authorize))
