@@ -1,25 +1,52 @@
 {
-    "functions": {
-        "api/auth.go": {
-          "includeFiles": "static/**"
-        },
-        "api/authorize.go": {
-          "includeFiles": "static/**"
-        },
-        "api/login.go": {
-          "includeFiles": "static/**"
-        },
-        "api/token.go": {
-          "includeFiles": "static/**"
-        } 
+  "functions": {
+    "api/auth.go": {
+      "includeFiles": "static/**"
     },
-    "rewrites": [
-        { "source": "/auth", "destination": "/api/auth" },
-        { "source": "/authorize", "destination": "/api/authorize" } ,
-        { "source": "/login", "destination": "/api/login" },
-        { "source": "/test", "destination": "/api/test" } ,
-        { "source": "/token", "destination": "/api/token" },
-        { "source": "/.well-known/jwks.json", "destination": "/api/jwkpoint" },  
-        { "source": "/", "destination": "/api/jwkpoint" }  
-      ]
-  }
+    "api/authorize.go": {
+      "includeFiles": "static/**"
+    },
+    "api/login.go": {
+      "includeFiles": "static/**"
+    },
+    "api/token.go": {
+      "includeFiles": "static/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/auth",
+      "destination": "/api/auth"
+    },
+    {
+      "source": "/authorize",
+      "destination": "/api/authorize"
+    },
+    {
+      "source": "/login",
+      "destination": "/api/login"
+    },
+    {
+      "source": "/test",
+      "destination": "/api/test"
+    },
+    {
+      "source": "/token",
+      "destination": "/api/token"
+    },
+    {
+      "source": "/.well-known/jwks.json",
+      "destination": "/api/jwkpoint"
+    },
+    {
+      "source": "/",
+      "destination": "/api/jwkpoint"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron?key=E86ZaWHjHnRqn",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}
