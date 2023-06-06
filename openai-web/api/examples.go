@@ -4,13 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/futugyousuzu/go-openai-web/oauth"
 	"github.com/futugyousuzu/go-openai-web/services"
 )
 
 func Examples(w http.ResponseWriter, r *http.Request) {
-	oauth.AuthForVercel(w, r)
-
 	typestring := r.URL.Query().Get("type")
 	exampleService := services.ExampleService{}
 	var result []services.ExampleModel
