@@ -96,7 +96,7 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 				ch.ErrorMessage = err.Error()
 			} else {
 				if response.Created != 0 {
-					ch.Created = time.Unix((int64)(response.Created), 0).Format(time.DateTime)
+					ch.Created = time.Unix((int64)(response.Created), 0).Format("2006-01-02 15:04:05")
 				}
 
 				if response.Usage != nil {

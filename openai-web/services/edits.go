@@ -43,7 +43,7 @@ func (s *EditService) CreateEdit(request CreateEditsRequest) CreateEditsResponse
 		}
 
 		if response.Created != 0 {
-			result.Created = time.Unix((int64)(response.Created), 0).Format(time.DateTime)
+			result.Created = time.Unix((int64)(response.Created), 0).Format("2006-01-02 15:04:05")
 		}
 
 		if response.Usage != nil {
