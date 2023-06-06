@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -203,4 +204,22 @@ func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, 
 		fmt.Println(v.ProtectedHeaders().Algorithm())
 		fmt.Println(v.ProtectedHeaders().Get("x-example"))
 	}
+}
+
+func AuthForVercel(w http.ResponseWriter, r *http.Request) {
+	bearer := r.Header.Get("Authorization")
+	authOptions := AuthOptions{
+		AuthServerURL: os.Getenv("auth_server_url"),
+		ClientID:      os.Getenv("client_id"),
+		ClientSecret:  os.Getenv("client_secret"),
+		Scopes:        os.Getenv("scopes"),
+		RedirectURL:   os.Getenv("redirect_url"),
+		AuthURL:       os.Getenv("auth_url"),
+		TokenURL:      os.Getenv("token_url"),
+		DbUrl:         os.Getenv("mongodb_url"),
+		DbName:        os.Getenv("db_name"),
+	}
+
+	oauthsvc := NewAuthService(authOptions)
+	oauthsvc.VerifyTokenString(w, r, bearer)
 }
