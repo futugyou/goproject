@@ -8,8 +8,9 @@ import (
 )
 
 func Examples(w http.ResponseWriter, r *http.Request) {
-	typestring := r.URL.Query().Get("type")
+	auth(w, r)
 
+	typestring := r.URL.Query().Get("type")
 	exampleService := services.ExampleService{}
 	var result []services.ExampleModel
 	if typestring == "custom" {
@@ -21,5 +22,4 @@ func Examples(w http.ResponseWriter, r *http.Request) {
 	body, _ := json.Marshal(result)
 	w.Write(body)
 	w.WriteHeader(200)
-
 }
