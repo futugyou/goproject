@@ -38,10 +38,13 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 	}
 
 	if !b {
+		errString := ""
 		for _, err := range valid.Errors {
-			c.Ctx.WriteString(err.Key + " " + err.Message)
-			return
+			errString += (err.Key + " " + err.Message)
 		}
+
+		c.Ctx.WriteString(errString)
+		return
 	}
 
 	completionService := services.CompletionService{}
@@ -91,10 +94,13 @@ func (c *CompletionController) CreateCompletion() {
 	}
 
 	if !b {
+		errString := ""
 		for _, err := range valid.Errors {
-			c.Ctx.WriteString(err.Key + " " + err.Message)
-			return
+			errString += (err.Key + " " + err.Message)
 		}
+
+		c.Ctx.WriteString(errString)
+		return
 	}
 
 	completionService := services.CompletionService{}

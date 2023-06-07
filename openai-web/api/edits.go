@@ -5,10 +5,13 @@ import (
 	"io"
 	"net/http"
 
+	// "github.com/futugyousuzu/go-openai-web/oauth"
 	"github.com/futugyousuzu/go-openai-web/services"
 )
 
 func Edits(w http.ResponseWriter, r *http.Request) {
+	// oauth.AuthForVercel(w, r)
+
 	var editsRequest services.CreateEditsRequest
 	var buf []byte
 	buf, _ = io.ReadAll(r.Body)
