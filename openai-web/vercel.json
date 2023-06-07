@@ -4,7 +4,8 @@
       "src": "/api/v1/examples",
       "dest": "/api/examples",
       "methods": [
-        "GET"
+        "GET",
+        "OPTIONS"
       ],
       "headers": {
         "Access-Control-Allow-Credentials": "true",
@@ -18,7 +19,8 @@
       "src": "/api/v1/examples",
       "dest": "/api/examples_post",
       "methods": [
-        "POST"
+        "POST",
+        "OPTIONS"
       ],
       "headers": {
         "Access-Control-Allow-Credentials": "true",
@@ -32,7 +34,8 @@
       "src": "/api/v1/model",
       "dest": "/api/model",
       "methods": [
-        "GET"
+        "GET",
+        "OPTIONS"
       ],
       "headers": {
         "Access-Control-Allow-Credentials": "true",
@@ -46,7 +49,8 @@
       "src": "/api/v1/edits",
       "dest": "/api/edits",
       "methods": [
-        "POST"
+        "POST",
+        "OPTIONS"
       ],
       "headers": {
         "Access-Control-Allow-Credentials": "true",
@@ -60,7 +64,8 @@
       "src": "/api/v1/completions",
       "dest": "/api/completions",
       "methods": [
-        "POST"
+        "POST",
+        "OPTIONS"
       ],
       "headers": {
         "Access-Control-Allow-Credentials": "true",
