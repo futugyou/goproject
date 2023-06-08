@@ -44,9 +44,9 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 func AuthorizeScopeHandler(w http.ResponseWriter, r *http.Request) (scope string, err error) {
 	scope = r.FormValue("scope")
 	if len(scope) == 0 {
-		scope = "offline"
+		scope = "offline, openid, profile"
 	} else {
-		scope += ",offline"
+		scope += ", offline, openid, profile"
 	}
 
 	return
