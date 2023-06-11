@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/futugyousuzu/identity/api"
+	"github.com/futugyousuzu/identity/apiraw"
 	"github.com/futugyousuzu/identity/middleware"
 	"github.com/futugyousuzu/identity/scheduler"
 )
@@ -29,7 +30,7 @@ func main() {
 	http.HandleFunc("/login", middleware.Cors(api.Login))
 	http.HandleFunc("/auth", middleware.Cors(api.Auth))
 	http.HandleFunc("/authorize", middleware.Cors(api.Authorize))
-	http.HandleFunc("/token", middleware.Cors(api.Token))
+	http.HandleFunc("/token", middleware.Cors(apiraw.Token))
 	http.HandleFunc("/test", middleware.Cors(api.Test))
 	http.HandleFunc("/.well-known/jwks.json", middleware.Cors(api.Jwks))
 	http.HandleFunc("/", middleware.Cors(api.Jwks))

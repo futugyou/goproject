@@ -3,12 +3,10 @@ package api
 import (
 	"net/http"
 
-	"github.com/futugyousuzu/identity/server"
+	"github.com/futugyousuzu/identity/apiraw"
+	"github.com/futugyousuzu/identity/middleware"
 )
 
 func Token(w http.ResponseWriter, r *http.Request) {
-	err := server.OAuthServer.HandleTokenRequest(w, r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	middleware.Cors(apiraw.Token)
 }
