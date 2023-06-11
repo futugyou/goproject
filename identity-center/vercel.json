@@ -47,7 +47,7 @@
 		"schedule": "0 3 * * *"
 	}],
 	"headers": [{
-		"source": "/api/(.*)",
+		"source": "/(.*)",
 		"headers": [{
 				"key": "Access-Control-Allow-Credentials",
 				"value": "true"
