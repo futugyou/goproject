@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -169,21 +168,21 @@ func (a *AuthService) Oauth2(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(token.AccessToken)
 }
 
-func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token *oauth2.Token) {
-	a.VerifyTokenString(w, r, token.AccessToken)
+func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token *oauth2.Token) bool {
+	return a.VerifyTokenString(w, r, token.AccessToken)
 }
 
-func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, authorization string) {
+func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, authorization string) bool {
 	set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return false
 	}
 
 	tok, err := jwt.Parse([]byte(authorization), jwt.WithKeySet(set))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return false
 	}
 
 	// "scope" can get from tok.PrivateClaims() or directly
@@ -204,22 +203,6 @@ func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, 
 		fmt.Println(v.ProtectedHeaders().Algorithm())
 		fmt.Println(v.ProtectedHeaders().Get("x-example"))
 	}
-}
 
-func AuthForVercel(w http.ResponseWriter, r *http.Request) {
-	bearer := r.Header.Get("Authorization")
-	authOptions := AuthOptions{
-		AuthServerURL: os.Getenv("auth_server_url"),
-		ClientID:      os.Getenv("client_id"),
-		ClientSecret:  os.Getenv("client_secret"),
-		Scopes:        os.Getenv("scopes"),
-		RedirectURL:   os.Getenv("redirect_url"),
-		AuthURL:       os.Getenv("auth_url"),
-		TokenURL:      os.Getenv("token_url"),
-		DbUrl:         os.Getenv("mongodb_url"),
-		DbName:        os.Getenv("db_name"),
-	}
-
-	oauthsvc := NewAuthService(authOptions)
-	oauthsvc.VerifyTokenString(w, r, bearer)
+	return true
 }

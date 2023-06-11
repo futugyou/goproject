@@ -1,29 +1,29 @@
 package main
 
 import (
-	"os"
-
 	_ "github.com/joho/godotenv/autoload"
 
 	_ "github.com/futugyousuzu/go-openai-web/routers"
 	_ "github.com/futugyousuzu/go-openai-web/services"
 	_ "github.com/futugyousuzu/openai-tokenizer"
 
+	"os"
+
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/filter/cors"
-	"github.com/futugyousuzu/go-openai-web/middleware/oauth"
+	"github.com/futugyousuzu/go-openai-web/middleware"
 )
 
 func init() {
 	web.InsertFilter("*", web.BeforeRouter, cors.Allow(&cors.Options{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"},
-		AllowHeaders:     []string{"Access-Control-Allow-Origin", "Origin", "Authorization", "Access-Control-Allow-Headers", "Content-Type"},
-		ExposeHeaders:    []string{"Access-Control-Allow-Origin", "Content-Length", "Access-Control-Allow-Headers", "Content-Type"},
+		AllowHeaders:     []string{"Access-Control-Allow-Origin", "Origin", "Authorization", "Access-Control-Allow-Headers", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "x-requested-with"},
+		ExposeHeaders:    []string{"Access-Control-Allow-Origin", "Origin", "Authorization", "Access-Control-Allow-Headers", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "x-requested-with"},
 		AllowCredentials: true,
 	}))
 
-	web.InsertFilter("*", web.BeforeRouter, oauth.OAuthConfig(&oauth.Options{
+	web.InsertFilter("*", web.BeforeRouter, middleware.OAuthConfig(&middleware.Options{
 		AuthServerURL: os.Getenv("auth_server_url"),
 		ClientID:      os.Getenv("client_id"),
 		ClientSecret:  os.Getenv("client_secret"),
