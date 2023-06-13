@@ -1,6 +1,8 @@
 package verceltool
 
 import (
+	"strings"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"net/http"
@@ -24,5 +26,6 @@ func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	oauthsvc := oauthService.NewAuthService(authOptions)
+	bearer = strings.ReplaceAll(bearer, "Bearer ", "")
 	return oauthsvc.VerifyTokenString(w, r, bearer)
 }
