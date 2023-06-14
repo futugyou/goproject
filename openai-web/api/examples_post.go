@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/futugyousuzu/go-openai-web/services"
@@ -18,10 +17,13 @@ func ExamplesPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var buf []byte
-	buf, _ = io.ReadAll(r.Body)
 	var request services.ExampleModel
-	json.Unmarshal(buf, &request)
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	exampleService := services.ExampleService{}
 	if len(request.Key) == 0 {
 		w.Write([]byte("errors"))

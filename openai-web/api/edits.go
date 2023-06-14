@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/futugyousuzu/go-openai-web/services"
@@ -19,9 +18,11 @@ func Edits(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var editsRequest services.CreateEditsRequest
-	var buf []byte
-	buf, _ = io.ReadAll(r.Body)
-	json.Unmarshal(buf, &editsRequest)
+	err := json.NewDecoder(r.Body).Decode(&editsRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	completionService := services.EditService{}
 	result := completionService.CreateEdit(editsRequest)

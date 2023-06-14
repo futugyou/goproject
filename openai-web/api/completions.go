@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/beego/beego/v2/core/validation"
@@ -22,11 +21,12 @@ func Completions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var buf []byte
-	buf, _ = io.ReadAll(r.Body)
-
 	var completionModel models.CompletionModel
-	json.Unmarshal(buf, &completionModel)
+	err := json.NewDecoder(r.Body).Decode(&completionModel)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	valid := validation.Validation{}
 	b, err := valid.Valid(&r)
 
