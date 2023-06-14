@@ -42,10 +42,6 @@
 			"destination": "/api/jwkpoint"
 		}
 	],
-	"crons": [{
-		"path": "/api/cron?key=E86ZaWHjHnRqn",
-		"schedule": "0 3 * * *"
-	}],
 	"headers": [{
 		"source": "/(.*)",
 		"headers": [{
