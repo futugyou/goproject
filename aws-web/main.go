@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"fmt"
 
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
 	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
@@ -19,6 +21,8 @@ import (
 func main() {
 	defer awsenv.DeleteAll()
 
+	r, _ := services.GetAllRegionInCurrentAccount()
+	fmt.Println(r)
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()
@@ -41,7 +45,7 @@ func main() {
 	// ecr.CreateRepository()
 	// ecr.DeleteRepository()
 
-	iam.ListUsers()
+	// iam.ListUsers()
 	// iam.ListAccessKeys("")
 	// iam.ListGroups()
 	// iam.ListAccountAliases()
