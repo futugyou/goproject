@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/futugyousuzu/goproject/awsgolang/services"
 	verceltool "github.com/futugyousuzu/goproject/awsgolang/vercel"
 )
 
@@ -15,6 +17,16 @@ func Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("ok"))
+	regions, err := services.GetAllRegionInCurrentAccount()
+
+	if err != nil {
+		body, _ := json.Marshal(err)
+		w.Write(body)
+		w.WriteHeader(500)
+		return
+	}
+
+	body, _ := json.Marshal(regions)
+	w.Write(body)
 	w.WriteHeader(200)
 }
