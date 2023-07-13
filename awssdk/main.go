@@ -41,7 +41,7 @@ func main() {
 	// ecr.CreateRepository()
 	// ecr.DeleteRepository()
 
-	// iam.ListUsers()
+	iam.ListUsers()
 	// iam.ListAccessKeys("")
 	// iam.ListGroups()
 	// iam.ListAccountAliases()
@@ -57,7 +57,7 @@ func main() {
 	// iam.GetAccountAuthorizationDetails()
 	// iam.CreateLoginProfile()
 	// iam.UpdateLoginProfile()
-	iam.AddUserToGroup()
+	// iam.AddUserToGroup()
 
 	// ecs.DescribeClusters()
 	// ecs.DescribeCapacityProviders()
