@@ -1,6 +1,8 @@
 package api
 
 import (
+	_ "github.com/joho/godotenv/autoload"
+
 	"encoding/json"
 	"net/http"
 

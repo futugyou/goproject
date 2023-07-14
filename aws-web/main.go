@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "github.com/joho/godotenv/autoload"
+
 	"fmt"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
