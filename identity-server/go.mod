@@ -1,4 +1,4 @@
-module github.com/futugyousuzu/identity/client
+module github.com/futugyousuzu/identity-server
 
 go 1.20
 
