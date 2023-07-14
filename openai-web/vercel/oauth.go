@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	oauthService "github.com/futugyousuzu/go-openai-web/oauth"
+	oauthService "github.com/futugyousuzu/identity/client"
 )
 
 func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {

@@ -9,7 +9,7 @@ import (
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
 
-	oauthService "github.com/futugyousuzu/go-openai-web/oauth"
+	oauthService "github.com/futugyousuzu/identity/client"
 )
 
 type Options struct {
