@@ -173,7 +173,14 @@ func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token 
 }
 
 func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, authorization string) bool {
-	set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
+	// set a timeput for test
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*20)
+	set, err := jwk.Fetch(ctx, a.Options.AuthServerURL+".well-known/jwks.json")
+
+	// A connection attempt failed
+	// because the connected party did not properly respond after a period of time,
+	// or established connection failed because connected host has failed to respond.
+	// set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return false
