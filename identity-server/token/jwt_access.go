@@ -15,7 +15,7 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 
-	"github.com/futugyousuzu/identity-server/user"
+	user_mongo "github.com/futugyousuzu/identity-server/user/mongo-store"
 )
 
 // JWTAccessClaims jwt claims
@@ -79,7 +79,7 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	}
 
 	// set some claim
-	userstore := user.NewUserStore()
+	userstore := user_mongo.NewUserStore()
 	user, err := userstore.GetByUID(ctx, data.UserID)
 	if err != nil {
 		fmt.Printf("failed to get user data: %s\n", err)
