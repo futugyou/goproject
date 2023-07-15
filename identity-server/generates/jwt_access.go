@@ -1,4 +1,4 @@
-package token
+package generates
 
 import (
 	"context"
@@ -8,16 +8,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/futugyousuzu/identity-server/operate"
 	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-
-	user_mongo "github.com/futugyousuzu/identity-server/user/mongo-store"
 )
 
+// this is for go-oauth2 lib
 // JWTAccessClaims jwt claims
 type JWTAccessClaims struct {
 	jwt.Token
@@ -79,7 +79,8 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	}
 
 	// set some claim
-	userstore := user_mongo.NewUserStore()
+	operator := operate.DefaultOperator()
+	userstore := operator.UserStore
 	user, err := userstore.GetByUID(ctx, data.UserID)
 	if err != nil {
 		fmt.Printf("failed to get user data: %s\n", err)
@@ -106,7 +107,7 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	// signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
 	// signingKey.Set(jwk.KeyIDKey, a.SignedKey)
 
-	store := NewJwksStore()
+	store := operator.JwtkStore
 	signingKey, err := store.GetJwkByKeyID(ctx, a.SignedKeyID)
 	if err != nil {
 		fmt.Printf("failed to create bogus JWK: %s\n", err)

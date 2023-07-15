@@ -1,4 +1,4 @@
-package user_mongo
+package mongo_store
 
 import (
 	"context"
