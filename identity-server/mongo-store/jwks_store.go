@@ -36,7 +36,7 @@ func NewJwksStore() *MongoJwksStore {
 	}
 }
 
-func (u *MongoJwksStore) GetPublicJwksList(ctx context.Context) (string, error) {
+func (u *MongoJwksStore) GetPublicJwks(ctx context.Context) (string, error) {
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
 
 	result := make([]token.JwkModel, 0)
