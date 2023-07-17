@@ -3,6 +3,7 @@ module github.com/futugyousuzu/identity-server
 go 1.20
 
 require (
+	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/go-oauth2/oauth2/v4 v4.5.2
 	github.com/lestrrat-go/jwx/v2 v2.0.11
 	go.mongodb.org/mongo-driver v1.12.0
