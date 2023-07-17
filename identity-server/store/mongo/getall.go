@@ -8,15 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type GetAllStore[E core.IEntity, K any] struct {
+type GetAllStore[E core.IEntity] struct {
 	*MongoStore
 }
 
-func NewGetAllStore[E core.IEntity, K any](baseStore *MongoStore) *GetAllStore[E, K] {
-	return &GetAllStore[E, K]{baseStore}
+func NewGetAllStore[E core.IEntity](baseStore *MongoStore) *GetAllStore[E] {
+	return &GetAllStore[E]{baseStore}
 }
 
-func (s *GetAllStore[E, K]) GetAll(ctx context.Context) ([]*E, error) {
+func (s *GetAllStore[E]) GetAll(ctx context.Context) ([]*E, error) {
 	result := make([]*E, 0)
 	entity := new(E)
 	c := s.client.Database(s.DBName).Collection((*entity).GetType())

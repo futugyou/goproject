@@ -7,15 +7,15 @@ import (
 	"github.com/futugyousuzu/identity-server/core"
 )
 
-type InsertStore[E core.IEntity, K any] struct {
+type InsertStore[E core.IEntity] struct {
 	*MongoStore
 }
 
-func NewInsertStore[E core.IEntity, K any](baseStore *MongoStore) *InsertStore[E, K] {
-	return &InsertStore[E, K]{baseStore}
+func NewInsertStore[E core.IEntity](baseStore *MongoStore) *InsertStore[E] {
+	return &InsertStore[E]{baseStore}
 }
 
-func (s *InsertStore[E, K]) Insert(ctx context.Context, obj E) error {
+func (s *InsertStore[E]) Insert(ctx context.Context, obj E) error {
 	c := s.client.Database(s.DBName).Collection(obj.GetType())
 	result, err := c.InsertOne(ctx, obj)
 	if err != nil {
