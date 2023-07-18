@@ -14,13 +14,13 @@ type DBConfig struct {
 
 type MongoStore struct {
 	DBName string
-	client *mongo.Client
+	Client *mongo.Client
 }
 
 func NewMongoStore(config DBConfig) *MongoStore {
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
 	return &MongoStore{
 		DBName: config.DBName,
-		client: client,
+		Client: client,
 	}
 }

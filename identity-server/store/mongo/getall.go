@@ -19,7 +19,7 @@ func NewGetAllStore[E core.IEntity](baseStore *MongoStore) *GetAllStore[E] {
 func (s *GetAllStore[E]) GetAll(ctx context.Context) ([]*E, error) {
 	result := make([]*E, 0)
 	entity := new(E)
-	c := s.client.Database(s.DBName).Collection((*entity).GetType())
+	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
 
 	filter := bson.D{}
 	cursor, err := c.Find(context.TODO(), filter)

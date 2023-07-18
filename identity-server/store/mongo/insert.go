@@ -16,7 +16,7 @@ func NewInsertStore[E core.IEntity](baseStore *MongoStore) *InsertStore[E] {
 }
 
 func (s *InsertStore[E]) Insert(ctx context.Context, obj E) error {
-	c := s.client.Database(s.DBName).Collection(obj.GetType())
+	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	result, err := c.InsertOne(ctx, obj)
 	if err != nil {
 		log.Println(err)

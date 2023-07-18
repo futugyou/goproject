@@ -17,7 +17,7 @@ func NewDeleteStore[E core.IEntity, K any](baseStore *MongoStore) *DeleteStore[E
 }
 
 func (s *DeleteStore[E, K]) Delete(ctx context.Context, obj E, id K) error {
-	c := s.client.Database(s.DBName).Collection(obj.GetType())
+	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	filter := bson.D{{Key: "_id", Value: id}}
 	result, err := c.DeleteOne(ctx, filter)
 	if err != nil {

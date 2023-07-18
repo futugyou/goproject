@@ -19,7 +19,7 @@ func NewUpdateStore[E core.IEntity, K any](baseStore *MongoStore) *UpdateStore[E
 }
 
 func (s *UpdateStore[E, K]) Update(ctx context.Context, obj E, id K) error {
-	c := s.client.Database(s.DBName).Collection(obj.GetType())
+	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	opt := options.Update().SetUpsert(true)
 	doc, err := flatbson.Flatten(obj)
 	if err != nil {
