@@ -13,7 +13,7 @@ type JwksStore struct {
 	*mongostore.GetAllStore[*token.JwkModel]
 }
 
-func New(config mongostore.DBConfig) *JwksStore {
+func NewJwksStore(config mongostore.DBConfig) *JwksStore {
 	baseRepo := mongostore.NewMongoStore(config)
 	insertRepo := mongostore.NewInsertStore[*token.JwkModel](baseRepo)
 	updateRepo := mongostore.NewUpdateStore[*token.JwkModel, string](baseRepo)

@@ -17,7 +17,7 @@ type UserStore struct {
 	*mongostore.GetAllStore[*user.User]
 }
 
-func New(config mongostore.DBConfig) *UserStore {
+func NewUserStore(config mongostore.DBConfig) *UserStore {
 	baseRepo := mongostore.NewMongoStore(config)
 	insertRepo := mongostore.NewInsertStore[*user.User](baseRepo)
 	updateRepo := mongostore.NewUpdateStore[*user.User, string](baseRepo)
