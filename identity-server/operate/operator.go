@@ -1,19 +1,37 @@
 package operate
 
 import (
-	userStore "github.com/futugyousuzu/identity-server/user"
+	base "github.com/futugyousuzu/identity-server/store/mongo"
+	jwkstore "github.com/futugyousuzu/identity-server/store/mongo/token"
+	userstore "github.com/futugyousuzu/identity-server/store/mongo/user"
+	jwksRepository "github.com/futugyousuzu/identity-server/token"
+	userRepository "github.com/futugyousuzu/identity-server/user"
 
+	// TODO: remove in future
 	mongoStore "github.com/futugyousuzu/identity-server/mongo-store"
-	jwtkStore "github.com/futugyousuzu/identity-server/token"
 )
 
 type Operator struct {
-	UserStore userStore.UserStore
-	JwtkStore jwtkStore.JwksStore
+	UserRepository      userRepository.IUserRepository
+	UserLoginRepository userRepository.IUserLoginRepository
+	JwksRepository      jwksRepository.IJwksRepository
+
+	// TODO: this is service, not store
+	UserStore userRepository.UserStore
+	JwtkStore jwksRepository.JwksStore
 }
 
 func DefaultOperator() *Operator {
+	config := base.DBConfig{}
+	jwt := jwkstore.NewJwksStore(config)
+	user := userstore.NewUserStore(config)
+	userlogin := userstore.NewUserloginStore(config)
 	o := &Operator{
+		UserRepository:      user,
+		UserLoginRepository: userlogin,
+		JwksRepository:      jwt,
+
+		// TODO: remove in future
 		UserStore: mongoStore.NewUserStore(),
 		JwtkStore: mongoStore.NewJwksStore(),
 	}
