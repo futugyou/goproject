@@ -15,16 +15,15 @@ import (
 )
 
 type JwksService struct {
+	token.IJwksRepository
 }
 
-func NewJwksService() *JwksService {
-
-	return &JwksService{}
+func NewJwksService(operator *operate.Operator) *JwksService {
+	return &JwksService{operator.JwksRepository}
 }
 
 func (u *JwksService) GetPublicJwks(ctx context.Context) (string, error) {
-	operator := operate.DefaultOperator()
-	jwtRepo := operator.JwksRepository
+	jwtRepo := u.IJwksRepository
 	models, err := jwtRepo.GetAll(ctx)
 	if err != nil {
 		return "", err
@@ -83,14 +82,12 @@ func (u *JwksService) CreateJwks(ctx context.Context, signed_key_id string) erro
 		Payload: string(buf),
 	}
 
-	operator := operate.DefaultOperator()
-	jwtRepo := operator.JwksRepository
+	jwtRepo := u.IJwksRepository
 	return jwtRepo.Update(ctx, &jwkModel, signed_key_id)
 }
 
 func (u *JwksService) GetJwkByKeyID(ctx context.Context, signed_key_id string) (jwk.Key, error) {
-	operator := operate.DefaultOperator()
-	jwtRepo := operator.JwksRepository
+	jwtRepo := u.IJwksRepository
 	jwkModel, err := jwtRepo.Get(ctx, signed_key_id)
 
 	if err != nil {

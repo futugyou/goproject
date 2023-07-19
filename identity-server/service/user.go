@@ -13,15 +13,16 @@ import (
 )
 
 type UserService struct {
+	user.IUserRepository
+	user.IUserLoginRepository
 }
 
-func NewUserStore() *UserService {
-	return &UserService{}
+func NewUserService(operator *operate.Operator) *UserService {
+	return &UserService{operator.UserRepository, operator.UserLoginRepository}
 }
 
 func (u *UserService) GetByUID(ctx context.Context, uid string) (*user.User, error) {
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
+	userRepo := u.IUserRepository
 	entity, err := userRepo.Get(ctx, uid)
 	if err != nil {
 		return nil, err
@@ -32,8 +33,7 @@ func (u *UserService) GetByUID(ctx context.Context, uid string) (*user.User, err
 }
 
 func (u *UserService) GetByName(ctx context.Context, name string) (*user.User, error) {
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
+	userRepo := u.IUserRepository
 	entity, err := userRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, err
@@ -44,8 +44,7 @@ func (u *UserService) GetByName(ctx context.Context, name string) (*user.User, e
 }
 
 func (u *UserService) Login(ctx context.Context, name, password string) (*user.UserLogin, error) {
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
+	userRepo := u.IUserRepository
 	userinfo, err := userRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, errors.New("user " + name + " can not find")
@@ -56,7 +55,7 @@ func (u *UserService) Login(ctx context.Context, name, password string) (*user.U
 		return nil, errors.New("user " + name + " password error")
 	}
 
-	userloginRepo := operator.UserLoginRepository
+	userloginRepo := u.IUserLoginRepository
 	now := time.Now()
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(now.Format("20060102150405")+userinfo.ID), 14)
 	userLogin := &user.UserLogin{
@@ -74,14 +73,12 @@ func (u *UserService) Login(ctx context.Context, name, password string) (*user.U
 }
 
 func (u *UserService) GetLoginInfo(ctx context.Context, login_id string) (*user.UserLogin, error) {
-	operator := operate.DefaultOperator()
-	userloginRepo := operator.UserLoginRepository
+	userloginRepo := u.IUserLoginRepository
 	return userloginRepo.Get(ctx, login_id)
 }
 
 func (u *UserService) CreateUser(ctx context.Context, userInfo user.User) error {
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
+	userRepo := u.IUserRepository
 	entity, _ := userRepo.FindByName(ctx, userInfo.Name)
 
 	if len(entity.Name) != 0 {
@@ -98,8 +95,7 @@ func (u *UserService) CreateUser(ctx context.Context, userInfo user.User) error 
 }
 
 func (u *UserService) UpdatePassword(ctx context.Context, name, password string) error {
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
+	userRepo := u.IUserRepository
 	entity, err := userRepo.FindByName(ctx, name)
 
 	if err != nil {
@@ -112,8 +108,7 @@ func (u *UserService) UpdatePassword(ctx context.Context, name, password string)
 }
 
 func (u *UserService) ListUser(ctx context.Context) []*user.User {
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
+	userRepo := u.IUserRepository
 	result, _ := userRepo.GetAll(ctx)
 	return result
 }

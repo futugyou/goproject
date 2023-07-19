@@ -33,11 +33,12 @@ func (a *JWTAccessClaims) Valid() error {
 }
 
 // NewJWTAccessGenerate create to generate the jwt access token instance
-func NewJWTAccessGenerate(kid string, key []byte, method jwa.SignatureAlgorithm) *JWTAccessGenerate {
+func NewJWTAccessGenerate(kid string, key []byte, method jwa.SignatureAlgorithm, operator *operate.Operator) *JWTAccessGenerate {
 	return &JWTAccessGenerate{
 		SignedKeyID:  kid,
 		SignedKey:    key,
 		SignedMethod: method,
+		Operator:     operator,
 	}
 }
 
@@ -46,6 +47,7 @@ type JWTAccessGenerate struct {
 	SignedKeyID  string
 	SignedKey    []byte
 	SignedMethod jwa.SignatureAlgorithm
+	Operator     *operate.Operator
 }
 
 // Token based on the UUID generated token
@@ -80,9 +82,8 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	}
 
 	// set some claim
-	operator := operate.DefaultOperator()
-	userRepo := operator.UserRepository
-	user, err := userRepo.Get(ctx, data.UserID)
+	userService := service.NewUserService(a.Operator)
+	user, err := userService.GetByUID(ctx, data.UserID)
 	if err != nil {
 		fmt.Printf("failed to get user data: %s\n", err)
 		return "", "", err
@@ -108,7 +109,7 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	// signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
 	// signingKey.Set(jwk.KeyIDKey, a.SignedKey)
 
-	jwtService := service.NewJwksService()
+	jwtService := service.NewJwksService(a.Operator)
 	signingKey, err := jwtService.GetJwkByKeyID(ctx, a.SignedKeyID)
 	if err != nil {
 		fmt.Printf("failed to create bogus JWK: %s\n", err)
