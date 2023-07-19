@@ -18,7 +18,6 @@ type Operator struct {
 
 	// TODO: this is service, not store
 	UserStore userRepository.UserStore
-	JwtkStore jwksRepository.JwksStore
 }
 
 func DefaultOperator() *Operator {
@@ -33,7 +32,6 @@ func DefaultOperator() *Operator {
 
 		// TODO: remove in future
 		UserStore: mongoStore.NewUserStore(),
-		JwtkStore: mongoStore.NewJwksStore(),
 	}
 	return o
 }

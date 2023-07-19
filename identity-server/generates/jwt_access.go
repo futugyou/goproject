@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/futugyousuzu/identity-server/operate"
+	"github.com/futugyousuzu/identity-server/service"
 	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/google/uuid"
@@ -107,8 +108,8 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	// signingKey.Set(jwk.AlgorithmKey, a.SignedMethod)
 	// signingKey.Set(jwk.KeyIDKey, a.SignedKey)
 
-	store := operator.JwtkStore
-	signingKey, err := store.GetJwkByKeyID(ctx, a.SignedKeyID)
+	jwtService := service.NewJwksService()
+	signingKey, err := jwtService.GetJwkByKeyID(ctx, a.SignedKeyID)
 	if err != nil {
 		fmt.Printf("failed to create bogus JWK: %s\n", err)
 		return "", "", err
