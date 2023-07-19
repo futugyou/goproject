@@ -27,3 +27,15 @@ func DefaultOperator() *Operator {
 
 	return o
 }
+
+func (o *Operator) SetUserRepository(repo userRepository.IUserRepository) {
+	o.UserRepository = repo
+}
+
+func (o *Operator) SetUserLoginRepository(repo userRepository.IUserLoginRepository) {
+	o.UserLoginRepository = repo
+}
+
+func (o *Operator) SetJwksRepository(repo jwksRepository.IJwksRepository) {
+	o.JwksRepository = repo
+}
