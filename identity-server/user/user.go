@@ -28,10 +28,10 @@ type UserLogin struct {
 	Timestamp int64  `bson:"timestamp" json:"timestamp"`
 }
 
-func (*User) GetType() string {
+func (User) GetType() string {
 	return "user"
 }
 
-func (*UserLogin) GetType() string {
+func (UserLogin) GetType() string {
 	return "userlogin"
 }

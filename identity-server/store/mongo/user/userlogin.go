@@ -8,12 +8,12 @@ import (
 type UserloginStore struct {
 	*mongostore.MongoStore
 	*mongostore.InsertStore[*user.UserLogin]
-	*mongostore.GetStore[*user.UserLogin, string]
+	*mongostore.GetStore[user.UserLogin, string]
 }
 
 func NewUserloginStore(config mongostore.DBConfig) *UserloginStore {
 	baseRepo := mongostore.NewMongoStore(config)
 	insertRepo := mongostore.NewInsertStore[*user.UserLogin](baseRepo)
-	getRepo := mongostore.NewGetStore[*user.UserLogin, string](baseRepo)
+	getRepo := mongostore.NewGetStore[user.UserLogin, string](baseRepo)
 	return &UserloginStore{baseRepo, insertRepo, getRepo}
 }

@@ -13,16 +13,16 @@ type UserStore struct {
 	*mongostore.MongoStore
 	*mongostore.InsertStore[*user.User]
 	*mongostore.UpdateStore[*user.User, string]
-	*mongostore.GetStore[*user.User, string]
-	*mongostore.GetAllStore[*user.User]
+	*mongostore.GetStore[user.User, string]
+	*mongostore.GetAllStore[user.User]
 }
 
 func NewUserStore(config mongostore.DBConfig) *UserStore {
 	baseRepo := mongostore.NewMongoStore(config)
 	insertRepo := mongostore.NewInsertStore[*user.User](baseRepo)
 	updateRepo := mongostore.NewUpdateStore[*user.User, string](baseRepo)
-	getRepo := mongostore.NewGetStore[*user.User, string](baseRepo)
-	getAllRepo := mongostore.NewGetAllStore[*user.User](baseRepo)
+	getRepo := mongostore.NewGetStore[user.User, string](baseRepo)
+	getAllRepo := mongostore.NewGetAllStore[user.User](baseRepo)
 	return &UserStore{baseRepo, insertRepo, updateRepo, getRepo, getAllRepo}
 }
 
