@@ -81,8 +81,8 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 
 	// set some claim
 	operator := operate.DefaultOperator()
-	userstore := operator.UserStore
-	user, err := userstore.GetByUID(ctx, data.UserID)
+	userRepo := operator.UserRepository
+	user, err := userRepo.Get(ctx, data.UserID)
 	if err != nil {
 		fmt.Printf("failed to get user data: %s\n", err)
 		return "", "", err

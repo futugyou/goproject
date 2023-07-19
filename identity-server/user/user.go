@@ -1,18 +1,5 @@
 package user
 
-import (
-	"context"
-)
-
-type UserStore interface {
-	GetByName(ctx context.Context, name string) (User, error)
-	GetByUID(ctx context.Context, uid string) (User, error)
-	Login(ctx context.Context, name, password string) (UserLogin, error)
-	CreateUser(ctx context.Context, user User) error
-	UpdatePassword(ctx context.Context, name, password string) error
-	ListUser(ctx context.Context) []User
-}
-
 type User struct {
 	ID       string `bson:"_id" json:"id"`
 	Name     string `bson:"name" json:"name"`
