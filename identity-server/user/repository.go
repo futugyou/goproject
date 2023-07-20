@@ -6,6 +6,8 @@ import (
 	"github.com/futugyousuzu/identity-server/core"
 )
 
+//go:generate mockgen -destination mock_user_repo_test.go -package=user_test github.com/futugyousuzu/identity-server/user IUserRepository
+
 type IUserRepository interface {
 	core.IInsertRepository[*User]
 	core.IGetAllRepository[User]
@@ -13,6 +15,8 @@ type IUserRepository interface {
 	core.IUpdateRepository[*User, string]
 	FindByName(ctx context.Context, name string) (*User, error)
 }
+
+//go:generate mockgen -destination mock_user_login_repo_test.go -package=user_test github.com/futugyousuzu/identity-server/user IUserLoginRepository
 
 type IUserLoginRepository interface {
 	core.IInsertRepository[*UserLogin]
