@@ -11,7 +11,7 @@ import (
 func call(ctx context.Context, m token.IJwksRepository) (*token.JwkModel, error) {
 	result := make(chan *token.JwkModel)
 	go func() {
-		model, _ := m.Get(ctx, "")
+		model, _ := m.Get(ctx, "id1")
 		result <- model
 		close(result)
 	}()
@@ -30,5 +30,41 @@ func TestJwksGetFails(t *testing.T) {
 	m := NewMockIJwksRepository(ctrl)
 	if _, err := call(ctx, m); err != nil {
 		t.Error("call failed:", err)
+	}
+}
+
+func TestJwksGetWorks(t *testing.T) {
+	ctrl, ctx := gomock.WithContext(context.Background(), t)
+	defer ctrl.Finish()
+	m := NewMockIJwksRepository(ctrl)
+	model := &token.JwkModel{}
+	m.EXPECT().Get(ctx, "id1").Return(model, nil)
+	if _, err := call(ctx, m); err != nil {
+		t.Error("call failed:", err)
+	}
+}
+
+func TestJwkModel_GetType(t *testing.T) {
+	type fields struct {
+		ID      string
+		Payload string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			j := token.JwkModel{
+				ID:      tt.fields.ID,
+				Payload: tt.fields.Payload,
+			}
+			if got := j.GetType(); got != tt.want {
+				t.Errorf("JwkModel.GetType() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

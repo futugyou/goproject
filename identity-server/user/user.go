@@ -1,5 +1,7 @@
 package user
 
+//go:generate gotests -w -all .
+
 type User struct {
 	ID       string `bson:"_id" json:"id"`
 	Name     string `bson:"name" json:"name"`
