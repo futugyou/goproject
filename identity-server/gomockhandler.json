@@ -1,0 +1,24 @@
+{
+	"mocks": {
+		"core/mock_entity_test.go": {
+			"checksum": "knxQMeOcPr2RhXxkHi+JWQ==",
+			"mode": "REFLECT_MODE",
+			"reflect_mode_runner": {
+				"package_name": "github.com/futugyousuzu/identity-server/core",
+				"interfaces": "IEntity",
+				"destination": "core/mock_entity_test.go",
+				"package": "core_test"
+			}
+		},
+		"core\\mock_entity_test.go": {
+			"checksum": "knxQMeOcPr2RhXxkHi+JWQ==",
+			"mode": "REFLECT_MODE",
+			"reflect_mode_runner": {
+				"package_name": "github.com/futugyousuzu/identity-server/core",
+				"interfaces": "IEntity",
+				"destination": "core\\mock_entity_test.go",
+				"package": "core_test"
+			}
+		}
+	}
+}
