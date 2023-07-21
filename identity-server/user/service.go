@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-//go:generate mockgen -destination mock_user_service_test.go -package=user_test github.com/futugyousuzu/identity-server/user IUserService
+//go:generate gomockhandler -config=../gomockhandler.json  -destination ../mocks/mock_user_service_test.go -package=core_test github.com/futugyousuzu/identity-server/user IUserService
 
 type IUserService interface {
 	GetByName(ctx context.Context, name string) (*User, error)

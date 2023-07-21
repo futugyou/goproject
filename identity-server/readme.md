@@ -4,4 +4,5 @@ build an indentity server with github.com/lestrrat-go/jwx , golang.org/x/oauth2 
 ```
 go install go.uber.org/mock/mockgen@latest
 go get -u github.com/cweill/gotests/...
+go install github.com/sanposhiho/gomockhandler@latest
 ```

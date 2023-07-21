@@ -1,5 +1,7 @@
 package core
 
+//go:generate gomockhandler -config=../gomockhandler.json  -destination ../mocks/mock_repository_test.go -package=core_test -source=repository.go
+
 import (
 	"context"
 )

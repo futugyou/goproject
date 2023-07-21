@@ -4,7 +4,7 @@ import (
 	"github.com/futugyousuzu/identity-server/core"
 )
 
-//go:generate mockgen -destination mock_jwks_repo_test.go -package=token_test github.com/futugyousuzu/identity-server/token IJwksRepository
+//go:generate gomockhandler -config=../gomockhandler.json  -destination ../mocks/mock_jwks_repo_test.go -package=core_test github.com/futugyousuzu/identity-server/token IJwksRepository
 
 type IJwksRepository interface {
 	core.IInsertRepository[*JwkModel]
