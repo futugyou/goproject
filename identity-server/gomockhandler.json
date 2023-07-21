@@ -1,73 +1,73 @@
 {
 	"mocks": {
-		"mocks\\mock_entity_test.go": {
+		"core\\mock_entity_test.go": {
 			"checksum": "knxQMeOcPr2RhXxkHi+JWQ==",
 			"mode": "REFLECT_MODE",
 			"reflect_mode_runner": {
 				"package_name": "github.com/futugyousuzu/identity-server/core",
 				"interfaces": "IEntity",
-				"destination": "mocks\\mock_entity_test.go",
+				"destination": "core\\mock_entity_test.go",
 				"package": "core_test"
 			}
 		},
-		"mocks\\mock_jwks_repo_test.go": {
-			"checksum": "m2UGdJZxzbXAEW68NQJ1lQ==",
+		"core\\mock_repository_test.go": {
+			"checksum": "3dKDBNx6FhflVmX7cO0qAg==",
+			"source_checksum": "ubRMaa+TQiINj4/iegglrw==",
+			"mode": "SOURCE_MODE",
+			"source_mode_runner": {
+				"source": "core\\repository.go",
+				"destination": "core\\mock_repository_test.go",
+				"package": "core_test"
+			}
+		}, 
+		"token\\mock_jwks_repo_test.go": {
+			"checksum": "fL+W4isYIGjDhsTXMVIjLA==",
 			"mode": "REFLECT_MODE",
 			"reflect_mode_runner": {
 				"package_name": "github.com/futugyousuzu/identity-server/token",
 				"interfaces": "IJwksRepository",
-				"destination": "mocks\\mock_jwks_repo_test.go",
-				"package": "core_test"
+				"destination": "token\\mock_jwks_repo_test.go",
+				"package": "token_test"
 			}
 		},
-		"mocks\\mock_jwks_service_test.go": {
-			"checksum": "/xSehBvEzdB+X/dS7CqFPQ==",
+		"token\\mock_jwks_service_test.go": {
+			"checksum": "BMYEoDi+jrRbiqPWTbN6rA==",
 			"mode": "REFLECT_MODE",
 			"reflect_mode_runner": {
 				"package_name": "github.com/futugyousuzu/identity-server/token",
 				"interfaces": "IJwksService",
-				"destination": "mocks\\mock_jwks_service_test.go",
-				"package": "core_test"
+				"destination": "token\\mock_jwks_service_test.go",
+				"package": "token_test"
 			}
 		},
-		"mocks\\mock_repository_test.go": {
-			"checksum": "3dKDBNx6FhflVmX7cO0qAg==",
-			"source_checksum": "yaLjp3rYW8WW7v5uJl8d/g==",
-			"mode": "SOURCE_MODE",
-			"source_mode_runner": {
-				"source": "core\\repository.go",
-				"destination": "mocks\\mock_repository_test.go",
-				"package": "core_test"
-			}
-		},
-		"mocks\\mock_user_login_repo_test.go": {
-			"checksum": "C6+LhAFOQwWcjq463nUvag==",
+		"user\\mock_user_login_repo_test.go": {
+			"checksum": "64JK2zPWQ99EbmyTh8RZGg==",
 			"mode": "REFLECT_MODE",
 			"reflect_mode_runner": {
 				"package_name": "github.com/futugyousuzu/identity-server/user",
 				"interfaces": "IUserLoginRepository",
-				"destination": "mocks\\mock_user_login_repo_test.go",
-				"package": "core_test"
+				"destination": "user\\mock_user_login_repo_test.go",
+				"package": "user_test"
 			}
 		},
-		"mocks\\mock_user_repo_test.go": {
-			"checksum": "5aF22iskFY+Lj2RAMMkgiw==",
+		"user\\mock_user_repo_test.go": {
+			"checksum": "cnaPZ2upgYQCLGyYwQnTPg==",
 			"mode": "REFLECT_MODE",
 			"reflect_mode_runner": {
 				"package_name": "github.com/futugyousuzu/identity-server/user",
 				"interfaces": "IUserRepository",
-				"destination": "mocks\\mock_user_repo_test.go",
-				"package": "core_test"
+				"destination": "user\\mock_user_repo_test.go",
+				"package": "user_test"
 			}
 		},
-		"mocks\\mock_user_service_test.go": {
-			"checksum": "34m+LEjpzWSA4w7bKW5TFg==",
+		"user\\mock_user_service_test.go": {
+			"checksum": "zNNjAVXdsS6iIJttXlBUaw==",
 			"mode": "REFLECT_MODE",
 			"reflect_mode_runner": {
 				"package_name": "github.com/futugyousuzu/identity-server/user",
 				"interfaces": "IUserService",
-				"destination": "mocks\\mock_user_service_test.go",
-				"package": "core_test"
+				"destination": "user\\mock_user_service_test.go",
+				"package": "user_test"
 			}
 		}
 	}
