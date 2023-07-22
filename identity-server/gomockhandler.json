@@ -1,5 +1,25 @@
 {
 	"mocks": {
+		"client\\mock_request_repo_test.go": {
+			"checksum": "OFiGAyV2LGaSwdUcNfLv/A==",
+			"mode": "REFLECT_MODE",
+			"reflect_mode_runner": {
+				"package_name": "github.com/futugyousuzu/identity-server/client",
+				"interfaces": "IOAuthRequestRepository",
+				"destination": "client\\mock_request_repo_test.go",
+				"package": "client_test"
+			}
+		},
+		"client\\mock_token_repo_test.go": {
+			"checksum": "IaZ2agpHfrSTJNh7j76pTA==",
+			"mode": "REFLECT_MODE",
+			"reflect_mode_runner": {
+				"package_name": "github.com/futugyousuzu/identity-server/client",
+				"interfaces": "IOAuthTokenRepository",
+				"destination": "client\\mock_token_repo_test.go",
+				"package": "client_test"
+			}
+		},
 		"core\\mock_entity_test.go": {
 			"checksum": "knxQMeOcPr2RhXxkHi+JWQ==",
 			"mode": "REFLECT_MODE",
@@ -19,7 +39,7 @@
 				"destination": "core\\mock_repository_test.go",
 				"package": "core_test"
 			}
-		}, 
+		},
 		"token\\mock_jwks_repo_test.go": {
 			"checksum": "fL+W4isYIGjDhsTXMVIjLA==",
 			"mode": "REFLECT_MODE",

@@ -87,6 +87,10 @@ type TokenModel struct {
 	Expiry       time.Time `bson:"expiry"`
 }
 
+func (TokenModel) GetType() string {
+	return "oauth_tokens"
+}
+
 type AuthModel struct {
 	ID                  string    `bson:"_id"`
 	CodeVerifier        string    `bson:"code_verifier"`
@@ -95,6 +99,10 @@ type AuthModel struct {
 	State               string    `bson:"state"`
 	RequestURI          string    `bson:"request_uri"`
 	CreateAt            time.Time `bson:"create_at"`
+}
+
+func (AuthModel) GetType() string {
+	return "oauth_requests"
 }
 
 type AuthOptions struct {
