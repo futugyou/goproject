@@ -1,4 +1,4 @@
-package mongostore
+package mongoRepository
 
 import (
 	"context"
@@ -8,15 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type DeleteStore[E core.IEntity, K any] struct {
-	*MongoStore
+type DeleteRepository[E core.IEntity, K any] struct {
+	*MongoRepository
 }
 
-func NewDeleteStore[E core.IEntity, K any](baseStore *MongoStore) *DeleteStore[E, K] {
-	return &DeleteStore[E, K]{baseStore}
+func NewDeleteRepository[E core.IEntity, K any](base *MongoRepository) *DeleteRepository[E, K] {
+	return &DeleteRepository[E, K]{base}
 }
 
-func (s *DeleteStore[E, K]) Delete(ctx context.Context, obj E, id K) error {
+func (s *DeleteRepository[E, K]) Delete(ctx context.Context, obj E, id K) error {
 	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	filter := bson.D{{Key: "_id", Value: id}}
 	result, err := c.DeleteOne(ctx, filter)

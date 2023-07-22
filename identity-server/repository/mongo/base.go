@@ -1,4 +1,4 @@
-package mongostore
+package mongoRepository
 
 import (
 	"context"
@@ -12,14 +12,14 @@ type DBConfig struct {
 	ConnectString string
 }
 
-type MongoStore struct {
+type MongoRepository struct {
 	DBName string
 	Client *mongo.Client
 }
 
-func NewMongoStore(config DBConfig) *MongoStore {
+func NewMongoRepository(config DBConfig) *MongoRepository {
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
-	return &MongoStore{
+	return &MongoRepository{
 		DBName: config.DBName,
 		Client: client,
 	}

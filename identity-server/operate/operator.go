@@ -1,9 +1,9 @@
 package operate
 
 import (
-	base "github.com/futugyousuzu/identity-server/store/mongo"
-	jwkRepoImpl "github.com/futugyousuzu/identity-server/store/mongo/token"
-	userRepoImpl "github.com/futugyousuzu/identity-server/store/mongo/user"
+	base "github.com/futugyousuzu/identity-server/repository/mongo"
+	jwkRepoImpl "github.com/futugyousuzu/identity-server/repository/mongo/token"
+	userRepoImpl "github.com/futugyousuzu/identity-server/repository/mongo/user"
 
 	jwksInterface "github.com/futugyousuzu/identity-server/token"
 	userInterface "github.com/futugyousuzu/identity-server/user"
@@ -22,9 +22,9 @@ func NewOperator() *Operator {
 func DefaultOperator() *Operator {
 	o := NewOperator()
 	config := base.DBConfig{}
-	jwt := jwkRepoImpl.NewJwksStore(config)
-	user := userRepoImpl.NewUserStore(config)
-	userlogin := userRepoImpl.NewUserloginStore(config)
+	jwt := jwkRepoImpl.NewJwksRepository(config)
+	user := userRepoImpl.NewUserRepository(config)
+	userlogin := userRepoImpl.NewUserLoginRepository(config)
 
 	o.SetUserRepository(user)
 	o.SetUserLoginRepository(userlogin)

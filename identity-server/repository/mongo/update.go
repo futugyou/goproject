@@ -1,4 +1,4 @@
-package mongostore
+package mongoRepository
 
 import (
 	"context"
@@ -10,15 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type UpdateStore[E core.IEntity, K any] struct {
-	*MongoStore
+type UpdateRepository[E core.IEntity, K any] struct {
+	*MongoRepository
 }
 
-func NewUpdateStore[E core.IEntity, K any](baseStore *MongoStore) *UpdateStore[E, K] {
-	return &UpdateStore[E, K]{baseStore}
+func NewUpdateRepository[E core.IEntity, K any](base *MongoRepository) *UpdateRepository[E, K] {
+	return &UpdateRepository[E, K]{base}
 }
 
-func (s *UpdateStore[E, K]) Update(ctx context.Context, obj E, id K) error {
+func (s *UpdateRepository[E, K]) Update(ctx context.Context, obj E, id K) error {
 	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	opt := options.Update().SetUpsert(true)
 	doc, err := flatbson.Flatten(obj)

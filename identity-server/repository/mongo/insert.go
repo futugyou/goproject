@@ -1,4 +1,4 @@
-package mongostore
+package mongoRepository
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 	"github.com/futugyousuzu/identity-server/core"
 )
 
-type InsertStore[E core.IEntity] struct {
-	*MongoStore
+type InsertRepository[E core.IEntity] struct {
+	*MongoRepository
 }
 
-func NewInsertStore[E core.IEntity](baseStore *MongoStore) *InsertStore[E] {
-	return &InsertStore[E]{baseStore}
+func NewInsertRepository[E core.IEntity](base *MongoRepository) *InsertRepository[E] {
+	return &InsertRepository[E]{base}
 }
 
-func (s *InsertStore[E]) Insert(ctx context.Context, obj E) error {
+func (s *InsertRepository[E]) Insert(ctx context.Context, obj E) error {
 	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	result, err := c.InsertOne(ctx, obj)
 	if err != nil {

@@ -1,4 +1,4 @@
-package mongostore
+package mongoRepository
 
 import (
 	"context"
@@ -8,15 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type GetStore[E core.IEntity, K any] struct {
-	*MongoStore
+type GetRepository[E core.IEntity, K any] struct {
+	*MongoRepository
 }
 
-func NewGetStore[E core.IEntity, K any](baseStore *MongoStore) *GetStore[E, K] {
-	return &GetStore[E, K]{baseStore}
+func NewGetRepository[E core.IEntity, K any](base *MongoRepository) *GetRepository[E, K] {
+	return &GetRepository[E, K]{base}
 }
 
-func (s *GetStore[E, K]) Get(ctx context.Context, id K) (*E, error) {
+func (s *GetRepository[E, K]) Get(ctx context.Context, id K) (*E, error) {
 	entity := new(E)
 	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
 
