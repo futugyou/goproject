@@ -16,16 +16,12 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jws"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var oauth_request_table = "oauth_request"
 
 func (a *AuthService) saveToken(ctx context.Context, token *oauth2.Token) error {
-	model := TokenModel{
+	model := &TokenModel{
 		ID:           token.AccessToken,
 		AccessToken:  token.AccessToken,
 		TokenType:    token.TokenType,
@@ -33,15 +29,11 @@ func (a *AuthService) saveToken(ctx context.Context, token *oauth2.Token) error 
 		Expiry:       token.Expiry,
 	}
 
-	coll := a.Client.Database(a.Options.DbName).Collection(oauth_request_table)
-	_, err := coll.InsertOne(ctx, model)
-	return err
+	return a.OAuthTokenRepository.Insert(ctx, model)
 }
 
-func (a *AuthService) getAuthRequestInfo(ctx context.Context, state string) AuthModel {
-	var model AuthModel
-	coll := a.Client.Database(a.Options.DbName).Collection(oauth_request_table)
-	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: state}}).Decode(&model)
+func (a *AuthService) getAuthRequestInfo(ctx context.Context, state string) *AuthModel {
+	model, err := a.OAuthRequestRepository.Get(ctx, state)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +52,6 @@ func (a *AuthService) createAuthCodeURL(r *http.Request, config oauth2.Config) s
 	code_challenge_method := "S256"
 	state := strings.ReplaceAll(uuid.New().String(), "-", "")
 
-	coll := a.Client.Database(a.Options.DbName).Collection(oauth_request_table)
 	var model AuthModel = AuthModel{
 		ID:                  state,
 		CodeVerifier:        code_verifier,
@@ -71,7 +62,7 @@ func (a *AuthService) createAuthCodeURL(r *http.Request, config oauth2.Config) s
 		CreateAt:            time.Now(),
 	}
 
-	coll.InsertOne(r.Context(), model)
+	a.OAuthRequestRepository.Insert(r.Context(), &model)
 
 	return config.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("code_challenge", code_challenge),
@@ -92,13 +83,13 @@ type AuthOptions struct {
 }
 
 type AuthService struct {
-	Client      *mongo.Client
-	Options     AuthOptions
-	OauthConfig oauth2.Config
+	Options                AuthOptions
+	OauthConfig            oauth2.Config
+	OAuthRequestRepository IOAuthRequestRepository
+	OAuthTokenRepository   IOAuthTokenRepository
 }
 
 func NewAuthService(opts AuthOptions) *AuthService {
-	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(opts.DbUrl))
 	scopes := make([]string, 0)
 	json.Unmarshal([]byte(opts.Scopes), &scopes)
 
@@ -113,7 +104,6 @@ func NewAuthService(opts AuthOptions) *AuthService {
 		},
 	}
 	return &AuthService{
-		Client:      client,
 		Options:     opts,
 		OauthConfig: config,
 	}
