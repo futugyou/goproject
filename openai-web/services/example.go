@@ -34,6 +34,9 @@ type ExampleService struct {
 }
 
 const GetAllExamplesKey string = "GetAllExamplesKey"
+const ExampleRawTableName string = "examples_raw"
+const ExampleTableName string = "examples"
+const ExampleCustomeTableName string = "examples_custome"
 
 func (s *ExampleService) GetSystemExamples() []ExampleModel {
 	result := make([]ExampleModel, 0)
@@ -54,7 +57,7 @@ func (s *ExampleService) GetSystemExamples() []ExampleModel {
 		return result
 	}
 
-	result = s.getExamples("examples")
+	result = s.getExamples(ExampleTableName)
 
 	examplesCache := make(map[string]interface{})
 	for _, example := range result {
@@ -78,15 +81,15 @@ func (s *ExampleService) GetSystemExamples() []ExampleModel {
 }
 
 func (s *ExampleService) CreateSystemExample(model ExampleModel) {
-	s.createExample(model, "examples")
+	s.createExample(model, ExampleTableName)
 }
 
 func (s *ExampleService) GetCustomExamples() []ExampleModel {
-	return s.getExamples("examples_custome")
+	return s.getExamples(ExampleCustomeTableName)
 }
 
 func (s *ExampleService) CreateCustomExample(model ExampleModel) {
-	s.createExample(model, "examples_custome")
+	s.createExample(model, ExampleCustomeTableName)
 }
 
 func (s *ExampleService) createExample(model ExampleModel, tableName string) {
@@ -183,7 +186,7 @@ func (s *ExampleService) InitExamples() {
 		}
 	}()
 
-	coll := client.Database(db_name).Collection("examples_raw")
+	coll := client.Database(db_name).Collection(ExampleRawTableName)
 	cursor, err := coll.Find(context.TODO(), bson.D{})
 	if err != nil {
 		fmt.Println(err)
@@ -222,10 +225,37 @@ func (s *ExampleService) deleteAllExample(tableName string) {
 	coll := client.Database(db_name).Collection(tableName)
 	filter := bson.D{}
 	if _, err = coll.DeleteMany(context.TODO(), filter); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (s *ExampleService) insertManyExample(tableName string, datas []ExampleModel) {
+	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
 		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database(db_name).Collection(tableName)
+	newResults := make([]interface{}, len(datas))
+	for i, v := range datas {
+		newResults[i] = v
+	}
+
+	if _, err = coll.InsertMany(context.TODO(), newResults); err != nil {
+		fmt.Println(err)
 	}
 }
 
 func (s *ExampleService) Reset() {
-
+	s.deleteAllExample(ExampleTableName)
+	datas := s.getExamples(ExampleRawTableName)
+	s.insertManyExample(ExampleTableName, datas)
 }
