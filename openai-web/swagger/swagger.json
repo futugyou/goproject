@@ -7,6 +7,25 @@
         "contact": {}
     },
     "basePath": "/api/v1",
+    "securityDefinitions": {
+      "OauthSecurity": {
+        "type": "oauth2",
+        "flow": "accessCode",
+        "authorizationUrl": "https://identity-center.vercel.app/authorize",
+        "tokenUrl": "https://identity-center.vercel.app/token",
+        "scopes": {
+          "all": "all scope",
+          "openai": "openai scope"
+        }
+      }
+    },
+    "security": [
+      {
+        "OauthSecurity": [
+          "all"
+        ]
+      }
+    ],
     "paths": {
         "/autio/transcription": {
             "post": {
@@ -211,7 +230,7 @@
                 "tags": [
                     "examples"
                 ],
-                "operationId": "ExampleController.get examples",
+                "operationId": "ExampleController.get all examples",
                 "responses": {
                     "200": {
                         "description": "",
@@ -252,7 +271,20 @@
                 "tags": [
                     "examples"
                 ],
-                "operationId": "ExampleController.get examples",
+                "operationId": "ExampleController.init examples",
+                "responses": {
+                    "200": {
+                        "description": "{string}"
+                    }
+                }
+            }
+        },
+        "/examples/reset": {
+            "post": {
+                "tags": [
+                    "examples"
+                ],
+                "operationId": "ExampleController.set examples",
                 "responses": {
                     "200": {
                         "description": "{string}"

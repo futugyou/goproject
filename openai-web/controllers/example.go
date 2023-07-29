@@ -13,7 +13,7 @@ type ExampleController struct {
 	web.Controller
 }
 
-// @Title get examples
+// @Title get all examples
 // @Success 200 {object} 	services.ExampleModel
 // @router / [get]
 func (c *ExampleController) Examples() {
@@ -52,11 +52,20 @@ func (c *ExampleController) CreateExample() {
 	c.Ctx.WriteString("ok")
 }
 
-// @Title get examples
+// @Title init examples
 // @Success 200 {string}
 // @router /init [post]
 func (c *ExampleController) InitExamples() {
 	exampleService := services.ExampleService{}
 	exampleService.InitExamples()
+	c.Ctx.WriteString("ok")
+}
+
+// @Title set examples
+// @Success 200 {string}
+// @router /reset [post]
+func (c *ExampleController) ResetExamples() {
+	exampleService := services.ExampleService{}
+	exampleService.Reset()
 	c.Ctx.WriteString("ok")
 }

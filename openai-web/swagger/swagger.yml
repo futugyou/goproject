@@ -162,7 +162,7 @@ paths:
     get:
       tags:
       - examples
-      operationId: ExampleController.get examples
+      operationId: ExampleController.get all examples
       responses:
         "200":
           description: ""
@@ -188,7 +188,15 @@ paths:
     post:
       tags:
       - examples
-      operationId: ExampleController.get examples
+      operationId: ExampleController.init examples
+      responses:
+        "200":
+          description: '{string}'
+  /examples/reset:
+    post:
+      tags:
+      - examples
+      operationId: ExampleController.set examples
       responses:
         "200":
           description: '{string}'

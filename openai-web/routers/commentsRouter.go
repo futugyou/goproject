@@ -103,6 +103,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:ExampleController"],
+        beego.ControllerComments{
+            Method: "ResetExamples",
+            Router: `/reset`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:FineTuneController"] = append(beego.GlobalControllerRouter["github.com/futugyousuzu/go-openai-web/controllers:FineTuneController"],
         beego.ControllerComments{
             Method: "ListFineTuneEvent",
