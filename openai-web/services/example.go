@@ -82,11 +82,11 @@ func (s *ExampleService) CreateSystemExample(model ExampleModel) {
 }
 
 func (s *ExampleService) GetCustomExamples() []ExampleModel {
-	return s.getExamples("custome_examples")
+	return s.getExamples("examples_custome")
 }
 
 func (s *ExampleService) CreateCustomExample(model ExampleModel) {
-	s.createExample(model, "custome_examples")
+	s.createExample(model, "examples_custome")
 }
 
 func (s *ExampleService) createExample(model ExampleModel, tableName string) {
@@ -183,7 +183,7 @@ func (s *ExampleService) InitExamples() {
 		}
 	}()
 
-	coll := client.Database(db_name).Collection("examples")
+	coll := client.Database(db_name).Collection("examples_raw")
 	cursor, err := coll.Find(context.TODO(), bson.D{})
 	if err != nil {
 		fmt.Println(err)
@@ -203,4 +203,29 @@ func (s *ExampleService) InitExamples() {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func (s *ExampleService) deleteAllExample(tableName string) {
+	uri := os.Getenv("mongodb_url")
+	db_name := os.Getenv("db_name")
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database(db_name).Collection(tableName)
+	filter := bson.D{}
+	if _, err = coll.DeleteMany(context.TODO(), filter); err != nil {
+		panic(err)
+	}
+}
+
+func (s *ExampleService) Reset() {
+
 }
