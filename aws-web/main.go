@@ -23,8 +23,9 @@ import (
 func main() {
 	defer awsenv.DeleteAll()
 
-	r, _ := services.GetAllRegionInCurrentAccount()
-	fmt.Println(r)
+	regionService := services.NewRegionService()
+	regions, _ := regionService.GetAllRegionInCurrentAccount()
+	fmt.Println(regions)
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()

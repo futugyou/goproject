@@ -11,7 +11,14 @@ type AwsRegion struct {
 	Region   string `json:"region"`
 }
 
-func GetAllRegionInCurrentAccount() ([]AwsRegion, error) {
+type RegionService struct {
+}
+
+func NewRegionService()*RegionService{
+	return &RegionService{}
+}
+
+func (s *RegionService) GetAllRegionInCurrentAccount() ([]AwsRegion, error) {
 	input := &ec2.DescribeRegionsInput{}
 	svc := ec2.NewFromConfig(awsenv.Cfg)
 	output, err := svc.DescribeRegions(awsenv.EmptyContext, input)
