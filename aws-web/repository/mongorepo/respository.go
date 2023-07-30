@@ -29,6 +29,7 @@ func NewMongoRepository[E core.IEntity, K any](config DBConfig) *MongoRepository
 		Client: client,
 	}
 }
+
 func (s *MongoRepository[E, K]) Delete(ctx context.Context, obj E, id K) error {
 	c := s.Client.Database(s.DBName).Collection(obj.GetType())
 	filter := bson.D{{Key: "_id", Value: id}}
