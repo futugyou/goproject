@@ -1,6 +1,13 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
+	"os"
+
+	"log"
+
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
 )
@@ -19,8 +26,11 @@ type AccountService struct {
 }
 
 func NewAccountService() *AccountService {
-	// TODO: db config
-	config := mongorepo.DBConfig{}
+	config := mongorepo.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
 	return &AccountService{
 		repository: mongorepo.NewAccountRepository(config),
 	}
@@ -29,4 +39,29 @@ func NewAccountService() *AccountService {
 func (a *AccountService) GetAllAccounts() []UserAccount {
 	accounts := make([]UserAccount, 0)
 	return accounts
+}
+
+func (a *AccountService) AccountInit() {
+	result := make([]entity.AccountEntity, 0)
+	var accounts []byte
+	var err error
+
+	if accounts, err = os.ReadFile("./data/accounts.json"); err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err = json.Unmarshal(accounts, &result); err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err = a.repository.DeleteAll(context.Background()); err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err = a.repository.InsertMany(context.Background(), result); err != nil {
+		log.Println(err)
+	}
 }
