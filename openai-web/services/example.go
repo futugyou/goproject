@@ -173,39 +173,7 @@ func (s *ExampleService) InitExamples() {
 		return
 	}
 
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database(db_name).Collection(ExampleRawTableName)
-	cursor, err := coll.Find(context.TODO(), bson.D{})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if cursor.TryNext(context.TODO()) {
-		return
-	}
-
-	newResults := make([]interface{}, len(result))
-	for i, v := range result {
-		newResults[i] = v
-	}
-
-	_, err = coll.InsertMany(context.TODO(), newResults)
-	if err != nil {
-		fmt.Println(err)
-	}
+	s.insertManyExample(ExampleRawTableName, result)
 }
 
 func (s *ExampleService) deleteAllExample(tableName string) {
