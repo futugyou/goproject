@@ -7,17 +7,17 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
-	// "github.com/futugyousuzu/goproject/awsgolang/servicediscovery"
-	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatch"
-	// "github.com/futugyousuzu/goproject/awsgolang/cloudwatchlogs"
-	// "github.com/futugyousuzu/goproject/awsgolang/ecr"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	// "github.com/futugyousuzu/goproject/awsgolang/ecs"
-	// "github.com/futugyousuzu/goproject/awsgolang/ssm"
-	// "github.com/futugyousuzu/goproject/awsgolang/ec2"
-	// "github.com/futugyousuzu/goproject/awsgolang/s3"
-	// "github.com/futugyousuzu/goproject/awsgolang/dynamodb"
-	// "github.com/futugyousuzu/goproject/awsgolang/efs"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
 )
 
 func main() {
@@ -73,11 +73,11 @@ func main() {
 	// ecs.ListContainerInstances()
 	// ecs.ListAccountSettings()
 
+	// ssm.DescribeParameters()
 	// ssm.ListAssociations()
 	// ssm.ListCommands()
 	// ssm.GetParametersByPath()
 	// ssm.GetParameters("/")
-	// ssm.DescribeParameters()
 	// ssm.PutParameter()
 	// ssm.DeleteParameter()
 

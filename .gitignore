@@ -5,3 +5,4 @@ bolg-service/storage/*
 *.env
 */*/app.conf
 openai/static/*
+aws-web/data/*
