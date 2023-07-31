@@ -1,7 +1,7 @@
 package entity
 
 type AccountEntity struct {
-	Id              string `bson:"_id"`
+	Id              string `bson:"_id,omitempty"`
 	Alias           string `bson:"alias"`
 	AccessKeyId     string `bson:"accessKeyId"`
 	SecretAccessKey string `bson:"secretAccessKey"`

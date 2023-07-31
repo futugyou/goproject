@@ -3,8 +3,6 @@ package main
 import (
 	_ "github.com/joho/godotenv/autoload"
 
-	"fmt"
-
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
@@ -23,9 +21,12 @@ import (
 func main() {
 	defer awsenv.DeleteAll()
 
-	regionService := services.NewRegionService()
-	regions, _ := regionService.GetAllRegionInCurrentAccount()
-	fmt.Println(regions)
+	// regionService := services.NewRegionService()
+	// regions, _ := regionService.GetAllRegionInCurrentAccount()
+	// fmt.Println(regions)
+
+	accountService := services.NewAccountService()
+	accountService.AccountInit()
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()
