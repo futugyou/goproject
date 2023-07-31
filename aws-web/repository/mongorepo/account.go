@@ -3,6 +3,7 @@ package mongorepo
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"go.mongodb.org/mongo-driver/bson"
@@ -39,6 +40,7 @@ func (a *AccountRepository) InsertMany(ctx context.Context, accounts []entity.Ac
 	c := a.Client.Database(a.DBName).Collection(account.GetType())
 	entitys := make([]interface{}, len(accounts))
 	for i := 0; i < len(accounts); i++ {
+		accounts[i].CreatedAt = time.Now().Unix()
 		entitys[i] = accounts[i]
 	}
 

@@ -6,7 +6,7 @@ type AccountEntity struct {
 	AccessKeyId     string `bson:"accessKeyId"`
 	SecretAccessKey string `bson:"secretAccessKey"`
 	Region          string `bson:"region"`
-	CreatedAt       int    `bson:"createdAt"`
+	CreatedAt       int64  `bson:"createdAt"`
 }
 
 func (AccountEntity) GetType() string {
