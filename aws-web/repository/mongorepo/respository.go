@@ -134,3 +134,29 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E) error
 	log.Println("InsertedIDs: ", result.InsertedIDs)
 	return nil
 }
+
+func (s *MongoRepository[E, K]) Paging(ctx context.Context, page core.Paging) ([]*E, error) {
+	result := make([]*E, 0)
+	entity := new(E)
+	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+
+	filter := bson.D{}
+	var skip int64 = (page.Page - 1) * page.Limit
+	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
+	cursor, err := c.Find(context.TODO(), filter, op)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
+}
