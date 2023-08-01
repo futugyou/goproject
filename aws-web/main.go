@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -26,7 +28,10 @@ func main() {
 	// fmt.Println(regions)
 
 	accountService := services.NewAccountService()
-	accountService.AccountInit()
+	// accountService.AccountInit()
+	accounts := accountService.GetAllAccounts()
+	fmt.Println(accounts)
+
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"time"
 
 	"log"
 
@@ -13,12 +14,12 @@ import (
 )
 
 type UserAccount struct {
-	Id              string `json:"id"`
-	Alias           string `json:"alias"`
-	AccessKeyId     string `json:"accessKeyId"`
-	SecretAccessKey string `json:"secretAccessKey"`
-	Region          string `json:"region"`
-	CreatedAt       int    `json:"createdAt"`
+	Id              string    `json:"id"`
+	Alias           string    `json:"alias"`
+	AccessKeyId     string    `json:"accessKeyId"`
+	SecretAccessKey string    `json:"secretAccessKey"`
+	Region          string    `json:"region"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 
 type AccountService struct {
@@ -38,6 +39,22 @@ func NewAccountService() *AccountService {
 
 func (a *AccountService) GetAllAccounts() []UserAccount {
 	accounts := make([]UserAccount, 0)
+	entities, err := a.repository.GetAll(context.Background())
+	if err != nil {
+		return accounts
+	}
+
+	for _, entity := range entities {
+		accounts = append(accounts, UserAccount{
+			Id:              entity.Id,
+			AccessKeyId:     entity.AccessKeyId,
+			Alias:           entity.Alias,
+			Region:          entity.Region,
+			SecretAccessKey: entity.SecretAccessKey,
+			CreatedAt:       time.Unix(entity.CreatedAt, 0),
+		})
+	}
+
 	return accounts
 }
 
