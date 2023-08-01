@@ -113,3 +113,24 @@ func (s *MongoRepository[E, K]) Update(ctx context.Context, obj E, id K) error {
 	log.Println("update count: ", result.UpsertedCount)
 	return nil
 }
+
+func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E) error {
+	if len(items) == 0 {
+		return nil
+	}
+
+	item := items[0]
+	c := s.Client.Database(s.DBName).Collection(item.GetType())
+	entitys := make([]interface{}, len(items))
+	for i := 0; i < len(items); i++ {
+		entitys[i] = items[i]
+	}
+
+	result, err := c.InsertMany(ctx, entitys)
+	if err != nil {
+		return err
+	}
+
+	log.Println("InsertedIDs: ", result.InsertedIDs)
+	return nil
+}

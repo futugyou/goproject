@@ -3,7 +3,6 @@ package mongorepo
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,27 +27,5 @@ func (a *AccountRepository) DeleteAll(ctx context.Context) error {
 	}
 
 	log.Println("DeletedCount: ", result.DeletedCount)
-	return nil
-}
-
-func (a *AccountRepository) InsertMany(ctx context.Context, accounts []entity.AccountEntity) error {
-	if len(accounts) == 0 {
-		return nil
-	}
-
-	account := accounts[0]
-	c := a.Client.Database(a.DBName).Collection(account.GetType())
-	entitys := make([]interface{}, len(accounts))
-	for i := 0; i < len(accounts); i++ {
-		accounts[i].CreatedAt = time.Now().Unix()
-		entitys[i] = accounts[i]
-	}
-
-	result, err := c.InsertMany(ctx, entitys)
-	if err != nil {
-		return err
-	}
-
-	log.Println("InsertedIDs: ", result.InsertedIDs)
 	return nil
 }

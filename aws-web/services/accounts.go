@@ -78,6 +78,10 @@ func (a *AccountService) AccountInit() {
 		return
 	}
 
+	for _, acc := range result {
+		acc.CreatedAt = time.Now().Unix()
+	}
+
 	if err = a.repository.InsertMany(context.Background(), result); err != nil {
 		log.Println(err)
 	}
