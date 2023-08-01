@@ -6,6 +6,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
@@ -29,7 +30,8 @@ func main() {
 
 	accountService := services.NewAccountService()
 	// accountService.AccountInit()
-	accounts := accountService.GetAllAccounts()
+	paging := core.Paging{Page: 10, Limit: 2}
+	accounts := accountService.GetAccountsByPaging(paging)
 	fmt.Println(accounts)
 
 	// servicediscovery.ListNamespace()

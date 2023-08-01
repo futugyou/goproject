@@ -8,6 +8,7 @@ import (
 
 	"log"
 
+	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
@@ -85,4 +86,25 @@ func (a *AccountService) AccountInit() {
 	if err = a.repository.InsertMany(context.Background(), result); err != nil {
 		log.Println(err)
 	}
+}
+
+func (a *AccountService) GetAccountsByPaging(paging core.Paging) []UserAccount {
+	accounts := make([]UserAccount, 0)
+	entities, err := a.repository.Paging(context.Background(), paging)
+	if err != nil {
+		return accounts
+	}
+
+	for _, entity := range entities {
+		accounts = append(accounts, UserAccount{
+			Id:              entity.Id,
+			AccessKeyId:     entity.AccessKeyId,
+			Alias:           entity.Alias,
+			Region:          entity.Region,
+			SecretAccessKey: entity.SecretAccessKey,
+			CreatedAt:       time.Unix(entity.CreatedAt, 0),
+		})
+	}
+
+	return accounts
 }
