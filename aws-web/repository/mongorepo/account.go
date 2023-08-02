@@ -29,3 +29,15 @@ func (a *AccountRepository) DeleteAll(ctx context.Context) error {
 	log.Println("DeletedCount: ", result.DeletedCount)
 	return nil
 }
+
+func (a *AccountRepository) GetAccountByAlias(ctx context.Context, alias string) (*entity.AccountEntity, error) {
+	account := new(entity.AccountEntity)
+	c := a.Client.Database(a.DBName).Collection(account.GetType())
+	filter := bson.D{{Key: "alias", Value: alias}}
+	err := c.FindOne(ctx, filter).Decode(&account)
+	if err != nil {
+		return nil, err
+	}
+
+	return account, nil
+}
