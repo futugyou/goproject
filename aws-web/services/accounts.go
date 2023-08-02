@@ -158,3 +158,13 @@ func (a *AccountService) UpdateAccount(account UserAccount) error {
 
 	return nil
 }
+
+func (a *AccountService) DeleteAccount(id string) error {
+	err := a.repository.Delete(context.Background(), id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}

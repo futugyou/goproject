@@ -30,8 +30,9 @@ func NewMongoRepository[E core.IEntity, K any](config DBConfig) *MongoRepository
 	}
 }
 
-func (s *MongoRepository[E, K]) Delete(ctx context.Context, obj E, id K) error {
-	c := s.Client.Database(s.DBName).Collection(obj.GetType())
+func (s *MongoRepository[E, K]) Delete(ctx context.Context, id K) error {
+	obj := new(E)
+	c := s.Client.Database(s.DBName).Collection((*obj).GetType())
 	filter := bson.D{{Key: "_id", Value: id}}
 	result, err := c.DeleteOne(ctx, filter)
 	if err != nil {

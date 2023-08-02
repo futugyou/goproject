@@ -43,15 +43,18 @@ func main() {
 	// err := accountService.CreateAccount(account)
 	// fmt.Println(err)
 
-	account := services.UserAccount{
-		Id:              "64ca42443b1359c86cb3f144",
-		Alias:           "demo10",
-		SecretAccessKey: "SecretAccessKey11",
-		AccessKeyId:     "AccessKeyId112",
-		Region:          "Region",
-	}
+	// account := services.UserAccount{
+	// 	Id:              "64ca42443b1359c86cb3f144",
+	// 	Alias:           "demo10",
+	// 	SecretAccessKey: "SecretAccessKey11",
+	// 	AccessKeyId:     "AccessKeyId112",
+	// 	Region:          "Region",
+	// }
 
-	err := accountService.UpdateAccount(account)
+	// err := accountService.UpdateAccount(account)
+	// fmt.Println(err)
+
+	err := accountService.DeleteAccount("64ca4766c2d58ba6236c9400")
 	fmt.Println(err)
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
