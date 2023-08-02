@@ -33,16 +33,26 @@ func main() {
 	// accounts := accountService.GetAccountsByPaging(paging)
 	// fmt.Println(accounts)
 
+	// account := services.UserAccount{
+	// 	Alias:           "demo10",
+	// 	SecretAccessKey: "SecretAccessKey",
+	// 	AccessKeyId:     "AccessKeyId",
+	// 	Region:          "Region",
+	// }
+
+	// err := accountService.CreateAccount(account)
+	// fmt.Println(err)
+
 	account := services.UserAccount{
+		Id:              "64ca42443b1359c86cb3f144",
 		Alias:           "demo10",
-		SecretAccessKey: "SecretAccessKey",
-		AccessKeyId:     "AccessKeyId",
+		SecretAccessKey: "SecretAccessKey11",
+		AccessKeyId:     "AccessKeyId112",
 		Region:          "Region",
 	}
 
-	err := accountService.CreateAccount(account)
+	err := accountService.UpdateAccount(account)
 	fmt.Println(err)
-
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()

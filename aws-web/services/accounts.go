@@ -139,3 +139,22 @@ func (a *AccountService) CreateAccount(account UserAccount) error {
 
 	return nil
 }
+
+func (a *AccountService) UpdateAccount(account UserAccount) error {
+	entity := entity.AccountEntity{
+		Id:              account.Id,
+		Alias:           account.Alias,
+		AccessKeyId:     account.AccessKeyId,
+		SecretAccessKey: account.SecretAccessKey,
+		Region:          account.Region,
+		CreatedAt:       time.Now().Unix(),
+	}
+
+	err := a.repository.Update(context.Background(), entity, account.Id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
