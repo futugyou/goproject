@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"time"
 
@@ -107,4 +108,34 @@ func (a *AccountService) GetAccountsByPaging(paging core.Paging) []UserAccount {
 	}
 
 	return accounts
+}
+
+func (a *AccountService) CreateAccount(account UserAccount) error {
+	alias := account.Alias
+	if len(alias) == 0 {
+		log.Println("alias MUST have")
+		return errors.New("alias MUST have")
+	}
+
+	accountEntity, _ := a.repository.GetAccountByAlias(context.Background(), alias)
+	if accountEntity != nil && accountEntity.Alias == alias {
+		log.Println("data already exist")
+		return errors.New("data already exist")
+	}
+
+	entity := entity.AccountEntity{
+		Alias:           account.Alias,
+		AccessKeyId:     account.AccessKeyId,
+		SecretAccessKey: account.SecretAccessKey,
+		Region:          account.Region,
+		CreatedAt:       time.Now().Unix(),
+	}
+
+	err := a.repository.Insert(context.Background(), entity)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
