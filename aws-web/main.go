@@ -6,7 +6,6 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
-	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
@@ -24,14 +23,14 @@ import (
 func main() {
 	defer awsenv.DeleteAll()
 
-	// regionService := services.NewRegionService()
-	// regions, _ := regionService.GetAllRegionInCurrentAccount()
-	// fmt.Println(regions)
+	regionService := services.NewRegionService()
+	regions, _ := regionService.GetRegions()
+	fmt.Println(regions)
 
-	accountService := services.NewAccountService()
-	paging := core.Paging{Page: 1, Limit: 2}
-	accounts := accountService.GetAccountsByPaging(paging)
-	fmt.Println(accounts)
+	// accountService := services.NewAccountService()
+	// paging := core.Paging{Page: 1, Limit: 2}
+	// accounts := accountService.GetAccountsByPaging(paging)
+	// fmt.Println(accounts)
 
 	// account := services.UserAccount{
 	// 	Alias:           "demo10",

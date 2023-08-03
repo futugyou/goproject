@@ -18,9 +18,8 @@ func NewRegionService() *RegionService {
 	return &RegionService{}
 }
 
-func (s *RegionService) GetAllRegionInCurrentAccount() ([]AwsRegion, error) {
+func (s *RegionService) GetRegions() ([]AwsRegion, error) {
 	input := &ec2.DescribeRegionsInput{}
-	// TODO: aws config
 	svc := ec2.NewFromConfig(awsenv.Cfg)
 	output, err := svc.DescribeRegions(awsenv.EmptyContext, input)
 	if err != nil {

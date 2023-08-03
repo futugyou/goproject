@@ -20,7 +20,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	regionService := services.NewRegionService()
-	regions, err := regionService.GetAllRegionInCurrentAccount()
+	regions, err := regionService.GetRegions()
 
 	if err != nil {
 		body, _ := json.Marshal(err)

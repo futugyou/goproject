@@ -13,7 +13,7 @@ import (
 var (
 	EmptyContext        context.Context = context.Background()
 	Cfg                 aws.Config
-	CfgForVercel        func(key string, secret string) aws.Config
+	CfgForVercel        func(key string, secret string) error
 	NamespaceId         string
 	NamespaceName       string
 	CloudMapServiceName string
@@ -38,7 +38,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	CfgForVercel = func(key string, secret string) aws.Config {
+	CfgForVercel = func(key string, secret string) error {
 		cfg, err := config.LoadDefaultConfig(context.TODO(),
 			config.WithCredentialsProvider(
 				credentials.NewStaticCredentialsProvider(key, secret, ""),
@@ -46,8 +46,11 @@ func init() {
 		)
 		if err != nil {
 			log.Fatal(err)
+			return err
 		}
-		return cfg
+
+		Cfg = cfg
+		return nil
 	}
 }
 
