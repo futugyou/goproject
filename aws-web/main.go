@@ -29,7 +29,6 @@ func main() {
 	// fmt.Println(regions)
 
 	accountService := services.NewAccountService()
-	accountService.AccountInit()
 	paging := core.Paging{Page: 1, Limit: 2}
 	accounts := accountService.GetAccountsByPaging(paging)
 	fmt.Println(accounts)

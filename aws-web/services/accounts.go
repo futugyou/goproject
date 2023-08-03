@@ -171,3 +171,21 @@ func (a *AccountService) DeleteAccount(id string) error {
 
 	return nil
 }
+
+func (a *AccountService) GetAccountByID(id string) *UserAccount {
+	entity, err := a.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil
+	}
+
+	account := &UserAccount{
+		Id:              entity.Id,
+		AccessKeyId:     entity.AccessKeyId,
+		Alias:           entity.Alias,
+		Region:          entity.Region,
+		SecretAccessKey: entity.SecretAccessKey,
+		CreatedAt:       time.Unix(entity.CreatedAt, 0),
+	}
+
+	return account
+}
