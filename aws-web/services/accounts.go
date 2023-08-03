@@ -13,6 +13,7 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
+	"github.com/google/uuid"
 )
 
 type UserAccount struct {
@@ -81,6 +82,7 @@ func (a *AccountService) AccountInit() {
 	}
 
 	for _, acc := range result {
+		acc.Id = uuid.New().String()
 		acc.CreatedAt = time.Now().Unix()
 	}
 
@@ -124,6 +126,7 @@ func (a *AccountService) CreateAccount(account UserAccount) error {
 	}
 
 	entity := entity.AccountEntity{
+		Id:              uuid.New().String(),
 		Alias:           account.Alias,
 		AccessKeyId:     account.AccessKeyId,
 		SecretAccessKey: account.SecretAccessKey,
