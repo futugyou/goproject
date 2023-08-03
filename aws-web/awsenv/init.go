@@ -7,11 +7,13 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 )
 
 var (
 	EmptyContext        context.Context = context.Background()
 	Cfg                 aws.Config
+	CfgForVercel        func(key string, secret string) aws.Config
 	NamespaceId         string
 	NamespaceName       string
 	CloudMapServiceName string
@@ -34,6 +36,18 @@ func init() {
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	CfgForVercel = func(key string, secret string) aws.Config {
+		cfg, err := config.LoadDefaultConfig(context.TODO(),
+			config.WithCredentialsProvider(
+				credentials.NewStaticCredentialsProvider(key, secret, ""),
+			),
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return cfg
 	}
 }
 
