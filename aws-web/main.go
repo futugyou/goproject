@@ -6,6 +6,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
@@ -28,10 +29,10 @@ func main() {
 	// fmt.Println(regions)
 
 	accountService := services.NewAccountService()
-	// accountService.AccountInit()
-	// paging := core.Paging{Page: 10, Limit: 2}
-	// accounts := accountService.GetAccountsByPaging(paging)
-	// fmt.Println(accounts)
+	accountService.AccountInit()
+	paging := core.Paging{Page: 1, Limit: 2}
+	accounts := accountService.GetAccountsByPaging(paging)
+	fmt.Println(accounts)
 
 	// account := services.UserAccount{
 	// 	Alias:           "demo10",
@@ -54,8 +55,9 @@ func main() {
 	// err := accountService.UpdateAccount(account)
 	// fmt.Println(err)
 
-	err := accountService.DeleteAccount("64ca4766c2d58ba6236c9400")
-	fmt.Println(err)
+	// err := accountService.DeleteAccount("64ca4766c2d58ba6236c9400")
+	// fmt.Println(err)
+
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()

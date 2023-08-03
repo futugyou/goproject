@@ -81,9 +81,9 @@ func (a *AccountService) AccountInit() {
 		return
 	}
 
-	for _, acc := range result {
-		acc.Id = uuid.New().String()
-		acc.CreatedAt = time.Now().Unix()
+	for i := 0; i < len(result); i++ {
+		result[i].Id = uuid.New().String()
+		result[i].CreatedAt = time.Now().Unix()
 	}
 
 	if err = a.repository.InsertMany(context.Background(), result); err != nil {
