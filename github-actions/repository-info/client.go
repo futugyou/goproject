@@ -13,6 +13,7 @@ func GetGitHubClient() {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
+
 	tc := oauth2.NewClient(ctx, ts)
 
 	client = github.NewClient(tc)

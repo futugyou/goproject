@@ -24,23 +24,31 @@ const (
 func main() {
 	flag.Parse()
 	GetGitHubClient()
+	GetRepository()
 
 	time := time.Now()
 	SetOutput("time", time.Format("2006-01-02 15:04:05"))
 	SetOutput("branch", "master")
 
-	options := make([]Option, 0)
-	options = append(options, Option{Own: "tom", Branch: "dev", Url: "http://baidu"}, Option{Own: "tony", Branch: "master", Url: "http://google"})
+	options := make([]ActionResult, len(repos))
+	for i := 0; i < len(repos); i++ {
+		options[i] = ActionResult{
+			Owner:   *repos[i].Owner.Login,
+			Name:    *repos[i].Name,
+			Repourl: *repos[i].CloneURL,
+			Branch:  *repos[i].DefaultBranch,
+		}
+	}
 
 	jsonString, _ := json.Marshal(options)
 	SetEnv("option", string(jsonString))
-	SetEnv("doNextStep", "ok")
 }
 
-type Option struct {
-	Own    string `json:"own"`
-	Branch string `json:"branch"`
-	Url    string `json:"url"`
+type ActionResult struct {
+	Owner   string `json:"owner"`
+	Name    string `json:"name"`
+	Repourl string `json:"repourl"`
+	Branch  string `json:"branch"`
 }
 
 func SetOutput(key, value string) {

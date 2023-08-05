@@ -26,6 +26,7 @@ func GetRepository() {
 		repo, _, err := client.Repositories.Get(ctx, "", *reponame)
 		if err != nil {
 			log.Println(err)
+			return
 		}
 
 		repos = append(repos, repo)
