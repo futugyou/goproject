@@ -1,0 +1,47 @@
+name: repository-info
+
+on:
+ workflow_dispatch:
+#  schedule:
+#  - cron: '30 15 * * *'
+jobs: 
+  repository-info-action:
+    runs-on: ubuntu-latest
+    outputs:
+      option: ${{ steps.set-output.outputs.result }}
+    steps:
+      - uses: actions/checkout@v3 
+          
+      - uses: futugyou/goproject/github-actions/repository-info@master
+        id: golang-action-demo
+        with:
+          token: '${{ secrets.DEMO_REPO_TOKEN }}'
+          name: testrepository
+
+      - name: Show action output
+        run:  |
+          echo time=${{ steps.golang-action-demo.outputs.time }}
+          echo branch=${{ steps.golang-action-demo.outputs.branch }}
+
+      - name: Show action env
+        run:  |
+
+      - name: set output
+        id: set-output
+        run: |
+          echo result=$(echo '${{ env.result }}' | jq .) >> $GITHUB_ENV
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+  show-json: 
+    needs: repository-info-action 
+    name: ${{ matrix.repos.own }} option
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repos: ${{ fromJson(needs.repository-info-action.outputs.result) }}
+    steps:
+      - name: Show repository-info-action job result
+        run:  |
+          echo own=${{ matrix.repos.own }}
+          echo branch=${{ matrix.repos.branch }}
+          echo name=${{ matrix.repos.name }}

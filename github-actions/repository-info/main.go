@@ -41,7 +41,7 @@ func main() {
 	}
 
 	jsonString, _ := json.Marshal(options)
-	SetEnv("option", string(jsonString))
+	SetEnv("result", string(jsonString))
 }
 
 type ActionResult struct {
