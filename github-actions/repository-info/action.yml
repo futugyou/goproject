@@ -1,0 +1,24 @@
+name: "repository-info"
+description: "Get repository info owned by given personal token"
+
+inputs:
+  reponame:
+    description: "repository name, if empty, show all repository"
+    required: false
+  token:
+    description: "github token"
+    required: true
+
+outputs:
+  time:
+    description: 'The time we greeted you'
+  branch: 
+    description: 'Git branch'
+
+runs:
+  using: docker
+  image: Dockerfile
+  env:
+    token: "${{ inputs.token }}"
+  args:
+  - "-reponame=${{ inputs.reponame }}"
