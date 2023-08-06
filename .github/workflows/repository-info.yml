@@ -25,7 +25,7 @@ jobs:
 
   show-json: 
     needs: repository-info-action 
-    name: ${{ matrix.repos.own }} option
+    name: ${{ matrix.repos.owner }} ${{ matrix.repos.name }} exec
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,6 +33,6 @@ jobs:
     steps:
       - name: Show repository-info-action job result
         run:  |
-          echo own=${{ matrix.repos.own }}
+          echo owner=${{ matrix.repos.owner }}
           echo branch=${{ matrix.repos.branch }}
           echo name=${{ matrix.repos.name }}
