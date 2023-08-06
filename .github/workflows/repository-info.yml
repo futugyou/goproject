@@ -15,17 +15,8 @@ jobs:
       - uses: futugyou/goproject/github-actions/repository-info@master
         id: golang-action-demo
         with:
-          token: '${{ secrets.DEMO_REPO_TOKEN }}'
-          name: testrepository
-
-      - name: Show action output
-        run:  |
-          echo time=${{ steps.golang-action-demo.outputs.time }}
-          echo branch=${{ steps.golang-action-demo.outputs.branch }}
-
-      - name: Show action env
-        run:  |
-
+          token: '${{ secrets.DEMO_REPO_TOKEN }}'  
+          
       - name: set output
         id: set-output
         run: |
