@@ -10,7 +10,7 @@ var repos = make([]*github.Repository, 0)
 
 func GetRepository() {
 	var err error
-	if reponame == nil {
+	if len(*reponame) == 0 {
 		opts := &github.RepositoryListOptions{
 			Sort: "pushed",
 			ListOptions: github.ListOptions{

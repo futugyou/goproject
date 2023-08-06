@@ -26,17 +26,14 @@ func main() {
 	GetGitHubClient()
 	GetRepository()
 
-	time := time.Now()
-	SetOutput("time", time.Format("2006-01-02 15:04:05"))
-	SetOutput("branch", "master")
+	SetOutput("time", time.Now().Format("2006-01-02 15:04:05"))
 
 	options := make([]ActionResult, len(repos))
 	for i := 0; i < len(repos); i++ {
 		options[i] = ActionResult{
-			Owner:   *repos[i].Owner.Login,
-			Name:    *repos[i].Name,
-			Repourl: *repos[i].CloneURL,
-			Branch:  *repos[i].DefaultBranch,
+			Owner:  *repos[i].Owner.Login,
+			Name:   *repos[i].Name,
+			Branch: *repos[i].DefaultBranch,
 		}
 	}
 
@@ -45,10 +42,9 @@ func main() {
 }
 
 type ActionResult struct {
-	Owner   string `json:"owner"`
-	Name    string `json:"name"`
-	Repourl string `json:"repourl"`
-	Branch  string `json:"branch"`
+	Owner  string `json:"owner"`
+	Name   string `json:"name"`
+	Branch string `json:"branch"`
 }
 
 func SetOutput(key, value string) {
