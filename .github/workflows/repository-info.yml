@@ -8,7 +8,7 @@ jobs:
   repository-info-action:
     runs-on: ubuntu-latest
     outputs:
-      option: ${{ steps.set-output.outputs.result }}
+      result: ${{ steps.set-output.outputs.result }}
     steps:
       - uses: actions/checkout@v3 
           
