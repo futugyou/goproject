@@ -23,8 +23,10 @@ const (
 
 func main() {
 	flag.Parse()
-	GetGitHubClient()
-	GetRepository()
+
+	client := NewGithubClient()
+	repoSvc := NewRepositoryService(client.Client)
+	repos := repoSvc.GetRepository()
 
 	SetOutput("time", time.Now().Format("2006-01-02 15:04:05"))
 

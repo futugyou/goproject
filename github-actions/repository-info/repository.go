@@ -6,9 +6,18 @@ import (
 	"github.com/google/go-github/v53/github"
 )
 
-var repos = make([]*github.Repository, 0)
+type RepositoryService struct {
+	Client *github.Client
+}
 
-func GetRepository() {
+func NewRepositoryService(client *github.Client) *RepositoryService {
+	return &RepositoryService{
+		Client: client,
+	}
+}
+
+func (r *RepositoryService) GetRepository() []*github.Repository {
+	var repos = make([]*github.Repository, 0)
 	var err error
 	if len(*reponame) == 0 {
 		opts := &github.RepositoryListOptions{
@@ -18,17 +27,19 @@ func GetRepository() {
 			},
 		}
 
-		repos, _, err = client.Repositories.List(ctx, "", opts)
+		repos, _, err = r.Client.Repositories.List(ctx, "", opts)
 		if err != nil {
 			log.Println(err)
 		}
 	} else {
-		repo, _, err := client.Repositories.Get(ctx, "", *reponame)
+		repo, _, err := r.Client.Repositories.Get(ctx, "", *reponame)
 		if err != nil {
 			log.Println(err)
-			return
+			return nil
 		}
 
 		repos = append(repos, repo)
 	}
+
+	return repos
 }
