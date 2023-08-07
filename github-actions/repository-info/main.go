@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -12,7 +11,6 @@ import (
 var (
 	reponame = flag.String("reponame", "", "repository name, if empty, show all repository.")
 	token    = os.Getenv("token")
-	ctx      = context.Background()
 )
 
 const (
@@ -24,9 +22,9 @@ const (
 func main() {
 	flag.Parse()
 
-	client := NewGithubClient()
+	client := NewGithubClient(token)
 	repoSvc := NewRepositoryService(client.Client)
-	repos := repoSvc.GetRepository()
+	repos := repoSvc.GetRepository(*reponame)
 
 	SetOutput("time", time.Now().Format("2006-01-02 15:04:05"))
 

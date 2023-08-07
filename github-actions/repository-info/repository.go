@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/google/go-github/v53/github"
@@ -22,11 +23,11 @@ type RepoModel struct {
 	Branch string `json:"branch"`
 }
 
-func (r *RepositoryService) GetRepository() []RepoModel {
+func (r *RepositoryService) GetRepository(reponame string) []RepoModel {
 	var result = make([]RepoModel, 0)
 	var repos = make([]*github.Repository, 0)
 	var err error
-	if len(*reponame) == 0 {
+	if len(reponame) == 0 {
 		opts := &github.RepositoryListOptions{
 			Sort: "pushed",
 			ListOptions: github.ListOptions{
@@ -34,12 +35,12 @@ func (r *RepositoryService) GetRepository() []RepoModel {
 			},
 		}
 
-		repos, _, err = r.Client.Repositories.List(ctx, "", opts)
+		repos, _, err = r.Client.Repositories.List(context.Background(), "", opts)
 		if err != nil {
 			log.Println(err)
 		}
 	} else {
-		repo, _, err := r.Client.Repositories.Get(ctx, "", *reponame)
+		repo, _, err := r.Client.Repositories.Get(context.Background(), "", reponame)
 		if err != nil {
 			log.Println(err)
 			return nil
