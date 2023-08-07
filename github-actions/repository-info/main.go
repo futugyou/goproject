@@ -30,23 +30,8 @@ func main() {
 
 	SetOutput("time", time.Now().Format("2006-01-02 15:04:05"))
 
-	options := make([]ActionResult, len(repos))
-	for i := 0; i < len(repos); i++ {
-		options[i] = ActionResult{
-			Owner:  *repos[i].Owner.Login,
-			Name:   *repos[i].Name,
-			Branch: *repos[i].DefaultBranch,
-		}
-	}
-
-	jsonString, _ := json.Marshal(options)
+	jsonString, _ := json.Marshal(repos)
 	SetEnv("result", string(jsonString))
-}
-
-type ActionResult struct {
-	Owner  string `json:"owner"`
-	Name   string `json:"name"`
-	Branch string `json:"branch"`
 }
 
 func SetOutput(key, value string) {

@@ -16,7 +16,14 @@ func NewRepositoryService(client *github.Client) *RepositoryService {
 	}
 }
 
-func (r *RepositoryService) GetRepository() []*github.Repository {
+type RepoModel struct {
+	Owner  string `json:"owner"`
+	Name   string `json:"name"`
+	Branch string `json:"branch"`
+}
+
+func (r *RepositoryService) GetRepository() []RepoModel {
+	var result = make([]RepoModel, 0)
 	var repos = make([]*github.Repository, 0)
 	var err error
 	if len(*reponame) == 0 {
@@ -41,5 +48,12 @@ func (r *RepositoryService) GetRepository() []*github.Repository {
 		repos = append(repos, repo)
 	}
 
-	return repos
+	for _, repo := range repos {
+		result = append(result, RepoModel{
+			Owner:  *repo.Owner.Login,
+			Name:   *repo.Name,
+			Branch: *repo.DefaultBranch,
+		})
+	}
+	return result
 }
