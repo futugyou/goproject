@@ -25,9 +25,10 @@ jobs:
 
   show-json: 
     needs: repository-info-action 
-    name: ${{ matrix.repos.owner }} ${{ matrix.repos.name }} exec
+    name: ${{ matrix.repos.name }}
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         repos: ${{ fromJson(needs.repository-info-action.outputs.result) }}
     steps:
