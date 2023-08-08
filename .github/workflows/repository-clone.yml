@@ -1,0 +1,71 @@
+name: repository-clone
+
+on:
+  workflow_dispatch: 
+    inputs:
+      owner:
+        required: true
+        description: 'The repository owner'
+        type: string
+      branch:
+        required: true
+        description: 'The repository branch'
+        type: string
+      name:
+        required: true
+        description: 'The repository name'
+        type: string 
+  workflow_call:
+    inputs:
+      owner:
+        required: true
+        description: 'The repository owner'
+        type: string
+      branch:
+        required: true
+        description: 'The repository branch'
+        type: string
+      name:
+        required: true
+        description: 'The repository name'
+        type: string 
+jobs: 
+  clone:
+    runs-on: ubuntu-latest
+    steps:        
+      - name: step 1
+        uses: health-ecology/init-project/actions/repository-clone@main 
+        with:
+          owner: '${{ inputs.owner }}'  
+          branch: '${{ inputs.branch }}'  
+          name: '${{ inputs.name }}'  
+
+          dest_owner: health-ecology
+          dest_branch: master
+          dest_name: '${{ inputs.name }}'  
+          
+          source_token: '${{ secrets.SOURCE_REPO_TOKEN }}' 
+          dest_token: '${{ secrets.DEST_REPO_TOKEN }}'
+          step: 1
+
+      - name:  step 2
+        run: |
+          sudo rm -rf ./sourcerepositoryfolder/.git
+          sudo cp -r  sourcerepositoryfolder/.github .
+          sudo cp -r  sourcerepositoryfolder/* . 
+          sudo rm -rf ./sourcerepositoryfolder 
+                  
+      - name: step 3
+        uses: health-ecology/init-project/actions/repository-clone@main 
+        with:
+          owner: '${{ inputs.owner }}'  
+          branch: '${{ inputs.branch }}'  
+          name: '${{ inputs.name }}'  
+
+          dest_owner: health-ecology
+          dest_branch: master
+          dest_name: '${{ inputs.name }}'  
+          
+          source_token: '${{ secrets.SOURCE_REPO_TOKEN }}' 
+          dest_token: '${{ secrets.DEST_REPO_TOKEN }}'
+          step: 3

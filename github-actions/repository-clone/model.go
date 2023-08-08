@@ -10,5 +10,4 @@ type CloneInfo struct {
 	DestBranch string
 	DestName   string
 	DestToken  string
-	DestFolder string
 }

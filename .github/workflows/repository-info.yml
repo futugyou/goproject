@@ -2,8 +2,8 @@ name: repository-info
 
 on:
  workflow_dispatch:
-#  schedule:
-#  - cron: '30 15 * * *'
+#   schedule:
+#   - cron: '30 17 * * *'
 jobs: 
   repository-info-action:
     runs-on: ubuntu-latest
@@ -12,10 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3 
           
-      - uses: futugyou/goproject/github-actions/repository-info@master
-        id: golang-action-demo
+      - uses: health-ecology/init-project/actions/repository-info@main
+        id: repository-info
         with:
-          token: '${{ secrets.DEMO_REPO_TOKEN }}'  
+          token: '${{ secrets.SOURCE_REPO_TOKEN }}'  
           
       - name: set output
         id: set-output
@@ -23,17 +23,15 @@ jobs:
           echo result=$(echo '${{ env.result }}' | jq .) >> $GITHUB_ENV
           echo "result=$result" >> $GITHUB_OUTPUT
 
-  show-json: 
+  call-repository-clone: 
+    uses: health-ecology/init-project/.github/workflows/repository-clone.yml@main
     needs: repository-info-action 
-    name: ${{ matrix.repos.name }}
-    runs-on: ubuntu-latest
+    name: ${{ matrix.repos.name }} 
     strategy:
-      max-parallel: 1
+      max-parallel: 6
       matrix:
         repos: ${{ fromJson(needs.repository-info-action.outputs.result) }}
-    steps:
-      - name: Show repository-info-action job result
-        run:  |
-          echo owner=${{ matrix.repos.owner }}
-          echo branch=${{ matrix.repos.branch }}
-          echo name=${{ matrix.repos.name }}
+    with:
+      owner: ${{ matrix.repos.owner }}
+      branch: ${{ matrix.repos.branch }}
+      name: ${{ matrix.repos.name }}

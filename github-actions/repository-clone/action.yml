@@ -24,11 +24,12 @@ inputs:
   dest_name:
     description: "destination repository name."
     required: true
-  dest_folder:
-    description: "destination repository folder."
-    required: true
-  source_token:
+  dest_token:
     description: "destination repository token."
+    required: true
+
+  step:
+    description: "step."
     required: true
 
 outputs:
@@ -41,6 +42,15 @@ runs:
   using: docker
   image: Dockerfile
   env:
-    token: "${{ inputs.token }}"
+    source_token: "${{ inputs.source_token }}"
+    dest_token: "${{ inputs.dest_token }}"
   args:
-  - "-reponame=${{ inputs.reponame }}"
+  - "-owner=${{ inputs.owner }}"
+  - "-branch=${{ inputs.branch }}"
+  - "-name=${{ inputs.name }}"
+  
+  - "-dest_owner=${{ inputs.dest_owner }}"
+  - "-dest_branch=${{ inputs.dest_branch }}"
+  - "-dest_name=${{ inputs.dest_name }}"
+
+  - "-step=${{ inputs.step }}"
