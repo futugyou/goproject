@@ -54,39 +54,12 @@ func CloneRepoPipeline(info *CloneInfo) {
 	git.SetConfig()
 
 	if *step == "1" {
-		err := git.CloneDest()
-		if err != nil {
-			return
-		}
-
-		err = git.RmoveDest()
-		if err != nil {
-			return
-		}
-
+		git.CloneDest()
+		git.RmoveDest()
 		git.CloneSource()
 	} else {
-
-		// err = git.CopyToDest()
-		// if err != nil {
-		// 	return
-		// }
-
-		// err = git.RmoveSourceTemp()
-		// if err != nil {
-		// 	return
-		// }
-
-		err := git.GitAdd()
-		if err != nil {
-			return
-		}
-
-		err = git.GitCommit()
-		if err != nil {
-			return
-		}
-
+		git.GitAdd()
+		git.GitCommit()
 		git.GitPush()
 	}
 }

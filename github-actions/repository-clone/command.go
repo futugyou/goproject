@@ -31,65 +31,89 @@ func (g *GitCommand) SetConfig() {
 	// script.Exec(fmt.Sprintf("git config user.name  \"%s\"", botuser)).Stdout()
 }
 
-func (g *GitCommand) CloneDest() error {
+func (g *GitCommand) CloneDest() {
 	cloneUrl := fmt.Sprintf("git clone -b %s https://%s@github.com/%s/%s.git .", g.DestBranch, g.DestToken, g.DestOwner, g.DestName)
 	result, err := script.Exec(cloneUrl).String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) RmoveDest() error {
+func (g *GitCommand) RmoveDest() {
 	scriptstring := "rm -rf *"
 	result, err := script.Exec(scriptstring).String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) CloneSource() error {
+func (g *GitCommand) CloneSource() {
 	script.Exec("mkdir ./sourcerepositoryfolder").Stdout()
 	cloneUrl := fmt.Sprintf("git clone -b %s https://%s@github.com/%s/%s.git sourcerepositoryfolder/", g.SourceBranch, g.SourceToken, g.SourceOwner, g.SourceName)
 	result, err := script.Exec(cloneUrl).String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) CopyToDest() error {
+func (g *GitCommand) CopyToDest() {
 	script.Exec("bash -c 'chmod -R 777 sourcerepositoryfolder'").Stdout()
 	script.Exec("bash -c 'rm -rf sourcerepositoryfolder/.git'").Stdout()
 	// script.Exec("cp -r sourcerepositoryfolder/.* .").Stdout()
 	// result, err := script.Exec("cp -r sourcerepositoryfolder/* .").String()
 	script.Exec("bash -c 'mv -f sourcerepositoryfolder/.* .'").Stdout()
 	result, err := script.Exec("bash -c 'mv -f sourcerepositoryfolder/* .'").String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) RmoveSourceTemp() error {
+func (g *GitCommand) RmoveSourceTemp() {
 	scriptstring := "rm -rf sourcerepositoryfolder/"
 	result, err := script.Exec(scriptstring).String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) GitAdd() error {
+func (g *GitCommand) GitAdd() {
 	scriptstring := "git add ."
 	result, err := script.Exec(scriptstring).String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) GitCommit() error {
+func (g *GitCommand) GitCommit() {
 	script.Exec(fmt.Sprintf("git config user.email \"%s\"", botemail)).Stdout()
 	script.Exec(fmt.Sprintf("git config user.name  \"%s\"", botuser)).Stdout()
 	scriptstring := fmt.Sprintf("git commit -m 'update %s' ", g.DestName)
 	result, err := script.Exec(scriptstring).String()
-	fmt.Println(result, err)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }
 
-func (g *GitCommand) GitPush() error {
+func (g *GitCommand) GitPush() {
 	scriptstring := fmt.Sprintf("git push https://%s@github.com/%s/%s.git  ", g.DestToken, g.DestOwner, g.DestName)
 	result, err := script.Exec(scriptstring).String()
-	fmt.Println("git push: " + result)
-	return err
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result)
 }

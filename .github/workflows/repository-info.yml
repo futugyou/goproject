@@ -3,7 +3,7 @@ name: repository-info
 on:
  workflow_dispatch:
  schedule:
- - cron: '30 17 * * *'
+ - cron: '30 18 * * *'
 jobs: 
   repository-info-action:
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
     needs: repository-info-action 
     name: ${{ matrix.repos.name }} 
     strategy:
-      max-parallel: 6
+      max-parallel: 3
       matrix:
         repos: ${{ fromJson(needs.repository-info-action.outputs.result) }}
     with:
