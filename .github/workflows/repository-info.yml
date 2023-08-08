@@ -2,8 +2,8 @@ name: repository-info
 
 on:
  workflow_dispatch:
-#   schedule:
-#   - cron: '30 17 * * *'
+ schedule:
+ - cron: '30 17 * * *'
 jobs: 
   repository-info-action:
     runs-on: ubuntu-latest
@@ -35,3 +35,4 @@ jobs:
       owner: ${{ matrix.repos.owner }}
       branch: ${{ matrix.repos.branch }}
       name: ${{ matrix.repos.name }}
+    secrets: inherit

@@ -28,7 +28,13 @@ on:
       name:
         required: true
         description: 'The repository name'
-        type: string 
+        type: string
+    secrets:
+      SOURCE_REPO_TOKEN:
+        required: true
+      DEST_REPO_TOKEN:
+        required: true
+        
 jobs: 
   clone:
     runs-on: ubuntu-latest
@@ -51,8 +57,8 @@ jobs:
       - name:  step 2
         run: |
           sudo rm -rf ./sourcerepositoryfolder/.git
-          sudo cp -r  sourcerepositoryfolder/.github .
-          sudo cp -r  sourcerepositoryfolder/* . 
+          sudo cp -r  sourcerepositoryfolder/.github . 2>/dev/null || :
+          sudo cp -r  sourcerepositoryfolder/* . 2>/dev/null || :
           sudo rm -rf ./sourcerepositoryfolder 
                   
       - name: step 3
