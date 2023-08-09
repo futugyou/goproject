@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bitfield/script"
 )
@@ -31,38 +32,45 @@ func (g *GitCommand) SetConfig() {
 	// script.Exec(fmt.Sprintf("git config user.name  \"%s\"", botuser)).Stdout()
 }
 
-func (g *GitCommand) CloneDest() {
+func (g *GitCommand) CloneDest() error {
+	script.Exec("ls -al").Stdout()
 	cloneUrl := fmt.Sprintf("git clone -b %s https://%s@github.com/%s/%s.git .", g.DestBranch, g.DestToken, g.DestOwner, g.DestName)
 	result, err := script.Exec(cloneUrl).String()
 	if err != nil {
-		panic(err)
+		fmt.Println("CloneDest: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
 }
 
-func (g *GitCommand) RmoveDest() {
+func (g *GitCommand) RmoveDest() error {
 	scriptstring := "rm -rf *"
 	result, err := script.Exec(scriptstring).String()
 	if err != nil {
-		panic(err)
+		fmt.Println("RmoveDest: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
 }
 
-func (g *GitCommand) CloneSource() {
+func (g *GitCommand) CloneSource() error {
 	script.Exec("mkdir ./sourcerepositoryfolder").Stdout()
 	cloneUrl := fmt.Sprintf("git clone -b %s https://%s@github.com/%s/%s.git sourcerepositoryfolder/", g.SourceBranch, g.SourceToken, g.SourceOwner, g.SourceName)
 	result, err := script.Exec(cloneUrl).String()
 	if err != nil {
-		panic(err)
+		fmt.Println("CloneSource: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
 }
 
-func (g *GitCommand) CopyToDest() {
+func (g *GitCommand) CopyToDest() error {
 	script.Exec("bash -c 'chmod -R 777 sourcerepositoryfolder'").Stdout()
 	script.Exec("bash -c 'rm -rf sourcerepositoryfolder/.git'").Stdout()
 	// script.Exec("cp -r sourcerepositoryfolder/.* .").Stdout()
@@ -70,50 +78,75 @@ func (g *GitCommand) CopyToDest() {
 	script.Exec("bash -c 'mv -f sourcerepositoryfolder/.* .'").Stdout()
 	result, err := script.Exec("bash -c 'mv -f sourcerepositoryfolder/* .'").String()
 	if err != nil {
-		panic(err)
+		fmt.Println("CopyToDest: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
 }
 
-func (g *GitCommand) RmoveSourceTemp() {
+func (g *GitCommand) RmoveSourceTemp() error {
 	scriptstring := "rm -rf sourcerepositoryfolder/"
 	result, err := script.Exec(scriptstring).String()
 	if err != nil {
-		panic(err)
+		fmt.Println("RmoveSourceTemp: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
 }
 
 func (g *GitCommand) GitAdd() {
 	scriptstring := "git add ."
-	result, err := script.Exec(scriptstring).String()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(result)
+	script.Exec(scriptstring).Stdout()
 }
 
-func (g *GitCommand) GitCommit() {
+func (g *GitCommand) GitStatus() bool {
+	status, _ := script.Exec("git status").String()
+	fmt.Println(status)
+	return !strings.Contains(status, "nothing to commit")
+}
+
+func (g *GitCommand) GitCommit() error {
 	script.Exec(fmt.Sprintf("git config user.email \"%s\"", botemail)).Stdout()
 	script.Exec(fmt.Sprintf("git config user.name  \"%s\"", botuser)).Stdout()
+
 	scriptstring := fmt.Sprintf("git commit -m 'update %s' ", g.DestName)
 	result, err := script.Exec(scriptstring).String()
 	if err != nil {
-		panic(err)
+		fmt.Println("commit: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
 }
 
-func (g *GitCommand) GitPush() {
+func (g *GitCommand) GitPush() error {
 	scriptstring := fmt.Sprintf("git push https://%s@github.com/%s/%s.git  ", g.DestToken, g.DestOwner, g.DestName)
 	result, err := script.Exec(scriptstring).String()
 	if err != nil {
-		panic(err)
+		fmt.Println("push: ", err)
+		return err
 	}
 
 	fmt.Println(result)
+	return nil
+}
+
+func (g *GitCommand) InitRepository() {
+	// script.Exec("echo '' >> ./README.md").Stdout()
+	script.Echo("a").WriteFile("./README.md")
+	script.Exec("git init").Stdout()
+	script.Exec("git add .").Stdout()
+	script.Exec(fmt.Sprintf("git config user.email \"%s\"", botemail)).Stdout()
+	script.Exec(fmt.Sprintf("git config user.name  \"%s\"", botuser)).Stdout()
+	script.Exec("git commit -m \"first commit\"").Stdout()
+	script.Exec("git branch -M master").Stdout()
+	script.Exec(fmt.Sprintf("git remote add origin https://%s@github.com/%s/%s.git", g.DestToken, g.DestOwner, g.DestName)).Stdout()
+	script.Exec("git push -u origin master").Stdout()
+	script.Exec("rm -rf ./.git").Stdout()
+	script.Exec("rm -rf ./README.md").Stdout()
 }

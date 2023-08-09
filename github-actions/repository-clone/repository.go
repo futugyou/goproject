@@ -66,7 +66,7 @@ func (r *RepositoryService) CreateRepository(info *CloneInfo) error {
 		DefaultBranch: github.String(info.DestBranch),
 		MasterBranch:  github.String(info.DestBranch),
 		Private:       github.Bool(true),
-		AutoInit:      github.Bool(true),
+		// AutoInit:      github.Bool(true),
 	}
 	_, _, err := r.Client.Repositories.Create(context.Background(), info.DestOwner, repoinfo)
 	if err != nil {
@@ -74,6 +74,9 @@ func (r *RepositoryService) CreateRepository(info *CloneInfo) error {
 		return err
 	}
 
+	git := NewGitCommand(info)
+	git.SetConfig()
+	git.InitRepository()
 	actionsPermissionsRepository := github.ActionsPermissionsRepository{
 		Enabled: github.Bool(false),
 	}

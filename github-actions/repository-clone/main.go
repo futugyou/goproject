@@ -45,7 +45,6 @@ func main() {
 		DestToken:    dest_token,
 	}
 
-	CreateRepository(info)
 	CloneRepoPipeline(info)
 }
 
@@ -54,13 +53,26 @@ func CloneRepoPipeline(info *CloneInfo) {
 	git.SetConfig()
 
 	if *step == "1" {
-		git.CloneDest()
-		git.RmoveDest()
+		CreateRepository(info)
+		if err := git.CloneDest(); err != nil {
+			return
+		}
+
+		if err := git.RmoveDest(); err != nil {
+			return
+		}
+
 		git.CloneSource()
 	} else {
 		git.GitAdd()
-		git.GitCommit()
-		git.GitPush()
+		needCommit := git.GitStatus()
+		if needCommit {
+			if err := git.GitCommit(); err != nil {
+				return
+			}
+
+			git.GitPush()
+		}
 	}
 }
 
