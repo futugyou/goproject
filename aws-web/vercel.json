@@ -16,7 +16,7 @@
 			}
 		},
 		{
-			"src": "/api/v1/account",
+			"src": "/api/v1/accounts",
 			"dest": "/api/account_get.go",
 			"methods": [
 				"GET",
@@ -31,7 +31,7 @@
 			}
 		},
 		{
-			"src": "/api/v1/account",
+			"src": "/api/v1/accounts",
 			"dest": "/api/account_create.go",
 			"methods": [
 				"POST",
@@ -46,7 +46,7 @@
 			}
 		},
 		{
-			"src": "/api/v1/account",
+			"src": "/api/v1/accounts",
 			"dest": "/api/account_update.go",
 			"methods": [
 				"PUT",
@@ -61,7 +61,7 @@
 			}
 		},
 		{
-			"src": "/api/v1/account",
+			"src": "/api/v1/accounts",
 			"dest": "/api/account_delete.go",
 			"methods": [
 				"DELETE",
