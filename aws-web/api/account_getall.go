@@ -11,6 +11,7 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	verceltool "github.com/futugyousuzu/goproject/awsgolang/vercel"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
 
 func AccountGetall(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +24,7 @@ func AccountGetall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accountService := services.NewAccountService()
-	var accounts []services.UserAccount
+	var accounts []model.UserAccount
 
 	pageString := r.URL.Query().Get("page")
 	limitString := r.URL.Query().Get("limit")

@@ -8,6 +8,7 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	verceltool "github.com/futugyousuzu/goproject/awsgolang/vercel"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
 
 func AccountCreate(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +20,7 @@ func AccountCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account services.UserAccount
+	var account model.UserAccount
 
 	err := json.NewDecoder(r.Body).Decode(&account)
 	if err != nil {

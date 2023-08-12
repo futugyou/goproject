@@ -13,17 +13,9 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	"github.com/google/uuid"
 )
-
-type UserAccount struct {
-	Id              string    `json:"id"`
-	Alias           string    `json:"alias"`
-	AccessKeyId     string    `json:"accessKeyId"`
-	SecretAccessKey string    `json:"secretAccessKey"`
-	Region          string    `json:"region"`
-	CreatedAt       time.Time `json:"createdAt"`
-}
 
 type AccountService struct {
 	repository repository.IAccountRepository
@@ -40,15 +32,15 @@ func NewAccountService() *AccountService {
 	}
 }
 
-func (a *AccountService) GetAllAccounts() []UserAccount {
-	accounts := make([]UserAccount, 0)
+func (a *AccountService) GetAllAccounts() []model.UserAccount {
+	accounts := make([]model.UserAccount, 0)
 	entities, err := a.repository.GetAll(context.Background())
 	if err != nil {
 		return accounts
 	}
 
 	for _, entity := range entities {
-		accounts = append(accounts, UserAccount{
+		accounts = append(accounts, model.UserAccount{
 			Id:              entity.Id,
 			AccessKeyId:     entity.AccessKeyId,
 			Alias:           entity.Alias,
@@ -91,15 +83,15 @@ func (a *AccountService) AccountInit() {
 	}
 }
 
-func (a *AccountService) GetAccountsByPaging(paging core.Paging) []UserAccount {
-	accounts := make([]UserAccount, 0)
+func (a *AccountService) GetAccountsByPaging(paging core.Paging) []model.UserAccount {
+	accounts := make([]model.UserAccount, 0)
 	entities, err := a.repository.Paging(context.Background(), paging)
 	if err != nil {
 		return accounts
 	}
 
 	for _, entity := range entities {
-		accounts = append(accounts, UserAccount{
+		accounts = append(accounts, model.UserAccount{
 			Id:              entity.Id,
 			AccessKeyId:     entity.AccessKeyId,
 			Alias:           entity.Alias,
@@ -112,7 +104,7 @@ func (a *AccountService) GetAccountsByPaging(paging core.Paging) []UserAccount {
 	return accounts
 }
 
-func (a *AccountService) CreateAccount(account UserAccount) error {
+func (a *AccountService) CreateAccount(account model.UserAccount) error {
 	alias := account.Alias
 	if len(alias) == 0 {
 		log.Println("alias MUST have")
@@ -143,7 +135,7 @@ func (a *AccountService) CreateAccount(account UserAccount) error {
 	return nil
 }
 
-func (a *AccountService) UpdateAccount(account UserAccount) error {
+func (a *AccountService) UpdateAccount(account model.UserAccount) error {
 	entity := entity.AccountEntity{
 		Id:              account.Id,
 		Alias:           account.Alias,
@@ -172,13 +164,13 @@ func (a *AccountService) DeleteAccount(id string) error {
 	return nil
 }
 
-func (a *AccountService) GetAccountByID(id string) *UserAccount {
+func (a *AccountService) GetAccountByID(id string) *model.UserAccount {
 	entity, err := a.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil
 	}
 
-	account := &UserAccount{
+	account := &model.UserAccount{
 		Id:              entity.Id,
 		AccessKeyId:     entity.AccessKeyId,
 		Alias:           entity.Alias,

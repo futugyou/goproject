@@ -8,17 +8,8 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
-
-type ParameterViewModel struct {
-	Id        string    `bson:"_id,omitempty"`
-	AccountId string    `bson:"account_id"`
-	Region    string    `bson:"region"`
-	Key       string    `bson:"key"`
-	Value     string    `bson:"value"`
-	Version   string    `bson:"version"`
-	OperateAt time.Time `bson:"operate_at"`
-}
 
 type ParameterService struct {
 	repository repository.IParameterRepository
@@ -35,15 +26,15 @@ func NewParameterService() *ParameterService {
 	}
 }
 
-func (a *ParameterService) GetAllParameters() []ParameterViewModel {
-	parameters := make([]ParameterViewModel, 0)
+func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
+	parameters := make([]model.ParameterViewModel, 0)
 	entities, err := a.repository.GetAll(context.Background())
 	if err != nil {
 		return parameters
 	}
 
 	for _, entity := range entities {
-		parameters = append(parameters, ParameterViewModel{
+		parameters = append(parameters, model.ParameterViewModel{
 			Id:        entity.Id,
 			AccountId: entity.AccountId,
 			Region:    entity.Region,
@@ -57,15 +48,15 @@ func (a *ParameterService) GetAllParameters() []ParameterViewModel {
 	return parameters
 }
 
-func (a *ParameterService) GetParametersByPaging(paging core.Paging) []ParameterViewModel {
-	parameters := make([]ParameterViewModel, 0)
+func (a *ParameterService) GetParametersByPaging(paging core.Paging) []model.ParameterViewModel {
+	parameters := make([]model.ParameterViewModel, 0)
 	entities, err := a.repository.Paging(context.Background(), paging)
 	if err != nil {
 		return parameters
 	}
 
 	for _, entity := range entities {
-		parameters = append(parameters, ParameterViewModel{
+		parameters = append(parameters, model.ParameterViewModel{
 			Id:        entity.Id,
 			AccountId: entity.AccountId,
 			Region:    entity.Region,
@@ -79,13 +70,13 @@ func (a *ParameterService) GetParametersByPaging(paging core.Paging) []Parameter
 	return parameters
 }
 
-func (a *ParameterService) GetParameterByID(id string) *ParameterViewModel {
+func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel {
 	entity, err := a.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil
 	}
 
-	parameter := &ParameterViewModel{
+	parameter := &model.ParameterViewModel{
 		Id:        entity.Id,
 		AccountId: entity.AccountId,
 		Region:    entity.Region,

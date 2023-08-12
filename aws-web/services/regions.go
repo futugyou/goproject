@@ -3,13 +3,8 @@ package services
 import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
-
-type AwsRegion struct {
-	Endpoint string `json:"endpoint"`
-	Status   string `json:"status"`
-	Region   string `json:"region"`
-}
 
 type RegionService struct {
 }
@@ -18,7 +13,7 @@ func NewRegionService() *RegionService {
 	return &RegionService{}
 }
 
-func (s *RegionService) GetRegions() ([]AwsRegion, error) {
+func (s *RegionService) GetRegions() ([]model.AwsRegion, error) {
 	input := &ec2.DescribeRegionsInput{}
 	svc := ec2.NewFromConfig(awsenv.Cfg)
 	output, err := svc.DescribeRegions(awsenv.EmptyContext, input)
@@ -26,10 +21,10 @@ func (s *RegionService) GetRegions() ([]AwsRegion, error) {
 		return nil, err
 	}
 
-	result := make([]AwsRegion, 0)
+	result := make([]model.AwsRegion, 0)
 
 	for _, r := range output.Regions {
-		region := AwsRegion{
+		region := model.AwsRegion{
 			Endpoint: *r.Endpoint,
 			Status:   *r.OptInStatus,
 			Region:   *r.RegionName,
