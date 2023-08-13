@@ -145,13 +145,17 @@ func (a *ParameterService) getParametersDatail(names []string) ([]types.Paramete
 			break
 		}
 
+		t := names
+		if len(t) > 10 {
+			t = names[:10]
+		}
+
 		input := &ssm.GetParametersInput{
-			Names:          names[:10],
+			Names:          t,
 			WithDecryption: aws.Bool(true),
 		}
 
 		output, err := svc.GetParameters(awsenv.EmptyContext, input)
-		names = names[10:]
 
 		if err != nil {
 			log.Println(err)
@@ -163,6 +167,12 @@ func (a *ParameterService) getParametersDatail(names []string) ([]types.Paramete
 		}
 
 		totals = append(totals, output.Parameters...)
+
+		if len(names) > 10 {
+			names = names[10:]
+		} else {
+			names = []string{}
+		}
 	}
 
 	return totals, nil
