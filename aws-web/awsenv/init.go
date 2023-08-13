@@ -11,16 +11,17 @@ import (
 )
 
 var (
-	EmptyContext        context.Context = context.Background()
-	Cfg                 aws.Config
-	CfgForVercel        func(key string, secret string) error
-	NamespaceId         string
-	NamespaceName       string
-	CloudMapServiceName string
-	UserName            string
-	Password            string
-	GroupName           string
-	ECSClusterName      string
+	EmptyContext           context.Context = context.Background()
+	Cfg                    aws.Config
+	CfgForVercel           func(key string, secret string) error
+	CfgForVercelWithRegion func(key string, secret string, region string) error
+	NamespaceId            string
+	NamespaceName          string
+	CloudMapServiceName    string
+	UserName               string
+	Password               string
+	GroupName              string
+	ECSClusterName         string
 )
 
 func init() {
@@ -50,6 +51,16 @@ func init() {
 		}
 
 		Cfg = cfg
+		return nil
+	}
+
+	CfgForVercelWithRegion = func(key string, secret string, region string) error {
+		err := CfgForVercel(key, secret)
+		if err != nil {
+			return err
+		}
+
+		Cfg.Region = region
 		return nil
 	}
 }
