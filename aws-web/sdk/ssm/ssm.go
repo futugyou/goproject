@@ -59,7 +59,7 @@ func GetParametersByPath() {
 
 func GetParameters(name string) {
 	input := &ssm.GetParametersInput{
-		Names:          []string{name},
+		Names:          []string{name}, // max count 10
 		WithDecryption: aws.Bool(true),
 	}
 	output, err := svc.GetParameters(awsenv.EmptyContext, input)
