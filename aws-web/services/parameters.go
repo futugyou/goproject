@@ -95,6 +95,27 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel
 	return parameter
 }
 
+func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata, error) {
+	svc := ssm.NewFromConfig(awsenv.Cfg)
+	input := &ssm.DescribeParametersInput{
+		// max value 50
+		MaxResults: aws.Int32(50),
+	}
+
+	output, err := svc.DescribeParameters(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	if len(output.Parameters) == 0 {
+		fmt.Println("no data found")
+		return nil, fmt.Errorf("no data found")
+	}
+
+	return output.Parameters, nil
+}
+
 func (a *ParameterService) getParametersDatail(names []string) ([]types.Parameter, error) {
 	svc := ssm.NewFromConfig(awsenv.Cfg)
 	input := &ssm.GetParametersInput{
