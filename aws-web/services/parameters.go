@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -98,23 +97,42 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel
 
 func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata, error) {
 	svc := ssm.NewFromConfig(awsenv.Cfg)
-	input := &ssm.DescribeParametersInput{
-		// max value 50
-		MaxResults: aws.Int32(50),
+	totals := make([]types.ParameterMetadata, 0)
+
+	var nextToken *string = nil
+	for {
+		var input *ssm.DescribeParametersInput
+		if nextToken == nil {
+			input = &ssm.DescribeParametersInput{
+				MaxResults: aws.Int32(50), // max value 50
+			}
+		} else {
+			input = &ssm.DescribeParametersInput{
+				MaxResults: aws.Int32(50), // max value 50
+				NextToken:  nextToken,
+			}
+		}
+
+		output, err := svc.DescribeParameters(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err)
+			break
+		}
+
+		nextToken = output.NextToken
+		if len(output.Parameters) == 0 {
+			log.Println(err)
+			break
+		}
+
+		totals = append(totals, output.Parameters...)
+
+		if nextToken == nil {
+			break
+		}
 	}
 
-	output, err := svc.DescribeParameters(awsenv.EmptyContext, input)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	if len(output.Parameters) == 0 {
-		fmt.Println("no data found")
-		return nil, fmt.Errorf("no data found")
-	}
-
-	return output.Parameters, nil
+	return totals, nil
 }
 
 func (a *ParameterService) getParametersDatail(names []string) ([]types.Parameter, error) {
