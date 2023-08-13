@@ -9,5 +9,6 @@ type ParameterViewModel struct {
 	Key       string    `bson:"key"`
 	Value     string    `bson:"value"`
 	Version   string    `bson:"version"`
+	NeedSync  bool      `bson:"need_sync,omitempty"`
 	OperateAt time.Time `bson:"operate_at"`
 }

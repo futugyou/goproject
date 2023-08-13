@@ -4,10 +4,12 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
@@ -95,6 +97,46 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel
 	return parameter
 }
 
+func (a *ParameterService) SyncAllParameter() {
+	log.Println("start..")
+	accountService := NewAccountService()
+	accounts := accountService.GetAllAccounts()
+
+	entities := make([]entity.ParameterEntity, 0)
+	for _, account := range accounts {
+		awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+		parameters, err := a.getAllParametersFromAWS()
+		if err != nil {
+			continue
+		}
+
+		names := make([]string, len(parameters))
+		for i := 0; i < len(parameters); i++ {
+			names[i] = *parameters[i].Name
+		}
+
+		details, err := a.getParametersDatail(names)
+		if err != nil {
+			continue
+		}
+
+		for _, d := range details {
+			p := entity.ParameterEntity{
+				AccountId: account.Id,
+				Region:    account.Region,
+				Key:       *d.Name,
+				Value:     *d.Value,
+				Version:   strconv.FormatInt(d.Version, 10),
+				OperateAt: time.Now().Unix(),
+			}
+
+			entities = append(entities, p)
+		}
+	}
+
+	log.Println("finish, count: ", len(entities))
+}
+
 func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata, error) {
 	svc := ssm.NewFromConfig(awsenv.Cfg)
 	totals := make([]types.ParameterMetadata, 0)
@@ -156,6 +198,11 @@ func (a *ParameterService) getParametersDatail(names []string) ([]types.Paramete
 		}
 
 		output, err := svc.GetParameters(awsenv.EmptyContext, input)
+		if len(names) > 10 {
+			names = names[10:]
+		} else {
+			names = []string{}
+		}
 
 		if err != nil {
 			log.Println(err)
@@ -168,11 +215,6 @@ func (a *ParameterService) getParametersDatail(names []string) ([]types.Paramete
 
 		totals = append(totals, output.Parameters...)
 
-		if len(names) > 10 {
-			names = names[10:]
-		} else {
-			names = []string{}
-		}
 	}
 
 	return totals, nil

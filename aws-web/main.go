@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -23,9 +21,9 @@ import (
 func main() {
 	defer awsenv.DeleteAll()
 
-	regionService := services.NewRegionService()
-	regions, _ := regionService.GetRegions()
-	fmt.Println(regions)
+	// regionService := services.NewRegionService()
+	// regions, _ := regionService.GetRegions()
+	// fmt.Println(regions)
 
 	// accountService := services.NewAccountService()
 	// paging := core.Paging{Page: 1, Limit: 2}
@@ -55,6 +53,9 @@ func main() {
 
 	// err := accountService.DeleteAccount("64ca4766c2d58ba6236c9400")
 	// fmt.Println(err)
+
+	parameterService := services.NewParameterService()
+	parameterService.SyncAllParameter()
 
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
