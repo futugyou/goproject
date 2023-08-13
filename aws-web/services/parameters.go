@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -118,21 +119,33 @@ func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata,
 
 func (a *ParameterService) getParametersDatail(names []string) ([]types.Parameter, error) {
 	svc := ssm.NewFromConfig(awsenv.Cfg)
-	input := &ssm.GetParametersInput{
-		Names:          names,
-		WithDecryption: aws.Bool(true),
+
+	totals := make([]types.Parameter, 0)
+
+	for {
+		if len(names) == 0 {
+			break
+		}
+
+		input := &ssm.GetParametersInput{
+			Names:          names[:10],
+			WithDecryption: aws.Bool(true),
+		}
+
+		output, err := svc.GetParameters(awsenv.EmptyContext, input)
+		names = names[10:]
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		if len(output.Parameters) == 0 {
+			continue
+		}
+
+		totals = append(totals, output.Parameters...)
 	}
 
-	output, err := svc.GetParameters(awsenv.EmptyContext, input)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	if len(output.Parameters) == 0 {
-		fmt.Println("no data found")
-		return nil, fmt.Errorf("no data found")
-	}
-
-	return output.Parameters, nil
+	return totals, nil
 }
