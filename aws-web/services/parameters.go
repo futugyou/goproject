@@ -134,7 +134,9 @@ func (a *ParameterService) SyncAllParameter() {
 		}
 	}
 
-	log.Println("finish, count: ", len(entities))
+	log.Println("get finish, count: ", len(entities))
+	err := a.repository.BulkWrite(context.Background(), entities)
+	log.Println("write finish: ", err)
 }
 
 func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata, error) {

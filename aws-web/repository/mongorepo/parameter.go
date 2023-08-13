@@ -4,8 +4,11 @@ import (
 	"context"
 	"log"
 
+	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ParameterRepository struct {
@@ -84,4 +87,37 @@ type ParameterLogRepository struct {
 func NewParameterLogRepository(config DBConfig) *ParameterLogRepository {
 	baseRepo := NewMongoRepository[entity.ParameterLogEntity, string](config)
 	return &ParameterLogRepository{baseRepo}
+}
+
+func (a *ParameterRepository) BulkWrite(ctx context.Context, entities []entity.ParameterEntity) error {
+	entity := new(entity.ParameterEntity)
+	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
+	models := make([]mongo.WriteModel, len(entities))
+	for i := 0; i < len(entities); i++ {
+		e := entities[i]
+		doc, err := flatbson.Flatten(e)
+		if err != nil {
+			log.Println("BulkWrite: ", i, err)
+			continue
+		}
+
+		filter := bson.D{{Key: "account_id", Value: e.AccountId}, {Key: "region", Value: e.Region}, {Key: "key", Value: e.Key}}
+		model := mongo.NewUpdateOneModel().
+			SetFilter(filter).
+			SetUpsert(true).
+			SetUpdate(bson.M{
+				"$set": doc,
+			})
+		models[i] = model
+	}
+
+	opts := options.BulkWrite().SetOrdered(false)
+	results, err := c.BulkWrite(context.TODO(), models, opts)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Number of documents replaced or updated: %d\n", results.UpsertedCount)
+
+	return nil
 }
