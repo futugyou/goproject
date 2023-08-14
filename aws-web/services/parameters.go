@@ -124,13 +124,19 @@ func (a *ParameterService) SyncAllParameter() {
 		}
 
 		for _, d := range details {
+			modified := d.LastModifiedDate
+			if modified == nil {
+				t := time.Now()
+				modified = &t
+			}
+
 			p := entity.ParameterEntity{
 				AccountId: account.Id,
 				Region:    account.Region,
 				Key:       *d.Name,
 				Value:     *d.Value,
 				Version:   strconv.FormatInt(d.Version, 10),
-				OperateAt: time.Now().Unix(),
+				OperateAt: modified.Unix(),
 			}
 
 			entities = append(entities, p)
@@ -141,7 +147,7 @@ func (a *ParameterService) SyncAllParameter() {
 				Key:       *d.Name,
 				Value:     *d.Value,
 				Version:   strconv.FormatInt(d.Version, 10),
-				OperateAt: time.Now().Unix(),
+				OperateAt: modified.Unix(),
 			}
 
 			logs = append(logs, l)
