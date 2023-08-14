@@ -161,3 +161,25 @@ func (s *MongoRepository[E, K]) Paging(ctx context.Context, page core.Paging) ([
 
 	return result, nil
 }
+
+func (s *MongoRepository[E, K]) BulkOperate(ctx context.Context, models []mongo.WriteModel) error {
+	if len(models) == 0 {
+		return nil
+	}
+
+	entity := new(E)
+	tableName := (*entity).GetType()
+	c := s.Client.Database(s.DBName).Collection(tableName)
+	opts := options.BulkWrite().SetOrdered(false)
+	results, err := c.BulkWrite(ctx, models, opts)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("%s, the number of documents upserted by update and replace operations: %d\n", tableName, results.UpsertedCount)
+	log.Printf("%s, the number of documents inserted: %d\n", tableName, results.InsertedCount)
+	log.Printf("%s, the number of documents modified by update and replace operations: %d\n", tableName, results.ModifiedCount)
+	log.Printf("%s, the number of documents deleted: %d\n", tableName, results.DeletedCount)
+
+	return nil
+}
