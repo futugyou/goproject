@@ -20,7 +20,8 @@ import (
 )
 
 type ParameterService struct {
-	repository repository.IParameterRepository
+	repository    repository.IParameterRepository
+	logRepository repository.IParameterLogRepository
 }
 
 func NewParameterService() *ParameterService {
@@ -30,7 +31,8 @@ func NewParameterService() *ParameterService {
 	}
 
 	return &ParameterService{
-		repository: mongorepo.NewParameterRepository(config),
+		repository:    mongorepo.NewParameterRepository(config),
+		logRepository: mongorepo.NewParameterLogRepository(config),
 	}
 }
 
@@ -103,6 +105,7 @@ func (a *ParameterService) SyncAllParameter() {
 	accounts := accountService.GetAllAccounts()
 
 	entities := make([]entity.ParameterEntity, 0)
+	logs := make([]entity.ParameterLogEntity, 0)
 	for _, account := range accounts {
 		awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		parameters, err := a.getAllParametersFromAWS()
@@ -131,12 +134,25 @@ func (a *ParameterService) SyncAllParameter() {
 			}
 
 			entities = append(entities, p)
+
+			l := entity.ParameterLogEntity{
+				AccountId: account.Id,
+				Region:    account.Region,
+				Key:       *d.Name,
+				Value:     *d.Value,
+				Version:   strconv.FormatInt(d.Version, 10),
+				OperateAt: time.Now().Unix(),
+			}
+
+			logs = append(logs, l)
 		}
 	}
 
 	log.Println("get finish, count: ", len(entities))
 	err := a.repository.BulkWrite(context.Background(), entities)
-	log.Println("write finish: ", err)
+	log.Println("parameter write finish: ", err)
+	err = a.logRepository.BulkWrite(context.Background(), logs)
+	log.Println("log write finish: ", err)
 }
 
 func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata, error) {
