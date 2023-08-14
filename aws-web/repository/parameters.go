@@ -17,4 +17,5 @@ type IParameterRepository interface {
 
 type IParameterLogRepository interface {
 	core.IRepository[entity.ParameterLogEntity, string]
+	BulkWrite(ctx context.Context, entities []entity.ParameterLogEntity) error
 }

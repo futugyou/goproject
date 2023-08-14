@@ -121,3 +121,36 @@ func (a *ParameterRepository) BulkWrite(ctx context.Context, entities []entity.P
 
 	return nil
 }
+
+func (a *ParameterLogRepository) BulkWrite(ctx context.Context, entities []entity.ParameterLogEntity) error {
+	entity := new(entity.ParameterLogEntity)
+	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
+	models := make([]mongo.WriteModel, len(entities))
+	for i := 0; i < len(entities); i++ {
+		e := entities[i]
+		doc, err := flatbson.Flatten(e)
+		if err != nil {
+			log.Println("BulkWrite: ", i, err)
+			continue
+		}
+
+		filter := bson.D{{Key: "account_id", Value: e.AccountId}, {Key: "region", Value: e.Region}, {Key: "key", Value: e.Key}, {Key: "version", Value: e.Version}}
+		model := mongo.NewUpdateOneModel().
+			SetFilter(filter).
+			SetUpsert(true).
+			SetUpdate(bson.M{
+				"$set": doc,
+			})
+		models[i] = model
+	}
+
+	opts := options.BulkWrite().SetOrdered(false)
+	results, err := c.BulkWrite(context.TODO(), models, opts)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Number of documents replaced or updated: %d\n", results.UpsertedCount)
+
+	return nil
+}
