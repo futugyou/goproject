@@ -49,7 +49,7 @@ func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
 			AccountId: entity.AccountId,
 			Region:    entity.Region,
 			Key:       entity.Key,
-			Value:     entity.Value,
+			// Value:     entity.Value, // list not need value
 			Version:   entity.Version,
 			OperateAt: time.Unix(entity.OperateAt, 0),
 		})
@@ -71,7 +71,7 @@ func (a *ParameterService) GetParametersByPaging(paging core.Paging) []model.Par
 			AccountId: entity.AccountId,
 			Region:    entity.Region,
 			Key:       entity.Key,
-			Value:     entity.Value,
+			// Value:     entity.Value, // list not need value
 			Version:   entity.Version,
 			OperateAt: time.Unix(entity.OperateAt, 0),
 		})
