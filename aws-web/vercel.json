@@ -1,4 +1,10 @@
 {
+	"crons": [
+		{
+			"path": "/api/cron?key=E86ZaWHjHnRqn",
+			"schedule": "0 18 * * *"
+		}
+	],
 	"routes": [
 		{
 			"src": "/api/v1/region",
