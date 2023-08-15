@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,8 +24,9 @@ type JwksStore interface {
 }
 
 type JwkModel struct {
-	ID      string `bson:"_id"`
-	Payload string `bson:"payload"`
+	ID        string    `bson:"_id"`
+	Payload   string    `bson:"payload"`
+	ExpiredAt time.Time `bson:"expiredAt"`
 }
 
 type MongoJwksStore struct {
@@ -92,6 +94,14 @@ func (u *MongoJwksStore) GetPublicJwksList(ctx context.Context) (string, error) 
 
 func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) error {
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
+	model := new(JwkModel)
+	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key_id}}).Decode(&model)
+	if err != nil {
+		if model.ExpiredAt.Compare(time.Now()) == 1 {
+			// jwks exist return
+			return nil
+		}
+	}
 
 	raw, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -116,8 +126,9 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) e
 	}
 
 	jwkModel := JwkModel{
-		ID:      signed_key_id,
-		Payload: string(buf),
+		ID:        signed_key_id,
+		Payload:   string(buf),
+		ExpiredAt: time.Now().AddDate(0, 0, 1),
 	}
 
 	upsert := true
