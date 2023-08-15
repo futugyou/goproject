@@ -96,11 +96,9 @@ func (u *MongoJwksStore) CreateJwks(ctx context.Context, signed_key_id string) e
 	coll := u.client.Database(u.DBName).Collection(u.CollectionName)
 	model := new(JwkModel)
 	err := coll.FindOne(ctx, bson.D{{Key: "_id", Value: signed_key_id}}).Decode(&model)
-	if err != nil {
-		if model.ExpiredAt.Compare(time.Now()) == 1 {
-			// jwks exist return
-			return nil
-		}
+	if err == nil && model.ExpiredAt.Compare(time.Now()) == 1 {
+		// jwks exist return
+		return nil
 	}
 
 	raw, err := rsa.GenerateKey(rand.Reader, 2048)
