@@ -9,6 +9,7 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
+	"golang.org/x/exp/slices"
 )
 
 type ParameterService struct {
@@ -29,6 +30,9 @@ func NewParameterService() *ParameterService {
 }
 
 func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
+	accountService := NewAccountService()
+	accounts := accountService.GetAllAccounts()
+
 	parameters := make([]model.ParameterViewModel, 0)
 	entities, err := a.repository.GetAll(context.Background())
 	if err != nil {
@@ -36,11 +40,13 @@ func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
 	}
 
 	for _, entity := range entities {
+		idx := slices.IndexFunc(accounts, func(c model.UserAccount) bool { return c.Id == entity.AccountId })
 		parameters = append(parameters, model.ParameterViewModel{
-			Id:        entity.Id,
-			AccountId: entity.AccountId,
-			Region:    entity.Region,
-			Key:       entity.Key,
+			Id:           entity.Id,
+			AccountId:    entity.AccountId,
+			AccountAlias: accounts[idx].Alias,
+			Region:       entity.Region,
+			Key:          entity.Key,
 			// Value:     entity.Value, // list not need value
 			Version:   entity.Version,
 			OperateAt: time.Unix(entity.OperateAt, 0),
@@ -51,6 +57,9 @@ func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
 }
 
 func (a *ParameterService) GetParametersByPaging(paging core.Paging) []model.ParameterViewModel {
+	accountService := NewAccountService()
+	accounts := accountService.GetAllAccounts()
+
 	parameters := make([]model.ParameterViewModel, 0)
 	entities, err := a.repository.Paging(context.Background(), paging)
 	if err != nil {
@@ -58,11 +67,13 @@ func (a *ParameterService) GetParametersByPaging(paging core.Paging) []model.Par
 	}
 
 	for _, entity := range entities {
+		idx := slices.IndexFunc(accounts, func(c model.UserAccount) bool { return c.Id == entity.AccountId })
 		parameters = append(parameters, model.ParameterViewModel{
-			Id:        entity.Id,
-			AccountId: entity.AccountId,
-			Region:    entity.Region,
-			Key:       entity.Key,
+			Id:           entity.Id,
+			AccountId:    entity.AccountId,
+			AccountAlias: accounts[idx].Alias,
+			Region:       entity.Region,
+			Key:          entity.Key,
 			// Value:     entity.Value, // list not need value
 			Version:   entity.Version,
 			OperateAt: time.Unix(entity.OperateAt, 0),
