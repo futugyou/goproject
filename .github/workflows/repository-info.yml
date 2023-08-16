@@ -2,8 +2,8 @@ name: repository-info
 
 on:
  workflow_dispatch:
- schedule:
- - cron: '30 18 * * *'
+ # schedule:
+ # - cron: '30 18 * * *'
 jobs: 
   repository-info-action:
     runs-on: ubuntu-latest
