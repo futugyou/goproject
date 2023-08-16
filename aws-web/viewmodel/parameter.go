@@ -13,3 +13,9 @@ type ParameterViewModel struct {
 	NeedSync     bool      `json:"need_sync,omitempty"`
 	OperateAt    time.Time `json:"operateAt"`
 }
+
+type ParameterFilter struct {
+	AccountAlias string `json:"alias"`
+	Region       string `json:"region"`
+	Key          string `json:"key"`
+}

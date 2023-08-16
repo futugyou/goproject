@@ -5,9 +5,12 @@ import (
 	"log"
 
 	"github.com/chidiwilliams/flatbson"
+	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ParameterRepository struct {
@@ -132,4 +135,43 @@ func (a *ParameterLogRepository) BulkWrite(ctx context.Context, entities []entit
 	}
 
 	return a.BulkOperate(ctx, models)
+}
+
+func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging, filter model.ParameterFilter) ([]*entity.ParameterEntity, error) {
+	result := make([]*entity.ParameterEntity, 0)
+	entity := new(entity.ParameterEntity)
+	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
+
+	filters := make([]bson.M, 0)
+	if len(filter.Key) > 0 {
+		filters = append(filters, bson.M{"key": bson.M{"$regex": filter.Key, "$options": "im"}})
+	}
+
+	if len(filter.Region) > 0 {
+		filters = append(filters, bson.M{"region": filter.Region})
+	}
+
+	bsonfilter := bson.M{}
+	if len(filters) > 1 {
+		bsonfilter = bson.M{"$and": filters}
+	}
+
+	var skip int64 = (page.Page - 1) * page.Limit
+	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
+	cursor, err := c.Find(context.TODO(), bsonfilter, op)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
 }

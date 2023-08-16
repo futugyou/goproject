@@ -176,10 +176,11 @@ func (s *MongoRepository[E, K]) BulkOperate(ctx context.Context, models []mongo.
 		return err
 	}
 
-	log.Printf("%s, the number of documents upserted by update and replace operations: %d\n", tableName, results.UpsertedCount)
 	log.Printf("%s, the number of documents inserted: %d\n", tableName, results.InsertedCount)
-	log.Printf("%s, the number of documents modified by update and replace operations: %d\n", tableName, results.ModifiedCount)
 	log.Printf("%s, the number of documents deleted: %d\n", tableName, results.DeletedCount)
+	log.Printf("%s, the number of documents matched by filters in update and replace operations: %d\n", tableName, results.MatchedCount)
+	log.Printf("%s, the number of documents upserted by update and replace operations: %d\n", tableName, results.UpsertedCount)
+	log.Printf("%s, the number of documents modified by update and replace operations: %d\n", tableName, results.ModifiedCount)
 
 	return nil
 }
