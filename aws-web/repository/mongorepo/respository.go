@@ -63,13 +63,13 @@ func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]*E, error) {
 	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
 
 	filter := bson.D{}
-	cursor, err := c.Find(context.TODO(), filter)
+	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Println(err)
 		return nil, err
 	}
@@ -144,13 +144,13 @@ func (s *MongoRepository[E, K]) Paging(ctx context.Context, page core.Paging) ([
 	filter := bson.D{}
 	var skip int64 = (page.Page - 1) * page.Limit
 	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
-	cursor, err := c.Find(context.TODO(), filter, op)
+	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Println(err)
 		return nil, err
 	}

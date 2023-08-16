@@ -26,14 +26,14 @@ func (a *ParameterRepository) GetParametersByAccountId(ctx context.Context, acco
 	parameter := new(entity.ParameterEntity)
 	c := a.Client.Database(a.DBName).Collection(parameter.GetType())
 	filter := bson.D{{Key: "account_id", Value: accountId}}
-	cursor, err := c.Find(context.TODO(), filter)
+	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	result := make([]*entity.ParameterEntity, 0)
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Println(err)
 		return nil, err
 	}
@@ -49,14 +49,14 @@ func (a *ParameterRepository) GetParametersByAccountIdAndRegion(ctx context.Cont
 	parameter := new(entity.ParameterEntity)
 	c := a.Client.Database(a.DBName).Collection(parameter.GetType())
 	filter := bson.D{{Key: "account_id", Value: accountId}, {Key: "region", Value: region}}
-	cursor, err := c.Find(context.TODO(), filter)
+	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	result := make([]*entity.ParameterEntity, 0)
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Println(err)
 		return nil, err
 	}
@@ -158,13 +158,13 @@ func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging
 
 	var skip int64 = (page.Page - 1) * page.Limit
 	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
-	cursor, err := c.Find(context.TODO(), bsonfilter, op)
+	cursor, err := c.Find(ctx, bsonfilter, op)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		log.Println(err)
 		return nil, err
 	}
