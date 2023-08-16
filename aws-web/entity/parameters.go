@@ -1,5 +1,11 @@
 package entity
 
+type ParameterSearchFilter struct {
+	AccountId string `bson:"account_id"`
+	Region    string `bson:"region"`
+	Key       string `bson:"key"`
+}
+
 type ParameterEntity struct {
 	Id        string `bson:"_id,omitempty"`
 	AccountId string `bson:"account_id"`

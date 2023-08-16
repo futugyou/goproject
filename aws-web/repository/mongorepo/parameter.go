@@ -7,7 +7,6 @@ import (
 	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
-	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -137,12 +136,17 @@ func (a *ParameterLogRepository) BulkWrite(ctx context.Context, entities []entit
 	return a.BulkOperate(ctx, models)
 }
 
-func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging, filter model.ParameterFilter) ([]*entity.ParameterEntity, error) {
+func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging, filter entity.ParameterSearchFilter) ([]*entity.ParameterEntity, error) {
 	result := make([]*entity.ParameterEntity, 0)
 	entity := new(entity.ParameterEntity)
 	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
 
 	filters := make([]bson.M, 0)
+
+	if len(filter.AccountId) > 0 {
+		filters = append(filters, bson.M{"account_id": filter.AccountId})
+	}
+
 	if len(filter.Key) > 0 {
 		filters = append(filters, bson.M{"key": bson.M{"$regex": filter.Key, "$options": "im"}})
 	}

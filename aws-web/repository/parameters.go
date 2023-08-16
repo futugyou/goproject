@@ -5,7 +5,6 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
-	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
 
 type IParameterRepository interface {
@@ -14,7 +13,7 @@ type IParameterRepository interface {
 	GetParametersByAccountIdAndRegion(ctx context.Context, accountId string, region string) ([]*entity.ParameterEntity, error)
 	GetParameter(ctx context.Context, accountId string, region string, key string) (*entity.ParameterEntity, error)
 	BulkWrite(ctx context.Context, entities []entity.ParameterEntity) error
-	FilterPaging(ctx context.Context, page core.Paging, filter model.ParameterFilter) ([]*entity.ParameterEntity, error)
+	FilterPaging(ctx context.Context, page core.Paging, filter entity.ParameterSearchFilter) ([]*entity.ParameterEntity, error)
 }
 
 type IParameterLogRepository interface {
