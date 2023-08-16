@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/core"
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
@@ -56,27 +57,47 @@ func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
 	return parameters
 }
 
-func (a *ParameterService) GetParametersByPaging(paging core.Paging) []model.ParameterViewModel {
+func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter model.ParameterFilter) []model.ParameterViewModel {
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts()
+	var account *model.UserAccount
+	var accounts = make([]model.UserAccount, 0)
+	if len(filter.AccountAlias) > 0 {
+		account = accountService.GetAccountByAlias(filter.AccountAlias)
+	} else {
+		accounts = accountService.GetAllAccounts()
+	}
 
 	parameters := make([]model.ParameterViewModel, 0)
-	entities, err := a.repository.Paging(context.Background(), paging)
+	var SearchFilter entity.ParameterSearchFilter = entity.ParameterSearchFilter{
+		Key:    filter.Key,
+		Region: filter.Region,
+	}
+
+	if account != nil {
+		SearchFilter.AccountId = account.Id
+		accounts = append(accounts, *account)
+	}
+
+	entities, err := a.repository.FilterPaging(context.Background(), paging, SearchFilter)
 	if err != nil {
 		return parameters
 	}
 
 	for _, entity := range entities {
 		idx := slices.IndexFunc(accounts, func(c model.UserAccount) bool { return c.Id == entity.AccountId })
+		alias := ""
+		if idx != -1 && idx < len(accounts) {
+			alias = accounts[idx].Alias
+		}
+
 		parameters = append(parameters, model.ParameterViewModel{
 			Id:           entity.Id,
 			AccountId:    entity.AccountId,
-			AccountAlias: accounts[idx].Alias,
+			AccountAlias: alias,
 			Region:       entity.Region,
 			Key:          entity.Key,
-			// Value:     entity.Value, // list not need value
-			Version:   entity.Version,
-			OperateAt: time.Unix(entity.OperateAt, 0),
+			Version:      entity.Version,
+			OperateAt:    time.Unix(entity.OperateAt, 0),
 		})
 	}
 

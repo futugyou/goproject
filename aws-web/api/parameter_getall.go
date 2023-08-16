@@ -28,15 +28,28 @@ func ParameterGetall(w http.ResponseWriter, r *http.Request) {
 
 	pageString := r.URL.Query().Get("page")
 	limitString := r.URL.Query().Get("limit")
+	alias := r.URL.Query().Get("alias")
+	region := r.URL.Query().Get("region")
+	key := r.URL.Query().Get("key")
+
 	page, _ := strconv.ParseInt(pageString, 10, 64)
 	limit, _ := strconv.ParseInt(limitString, 10, 64)
-
-	if page != 0 && limit != 0 {
-		paging := core.Paging{Page: page, Limit: limit}
-		parameters = parameterService.GetParametersByPaging(paging)
-	} else {
-		parameters = parameterService.GetAllParameters()
+	if page == 0 {
+		page = 1
 	}
+
+	if limit == 0 {
+		limit = 10
+	}
+
+	filer := model.ParameterFilter{
+		AccountAlias: alias,
+		Region:       region,
+		Key:          key,
+	}
+
+	paging := core.Paging{Page: page, Limit: limit}
+	parameters = parameterService.GetParametersByCondition(paging, filer)
 
 	body, _ := json.Marshal(parameters)
 	w.Write(body)
