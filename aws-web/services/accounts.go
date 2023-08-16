@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"os"
 	"time"
@@ -51,36 +50,6 @@ func (a *AccountService) GetAllAccounts() []model.UserAccount {
 	}
 
 	return accounts
-}
-
-func (a *AccountService) AccountInit() {
-	result := make([]entity.AccountEntity, 0)
-	var accounts []byte
-	var err error
-
-	if accounts, err = os.ReadFile("./data/accounts.json"); err != nil {
-		log.Println(err)
-		return
-	}
-
-	if err = json.Unmarshal(accounts, &result); err != nil {
-		log.Println(err)
-		return
-	}
-
-	if err = a.repository.DeleteAll(context.Background()); err != nil {
-		log.Println(err)
-		return
-	}
-
-	for i := 0; i < len(result); i++ {
-		result[i].Id = uuid.New().String()
-		result[i].CreatedAt = time.Now().Unix()
-	}
-
-	if err = a.repository.InsertMany(context.Background(), result); err != nil {
-		log.Println(err)
-	}
 }
 
 func (a *AccountService) GetAccountsByPaging(paging core.Paging) []model.UserAccount {
@@ -166,6 +135,24 @@ func (a *AccountService) DeleteAccount(id string) error {
 
 func (a *AccountService) GetAccountByID(id string) *model.UserAccount {
 	entity, err := a.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil
+	}
+
+	account := &model.UserAccount{
+		Id:              entity.Id,
+		AccessKeyId:     entity.AccessKeyId,
+		Alias:           entity.Alias,
+		Region:          entity.Region,
+		SecretAccessKey: entity.SecretAccessKey,
+		CreatedAt:       time.Unix(entity.CreatedAt, 0),
+	}
+
+	return account
+}
+
+func (a *AccountService) GetAccountByAlias(alias string) *model.UserAccount {
+	entity, err := a.repository.GetAccountByAlias(context.Background(), alias)
 	if err != nil {
 		return nil
 	}
