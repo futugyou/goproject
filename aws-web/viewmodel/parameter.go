@@ -7,21 +7,33 @@ type ParameterViewModel struct {
 	AccountId    string    `json:"accountId,omitempty"`
 	AccountAlias string    `json:"alias,omitempty"`
 	Region       string    `json:"region,omitempty"`
-	Key          string    `json:"key"`
+	Key          string    `json:"key,omitempty"`
 	Value        string    `json:"value,omitempty"`
 	Version      string    `json:"version,omitempty"`
-	NeedSync     bool      `json:"need_sync,omitempty"`
-	OperateAt    time.Time `json:"operateAt"`
+	OperateAt    time.Time `json:"operateAt,omitempty"`
+}
+
+type ParameterDetailViewModel struct {
+	Id           string               `json:"id,omitempty"`
+	AccountId    string               `json:"accountId,omitempty"`
+	AccountAlias string               `json:"alias,omitempty"`
+	Region       string               `json:"region,omitempty"`
+	Key          string               `json:"key,omitempty"`
+	Value        string               `json:"value,omitempty"`
+	Version      string               `json:"version,omitempty"`
+	OperateAt    time.Time            `json:"operateAt,omitempty"`
+	Current      *ParameterViewModel  `json:"current,omitempty"`
+	History      []ParameterViewModel `json:"history,omitempty"`
 }
 
 type ParameterFilter struct {
-	AccountAlias string `json:"alias"`
-	Region       string `json:"region"`
-	Key          string `json:"key"`
+	AccountAlias string `json:"alias,omitempty"`
+	Region       string `json:"region,omitempty"`
+	Key          string `json:"key,omitempty"`
 }
 
 type CompareViewModel struct {
-	Key     string `json:"key"`
+	Key     string `json:"key,omitempty"`
 	Value   string `json:"value,omitempty"`
 	Version string `json:"version,omitempty"`
 }

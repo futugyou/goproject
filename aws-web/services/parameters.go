@@ -3,8 +3,10 @@ package services
 import (
 	"context"
 	"os"
+	"strconv"
 	"time"
 
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
@@ -104,13 +106,15 @@ func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter m
 	return parameters
 }
 
-func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel {
-	entity, err := a.repository.Get(context.Background(), id)
+func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailViewModel {
+	// get parameter from db
+	ctx := context.Background()
+	entity, err := a.repository.Get(ctx, id)
 	if err != nil {
 		return nil
 	}
 
-	parameter := &model.ParameterViewModel{
+	parameter := &model.ParameterDetailViewModel{
 		Id:        entity.Id,
 		AccountId: entity.AccountId,
 		Region:    entity.Region,
@@ -120,16 +124,62 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel
 		OperateAt: time.Unix(entity.OperateAt, 0),
 	}
 
+	// fill account alias
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(entity.AccountId)
+	if account == nil {
+		return parameter
+	}
+
+	parameter.AccountAlias = account.Alias
+
+	// get parameter log from db
+	logs, err := a.logRepository.GetParameterLogs(ctx, entity.AccountId, entity.Region, entity.Key)
+	if err == nil && len(logs) > 0 {
+		history := make([]model.ParameterViewModel, len(logs))
+		for i := 0; i < len(logs); i++ {
+			history[i] = model.ParameterViewModel{
+				Id:           logs[i].Id,
+				AccountId:    logs[i].AccountId,
+				AccountAlias: account.Alias,
+				Region:       logs[i].Region,
+				Key:          logs[i].Key,
+				Value:        logs[i].Value,
+				Version:      logs[i].Version,
+				OperateAt:    time.Unix(logs[i].OperateAt, 0),
+			}
+		}
+
+		parameter.History = history
+	}
+
+	// get parameter from aws
+	awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	details, err := a.getParametersDatail([]string{entity.Key})
+	if err != nil || len(details) == 0 {
+		return parameter
+	}
+
+	current := &model.ParameterViewModel{
+		Key:       *details[0].Name,
+		Value:     *details[0].Value,
+		Version:   strconv.FormatInt(details[0].Version, 10),
+		OperateAt: *details[0].LastModifiedDate,
+	}
+
+	parameter.Current = current
+
 	return parameter
 }
 
 func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string) []model.CompareViewModel {
-	source, err := a.repository.Get(context.Background(), sourceid)
+	ctx := context.Background()
+	source, err := a.repository.Get(ctx, sourceid)
 	if err != nil {
 		return nil
 	}
 
-	dest, err := a.repository.Get(context.Background(), destid)
+	dest, err := a.repository.Get(ctx, destid)
 	if err != nil {
 		return nil
 	}
