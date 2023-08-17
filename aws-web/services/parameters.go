@@ -122,3 +122,27 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterViewModel
 
 	return parameter
 }
+
+func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string) []model.CompareViewModel {
+	source, err := a.repository.Get(context.Background(), sourceid)
+	if err != nil {
+		return nil
+	}
+
+	dest, err := a.repository.Get(context.Background(), destid)
+	if err != nil {
+		return nil
+	}
+
+	result := []model.CompareViewModel{{
+		Key:     source.Key,
+		Value:   source.Value,
+		Version: source.Version,
+	}, {
+		Key:     dest.Key,
+		Value:   dest.Value,
+		Version: dest.Version,
+	}}
+
+	return result
+}
