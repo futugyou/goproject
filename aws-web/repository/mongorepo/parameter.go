@@ -179,3 +179,28 @@ func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging
 
 	return result, nil
 }
+
+func (a *ParameterLogRepository) GetParameterLogs(ctx context.Context, accountId string, region string, key string) ([]*entity.ParameterLogEntity, error) {
+	result := make([]*entity.ParameterLogEntity, 0)
+	entity := new(entity.ParameterLogEntity)
+	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
+
+	filter := bson.D{{Key: "account_id", Value: accountId}, {Key: "region", Value: region}, {Key: "key", Value: key}}
+	op := options.Find().SetSort(bson.D{{Key: "version", Value: 1}})
+	cursor, err := c.Find(ctx, filter, op)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	if err = cursor.All(ctx, &result); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
+}
