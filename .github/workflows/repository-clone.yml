@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:        
       - name: step 1
-        uses: health-ecology/init-project/actions/repository-clone@main 
+        uses: ./github-actions/repository-clone@main 
         with:
           owner: '${{ inputs.owner }}'  
           branch: '${{ inputs.branch }}'  
@@ -62,7 +62,7 @@ jobs:
           sudo rm -rf ./sourcerepositoryfolder 
                   
       - name: step 3
-        uses: health-ecology/init-project/actions/repository-clone@main 
+        uses: ./github-actions/repository-clone@main 
         with:
           owner: '${{ inputs.owner }}'  
           branch: '${{ inputs.branch }}'  

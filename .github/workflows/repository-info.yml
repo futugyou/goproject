@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3 
           
-      - uses: health-ecology/init-project/actions/repository-info@main
+      - uses: ./github-actions/repository-info@main
         id: repository-info
         with:
           token: '${{ secrets.SOURCE_REPO_TOKEN }}'  
@@ -24,7 +24,7 @@ jobs:
           echo "result=$result" >> $GITHUB_OUTPUT
 
   call-repository-clone: 
-    uses: health-ecology/init-project/.github/workflows/repository-clone.yml@main
+    uses: ./.github/workflows/repository-clone.yml@main
     needs: repository-info-action 
     name: ${{ matrix.repos.name }} 
     strategy:
