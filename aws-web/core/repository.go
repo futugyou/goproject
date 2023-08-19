@@ -10,6 +10,7 @@ type IRepository[E IEntity, K any] interface {
 	Delete(ctx context.Context, id K) error
 	GetAll(ctx context.Context) ([]*E, error)
 	Get(ctx context.Context, id K) (*E, error)
+	GetByObjectId(ctx context.Context, id K) (*E, error)
 	InsertMany(ctx context.Context, items []E) error
 	Paging(ctx context.Context, page Paging) ([]*E, error)
 }

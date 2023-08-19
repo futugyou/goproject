@@ -109,7 +109,7 @@ func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter m
 func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailViewModel {
 	// get parameter from db
 	ctx := context.Background()
-	entity, err := a.repository.Get(ctx, id)
+	entity, err := a.repository.GetByObjectId(ctx, id)
 	if err != nil {
 		return nil
 	}
@@ -174,12 +174,12 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailVie
 
 func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string) []model.CompareViewModel {
 	ctx := context.Background()
-	source, err := a.repository.Get(ctx, sourceid)
+	source, err := a.repository.GetByObjectId(ctx, sourceid)
 	if err != nil {
 		return nil
 	}
 
-	dest, err := a.repository.Get(ctx, destid)
+	dest, err := a.repository.GetByObjectId(ctx, destid)
 	if err != nil {
 		return nil
 	}

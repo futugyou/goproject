@@ -2,10 +2,12 @@ package mongorepo
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -48,6 +50,26 @@ func (s *MongoRepository[E, K]) Get(ctx context.Context, id K) (*E, error) {
 	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
 
 	filter := bson.D{{Key: "_id", Value: id}}
+	err := c.FindOne(ctx, filter).Decode(&entity)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return entity, nil
+}
+
+func (s *MongoRepository[E, K]) GetByObjectId(ctx context.Context, id K) (*E, error) {
+	stringid, ok := any(id).(string)
+	if !ok {
+		return nil, fmt.Errorf("%v can not convert to string", id)
+	}
+
+	entity := new(E)
+	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+	objID, _ := primitive.ObjectIDFromHex(stringid)
+
+	filter := bson.D{{Key: "_id", Value: objID}}
 	err := c.FindOne(ctx, filter).Decode(&entity)
 	if err != nil {
 		log.Println(err)
