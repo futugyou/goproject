@@ -156,7 +156,9 @@ func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging
 	}
 
 	bsonfilter := bson.M{}
-	if len(filters) > 1 {
+	if len(filters) == 1 {
+		bsonfilter = filters[0]
+	} else if len(filters) > 1 {
 		bsonfilter = bson.M{"$and": filters}
 	}
 

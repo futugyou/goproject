@@ -70,17 +70,17 @@ func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter m
 	}
 
 	parameters := make([]model.ParameterViewModel, 0)
-	var SearchFilter entity.ParameterSearchFilter = entity.ParameterSearchFilter{
+	var searchFilter entity.ParameterSearchFilter = entity.ParameterSearchFilter{
 		Key:    filter.Key,
 		Region: filter.Region,
 	}
 
 	if account != nil {
-		SearchFilter.AccountId = account.Id
+		searchFilter.AccountId = account.Id
 		accounts = append(accounts, *account)
 	}
 
-	entities, err := a.repository.FilterPaging(context.Background(), paging, SearchFilter)
+	entities, err := a.repository.FilterPaging(context.Background(), paging, searchFilter)
 	if err != nil {
 		return parameters
 	}
