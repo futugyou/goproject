@@ -4,13 +4,13 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
-	"github.com/futugyousuzu/goproject/awsgolang/services"
+	// "github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
@@ -54,8 +54,8 @@ func main() {
 	// err := accountService.DeleteAccount("64ca4766c2d58ba6236c9400")
 	// fmt.Println(err)
 
-	parameterService := services.NewParameterService()
-	parameterService.SyncAllParameter()
+	// parameterService := services.NewParameterService()
+	// parameterService.SyncAllParameter()
 
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
@@ -103,6 +103,7 @@ func main() {
 	// ecs.DescribeTaskDefinition()
 	// ecs.ListContainerInstances()
 	// ecs.ListAccountSettings()
+	ecs.ListServices()
 
 	// ssm.DescribeParameters()
 	// ssm.ListAssociations()

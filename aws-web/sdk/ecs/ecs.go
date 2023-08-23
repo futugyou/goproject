@@ -182,3 +182,18 @@ func ListAccountSettings() {
 		fmt.Println(setting.Name.Values(), *setting.PrincipalArn, *setting.Value)
 	}
 }
+
+func ListServices() {
+	input := &ecs.ListServicesInput{
+		Cluster:    aws.String(awsenv.ECSClusterName),
+		MaxResults: aws.Int32(100),
+	}
+	output, err := svc.ListServices(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range output.ServiceArns {
+		fmt.Println(v)
+	}
+}
