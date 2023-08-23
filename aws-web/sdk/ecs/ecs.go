@@ -197,3 +197,32 @@ func ListServices() {
 		fmt.Println(v)
 	}
 }
+
+func ListTaskDefinitions() {
+	input := &ecs.ListTaskDefinitionsInput{
+		MaxResults: aws.Int32(100),
+	}
+	output, err := svc.ListTaskDefinitions(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range output.TaskDefinitionArns {
+		fmt.Println(v)
+	}
+}
+
+func ListTasks() {
+	input := &ecs.ListTasksInput{
+		Cluster:    aws.String(awsenv.ECSClusterName),
+		MaxResults: aws.Int32(100),
+	}
+	output, err := svc.ListTasks(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range output.TaskArns {
+		fmt.Println(v)
+	}
+}

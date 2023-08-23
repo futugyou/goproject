@@ -103,7 +103,9 @@ func main() {
 	// ecs.DescribeTaskDefinition()
 	// ecs.ListContainerInstances()
 	// ecs.ListAccountSettings()
-	ecs.ListServices()
+	// ecs.ListServices()
+	// ecs.ListTaskDefinitions()
+	ecs.ListTasks()
 
 	// ssm.DescribeParameters()
 	// ssm.ListAssociations()
