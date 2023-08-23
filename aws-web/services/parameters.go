@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strconv"
 	"time"
@@ -197,31 +198,31 @@ func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string)
 	return result
 }
 
-func (a *ParameterService) SyncParameterByID(id string) {
+func (a *ParameterService) SyncParameterByID(id string) error {
 	// get parameter from db
 	ctx := context.Background()
 	parameter, err := a.repository.GetByObjectId(ctx, id)
 	if err != nil {
-		return
+		return err
 	}
 
 	// account
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(parameter.AccountId)
 	if account == nil {
-		return
+		return errors.New("account not found")
 	}
 
 	// get parameter from aws
 	awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	details, err := a.getParametersDatail([]string{parameter.Key})
 	if err != nil || len(details) == 0 {
-		return
+		return errors.New("ssm not found")
 	}
 
 	currVersion, _ := strconv.ParseInt(parameter.Version, 10, 64)
 	if details[0].Version <= currVersion {
-		return
+		return nil
 	}
 
 	// update parameter
@@ -234,7 +235,7 @@ func (a *ParameterService) SyncParameterByID(id string) {
 	parameter.Value = *details[0].Value
 	err = a.repository.Update(ctx, *parameter, parameter.Id)
 	if err != nil {
-		return
+		return err
 	}
 
 	// update parameter log
@@ -247,5 +248,5 @@ func (a *ParameterService) SyncParameterByID(id string) {
 		OperateAt: parameter.OperateAt,
 	}
 
-	a.logRepository.Insert(ctx, log)
+	return a.logRepository.Insert(ctx, log)
 }

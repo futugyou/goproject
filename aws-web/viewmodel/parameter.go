@@ -37,3 +37,7 @@ type CompareViewModel struct {
 	Value   string `json:"value,omitempty"`
 	Version string `json:"version,omitempty"`
 }
+
+type SyncModel struct {
+	Id string `json:"id,omitempty"`
+}
