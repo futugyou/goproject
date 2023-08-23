@@ -196,3 +196,56 @@ func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string)
 
 	return result
 }
+
+func (a *ParameterService) SyncParameterByID(id string) {
+	// get parameter from db
+	ctx := context.Background()
+	parameter, err := a.repository.GetByObjectId(ctx, id)
+	if err != nil {
+		return
+	}
+
+	// account
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(parameter.AccountId)
+	if account == nil {
+		return
+	}
+
+	// get parameter from aws
+	awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	details, err := a.getParametersDatail([]string{parameter.Key})
+	if err != nil || len(details) == 0 {
+		return
+	}
+
+	currVersion, _ := strconv.ParseInt(parameter.Version, 10, 64)
+	if details[0].Version <= currVersion {
+		return
+	}
+
+	// update parameter
+	modified := details[0].LastModifiedDate
+	if modified != nil {
+		parameter.OperateAt = modified.Unix()
+	}
+
+	parameter.Version = strconv.FormatInt(details[0].Version, 10)
+	parameter.Value = *details[0].Value
+	err = a.repository.Update(ctx, *parameter, parameter.Id)
+	if err != nil {
+		return
+	}
+
+	// update parameter log
+	log := entity.ParameterLogEntity{
+		AccountId: parameter.AccountId,
+		Region:    parameter.Region,
+		Key:       parameter.Key,
+		Value:     parameter.Value,
+		Version:   parameter.Version,
+		OperateAt: parameter.OperateAt,
+	}
+
+	a.logRepository.Insert(ctx, log)
+}
