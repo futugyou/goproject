@@ -16,5 +16,8 @@ func Cron(w http.ResponseWriter, r *http.Request) {
 
 	parameterService := services.NewParameterService()
 	parameterService.SyncAllParameter()
+
+	secService := services.NewEcsClusterService()
+	secService.SyncAllEcsServices()
 	w.WriteHeader(200)
 }
