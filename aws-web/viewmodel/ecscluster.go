@@ -7,9 +7,11 @@ type EcsClusterFilter struct {
 }
 
 type EcsClusterViewModel struct {
-	Name         string    `json:"name"`
 	ClusterName  string    `json:"cluster_name"`
+	ClusterArn   string    `json:"cluster_arn"`
 	Service      string    `json:"service"`
+	ServiceArn   string    `json:"service_arn"`
+	RoleArn      string    `json:"role_arn"`
 	AccountAlias string    `json:"account_alias"`
-	CreatedAt    time.Time `json:"createdAt"`
+	OperateAt    time.Time `json:"operate_At"`
 }

@@ -2,6 +2,10 @@ package entity
 
 import "time"
 
+type EcsServiceSearchFilter struct {
+	AccountId string `json:"accountId,omitempty"`
+}
+
 type EcsServiceEntity struct {
 	Id             string    `bson:"_id,omitempty"`
 	AccountId      string    `bson:"account_id"`

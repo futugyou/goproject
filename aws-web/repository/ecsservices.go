@@ -10,4 +10,5 @@ import (
 type IEcsServiceRepository interface {
 	core.IRepository[entity.EcsServiceEntity, string]
 	BulkWrite(ctx context.Context, entities []entity.EcsServiceEntity) error
+	FilterPaging(ctx context.Context, page core.Paging, filter entity.EcsServiceSearchFilter) ([]*entity.EcsServiceEntity, error)
 }
