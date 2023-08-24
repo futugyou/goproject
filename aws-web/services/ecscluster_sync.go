@@ -1,0 +1,93 @@
+package services
+
+import (
+	"context"
+	"log"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
+)
+
+func (e *EcsClusterService) SyncAllEcsServices() {
+	log.Println("start..")
+	accountService := NewAccountService()
+	accounts := accountService.GetAllAccounts()
+	services := make([]entity.EcsServiceEntity, 0)
+	for _, account := range accounts {
+		awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+		svc := ecs.NewFromConfig(awsenv.Cfg)
+		clusterinput := &ecs.ListClustersInput{}
+		clusteroutput, err := svc.ListClusters(awsenv.EmptyContext, clusterinput)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		for _, cluster := range clusteroutput.ClusterArns {
+			serviceinput := &ecs.ListServicesInput{
+				Cluster:    aws.String(cluster),
+				MaxResults: aws.Int32(100),
+			}
+
+			serviceoutput, err := svc.ListServices(awsenv.EmptyContext, serviceinput)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			var serviceArns []string = serviceoutput.ServiceArns
+			for {
+				if len(serviceArns) == 0 {
+					break
+				}
+
+				t := serviceArns
+				if len(t) > 10 {
+					t = serviceArns[:10]
+				}
+
+				describeinput := &ecs.DescribeServicesInput{
+					Cluster:  aws.String(cluster),
+					Services: t,
+				}
+
+				describeoutput, err := svc.DescribeServices(awsenv.EmptyContext, describeinput)
+				if len(serviceArns) > 10 {
+					serviceArns = serviceArns[10:]
+				} else {
+					serviceArns = []string{}
+				}
+
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+
+				for _, v := range describeoutput.Services {
+					t := time.Now()
+					if len(v.Deployments) > 0 && v.Deployments[0].UpdatedAt != nil {
+						t = *v.Deployments[0].UpdatedAt
+					}
+					entity := entity.EcsServiceEntity{
+						AccountId:      account.Id,
+						Cluster:        cluster,
+						ClusterArn:     *v.ClusterArn,
+						ServiceName:    *v.ServiceName,
+						ServiceNameArn: *v.ServiceArn,
+						RoleArn:        *v.RoleArn,
+						OperateAt:      t,
+					}
+
+					services = append(services, entity)
+				}
+			}
+		}
+	}
+
+	log.Println("get finish, count: ", len(services))
+	err := e.repository.BulkWrite(context.Background(), services)
+	log.Println("ecs write finish: ", err)
+}

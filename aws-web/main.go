@@ -4,13 +4,13 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
-	// "github.com/futugyousuzu/goproject/awsgolang/services"
+	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
@@ -56,6 +56,9 @@ func main() {
 
 	// parameterService := services.NewParameterService()
 	// parameterService.SyncAllParameter()
+
+	secService := services.NewEcsClusterService()
+	secService.SyncAllEcsServices()
 
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
@@ -106,7 +109,7 @@ func main() {
 	// ecs.ListServices()
 	// ecs.ListTaskDefinitions()
 	// ecs.ListTasks()
-	ecs.DescribeServices()
+	// ecs.DescribeServices()
 
 	// ssm.DescribeParameters()
 	// ssm.ListAssociations()
