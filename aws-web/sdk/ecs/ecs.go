@@ -232,6 +232,7 @@ func DescribeServices() {
 		Cluster:  aws.String(awsenv.ECSClusterName),
 		Services: []string{awsenv.ECSServiceName},
 	}
+	fmt.Println(awsenv.ECSServiceName)
 	output, err := svc.DescribeServices(awsenv.EmptyContext, input)
 	if err != nil {
 		fmt.Println(err)
