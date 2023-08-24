@@ -226,3 +226,21 @@ func ListTasks() {
 		fmt.Println(v)
 	}
 }
+
+func DescribeServices() {
+	input := &ecs.DescribeServicesInput{
+		Cluster:  aws.String(awsenv.ECSClusterName),
+		Services: []string{awsenv.ECSServiceName},
+	}
+	output, err := svc.DescribeServices(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range output.Services {
+		fmt.Print(*v.ClusterArn, " ", *v.ServiceName, " ", *v.RoleArn, " ", *v.ServiceArn, " ")
+		for _, vv := range v.Deployments {
+			fmt.Println(vv.UpdatedAt)
+		}
+	}
+}

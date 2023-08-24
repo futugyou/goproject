@@ -22,6 +22,7 @@ var (
 	Password               string
 	GroupName              string
 	ECSClusterName         string
+	ECSServiceName         string
 )
 
 func init() {
@@ -32,6 +33,7 @@ func init() {
 	Password = os.Getenv("IAM_USER_PASSWORD")
 	GroupName = os.Getenv("IAM_GROUP_NAME")
 	ECSClusterName = os.Getenv("ECS_CLUSTER_NAME")
+	ECSServiceName = os.Getenv("ECS_SERVICE_NAME")
 
 	var err error
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)
