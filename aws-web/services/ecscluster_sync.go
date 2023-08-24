@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -71,9 +72,11 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 					if len(v.Deployments) > 0 && v.Deployments[0].UpdatedAt != nil {
 						t = *v.Deployments[0].UpdatedAt
 					}
+
+					tmp := strings.Split(cluster, "/")
 					entity := entity.EcsServiceEntity{
 						AccountId:      account.Id,
-						Cluster:        cluster,
+						Cluster:        tmp[len(tmp)-1],
 						ClusterArn:     *v.ClusterArn,
 						ServiceName:    *v.ServiceName,
 						ServiceNameArn: *v.ServiceArn,

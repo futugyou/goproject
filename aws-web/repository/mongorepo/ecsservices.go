@@ -29,7 +29,7 @@ func (a *EcsServiceRepository) BulkWrite(ctx context.Context, entities []entity.
 			continue
 		}
 
-		filter := bson.D{{Key: "account_id", Value: e.AccountId}, {Key: "cluster", Value: e.Cluster}, {Key: "service_name", Value: e.ServiceName}}
+		filter := bson.D{{Key: "account_id", Value: e.AccountId}, {Key: "cluster_arn", Value: e.ClusterArn}, {Key: "service_name_arn", Value: e.ServiceNameArn}}
 		model := mongo.NewUpdateOneModel().
 			SetFilter(filter).
 			SetUpsert(true).
