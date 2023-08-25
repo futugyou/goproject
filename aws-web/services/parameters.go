@@ -155,7 +155,7 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailVie
 	}
 
 	// get parameter from aws
-	awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	details, err := a.getParametersDatail([]string{entity.Key})
 	if err != nil || len(details) == 0 {
 		return parameter
@@ -214,7 +214,7 @@ func (a *ParameterService) SyncParameterByID(id string) error {
 	}
 
 	// get parameter from aws
-	awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	details, err := a.getParametersDatail([]string{parameter.Key})
 	if err != nil || len(details) == 0 {
 		return errors.New("ssm not found")

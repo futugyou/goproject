@@ -239,9 +239,20 @@ func DescribeServices() {
 		return
 	}
 	for _, v := range output.Services {
-		fmt.Print(*v.ClusterArn, " ", *v.ServiceName, " ", *v.RoleArn, " ", *v.ServiceArn, " ")
+		fmt.Println(*v.ClusterArn, " ", *v.ServiceName, " ", *v.RoleArn, " ", *v.ServiceArn, " ")
 		for _, vv := range v.Deployments {
-			fmt.Println(vv.UpdatedAt)
+			fmt.Print("\t", vv.UpdatedAt, "\n")
 		}
+		for _, vv := range v.LoadBalancers {
+			fmt.Println(*vv.TargetGroupArn)
+		}
+
+		fmt.Println(v.NetworkConfiguration.AwsvpcConfiguration.SecurityGroups, v.NetworkConfiguration.AwsvpcConfiguration.Subnets)
+
+		for _, vv := range v.ServiceRegistries {
+			fmt.Println(*vv.RegistryArn)
+		}
+		fmt.Println(*v.TaskDefinition)
+		fmt.Println()
 	}
 }

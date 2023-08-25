@@ -21,7 +21,7 @@ func (a *ParameterService) SyncAllParameter() {
 	entities := make([]entity.ParameterEntity, 0)
 	logs := make([]entity.ParameterLogEntity, 0)
 	for _, account := range accounts {
-		awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		parameters, err := a.getAllParametersFromAWS()
 		if err != nil {
 			continue

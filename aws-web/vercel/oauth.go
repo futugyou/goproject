@@ -55,7 +55,7 @@ func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	err := awsenv.CfgForVercel(account.AccessKeyId, account.SecretAccessKey)
+	err := awsenv.CfgWithProfile(account.AccessKeyId, account.SecretAccessKey)
 	if err != nil {
 		w.Write([]byte(fmt.Sprintf("The AWS SECRET associated with the account {%s} is incorrect.", accountId)))
 		w.WriteHeader(400)

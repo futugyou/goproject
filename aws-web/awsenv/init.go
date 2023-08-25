@@ -11,18 +11,18 @@ import (
 )
 
 var (
-	EmptyContext           context.Context = context.Background()
-	Cfg                    aws.Config
-	CfgForVercel           func(key string, secret string) error
-	CfgForVercelWithRegion func(key string, secret string, region string) error
-	NamespaceId            string
-	NamespaceName          string
-	CloudMapServiceName    string
-	UserName               string
-	Password               string
-	GroupName              string
-	ECSClusterName         string
-	ECSServiceName         string
+	EmptyContext            context.Context = context.Background()
+	Cfg                     aws.Config
+	CfgWithProfile          func(key string, secret string) error
+	CfgWithProfileAndRegion func(key string, secret string, region string) error
+	NamespaceId             string
+	NamespaceName           string
+	CloudMapServiceName     string
+	UserName                string
+	Password                string
+	GroupName               string
+	ECSClusterName          string
+	ECSServiceName          string
 )
 
 func init() {
@@ -41,7 +41,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	CfgForVercel = func(key string, secret string) error {
+	CfgWithProfile = func(key string, secret string) error {
 		cfg, err := config.LoadDefaultConfig(context.TODO(),
 			config.WithCredentialsProvider(
 				credentials.NewStaticCredentialsProvider(key, secret, ""),
@@ -56,8 +56,8 @@ func init() {
 		return nil
 	}
 
-	CfgForVercelWithRegion = func(key string, secret string, region string) error {
-		err := CfgForVercel(key, secret)
+	CfgWithProfileAndRegion = func(key string, secret string, region string) error {
+		err := CfgWithProfile(key, secret)
 		if err != nil {
 			return err
 		}

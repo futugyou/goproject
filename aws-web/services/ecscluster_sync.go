@@ -18,7 +18,7 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 	accounts := accountService.GetAllAccounts()
 	services := make([]entity.EcsServiceEntity, 0)
 	for _, account := range accounts {
-		awsenv.CfgForVercelWithRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		svc := ecs.NewFromConfig(awsenv.Cfg)
 		clusterinput := &ecs.ListClustersInput{}
 		clusteroutput, err := svc.ListClusters(awsenv.EmptyContext, clusterinput)
