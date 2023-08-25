@@ -27,6 +27,6 @@ type EcsClusterDetailViewModel struct {
 	SecurityGroups    []string  `json:"security_groups,omitempty"`
 	Subnets           []string  `json:"subnets,omitempty"`
 	ServiceRegistries []string  `json:"service_registries,omitempty"`
-	TaskDefinitions   []string  `json:"task_definitions"`
+	TaskDefinitions   []string  `json:"task_definitions,omitempty"`
 	OperateAt         time.Time `json:"operate_At"`
 }
