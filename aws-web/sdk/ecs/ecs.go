@@ -1,6 +1,7 @@
 package ecs
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -200,7 +201,9 @@ func ListServices() {
 
 func ListTaskDefinitions() {
 	input := &ecs.ListTaskDefinitionsInput{
-		MaxResults: aws.Int32(100),
+		MaxResults:   aws.Int32(100),
+		FamilyPrefix: aws.String(awsenv.ECSServiceName),
+		Sort:         types.SortOrderDesc,
 	}
 	output, err := svc.ListTaskDefinitions(awsenv.EmptyContext, input)
 	if err != nil {
@@ -255,4 +258,17 @@ func DescribeServices() {
 		fmt.Println(*v.TaskDefinition)
 		fmt.Println()
 	}
+}
+
+func DescribeTaskDefinition2() {
+	input := &ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: aws.String(awsenv.ECSServiceName),
+	}
+	output, err := svc.DescribeTaskDefinition(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	data, _ := json.Marshal(output.TaskDefinition)
+	fmt.Println(string(data))
 }
