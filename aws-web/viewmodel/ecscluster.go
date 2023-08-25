@@ -30,3 +30,9 @@ type EcsClusterDetailViewModel struct {
 	TaskDefinitions   []string  `json:"task_definitions,omitempty"`
 	OperateAt         time.Time `json:"operate_At"`
 }
+
+type EcsTaskCompare struct {
+	Id            string `json:"Id"`
+	SourceTaskArn string `json:"source_task_arn"`
+	DestTaskArn   string `json:"dest_task_arn"`
+}

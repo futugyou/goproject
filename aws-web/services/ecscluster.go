@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -152,4 +153,37 @@ func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDe
 	result.TaskDefinitions = listTaskOutput.TaskDefinitionArns
 
 	return result, nil
+}
+
+func (e *EcsClusterService) CompareTaskDefinitions(compare model.EcsTaskCompare) ([]string, error) {
+	result := make([]string, 0)
+	entity, err := e.repository.GetByObjectId(context.Background(), compare.Id)
+	if err != nil {
+		log.Println(err)
+		return result, err
+	}
+
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(entity.AccountId)
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	data1 := describeTaskDefinition(compare.SourceTaskArn)
+	data2 := describeTaskDefinition(compare.DestTaskArn)
+	result = append(result, data1, data2)
+	return result, nil
+}
+
+func describeTaskDefinition(taskArn string) string {
+	svc := ecs.NewFromConfig(awsenv.Cfg)
+	input := &ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: aws.String(taskArn),
+	}
+
+	output, err := svc.DescribeTaskDefinition(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	data, _ := json.Marshal(output.TaskDefinition)
+	return string(data)
 }
