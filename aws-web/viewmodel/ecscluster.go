@@ -15,3 +15,18 @@ type EcsClusterViewModel struct {
 	AccountAlias string    `json:"account_alias"`
 	OperateAt    time.Time `json:"operate_At"`
 }
+
+type EcsClusterDetailViewModel struct {
+	ClusterName       string    `json:"cluster_name"`
+	ClusterArn        string    `json:"cluster_arn"`
+	Service           string    `json:"service"`
+	ServiceArn        string    `json:"service_arn"`
+	RoleArn           string    `json:"role_arn"`
+	AccountAlias      string    `json:"account_alias"`
+	LoadBalancers     []string  `json:"loadBalancers,omitempty"`
+	SecurityGroups    []string  `json:"security_groups,omitempty"`
+	Subnets           []string  `json:"subnets,omitempty"`
+	ServiceRegistries []string  `json:"service_registries,omitempty"`
+	TaskDefinitions   []string  `json:"task_definitions"`
+	OperateAt         time.Time `json:"operate_At"`
+}

@@ -3,9 +3,14 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
@@ -72,5 +77,79 @@ func (e *EcsClusterService) GetAllServices(paging core.Paging, filter model.EcsC
 
 		result = append(result, e)
 	}
+	return result, nil
+}
+
+func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDetailViewModel, error) {
+	// 1 data from mongo db
+	entity, err := e.repository.GetByObjectId(context.Background(), id)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(entity.AccountId)
+
+	result := &model.EcsClusterDetailViewModel{}
+	result.AccountAlias = account.Alias
+	result.ClusterArn = entity.ClusterArn
+	result.ClusterName = entity.Cluster
+	result.OperateAt = entity.OperateAt
+	result.Service = entity.ServiceName
+	result.ServiceArn = entity.ServiceNameArn
+	result.RoleArn = entity.RoleArn
+
+	// 2 data from aws cloud
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	svc := ecs.NewFromConfig(awsenv.Cfg)
+
+	describeInput := &ecs.DescribeServicesInput{
+		Cluster:  aws.String(entity.Cluster),
+		Services: []string{entity.ServiceName},
+	}
+
+	describeOutput, err := svc.DescribeServices(awsenv.EmptyContext, describeInput)
+	if err != nil || len(describeOutput.Services) == 0 {
+		return result, nil
+	}
+
+	service := describeOutput.Services[0]
+	if service.NetworkConfiguration != nil && service.NetworkConfiguration.AwsvpcConfiguration != nil {
+		result.SecurityGroups = service.NetworkConfiguration.AwsvpcConfiguration.SecurityGroups
+		result.Subnets = service.NetworkConfiguration.AwsvpcConfiguration.Subnets
+	}
+
+	loadBalancers := make([]string, 0)
+	fmt.Println(service.LoadBalancers)
+	for _, lb := range service.LoadBalancers {
+		if lb.TargetGroupArn != nil {
+			loadBalancers = append(loadBalancers, *lb.TargetGroupArn)
+		}
+	}
+	result.LoadBalancers = loadBalancers
+
+	serviceRegistries := make([]string, 0)
+	for _, sr := range service.ServiceRegistries {
+		if sr.RegistryArn != nil {
+			serviceRegistries = append(serviceRegistries, *sr.RegistryArn)
+		}
+	}
+	result.ServiceRegistries = serviceRegistries
+
+	listTaskInput := &ecs.ListTaskDefinitionsInput{
+		MaxResults:   aws.Int32(10),
+		FamilyPrefix: aws.String(entity.ServiceName),
+		Sort:         types.SortOrderDesc,
+	}
+
+	listTaskOutput, err := svc.ListTaskDefinitions(awsenv.EmptyContext, listTaskInput)
+	if err != nil {
+		log.Println(err)
+		return result, nil
+	}
+
+	result.TaskDefinitions = listTaskOutput.TaskDefinitionArns
+
 	return result, nil
 }
