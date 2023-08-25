@@ -158,7 +158,7 @@
 		},
 		{
 			"src": "/api/v1/ecsservices",
-			"dest": "/api/ecsservice_getall.go",
+			"dest": "/api/ecsservice.go?type=getall",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -173,7 +173,7 @@
 		},
 		{
 			"src": "/api/v1/ecsservices/(?<id>[^/]+)",
-			"dest": "/api/ecsservice_get.go?id=$id",
+			"dest": "/api/ecsservice.go?type=get&id=$id",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -188,7 +188,7 @@
 		},
 		{
 			"src": "/api/v1/ecsservices/compare",
-			"dest": "/api/ecsservice_compare.go",
+			"dest": "/api/ecsservice.go?type=compare",
 			"methods": [
 				"POST",
 				"OPTIONS"
