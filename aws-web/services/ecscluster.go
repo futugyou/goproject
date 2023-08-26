@@ -67,13 +67,14 @@ func (e *EcsClusterService) GetAllServices(paging core.Paging, filter model.EcsC
 			alias = accounts[idx].Alias
 		}
 		e := model.EcsClusterViewModel{
-			ClusterName:  entity.Cluster,
-			ClusterArn:   entity.ClusterArn,
-			Service:      entity.ServiceName,
-			ServiceArn:   entity.ServiceNameArn,
-			RoleArn:      entity.RoleArn,
-			AccountAlias: alias,
-			OperateAt:    entity.OperateAt,
+			Id:             entity.Id,
+			ClusterName:    entity.Cluster,
+			ClusterArn:     entity.ClusterArn,
+			ServiceName:    entity.ServiceName,
+			ServiceNameArn: entity.ServiceNameArn,
+			RoleArn:        entity.RoleArn,
+			AccountAlias:   alias,
+			OperateAt:      entity.OperateAt,
 		}
 
 		result = append(result, e)
@@ -94,6 +95,7 @@ func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDe
 
 	result := &model.EcsClusterDetailViewModel{}
 	result.AccountAlias = account.Alias
+	result.Id = entity.Id
 	result.ClusterArn = entity.ClusterArn
 	result.ClusterName = entity.Cluster
 	result.OperateAt = entity.OperateAt

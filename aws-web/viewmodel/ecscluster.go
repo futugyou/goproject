@@ -7,16 +7,18 @@ type EcsClusterFilter struct {
 }
 
 type EcsClusterViewModel struct {
-	ClusterName  string    `json:"cluster_name"`
-	ClusterArn   string    `json:"cluster_arn"`
-	Service      string    `json:"service"`
-	ServiceArn   string    `json:"service_arn"`
-	RoleArn      string    `json:"role_arn"`
-	AccountAlias string    `json:"account_alias"`
-	OperateAt    time.Time `json:"operate_At"`
+	Id             string    `json:"id"`
+	ClusterName    string    `json:"cluster_name"`
+	ClusterArn     string    `json:"cluster_arn"`
+	ServiceName    string    `json:"service_name"`
+	ServiceNameArn string    `json:"service_name_arn"`
+	RoleArn        string    `json:"role_arn"`
+	AccountAlias   string    `json:"account_alias"`
+	OperateAt      time.Time `json:"operate_At"`
 }
 
 type EcsClusterDetailViewModel struct {
+	Id                string    `json:"id"`
 	ClusterName       string    `json:"cluster_name"`
 	ClusterArn        string    `json:"cluster_arn"`
 	Service           string    `json:"service"`
