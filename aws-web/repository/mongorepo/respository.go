@@ -166,6 +166,14 @@ func (s *MongoRepository[E, K]) Paging(ctx context.Context, page core.Paging) ([
 	filter := bson.D{}
 	var skip int64 = (page.Page - 1) * page.Limit
 	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
+	if len(page.SortField) > 0 {
+		if page.Direct == core.ASC {
+			op.SetSort(bson.D{{Key: page.SortField, Value: 1}})
+		} else {
+			op.SetSort(bson.D{{Key: page.SortField, Value: -1}})
+		}
+	}
+
 	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		log.Println(err)

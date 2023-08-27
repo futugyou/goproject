@@ -43,6 +43,7 @@ func (a *EcsServiceRepository) BulkWrite(ctx context.Context, entities []entity.
 
 	return a.BulkOperate(ctx, models)
 }
+
 func (a *EcsServiceRepository) FilterPaging(ctx context.Context, page core.Paging, filter entity.EcsServiceSearchFilter) ([]*entity.EcsServiceEntity, error) {
 	result := make([]*entity.EcsServiceEntity, 0)
 	entity := new(entity.EcsServiceEntity)
@@ -62,7 +63,18 @@ func (a *EcsServiceRepository) FilterPaging(ctx context.Context, page core.Pagin
 	}
 
 	var skip int64 = (page.Page - 1) * page.Limit
-	op := options.Find().SetLimit(page.Limit).SetSkip(skip).SetSort(bson.D{{Key: "operate_at", Value: 1}})
+	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
+
+	if len(page.SortField) > 0 {
+		if page.Direct == core.ASC {
+			op.SetSort(bson.D{{Key: page.SortField, Value: 1}})
+		} else {
+			op.SetSort(bson.D{{Key: page.SortField, Value: -1}})
+		}
+	} else {
+		op.SetSort(bson.D{{Key: "operate_at", Value: -1}})
+	}
+
 	cursor, err := c.Find(ctx, bsonfilter, op)
 	if err != nil {
 		log.Println(err)

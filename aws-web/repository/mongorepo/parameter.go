@@ -25,7 +25,8 @@ func (a *ParameterRepository) GetParametersByAccountId(ctx context.Context, acco
 	parameter := new(entity.ParameterEntity)
 	c := a.Client.Database(a.DBName).Collection(parameter.GetType())
 	filter := bson.D{{Key: "account_id", Value: accountId}}
-	cursor, err := c.Find(ctx, filter)
+	op := options.Find().SetSort(bson.D{{Key: "operate_at", Value: -1}})
+	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -48,7 +49,8 @@ func (a *ParameterRepository) GetParametersByAccountIdAndRegion(ctx context.Cont
 	parameter := new(entity.ParameterEntity)
 	c := a.Client.Database(a.DBName).Collection(parameter.GetType())
 	filter := bson.D{{Key: "account_id", Value: accountId}, {Key: "region", Value: region}}
-	cursor, err := c.Find(ctx, filter)
+	op := options.Find().SetSort(bson.D{{Key: "operate_at", Value: -1}})
+	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -163,7 +165,7 @@ func (a *ParameterRepository) FilterPaging(ctx context.Context, page core.Paging
 	}
 
 	var skip int64 = (page.Page - 1) * page.Limit
-	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
+	op := options.Find().SetLimit(page.Limit).SetSkip(skip).SetSort(bson.D{{Key: "operate_at", Value: -1}})
 	cursor, err := c.Find(ctx, bsonfilter, op)
 	if err != nil {
 		log.Println(err)
@@ -188,7 +190,7 @@ func (a *ParameterLogRepository) GetParameterLogs(ctx context.Context, accountId
 	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
 
 	filter := bson.D{{Key: "account_id", Value: accountId}, {Key: "region", Value: region}, {Key: "key", Value: key}}
-	op := options.Find().SetSort(bson.D{{Key: "version", Value: 1}})
+	op := options.Find().SetSort(bson.D{{Key: "version", Value: -1}})
 	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		log.Println(err)
