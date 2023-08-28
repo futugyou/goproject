@@ -3,8 +3,11 @@ package main
 import (
 	_ "github.com/joho/godotenv/autoload"
 
+	"flag"
+
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
-	// "github.com/futugyousuzu/goproject/awsgolang/services"
+	"github.com/futugyousuzu/goproject/awsgolang/services"
+
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
@@ -18,8 +21,17 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
 )
 
+var (
+	callfromgithubaction = flag.String("callfromgithubaction", "", "call from github action")
+)
+
 func main() {
 	defer awsenv.DeleteAll()
+
+	if callfromgithubaction != nil && *callfromgithubaction == "true" {
+		SyncData()
+		return
+	}
 
 	// regionService := services.NewRegionService()
 	// regions, _ := regionService.GetRegions()
@@ -170,4 +182,12 @@ func main() {
 
 	// efs.DescribeFileSystems()
 	// efs.DescribeAccessPoints()
+}
+
+func SyncData() {
+	parameterService := services.NewParameterService()
+	parameterService.SyncAllParameter()
+
+	secService := services.NewEcsClusterService()
+	secService.SyncAllEcsServices()
 }

@@ -1,0 +1,18 @@
+name: syncdata
+
+on:
+ workflow_dispatch:
+ schedule:
+ - cron: '30 18 * * *'
+jobs: 
+  syncdata-action:
+    runs-on: ubuntu-latest 
+    steps:
+      - uses: actions/checkout@v3 
+          
+      - uses: ./aws-web@master
+        id: syncdata
+        with:
+          call: 'true'
+          mongodb_url: '${{ secrets.MONGODBURL }}' 
+          db_name: '${{ secrets.MONGODBNAME }}' 

@@ -1,0 +1,22 @@
+name: "syncdata"
+description: "sync data for aws"
+
+inputs:
+  call:
+    description: "call from github action"
+    required: true
+  mongodb_url:
+    description: "mongodb url"
+    required: true
+  db_name:
+    description: "mongodb name"
+    required: true
+
+runs:
+  using: docker
+  image: Dockerfile 
+  env:
+    db_name: "${{ inputs.db_name }}"
+    mongodb_url: "${{ inputs.mongodb_url }}"
+  args:
+  - "-callfromgithubaction=${{ inputs.call }}"
