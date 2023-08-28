@@ -1,9 +1,10 @@
 package main
 
 import (
-	_ "github.com/joho/godotenv/autoload"
+	"fmt"
+	"os"
 
-	"flag"
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
@@ -21,17 +22,15 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
 )
 
-var (
-	call = flag.String("call", "", "call from github action")
-)
-
 func main() {
 	defer awsenv.DeleteAll()
 
-	if call != nil && *call == "callfromgithubaction" {
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
 		SyncData()
 		return
 	}
+
+	fmt.Println("not from github action")
 
 	// regionService := services.NewRegionService()
 	// regions, _ := regionService.GetRegions()
