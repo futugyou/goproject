@@ -17,7 +17,7 @@
 		},
 		{
 			"src": "/api/v1/accounts",
-			"dest": "/api/account_getall.go",
+			"dest": "/api/account.go?type=getall",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -32,7 +32,7 @@
 		},
 		{
 			"src": "/api/v1/accounts/(?<id>[^/]+)",
-			"dest": "/api/account_get.go?id=$id",
+			"dest": "/api/account.go?id=$id&type=get",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -47,7 +47,7 @@
 		},
 		{
 			"src": "/api/v1/accounts",
-			"dest": "/api/account_create.go",
+			"dest": "/api/account.go?type=create",
 			"methods": [
 				"POST",
 				"OPTIONS"
@@ -62,7 +62,7 @@
 		},
 		{
 			"src": "/api/v1/accounts",
-			"dest": "/api/account_update.go",
+			"dest": "/api/account.go?type=update",
 			"methods": [
 				"PUT",
 				"OPTIONS"
@@ -77,7 +77,7 @@
 		},
 		{
 			"src": "/api/v1/accounts",
-			"dest": "/api/account_delete.go",
+			"dest": "/api/account.go?type=delete",
 			"methods": [
 				"DELETE",
 				"OPTIONS"
@@ -92,7 +92,7 @@
 		},
 		{
 			"src": "/api/v1/parameters",
-			"dest": "/api/parameter_getall.go",
+			"dest": "/api/parameter.go?type=getall",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -107,7 +107,7 @@
 		},
 		{
 			"src": "/api/v1/parameters/compare",
-			"dest": "/api/parameter_compare.go",
+			"dest": "/api/parameter.go?type=compare",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -122,7 +122,7 @@
 		},
 		{
 			"src": "/api/v1/parameters/(?<id>[^/]+)",
-			"dest": "/api/parameter_get.go?id=$id",
+			"dest": "/api/parameter.go?type=get&id=$id",
 			"methods": [
 				"GET",
 				"OPTIONS"
@@ -137,7 +137,7 @@
 		},
 		{
 			"src": "/api/v1/parameters/sync",
-			"dest": "/api/parameter_sync.go",
+			"dest": "/api/parameter.go?type=sync",
 			"methods": [
 				"POST",
 				"OPTIONS"
