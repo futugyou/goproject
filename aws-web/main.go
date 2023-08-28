@@ -22,13 +22,13 @@ import (
 )
 
 var (
-	callfromgithubaction = flag.String("callfromgithubaction", "", "call from github action")
+	call = flag.String("call", "", "call from github action")
 )
 
 func main() {
 	defer awsenv.DeleteAll()
 
-	if callfromgithubaction != nil && *callfromgithubaction == "true" {
+	if call != nil && *call == "callfromgithubaction" {
 		SyncData()
 		return
 	}

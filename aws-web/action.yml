@@ -19,4 +19,4 @@ runs:
     db_name: "${{ inputs.db_name }}"
     mongodb_url: "${{ inputs.mongodb_url }}"
   args:
-  - "-callfromgithubaction=${{ inputs.call }}"
+  - "-call=${{ inputs.call }}"

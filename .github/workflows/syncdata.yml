@@ -13,6 +13,6 @@ jobs:
       - uses: futugyou/goproject/aws-web@master
         id: syncdata
         with:
-          call: 'true'
+          call: 'callfromgithubaction'
           mongodb_url: '${{ secrets.MONGODBURL }}' 
           db_name: '${{ secrets.MONGODBNAME }}' 
