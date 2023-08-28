@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3 
           
-      - uses: ./aws-web@master
+      - uses: futugyou/goproject/aws-web@master
         id: syncdata
         with:
           call: 'true'
