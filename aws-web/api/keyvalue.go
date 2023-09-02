@@ -32,32 +32,32 @@ func KeyValue(w http.ResponseWriter, r *http.Request) {
 }
 
 func createKeyValue(w http.ResponseWriter, r *http.Request) {
-	var KeyValue model.KeyValue
+	var keyValue model.KeyValue
 
-	err := json.NewDecoder(r.Body).Decode(&KeyValue)
+	err := json.NewDecoder(r.Body).Decode(&keyValue)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	keyValueService := services.NewKeyValueService()
-	keyValueService.CreateKeyValue(KeyValue.Key, KeyValue.Value)
+	keyValueService.CreateKeyValue(keyValue.Key, keyValue.Value)
 	w.WriteHeader(200)
 }
 
 func getKeyValue(w http.ResponseWriter, r *http.Request) {
 	keyValueService := services.NewKeyValueService()
 	key := r.URL.Query().Get("key")
-	KeyValue := keyValueService.GetValueByKey(key)
-	body, _ := json.Marshal(KeyValue)
+	keyValue := keyValueService.GetValueByKey(key)
+	body, _ := json.Marshal(keyValue)
 	w.Write(body)
 	w.WriteHeader(200)
 }
 
 func getAllKeyValue(w http.ResponseWriter, r *http.Request) {
 	keyValueService := services.NewKeyValueService()
-	KeyValues := keyValueService.GetAllKeyValues()
-	body, _ := json.Marshal(KeyValues)
+	keyValues := keyValueService.GetAllKeyValues()
+	body, _ := json.Marshal(keyValues)
 	w.Write(body)
 	w.WriteHeader(200)
 }
