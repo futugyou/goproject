@@ -34,7 +34,7 @@ func (a *KeyValueService) GetAllKeyValues() []model.KeyValue {
 
 	for _, entity := range entities {
 		KeyValues = append(KeyValues, model.KeyValue{
-			Key:   entity.Key,
+			Key:   entity.Id,
 			Value: entity.Value,
 		})
 	}
@@ -43,22 +43,22 @@ func (a *KeyValueService) GetAllKeyValues() []model.KeyValue {
 }
 
 func (a *KeyValueService) GetValueByKey(key string) *model.KeyValue {
-	keyvalue, err := a.repository.GetValueByKey(context.Background(), key)
+	keyvalue, err := a.repository.Get(context.Background(), key)
 	if err != nil {
 		return nil
 	}
 
 	return &model.KeyValue{
-		Key:   keyvalue.Key,
+		Key:   keyvalue.Id,
 		Value: keyvalue.Value,
 	}
 }
 
 func (a *KeyValueService) CreateKeyValue(key string, value string) {
-	keyvalue, err := a.repository.GetValueByKey(context.Background(), key)
+	keyvalue, err := a.repository.Get(context.Background(), key)
 	if err != nil {
 		keyvalue = &entity.KeyValueEntity{
-			Key:   key,
+			Id:    key,
 			Value: value,
 		}
 		a.repository.Insert(context.Background(), *keyvalue)

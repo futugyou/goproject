@@ -8,13 +8,12 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
-
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
@@ -71,6 +70,11 @@ func main() {
 	// secService := services.NewEcsClusterService()
 	// secService.SyncAllEcsServices()
 
+	keyService := services.NewKeyValueService()
+	keyService.CreateKeyValue("key", "value")
+	fmt.Println(keyService.GetValueByKey("key"))
+	fmt.Println(keyService.GetAllKeyValues())
+
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()
@@ -121,7 +125,7 @@ func main() {
 	// ecs.ListTaskDefinitions()
 	// ecs.ListTasks()
 	// ecs.DescribeServices()
-	ecs.DescribeTaskDefinition2()
+	// ecs.DescribeTaskDefinition2()
 
 	// ssm.DescribeParameters()
 	// ssm.ListAssociations()
