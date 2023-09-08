@@ -190,7 +190,7 @@ func (a *ParameterLogRepository) GetParameterLogs(ctx context.Context, accountId
 	c := a.Client.Database(a.DBName).Collection((*entity).GetType())
 
 	filter := bson.D{{Key: "account_id", Value: accountId}, {Key: "region", Value: region}, {Key: "key", Value: key}}
-	op := options.Find().SetSort(bson.D{{Key: "version", Value: -1}})
+	op := options.Find().SetSort(bson.D{{Key: "operate_at", Value: -1}})
 	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		log.Println(err)
