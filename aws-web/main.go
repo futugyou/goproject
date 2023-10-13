@@ -7,6 +7,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
@@ -70,10 +71,10 @@ func main() {
 	// secService := services.NewEcsClusterService()
 	// secService.SyncAllEcsServices()
 
-	keyService := services.NewKeyValueService()
-	keyService.CreateKeyValue("key", "value")
-	fmt.Println(keyService.GetValueByKey("key"))
-	fmt.Println(keyService.GetAllKeyValues())
+	// keyService := services.NewKeyValueService()
+	// keyService.CreateKeyValue("key", "value")
+	// fmt.Println(keyService.GetValueByKey("key"))
+	// fmt.Println(keyService.GetAllKeyValues())
 
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
@@ -185,6 +186,11 @@ func main() {
 
 	// efs.DescribeFileSystems()
 	// efs.DescribeAccessPoints()
+
+	// config.DeliverConfigSnapshot()
+	// config.DescribeConfigRules()
+	// config.DescribeConfigurationRecorders()
+	config.DeleteConfigurationRecorder()
 }
 
 func SyncData() {
