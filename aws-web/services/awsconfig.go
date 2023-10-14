@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"time"
 
 	"log"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
 
 type AwsConfigService struct {
@@ -39,7 +39,7 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	defer jsonFile.Close()
 	byteValue, _ := io.ReadAll(jsonFile)
 
-	var datas []AwsConfigFileData
+	var datas []model.AwsConfigFileData
 
 	json.Unmarshal(byteValue, &datas)
 
@@ -75,7 +75,7 @@ func getDataString(con interface{}) string {
 // func getVpc(con interface{}) string {
 
 // }
-func createAwsConfigEntity(data AwsConfigFileData) entity.AwsConfigEntity {
+func createAwsConfigEntity(data model.AwsConfigFileData) entity.AwsConfigEntity {
 	config := entity.AwsConfigEntity{
 		ID:                           getId(data.ARN, data.ResourceID),
 		Label:                        data.ResourceName,
@@ -111,55 +111,8 @@ func createAwsConfigEntity(data AwsConfigFileData) entity.AwsConfigEntity {
 	return config
 }
 
-type Relationship struct {
-	ResourceID   string `json:"resourceId"`
-	ResourceType string `json:"resourceType"`
-	Name         string `json:"name"`
-}
-
-type Configuration struct {
-	CertificateArn          string    `json:"certificateArn"`
-	DomainName              string    `json:"domainName"`
-	SubjectAlternativeNames []string  `json:"subjectAlternativeNames"`
-	Serial                  string    `json:"serial"`
-	Subject                 string    `json:"subject"`
-	Issuer                  string    `json:"issuer"`
-	CreatedAt               time.Time `json:"createdAt"`
-	IssuedAt                time.Time `json:"issuedAt"`
-	Status                  string    `json:"status"`
-	NotBefore               time.Time `json:"notBefore"`
-	NotAfter                time.Time `json:"notAfter"`
-	KeyAlgorithm            string    `json:"keyAlgorithm"`
-	SignatureAlgorithm      string    `json:"signatureAlgorithm"`
-	InUseBy                 []string  `json:"inUseBy"`
-	Type                    string    `json:"type"`
-	SubnetIds               []string  `json:"subnetIds"`
-	SecurityGroups          []string  `json:"securityGroups"`
-}
-
-type AwsConfigFileData struct {
-	RelatedEvents                []string          `json:"relatedEvents"`
-	Relationships                []Relationship    `json:"relationships"`
-	Configuration                Configuration     `json:"configuration"`
-	SupplementaryConfiguration   interface{}       `json:"supplementaryConfiguration"`
-	Tags                         map[string]string `json:"tags"`
-	ConfigurationItemVersion     string            `json:"configurationItemVersion"`
-	ConfigurationItemCaptureTime time.Time         `json:"configurationItemCaptureTime"`
-	ConfigurationStateID         int64             `json:"configurationStateId"`
-	AwsAccountID                 string            `json:"awsAccountId"`
-	ConfigurationItemStatus      string            `json:"configurationItemStatus"`
-	ResourceType                 string            `json:"resourceType"`
-	ResourceID                   string            `json:"resourceId"`
-	ResourceName                 string            `json:"resourceName"`
-	ARN                          string            `json:"ARN"`
-	AwsRegion                    string            `json:"awsRegion"`
-	AvailabilityZone             string            `json:"availabilityZone"`
-	ConfigurationStateMd5Hash    string            `json:"configurationStateMd5Hash"`
-	ResourceCreationTime         time.Time         `json:"resourceCreationTime"`
-}
-
-func filterResource(datas []AwsConfigFileData) []AwsConfigFileData {
-	resuls := make([]AwsConfigFileData, 0)
+func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
+	resuls := make([]model.AwsConfigFileData, 0)
 	for _, d := range datas {
 		if d.ResourceType == "AWS::EC2::VPCEndpoint" ||
 			d.ResourceType == "AWS::EC2::VPC" ||

@@ -23,6 +23,7 @@ var (
 	GroupName               string
 	ECSClusterName          string
 	ECSServiceName          string
+	AwsConfigFilePath       string
 )
 
 func init() {
@@ -34,6 +35,7 @@ func init() {
 	GroupName = os.Getenv("IAM_GROUP_NAME")
 	ECSClusterName = os.Getenv("ECS_CLUSTER_NAME")
 	ECSServiceName = os.Getenv("ECS_SERVICE_NAME")
+	AwsConfigFilePath = os.Getenv("AWS_CONFIG_FILE_PATH")
 
 	var err error
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)

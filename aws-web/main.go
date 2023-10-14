@@ -7,8 +7,8 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
@@ -190,7 +190,9 @@ func main() {
 	// config.DeliverConfigSnapshot()
 	// config.DescribeConfigRules()
 	// config.DescribeConfigurationRecorders()
-	config.DeleteConfigurationRecorder()
+	// config.DeleteConfigurationRecorder()
+	config := services.NewAwsConfigService()
+	config.SyncFileResources(awsenv.AwsConfigFilePath)
 }
 
 func SyncData() {
