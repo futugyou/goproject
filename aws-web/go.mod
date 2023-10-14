@@ -9,9 +9,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.24.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.19.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.18.0
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.124.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.125.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.18.0
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.30.2
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.30.3
 	github.com/aws/aws-sdk-go-v2/service/efs v1.19.2
 	github.com/aws/aws-sdk-go-v2/service/iam v1.21.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.30.0
@@ -24,7 +24,7 @@ require (
 	go.mongodb.org/mongo-driver v1.12.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.37.0 // indirect
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.37.0
 
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
@@ -47,7 +47,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/klauspost/compress v1.17.0 // indirect
+	github.com/klauspost/compress v1.17.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.1 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.4 // indirect
