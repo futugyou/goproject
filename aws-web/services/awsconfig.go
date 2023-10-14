@@ -111,85 +111,51 @@ func createAwsConfigEntity(data AwsConfigFileData) entity.AwsConfigEntity {
 	return config
 }
 
+type Relationship struct {
+	ResourceID   string `json:"resourceId"`
+	ResourceType string `json:"resourceType"`
+	Name         string `json:"name"`
+}
+
+type Configuration struct {
+	CertificateArn          string    `json:"certificateArn"`
+	DomainName              string    `json:"domainName"`
+	SubjectAlternativeNames []string  `json:"subjectAlternativeNames"`
+	Serial                  string    `json:"serial"`
+	Subject                 string    `json:"subject"`
+	Issuer                  string    `json:"issuer"`
+	CreatedAt               time.Time `json:"createdAt"`
+	IssuedAt                time.Time `json:"issuedAt"`
+	Status                  string    `json:"status"`
+	NotBefore               time.Time `json:"notBefore"`
+	NotAfter                time.Time `json:"notAfter"`
+	KeyAlgorithm            string    `json:"keyAlgorithm"`
+	SignatureAlgorithm      string    `json:"signatureAlgorithm"`
+	InUseBy                 []string  `json:"inUseBy"`
+	Type                    string    `json:"type"`
+	SubnetIds               []string  `json:"subnetIds"`
+	SecurityGroups          []string  `json:"securityGroups"`
+}
+
 type AwsConfigFileData struct {
-	RelatedEvents []string `json:"relatedEvents"`
-	Relationships []struct {
-		ResourceID   string `json:"resourceId"`
-		ResourceType string `json:"resourceType"`
-		Name         string `json:"name"`
-	} `json:"relationships"`
-	Configuration struct {
-		CertificateArn          string   `json:"certificateArn"`
-		DomainName              string   `json:"domainName"`
-		SubjectAlternativeNames []string `json:"subjectAlternativeNames"`
-		DomainValidationOptions []struct {
-			DomainName       string `json:"domainName"`
-			ValidationDomain string `json:"validationDomain"`
-			ValidationStatus string `json:"validationStatus"`
-			ResourceRecord   struct {
-				Name  string `json:"name"`
-				Type  string `json:"type"`
-				Value string `json:"value"`
-			} `json:"resourceRecord"`
-			ValidationMethod string `json:"validationMethod"`
-		} `json:"domainValidationOptions"`
-		Serial             string    `json:"serial"`
-		Subject            string    `json:"subject"`
-		Issuer             string    `json:"issuer"`
-		CreatedAt          time.Time `json:"createdAt"`
-		IssuedAt           time.Time `json:"issuedAt"`
-		Status             string    `json:"status"`
-		NotBefore          time.Time `json:"notBefore"`
-		NotAfter           time.Time `json:"notAfter"`
-		KeyAlgorithm       string    `json:"keyAlgorithm"`
-		SignatureAlgorithm string    `json:"signatureAlgorithm"`
-		InUseBy            []string  `json:"inUseBy"`
-		Type               string    `json:"type"`
-		RenewalSummary     struct {
-			RenewalStatus           string `json:"renewalStatus"`
-			DomainValidationOptions []struct {
-				DomainName       string `json:"domainName"`
-				ValidationDomain string `json:"validationDomain"`
-				ValidationStatus string `json:"validationStatus"`
-				ResourceRecord   struct {
-					Name  string `json:"name"`
-					Type  string `json:"type"`
-					Value string `json:"value"`
-				} `json:"resourceRecord"`
-				ValidationMethod string `json:"validationMethod"`
-			} `json:"domainValidationOptions"`
-			UpdatedAt time.Time `json:"updatedAt"`
-		} `json:"renewalSummary"`
-		KeyUsages []struct {
-			Name string `json:"name"`
-		} `json:"keyUsages"`
-		ExtendedKeyUsages []struct {
-			Name string `json:"name"`
-			OID  string `json:"oID"`
-		} `json:"extendedKeyUsages"`
-		RenewalEligibility string `json:"renewalEligibility"`
-		Options            struct {
-			CertificateTransparencyLoggingPreference string `json:"certificateTransparencyLoggingPreference"`
-		} `json:"options"`
-	} `json:"configuration"`
-	SupplementaryConfiguration struct {
-		Tags []interface{} `json:"Tags"`
-	} `json:"supplementaryConfiguration"`
-	Tags struct {
-	} `json:"tags"`
-	ConfigurationItemVersion     string    `json:"configurationItemVersion"`
-	ConfigurationItemCaptureTime time.Time `json:"configurationItemCaptureTime"`
-	ConfigurationStateID         int64     `json:"configurationStateId"`
-	AwsAccountID                 string    `json:"awsAccountId"`
-	ConfigurationItemStatus      string    `json:"configurationItemStatus"`
-	ResourceType                 string    `json:"resourceType"`
-	ResourceID                   string    `json:"resourceId"`
-	ResourceName                 string    `json:"resourceName"`
-	ARN                          string    `json:"ARN"`
-	AwsRegion                    string    `json:"awsRegion"`
-	AvailabilityZone             string    `json:"availabilityZone"`
-	ConfigurationStateMd5Hash    string    `json:"configurationStateMd5Hash"`
-	ResourceCreationTime         time.Time `json:"resourceCreationTime"`
+	RelatedEvents                []string          `json:"relatedEvents"`
+	Relationships                []Relationship    `json:"relationships"`
+	Configuration                Configuration     `json:"configuration"`
+	SupplementaryConfiguration   interface{}       `json:"supplementaryConfiguration"`
+	Tags                         map[string]string `json:"tags"`
+	ConfigurationItemVersion     string            `json:"configurationItemVersion"`
+	ConfigurationItemCaptureTime time.Time         `json:"configurationItemCaptureTime"`
+	ConfigurationStateID         int64             `json:"configurationStateId"`
+	AwsAccountID                 string            `json:"awsAccountId"`
+	ConfigurationItemStatus      string            `json:"configurationItemStatus"`
+	ResourceType                 string            `json:"resourceType"`
+	ResourceID                   string            `json:"resourceId"`
+	ResourceName                 string            `json:"resourceName"`
+	ARN                          string            `json:"ARN"`
+	AwsRegion                    string            `json:"awsRegion"`
+	AvailabilityZone             string            `json:"availabilityZone"`
+	ConfigurationStateMd5Hash    string            `json:"configurationStateMd5Hash"`
+	ResourceCreationTime         time.Time         `json:"resourceCreationTime"`
 }
 
 func filterResource(datas []AwsConfigFileData) []AwsConfigFileData {
