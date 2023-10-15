@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
+	"github.com/google/uuid"
 )
 
 type AwsConfigFileData struct {
@@ -57,7 +58,7 @@ func getDataString(con interface{}) string {
 	}
 }
 
-func (data *AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
+func (data AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
 	configuration := getDataString(data.Configuration)
 	name := getName(data.ResourceName, data.Tags)
 	vpcid, subnetId, subnetIds, securityGroups := getVpcInfo(data.ResourceType, configuration)
@@ -86,6 +87,25 @@ func (data *AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
 		SecurityGroups:               securityGroups,
 	}
 	return config
+}
+
+func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity() []entity.AwsConfigRelationshipEntity {
+
+	lists := make([]entity.AwsConfigRelationshipEntity, 0)
+	for _, ship := range data.Relationships {
+		entity := entity.AwsConfigRelationshipEntity{
+			ID:          uuid.NewString(),
+			SourceID:    data.ResourceID,
+			SourceLabel: data.ResourceName,
+			Label:       ship.Name,
+			TargetID:    ship.ResourceID,
+			TargetLabel: ship.ResourceName,
+		}
+
+		lists = append(lists, entity)
+	}
+
+	return lists
 }
 
 func getVpcInfo(resourceType string, configuration string) (vpcid string, subnetId string, subnetIds []string, securityGroups []string) {

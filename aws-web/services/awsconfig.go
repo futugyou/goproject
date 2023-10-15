@@ -49,14 +49,23 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 
 	datas = filterResource(datas)
 	configs := make([]entity.AwsConfigEntity, 0)
+	ships := make([]entity.AwsConfigRelationshipEntity, 0)
 
 	for _, data := range datas {
 		config := data.CreateAwsConfigEntity()
 		configs = append(configs, config)
+		ship := data.CreateAwsConfigRelationshipEntity()
+		if len(ship) > 0 {
+			ships = append(ships, ship...)
+		}
 	}
 
 	for _, v := range configs {
 		log.Println(v.VpcID, v.SubnetID, v.SubnetIds, v.SecurityGroups)
+	}
+	log.Println()
+	for _, v := range ships {
+		log.Println(v.ID)
 	}
 }
 
