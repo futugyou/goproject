@@ -53,7 +53,8 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		config := createAwsConfigEntity(data)
 		configs = append(configs, config)
 	}
-	log.Println(len(configs))
+
+	log.Println(configs[1].SubnetID)
 }
 
 func getId(arn string, resourceID string) string {
@@ -72,10 +73,8 @@ func getDataString(con interface{}) string {
 	}
 }
 
-// func getVpc(con interface{}) string {
-
-// }
 func createAwsConfigEntity(data model.AwsConfigFileData) entity.AwsConfigEntity {
+	vpcid, subnetId, subnetIds := getVpcInfo(data.ResourceType, data.Configuration)
 	config := entity.AwsConfigEntity{
 		ID:                           getId(data.ARN, data.ResourceID),
 		Label:                        data.ResourceName,
@@ -93,22 +92,19 @@ func createAwsConfigEntity(data model.AwsConfigFileData) entity.AwsConfigEntity 
 		ResourceType:                 data.ResourceType,
 		Tags:                         getDataString(data.Tags),
 		Version:                      data.ConfigurationItemVersion,
-		// VpcID:                        getVpc(data),
-
-		// VpcID                        string      `bson:"vpcId"`
-		// SubnetID                     string      `bson:"subnetId"`
-		// SubnetIds                    []string    `bson:"subnetIds"`
-		// ResourceValue                interface{} `bson:"resourceValue"`
-		// State                        interface{} `bson:"state"`
-		// Private                      interface{} `bson:"private"`
-		// LoggedInURL                  string      `bson:"loggedInURL"`
-		// LoginURL                     string      `bson:"loginURL"`
-		// Title                        string      `bson:"title"`
-		// DBInstanceStatus             string      `bson:"dBInstanceStatus"`
-		// Statement                    string      `bson:"statement"`
-		// InstanceType                 string      `bson:"instanceType"`
+		Title:                        data.ResourceName,
+		VpcID:                        vpcid,
+		SubnetID:                     subnetId,
+		SubnetIds:                    subnetIds,
 	}
 	return config
+}
+
+func getVpcInfo(resourceType string, configuration interface{}) (vpcid string, subnetId string, subnetIds []string) {
+	vpcid = ""
+	subnetId = ""
+	subnetIds = make([]string, 0)
+	return
 }
 
 func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
@@ -130,7 +126,7 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::SNS::Topic" ||
 			d.ResourceType == "AWS::ECS::Cluster" ||
 			d.ResourceType == "AWS::IAM::Group" ||
-			d.ResourceType == "AWS::ElasticLoadBalancingV2::Listener" ||
+			// d.ResourceType == "AWS::ElasticLoadBalancingV2::Listener" ||
 			d.ResourceType == "AWS::IAM::User" ||
 			d.ResourceType == "AWS::EC2::SecurityGroup" ||
 			d.ResourceType == "AWS::EFS::AccessPoint" ||

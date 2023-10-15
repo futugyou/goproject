@@ -24,6 +24,7 @@ type AwsConfigFileData struct {
 
 type Relationship struct {
 	ResourceID   string `json:"resourceId"`
+	ResourceName string `json:"resourceName"`
 	ResourceType string `json:"resourceType"`
 	Name         string `json:"name"`
 }
