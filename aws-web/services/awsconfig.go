@@ -65,7 +65,7 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	}
 	log.Println()
 	for _, v := range ships {
-		log.Println(v.ID)
+		log.Println(v.Label)
 	}
 }
 
