@@ -1,6 +1,11 @@
 package viewmodel
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
+)
 
 type AwsConfigFileData struct {
 	RelatedEvents                []string          `json:"relatedEvents"`
@@ -20,6 +25,206 @@ type AwsConfigFileData struct {
 	AvailabilityZone             string            `json:"availabilityZone"`
 	ConfigurationStateMd5Hash    string            `json:"configurationStateMd5Hash"`
 	ResourceCreationTime         time.Time         `json:"resourceCreationTime"`
+}
+
+func getId(arn string, resourceID string) string {
+	if len(arn) == 0 {
+		return resourceID
+	}
+	return arn
+}
+
+func getName(resourceName string, tags map[string]string) string {
+	if len(tags) > 0 {
+		if n, ok := tags["Name"]; ok && len(n) > 0 {
+			return n
+		}
+	}
+
+	if len(resourceName) != 0 {
+		return resourceName
+	}
+
+	return ""
+}
+
+func getDataString(con interface{}) string {
+	if con == nil {
+		return "{}"
+	} else {
+		d, _ := json.Marshal(con)
+		return string(d)
+	}
+}
+
+func (data *AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
+	configuration := getDataString(data.Configuration)
+	name := getName(data.ResourceName, data.Tags)
+	vpcid, subnetId, subnetIds, securityGroups := getVpcInfo(data.ResourceType, configuration)
+
+	config := entity.AwsConfigEntity{
+		ID:                           getId(data.ARN, data.ResourceID),
+		Label:                        name,
+		AccountID:                    data.AwsAccountID,
+		Arn:                          data.ARN,
+		AvailabilityZone:             data.AvailabilityZone,
+		AwsRegion:                    data.AwsRegion,
+		Configuration:                configuration,
+		ConfigurationItemCaptureTime: data.ConfigurationItemCaptureTime,
+		ConfigurationItemStatus:      data.ConfigurationItemStatus,
+		ConfigurationStateID:         data.ConfigurationStateID,
+		ResourceCreationTime:         data.ResourceCreationTime,
+		ResourceID:                   data.ResourceID,
+		ResourceName:                 data.ResourceName,
+		ResourceType:                 data.ResourceType,
+		Tags:                         getDataString(data.Tags),
+		Version:                      data.ConfigurationItemVersion,
+		Title:                        name,
+		VpcID:                        vpcid,
+		SubnetID:                     subnetId,
+		SubnetIds:                    subnetIds,
+		SecurityGroups:               securityGroups,
+	}
+	return config
+}
+
+func getVpcInfo(resourceType string, configuration string) (vpcid string, subnetId string, subnetIds []string, securityGroups []string) {
+	vpcid = ""
+	subnetId = ""
+	subnetIds = make([]string, 0)
+	securityGroups = make([]string, 0)
+	switch resourceType {
+	case "AWS::EC2::VPCEndpoint":
+		var config VPCEndpointConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			subnetIds = config.SubnetIDS
+			for _, v := range config.Groups {
+				securityGroups = append(securityGroups, v.GroupID)
+			}
+		}
+	case "AWS::EC2::VPC":
+		var config VPCConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+		}
+	case "AWS::EC2::Subnet":
+		var config SubnetConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			subnetId = config.SubnetID
+		}
+	case "AWS::AmazonMQ::Broker":
+		var config AmazonMQConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			subnetIds = config.SubnetIDS
+			securityGroups = config.SecurityGroups
+		}
+	case "AWS::EC2::NatGateway":
+		var config NatGatewayConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			subnetId = config.SubnetID
+			vpcid = config.VpcID
+		}
+	case "AWS::EC2::InternetGateway":
+		var config InternetGatewayConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			for range config.Attachments {
+				// TODO: add to Relationships
+			}
+		}
+	case "AWS::EC2::VPCPeeringConnection":
+		var config VPCPeeringConnectionConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			// TODO: add to Relationships
+		}
+	case "AWS::RDS::DBInstance":
+		var config DBInstanceConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			for _, v := range config.VpcSecurityGroups {
+				securityGroups = append(securityGroups, v.VpcSecurityGroupID)
+			}
+			vpcid = config.DBSubnetGroup.VpcID
+			for _, v := range config.DBSubnetGroup.Subnets {
+				subnetIds = append(subnetIds, v.SubnetIdentifier)
+			}
+		}
+	case "AWS::EC2::SecurityGroup":
+		var config SecurityGroupConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			securityGroups = []string{config.GroupID}
+		}
+	case "AWS::EC2::NetworkInterface":
+		var config NetworkInterfaceConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			subnetId = config.SubnetID
+			for _, v := range config.Groups {
+				securityGroups = append(securityGroups, v.GroupID)
+			}
+		}
+	case "AWS::Redshift::ClusterSubnetGroup":
+		var config RedshiftConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+
+			for _, v := range config.Subnets {
+				subnetIds = append(subnetIds, v.SubnetIdentifier)
+			}
+		}
+	case "AWS::ElasticLoadBalancingV2::LoadBalancer":
+		var config LoadBalancerConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			securityGroups = config.SecurityGroups
+			for _, v := range config.AvailabilityZones {
+				subnetIds = append(subnetIds, v.SubnetID)
+			}
+		}
+	case "AWS::ECS::Service":
+		var config ECSServiceConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			subnetIds = config.NetworkConfiguration.AwsvpcConfiguration.Subnets
+			securityGroups = config.NetworkConfiguration.AwsvpcConfiguration.SecurityGroups
+		}
+	case "AWS::EC2::NetworkAcl":
+		var config NetworkAclConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			for _, v := range config.Associations {
+				subnetIds = append(subnetIds, v.SubnetID)
+			}
+		}
+	case "AWS::Lambda::Function":
+		var config FunctionConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			subnetIds = config.VpcConfig.SubnetIDS
+			securityGroups = config.VpcConfig.SecurityGroupIDS
+		}
+	case "AWS::EC2::RouteTable":
+		var config RouteTableConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+		}
+	}
+	return
 }
 
 type Relationship struct {
