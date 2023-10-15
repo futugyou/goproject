@@ -23,6 +23,7 @@ type AwsConfigEntity struct {
 	SubnetID                     string    `bson:"subnetId"`
 	SubnetIds                    []string  `bson:"subnetIds"`
 	Title                        string    `bson:"title"`
+	SecurityGroups               []string  `bson:"securityGroups"`
 }
 
 func (AwsConfigEntity) GetType() string {
