@@ -1,6 +1,6 @@
 module github.com/futugyousuzu/goproject/awsgolang
 
-go 1.18
+go 1.20
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.21.2
@@ -47,7 +47,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/klauspost/compress v1.17.1 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.1 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.4 // indirect
