@@ -8,6 +8,51 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 )
 
+type ResourceGraph struct {
+	Nodes []Node `json:"nodes"`
+	Edges []Edge `json:"edges"`
+}
+
+type Edge struct {
+	ID     string   `json:"id"`
+	Label  string   `json:"label"`
+	Source EdgeItem `json:"source"`
+	Target EdgeItem `json:"target"`
+}
+
+type EdgeItem struct {
+	ID    string `json:"id"`
+	Label string `json:"label"`
+}
+
+type Node struct {
+	ID         string     `json:"id"`
+	Label      string     `json:"label"`
+	Properties Properties `json:"properties"`
+}
+
+type Properties struct {
+	AccountID        string `json:"accountId"`
+	Arn              string `json:"arn"`
+	AvailabilityZone string `json:"availabilityZone"`
+	AwsRegion        string `json:"awsRegion"`
+	// Configuration                string    `json:"configuration"`
+	ConfigurationItemCaptureTime time.Time `json:"configurationItemCaptureTime"`
+	ConfigurationItemStatus      string    `json:"configurationItemStatus"`
+	ConfigurationStateID         int64     `json:"configurationStateId"`
+	ResourceCreationTime         time.Time `json:"resourceCreationTime"`
+	ResourceID                   string    `json:"resourceId"`
+	ResourceName                 string    `json:"resourceName"`
+	ResourceType                 string    `json:"resourceType"`
+	Tags                         string    `json:"tags"`
+	Version                      string    `json:"version"`
+	VpcID                        string    `json:"vpcId"`
+	SubnetID                     string    `json:"subnetId"`
+	SubnetIDS                    []string  `json:"subnetIds"`
+	Title                        string    `json:"title"`
+	SecurityGroups               []string  `json:"securityGroups"`
+}
+
 type AwsConfigFileData struct {
 	RelatedEvents                []string          `json:"relatedEvents"`
 	Relationships                []Relationship    `json:"relationships"`
