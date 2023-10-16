@@ -134,16 +134,33 @@ func (data AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
 	return config
 }
 
-func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity() []entity.AwsConfigRelationshipEntity {
+func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
+	name := getName(data.ResourceName, data.Tags)
+	if len(name) == 0 {
+		return lists
+	}
+
 	for _, ship := range data.Relationships {
+		var id string
+		for i := 0; i < len(configs); i++ {
+			if configs[i].ResourceID == ship.ResourceID && configs[i].ResourceName == ship.ResourceName {
+				id = getId(configs[i].Arn, configs[i].ResourceID)
+				break
+			}
+		}
+
+		if len(id) == 0 {
+			continue
+		}
+
 		if strings.HasPrefix(ship.Name, "Is") {
 			relationship := entity.AwsConfigRelationshipEntity{
 				ID:          data.ResourceID + "-" + ship.ResourceID,
-				SourceID:    data.ResourceID,
+				SourceID:    getId(data.ARN, data.ResourceID),
 				SourceLabel: data.ResourceName,
 				Label:       ship.Name,
-				TargetID:    ship.ResourceID,
+				TargetID:    id,
 				TargetLabel: ship.ResourceName,
 			}
 			lists = append(lists, relationship)
@@ -152,10 +169,10 @@ func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity() []entity.AwsCo
 		if strings.HasPrefix(ship.Name, "Contains") {
 			relationship := entity.AwsConfigRelationshipEntity{
 				ID:          ship.ResourceID + "-" + data.ResourceID,
-				SourceID:    ship.ResourceID,
+				SourceID:    id,
 				SourceLabel: ship.ResourceName,
 				Label:       ship.Name,
-				TargetID:    data.ResourceID,
+				TargetID:    getId(data.ARN, data.ResourceID),
 				TargetLabel: data.ResourceName,
 			}
 			lists = append(lists, relationship)

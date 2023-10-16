@@ -193,7 +193,7 @@ func main() {
 	// config.DeleteConfigurationRecorder()
 
 	config := services.NewAwsConfigService()
-	// config.SyncFileResources(awsenv.AwsConfigFilePath)
+	config.SyncFileResources(awsenv.AwsConfigFilePath)
 	res := config.GetResourceGraph()
 	fmt.Println(len(res.Edges), len(res.Nodes))
 }

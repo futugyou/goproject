@@ -55,8 +55,13 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 
 	for _, data := range datas {
 		config := data.CreateAwsConfigEntity()
-		configs = append(configs, config)
-		ship := data.CreateAwsConfigRelationshipEntity()
+		if len(config.Label) > 0 {
+			configs = append(configs, config)
+		}		
+	}
+
+	for _, data := range datas {
+		ship := data.CreateAwsConfigRelationshipEntity(configs)
 		if len(ship) > 0 {
 			ships = append(ships, ship...)
 		}
@@ -133,15 +138,15 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 		if d.ResourceType == "AWS::EC2::VPCEndpoint" ||
 			d.ResourceType == "AWS::EC2::VPC" ||
 			d.ResourceType == "AWS::ServiceDiscovery::Service" ||
-			d.ResourceType == "AWS::Signer::SigningProfile" ||
+			// d.ResourceType == "AWS::Signer::SigningProfile" ||
 			d.ResourceType == "AWS::EC2::Subnet" ||
 			d.ResourceType == "AWS::AmazonMQ::Broker" ||
-			d.ResourceType == "AWS::CloudTrail::Trail" ||
+			// d.ResourceType == "AWS::CloudTrail::Trail" ||
 			d.ResourceType == "AWS::EC2::NatGateway" ||
 			d.ResourceType == "AWS::EC2::InternetGateway" ||
 			d.ResourceType == "AWS::EC2::VPCPeeringConnection" ||
 			d.ResourceType == "AWS::EFS::FileSystem" ||
-			d.ResourceType == "AWS::IAM::Role" ||
+			// d.ResourceType == "AWS::IAM::Role" ||
 			d.ResourceType == "AWS::RDS::DBInstance" ||
 			d.ResourceType == "AWS::SNS::Topic" ||
 			d.ResourceType == "AWS::ECS::Cluster" ||
@@ -151,11 +156,11 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::EC2::SecurityGroup" ||
 			d.ResourceType == "AWS::EFS::AccessPoint" ||
 			// d.ResourceType == "AWS::IoT::ProvisioningTemplate" ||
-			d.ResourceType == "AWS::EC2::NetworkInterface" ||
+			// d.ResourceType == "AWS::EC2::NetworkInterface" ||
 			// d.ResourceType == "AWS::Route53Resolver::ResolverRuleAssociation" ||
 			// d.ResourceType == "AWS::RDS::DBSubnetGroup" ||
-			d.ResourceType == "AWS::EC2::EIP" ||
-			d.ResourceType == "AWS::Redshift::ClusterSubnetGroup" ||
+			// d.ResourceType == "AWS::EC2::EIP" ||
+			// d.ResourceType == "AWS::Redshift::ClusterSubnetGroup" ||
 			d.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer" ||
 			d.ResourceType == "AWS::ECS::Service" ||
 			d.ResourceType == "AWS::EC2::NetworkAcl" ||
