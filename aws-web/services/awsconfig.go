@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"os"
@@ -60,13 +61,12 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		}
 	}
 
-	for _, v := range configs {
-		log.Println(v.VpcID, v.SubnetID, v.SubnetIds, v.SecurityGroups)
-	}
-	log.Println()
-	for _, v := range ships {
-		log.Println(v.Label)
-	}
+	log.Println("configs count: ", len(configs))
+	err = a.repository.BulkWrite(context.Background(), configs)
+	log.Println("configs write finish: ", err)
+	log.Println("relationships count: ", len(ships))
+	err = a.relRepository.BulkWrite(context.Background(), ships)
+	log.Println("relationships write finish: ", err)
 }
 
 func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {

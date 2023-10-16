@@ -2,10 +2,10 @@ package viewmodel
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
-	"github.com/google/uuid"
 )
 
 type AwsConfigFileData struct {
@@ -92,65 +92,28 @@ func (data AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
 func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity() []entity.AwsConfigRelationshipEntity {
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
 	for _, ship := range data.Relationships {
-		entity := entity.AwsConfigRelationshipEntity{
-			ID:          uuid.NewString(),
-			SourceID:    data.ResourceID,
-			SourceLabel: data.ResourceName,
-			Label:       ship.Name,
-			TargetID:    ship.ResourceID,
-			TargetLabel: ship.ResourceName,
-		}
-		lists = append(lists, entity)
-	}
-
-	es := addExtendRelationships(data)
-	lists = append(lists, es...)
-
-	return lists
-}
-
-func addExtendRelationships(data AwsConfigFileData) []entity.AwsConfigRelationshipEntity {
-	lists := make([]entity.AwsConfigRelationshipEntity, 0)
-	configuration := getDataString(data.Configuration)
-	switch data.ResourceType {
-	case "AWS::EC2::InternetGateway":
-		var config InternetGatewayConfiguration
-		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
-			for _, att := range config.Attachments {
-				entity := entity.AwsConfigRelationshipEntity{
-					ID:          uuid.NewString(),
-					SourceID:    data.ResourceID,
-					SourceLabel: data.ResourceName,
-					Label:       att.State,
-					TargetID:    att.VpcID,
-					TargetLabel: "",
-				}
-				lists = append(lists, entity)
-			}
-		}
-	case "AWS::EC2::VPCPeeringConnection":
-		var config VPCPeeringConnectionConfiguration
-		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
-			requester := entity.AwsConfigRelationshipEntity{
-				ID:          uuid.NewString(),
+		if strings.HasPrefix(ship.Name, "Is") {
+			relationship := entity.AwsConfigRelationshipEntity{
+				ID:          data.ResourceID + "-" + ship.ResourceID,
 				SourceID:    data.ResourceID,
 				SourceLabel: data.ResourceName,
-				Label:       config.RequesterVpcInfo.Region,
-				TargetID:    config.RequesterVpcInfo.VpcID,
-				TargetLabel: config.RequesterVpcInfo.Region,
+				Label:       ship.Name,
+				TargetID:    ship.ResourceID,
+				TargetLabel: ship.ResourceName,
 			}
-			accepter := entity.AwsConfigRelationshipEntity{
-				ID:          uuid.NewString(),
-				SourceID:    data.ResourceID,
-				SourceLabel: data.ResourceName,
-				Label:       config.AccepterVpcInfo.Region,
-				TargetID:    config.AccepterVpcInfo.VpcID,
-				TargetLabel: config.AccepterVpcInfo.Region,
-			}
+			lists = append(lists, relationship)
+		}
 
-			lists = append(lists, requester, accepter)
+		if strings.HasPrefix(ship.Name, "Contains") {
+			relationship := entity.AwsConfigRelationshipEntity{
+				ID:          ship.ResourceID + "-" + data.ResourceID,
+				SourceID:    ship.ResourceID,
+				SourceLabel: ship.ResourceName,
+				Label:       ship.Name,
+				TargetID:    data.ResourceID,
+				TargetLabel: data.ResourceName,
+			}
+			lists = append(lists, relationship)
 		}
 
 	}
@@ -200,20 +163,6 @@ func getVpcInfo(resourceType string, configuration string) (vpcid string, subnet
 		if err == nil {
 			subnetId = config.SubnetID
 			vpcid = config.VpcID
-		}
-	case "AWS::EC2::InternetGateway":
-		var config InternetGatewayConfiguration
-		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
-			for range config.Attachments {
-				// TODO: add to Relationships
-			}
-		}
-	case "AWS::EC2::VPCPeeringConnection":
-		var config VPCPeeringConnectionConfiguration
-		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
-			// TODO: add to Relationships
 		}
 	case "AWS::RDS::DBInstance":
 		var config DBInstanceConfiguration
