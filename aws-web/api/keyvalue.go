@@ -28,6 +28,8 @@ func KeyValue(w http.ResponseWriter, r *http.Request) {
 		getKeyValue(w, r)
 	case "create":
 		createKeyValue(w, r)
+	case "awsconfig":
+		getResourceGraph(w, r)
 	}
 }
 
@@ -58,6 +60,14 @@ func getAllKeyValue(w http.ResponseWriter, r *http.Request) {
 	keyValueService := services.NewKeyValueService()
 	keyValues := keyValueService.GetAllKeyValues()
 	body, _ := json.Marshal(keyValues)
+	w.Write(body)
+	w.WriteHeader(200)
+}
+
+func getResourceGraph(w http.ResponseWriter, r *http.Request) {
+	config := services.NewAwsConfigService()
+	res := config.GetResourceGraph()
+	body, _ := json.Marshal(res)
 	w.Write(body)
 	w.WriteHeader(200)
 }

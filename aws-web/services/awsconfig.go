@@ -31,6 +31,7 @@ func NewAwsConfigService() *AwsConfigService {
 	}
 }
 
+// path for aws config snapshot data (download from s3)
 func (a *AwsConfigService) SyncFileResources(path string) {
 	jsonFile, err := os.Open(path)
 	if err != nil {

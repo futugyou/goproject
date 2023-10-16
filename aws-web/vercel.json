@@ -180,7 +180,6 @@
 				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
 			}
 		},
-		
 		{
 			"src": "/api/v1/keyvalues",
 			"dest": "/api/keyvalue.go?type=getall",
@@ -216,6 +215,21 @@
 			"dest": "/api/keyvalue.go?type=create",
 			"methods": [
 				"POST",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Credentials": "true",
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+				"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
+			}
+		},
+		{
+			"src": "/api/v1/awsconfig",
+			"dest": "/api/keyvalue.go?type=awsconfig",
+			"methods": [
+				"GET",
 				"OPTIONS"
 			],
 			"headers": {
