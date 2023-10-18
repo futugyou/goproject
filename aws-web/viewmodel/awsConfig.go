@@ -20,8 +20,9 @@ type Edge struct {
 }
 
 type EdgeItem struct {
-	ID    string `json:"id"`
-	Label string `json:"label"`
+	ID           string `json:"id"`
+	Label        string `json:"label"`
+	ResourceType string `json:"resourceType"`
 }
 
 type Node struct {
@@ -31,11 +32,11 @@ type Node struct {
 }
 
 type Properties struct {
-	AccountID        string `json:"accountId"`
-	Arn              string `json:"arn"`
-	AvailabilityZone string `json:"availabilityZone"`
-	AwsRegion        string `json:"awsRegion"`
-	// Configuration                string    `json:"configuration"`
+	AccountID                    string    `json:"accountId"`
+	Arn                          string    `json:"arn"`
+	AvailabilityZone             string    `json:"availabilityZone"`
+	AwsRegion                    string    `json:"awsRegion"`
+	Configuration                string    `json:"configuration"`
 	ConfigurationItemCaptureTime time.Time `json:"configurationItemCaptureTime"`
 	ConfigurationItemStatus      string    `json:"configurationItemStatus"`
 	ConfigurationStateID         int64     `json:"configurationStateId"`
@@ -126,26 +127,30 @@ func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity(configs []entity
 			continue
 		}
 
-		if strings.HasPrefix(ship.Name, "Is") {
+		if strings.HasPrefix(ship.Name, "Is ") {
 			relationship := entity.AwsConfigRelationshipEntity{
-				ID:          data.ResourceID + "-" + ship.ResourceID,
-				SourceID:    getId(data.ARN, data.ResourceID),
-				SourceLabel: data.ResourceName,
-				Label:       ship.Name,
-				TargetID:    id,
-				TargetLabel: ship.ResourceName,
+				ID:                 data.ResourceID + "-" + ship.ResourceID,
+				SourceID:           getId(data.ARN, data.ResourceID),
+				SourceLabel:        data.ResourceName,
+				SourceResourceType: data.ResourceType,
+				Label:              ship.Name,
+				TargetID:           id,
+				TargetLabel:        ship.ResourceName,
+				TargetResourceType: ship.ResourceType,
 			}
 			lists = append(lists, relationship)
 		}
 
-		if strings.HasPrefix(ship.Name, "Contains") {
+		if strings.HasPrefix(ship.Name, "Contains ") {
 			relationship := entity.AwsConfigRelationshipEntity{
-				ID:          ship.ResourceID + "-" + data.ResourceID,
-				SourceID:    id,
-				SourceLabel: ship.ResourceName,
-				Label:       ship.Name,
-				TargetID:    getId(data.ARN, data.ResourceID),
-				TargetLabel: data.ResourceName,
+				ID:                 ship.ResourceID + "-" + data.ResourceID,
+				SourceID:           id,
+				SourceLabel:        ship.ResourceName,
+				SourceResourceType: ship.ResourceType,
+				Label:              ship.Name,
+				TargetID:           getId(data.ARN, data.ResourceID),
+				TargetLabel:        data.ResourceName,
+				TargetResourceType: data.ResourceType,
 			}
 			lists = append(lists, relationship)
 		}

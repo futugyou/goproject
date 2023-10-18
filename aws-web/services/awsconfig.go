@@ -65,7 +65,7 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		configs = append(configs, config)
 	}
 
-	// 4. create AwsConfigRelationshipEntity list
+	// 5. create AwsConfigRelationshipEntity list
 	for _, data := range datas {
 		ship := data.CreateAwsConfigRelationshipEntity(configs)
 		if len(ship) > 0 {
@@ -73,7 +73,7 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		}
 	}
 
-	// 5. BulkWrite data to db
+	// 6. BulkWrite data to db
 	log.Println("configs count: ", len(configs))
 	err = a.repository.BulkWrite(context.Background(), configs)
 	log.Println("configs write finish: ", err)
@@ -93,11 +93,11 @@ func (a *AwsConfigService) GetResourceGraph() model.ResourceGraph {
 			ID:    config.ID,
 			Label: config.Label,
 			Properties: model.Properties{
-				AccountID:        config.AccountID,
-				Arn:              config.Arn,
-				AvailabilityZone: config.AvailabilityZone,
-				AwsRegion:        config.AwsRegion,
-				// Configuration:                config.Configuration,
+				AccountID:                    config.AccountID,
+				Arn:                          config.Arn,
+				AvailabilityZone:             config.AvailabilityZone,
+				AwsRegion:                    config.AwsRegion,
+				Configuration:                config.Configuration,
 				ConfigurationItemCaptureTime: config.ConfigurationItemCaptureTime,
 				ConfigurationItemStatus:      config.ConfigurationItemStatus,
 				ConfigurationStateID:         config.ConfigurationStateID,
@@ -122,12 +122,14 @@ func (a *AwsConfigService) GetResourceGraph() model.ResourceGraph {
 			ID:    ship.ID,
 			Label: ship.Label,
 			Source: model.EdgeItem{
-				ID:    ship.SourceID,
-				Label: ship.SourceLabel,
+				ID:           ship.SourceID,
+				Label:        ship.SourceLabel,
+				ResourceType: ship.SourceResourceType,
 			},
 			Target: model.EdgeItem{
-				ID:    ship.TargetID,
-				Label: ship.TargetLabel,
+				ID:           ship.TargetID,
+				Label:        ship.TargetLabel,
+				ResourceType: ship.TargetResourceType,
 			},
 		}
 		edges = append(edges, edge)

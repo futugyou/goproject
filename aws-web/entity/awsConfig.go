@@ -31,12 +31,14 @@ func (AwsConfigEntity) GetType() string {
 }
 
 type AwsConfigRelationshipEntity struct {
-	ID          string `bson:"_id"`
-	Label       string `bson:"label"`
-	SourceID    string `bson:"sourceId"`
-	SourceLabel string `bson:"sourceLabel"`
-	TargetID    string `bson:"targetId"`
-	TargetLabel string `bson:"targetLabel"`
+	ID                 string `bson:"_id"`
+	Label              string `bson:"label"`
+	SourceID           string `bson:"sourceId"`
+	SourceLabel        string `bson:"sourceLabel"`
+	SourceResourceType string `bson:"sourceResourceType"`
+	TargetID           string `bson:"targetId"`
+	TargetLabel        string `bson:"targetLabel"`
+	TargetResourceType string `bson:"targetResourceType"`
 }
 
 func (AwsConfigRelationshipEntity) GetType() string {
