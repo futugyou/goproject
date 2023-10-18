@@ -53,11 +53,11 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	configs := make([]entity.AwsConfigEntity, 0)
 	ships := make([]entity.AwsConfigRelationshipEntity, 0)
 
+	vpcinfos := model.GetAllVpcInfos(datas)
+
 	for _, data := range datas {
-		config := data.CreateAwsConfigEntity()
-		if len(config.Label) > 0 {
-			configs = append(configs, config)
-		}		
+		config := data.CreateAwsConfigEntity(vpcinfos)
+		configs = append(configs, config)
 	}
 
 	for _, data := range datas {
@@ -156,7 +156,7 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::EC2::SecurityGroup" ||
 			d.ResourceType == "AWS::EFS::AccessPoint" ||
 			// d.ResourceType == "AWS::IoT::ProvisioningTemplate" ||
-			// d.ResourceType == "AWS::EC2::NetworkInterface" ||
+			d.ResourceType == "AWS::EC2::NetworkInterface" ||
 			// d.ResourceType == "AWS::Route53Resolver::ResolverRuleAssociation" ||
 			// d.ResourceType == "AWS::RDS::DBSubnetGroup" ||
 			// d.ResourceType == "AWS::EC2::EIP" ||
@@ -167,7 +167,8 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::Lambda::Function" ||
 			d.ResourceType == "AWS::S3::Bucket" ||
 			d.ResourceType == "AWS::DynamoDB::Table" ||
-			d.ResourceType == "AWS::EC2::RouteTable" {
+			d.ResourceType == "AWS::EC2::RouteTable" ||
+			d.ResourceType == "AWS::EC2::Instance" {
 			resuls = append(resuls, d)
 		}
 	}

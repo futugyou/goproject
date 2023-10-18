@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
+	"golang.org/x/exp/slices"
 )
 
 type ResourceGraph struct {
@@ -80,7 +81,7 @@ func getId(arn string, resourceID string) string {
 	return arn
 }
 
-func getName(resourceName string, tags map[string]string) string {
+func getName(resourceID string, resourceName string, tags map[string]string) string {
 	if len(tags) > 0 {
 		if n, ok := tags["Name"]; ok && len(n) > 0 {
 			return n
@@ -91,7 +92,7 @@ func getName(resourceName string, tags map[string]string) string {
 		return resourceName
 	}
 
-	return ""
+	return resourceID
 }
 
 func getDataString(con interface{}) string {
@@ -103,10 +104,46 @@ func getDataString(con interface{}) string {
 	}
 }
 
-func (data AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
+type VpcInfo struct {
+	VpcId   string
+	Subnets []string
+}
+
+func GetAllVpcInfos(datas []AwsConfigFileData) []VpcInfo {
+	vpcInfos := make([]VpcInfo, 0)
+	for _, data := range datas {
+		if data.ResourceType == "AWS::EC2::Subnet" {
+			var config SubnetConfiguration
+			json.Unmarshal([]byte(getDataString(data.Configuration)), &config)
+
+			vpcid := config.VpcID
+			subnetId := config.SubnetID
+
+			found := false
+			for i := 0; i < len(vpcInfos); i++ {
+				if vpcid == vpcInfos[i].VpcId {
+					found = true
+					vpcInfos[i].Subnets = append(vpcInfos[i].Subnets, subnetId)
+				}
+			}
+
+			if !found {
+				vpc := VpcInfo{
+					VpcId:   vpcid,
+					Subnets: []string{subnetId},
+				}
+				vpcInfos = append(vpcInfos, vpc)
+			}
+		}
+
+	}
+	return vpcInfos
+}
+
+func (data AwsConfigFileData) CreateAwsConfigEntity(vpcinfos []VpcInfo) entity.AwsConfigEntity {
 	configuration := getDataString(data.Configuration)
-	name := getName(data.ResourceName, data.Tags)
-	vpcid, subnetId, subnetIds, securityGroups := getVpcInfo(data.ResourceType, configuration)
+	name := getName(data.ResourceID, data.ResourceName, data.Tags)
+	vpcid, subnetId, subnetIds, securityGroups := getVpcInfo(data.ResourceType, configuration, vpcinfos)
 
 	config := entity.AwsConfigEntity{
 		ID:                           getId(data.ARN, data.ResourceID),
@@ -136,10 +173,6 @@ func (data AwsConfigFileData) CreateAwsConfigEntity() entity.AwsConfigEntity {
 
 func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
-	name := getName(data.ResourceName, data.Tags)
-	if len(name) == 0 {
-		return lists
-	}
 
 	for _, ship := range data.Relationships {
 		var id string
@@ -183,11 +216,24 @@ func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity(configs []entity
 	return lists
 }
 
-func getVpcInfo(resourceType string, configuration string) (vpcid string, subnetId string, subnetIds []string, securityGroups []string) {
+func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (vpcid string, subnetId string, subnetIds []string, securityGroups []string) {
 	vpcid = ""
 	subnetId = ""
 	subnetIds = make([]string, 0)
 	securityGroups = make([]string, 0)
+
+	foundVpn := func(ids []string) string {
+		for _, vpn := range vpcinfos {
+			for _, net := range vpn.Subnets {
+				if slices.Contains(ids, net) {
+					return vpn.VpcId
+				}
+			}
+		}
+
+		return ""
+	}
+
 	switch resourceType {
 	case "AWS::EC2::VPCEndpoint":
 		var config VPCEndpointConfiguration
@@ -304,7 +350,32 @@ func getVpcInfo(resourceType string, configuration string) (vpcid string, subnet
 		if err == nil {
 			vpcid = config.VpcID
 		}
+	case "AWS::EC2::Instance":
+		var config Ec2Configuration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err == nil {
+			vpcid = config.VpcID
+			subnetId = config.SubnetID
+			for _, sg := range config.SecurityGroups {
+				securityGroups = append(securityGroups, sg.GroupID)
+			}
+		}
 	}
+
+	slices.Sort(subnetIds)
+
+	if vpcid == "" {
+		if len(subnetIds) > 0 {
+			vpcid = foundVpn(subnetIds)
+		} else if len(subnetId) > 0 {
+			vpcid = foundVpn([]string{subnetId})
+		}
+	}
+
+	if len(subnetId) == 0 && len(subnetIds) > 0 {
+		subnetId = strings.Join(subnetIds, ",")
+	}
+
 	return
 }
 
@@ -803,4 +874,124 @@ type Route struct {
 	GatewayID            string `json:"gatewayId"`
 	Origin               string `json:"origin"`
 	State                string `json:"state"`
+}
+
+type Ec2Configuration struct {
+	AmiLaunchIndex                          int64                            `json:"amiLaunchIndex"`
+	ImageID                                 string                           `json:"imageId"`
+	InstanceID                              string                           `json:"instanceId"`
+	InstanceType                            string                           `json:"instanceType"`
+	KeyName                                 string                           `json:"keyName"`
+	LaunchTime                              string                           `json:"launchTime"`
+	Monitoring                              Monitoring                       `json:"monitoring"`
+	Placement                               Placement                        `json:"placement"`
+	PrivateDNSName                          string                           `json:"privateDnsName"`
+	PrivateIPAddress                        string                           `json:"privateIpAddress"`
+	ProductCodes                            []interface{}                    `json:"productCodes"`
+	PublicDNSName                           string                           `json:"publicDnsName"`
+	PublicIPAddress                         string                           `json:"publicIpAddress"`
+	State                                   State                            `json:"state"`
+	StateTransitionReason                   string                           `json:"stateTransitionReason"`
+	SubnetID                                string                           `json:"subnetId"`
+	VpcID                                   string                           `json:"vpcId"`
+	Architecture                            string                           `json:"architecture"`
+	BlockDeviceMappings                     []BlockDeviceMapping             `json:"blockDeviceMappings"`
+	ClientToken                             string                           `json:"clientToken"`
+	EbsOptimized                            bool                             `json:"ebsOptimized"`
+	EnaSupport                              bool                             `json:"enaSupport"`
+	Hypervisor                              string                           `json:"hypervisor"`
+	ElasticGPUAssociations                  []interface{}                    `json:"elasticGpuAssociations"`
+	ElasticInferenceAcceleratorAssociations []interface{}                    `json:"elasticInferenceAcceleratorAssociations"`
+	NetworkInterfaces                       []NetworkInterface               `json:"networkInterfaces"`
+	RootDeviceName                          string                           `json:"rootDeviceName"`
+	RootDeviceType                          string                           `json:"rootDeviceType"`
+	SecurityGroups                          []Group                          `json:"securityGroups"`
+	SourceDestCheck                         bool                             `json:"sourceDestCheck"`
+	Tags                                    []Tag                            `json:"tags"`
+	VirtualizationType                      string                           `json:"virtualizationType"`
+	CPUOptions                              CPUOptions                       `json:"cpuOptions"`
+	CapacityReservationSpecification        CapacityReservationSpecification `json:"capacityReservationSpecification"`
+	HibernationOptions                      HibernationOptions               `json:"hibernationOptions"`
+	Licenses                                []interface{}                    `json:"licenses"`
+	MetadataOptions                         MetadataOptions                  `json:"metadataOptions"`
+	EnclaveOptions                          EnclaveOptions                   `json:"enclaveOptions"`
+}
+
+type BlockDeviceMapping struct {
+	DeviceName string `json:"deviceName"`
+	Ebs        Ebs    `json:"ebs"`
+}
+
+type Ebs struct {
+	AttachTime          string `json:"attachTime"`
+	DeleteOnTermination bool   `json:"deleteOnTermination"`
+	Status              string `json:"status"`
+	VolumeID            string `json:"volumeId"`
+}
+
+type CPUOptions struct {
+	CoreCount      int64 `json:"coreCount"`
+	ThreadsPerCore int64 `json:"threadsPerCore"`
+}
+
+type CapacityReservationSpecification struct {
+	CapacityReservationPreference string `json:"capacityReservationPreference"`
+}
+
+type EnclaveOptions struct {
+	Enabled bool `json:"enabled"`
+}
+
+type HibernationOptions struct {
+	Configured bool `json:"configured"`
+}
+
+type MetadataOptions struct {
+	State                   string `json:"state"`
+	HTTPTokens              string `json:"httpTokens"`
+	HTTPPutResponseHopLimit int64  `json:"httpPutResponseHopLimit"`
+	HTTPEndpoint            string `json:"httpEndpoint"`
+}
+
+type Monitoring struct {
+	State string `json:"state"`
+}
+
+type NetworkInterface struct {
+	Association        Association        `json:"association"`
+	Attachment         Ec2Attachment      `json:"attachment"`
+	Description        string             `json:"description"`
+	Groups             []Group            `json:"groups"`
+	Ipv6Addresses      []interface{}      `json:"ipv6Addresses"`
+	MACAddress         string             `json:"macAddress"`
+	NetworkInterfaceID string             `json:"networkInterfaceId"`
+	OwnerID            string             `json:"ownerId"`
+	PrivateDNSName     string             `json:"privateDnsName"`
+	PrivateIPAddress   string             `json:"privateIpAddress"`
+	PrivateIPAddresses []PrivateIPAddress `json:"privateIpAddresses"`
+	SourceDestCheck    bool               `json:"sourceDestCheck"`
+	Status             string             `json:"status"`
+	SubnetID           string             `json:"subnetId"`
+	VpcID              string             `json:"vpcId"`
+	InterfaceType      string             `json:"interfaceType"`
+}
+
+type Ec2Attachment struct {
+	AttachTime          string `json:"attachTime"`
+	AttachmentID        string `json:"attachmentId"`
+	DeleteOnTermination bool   `json:"deleteOnTermination"`
+	DeviceIndex         int64  `json:"deviceIndex"`
+	Status              string `json:"status"`
+	NetworkCardIndex    int64  `json:"networkCardIndex"`
+}
+
+type Placement struct {
+	AvailabilityZone string `json:"availabilityZone"`
+	GroupName        string `json:"groupName"`
+	Tenancy          string `json:"tenancy"`
+}
+
+type State struct {
+	Code int64  `json:"code"`
+	Name string `json:"name"`
 }
