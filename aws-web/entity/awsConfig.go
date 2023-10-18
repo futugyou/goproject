@@ -24,6 +24,8 @@ type AwsConfigEntity struct {
 	SubnetIds                    []string  `bson:"subnetIds"`
 	Title                        string    `bson:"title"`
 	SecurityGroups               []string  `bson:"securityGroups"`
+	LoginURL                     string    `bson:"loginURL"`
+	LoggedInURL                  string    `bson:"loggedInURL"`
 }
 
 func (AwsConfigEntity) GetType() string {

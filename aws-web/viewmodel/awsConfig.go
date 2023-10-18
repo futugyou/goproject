@@ -51,6 +51,8 @@ type Properties struct {
 	SubnetIDS                    []string  `json:"subnetIds"`
 	Title                        string    `json:"title"`
 	SecurityGroups               []string  `json:"securityGroups"`
+	LoginURL                     string    `json:"loginURL"`
+	LoggedInURL                  string    `json:"loggedInURL"`
 }
 
 type AwsConfigFileData struct {
@@ -84,7 +86,7 @@ func (data AwsConfigFileData) CreateAwsConfigEntity(vpcinfos []VpcInfo) entity.A
 	configuration := getDataString(data.Configuration)
 	name := getName(data.ResourceID, data.ResourceName, data.Tags)
 	vpcid, subnetId, subnetIds, securityGroups := getVpcInfo(data.ResourceType, configuration, vpcinfos)
-
+	loginURL, loggedInURL := createConsoleUrls(data)
 	config := entity.AwsConfigEntity{
 		ID:                           getId(data.ARN, data.ResourceID),
 		Label:                        name,
@@ -102,11 +104,13 @@ func (data AwsConfigFileData) CreateAwsConfigEntity(vpcinfos []VpcInfo) entity.A
 		ResourceType:                 data.ResourceType,
 		Tags:                         getDataString(data.Tags),
 		Version:                      data.ConfigurationItemVersion,
-		Title:                        name,
 		VpcID:                        vpcid,
 		SubnetID:                     subnetId,
 		SubnetIds:                    subnetIds,
+		Title:                        name,
 		SecurityGroups:               securityGroups,
+		LoginURL:                     loginURL,
+		LoggedInURL:                  loggedInURL,
 	}
 	return config
 }

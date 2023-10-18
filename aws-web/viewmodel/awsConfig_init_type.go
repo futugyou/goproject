@@ -2,6 +2,7 @@ package viewmodel
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -226,6 +227,220 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (
 
 	if len(subnetId) == 0 && len(subnetIds) > 0 {
 		subnetId = strings.Join(subnetIds, ",")
+	}
+
+	return
+}
+
+func createSignInHostname(accountId string, service string) string {
+	return fmt.Sprintf("https://%s.signin.aws.amazon.com/console/%s", accountId, service)
+}
+
+func createLoggedInHostname(awsRegion string, service string) string {
+	return fmt.Sprintf(`https://%s.console.aws.amazon.com%s/home`, awsRegion, service)
+}
+
+func createConsoleUrls(resource AwsConfigFileData) (loginURL string, loggedInURL string) {
+	resourceType := resource.ResourceType
+	resourceName := resource.ResourceName
+	accountId := resource.AwsAccountID
+	awsRegion := resource.AwsRegion
+	loginURL = ""
+	loggedInURL = ""
+	switch resourceType {
+	case "AWS::Lambda::Function":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#/functions/%s?tab=graph`,
+				createSignInHostname(accountId, "lambda"),
+				awsRegion,
+				resourceName,
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#/functions/%s?tab=graph`,
+				createLoggedInHostname(awsRegion, "lambda"),
+				awsRegion,
+				resourceName,
+			)
+	case "AWS::IAM::Policy":
+		loginURL =
+			fmt.Sprintf(`%s?home?#%s`,
+				createSignInHostname(accountId, "iam"),
+				"/policies",
+			)
+		loggedInURL =
+			fmt.Sprintf(`https://console.aws.amazon.com/%s/home?#%s`,
+				"iam",
+				"/policies",
+			)
+	case "AWS::S3::Bucket":
+		loginURL =
+			fmt.Sprintf(`%s?bucket=%s`,
+				createSignInHostname(accountId, "s3"),
+				resourceName,
+			)
+		loggedInURL =
+			fmt.Sprintf(`https://s3.console.aws.amazon.com/s3/buckets/%s/?region=%s`,
+				resourceName,
+				awsRegion,
+			)
+	case "AWS::EC2::VPC":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "vpc"),
+				awsRegion,
+				"vpcs:sort=VpcId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "vpc/v2"),
+				awsRegion,
+				"vpcs:sort=VpcId",
+			)
+	case "AWS::EC2::NetworkInterface":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"NIC:sort=description",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"NIC:sort=description",
+			)
+	case "AWS::EC2::Instance":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"Instances:sort=instanceId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"Instances:sort=instanceId",
+			)
+	case "AWS::EC2::Volume":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"Volumes:sort=desc:name",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"Volumes:sort=desc:name",
+			)
+	case "AWS::EC2::Subnet":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "vpc"),
+				awsRegion,
+				"subnets:sort=SubnetId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "vpc/v2"),
+				awsRegion,
+				"subnets:sort=SubnetId",
+			)
+	case "AWS::EC2::SecurityGroup":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"SecurityGroups:sort=groupId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"SecurityGroups:sort=groupId",
+			)
+	case "AWS::EC2::RouteTable":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "vpc"),
+				awsRegion,
+				"RouteTables:sort=routeTableId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "vpc/v2"),
+				awsRegion,
+				"RouteTables:sort=routeTableId",
+			)
+	case "AWS::EC2::InternetGateway":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "vpc"),
+				awsRegion,
+				"igws:sort=internetGatewayId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "vpc/v2"),
+				awsRegion,
+				"igws:sort=internetGatewayId",
+			)
+	case "AWS::EC2::NetworkAcl":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "vpc"),
+				awsRegion,
+				"acls:sort=networkAclId",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "vpc/v2"),
+				awsRegion,
+				"acls:sort=networkAclId",
+			)
+	case "AWS::ElasticLoadBalancingV2::LoadBalancer":
+	case "AWS::ElasticLoadBalancingV2::Listener":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"LoadBalancers:",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"LoadBalancers:",
+			)
+
+	case "AWS::ElasticLoadBalancingV2::TargetGroup":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"TargetGroups:",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"TargetGroups:",
+			)
+	case "AWS::EC2::EIP":
+		loginURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createSignInHostname(accountId, "ec2"),
+				awsRegion,
+				"Addresses:sort=PublicIp",
+			)
+		loggedInURL =
+			fmt.Sprintf(`%s?region=%s#%s`,
+				createLoggedInHostname(awsRegion, "ec2/v2"),
+				awsRegion,
+				"Addresses:sort=PublicIp",
+			)
 	}
 
 	return

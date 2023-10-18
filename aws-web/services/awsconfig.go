@@ -112,6 +112,8 @@ func (a *AwsConfigService) GetResourceGraph() model.ResourceGraph {
 				SubnetIDS:                    config.SubnetIds,
 				Title:                        config.Title,
 				SecurityGroups:               config.SecurityGroups,
+				LoginURL:                     config.LoginURL,
+				LoggedInURL:                  config.LoggedInURL,
 			},
 		}
 		nodes = append(nodes, node)
