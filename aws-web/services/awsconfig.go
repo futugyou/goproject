@@ -33,6 +33,7 @@ func NewAwsConfigService() *AwsConfigService {
 
 // path for aws config snapshot data (download from s3)
 func (a *AwsConfigService) SyncFileResources(path string) {
+	// 1. read data from file
 	jsonFile, err := os.Open(path)
 	if err != nil {
 		log.Println(err)
@@ -49,17 +50,22 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		return
 	}
 
+	// 2. filter data
 	datas = filterResource(datas)
+
+	// 3. get all vpc info
+	vpcinfos := model.GetAllVpcInfos(datas)
+
 	configs := make([]entity.AwsConfigEntity, 0)
 	ships := make([]entity.AwsConfigRelationshipEntity, 0)
 
-	vpcinfos := model.GetAllVpcInfos(datas)
-
+	// 4. create AwsConfigEntity list
 	for _, data := range datas {
 		config := data.CreateAwsConfigEntity(vpcinfos)
 		configs = append(configs, config)
 	}
 
+	// 4. create AwsConfigRelationshipEntity list
 	for _, data := range datas {
 		ship := data.CreateAwsConfigRelationshipEntity(configs)
 		if len(ship) > 0 {
@@ -67,6 +73,7 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		}
 	}
 
+	// 5. BulkWrite data to db
 	log.Println("configs count: ", len(configs))
 	err = a.repository.BulkWrite(context.Background(), configs)
 	log.Println("configs write finish: ", err)
