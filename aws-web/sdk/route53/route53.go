@@ -33,3 +33,22 @@ func GetHostedZone() {
 		fmt.Println(*vpc.VPCId, vpc.VPCRegion.Values())
 	}
 }
+
+func GetHostedZoneVpcId(hostedZoneId string) string {
+	input := &route53.GetHostedZoneInput{
+		Id: aws.String(hostedZoneId),
+	}
+
+	result, err := svc.GetHostedZone(awsenv.EmptyContext, input)
+	if err != nil {
+		return ""
+	}
+
+	for _, vpc := range result.VPCs {
+		if vpc.VPCId != nil {
+			return *vpc.VPCId
+		}
+	}
+
+	return ""
+}

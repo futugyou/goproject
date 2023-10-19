@@ -5,8 +5,76 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
+
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	"golang.org/x/exp/slices"
 )
+
+func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntity {
+	namespaceEntityList := make([]entity.AwsConfigEntity, 0)
+	namespaceList := make([]string, 0)
+
+	for _, config := range configs {
+		if config.ResourceType == "AWS::ServiceDiscovery::Service" {
+			var configuration ServiceDiscoveryConfiguration
+			err := json.Unmarshal([]byte(config.Configuration), &configuration)
+			if err != nil {
+				continue
+			}
+
+			namespaceid := configuration.NamespaceID
+			if slices.Contains(namespaceList, namespaceid) {
+				continue
+			}
+
+			namespaceList = append(namespaceList, namespaceid)
+			namespace := servicediscovery.GetNamespaceDetail(namespaceid)
+
+			if namespace == nil {
+				continue
+			}
+
+			namespaceEntity := entity.AwsConfigEntity{
+				ID:                           *namespace.Arn,
+				Label:                        *namespace.Name,
+				AccountID:                    config.AccountID,
+				Arn:                          *namespace.Arn,
+				AvailabilityZone:             config.AvailabilityZone,
+				AwsRegion:                    config.AwsRegion,
+				Configuration:                "{}",
+				ConfigurationItemCaptureTime: *namespace.CreateDate,
+				ConfigurationItemStatus:      "",
+				ConfigurationStateID:         0,
+				ResourceCreationTime:         *namespace.CreateDate,
+				ResourceID:                   *namespace.Name,
+				ResourceName:                 *namespace.Name,
+				ResourceType:                 "AWS::ServiceDiscovery::Namespace",
+				Tags:                         "",
+				Version:                      "",
+				VpcID:                        "",
+				SubnetID:                     "",
+				SubnetIds:                    []string{},
+				Title:                        *namespace.Name,
+				SecurityGroups:               []string{},
+				LoginURL:                     "",
+				LoggedInURL:                  "",
+			}
+
+			if namespace.Properties != nil &&
+				namespace.Properties.DnsProperties != nil &&
+				namespace.Properties.DnsProperties.HostedZoneId != nil {
+				vpcid := route53.GetHostedZoneVpcId(*namespace.Properties.DnsProperties.HostedZoneId)
+				namespaceEntity.VpcID = vpcid
+			}
+
+			namespaceEntityList = append(namespaceEntityList, namespaceEntity)
+		}
+	}
+
+	return append(configs, namespaceEntityList...)
+}
 
 func GetAllVpcInfos(datas []AwsConfigFileData) []VpcInfo {
 	vpcInfos := make([]VpcInfo, 0)

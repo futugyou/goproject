@@ -194,6 +194,19 @@ func GetNamespace() {
 	)
 }
 
+func GetNamespaceDetail(namespaceId string) *types.Namespace {
+	input := &servicediscovery.GetNamespaceInput{
+		Id: aws.String(namespaceId),
+	}
+
+	result, err := svc.GetNamespace(awsenv.EmptyContext, input)
+	if err != nil {
+		return nil
+	}
+
+	return result.Namespace
+}
+
 func CreateNamespace() {
 	input := &servicediscovery.CreateHttpNamespaceInput{
 		Name: aws.String(awsenv.NamespaceName),

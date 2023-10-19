@@ -65,6 +65,9 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		configs = append(configs, config)
 	}
 
+	// 4.1 add cloud map data
+	configs = model.AddIndividualData(configs)
+
 	// 5. create AwsConfigRelationshipEntity list
 	for _, data := range datas {
 		ship := data.CreateAwsConfigRelationshipEntity(configs)
