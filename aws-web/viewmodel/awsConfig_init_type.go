@@ -33,7 +33,7 @@ func GetAllVpcInfos(datas []AwsConfigFileData) []VpcInfo {
 			if !found {
 				vpc := VpcInfo{
 					VpcId: vpcid,
-					Subnets: []SubnetInfo{SubnetInfo{
+					Subnets: []SubnetInfo{{
 						Subnet:           subnetId,
 						AvailabilityZone: availabilityZone,
 					}},
@@ -250,12 +250,13 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (
 		}
 	}
 
-	if len(subnetId) == 0 && len(subnetIds) > 0 {
+	if len(subnetId) == 0 && len(subnetIds) == 1 {
 		subnetId = subnetIds[0]
 	}
 
-	if len(subnetIds) > 0 {
+	if len(subnetIds) > 1 {
 		availabilityZone = foundAvailabilityZone(subnetIds)
+		subnetId = ""
 	}
 
 	return

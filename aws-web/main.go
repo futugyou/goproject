@@ -10,6 +10,7 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
@@ -81,6 +82,7 @@ func main() {
 	// servicediscovery.RegisterInstance()
 	// servicediscovery.CreateService()
 	// servicediscovery.CreateNamespace()
+	// servicediscovery.GetNamespace()
 
 	// cloudwatch.GetMetricData()
 	// cloudwatch.ListDashboards()
@@ -192,10 +194,12 @@ func main() {
 	// config.DescribeConfigurationRecorders()
 	// config.DeleteConfigurationRecorder()
 
-	config := services.NewAwsConfigService()
-	config.SyncFileResources(awsenv.AwsConfigFilePath)
-	res := config.GetResourceGraph()
-	fmt.Println(len(res.Edges), len(res.Nodes))
+	route53.GetHostedZone()
+
+	// config := services.NewAwsConfigService()
+	// config.SyncFileResources(awsenv.AwsConfigFilePath)
+	// res := config.GetResourceGraph()
+	// fmt.Println(len(res.Edges), len(res.Nodes))
 }
 
 func SyncData() {

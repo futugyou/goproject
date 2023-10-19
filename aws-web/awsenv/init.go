@@ -24,10 +24,12 @@ var (
 	ECSClusterName          string
 	ECSServiceName          string
 	AwsConfigFilePath       string
+	HostedZoneId            string
 )
 
 func init() {
 	NamespaceId = os.Getenv("CLOUD_MAP_NAMESPACE_ID")
+	HostedZoneId = os.Getenv("ROUTE53_HOSTED_ZONEID")
 	NamespaceName = os.Getenv("CLOUD_MAP_NAMESPACE")
 	CloudMapServiceName = os.Getenv("CLOUD_MAP_SERVICE_NAME")
 	UserName = os.Getenv("IAM_USER_NAME")

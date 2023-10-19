@@ -187,7 +187,11 @@ func GetNamespace() {
 		return
 	}
 
-	fmt.Println("arn:", *result.Namespace.Arn, "\tName:", *result.Namespace.Name, "\tServiceCount:", result.Namespace.ServiceCount)
+	fmt.Println("arn:", *result.Namespace.Arn,
+		"\tName:", *result.Namespace.Name,
+		"\tServiceCount:", result.Namespace.ServiceCount,
+		"\tHostedZoneId:", *result.Namespace.Properties.DnsProperties.HostedZoneId,
+	)
 }
 
 func CreateNamespace() {
