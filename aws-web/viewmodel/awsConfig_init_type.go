@@ -16,16 +16,23 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 	namespaceEntityList := make([]entity.AwsConfigEntity, 0)
 	namespaceList := make([]string, 0)
 
-	for _, config := range configs {
-		if config.ResourceType == "AWS::ServiceDiscovery::Service" {
+	// 1. get namespace data
+	for i := 0; i < len(configs); i++ {
+		if configs[i].ResourceType == "AWS::ServiceDiscovery::Service" {
 			var configuration ServiceDiscoveryConfiguration
-			err := json.Unmarshal([]byte(config.Configuration), &configuration)
+			err := json.Unmarshal([]byte(configs[i].Configuration), &configuration)
 			if err != nil {
 				continue
 			}
 
 			namespaceid := configuration.NamespaceID
 			if slices.Contains(namespaceList, namespaceid) {
+				for _, namespace := range namespaceEntityList {
+					if namespace.ResourceID == namespaceid {
+						configs[i].VpcID = namespace.VpcID
+						break
+					}
+				}
 				continue
 			}
 
@@ -39,16 +46,16 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 			namespaceEntity := entity.AwsConfigEntity{
 				ID:                           *namespace.Arn,
 				Label:                        *namespace.Name,
-				AccountID:                    config.AccountID,
+				AccountID:                    configs[i].AccountID,
 				Arn:                          *namespace.Arn,
-				AvailabilityZone:             config.AvailabilityZone,
-				AwsRegion:                    config.AwsRegion,
+				AvailabilityZone:             configs[i].AvailabilityZone,
+				AwsRegion:                    configs[i].AwsRegion,
 				Configuration:                "{}",
 				ConfigurationItemCaptureTime: *namespace.CreateDate,
 				ConfigurationItemStatus:      "",
 				ConfigurationStateID:         0,
 				ResourceCreationTime:         *namespace.CreateDate,
-				ResourceID:                   *namespace.Name,
+				ResourceID:                   *namespace.Id,
 				ResourceName:                 *namespace.Name,
 				ResourceType:                 "AWS::ServiceDiscovery::Namespace",
 				Tags:                         "",
@@ -67,6 +74,7 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 				namespace.Properties.DnsProperties.HostedZoneId != nil {
 				vpcid := route53.GetHostedZoneVpcId(*namespace.Properties.DnsProperties.HostedZoneId)
 				namespaceEntity.VpcID = vpcid
+				configs[i].VpcID = vpcid
 			}
 
 			namespaceEntityList = append(namespaceEntityList, namespaceEntity)
