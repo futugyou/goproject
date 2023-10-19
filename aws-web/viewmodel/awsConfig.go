@@ -85,7 +85,7 @@ type Relationship struct {
 func (data AwsConfigFileData) CreateAwsConfigEntity(vpcinfos []VpcInfo) entity.AwsConfigEntity {
 	configuration := getDataString(data.Configuration)
 	name := getName(data.ResourceID, data.ResourceName, data.Tags)
-	vpcid, subnetId, subnetIds, securityGroups := getVpcInfo(data.ResourceType, configuration, vpcinfos)
+	vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo(data.ResourceType, configuration, vpcinfos)
 	loginURL, loggedInURL := createConsoleUrls(data)
 	config := entity.AwsConfigEntity{
 		ID:                           getId(data.ARN, data.ResourceID),
@@ -112,6 +112,11 @@ func (data AwsConfigFileData) CreateAwsConfigEntity(vpcinfos []VpcInfo) entity.A
 		LoginURL:                     loginURL,
 		LoggedInURL:                  loggedInURL,
 	}
+
+	if len(availabilityZone) > 0 {
+		config.AvailabilityZone = availabilityZone
+	}
+
 	return config
 }
 

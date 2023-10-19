@@ -17,19 +17,26 @@ func GetAllVpcInfos(datas []AwsConfigFileData) []VpcInfo {
 
 			vpcid := config.VpcID
 			subnetId := config.SubnetID
+			availabilityZone := config.AvailabilityZone
 
 			found := false
 			for i := 0; i < len(vpcInfos); i++ {
 				if vpcid == vpcInfos[i].VpcId {
 					found = true
-					vpcInfos[i].Subnets = append(vpcInfos[i].Subnets, subnetId)
+					vpcInfos[i].Subnets = append(vpcInfos[i].Subnets, SubnetInfo{
+						Subnet:           subnetId,
+						AvailabilityZone: availabilityZone,
+					})
 				}
 			}
 
 			if !found {
 				vpc := VpcInfo{
-					VpcId:   vpcid,
-					Subnets: []string{subnetId},
+					VpcId: vpcid,
+					Subnets: []SubnetInfo{SubnetInfo{
+						Subnet:           subnetId,
+						AvailabilityZone: availabilityZone,
+					}},
 				}
 				vpcInfos = append(vpcInfos, vpc)
 			}
@@ -69,16 +76,17 @@ func getDataString(con interface{}) string {
 	}
 }
 
-func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (vpcid string, subnetId string, subnetIds []string, securityGroups []string) {
+func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (vpcid string, subnetId string, subnetIds []string, securityGroups []string, availabilityZone string) {
 	vpcid = ""
 	subnetId = ""
 	subnetIds = make([]string, 0)
 	securityGroups = make([]string, 0)
+	availabilityZone = ""
 
 	foundVpn := func(ids []string) string {
 		for _, vpn := range vpcinfos {
 			for _, net := range vpn.Subnets {
-				if slices.Contains(ids, net) {
+				if slices.Contains(ids, net.Subnet) {
 					return vpn.VpcId
 				}
 			}
@@ -87,6 +95,23 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (
 		return ""
 	}
 
+	foundAvailabilityZone := func(ids []string) string {
+		azs := make([]string, 0)
+		for _, vpn := range vpcinfos {
+			for _, net := range vpn.Subnets {
+				if slices.Contains(ids, net.Subnet) {
+					azs = append(azs, net.AvailabilityZone)
+				}
+			}
+		}
+
+		if len(azs) > 0 {
+			slices.Sort(azs)
+			return strings.Join(azs, ",")
+		}
+
+		return ""
+	}
 	switch resourceType {
 	case "AWS::EC2::VPCEndpoint":
 		var config VPCEndpointConfiguration
@@ -226,7 +251,11 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (
 	}
 
 	if len(subnetId) == 0 && len(subnetIds) > 0 {
-		subnetId = strings.Join(subnetIds, ",")
+		subnetId = subnetIds[0]
+	}
+
+	if len(subnetIds) > 0 {
+		availabilityZone = foundAvailabilityZone(subnetIds)
 	}
 
 	return
@@ -448,7 +477,12 @@ func createConsoleUrls(resource AwsConfigFileData) (loginURL string, loggedInURL
 
 type VpcInfo struct {
 	VpcId   string
-	Subnets []string
+	Subnets []SubnetInfo
+}
+
+type SubnetInfo struct {
+	Subnet           string
+	AvailabilityZone string
 }
 
 type VPCEndpointConfiguration struct {
