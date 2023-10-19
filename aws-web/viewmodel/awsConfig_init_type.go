@@ -175,9 +175,12 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []VpcInfo) (
 		azs := make([]string, 0)
 		for _, vpn := range vpcinfos {
 			for _, net := range vpn.Subnets {
-				if slices.Contains(ids, net.Subnet) {
-					azs = append(azs, net.AvailabilityZone)
+				if !slices.Contains(ids, net.Subnet) ||
+					slices.Contains(azs, net.AvailabilityZone) {
+					continue
 				}
+
+				azs = append(azs, net.AvailabilityZone)
 			}
 		}
 
