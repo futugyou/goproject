@@ -85,13 +85,20 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 }
 
 func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
+	sgs := make([]entity.AwsConfigEntity, 0)
 	sds := make([]entity.AwsConfigEntity, 0)
 	ships := make([]entity.AwsConfigRelationshipEntity, 0)
+
 	for _, config := range configs {
+		if config.ResourceType == "AWS::EC2::SecurityGroup" {
+			sgs = append(sgs, config)
+		}
+
 		if config.ResourceType == "AWS::ServiceDiscovery::Service" {
 			sds = append(sds, config)
 		}
 	}
+
 	for _, config := range configs {
 		if config.ResourceType == "AWS::ECS::Service" {
 			var ecsconfig ECSServiceConfiguration
@@ -100,6 +107,7 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 				continue
 			}
 
+			// ServiceDiscovery Relationship
 			for _, sr := range ecsconfig.ServiceRegistries {
 				index := slices.IndexFunc(sds, func(sd entity.AwsConfigEntity) bool {
 					return sr.RegistryArn == sd.ID
@@ -119,8 +127,30 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 					ships = append(ships, ship)
 				}
 			}
+
+			// SecurityGroup Relationship
+			for _, sgg := range ecsconfig.NetworkConfiguration.AwsvpcConfiguration.SecurityGroups {
+				index := slices.IndexFunc(sgs, func(sd entity.AwsConfigEntity) bool {
+					return sgg == sd.ResourceID
+				})
+				if index != -1 {
+					sd := sgs[index]
+					ship := entity.AwsConfigRelationshipEntity{
+						ID:                 config.ResourceID + "-" + sd.ResourceID,
+						SourceID:           config.ID,
+						SourceLabel:        config.ResourceName,
+						SourceResourceType: config.ResourceType,
+						Label:              "Is associated with SecurityGroup",
+						TargetID:           sd.ID,
+						TargetLabel:        sd.ResourceName,
+						TargetResourceType: sd.ResourceType,
+					}
+					ships = append(ships, ship)
+				}
+			}
 		}
 	}
+
 	return ships
 }
 
