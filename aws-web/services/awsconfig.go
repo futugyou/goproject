@@ -76,6 +76,9 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		}
 	}
 
+	// 5.1 ecs service relation ship
+	ships = model.AddIndividualRelationShip(configs)
+
 	// 6. BulkWrite data to db
 	log.Println("configs count: ", len(configs))
 	err = a.repository.BulkWrite(context.Background(), configs)

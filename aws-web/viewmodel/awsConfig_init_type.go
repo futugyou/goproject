@@ -84,6 +84,46 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 	return append(configs, namespaceEntityList...)
 }
 
+func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
+	sds := make([]entity.AwsConfigEntity, 0)
+	ships := make([]entity.AwsConfigRelationshipEntity, 0)
+	for _, config := range configs {
+		if config.ResourceType == "AWS::ServiceDiscovery::Service" {
+			sds = append(sds, config)
+		}
+	}
+	for _, config := range configs {
+		if config.ResourceType == "AWS::ECS::Service" {
+			var ecsconfig ECSServiceConfiguration
+			err := json.Unmarshal([]byte(config.Configuration), &ecsconfig)
+			if err != nil {
+				continue
+			}
+
+			for _, sr := range ecsconfig.ServiceRegistries {
+				index := slices.IndexFunc(sds, func(sd entity.AwsConfigEntity) bool {
+					return sr.RegistryArn == sd.ID
+				})
+				if index != -1 {
+					sd := sds[index]
+					ship := entity.AwsConfigRelationshipEntity{
+						ID:                 config.ResourceID + "-" + sd.ResourceID,
+						SourceID:           config.ID,
+						SourceLabel:        config.ResourceName,
+						SourceResourceType: config.ResourceType,
+						Label:              "Is associated with ServiceDiscovery",
+						TargetID:           sd.ID,
+						TargetLabel:        sd.ResourceName,
+						TargetResourceType: sd.ResourceType,
+					}
+					ships = append(ships, ship)
+				}
+			}
+		}
+	}
+	return ships
+}
+
 func GetAllVpcInfos(datas []AwsConfigFileData) []VpcInfo {
 	vpcInfos := make([]VpcInfo, 0)
 	for _, data := range datas {
