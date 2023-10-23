@@ -85,11 +85,40 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateAccessPointIndividualRelationShip(config, configs)
 		case "AWS::EFS::FileSystem":
 			ss = CreateFileSystemIndividualRelationShip(config, configs)
+		case "AWS::ElasticLoadBalancingV2::Listener":
+			ss = CreateLoadBalancingListenerIndividualRelationShip(config, configs)
 		}
 		ships = append(ships, ss...)
 	}
 
 	return ships
+}
+
+func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.LoadBalancerListenerConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		return
+	}
+	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+		return conf.LoadBalancerArn == sd.Arn && sd.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer"
+	})
+	if index != -1 {
+		target := configs[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              "Is associated with LoadBalancer",
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+	return
 }
 
 func CreateFileSystemIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {

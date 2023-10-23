@@ -614,7 +614,7 @@ func FilterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::SNS::Topic" ||
 			d.ResourceType == "AWS::ECS::Cluster" ||
 			d.ResourceType == "AWS::IAM::Group" ||
-			// d.ResourceType == "AWS::ElasticLoadBalancingV2::Listener" ||
+			d.ResourceType == "AWS::ElasticLoadBalancingV2::Listener" ||
 			d.ResourceType == "AWS::IAM::User" ||
 			d.ResourceType == "AWS::EC2::SecurityGroup" ||
 			d.ResourceType == "AWS::EFS::AccessPoint" ||
