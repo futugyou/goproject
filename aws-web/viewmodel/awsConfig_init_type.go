@@ -149,8 +149,47 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 				}
 			}
 		}
+
+		if config.ResourceType == "AWS::EC2::SecurityGroup" {
+			var sgconfig SecurityGroupConfiguration
+			err := json.Unmarshal([]byte(config.Configuration), &sgconfig)
+			if err != nil {
+				continue
+			}
+
+			permissions := securityGroupIPPermissions(config, sgconfig.IPPermissions, sgs)
+			ships = append(ships, permissions...)
+			permissions = securityGroupIPPermissions(config, sgconfig.IPPermissionsEgress, sgs)
+			ships = append(ships, permissions...)
+		}
 	}
 
+	return ships
+}
+
+func securityGroupIPPermissions(config entity.AwsConfigEntity, permissions []IPPermission, sgs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
+	ships := make([]entity.AwsConfigRelationshipEntity, 0)
+	for _, permission := range permissions {
+		for _, pair := range permission.UserIDGroupPairs {
+			index := slices.IndexFunc(sgs, func(sd entity.AwsConfigEntity) bool {
+				return pair.GroupID == sd.ResourceID
+			})
+			if index != -1 {
+				sd := sgs[index]
+				ship := entity.AwsConfigRelationshipEntity{
+					ID:                 sd.ResourceID + "-" + config.ResourceID,
+					SourceID:           sd.ID,
+					SourceLabel:        sd.ResourceName,
+					SourceResourceType: sd.ResourceType,
+					Label:              "Is associated with SecurityGroup",
+					TargetID:           config.ID,
+					TargetLabel:        config.ResourceName,
+					TargetResourceType: config.ResourceType,
+				}
+				ships = append(ships, ship)
+			}
+		}
+	}
 	return ships
 }
 
