@@ -19,7 +19,7 @@ type FunctionConfiguration struct {
 	Layers               []interface{}        `json:"layers"`
 	State                string               `json:"state"`
 	LastUpdateStatus     string               `json:"lastUpdateStatus"`
-	FileSystemConfigs    []interface{}        `json:"fileSystemConfigs"`
+	FileSystemConfigs    []FileSystemConfig   `json:"fileSystemConfigs"`
 	PackageType          string               `json:"packageType"`
 	Architectures        []string             `json:"architectures"`
 	EphemeralStorage     EphemeralStorage     `json:"ephemeralStorage"`
@@ -29,6 +29,11 @@ type FunctionConfiguration struct {
 
 type EphemeralStorage struct {
 	Size int64 `json:"size"`
+}
+
+type FileSystemConfig struct {
+	Arn            string `json:"arn"`
+	LocalMountPath string `json:"localMountPath"`
 }
 
 type RuntimeVersionConfig struct {

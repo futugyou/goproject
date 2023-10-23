@@ -95,11 +95,43 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateEventBusIndividualRelationShip(config, eventsRules)
 		case "AWS::Events::Rule":
 			ss = CreateEventRuleIndividualRelationShip(config, configs)
+		case "AWS::Lambda::Function":
+			ss = CreateFunctionIndividualRelationShip(config, configs)
 		}
 		ships = append(ships, ss...)
 	}
 
 	return ships
+}
+
+func CreateFunctionIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.FunctionConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		return
+	}
+	for _, target := range conf.FileSystemConfigs {
+		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+			return target.Arn == sd.Arn
+		})
+		if index != -1 {
+			target := configs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	return
 }
 
 func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
