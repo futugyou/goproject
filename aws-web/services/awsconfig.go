@@ -71,13 +71,12 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	// 5. create AwsConfigRelationshipEntity list
 	for _, data := range datas {
 		ship := data.CreateAwsConfigRelationshipEntity(configs)
-		if len(ship) > 0 {
-			ships = append(ships, ship...)
-		}
+		ships = append(ships, ship...)
 	}
 
-	// 5.1 ecs service relation ship
-	ships = model.AddIndividualRelationShip(configs)
+	// 5.1 individual relation ship
+	individualShips := model.AddIndividualRelationShip(configs)
+	ships = append(ships, individualShips...)
 
 	// 6. BulkWrite data to db
 	log.Println("configs count: ", len(configs))
