@@ -12,6 +12,19 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+func RemoveDuplicateRelationShip(ships []entity.AwsConfigRelationshipEntity) []entity.AwsConfigRelationshipEntity {
+	result := make([]entity.AwsConfigRelationshipEntity, 0)
+	for _, ship := range ships {
+		if !slices.ContainsFunc(result, func(s entity.AwsConfigRelationshipEntity) bool {
+			return (s.SourceID == ship.SourceID && s.TargetID == ship.TargetID) ||
+				(s.SourceID == ship.TargetID && s.TargetID == ship.SourceID)
+		}) {
+			result = append(result, ship)
+		}
+	}
+	return result
+}
+
 func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
 

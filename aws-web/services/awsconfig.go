@@ -78,6 +78,9 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	individualShips := AddIndividualRelationShip(resources)
 	ships = append(ships, individualShips...)
 
+	// 5.2 remove duplicate
+	ships = RemoveDuplicateRelationShip(ships)
+
 	// 6. BulkWrite data to db
 	log.Println("resources count: ", len(resources))
 	err = a.repository.BulkWrite(context.Background(), resources)
