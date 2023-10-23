@@ -126,7 +126,7 @@ func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity(configs []entity
 	for _, ship := range data.Relationships {
 		var id string
 		for i := 0; i < len(configs); i++ {
-			if configs[i].ResourceID == ship.ResourceID && configs[i].ResourceName == ship.ResourceName {
+			if configs[i].ResourceID == ship.ResourceID && configs[i].ResourceType == ship.ResourceType {
 				id = configs[i].ID
 				break
 			}
