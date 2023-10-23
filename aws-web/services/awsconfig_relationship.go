@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
@@ -63,6 +64,7 @@ func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []e
 func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
 	sgs := make([]entity.AwsConfigEntity, 0)
 	sds := make([]entity.AwsConfigEntity, 0)
+	eventsRules := make([]entity.AwsConfigEntity, 0)
 	ships := make([]entity.AwsConfigRelationshipEntity, 0)
 
 	for _, config := range configs {
@@ -71,6 +73,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			sgs = append(sgs, config)
 		case "AWS::ServiceDiscovery::Service":
 			sds = append(sds, config)
+		case "AWS::Events::Rule":
+			eventsRules = append(eventsRules, config)
 		}
 	}
 
@@ -87,11 +91,89 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateFileSystemIndividualRelationShip(config, configs)
 		case "AWS::ElasticLoadBalancingV2::Listener":
 			ss = CreateLoadBalancingListenerIndividualRelationShip(config, configs)
+		case "AWS::Events::EventBus":
+			ss = CreateEventBusIndividualRelationShip(config, eventsRules)
+		case "AWS::Events::Rule":
+			ss = CreateEventRuleIndividualRelationShip(config, configs)
 		}
 		ships = append(ships, ss...)
 	}
 
 	return ships
+}
+
+func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.EventRoleConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		return
+	}
+	for _, target := range conf.Targets {
+		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+			return target.Arn == sd.Arn
+		})
+		if index != -1 {
+			target := configs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	return
+}
+
+func GetResourceTypeName(name string) string {
+	typeName := ""
+	ls := strings.Split(name, "::")
+
+	if len(ls) > 0 {
+		typeName = ls[len(ls)-1]
+	}
+	return typeName
+}
+
+func CreateEventBusIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+		var conf c.EventRoleConfiguration
+		err := json.Unmarshal([]byte(sd.Configuration), &conf)
+		if err != nil {
+			return false
+		}
+
+		eventBusName := conf.EventBusName
+		if !strings.HasPrefix(eventBusName, "arn:") {
+			eventBusName = fmt.Sprintf("arn:aws:events:%s:%s:event-bus/%s", sd.AwsRegion, sd.AccountID, eventBusName)
+		}
+
+		return config.Arn == eventBusName
+	})
+
+	if index != -1 {
+		target := configs[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              "Is associated with EventsRule",
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+	return
 }
 
 func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {

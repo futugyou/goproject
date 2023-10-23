@@ -632,6 +632,8 @@ func FilterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::DynamoDB::Table" ||
 			d.ResourceType == "AWS::EC2::RouteTable" ||
 			d.ResourceType == "AWS::KMS::Key" ||
+			d.ResourceType == "AWS::Events::Rule" ||
+			d.ResourceType == "AWS::Events::EventBus" ||
 			d.ResourceType == "AWS::EC2::Instance" {
 			resuls = append(resuls, d)
 		}
