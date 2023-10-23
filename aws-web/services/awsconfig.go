@@ -184,6 +184,7 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::S3::Bucket" ||
 			d.ResourceType == "AWS::DynamoDB::Table" ||
 			d.ResourceType == "AWS::EC2::RouteTable" ||
+			// d.ResourceType == "AWS::KMS::Key" ||
 			d.ResourceType == "AWS::EC2::Instance" {
 			resuls = append(resuls, d)
 		}

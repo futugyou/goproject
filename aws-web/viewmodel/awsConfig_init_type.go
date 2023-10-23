@@ -113,16 +113,16 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 					return sr.RegistryArn == sd.ID
 				})
 				if index != -1 {
-					sd := sds[index]
+					target := sds[index]
 					ship := entity.AwsConfigRelationshipEntity{
-						ID:                 config.ResourceID + "-" + sd.ResourceID,
+						ID:                 config.ResourceID + "-" + target.ResourceID,
 						SourceID:           config.ID,
 						SourceLabel:        config.ResourceName,
 						SourceResourceType: config.ResourceType,
 						Label:              "Is associated with ServiceDiscovery",
-						TargetID:           sd.ID,
-						TargetLabel:        sd.ResourceName,
-						TargetResourceType: sd.ResourceType,
+						TargetID:           target.ID,
+						TargetLabel:        target.ResourceName,
+						TargetResourceType: target.ResourceType,
 					}
 					ships = append(ships, ship)
 				}
@@ -134,16 +134,16 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 					return sgg == sd.ResourceID
 				})
 				if index != -1 {
-					sd := sgs[index]
+					target := sgs[index]
 					ship := entity.AwsConfigRelationshipEntity{
-						ID:                 config.ResourceID + "-" + sd.ResourceID,
+						ID:                 config.ResourceID + "-" + target.ResourceID,
 						SourceID:           config.ID,
 						SourceLabel:        config.ResourceName,
 						SourceResourceType: config.ResourceType,
 						Label:              "Is associated with SecurityGroup",
-						TargetID:           sd.ID,
-						TargetLabel:        sd.ResourceName,
-						TargetResourceType: sd.ResourceType,
+						TargetID:           target.ID,
+						TargetLabel:        target.ResourceName,
+						TargetResourceType: target.ResourceType,
 					}
 					ships = append(ships, ship)
 				}
@@ -162,6 +162,32 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			permissions = securityGroupIPPermissions(config, sgconfig.IPPermissionsEgress, sgs)
 			ships = append(ships, permissions...)
 		}
+
+		if config.ResourceType == "AWS::EFS::AccessPoint" {
+			var conf AccessPointConfiguration
+			err := json.Unmarshal([]byte(config.Configuration), &conf)
+			if err != nil {
+				continue
+			}
+			index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+				return conf.FileSystemID == sd.ResourceID && sd.ResourceType == "AWS::EFS::FileSystem"
+			})
+			if index != -1 {
+				target := configs[index]
+				ship := entity.AwsConfigRelationshipEntity{
+					ID:                 config.ResourceID + "-" + target.ResourceID,
+					SourceID:           config.ID,
+					SourceLabel:        config.ResourceName,
+					SourceResourceType: config.ResourceType,
+					Label:              "Is attached to FileSystem",
+					TargetID:           target.ID,
+					TargetLabel:        target.ResourceName,
+					TargetResourceType: target.ResourceType,
+				}
+				ships = append(ships, ship)
+			}
+
+		}
 	}
 
 	return ships
@@ -175,16 +201,16 @@ func securityGroupIPPermissions(config entity.AwsConfigEntity, permissions []IPP
 				return pair.GroupID == sd.ResourceID
 			})
 			if index != -1 {
-				sd := sgs[index]
+				target := sgs[index]
 				ship := entity.AwsConfigRelationshipEntity{
-					ID:                 sd.ResourceID + "-" + config.ResourceID,
-					SourceID:           sd.ID,
-					SourceLabel:        sd.ResourceName,
-					SourceResourceType: sd.ResourceType,
+					ID:                 config.ResourceID + "-" + target.ResourceID,
+					SourceID:           config.ID,
+					SourceLabel:        config.ResourceName,
+					SourceResourceType: config.ResourceType,
 					Label:              "Is associated with SecurityGroup",
-					TargetID:           config.ID,
-					TargetLabel:        config.ResourceName,
-					TargetResourceType: config.ResourceType,
+					TargetID:           target.ID,
+					TargetLabel:        target.ResourceName,
+					TargetResourceType: target.ResourceType,
 				}
 				ships = append(ships, ship)
 			}
@@ -1264,4 +1290,31 @@ type Placement struct {
 type State struct {
 	Code int64  `json:"code"`
 	Name string `json:"name"`
+}
+
+type AccessPointConfiguration struct {
+	AccessPointID   string        `json:"AccessPointId"`
+	Arn             string        `json:"Arn"`
+	ClientToken     string        `json:"ClientToken"`
+	AccessPointTags []Tag         `json:"AccessPointTags"`
+	FileSystemID    string        `json:"FileSystemId"`
+	POSIXUser       POSIXUser     `json:"PosixUser"`
+	RootDirectory   RootDirectory `json:"RootDirectory"`
+}
+
+type POSIXUser struct {
+	Uid           string   `json:"Uid"`
+	Gid           string   `json:"Gid"`
+	SecondaryGids []string `json:"SecondaryGids"`
+}
+
+type RootDirectory struct {
+	Path         string       `json:"Path"`
+	CreationInfo CreationInfo `json:"CreationInfo"`
+}
+
+type CreationInfo struct {
+	OwnerUid    string `json:"OwnerUid"`
+	OwnerGid    string `json:"OwnerGid"`
+	Permissions string `json:"Permissions"`
 }
