@@ -1,10 +1,7 @@
 package viewmodel
 
 import (
-	"strings"
 	"time"
-
-	"github.com/futugyousuzu/goproject/awsgolang/entity"
 )
 
 type ResourceGraph struct {
@@ -80,91 +77,4 @@ type Relationship struct {
 	ResourceName string `json:"resourceName"`
 	ResourceType string `json:"resourceType"`
 	Name         string `json:"name"`
-}
-
-func (data AwsConfigFileData) CreateAwsConfigEntity(vpcinfos []VpcInfo) entity.AwsConfigEntity {
-	configuration := getDataString(data.Configuration)
-	name := getName(data.ResourceID, data.ResourceName, data.Tags)
-	vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo(data.ResourceType, configuration, vpcinfos)
-	loginURL, loggedInURL := createConsoleUrls(data)
-	config := entity.AwsConfigEntity{
-		ID:                           getId(data.ARN, data.ResourceID),
-		Label:                        name,
-		AccountID:                    data.AwsAccountID,
-		Arn:                          data.ARN,
-		AvailabilityZone:             data.AvailabilityZone,
-		AwsRegion:                    data.AwsRegion,
-		Configuration:                configuration,
-		ConfigurationItemCaptureTime: data.ConfigurationItemCaptureTime,
-		ConfigurationItemStatus:      data.ConfigurationItemStatus,
-		ConfigurationStateID:         data.ConfigurationStateID,
-		ResourceCreationTime:         data.ResourceCreationTime,
-		ResourceID:                   data.ResourceID,
-		ResourceName:                 data.ResourceName,
-		ResourceType:                 data.ResourceType,
-		Tags:                         getDataString(data.Tags),
-		Version:                      data.ConfigurationItemVersion,
-		VpcID:                        vpcid,
-		SubnetID:                     subnetId,
-		SubnetIds:                    subnetIds,
-		Title:                        name,
-		SecurityGroups:               securityGroups,
-		LoginURL:                     loginURL,
-		LoggedInURL:                  loggedInURL,
-	}
-
-	if len(availabilityZone) > 0 {
-		config.AvailabilityZone = availabilityZone
-	}
-
-	return config
-}
-
-func (data AwsConfigFileData) CreateAwsConfigRelationshipEntity(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
-	lists := make([]entity.AwsConfigRelationshipEntity, 0)
-
-	for _, ship := range data.Relationships {
-		var id string
-		for i := 0; i < len(configs); i++ {
-			if configs[i].ResourceID == ship.ResourceID && configs[i].ResourceType == ship.ResourceType {
-				id = configs[i].ID
-				break
-			}
-		}
-
-		if len(id) == 0 {
-			continue
-		}
-
-		if strings.HasPrefix(ship.Name, "Is ") {
-			relationship := entity.AwsConfigRelationshipEntity{
-				ID:                 data.ResourceID + "-" + ship.ResourceID,
-				SourceID:           getId(data.ARN, data.ResourceID),
-				SourceLabel:        data.ResourceName,
-				SourceResourceType: data.ResourceType,
-				Label:              ship.Name,
-				TargetID:           id,
-				TargetLabel:        ship.ResourceName,
-				TargetResourceType: ship.ResourceType,
-			}
-			lists = append(lists, relationship)
-		}
-
-		if strings.HasPrefix(ship.Name, "Contains ") {
-			relationship := entity.AwsConfigRelationshipEntity{
-				ID:                 ship.ResourceID + "-" + data.ResourceID,
-				SourceID:           id,
-				SourceLabel:        ship.ResourceName,
-				SourceResourceType: ship.ResourceType,
-				Label:              ship.Name,
-				TargetID:           getId(data.ARN, data.ResourceID),
-				TargetLabel:        data.ResourceName,
-				TargetResourceType: data.ResourceType,
-			}
-			lists = append(lists, relationship)
-		}
-
-	}
-
-	return lists
 }

@@ -54,28 +54,28 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	datas = filterResource(datas)
 
 	// 3. get all vpc info
-	vpcinfos := model.GetAllVpcInfos(datas)
+	vpcinfos := GetAllVpcInfos(datas)
 
 	configs := make([]entity.AwsConfigEntity, 0)
 	ships := make([]entity.AwsConfigRelationshipEntity, 0)
 
 	// 4. create AwsConfigEntity list
 	for _, data := range datas {
-		config := data.CreateAwsConfigEntity(vpcinfos)
+		config := CreateAwsConfigEntity(data, vpcinfos)
 		configs = append(configs, config)
 	}
 
 	// 4.1 add cloud map data
-	configs = model.AddIndividualData(configs)
+	configs = AddIndividualData(configs)
 
 	// 5. create AwsConfigRelationshipEntity list
 	for _, data := range datas {
-		ship := data.CreateAwsConfigRelationshipEntity(configs)
+		ship := CreateAwsConfigRelationshipEntity(data, configs)
 		ships = append(ships, ship...)
 	}
 
 	// 5.1 individual relation ship
-	individualShips := model.AddIndividualRelationShip(configs)
+	individualShips := AddIndividualRelationShip(configs)
 	ships = append(ships, individualShips...)
 
 	// 6. BulkWrite data to db
@@ -146,48 +146,4 @@ func (a *AwsConfigService) GetResourceGraph() model.ResourceGraph {
 		Nodes: nodes,
 		Edges: edges,
 	}
-}
-
-func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
-	resuls := make([]model.AwsConfigFileData, 0)
-	for _, d := range datas {
-		if d.ResourceType == "AWS::EC2::VPCEndpoint" ||
-			d.ResourceType == "AWS::EC2::VPC" ||
-			d.ResourceType == "AWS::ServiceDiscovery::Service" ||
-			// d.ResourceType == "AWS::Signer::SigningProfile" ||
-			d.ResourceType == "AWS::EC2::Subnet" ||
-			d.ResourceType == "AWS::AmazonMQ::Broker" ||
-			// d.ResourceType == "AWS::CloudTrail::Trail" ||
-			d.ResourceType == "AWS::EC2::NatGateway" ||
-			d.ResourceType == "AWS::EC2::InternetGateway" ||
-			d.ResourceType == "AWS::EC2::VPCPeeringConnection" ||
-			d.ResourceType == "AWS::EFS::FileSystem" ||
-			// d.ResourceType == "AWS::IAM::Role" ||
-			d.ResourceType == "AWS::RDS::DBInstance" ||
-			d.ResourceType == "AWS::SNS::Topic" ||
-			d.ResourceType == "AWS::ECS::Cluster" ||
-			d.ResourceType == "AWS::IAM::Group" ||
-			// d.ResourceType == "AWS::ElasticLoadBalancingV2::Listener" ||
-			d.ResourceType == "AWS::IAM::User" ||
-			d.ResourceType == "AWS::EC2::SecurityGroup" ||
-			d.ResourceType == "AWS::EFS::AccessPoint" ||
-			// d.ResourceType == "AWS::IoT::ProvisioningTemplate" ||
-			d.ResourceType == "AWS::EC2::NetworkInterface" ||
-			// d.ResourceType == "AWS::Route53Resolver::ResolverRuleAssociation" ||
-			// d.ResourceType == "AWS::RDS::DBSubnetGroup" ||
-			// d.ResourceType == "AWS::EC2::EIP" ||
-			// d.ResourceType == "AWS::Redshift::ClusterSubnetGroup" ||
-			d.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer" ||
-			d.ResourceType == "AWS::ECS::Service" ||
-			d.ResourceType == "AWS::EC2::NetworkAcl" ||
-			d.ResourceType == "AWS::Lambda::Function" ||
-			d.ResourceType == "AWS::S3::Bucket" ||
-			d.ResourceType == "AWS::DynamoDB::Table" ||
-			d.ResourceType == "AWS::EC2::RouteTable" ||
-			// d.ResourceType == "AWS::KMS::Key" ||
-			d.ResourceType == "AWS::EC2::Instance" {
-			resuls = append(resuls, d)
-		}
-	}
-	return resuls
 }
