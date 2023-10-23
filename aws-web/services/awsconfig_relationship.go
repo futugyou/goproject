@@ -97,11 +97,66 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateEventRuleIndividualRelationShip(config, configs)
 		case "AWS::Lambda::Function":
 			ss = CreateFunctionIndividualRelationShip(config, configs)
+		case "AWS::EC2::NetworkInterface":
+			ss = CreateNetworkInterfaceIndividualRelationShip(config, configs)
 		}
 		ships = append(ships, ss...)
 	}
 
 	return ships
+}
+
+func CreateNetworkInterfaceIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.NetworkInterfaceConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		return
+	}
+	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+		if strings.HasPrefix(conf.InterfaceType, "Interface for NAT Gateway ") {
+			rid := strings.ReplaceAll(conf.InterfaceType, "Interface for NAT Gateway ", "")
+			return rid == sd.ResourceID && sd.ResourceType == "AWS::EC2::NatGateway"
+		} else if strings.HasPrefix(conf.InterfaceType, "ELB app") {
+			arn := fmt.Sprintf("arn:aws:elasticloadbalancing:%s:%s:loadbalancer/%s", config.AwsRegion, config.AccountID, strings.Replace(conf.InterfaceType, "ELB ", "", 1))
+			return arn == sd.Arn && sd.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer"
+		} else if conf.InterfaceType == "vpc_endpoint" {
+			rid := strings.ReplaceAll(conf.InterfaceType, "VPC Endpoint Interface ", "")
+			return rid == sd.ResourceID && sd.ResourceType == "AWS::EC2::VPCEndpoint"
+		} else if conf.RequesterID == "amazon-elasticsearch" {
+			rid := fmt.Sprintf("%s/%s", config.AccountID, strings.Replace(conf.Description, "ES ", "", 1))
+			return rid == sd.ResourceID && sd.ResourceType == "AWS::Elasticsearch::Domain"
+		} else if conf.RequesterID == "lambda" {
+			rid := strings.Replace(conf.Description, "AWS Lambda VPC ENI-", "", 1)
+			if len(rid) > 37 {
+				rid = rid[0 : len(rid)-37]
+			}
+			return rid == sd.ResourceID && sd.ResourceType == "AWS::Lambda::Function"
+		} else if conf.RequesterID == "efs" {
+			rid := strings.Split(strings.Replace(conf.Description, "EFS mount target for ", "", 1), " (fsmt-")
+			if len(rid) == 0 {
+				return false
+			}
+			return rid[0] == sd.ResourceID && sd.ResourceType == "AWS::EFS::FileSystem"
+		}
+
+		return false
+	})
+	if index != -1 {
+		target := configs[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              fmt.Sprintf("Is attached to %s", GetResourceTypeName(target.ResourceType)),
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+	return
 }
 
 func CreateFunctionIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
