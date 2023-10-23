@@ -83,11 +83,40 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateSecurityGroupIndividualRelationShip(config, sgs)
 		case "AWS::EFS::AccessPoint":
 			ss = CreateAccessPointIndividualRelationShip(config, configs)
+		case "AWS::EFS::FileSystem":
+			ss = CreateFileSystemIndividualRelationShip(config, configs)
 		}
 		ships = append(ships, ss...)
 	}
 
 	return ships
+}
+
+func CreateFileSystemIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.FileSystemConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		return
+	}
+	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+		return conf.KmsKeyID == sd.Arn && sd.ResourceType == "AWS::KMS::Key"
+	})
+	if index != -1 {
+		target := configs[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              "Is attached to KMS",
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+	return
 }
 
 func CreateAccessPointIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
