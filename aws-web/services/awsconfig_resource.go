@@ -19,7 +19,7 @@ func CreateAwsConfigEntity(data model.AwsConfigFileData, vpcinfos []c.VpcInfo) e
 	name := getName(data.ResourceID, data.ResourceName, data.Tags)
 	vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo(data.ResourceType, configuration, vpcinfos)
 	loginURL, loggedInURL := createConsoleUrls(data)
-	config := entity.AwsConfigEntity{
+	resource := entity.AwsConfigEntity{
 		ID:                           getId(data.ARN, data.ResourceID),
 		Label:                        name,
 		AccountID:                    data.AwsAccountID,
@@ -46,70 +46,21 @@ func CreateAwsConfigEntity(data model.AwsConfigFileData, vpcinfos []c.VpcInfo) e
 	}
 
 	if len(availabilityZone) > 0 {
-		config.AvailabilityZone = availabilityZone
+		resource.AvailabilityZone = availabilityZone
 	}
 
-	return config
+	return resource
 }
 
-func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
-	lists := make([]entity.AwsConfigRelationshipEntity, 0)
-
-	for _, ship := range data.Relationships {
-		var id string
-		for i := 0; i < len(configs); i++ {
-			if configs[i].ResourceID == ship.ResourceID && configs[i].ResourceType == ship.ResourceType {
-				id = configs[i].ID
-				break
-			}
-		}
-
-		if len(id) == 0 {
-			continue
-		}
-
-		if strings.HasPrefix(ship.Name, "Is ") {
-			relationship := entity.AwsConfigRelationshipEntity{
-				ID:                 data.ResourceID + "-" + ship.ResourceID,
-				SourceID:           getId(data.ARN, data.ResourceID),
-				SourceLabel:        data.ResourceName,
-				SourceResourceType: data.ResourceType,
-				Label:              ship.Name,
-				TargetID:           id,
-				TargetLabel:        ship.ResourceName,
-				TargetResourceType: ship.ResourceType,
-			}
-			lists = append(lists, relationship)
-		}
-
-		if strings.HasPrefix(ship.Name, "Contains ") {
-			relationship := entity.AwsConfigRelationshipEntity{
-				ID:                 ship.ResourceID + "-" + data.ResourceID,
-				SourceID:           id,
-				SourceLabel:        ship.ResourceName,
-				SourceResourceType: ship.ResourceType,
-				Label:              ship.Name,
-				TargetID:           getId(data.ARN, data.ResourceID),
-				TargetLabel:        data.ResourceName,
-				TargetResourceType: data.ResourceType,
-			}
-			lists = append(lists, relationship)
-		}
-
-	}
-
-	return lists
-}
-
-func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntity {
+func AddIndividualResource(resources []entity.AwsConfigEntity) []entity.AwsConfigEntity {
 	namespaceEntityList := make([]entity.AwsConfigEntity, 0)
 	namespaceList := make([]string, 0)
 
 	// 1. get namespace data
-	for i := 0; i < len(configs); i++ {
-		if configs[i].ResourceType == "AWS::ServiceDiscovery::Service" {
+	for i := 0; i < len(resources); i++ {
+		if resources[i].ResourceType == "AWS::ServiceDiscovery::Service" {
 			var configuration c.ServiceDiscoveryConfiguration
-			err := json.Unmarshal([]byte(configs[i].Configuration), &configuration)
+			err := json.Unmarshal([]byte(resources[i].Configuration), &configuration)
 			if err != nil {
 				continue
 			}
@@ -118,7 +69,7 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 			if slices.Contains(namespaceList, namespaceid) {
 				for _, namespace := range namespaceEntityList {
 					if namespace.ResourceID == namespaceid {
-						configs[i].VpcID = namespace.VpcID
+						resources[i].VpcID = namespace.VpcID
 						break
 					}
 				}
@@ -135,10 +86,10 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 			namespaceEntity := entity.AwsConfigEntity{
 				ID:                           *namespace.Arn,
 				Label:                        *namespace.Name,
-				AccountID:                    configs[i].AccountID,
+				AccountID:                    resources[i].AccountID,
 				Arn:                          *namespace.Arn,
-				AvailabilityZone:             configs[i].AvailabilityZone,
-				AwsRegion:                    configs[i].AwsRegion,
+				AvailabilityZone:             resources[i].AvailabilityZone,
+				AwsRegion:                    resources[i].AwsRegion,
 				Configuration:                "{}",
 				ConfigurationItemCaptureTime: *namespace.CreateDate,
 				ConfigurationItemStatus:      "",
@@ -163,149 +114,14 @@ func AddIndividualData(configs []entity.AwsConfigEntity) []entity.AwsConfigEntit
 				namespace.Properties.DnsProperties.HostedZoneId != nil {
 				vpcid := route53.GetHostedZoneVpcId(*namespace.Properties.DnsProperties.HostedZoneId)
 				namespaceEntity.VpcID = vpcid
-				configs[i].VpcID = vpcid
+				resources[i].VpcID = vpcid
 			}
 
 			namespaceEntityList = append(namespaceEntityList, namespaceEntity)
 		}
 	}
 
-	return append(configs, namespaceEntityList...)
-}
-
-func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
-	sgs := make([]entity.AwsConfigEntity, 0)
-	sds := make([]entity.AwsConfigEntity, 0)
-	ships := make([]entity.AwsConfigRelationshipEntity, 0)
-
-	for _, config := range configs {
-		if config.ResourceType == "AWS::EC2::SecurityGroup" {
-			sgs = append(sgs, config)
-		}
-
-		if config.ResourceType == "AWS::ServiceDiscovery::Service" {
-			sds = append(sds, config)
-		}
-	}
-
-	for _, config := range configs {
-		if config.ResourceType == "AWS::ECS::Service" {
-			var ecsconfig c.ECSServiceConfiguration
-			err := json.Unmarshal([]byte(config.Configuration), &ecsconfig)
-			if err != nil {
-				continue
-			}
-
-			// ServiceDiscovery Relationship
-			for _, sr := range ecsconfig.ServiceRegistries {
-				index := slices.IndexFunc(sds, func(sd entity.AwsConfigEntity) bool {
-					return sr.RegistryArn == sd.ID
-				})
-				if index != -1 {
-					target := sds[index]
-					ship := entity.AwsConfigRelationshipEntity{
-						ID:                 config.ResourceID + "-" + target.ResourceID,
-						SourceID:           config.ID,
-						SourceLabel:        config.ResourceName,
-						SourceResourceType: config.ResourceType,
-						Label:              "Is associated with ServiceDiscovery",
-						TargetID:           target.ID,
-						TargetLabel:        target.ResourceName,
-						TargetResourceType: target.ResourceType,
-					}
-					ships = append(ships, ship)
-				}
-			}
-
-			// SecurityGroup Relationship
-			for _, sgg := range ecsconfig.NetworkConfiguration.AwsvpcConfiguration.SecurityGroups {
-				index := slices.IndexFunc(sgs, func(sd entity.AwsConfigEntity) bool {
-					return sgg == sd.ResourceID
-				})
-				if index != -1 {
-					target := sgs[index]
-					ship := entity.AwsConfigRelationshipEntity{
-						ID:                 config.ResourceID + "-" + target.ResourceID,
-						SourceID:           config.ID,
-						SourceLabel:        config.ResourceName,
-						SourceResourceType: config.ResourceType,
-						Label:              "Is associated with SecurityGroup",
-						TargetID:           target.ID,
-						TargetLabel:        target.ResourceName,
-						TargetResourceType: target.ResourceType,
-					}
-					ships = append(ships, ship)
-				}
-			}
-		}
-
-		if config.ResourceType == "AWS::EC2::SecurityGroup" {
-			var sgconfig c.SecurityGroupConfiguration
-			err := json.Unmarshal([]byte(config.Configuration), &sgconfig)
-			if err != nil {
-				continue
-			}
-
-			permissions := securityGroupIPPermissions(config, sgconfig.IPPermissions, sgs)
-			ships = append(ships, permissions...)
-			permissions = securityGroupIPPermissions(config, sgconfig.IPPermissionsEgress, sgs)
-			ships = append(ships, permissions...)
-		}
-
-		if config.ResourceType == "AWS::EFS::AccessPoint" {
-			var conf c.AccessPointConfiguration
-			err := json.Unmarshal([]byte(config.Configuration), &conf)
-			if err != nil {
-				continue
-			}
-			index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-				return conf.FileSystemID == sd.ResourceID && sd.ResourceType == "AWS::EFS::FileSystem"
-			})
-			if index != -1 {
-				target := configs[index]
-				ship := entity.AwsConfigRelationshipEntity{
-					ID:                 config.ResourceID + "-" + target.ResourceID,
-					SourceID:           config.ID,
-					SourceLabel:        config.ResourceName,
-					SourceResourceType: config.ResourceType,
-					Label:              "Is attached to FileSystem",
-					TargetID:           target.ID,
-					TargetLabel:        target.ResourceName,
-					TargetResourceType: target.ResourceType,
-				}
-				ships = append(ships, ship)
-			}
-
-		}
-	}
-
-	return ships
-}
-
-func securityGroupIPPermissions(config entity.AwsConfigEntity, permissions []c.IPPermission, sgs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
-	ships := make([]entity.AwsConfigRelationshipEntity, 0)
-	for _, permission := range permissions {
-		for _, pair := range permission.UserIDGroupPairs {
-			index := slices.IndexFunc(sgs, func(sd entity.AwsConfigEntity) bool {
-				return pair.GroupID == sd.ResourceID
-			})
-			if index != -1 {
-				target := sgs[index]
-				ship := entity.AwsConfigRelationshipEntity{
-					ID:                 config.ResourceID + "-" + target.ResourceID,
-					SourceID:           config.ID,
-					SourceLabel:        config.ResourceName,
-					SourceResourceType: config.ResourceType,
-					Label:              "Is associated with SecurityGroup",
-					TargetID:           target.ID,
-					TargetLabel:        target.ResourceName,
-					TargetResourceType: target.ResourceType,
-				}
-				ships = append(ships, ship)
-			}
-		}
-	}
-	return ships
+	return append(resources, namespaceEntityList...)
 }
 
 func GetAllVpcInfos(datas []model.AwsConfigFileData) []c.VpcInfo {
@@ -779,7 +595,7 @@ func createConsoleUrls(resource model.AwsConfigFileData) (loginURL string, logge
 	return
 }
 
-func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
+func FilterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 	resuls := make([]model.AwsConfigFileData, 0)
 	for _, d := range datas {
 		if d.ResourceType == "AWS::EC2::VPCEndpoint" ||
@@ -806,7 +622,7 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::EC2::NetworkInterface" ||
 			// d.ResourceType == "AWS::Route53Resolver::ResolverRuleAssociation" ||
 			// d.ResourceType == "AWS::RDS::DBSubnetGroup" ||
-			// d.ResourceType == "AWS::EC2::EIP" ||
+			d.ResourceType == "AWS::EC2::EIP" ||
 			// d.ResourceType == "AWS::Redshift::ClusterSubnetGroup" ||
 			d.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer" ||
 			d.ResourceType == "AWS::ECS::Service" ||
@@ -815,7 +631,7 @@ func filterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
 			d.ResourceType == "AWS::S3::Bucket" ||
 			d.ResourceType == "AWS::DynamoDB::Table" ||
 			d.ResourceType == "AWS::EC2::RouteTable" ||
-			// d.ResourceType == "AWS::KMS::Key" ||
+			d.ResourceType == "AWS::KMS::Key" ||
 			d.ResourceType == "AWS::EC2::Instance" {
 			resuls = append(resuls, d)
 		}

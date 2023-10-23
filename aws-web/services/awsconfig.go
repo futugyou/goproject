@@ -42,46 +42,46 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 	defer jsonFile.Close()
 	byteValue, _ := io.ReadAll(jsonFile)
 
-	var datas []model.AwsConfigFileData
+	var rawDatas []model.AwsConfigFileData
 
-	json.Unmarshal(byteValue, &datas)
+	json.Unmarshal(byteValue, &rawDatas)
 
-	if len(datas) == 0 {
+	if len(rawDatas) == 0 {
 		return
 	}
 
 	// 2. filter data
-	datas = filterResource(datas)
+	rawDatas = FilterResource(rawDatas)
 
 	// 3. get all vpc info
-	vpcinfos := GetAllVpcInfos(datas)
+	vpcinfos := GetAllVpcInfos(rawDatas)
 
-	configs := make([]entity.AwsConfigEntity, 0)
+	resources := make([]entity.AwsConfigEntity, 0)
 	ships := make([]entity.AwsConfigRelationshipEntity, 0)
 
 	// 4. create AwsConfigEntity list
-	for _, data := range datas {
-		config := CreateAwsConfigEntity(data, vpcinfos)
-		configs = append(configs, config)
+	for _, data := range rawDatas {
+		resource := CreateAwsConfigEntity(data, vpcinfos)
+		resources = append(resources, resource)
 	}
 
-	// 4.1 add cloud map data
-	configs = AddIndividualData(configs)
+	// 4.1 add individual resource
+	resources = AddIndividualResource(resources)
 
 	// 5. create AwsConfigRelationshipEntity list
-	for _, data := range datas {
-		ship := CreateAwsConfigRelationshipEntity(data, configs)
+	for _, data := range rawDatas {
+		ship := CreateAwsConfigRelationshipEntity(data, resources)
 		ships = append(ships, ship...)
 	}
 
 	// 5.1 individual relation ship
-	individualShips := AddIndividualRelationShip(configs)
+	individualShips := AddIndividualRelationShip(resources)
 	ships = append(ships, individualShips...)
 
 	// 6. BulkWrite data to db
-	log.Println("configs count: ", len(configs))
-	err = a.repository.BulkWrite(context.Background(), configs)
-	log.Println("configs write finish: ", err)
+	log.Println("resources count: ", len(resources))
+	err = a.repository.BulkWrite(context.Background(), resources)
+	log.Println("resources write finish: ", err)
 	log.Println("relationships count: ", len(ships))
 	err = a.relRepository.BulkWrite(context.Background(), ships)
 	log.Println("relationships write finish: ", err)
