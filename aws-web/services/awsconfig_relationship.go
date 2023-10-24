@@ -30,28 +30,33 @@ func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []e
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
 
 	for _, ship := range data.Relationships {
-		var id string
-		for i := 0; i < len(configs); i++ {
-			if configs[i].ResourceID == ship.ResourceID && configs[i].ResourceType == ship.ResourceType {
-				id = configs[i].ID
-				break
-			}
+		index := -1
+		if len(ship.ResourceID) > 0 {
+			index = slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+				return ship.ResourceID == sd.ResourceID && sd.ResourceType == ship.ResourceType
+			})
+		} else {
+			index = slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+				return ship.ResourceName == sd.ResourceName && sd.ResourceType == ship.ResourceType
+			})
 		}
 
-		if len(id) == 0 {
+		if index == -1 {
 			continue
 		}
 
+		target := configs[index]
 		relationship := entity.AwsConfigRelationshipEntity{
-			ID:                 data.ResourceID + "-" + ship.ResourceID,
+			ID:                 data.ResourceID + "-" + target.ResourceID,
 			SourceID:           getId(data.ARN, data.ResourceID),
 			SourceLabel:        data.ResourceName,
 			SourceResourceType: data.ResourceType,
 			Label:              ship.Name,
-			TargetID:           id,
-			TargetLabel:        ship.ResourceName,
-			TargetResourceType: ship.ResourceType,
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
 		}
+
 		lists = append(lists, relationship)
 	}
 
