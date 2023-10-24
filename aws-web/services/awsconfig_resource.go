@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
@@ -62,6 +63,7 @@ func AddIndividualResource(resources []entity.AwsConfigEntity) []entity.AwsConfi
 			var configuration c.ServiceDiscoveryConfiguration
 			err := json.Unmarshal([]byte(resources[i].Configuration), &configuration)
 			if err != nil {
+				log.Println(err)
 				continue
 			}
 

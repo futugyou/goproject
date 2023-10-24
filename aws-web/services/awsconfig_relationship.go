@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
@@ -109,6 +110,7 @@ func CreateRouteTableIndividualRelationShip(config entity.AwsConfigEntity, confi
 	var conf c.RouteTableConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	for _, route := range conf.Routes {
@@ -147,17 +149,19 @@ func CreateNetworkInterfaceIndividualRelationShip(config entity.AwsConfigEntity,
 	var conf c.NetworkInterfaceConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
+
 	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-		if strings.HasPrefix(conf.InterfaceType, "Interface for NAT Gateway ") {
-			rid := strings.ReplaceAll(conf.InterfaceType, "Interface for NAT Gateway ", "")
+		if strings.HasPrefix(conf.Description, "Interface for NAT Gateway ") {
+			rid := strings.ReplaceAll(conf.Description, "Interface for NAT Gateway ", "")
 			return rid == sd.ResourceID && sd.ResourceType == "AWS::EC2::NatGateway"
-		} else if strings.HasPrefix(conf.InterfaceType, "ELB app") {
-			arn := fmt.Sprintf("arn:aws:elasticloadbalancing:%s:%s:loadbalancer/%s", config.AwsRegion, config.AccountID, strings.Replace(conf.InterfaceType, "ELB ", "", 1))
+		} else if strings.HasPrefix(conf.Description, "ELB app") {
+			arn := fmt.Sprintf("arn:aws:elasticloadbalancing:%s:%s:loadbalancer/%s", config.AwsRegion, config.AccountID, strings.Replace(conf.Description, "ELB ", "", 1))
 			return arn == sd.Arn && sd.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer"
 		} else if conf.InterfaceType == "vpc_endpoint" {
-			rid := strings.ReplaceAll(conf.InterfaceType, "VPC Endpoint Interface ", "")
+			rid := strings.ReplaceAll(conf.Description, "VPC Endpoint Interface ", "")
 			return rid == sd.ResourceID && sd.ResourceType == "AWS::EC2::VPCEndpoint"
 		} else if conf.RequesterID == "amazon-elasticsearch" {
 			rid := fmt.Sprintf("%s/%s", config.AccountID, strings.Replace(conf.Description, "ES ", "", 1))
@@ -178,6 +182,7 @@ func CreateNetworkInterfaceIndividualRelationShip(config entity.AwsConfigEntity,
 
 		return false
 	})
+
 	if index != -1 {
 		target := configs[index]
 		ship := entity.AwsConfigRelationshipEntity{
@@ -200,6 +205,7 @@ func CreateFunctionIndividualRelationShip(config entity.AwsConfigEntity, configs
 	var conf c.FunctionConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	for _, target := range conf.FileSystemConfigs {
@@ -230,6 +236,7 @@ func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, config
 	var conf c.EventRoleConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	for _, target := range conf.Targets {
@@ -271,6 +278,7 @@ func CreateEventBusIndividualRelationShip(config entity.AwsConfigEntity, configs
 		var conf c.EventRoleConfiguration
 		err := json.Unmarshal([]byte(sd.Configuration), &conf)
 		if err != nil {
+			log.Println(err)
 			return false
 		}
 
@@ -304,6 +312,7 @@ func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEn
 	var conf c.LoadBalancerListenerConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
@@ -331,6 +340,7 @@ func CreateFileSystemIndividualRelationShip(config entity.AwsConfigEntity, confi
 	var conf c.FileSystemConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
@@ -358,6 +368,7 @@ func CreateAccessPointIndividualRelationShip(config entity.AwsConfigEntity, conf
 	var conf c.AccessPointConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
@@ -385,6 +396,7 @@ func CreateSecurityGroupIndividualRelationShip(config entity.AwsConfigEntity, sg
 	var sgconfig c.SecurityGroupConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &sgconfig)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
@@ -400,6 +412,7 @@ func CreateECSServiceIndividualRelationShip(config entity.AwsConfigEntity, sds [
 	var ecsconfig c.ECSServiceConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &ecsconfig)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
