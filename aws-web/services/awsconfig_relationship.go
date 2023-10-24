@@ -41,34 +41,17 @@ func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []e
 			continue
 		}
 
-		if strings.HasPrefix(ship.Name, "Is ") {
-			relationship := entity.AwsConfigRelationshipEntity{
-				ID:                 data.ResourceID + "-" + ship.ResourceID,
-				SourceID:           getId(data.ARN, data.ResourceID),
-				SourceLabel:        data.ResourceName,
-				SourceResourceType: data.ResourceType,
-				Label:              ship.Name,
-				TargetID:           id,
-				TargetLabel:        ship.ResourceName,
-				TargetResourceType: ship.ResourceType,
-			}
-			lists = append(lists, relationship)
+		relationship := entity.AwsConfigRelationshipEntity{
+			ID:                 data.ResourceID + "-" + ship.ResourceID,
+			SourceID:           getId(data.ARN, data.ResourceID),
+			SourceLabel:        data.ResourceName,
+			SourceResourceType: data.ResourceType,
+			Label:              ship.Name,
+			TargetID:           id,
+			TargetLabel:        ship.ResourceName,
+			TargetResourceType: ship.ResourceType,
 		}
-
-		if strings.HasPrefix(ship.Name, "Contains ") {
-			relationship := entity.AwsConfigRelationshipEntity{
-				ID:                 ship.ResourceID + "-" + data.ResourceID,
-				SourceID:           id,
-				SourceLabel:        ship.ResourceName,
-				SourceResourceType: ship.ResourceType,
-				Label:              ship.Name,
-				TargetID:           getId(data.ARN, data.ResourceID),
-				TargetLabel:        data.ResourceName,
-				TargetResourceType: data.ResourceType,
-			}
-			lists = append(lists, relationship)
-		}
-
+		lists = append(lists, relationship)
 	}
 
 	return lists
@@ -112,11 +95,51 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateFunctionIndividualRelationShip(config, configs)
 		case "AWS::EC2::NetworkInterface":
 			ss = CreateNetworkInterfaceIndividualRelationShip(config, configs)
+		case "AWS::EC2::RouteTable":
+			ss = CreateRouteTableIndividualRelationShip(config, configs)
 		}
 		ships = append(ships, ss...)
 	}
 
 	return ships
+}
+
+func CreateRouteTableIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.RouteTableConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		return
+	}
+	for _, route := range conf.Routes {
+		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+			if len(route.NatGatewayId) > 0 {
+				return sd.ResourceID == route.NatGatewayId && sd.ResourceType == "AWS::EC2::NatGateway"
+			} else if strings.HasPrefix(route.GatewayID, "igw-") {
+				return sd.ResourceID == route.GatewayID && sd.ResourceType == "AWS::EC2::InternetGateway"
+			} else if strings.HasPrefix(route.GatewayID, "vpce-") {
+				return sd.ResourceID == route.GatewayID && sd.ResourceType == "AWS::EC2::VPCEndpoint"
+			}
+
+			return false
+		})
+		if index != -1 {
+			target := configs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Contains %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	return
 }
 
 func CreateNetworkInterfaceIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {

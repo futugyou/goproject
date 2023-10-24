@@ -13,4 +13,5 @@ type Route struct {
 	GatewayID            string `json:"gatewayId"`
 	Origin               string `json:"origin"`
 	State                string `json:"state"`
+	NatGatewayId         string `json:"natGatewayId"`
 }
