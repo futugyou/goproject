@@ -59,19 +59,29 @@ func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []e
 }
 
 func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
+	ships := make([]entity.AwsConfigRelationshipEntity, 0)
+
 	sgs := make([]entity.AwsConfigEntity, 0)
 	sds := make([]entity.AwsConfigEntity, 0)
 	eventsRules := make([]entity.AwsConfigEntity, 0)
-	ships := make([]entity.AwsConfigRelationshipEntity, 0)
+	files := make([]entity.AwsConfigEntity, 0)
+	kms := make([]entity.AwsConfigEntity, 0)
+	lbs := make([]entity.AwsConfigEntity, 0)
 
 	for _, config := range configs {
 		switch config.ResourceType {
-		case "AWS::ECS::Service":
+		case "AWS::EC2::SecurityGroup":
 			sgs = append(sgs, config)
 		case "AWS::ServiceDiscovery::Service":
 			sds = append(sds, config)
 		case "AWS::Events::Rule":
 			eventsRules = append(eventsRules, config)
+		case "AWS::EFS::FileSystem":
+			files = append(files, config)
+		case "AWS::KMS::Key":
+			kms = append(kms, config)
+		case "AWS::ElasticLoadBalancingV2::LoadBalancer":
+			lbs = append(lbs, config)
 		}
 	}
 
@@ -83,11 +93,11 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 		case "AWS::EC2::SecurityGroup":
 			ss = CreateSecurityGroupIndividualRelationShip(config, sgs)
 		case "AWS::EFS::AccessPoint":
-			ss = CreateAccessPointIndividualRelationShip(config, configs)
+			ss = CreateAccessPointIndividualRelationShip(config, files)
 		case "AWS::EFS::FileSystem":
-			ss = CreateFileSystemIndividualRelationShip(config, configs)
+			ss = CreateFileSystemIndividualRelationShip(config, kms)
 		case "AWS::ElasticLoadBalancingV2::Listener":
-			ss = CreateLoadBalancingListenerIndividualRelationShip(config, configs)
+			ss = CreateLoadBalancingListenerIndividualRelationShip(config, lbs)
 		case "AWS::Events::EventBus":
 			ss = CreateEventBusIndividualRelationShip(config, eventsRules)
 		case "AWS::Events::Rule":
@@ -98,6 +108,10 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateNetworkInterfaceIndividualRelationShip(config, configs)
 		case "AWS::EC2::RouteTable":
 			ss = CreateRouteTableIndividualRelationShip(config, configs)
+		case "AWS::AmazonMQ::Broker":
+			ss = CreateMQBrokerIndividualRelationShip(config, sgs)
+		case "AWS::RDS::DBInstance":
+			ss = CreateDBInstanceIndividualRelationShip(config, kms)
 		}
 		ships = append(ships, ss...)
 	}
@@ -105,6 +119,64 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 	return ships
 }
 
+func CreateDBInstanceIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.DBInstanceConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+		return conf.KmsKeyID == sd.Arn && sd.ResourceType == "AWS::KMS::Key"
+	})
+	if index != -1 {
+		target := configs[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              "Is attached to KMS",
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+	return
+}
+
+func CreateMQBrokerIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.AmazonMQConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for _, target := range conf.SecurityGroups {
+		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+			return target == sd.ResourceID
+		})
+		if index != -1 {
+			target := configs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	return
+}
 func CreateRouteTableIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
 	ships = make([]entity.AwsConfigRelationshipEntity, 0)
 	var conf c.RouteTableConfiguration
