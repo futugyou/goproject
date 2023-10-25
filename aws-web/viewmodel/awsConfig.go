@@ -78,3 +78,30 @@ type Relationship struct {
 	ResourceType string `json:"resourceType"`
 	Name         string `json:"name"`
 }
+
+type AwsConfigRawData struct {
+	RelatedEvents                []string          `json:"relatedEvents"`
+	Relationships                []RawRelationship `json:"relationships"`
+	Configuration                interface{}       `json:"configuration"`
+	Tags                         map[string]string `json:"tags"`
+	ConfigurationItemVersion     string            `json:"version"`
+	ConfigurationItemCaptureTime time.Time         `json:"configurationItemCaptureTime"`
+	ConfigurationStateID         int64             `json:"configurationStateId"`
+	AwsAccountID                 string            `json:"accountId"`
+	ConfigurationItemStatus      string            `json:"configurationItemStatus"`
+	ResourceType                 string            `json:"resourceType"`
+	ResourceID                   string            `json:"resourceId"`
+	ResourceName                 string            `json:"resourceName"`
+	ARN                          string            `json:"arn"`
+	AwsRegion                    string            `json:"awsRegion"`
+	AvailabilityZone             string            `json:"availabilityZone"`
+	ConfigurationStateMd5Hash    string            `json:"configurationStateMd5Hash"`
+	ResourceCreationTime         time.Time         `json:"resourceCreationTime"`
+}
+
+type RawRelationship struct {
+	ResourceID   string `json:"resourceId"`
+	ResourceName string `json:"resourceName"`
+	ResourceType string `json:"resourceType"`
+	Name         string `json:"relationshipName"`
+}
