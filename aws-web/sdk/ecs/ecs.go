@@ -272,3 +272,37 @@ func DescribeTaskDefinition2() {
 	data, _ := json.Marshal(output.TaskDefinition)
 	fmt.Println(string(data))
 }
+
+func DescribeTasks() {
+	taskInput := &ecs.ListTasksInput{
+		Cluster: aws.String(awsenv.ECSClusterName),
+	}
+	taskOutput, err := svc.ListTasks(awsenv.EmptyContext, taskInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	input := &ecs.DescribeTasksInput{
+		Cluster: aws.String(awsenv.ECSClusterName),
+		Tasks:   []string{taskOutput.TaskArns[0]},
+	}
+	output, err := svc.DescribeTasks(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, task := range output.Tasks {
+		fmt.Println("task", *task.TaskArn)
+		for _, att := range task.Attachments {
+			fmt.Println("att", *att.Id, *att.Type, "")
+			for _, d := range att.Details {
+				fmt.Println(*d.Name, *d.Value)
+			}
+		}
+
+		for _, acc := range task.InferenceAccelerators {
+			fmt.Println("acc", *acc.DeviceName, *acc.DeviceType)
+		}
+	}
+}

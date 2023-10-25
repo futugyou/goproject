@@ -16,14 +16,14 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
 )
 
 func main() {
@@ -132,6 +132,7 @@ func main() {
 	// ecs.ListTasks()
 	// ecs.DescribeServices()
 	// ecs.DescribeTaskDefinition2()
+	ecs.DescribeTasks()
 
 	// ssm.DescribeParameters()
 	// ssm.ListAssociations()
@@ -201,7 +202,7 @@ func main() {
 
 	// secretsmanager.GetSecretValue()
 
-	loadbalancing.DescribeTargetGroups()
+	// loadbalancing.DescribeTargetGroups()
 
 	// config := services.NewAwsConfigService()
 	// config.SyncFileResources(awsenv.AwsConfigFilePath)
