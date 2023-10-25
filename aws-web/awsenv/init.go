@@ -25,6 +25,7 @@ var (
 	ECSServiceName          string
 	AwsConfigFilePath       string
 	HostedZoneId            string
+	AwsSecretName           string
 )
 
 func init() {
@@ -38,6 +39,7 @@ func init() {
 	ECSClusterName = os.Getenv("ECS_CLUSTER_NAME")
 	ECSServiceName = os.Getenv("ECS_SERVICE_NAME")
 	AwsConfigFilePath = os.Getenv("AWS_CONFIG_FILE_PATH")
+	AwsSecretName = os.Getenv("AWS_SECRET_NAME")
 
 	var err error
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)

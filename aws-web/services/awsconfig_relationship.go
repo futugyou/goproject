@@ -72,6 +72,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 	files := make([]entity.AwsConfigEntity, 0)
 	kms := make([]entity.AwsConfigEntity, 0)
 	lbs := make([]entity.AwsConfigEntity, 0)
+	ecsClusters := make([]entity.AwsConfigEntity, 0)
+	roles := make([]entity.AwsConfigEntity, 0)
 
 	for _, config := range configs {
 		switch config.ResourceType {
@@ -87,6 +89,10 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			kms = append(kms, config)
 		case "AWS::ElasticLoadBalancingV2::LoadBalancer":
 			lbs = append(lbs, config)
+		case "AWS::ECS::Cluster":
+			ecsClusters = append(ecsClusters, config)
+		case "AWS::IAM::Role":
+			roles = append(roles, config)
 		}
 	}
 
@@ -94,7 +100,7 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 		ss := make([]entity.AwsConfigRelationshipEntity, 0)
 		switch config.ResourceType {
 		case "AWS::ECS::Service":
-			ss = CreateECSServiceIndividualRelationShip(config, sds, sgs)
+			ss = CreateECSServiceIndividualRelationShip(config, sds, sgs, roles, ecsClusters)
 		case "AWS::EC2::SecurityGroup":
 			ss = CreateSecurityGroupIndividualRelationShip(config, sgs)
 		case "AWS::EFS::AccessPoint":
@@ -484,7 +490,13 @@ func CreateSecurityGroupIndividualRelationShip(config entity.AwsConfigEntity, sg
 	return
 }
 
-func CreateECSServiceIndividualRelationShip(config entity.AwsConfigEntity, sds []entity.AwsConfigEntity, sgs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+func CreateECSServiceIndividualRelationShip(
+	config entity.AwsConfigEntity,
+	sds []entity.AwsConfigEntity,
+	sgs []entity.AwsConfigEntity,
+	roles []entity.AwsConfigEntity,
+	ecsClusters []entity.AwsConfigEntity,
+) (ships []entity.AwsConfigRelationshipEntity) {
 	ships = make([]entity.AwsConfigRelationshipEntity, 0)
 	var ecsconfig c.ECSServiceConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &ecsconfig)
@@ -527,6 +539,50 @@ func CreateECSServiceIndividualRelationShip(config entity.AwsConfigEntity, sds [
 				SourceLabel:        config.ResourceName,
 				SourceResourceType: config.ResourceType,
 				Label:              "Is associated with SecurityGroup",
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	// role
+	{
+		index := slices.IndexFunc(roles, func(role entity.AwsConfigEntity) bool {
+			return ecsconfig.Role == role.Arn
+		})
+
+		if index != -1 {
+			target := sgs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              "Is associated with Role",
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	// cluster
+	{
+		index := slices.IndexFunc(ecsClusters, func(ecsCluster entity.AwsConfigEntity) bool {
+			return ecsconfig.Cluster == ecsCluster.Arn
+		})
+
+		if index != -1 {
+			target := sgs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              "Is contained in Cluster",
 				TargetID:           target.ID,
 				TargetLabel:        target.ResourceName,
 				TargetResourceType: target.ResourceType,

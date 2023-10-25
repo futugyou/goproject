@@ -56,6 +56,8 @@ github.com/aws/aws-sdk-go-v2/service/route53 v1.30.2 h1:/RPQNjh1sDIezpXaFIkZb7Ml
 github.com/aws/aws-sdk-go-v2/service/route53 v1.30.2/go.mod h1:TQZBt/WaQy+zTHoW++rnl8JBrmZ0VO6EUbVua1+foCA=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.30.0 h1:wddsyuESfviaiXk3w9N6/4iRwTg/a3gktjODY6jYQBo=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.30.0/go.mod h1:L2l2/q76teehcW7YEsgsDjqdsDTERJeX3nOMIFlgGUE=
+github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.21.6 h1:y3n83jEM6EuawrD5HZCh3eMj9RsfxniVLcXlyFMNITM=
+github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.21.6/go.mod h1:A108ijf0IFtqhYApU+Gia80aPSAUfi9dItm+h5fWGJE=
 github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.19.0 h1:RdYI8Ed49zVSKhUYNt8N8lwSVPDWHwUuN8QOrGv2+Uc=
 github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.19.0/go.mod h1:B8K0dN2s4BdUWgKr3jWhHf0Jjzqdskb9yiC79CXw83I=
 github.com/aws/aws-sdk-go-v2/service/ssm v1.38.2 h1:NMZiW2pbSW/PFCGT/J6R/8xaiFsF/SDdRN49q0NUhA8=

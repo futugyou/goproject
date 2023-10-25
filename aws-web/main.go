@@ -8,6 +8,7 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
+
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
@@ -21,6 +22,7 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
 )
 
 func main() {
@@ -196,10 +198,12 @@ func main() {
 
 	// route53.GetHostedZone()
 
-	config := services.NewAwsConfigService()
-	config.SyncFileResources(awsenv.AwsConfigFilePath)
-	res := config.GetResourceGraph()
-	fmt.Println(len(res.Edges), len(res.Nodes))
+	secretsmanager.GetSecretValue()
+
+	// config := services.NewAwsConfigService()
+	// config.SyncFileResources(awsenv.AwsConfigFilePath)
+	// res := config.GetResourceGraph()
+	// fmt.Println(len(res.Edges), len(res.Nodes))
 }
 
 func SyncData() {
