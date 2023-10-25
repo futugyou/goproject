@@ -22,7 +22,8 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
 )
 
 func main() {
@@ -198,7 +199,9 @@ func main() {
 
 	// route53.GetHostedZone()
 
-	secretsmanager.GetSecretValue()
+	// secretsmanager.GetSecretValue()
+
+	loadbalancing.DescribeTargetGroups()
 
 	// config := services.NewAwsConfigService()
 	// config.SyncFileResources(awsenv.AwsConfigFilePath)
