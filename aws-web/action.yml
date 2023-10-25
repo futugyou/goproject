@@ -11,6 +11,8 @@ inputs:
   db_name:
     description: "mongodb name"
     required: true
+  accountid:
+    description: "accountid" 
 
 runs:
   using: docker
@@ -18,5 +20,6 @@ runs:
   env:
     db_name: "${{ inputs.db_name }}"
     mongodb_url: "${{ inputs.mongodb_url }}"
+    accountid: "${{ inputs.accountid }}"
   args:
   - "-call=${{ inputs.call }}"
