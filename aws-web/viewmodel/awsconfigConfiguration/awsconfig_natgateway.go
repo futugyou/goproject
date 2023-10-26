@@ -4,7 +4,7 @@ type NatGatewayConfiguration struct {
 	CreateTime          int64               `json:"createTime"`
 	NatGatewayAddresses []NatGatewayAddress `json:"natGatewayAddresses"`
 	NatGatewayID        string              `json:"natGatewayId"`
-	State               string              `json:"state"`
+	State               interface{}         `json:"state"`
 	SubnetID            string              `json:"subnetId"`
 	VpcID               string              `json:"vpcId"`
 	Tags                []Tag               `json:"tags"`

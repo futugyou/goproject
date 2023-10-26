@@ -8,7 +8,7 @@ type SubnetConfiguration struct {
 	DefaultForAz                bool          `json:"defaultForAz"`
 	MapPublicIPOnLaunch         bool          `json:"mapPublicIpOnLaunch"`
 	MapCustomerOwnedIPOnLaunch  bool          `json:"mapCustomerOwnedIpOnLaunch"`
-	State                       string        `json:"state"`
+	State                       interface{}   `json:"state"`
 	SubnetID                    string        `json:"subnetId"`
 	VpcID                       string        `json:"vpcId"`
 	OwnerID                     string        `json:"ownerId"`

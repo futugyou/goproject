@@ -26,7 +26,7 @@ func RemoveDuplicateRelationShip(ships []entity.AwsConfigRelationshipEntity) []e
 	return result
 }
 
-func CreateAwsConfigRelationshipEntity(data model.AwsConfigFileData, configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
+func CreateAwsConfigRelationshipEntity(data model.AwsConfigRawData, configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
 
 	for _, ship := range data.Relationships {
@@ -554,7 +554,7 @@ func CreateECSServiceIndividualRelationShip(
 		})
 
 		if index != -1 {
-			target := sgs[index]
+			target := roles[index]
 			ship := entity.AwsConfigRelationshipEntity{
 				ID:                 config.ResourceID + "-" + target.ResourceID,
 				SourceID:           config.ID,
@@ -576,7 +576,7 @@ func CreateECSServiceIndividualRelationShip(
 		})
 
 		if index != -1 {
-			target := sgs[index]
+			target := ecsClusters[index]
 			ship := entity.AwsConfigRelationshipEntity{
 				ID:                 config.ResourceID + "-" + target.ResourceID,
 				SourceID:           config.ID,

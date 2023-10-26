@@ -15,7 +15,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func CreateAwsConfigEntity(data model.AwsConfigFileData, vpcinfos []c.VpcInfo) entity.AwsConfigEntity {
+func CreateAwsConfigEntity(data model.AwsConfigRawData, vpcinfos []c.VpcInfo) entity.AwsConfigEntity {
 	configuration := getDataString(data.Configuration)
 	name := getName(data.ResourceID, data.ResourceName, data.Tags)
 	vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo(data.ResourceType, configuration, vpcinfos)
@@ -95,7 +95,7 @@ func AddIndividualResource(resources []entity.AwsConfigEntity) []entity.AwsConfi
 				Configuration:                "{}",
 				ConfigurationItemCaptureTime: *namespace.CreateDate,
 				ConfigurationItemStatus:      "",
-				ConfigurationStateID:         0,
+				ConfigurationStateID:         "0",
 				ResourceCreationTime:         *namespace.CreateDate,
 				ResourceID:                   *namespace.Id,
 				ResourceName:                 *namespace.Name,
@@ -126,7 +126,7 @@ func AddIndividualResource(resources []entity.AwsConfigEntity) []entity.AwsConfi
 	return append(resources, namespaceEntityList...)
 }
 
-func GetAllVpcInfos(datas []model.AwsConfigFileData) []c.VpcInfo {
+func GetAllVpcInfos(datas []model.AwsConfigRawData) []c.VpcInfo {
 	vpcInfos := make([]c.VpcInfo, 0)
 	for _, data := range datas {
 		if data.ResourceType == "AWS::EC2::Subnet" {
@@ -171,10 +171,12 @@ func getId(arn string, resourceID string) string {
 	return arn
 }
 
-func getName(resourceID string, resourceName string, tags map[string]string) string {
+func getName(resourceID string, resourceName string, tags []model.Tag) string {
 	if len(tags) > 0 {
-		if n, ok := tags["Name"]; ok && len(n) > 0 {
-			return n
+		for _, tag := range tags {
+			if tag.Key == "Name" && len(tag.Value) > 0 {
+				return tag.Value
+			}
 		}
 	}
 
@@ -237,7 +239,9 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::EC2::VPCEndpoint":
 		var config c.VPCEndpointConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 			subnetIds = config.SubnetIDS
 			for _, v := range config.Groups {
@@ -247,34 +251,44 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::EC2::VPC":
 		var config c.VPCConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 		}
 	case "AWS::EC2::Subnet":
 		var config c.SubnetConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 			subnetId = config.SubnetID
 		}
 	case "AWS::AmazonMQ::Broker":
 		var config c.AmazonMQConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			subnetIds = config.SubnetIDS
 			securityGroups = config.SecurityGroups
 		}
 	case "AWS::EC2::NatGateway":
 		var config c.NatGatewayConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			subnetId = config.SubnetID
 			vpcid = config.VpcID
 		}
 	case "AWS::RDS::DBInstance":
 		var config c.DBInstanceConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			for _, v := range config.VpcSecurityGroups {
 				securityGroups = append(securityGroups, v.VpcSecurityGroupID)
 			}
@@ -286,14 +300,18 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::EC2::SecurityGroup":
 		var config c.SecurityGroupConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 			securityGroups = []string{config.GroupID}
 		}
 	case "AWS::EC2::NetworkInterface":
 		var config c.NetworkInterfaceConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 			subnetId = config.SubnetID
 			for _, v := range config.Groups {
@@ -303,7 +321,9 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::Redshift::ClusterSubnetGroup":
 		var config c.RedshiftConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 
 			for _, v := range config.Subnets {
@@ -313,9 +333,14 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::ElasticLoadBalancingV2::LoadBalancer":
 		var config c.LoadBalancerConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
-			securityGroups = config.SecurityGroups
+			for _, v := range config.SecurityGroups {
+				securityGroups = append(securityGroups, v.Value)
+			}
+
 			for _, v := range config.AvailabilityZones {
 				subnetIds = append(subnetIds, v.SubnetID)
 			}
@@ -323,14 +348,18 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::ECS::Service":
 		var config c.ECSServiceConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			subnetIds = config.NetworkConfiguration.AwsvpcConfiguration.Subnets
 			securityGroups = config.NetworkConfiguration.AwsvpcConfiguration.SecurityGroups
 		}
 	case "AWS::EC2::NetworkAcl":
 		var config c.NetworkAclConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 			for _, v := range config.Associations {
 				subnetIds = append(subnetIds, v.SubnetID)
@@ -339,20 +368,26 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 	case "AWS::Lambda::Function":
 		var config c.FunctionConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			subnetIds = config.VpcConfig.SubnetIDS
 			securityGroups = config.VpcConfig.SecurityGroupIDS
 		}
 	case "AWS::EC2::RouteTable":
 		var config c.RouteTableConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 		}
 	case "AWS::EC2::Instance":
 		var config c.Ec2Configuration
 		err := json.Unmarshal([]byte(configuration), &config)
-		if err == nil {
+		if err != nil {
+			log.Println(err)
+		} else {
 			vpcid = config.VpcID
 			subnetId = config.SubnetID
 			for _, sg := range config.SecurityGroups {
@@ -391,7 +426,7 @@ func createLoggedInHostname(awsRegion string, service string) string {
 	return fmt.Sprintf(`https://%s.console.aws.amazon.com%s/home`, awsRegion, service)
 }
 
-func createConsoleUrls(resource model.AwsConfigFileData) (loginURL string, loggedInURL string) {
+func createConsoleUrls(resource model.AwsConfigRawData) (loginURL string, loggedInURL string) {
 	resourceType := resource.ResourceType
 	resourceName := resource.ResourceName
 	accountId := resource.AwsAccountID
@@ -597,8 +632,8 @@ func createConsoleUrls(resource model.AwsConfigFileData) (loginURL string, logge
 	return
 }
 
-func FilterResource(datas []model.AwsConfigFileData) []model.AwsConfigFileData {
-	resuls := make([]model.AwsConfigFileData, 0)
+func FilterResource(datas []model.AwsConfigRawData) []model.AwsConfigRawData {
+	resuls := make([]model.AwsConfigRawData, 0)
 	for _, d := range datas {
 		if d.ResourceType == "AWS::ACM::Certificate" ||
 			d.ResourceType == "AWS::AmazonMQ::Broker" ||

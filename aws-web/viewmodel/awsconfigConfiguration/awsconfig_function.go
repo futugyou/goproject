@@ -17,7 +17,7 @@ type FunctionConfiguration struct {
 	TracingConfig        TracingConfig        `json:"tracingConfig"`
 	RevisionID           string               `json:"revisionId"`
 	Layers               []interface{}        `json:"layers"`
-	State                string               `json:"state"`
+	State                interface{}          `json:"state"`
 	LastUpdateStatus     string               `json:"lastUpdateStatus"`
 	FileSystemConfigs    []FileSystemConfig   `json:"fileSystemConfigs"`
 	PackageType          string               `json:"packageType"`

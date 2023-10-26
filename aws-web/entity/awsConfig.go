@@ -12,7 +12,7 @@ type AwsConfigEntity struct {
 	Configuration                string    `bson:"configuration"`
 	ConfigurationItemCaptureTime time.Time `bson:"configurationItemCaptureTime"`
 	ConfigurationItemStatus      string    `bson:"configurationItemStatus"`
-	ConfigurationStateID         int64     `bson:"configurationStateId"`
+	ConfigurationStateID         string    `bson:"configurationStateId"`
 	ResourceCreationTime         time.Time `bson:"resourceCreationTime"`
 	ResourceID                   string    `bson:"resourceId"`
 	ResourceName                 string    `bson:"resourceName"`

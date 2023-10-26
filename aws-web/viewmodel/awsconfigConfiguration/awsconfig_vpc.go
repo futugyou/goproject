@@ -3,7 +3,7 @@ package awsconfigConfiguration
 type VPCConfiguration struct {
 	CIDRBlock               string                    `json:"cidrBlock"`
 	DHCPOptionsID           string                    `json:"dhcpOptionsId"`
-	State                   string                    `json:"state"`
+	State                   interface{}               `json:"state"`
 	VpcID                   string                    `json:"vpcId"`
 	OwnerID                 string                    `json:"ownerId"`
 	InstanceTenancy         string                    `json:"instanceTenancy"`

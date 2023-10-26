@@ -8,7 +8,6 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
-
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
@@ -16,7 +15,7 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
@@ -132,7 +131,7 @@ func main() {
 	// ecs.ListTasks()
 	// ecs.DescribeServices()
 	// ecs.DescribeTaskDefinition2()
-	ecs.DescribeTasks()
+	// ecs.DescribeTasks()
 
 	// ssm.DescribeParameters()
 	// ssm.ListAssociations()
@@ -204,10 +203,11 @@ func main() {
 
 	// loadbalancing.DescribeTargetGroups()
 
-	// config := services.NewAwsConfigService()
-	// config.SyncFileResources(awsenv.AwsConfigFilePath)
-	// res := config.GetResourceGraph()
-	// fmt.Println(len(res.Edges), len(res.Nodes))
+	config := services.NewAwsConfigService()
+	//config.SyncResourcesByConfig()
+	config.SyncFileResources(awsenv.AwsConfigFilePath)
+	res := config.GetResourceGraph()
+	fmt.Println(len(res.Edges), len(res.Nodes))
 }
 
 func SyncData() {

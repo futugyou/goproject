@@ -116,6 +116,6 @@ type Placement struct {
 }
 
 type State struct {
-	Code int64  `json:"code"`
+	Code string `json:"code"`
 	Name string `json:"name"`
 }
