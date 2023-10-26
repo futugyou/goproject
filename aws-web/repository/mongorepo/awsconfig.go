@@ -38,7 +38,7 @@ func (a *AwsConfigRepository) BulkWrite(ctx context.Context, entities []entity.A
 			continue
 		}
 
-		filter := bson.D{{Key: "arn", Value: e.Arn}}
+		filter := bson.D{{Key: "resourceType", Value: e.ResourceType}, {Key: "resourceId", Value: e.ResourceID}}
 		model := mongo.NewUpdateOneModel().
 			SetFilter(filter).
 			SetUpsert(true).
