@@ -1,8 +1,10 @@
 package ecs
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
@@ -283,6 +285,8 @@ func DescribeTasks() {
 		return
 	}
 
+	fmt.Println(len(taskOutput.TaskArns))
+
 	input := &ecs.DescribeTasksInput{
 		Cluster: aws.String(awsenv.ECSClusterName),
 		Tasks:   []string{taskOutput.TaskArns[0]},
@@ -305,4 +309,33 @@ func DescribeTasks() {
 			fmt.Println("acc", *acc.DeviceName, *acc.DeviceType)
 		}
 	}
+}
+
+func GetEcsTasksByCluster(clusters []string) []types.Task {
+	result := make([]types.Task, 0)
+
+	for _, cluster := range clusters {
+		taskInput := &ecs.ListTasksInput{
+			Cluster: aws.String(cluster),
+		}
+		taskOutput, err := svc.ListTasks(context.Background(), taskInput)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		input := &ecs.DescribeTasksInput{
+			Cluster: aws.String(awsenv.ECSClusterName),
+			Tasks:   taskOutput.TaskArns,
+		}
+		output, err := svc.DescribeTasks(context.Background(), input)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		result = append(result, output.Tasks...)
+	}
+
+	return result
 }
