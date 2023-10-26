@@ -664,6 +664,7 @@ func FilterResource(datas []model.AwsConfigRawData) []model.AwsConfigRawData {
 
 			d.ResourceType == "AWS::ECS::Cluster" ||
 			d.ResourceType == "AWS::ECS::Service" ||
+			d.ResourceType == "AWS::ECS::TaskDefinition" ||
 
 			d.ResourceType == "AWS::IAM::Group" ||
 			d.ResourceType == "AWS::IAM::Role" ||
@@ -675,7 +676,8 @@ func FilterResource(datas []model.AwsConfigRawData) []model.AwsConfigRawData {
 			d.ResourceType == "AWS::RDS::DBInstance" ||
 			d.ResourceType == "AWS::S3::Bucket" ||
 			d.ResourceType == "AWS::SNS::Topic" ||
-			d.ResourceType == "AWS::ServiceDiscovery::Service" {
+			d.ResourceType == "AWS::ServiceDiscovery::Service" ||
+			d.ResourceType == "AWS::ServiceDiscovery::Instance" {
 			resuls = append(resuls, d)
 		}
 	}
