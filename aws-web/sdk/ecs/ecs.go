@@ -325,7 +325,7 @@ func GetEcsTasksByCluster(clusters []string) []types.Task {
 		}
 
 		input := &ecs.DescribeTasksInput{
-			Cluster: aws.String(awsenv.ECSClusterName),
+			Cluster: aws.String(cluster),
 			Tasks:   taskOutput.TaskArns,
 		}
 		output, err := svc.DescribeTasks(context.Background(), input)
