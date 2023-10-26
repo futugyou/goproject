@@ -10,7 +10,6 @@ import (
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	c "github.com/futugyousuzu/goproject/awsgolang/viewmodel/awsconfigConfiguration"
 
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	"golang.org/x/exp/slices"
 )
@@ -54,76 +53,77 @@ func CreateAwsConfigEntity(data model.AwsConfigRawData, vpcinfos []c.VpcInfo) en
 }
 
 func AddIndividualResource(resources []entity.AwsConfigEntity) []entity.AwsConfigEntity {
-	namespaceEntityList := make([]entity.AwsConfigEntity, 0)
-	namespaceList := make([]string, 0)
+	individualResource := make([]entity.AwsConfigEntity, 0)
 
-	// 1. get namespace data
-	for i := 0; i < len(resources); i++ {
-		if resources[i].ResourceType == "AWS::ServiceDiscovery::Service" {
-			var configuration c.ServiceDiscoveryConfiguration
-			err := json.Unmarshal([]byte(resources[i].Configuration), &configuration)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
+	discoverys := make([]entity.AwsConfigEntity, 0)
 
-			namespaceid := configuration.NamespaceID
-			if slices.Contains(namespaceList, namespaceid) {
-				for _, namespace := range namespaceEntityList {
-					if namespace.ResourceID == namespaceid {
-						resources[i].VpcID = namespace.VpcID
-						break
-					}
-				}
-				continue
-			}
-
-			namespaceList = append(namespaceList, namespaceid)
-			namespace := servicediscovery.GetNamespaceDetail(namespaceid)
-
-			if namespace == nil {
-				continue
-			}
-
-			namespaceEntity := entity.AwsConfigEntity{
-				ID:                           *namespace.Arn,
-				Label:                        *namespace.Name,
-				AccountID:                    resources[i].AccountID,
-				Arn:                          *namespace.Arn,
-				AvailabilityZone:             resources[i].AvailabilityZone,
-				AwsRegion:                    resources[i].AwsRegion,
-				Configuration:                "{}",
-				ConfigurationItemCaptureTime: *namespace.CreateDate,
-				ConfigurationItemStatus:      "",
-				ConfigurationStateID:         "0",
-				ResourceCreationTime:         *namespace.CreateDate,
-				ResourceID:                   *namespace.Id,
-				ResourceName:                 *namespace.Name,
-				ResourceType:                 "AWS::ServiceDiscovery::Namespace",
-				Tags:                         "",
-				Version:                      "",
-				VpcID:                        "",
-				SubnetID:                     "",
-				SubnetIds:                    []string{},
-				Title:                        *namespace.Name,
-				SecurityGroups:               []string{},
-				LoginURL:                     "",
-				LoggedInURL:                  "",
-			}
-
-			if namespace.Properties != nil &&
-				namespace.Properties.DnsProperties != nil &&
-				namespace.Properties.DnsProperties.HostedZoneId != nil {
-				vpcid := route53.GetHostedZoneVpcId(*namespace.Properties.DnsProperties.HostedZoneId)
-				namespaceEntity.VpcID = vpcid
-				resources[i].VpcID = vpcid
-			}
-
-			namespaceEntityList = append(namespaceEntityList, namespaceEntity)
+	for _, resource := range resources {
+		switch resource.ResourceType {
+		case "AWS::ServiceDiscovery::Service":
+			discoverys = append(discoverys, resource)
 		}
 	}
 
-	return append(resources, namespaceEntityList...)
+	// 1. Service Discovery Namespace
+	namespaces := createServiceDiscoveryNamespaces(discoverys)
+	individualResource = append(individualResource, namespaces...)
+
+	return individualResource
+}
+
+func createServiceDiscoveryNamespaces(discoverys []entity.AwsConfigEntity) []entity.AwsConfigEntity {
+	namespaceEntityList := make([]entity.AwsConfigEntity, 0)
+	namespaceList := make([]string, 0)
+	for _, discovery := range discoverys {
+		var configuration c.ServiceDiscoveryConfiguration
+		err := json.Unmarshal([]byte(discovery.Configuration), &configuration)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		namespaceid := configuration.NamespaceID
+		if slices.Contains(namespaceList, namespaceid) {
+			continue
+		}
+
+		namespaceList = append(namespaceList, namespaceid)
+		namespace := servicediscovery.GetNamespaceDetail(namespaceid)
+
+		if namespace == nil {
+			continue
+		}
+
+		namespaceEntity := entity.AwsConfigEntity{
+			ID:                           *namespace.Arn,
+			Label:                        *namespace.Name,
+			AccountID:                    discovery.AccountID,
+			Arn:                          *namespace.Arn,
+			AvailabilityZone:             discovery.AvailabilityZone,
+			AwsRegion:                    discovery.AwsRegion,
+			Configuration:                "{}",
+			ConfigurationItemCaptureTime: *namespace.CreateDate,
+			ConfigurationItemStatus:      "",
+			ConfigurationStateID:         "0",
+			ResourceCreationTime:         *namespace.CreateDate,
+			ResourceID:                   *namespace.Id,
+			ResourceName:                 *namespace.Name,
+			ResourceType:                 "AWS::ServiceDiscovery::Namespace",
+			Tags:                         "",
+			Version:                      "",
+			VpcID:                        "",
+			SubnetID:                     "",
+			SubnetIds:                    []string{},
+			Title:                        *namespace.Name,
+			SecurityGroups:               []string{},
+			LoginURL:                     "",
+			LoggedInURL:                  "",
+		}
+
+		namespaceEntityList = append(namespaceEntityList, namespaceEntity)
+
+	}
+	return namespaceEntityList
 }
 
 func GetAllVpcInfos(datas []model.AwsConfigRawData) []c.VpcInfo {
