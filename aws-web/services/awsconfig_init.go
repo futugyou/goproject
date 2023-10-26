@@ -158,7 +158,7 @@ func (a *AwsConfigService) commonDataExec(rawDatas []model.AwsConfigRawData) {
 	}
 
 	// 4.1 add individual resource
-	resources = AddIndividualResource(resources)
+	resources = AddIndividualResource(resources, vpcinfos)
 
 	// 5. create AwsConfigRelationshipEntity list
 	for _, data := range rawDatas {

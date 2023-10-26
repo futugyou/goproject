@@ -10,6 +10,7 @@ import (
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	c "github.com/futugyousuzu/goproject/awsgolang/viewmodel/awsconfigConfiguration"
 
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	"golang.org/x/exp/slices"
 )
@@ -52,23 +53,75 @@ func CreateAwsConfigEntity(data model.AwsConfigRawData, vpcinfos []c.VpcInfo) en
 	return resource
 }
 
-func AddIndividualResource(resources []entity.AwsConfigEntity) []entity.AwsConfigEntity {
-	individualResource := make([]entity.AwsConfigEntity, 0)
-
+func AddIndividualResource(resources []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
 	discoverys := make([]entity.AwsConfigEntity, 0)
+	ecscluster := make([]entity.AwsConfigEntity, 0)
 
 	for _, resource := range resources {
 		switch resource.ResourceType {
 		case "AWS::ServiceDiscovery::Service":
 			discoverys = append(discoverys, resource)
+		case "AWS::ECS::Cluster":
+			ecscluster = append(ecscluster, resource)
 		}
 	}
 
 	// 1. Service Discovery Namespace
 	namespaces := createServiceDiscoveryNamespaces(discoverys)
-	individualResource = append(individualResource, namespaces...)
+	resources = append(resources, namespaces...)
+	// 2. ecs task
+	ecsTasks := createEcsTaskResources(ecscluster, vpcinfos)
+	resources = append(resources, ecsTasks...)
 
-	return individualResource
+	return resources
+}
+
+func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
+	result := make([]entity.AwsConfigEntity, 0)
+	clusterNames := make([]string, 0)
+	for _, cluster := range ecscluster {
+		clusterNames = append(clusterNames, cluster.ResourceName)
+	}
+
+	tasks := ecs.GetEcsTasksByCluster(clusterNames)
+	for _, task := range tasks {
+		i := slices.IndexFunc(ecscluster, func(cluster entity.AwsConfigEntity) bool {
+			return cluster.Arn == *task.ClusterArn
+		})
+		if i == -1 {
+			continue
+		}
+		cluster := ecscluster[i]
+		confString, _ := json.Marshal(task)
+		vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo("AWS::ECS::TASK", string(confString), vpcinfos)
+		taskEntity := entity.AwsConfigEntity{
+			ID:                           *task.TaskArn,
+			Label:                        *task.Group,
+			AccountID:                    cluster.AccountID,
+			Arn:                          *task.TaskArn,
+			AvailabilityZone:             availabilityZone,
+			AwsRegion:                    cluster.AwsRegion,
+			Configuration:                string(confString),
+			ConfigurationItemCaptureTime: *task.CreatedAt,
+			ConfigurationItemStatus:      string(task.HealthStatus),
+			ConfigurationStateID:         "0",
+			ResourceCreationTime:         *task.CreatedAt,
+			ResourceID:                   *task.TaskArn,
+			ResourceName:                 *task.Group,
+			ResourceType:                 "AWS::ECS::TASK",
+			Tags:                         "",
+			Version:                      "",
+			VpcID:                        vpcid,
+			SubnetID:                     subnetId,
+			SubnetIds:                    subnetIds,
+			Title:                        *task.Group,
+			SecurityGroups:               securityGroups,
+			LoginURL:                     "",
+			LoggedInURL:                  "",
+		}
+		result = append(result, taskEntity)
+	}
+	return result
 }
 
 func createServiceDiscoveryNamespaces(discoverys []entity.AwsConfigEntity) []entity.AwsConfigEntity {
@@ -392,6 +445,20 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 			subnetId = config.SubnetID
 			for _, sg := range config.SecurityGroups {
 				securityGroups = append(securityGroups, sg.GroupID)
+			}
+		}
+	case "AWS::ECS::TASK":
+		var config c.ECSTaskConfiguration
+		err := json.Unmarshal([]byte(configuration), &config)
+		if err != nil {
+			log.Println(err)
+		} else {
+			for _, att := range config.Attachments {
+				for _, d := range att.Details {
+					if d.Name == "subnetId" && len(d.Value) > 0 {
+						subnetIds = append(subnetIds, d.Value)
+					}
+				}
 			}
 		}
 	}
