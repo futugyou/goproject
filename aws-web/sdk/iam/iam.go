@@ -2,9 +2,11 @@ package iam
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
@@ -367,4 +369,18 @@ func AddUserToGroup() {
 		return
 	}
 	fmt.Println("ok")
+}
+
+func ListAttachedAwsManagedPolices() []types.Policy {
+	input := &iam.ListPoliciesInput{
+		OnlyAttached: true,
+		Scope:        types.PolicyScopeTypeAws,
+	}
+	output, err := svc.ListPolicies(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err)
+		return []types.Policy{}
+	}
+
+	return output.Policies
 }

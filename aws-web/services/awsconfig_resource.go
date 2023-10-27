@@ -11,6 +11,7 @@ import (
 	c "github.com/futugyousuzu/goproject/awsgolang/viewmodel/awsconfigConfiguration"
 
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	"golang.org/x/exp/slices"
 )
@@ -171,6 +172,14 @@ func createServiceDiscoveryNamespaces(discoverys []entity.AwsConfigEntity) []ent
 			SecurityGroups:               []string{},
 			LoginURL:                     "",
 			LoggedInURL:                  "",
+		}
+
+		if namespace.Properties != nil &&
+			namespace.Properties.DnsProperties != nil &&
+			namespace.Properties.DnsProperties.HostedZoneId != nil {
+			vpcid := route53.GetHostedZoneVpcId(*namespace.Properties.DnsProperties.HostedZoneId)
+			namespaceEntity.VpcID = vpcid
+			discovery.VpcID = vpcid
 		}
 
 		namespaceEntityList = append(namespaceEntityList, namespaceEntity)
