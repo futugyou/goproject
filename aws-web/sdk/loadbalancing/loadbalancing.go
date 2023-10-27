@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2"
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -61,14 +62,20 @@ func GetTargetGroups() []types.TargetGroup {
 	return result.TargetGroups
 }
 
-func GetLoadbalanceListeners() []types.Listener {
-	input := &elasticloadbalancingv2.DescribeListenersInput{}
+func GetLoadbalanceListeners(lbs []string) []types.Listener {
+	listeners := make([]types.Listener, 0)
+	for _, ls := range lbs {
+		input := &elasticloadbalancingv2.DescribeListenersInput{
+			LoadBalancerArn: aws.String(ls),
+		}
 
-	result, err := svc.DescribeListeners(context.TODO(), input)
-	if err != nil {
-		log.Println(err)
-		return []types.Listener{}
+		result, err := svc.DescribeListeners(context.TODO(), input)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		listeners = append(listeners, result.Listeners...)
 	}
 
-	return result.Listeners
+	return listeners
 }

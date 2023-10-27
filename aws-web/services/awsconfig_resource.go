@@ -83,8 +83,52 @@ func AddIndividualResource(resources []entity.AwsConfigEntity, vpcinfos []c.VpcI
 	// 4. target groups
 	targetGroups := createTargetGroups()
 	resources = append(resources, targetGroups...)
+	// 5. lb listeners
+	lbListeners := createLoadbalanceListeners(resources)
+	resources = append(resources, lbListeners...)
 
 	return resources
+}
+
+func createLoadbalanceListeners(resources []entity.AwsConfigEntity) []entity.AwsConfigEntity {
+	result := make([]entity.AwsConfigEntity, 0)
+	lbs := make([]string, 0)
+	for _, res := range resources {
+		if res.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer" {
+			lbs = append(lbs, res.Arn)
+		}
+	}
+	lis := loadbalancing.GetLoadbalanceListeners(lbs)
+	for _, ls := range lis {
+		confString, _ := json.Marshal(ls)
+		_, _, region, accid, title := ParseARN(*ls.ListenerArn)
+		result = append(result, entity.AwsConfigEntity{
+			ID:                           *ls.ListenerArn,
+			Label:                        title,
+			AccountID:                    accid,
+			Arn:                          *ls.ListenerArn,
+			AvailabilityZone:             "Multiple Availability Zones",
+			AwsRegion:                    region,
+			Configuration:                string(confString),
+			ConfigurationItemCaptureTime: time.Time{},
+			ConfigurationItemStatus:      "",
+			ConfigurationStateID:         "0",
+			ResourceCreationTime:         time.Time{},
+			ResourceID:                   *ls.ListenerArn,
+			ResourceName:                 *ls.ListenerArn,
+			ResourceType:                 "AWS::ElasticLoadBalancingV2::Listener",
+			Tags:                         "",
+			Version:                      "",
+			VpcID:                        "",
+			SubnetID:                     "",
+			SubnetIds:                    []string{},
+			Title:                        title,
+			SecurityGroups:               []string{},
+			LoginURL:                     "",
+			LoggedInURL:                  "",
+		})
+	}
+	return result
 }
 
 func createTargetGroups() []entity.AwsConfigEntity {
@@ -92,10 +136,10 @@ func createTargetGroups() []entity.AwsConfigEntity {
 	tgs := loadbalancing.GetTargetGroups()
 	for _, tg := range tgs {
 		confString, _ := json.Marshal(tg)
-		_, _, _, accid := ParseARN(*tg.TargetGroupArn)
+		_, _, _, accid, title := ParseARN(*tg.TargetGroupArn)
 		result = append(result, entity.AwsConfigEntity{
 			ID:                           *tg.TargetGroupArn,
-			Label:                        *tg.TargetGroupName,
+			Label:                        title,
 			AccountID:                    accid,
 			Arn:                          *tg.TargetGroupArn,
 			AvailabilityZone:             "Multiple Availability Zones",
@@ -113,7 +157,7 @@ func createTargetGroups() []entity.AwsConfigEntity {
 			VpcID:                        *tg.VpcId,
 			SubnetID:                     "",
 			SubnetIds:                    []string{},
-			Title:                        *tg.TargetGroupName,
+			Title:                        title,
 			SecurityGroups:               []string{},
 			LoginURL:                     "",
 			LoggedInURL:                  "",
@@ -313,17 +357,21 @@ func GetAllVpcInfos(datas []model.AwsConfigRawData) []c.VpcInfo {
 	return vpcInfos
 }
 
-func ParseARN(arn string) (partition, service, region, accountId string) {
+func ParseARN(arn string) (partition, service, region, accountId, title string) {
 	partition = ""
 	service = ""
 	region = ""
 	accountId = ""
+	title = ""
 	segments := strings.Split(arn, ":")
 	if len(segments) > 4 {
 		partition = segments[1]
 		service = segments[2]
 		region = segments[3]
 		accountId = segments[4]
+	}
+	if len(segments) > 0 {
+		title = segments[len(segments)-1]
 	}
 	return
 }
