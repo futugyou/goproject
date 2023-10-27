@@ -6,11 +6,13 @@ import (
 	"log"
 	"strings"
 
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	c "github.com/futugyousuzu/goproject/awsgolang/viewmodel/awsconfigConfiguration"
 
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	"golang.org/x/exp/slices"
@@ -73,8 +75,48 @@ func AddIndividualResource(resources []entity.AwsConfigEntity, vpcinfos []c.VpcI
 	// 2. ecs task
 	ecsTasks := createEcsTaskResources(ecscluster, vpcinfos)
 	resources = append(resources, ecsTasks...)
+	// 3. aws managed polices
+	polices := createAwsManagedPolices()
+	resources = append(resources, polices...)
 
 	return resources
+}
+
+func createAwsManagedPolices() []entity.AwsConfigEntity {
+	result := make([]entity.AwsConfigEntity, 0)
+	polices := iam.ListAttachedAwsManagedPolices()
+	for _, policy := range polices {
+		tags := ""
+		if len(policy.Tags) > 0 {
+			tags = getDataString(policy.Tags)
+		}
+		result = append(result, entity.AwsConfigEntity{
+			ID:                           *policy.Arn,
+			Label:                        *policy.PolicyName,
+			AccountID:                    "aws",
+			Arn:                          *policy.Arn,
+			AvailabilityZone:             "Not Applicable",
+			AwsRegion:                    awsenv.Cfg.Region,
+			Configuration:                "",
+			ConfigurationItemCaptureTime: *policy.CreateDate,
+			ConfigurationItemStatus:      "",
+			ConfigurationStateID:         "0",
+			ResourceCreationTime:         *policy.CreateDate,
+			ResourceID:                   *policy.Arn,
+			ResourceName:                 *policy.PolicyName,
+			ResourceType:                 "AWS::IAM::AWSManagedPolicy",
+			Tags:                         tags,
+			Version:                      "",
+			VpcID:                        "",
+			SubnetID:                     "",
+			SubnetIds:                    []string{},
+			Title:                        *policy.PolicyName,
+			SecurityGroups:               []string{},
+			LoginURL:                     "",
+			LoggedInURL:                  "",
+		})
+	}
+	return result
 }
 
 func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
@@ -95,6 +137,10 @@ func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.Vp
 		cluster := ecscluster[i]
 		confString, _ := json.Marshal(task)
 		vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo("AWS::ECS::TASK", string(confString), vpcinfos)
+		tags := ""
+		if len(task.Tags) > 0 {
+			tags = getDataString(task.Tags)
+		}
 		taskEntity := entity.AwsConfigEntity{
 			ID:                           *task.TaskArn,
 			Label:                        *task.Group,
@@ -110,7 +156,7 @@ func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.Vp
 			ResourceID:                   *task.TaskArn,
 			ResourceName:                 *task.Group,
 			ResourceType:                 "AWS::ECS::TASK",
-			Tags:                         "",
+			Tags:                         tags,
 			Version:                      "",
 			VpcID:                        vpcid,
 			SubnetID:                     subnetId,
