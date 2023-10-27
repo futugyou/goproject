@@ -221,7 +221,7 @@ func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.Vp
 		}
 		cluster := ecscluster[i]
 		confString, _ := json.Marshal(task)
-		vpcid, subnetId, subnetIds, securityGroups, availabilityZone := getVpcInfo("AWS::ECS::TASK", string(confString), vpcinfos)
+		vpcid, subnetId, subnetIds, securityGroups, _ := getVpcInfo("AWS::ECS::Task", string(confString), vpcinfos)
 		tags := ""
 		if len(task.Tags) > 0 {
 			tags = getDataString(task.Tags)
@@ -231,7 +231,7 @@ func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.Vp
 			Label:                        *task.Group,
 			AccountID:                    cluster.AccountID,
 			Arn:                          *task.TaskArn,
-			AvailabilityZone:             availabilityZone,
+			AvailabilityZone:             "Regional",
 			AwsRegion:                    cluster.AwsRegion,
 			Configuration:                string(confString),
 			ConfigurationItemCaptureTime: *task.CreatedAt,
@@ -240,7 +240,7 @@ func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.Vp
 			ResourceCreationTime:         *task.CreatedAt,
 			ResourceID:                   *task.TaskArn,
 			ResourceName:                 *task.Group,
-			ResourceType:                 "AWS::ECS::TASK",
+			ResourceType:                 "AWS::ECS::Task",
 			Tags:                         tags,
 			Version:                      "",
 			VpcID:                        vpcid,
@@ -606,7 +606,7 @@ func getVpcInfo(resourceType string, configuration string, vpcinfos []c.VpcInfo)
 				securityGroups = append(securityGroups, sg.GroupID)
 			}
 		}
-	case "AWS::ECS::TASK":
+	case "AWS::ECS::Task":
 		var config c.ECSTaskConfiguration
 		err := json.Unmarshal([]byte(configuration), &config)
 		if err != nil {

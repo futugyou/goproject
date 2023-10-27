@@ -1,7 +1,7 @@
 package awsconfigConfiguration
 
 type ECSTaskConfiguration struct {
-	Attachments          []EcsAttachment `json:"Status"`
+	Attachments          []EcsAttachment `json:"Attachments"`
 	AvailabilityZone     string          `json:"AvailabilityZone"`
 	CapacityProviderName string          `json:"CapacityProviderName"`
 	ClusterArn           string          `json:"ClusterArn"`

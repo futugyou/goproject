@@ -76,6 +76,7 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 	roles := make([]entity.AwsConfigEntity, 0)
 	targetGroups := make([]entity.AwsConfigEntity, 0)
 	ecsTaskDefinitions := make([]entity.AwsConfigEntity, 0)
+	networkInterfaces := make([]entity.AwsConfigEntity, 0)
 
 	for _, config := range configs {
 		switch config.ResourceType {
@@ -99,6 +100,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			targetGroups = append(targetGroups, config)
 		case "AWS::ECS::TaskDefinition":
 			ecsTaskDefinitions = append(ecsTaskDefinitions, config)
+		case "AWS::EC2::NetworkInterface":
+			networkInterfaces = append(networkInterfaces, config)
 		}
 	}
 
@@ -130,10 +133,69 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateMQBrokerIndividualRelationShip(config, sgs)
 		case "AWS::RDS::DBInstance":
 			ss = CreateDBInstanceIndividualRelationShip(config, kms)
+		case "AWS::ECS::Task":
+			ss = CreateEcsTaskRelationShip(config, ecsTaskDefinitions, networkInterfaces)
 		}
 		ships = append(ships, ss...)
 	}
 
+	return ships
+}
+
+func CreateEcsTaskRelationShip(config entity.AwsConfigEntity,
+	ecsTaskDefinitions []entity.AwsConfigEntity,
+	networkInterfaces []entity.AwsConfigEntity,
+) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.ECSTaskConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	index := slices.IndexFunc(ecsTaskDefinitions, func(sd entity.AwsConfigEntity) bool {
+		return conf.TaskDefinitionArn == sd.Arn
+	})
+	if index != -1 {
+		target := ecsTaskDefinitions[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              fmt.Sprintf("Is attached with %s", GetResourceTypeName(target.ResourceType)),
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+
+	for _, att := range conf.Attachments {
+		if att.Type == "ElasticNetworkInterface" {
+			for _, d := range att.Details {
+				if d.Name == "networkInterfaceId" && len(d.Value) > 0 {
+					index = slices.IndexFunc(networkInterfaces, func(sd entity.AwsConfigEntity) bool {
+						return d.Value == sd.ResourceID
+					})
+					if index != -1 {
+						target := networkInterfaces[index]
+						ship := entity.AwsConfigRelationshipEntity{
+							ID:                 config.ResourceID + "-" + target.ResourceID,
+							SourceID:           config.ID,
+							SourceLabel:        config.ResourceName,
+							SourceResourceType: config.ResourceType,
+							Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+							TargetID:           target.ID,
+							TargetLabel:        target.ResourceName,
+							TargetResourceType: target.ResourceType,
+						}
+						ships = append(ships, ship)
+					}
+				}
+			}
+		}
+	}
 	return ships
 }
 
