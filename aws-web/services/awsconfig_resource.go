@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	"golang.org/x/exp/slices"
@@ -78,8 +80,46 @@ func AddIndividualResource(resources []entity.AwsConfigEntity, vpcinfos []c.VpcI
 	// 3. aws managed polices
 	polices := createAwsManagedPolices()
 	resources = append(resources, polices...)
+	// 4. target groups
+	targetGroups := createTargetGroups()
+	resources = append(resources, targetGroups...)
 
 	return resources
+}
+
+func createTargetGroups() []entity.AwsConfigEntity {
+	result := make([]entity.AwsConfigEntity, 0)
+	tgs := loadbalancing.GetTargetGroups()
+	for _, tg := range tgs {
+		confString, _ := json.Marshal(tg)
+		_, _, _, accid := ParseARN(*tg.TargetGroupArn)
+		result = append(result, entity.AwsConfigEntity{
+			ID:                           *tg.TargetGroupArn,
+			Label:                        *tg.TargetGroupName,
+			AccountID:                    accid,
+			Arn:                          *tg.TargetGroupArn,
+			AvailabilityZone:             "Multiple Availability Zones",
+			AwsRegion:                    awsenv.Cfg.Region,
+			Configuration:                string(confString),
+			ConfigurationItemCaptureTime: time.Time{},
+			ConfigurationItemStatus:      "",
+			ConfigurationStateID:         "0",
+			ResourceCreationTime:         time.Time{},
+			ResourceID:                   *tg.TargetGroupArn,
+			ResourceName:                 *tg.TargetGroupName,
+			ResourceType:                 "AWS::ElasticLoadBalancingV2::TargetGroup",
+			Tags:                         "",
+			Version:                      "",
+			VpcID:                        *tg.VpcId,
+			SubnetID:                     "",
+			SubnetIds:                    []string{},
+			Title:                        *tg.TargetGroupName,
+			SecurityGroups:               []string{},
+			LoginURL:                     "",
+			LoggedInURL:                  "",
+		})
+	}
+	return result
 }
 
 func createAwsManagedPolices() []entity.AwsConfigEntity {
@@ -90,6 +130,7 @@ func createAwsManagedPolices() []entity.AwsConfigEntity {
 		if len(policy.Tags) > 0 {
 			tags = getDataString(policy.Tags)
 		}
+		confString, _ := json.Marshal(policy)
 		result = append(result, entity.AwsConfigEntity{
 			ID:                           *policy.Arn,
 			Label:                        *policy.PolicyName,
@@ -97,7 +138,7 @@ func createAwsManagedPolices() []entity.AwsConfigEntity {
 			Arn:                          *policy.Arn,
 			AvailabilityZone:             "Not Applicable",
 			AwsRegion:                    awsenv.Cfg.Region,
-			Configuration:                "",
+			Configuration:                string(confString),
 			ConfigurationItemCaptureTime: *policy.CreateDate,
 			ConfigurationItemStatus:      "",
 			ConfigurationStateID:         "0",
@@ -270,6 +311,21 @@ func GetAllVpcInfos(datas []model.AwsConfigRawData) []c.VpcInfo {
 
 	}
 	return vpcInfos
+}
+
+func ParseARN(arn string) (partition, service, region, accountId string) {
+	partition = ""
+	service = ""
+	region = ""
+	accountId = ""
+	segments := strings.Split(arn, ":")
+	if len(segments) > 4 {
+		partition = segments[1]
+		service = segments[2]
+		region = segments[3]
+		accountId = segments[4]
+	}
+	return
 }
 
 func getId(arn string, resourceID string) string {
