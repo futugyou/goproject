@@ -77,6 +77,7 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 	targetGroups := make([]entity.AwsConfigEntity, 0)
 	ecsTaskDefinitions := make([]entity.AwsConfigEntity, 0)
 	networkInterfaces := make([]entity.AwsConfigEntity, 0)
+	accessPoints := make([]entity.AwsConfigEntity, 0)
 
 	for _, config := range configs {
 		switch config.ResourceType {
@@ -102,6 +103,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ecsTaskDefinitions = append(ecsTaskDefinitions, config)
 		case "AWS::EC2::NetworkInterface":
 			networkInterfaces = append(networkInterfaces, config)
+		case "AWS::EFS::AccessPoint":
+			accessPoints = append(accessPoints, config)
 		}
 	}
 
@@ -135,10 +138,105 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateDBInstanceIndividualRelationShip(config, kms)
 		case "AWS::ECS::Task":
 			ss = CreateEcsTaskRelationShip(config, ecsTaskDefinitions, networkInterfaces)
+		case "AWS::ECS::TaskDefinition":
+			ss = CreateEcsTaskDefinitionRelationShip(config, roles, files, accessPoints)
 		}
 		ships = append(ships, ss...)
 	}
 
+	return ships
+}
+
+func CreateEcsTaskDefinitionRelationShip(config entity.AwsConfigEntity,
+	roles []entity.AwsConfigEntity,
+	files []entity.AwsConfigEntity,
+	accessPoints []entity.AwsConfigEntity,
+) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.ECSTaskDefinitionConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// 1. ExecutionRoleArn
+	index := slices.IndexFunc(roles, func(sd entity.AwsConfigEntity) bool {
+		return conf.ExecutionRoleArn == sd.Arn
+	})
+	if index != -1 {
+		target := roles[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+
+	// 2. TaskRoleArn
+	index = slices.IndexFunc(roles, func(sd entity.AwsConfigEntity) bool {
+		return conf.TaskRoleArn == sd.Arn
+	})
+	if index != -1 {
+		target := roles[index]
+		ship := entity.AwsConfigRelationshipEntity{
+			ID:                 config.ResourceID + "-" + target.ResourceID,
+			SourceID:           config.ID,
+			SourceLabel:        config.ResourceName,
+			SourceResourceType: config.ResourceType,
+			Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+			TargetID:           target.ID,
+			TargetLabel:        target.ResourceName,
+			TargetResourceType: target.ResourceType,
+		}
+		ships = append(ships, ship)
+	}
+
+	// 3. volumes
+	for _, volume := range conf.Volumes {
+		if len(volume.EFSVolumeConfiguration.AuthorizationConfig.AccessPointID) > 0 {
+			index = slices.IndexFunc(accessPoints, func(sd entity.AwsConfigEntity) bool {
+				return volume.EFSVolumeConfiguration.AuthorizationConfig.AccessPointID == sd.ResourceID
+			})
+			if index != -1 {
+				target := accessPoints[index]
+				ship := entity.AwsConfigRelationshipEntity{
+					ID:                 config.ResourceID + "-" + target.ResourceID,
+					SourceID:           config.ID,
+					SourceLabel:        config.ResourceName,
+					SourceResourceType: config.ResourceType,
+					Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+					TargetID:           target.ID,
+					TargetLabel:        target.ResourceName,
+					TargetResourceType: target.ResourceType,
+				}
+				ships = append(ships, ship)
+			}
+		} else if len(volume.EFSVolumeConfiguration.FileSystemID) > 0 {
+			index = slices.IndexFunc(files, func(sd entity.AwsConfigEntity) bool {
+				return volume.EFSVolumeConfiguration.FileSystemID == sd.ResourceID
+			})
+			if index != -1 {
+				target := files[index]
+				ship := entity.AwsConfigRelationshipEntity{
+					ID:                 config.ResourceID + "-" + target.ResourceID,
+					SourceID:           config.ID,
+					SourceLabel:        config.ResourceName,
+					SourceResourceType: config.ResourceType,
+					Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+					TargetID:           target.ID,
+					TargetLabel:        target.ResourceName,
+					TargetResourceType: target.ResourceType,
+				}
+				ships = append(ships, ship)
+			}
+		}
+	}
 	return ships
 }
 
