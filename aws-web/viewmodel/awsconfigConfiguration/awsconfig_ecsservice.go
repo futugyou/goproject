@@ -9,7 +9,7 @@ type ECSServiceConfiguration struct {
 	DesiredCount             int64                   `json:"DesiredCount"`
 	EnableECSManagedTags     bool                    `json:"EnableECSManagedTags"`
 	LaunchType               string                  `json:"LaunchType"`
-	LoadBalancers            []interface{}           `json:"LoadBalancers"`
+	LoadBalancers            []LoadBalancer          `json:"LoadBalancers"`
 	Name                     string                  `json:"Name"`
 	NetworkConfiguration     NetworkConfiguration    `json:"NetworkConfiguration"`
 	PlacementConstraints     []interface{}           `json:"PlacementConstraints"`
@@ -50,4 +50,10 @@ type AwsvpcConfiguration struct {
 
 type ServiceRegistry struct {
 	RegistryArn string `json:"RegistryArn"`
+}
+
+type LoadBalancer struct {
+	TargetGroupArn string  `json:"TargetGroupArn"`
+	ContainerName  string  `json:"ContainerName"`
+	ContainerPort  float64 `json:"ContainerPort"`
 }

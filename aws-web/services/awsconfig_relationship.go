@@ -74,6 +74,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 	lbs := make([]entity.AwsConfigEntity, 0)
 	ecsClusters := make([]entity.AwsConfigEntity, 0)
 	roles := make([]entity.AwsConfigEntity, 0)
+	targetGroups := make([]entity.AwsConfigEntity, 0)
+	ecsTaskDefinitions := make([]entity.AwsConfigEntity, 0)
 
 	for _, config := range configs {
 		switch config.ResourceType {
@@ -93,6 +95,10 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ecsClusters = append(ecsClusters, config)
 		case "AWS::IAM::Role":
 			roles = append(roles, config)
+		case "AWS::ElasticLoadBalancingV2::TargetGroup":
+			targetGroups = append(targetGroups, config)
+		case "AWS::ECS::TaskDefinition":
+			ecsTaskDefinitions = append(ecsTaskDefinitions, config)
 		}
 	}
 
@@ -100,7 +106,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 		ss := make([]entity.AwsConfigRelationshipEntity, 0)
 		switch config.ResourceType {
 		case "AWS::ECS::Service":
-			ss = CreateECSServiceIndividualRelationShip(config, sds, sgs, roles, ecsClusters)
+			ss = CreateECSServiceIndividualRelationShip(config, sds,
+				sgs, roles, ecsClusters, ecsTaskDefinitions, targetGroups)
 		case "AWS::EC2::SecurityGroup":
 			ss = CreateSecurityGroupIndividualRelationShip(config, sgs)
 		case "AWS::EFS::AccessPoint":
@@ -496,6 +503,8 @@ func CreateECSServiceIndividualRelationShip(
 	sgs []entity.AwsConfigEntity,
 	roles []entity.AwsConfigEntity,
 	ecsClusters []entity.AwsConfigEntity,
+	ecsTaskDefinitions []entity.AwsConfigEntity,
+	targetGroups []entity.AwsConfigEntity,
 ) (ships []entity.AwsConfigRelationshipEntity) {
 	ships = make([]entity.AwsConfigRelationshipEntity, 0)
 	var ecsconfig c.ECSServiceConfiguration
@@ -588,6 +597,50 @@ func CreateECSServiceIndividualRelationShip(
 				TargetResourceType: target.ResourceType,
 			}
 			ships = append(ships, ship)
+		}
+	}
+
+	// ecsTaskDefinitions
+	{
+		index := slices.IndexFunc(ecsTaskDefinitions, func(taskDefinition entity.AwsConfigEntity) bool {
+			return ecsconfig.TaskDefinition == taskDefinition.Arn
+		})
+		if index != -1 {
+			target := ecsTaskDefinitions[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
+
+	// targetGroups
+	{
+		for _, lb := range ecsconfig.LoadBalancers {
+			index := slices.IndexFunc(targetGroups, func(tg entity.AwsConfigEntity) bool {
+				return lb.TargetGroupArn == tg.Arn
+			})
+			if index != -1 {
+				target := targetGroups[index]
+				ship := entity.AwsConfigRelationshipEntity{
+					ID:                 config.ResourceID + "-" + target.ResourceID,
+					SourceID:           config.ID,
+					SourceLabel:        config.ResourceName,
+					SourceResourceType: config.ResourceType,
+					Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+					TargetID:           target.ID,
+					TargetLabel:        target.ResourceName,
+					TargetResourceType: target.ResourceType,
+				}
+				ships = append(ships, ship)
+			}
 		}
 	}
 	return
