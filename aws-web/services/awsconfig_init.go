@@ -173,11 +173,32 @@ func (a *AwsConfigService) commonDataExec(rawDatas []model.AwsConfigRawData) {
 	// 5.2 remove duplicate
 	ships = RemoveDuplicateRelationShip(ships)
 
-	// 6. BulkWrite data to db
 	log.Println("resources count: ", len(resources))
-	err := a.repository.BulkWrite(context.Background(), resources)
-	log.Println("resources write finish: ", err)
 	log.Println("relationships count: ", len(ships))
-	err = a.relRepository.BulkWrite(context.Background(), ships)
-	log.Println("relationships write finish: ", err)
+	if len(resources) == 0 || len(ships) == 0 {
+		return
+	}
+
+	// 6. delete all
+	err := a.repository.DeleteAll(context.Background())
+	if err != nil {
+		log.Println("delete awsconfig error: ", err.Error())
+		return
+	}
+	err = a.relRepository.DeleteAll(context.Background())
+	if err != nil {
+		log.Println("delete awsconfigrelationship error: ", err.Error())
+		return
+	}
+
+	// 7. Insert all
+	err = a.repository.InsertMany(context.Background(), resources)
+	if err != nil {
+		log.Println("Insert awsconfig error: ", err.Error())
+		return
+	}
+	err = a.relRepository.InsertMany(context.Background(), ships)
+	if err != nil {
+		log.Println("Insert awsconfigrelationship error: ", err.Error())
+	}
 }
