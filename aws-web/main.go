@@ -207,7 +207,7 @@ func main() {
 	//config.SyncResourcesByConfig()
 	config.SyncFileResources(awsenv.AwsConfigFilePath)
 	res := config.GetResourceGraph()
-	fmt.Println(len(res.Edges), len(res.Nodes))
+	fmt.Println(len(res.Nodes), len(res.Edges))
 }
 
 func SyncData() {
@@ -216,4 +216,7 @@ func SyncData() {
 
 	secService := services.NewEcsClusterService()
 	secService.SyncAllEcsServices()
+
+	config := services.NewAwsConfigService()
+	config.SyncResourcesByConfig()
 }
