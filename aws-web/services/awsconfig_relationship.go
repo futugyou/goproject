@@ -140,8 +140,42 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateEcsTaskRelationShip(config, ecsTaskDefinitions, networkInterfaces)
 		case "AWS::ECS::TaskDefinition":
 			ss = CreateEcsTaskDefinitionRelationShip(config, roles, files, accessPoints)
+		case "AWS::ElasticLoadBalancingV2::TargetGroup":
+			ss = CreateTargetGroupIndividualRelationShip(config, lbs)
 		}
 		ships = append(ships, ss...)
+	}
+
+	return ships
+}
+
+func CreateTargetGroupIndividualRelationShip(config entity.AwsConfigEntity, lbs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.TargetGroupConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, lb := range conf.LoadBalancerArns {
+		index := slices.IndexFunc(lbs, func(sd entity.AwsConfigEntity) bool {
+			return lb == sd.Arn
+		})
+		if index != -1 {
+			target := lbs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is attached with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
 	}
 
 	return ships
