@@ -78,6 +78,7 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 	ecsTaskDefinitions := make([]entity.AwsConfigEntity, 0)
 	networkInterfaces := make([]entity.AwsConfigEntity, 0)
 	accessPoints := make([]entity.AwsConfigEntity, 0)
+	managedPolicies := make([]entity.AwsConfigEntity, 0)
 
 	for _, config := range configs {
 		switch config.ResourceType {
@@ -105,6 +106,8 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			networkInterfaces = append(networkInterfaces, config)
 		case "AWS::EFS::AccessPoint":
 			accessPoints = append(accessPoints, config)
+		case "AWS::IAM::AWSManagedPolicy":
+			managedPolicies = append(managedPolicies, config)
 		}
 	}
 
@@ -142,10 +145,42 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateEcsTaskDefinitionRelationShip(config, roles, files, accessPoints)
 		case "AWS::ElasticLoadBalancingV2::TargetGroup":
 			ss = CreateTargetGroupIndividualRelationShip(config, lbs)
+		case "AWS::IAM::Role":
+			ss = CreateRoleIndividualRelationShip(config, managedPolicies)
 		}
 		ships = append(ships, ss...)
 	}
 
+	return ships
+}
+
+func CreateRoleIndividualRelationShip(config entity.AwsConfigEntity, managedPolicies []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.RoleConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for _, policy := range conf.AttachedManagedPolicies {
+		index := slices.IndexFunc(managedPolicies, func(sd entity.AwsConfigEntity) bool {
+			return policy.PolicyArn == sd.Arn && len(sd.Arn) > 0
+		})
+		if index != -1 {
+			target := managedPolicies[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is attached with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
 	return ships
 }
 
@@ -160,7 +195,7 @@ func CreateTargetGroupIndividualRelationShip(config entity.AwsConfigEntity, lbs 
 
 	for _, lb := range conf.LoadBalancerArns {
 		index := slices.IndexFunc(lbs, func(sd entity.AwsConfigEntity) bool {
-			return lb == sd.Arn
+			return lb == sd.Arn && len(lb) > 0
 		})
 		if index != -1 {
 			target := lbs[index]
@@ -195,7 +230,7 @@ func CreateEcsTaskDefinitionRelationShip(config entity.AwsConfigEntity,
 	}
 	// 1. ExecutionRoleArn
 	index := slices.IndexFunc(roles, func(sd entity.AwsConfigEntity) bool {
-		return conf.ExecutionRoleArn == sd.Arn
+		return conf.ExecutionRoleArn == sd.Arn && len(sd.Arn) > 0
 	})
 	if index != -1 {
 		target := roles[index]
@@ -214,7 +249,7 @@ func CreateEcsTaskDefinitionRelationShip(config entity.AwsConfigEntity,
 
 	// 2. TaskRoleArn
 	index = slices.IndexFunc(roles, func(sd entity.AwsConfigEntity) bool {
-		return conf.TaskRoleArn == sd.Arn
+		return conf.TaskRoleArn == sd.Arn && len(sd.Arn) > 0
 	})
 	if index != -1 {
 		target := roles[index]
@@ -286,7 +321,7 @@ func CreateEcsTaskRelationShip(config entity.AwsConfigEntity,
 		return
 	}
 	index := slices.IndexFunc(ecsTaskDefinitions, func(sd entity.AwsConfigEntity) bool {
-		return conf.TaskDefinitionArn == sd.Arn
+		return conf.TaskDefinitionArn == sd.Arn && len(sd.Arn) > 0
 	})
 	if index != -1 {
 		target := ecsTaskDefinitions[index]
@@ -494,7 +529,7 @@ func CreateFunctionIndividualRelationShip(config entity.AwsConfigEntity, configs
 	}
 	for _, target := range conf.FileSystemConfigs {
 		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-			return target.Arn == sd.Arn
+			return target.Arn == sd.Arn && len(sd.Arn) > 0
 		})
 		if index != -1 {
 			target := configs[index]
@@ -526,7 +561,7 @@ func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, config
 	for _, target := range conf.Targets {
 		// 1. target.Arn
 		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-			return target.Arn == sd.Arn
+			return target.Arn == sd.Arn && len(sd.Arn) > 0
 		})
 		if index != -1 {
 			target := configs[index]
@@ -544,7 +579,7 @@ func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, config
 		}
 		// 2. target.RoleArn
 		index = slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-			return target.RoleArn == sd.Arn
+			return target.RoleArn == sd.Arn && len(sd.Arn) > 0
 		})
 		if index != -1 {
 			target := configs[index]
@@ -562,7 +597,7 @@ func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, config
 		}
 		// 3. target.EcsParameters.TaskDefinitionArn
 		index = slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-			return target.EcsParameters.TaskDefinitionArn == sd.Arn
+			return target.EcsParameters.TaskDefinitionArn == sd.Arn && len(sd.Arn) > 0
 		})
 		if index != -1 {
 			target := configs[index]
@@ -608,7 +643,7 @@ func CreateEventBusIndividualRelationShip(config entity.AwsConfigEntity, configs
 			eventBusName = fmt.Sprintf("arn:aws:events:%s:%s:event-bus/%s", sd.AwsRegion, sd.AccountID, eventBusName)
 		}
 
-		return config.Arn == eventBusName
+		return config.Arn == eventBusName && len(eventBusName) > 0
 	})
 
 	if index != -1 {
@@ -639,7 +674,7 @@ func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEn
 
 	// 1. conf.LoadBalancerArn
 	index := slices.IndexFunc(lbs, func(sd entity.AwsConfigEntity) bool {
-		return conf.LoadBalancerArn == sd.Arn
+		return conf.LoadBalancerArn == sd.Arn && len(sd.Arn) > 0
 	})
 	if index != -1 {
 		target := lbs[index]
@@ -659,7 +694,7 @@ func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEn
 	// 2. conf.DefaultActions[].TargetGroupArn
 	for _, act := range conf.DefaultActions {
 		index = slices.IndexFunc(targetGroups, func(sd entity.AwsConfigEntity) bool {
-			return act.TargetGroupArn == sd.Arn
+			return act.TargetGroupArn == sd.Arn && len(sd.Arn) > 0
 		})
 		if index != -1 {
 			target := targetGroups[index]
@@ -679,7 +714,7 @@ func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEn
 		//3. conf.DefaultActions[].ForwardConfig.TargetGroups[].TargetGroupArn
 		for _, tg := range act.ForwardConfig.TargetGroups {
 			index = slices.IndexFunc(targetGroups, func(sd entity.AwsConfigEntity) bool {
-				return tg.TargetGroupArn == sd.Arn
+				return tg.TargetGroupArn == sd.Arn && len(sd.Arn) > 0
 			})
 			if index != -1 {
 				target := targetGroups[index]
@@ -793,7 +828,7 @@ func CreateECSServiceIndividualRelationShip(
 	// ServiceDiscovery Relationship
 	for _, sr := range ecsconfig.ServiceRegistries {
 		index := slices.IndexFunc(sds, func(sd entity.AwsConfigEntity) bool {
-			return sr.RegistryArn == sd.ID
+			return sr.RegistryArn == sd.ID && len(sr.RegistryArn) > 0
 		})
 		if index != -1 {
 			target := sds[index]
@@ -835,7 +870,7 @@ func CreateECSServiceIndividualRelationShip(
 	// role
 	{
 		index := slices.IndexFunc(roles, func(role entity.AwsConfigEntity) bool {
-			return ecsconfig.Role == role.Arn
+			return ecsconfig.Role == role.Arn && len(role.Arn) > 0
 		})
 
 		if index != -1 {
@@ -857,7 +892,7 @@ func CreateECSServiceIndividualRelationShip(
 	// cluster
 	{
 		index := slices.IndexFunc(ecsClusters, func(ecsCluster entity.AwsConfigEntity) bool {
-			return ecsconfig.Cluster == ecsCluster.Arn
+			return ecsconfig.Cluster == ecsCluster.Arn && len(ecsCluster.Arn) > 0
 		})
 
 		if index != -1 {
@@ -879,7 +914,7 @@ func CreateECSServiceIndividualRelationShip(
 	// ecsTaskDefinitions
 	{
 		index := slices.IndexFunc(ecsTaskDefinitions, func(taskDefinition entity.AwsConfigEntity) bool {
-			return ecsconfig.TaskDefinition == taskDefinition.Arn
+			return ecsconfig.TaskDefinition == taskDefinition.Arn && len(taskDefinition.Arn) > 0
 		})
 		if index != -1 {
 			target := ecsTaskDefinitions[index]
@@ -901,7 +936,7 @@ func CreateECSServiceIndividualRelationShip(
 	{
 		for _, lb := range ecsconfig.LoadBalancers {
 			index := slices.IndexFunc(targetGroups, func(tg entity.AwsConfigEntity) bool {
-				return lb.TargetGroupArn == tg.Arn
+				return lb.TargetGroupArn == tg.Arn && len(tg.Arn) > 0
 			})
 			if index != -1 {
 				target := targetGroups[index]
