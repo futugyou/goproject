@@ -524,8 +524,45 @@ func CreateEventRuleIndividualRelationShip(config entity.AwsConfigEntity, config
 		return
 	}
 	for _, target := range conf.Targets {
+		// 1. target.Arn
 		index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
 			return target.Arn == sd.Arn
+		})
+		if index != -1 {
+			target := configs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+		// 2. target.RoleArn
+		index = slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+			return target.RoleArn == sd.Arn
+		})
+		if index != -1 {
+			target := configs[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+		// 3. target.EcsParameters.TaskDefinitionArn
+		index = slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
+			return target.EcsParameters.TaskDefinitionArn == sd.Arn
 		})
 		if index != -1 {
 			target := configs[index]

@@ -11,6 +11,12 @@ type EventRoleConfiguration struct {
 }
 
 type Target struct {
-	Arn string `json:"Arn"`
-	ID  string `json:"Id"`
+	Arn           string        `json:"Arn"`
+	ID            string        `json:"Id"`
+	RoleArn       string        `json:"RoleArn"`
+	EcsParameters EcsParameters `json:"EcsParameters"`
+}
+
+type EcsParameters struct {
+	TaskDefinitionArn string `json:"TaskDefinitionArn"`
 }
