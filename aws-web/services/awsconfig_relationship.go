@@ -121,7 +121,7 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 		case "AWS::EFS::FileSystem":
 			ss = CreateFileSystemIndividualRelationShip(config, kms)
 		case "AWS::ElasticLoadBalancingV2::Listener":
-			ss = CreateLoadBalancingListenerIndividualRelationShip(config, lbs)
+			ss = CreateLoadBalancingListenerIndividualRelationShip(config, lbs, targetGroups)
 		case "AWS::Events::EventBus":
 			ss = CreateEventBusIndividualRelationShip(config, eventsRules)
 		case "AWS::Events::Rule":
@@ -591,7 +591,7 @@ func CreateEventBusIndividualRelationShip(config entity.AwsConfigEntity, configs
 	return
 }
 
-func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEntity, configs []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEntity, lbs, targetGroups []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
 	ships = make([]entity.AwsConfigRelationshipEntity, 0)
 	var conf c.LoadBalancerListenerConfiguration
 	err := json.Unmarshal([]byte(config.Configuration), &conf)
@@ -599,23 +599,68 @@ func CreateLoadBalancingListenerIndividualRelationShip(config entity.AwsConfigEn
 		log.Println(err)
 		return
 	}
-	index := slices.IndexFunc(configs, func(sd entity.AwsConfigEntity) bool {
-		return conf.LoadBalancerArn == sd.Arn && sd.ResourceType == "AWS::ElasticLoadBalancingV2::LoadBalancer"
+
+	// 1. conf.LoadBalancerArn
+	index := slices.IndexFunc(lbs, func(sd entity.AwsConfigEntity) bool {
+		return conf.LoadBalancerArn == sd.Arn
 	})
 	if index != -1 {
-		target := configs[index]
+		target := lbs[index]
 		ship := entity.AwsConfigRelationshipEntity{
 			ID:                 config.ResourceID + "-" + target.ResourceID,
 			SourceID:           config.ID,
 			SourceLabel:        config.ResourceName,
 			SourceResourceType: config.ResourceType,
-			Label:              "Is associated with LoadBalancer",
+			Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
 			TargetID:           target.ID,
 			TargetLabel:        target.ResourceName,
 			TargetResourceType: target.ResourceType,
 		}
 		ships = append(ships, ship)
 	}
+
+	// 2. conf.DefaultActions[].TargetGroupArn
+	for _, act := range conf.DefaultActions {
+		index = slices.IndexFunc(targetGroups, func(sd entity.AwsConfigEntity) bool {
+			return act.TargetGroupArn == sd.Arn
+		})
+		if index != -1 {
+			target := targetGroups[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+
+		//3. conf.DefaultActions[].ForwardConfig.TargetGroups[].TargetGroupArn
+		for _, tg := range act.ForwardConfig.TargetGroups {
+			index = slices.IndexFunc(targetGroups, func(sd entity.AwsConfigEntity) bool {
+				return tg.TargetGroupArn == sd.Arn
+			})
+			if index != -1 {
+				target := targetGroups[index]
+				ship := entity.AwsConfigRelationshipEntity{
+					ID:                 config.ResourceID + "-" + target.ResourceID,
+					SourceID:           config.ID,
+					SourceLabel:        config.ResourceName,
+					SourceResourceType: config.ResourceType,
+					Label:              fmt.Sprintf("Is associated with %s", GetResourceTypeName(target.ResourceType)),
+					TargetID:           target.ID,
+					TargetLabel:        target.ResourceName,
+					TargetResourceType: target.ResourceType,
+				}
+				ships = append(ships, ship)
+			}
+		}
+	}
+
 	return
 }
 

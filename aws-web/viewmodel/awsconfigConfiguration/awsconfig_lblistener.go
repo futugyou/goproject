@@ -19,10 +19,20 @@ type DefaultAction struct {
 	Type                string              `json:"Type"`
 	Order               int64               `json:"Order"`
 	FixedResponseConfig FixedResponseConfig `json:"FixedResponseConfig"`
+	TargetGroupArn      string              `json:"TargetGroupArn"`
+	ForwardConfig       ForwardActionConfig `json:"ForwardConfig"`
 }
 
 type FixedResponseConfig struct {
 	MessageBody string `json:"MessageBody"`
 	StatusCode  string `json:"StatusCode"`
 	ContentType string `json:"ContentType"`
+}
+
+type ForwardActionConfig struct {
+	TargetGroups []TargetGroupTuple `json:"TargetGroups"`
+}
+
+type TargetGroupTuple struct {
+	TargetGroupArn string `json:"TargetGroupArn"`
 }
