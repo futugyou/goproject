@@ -147,10 +147,42 @@ func AddIndividualRelationShip(configs []entity.AwsConfigEntity) []entity.AwsCon
 			ss = CreateTargetGroupIndividualRelationShip(config, lbs)
 		case "AWS::IAM::Role":
 			ss = CreateRoleIndividualRelationShip(config, managedPolicies)
+		case "AWS::IAM::User":
+			ss = CreateUserIndividualRelationShip(config, managedPolicies)
 		}
 		ships = append(ships, ss...)
 	}
 
+	return ships
+}
+
+func CreateUserIndividualRelationShip(config entity.AwsConfigEntity, managedPolicies []entity.AwsConfigEntity) (ships []entity.AwsConfigRelationshipEntity) {
+	ships = make([]entity.AwsConfigRelationshipEntity, 0)
+	var conf c.UserConfiguration
+	err := json.Unmarshal([]byte(config.Configuration), &conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for _, policy := range conf.AttachedManagedPolicies {
+		index := slices.IndexFunc(managedPolicies, func(sd entity.AwsConfigEntity) bool {
+			return policy.PolicyArn == sd.Arn && len(sd.Arn) > 0
+		})
+		if index != -1 {
+			target := managedPolicies[index]
+			ship := entity.AwsConfigRelationshipEntity{
+				ID:                 config.ResourceID + "-" + target.ResourceID,
+				SourceID:           config.ID,
+				SourceLabel:        config.ResourceName,
+				SourceResourceType: config.ResourceType,
+				Label:              fmt.Sprintf("Is attached with %s", GetResourceTypeName(target.ResourceType)),
+				TargetID:           target.ID,
+				TargetLabel:        target.ResourceName,
+				TargetResourceType: target.ResourceType,
+			}
+			ships = append(ships, ship)
+		}
+	}
 	return ships
 }
 
