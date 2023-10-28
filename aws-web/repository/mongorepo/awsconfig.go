@@ -73,3 +73,29 @@ func (a *AwsConfigRelationshipRepository) BulkWrite(ctx context.Context, entitie
 
 	return a.BulkOperate(ctx, models)
 }
+
+func (a *AwsConfigRepository) DeleteAll(ctx context.Context) error {
+	resource := new(entity.AwsConfigEntity)
+	c := a.Client.Database(a.DBName).Collection(resource.GetType())
+	filter := bson.D{}
+	result, err := c.DeleteMany(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	log.Println("DeletedAwsConfigEntityCount: ", result.DeletedCount)
+	return nil
+}
+
+func (a *AwsConfigRelationshipRepository) DeleteAll(ctx context.Context) error {
+	ship := new(entity.AwsConfigRelationshipEntity)
+	c := a.Client.Database(a.DBName).Collection(ship.GetType())
+	filter := bson.D{}
+	result, err := c.DeleteMany(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	log.Println("DeletedAwsConfigRelationshipEntityCount: ", result.DeletedCount)
+	return nil
+}

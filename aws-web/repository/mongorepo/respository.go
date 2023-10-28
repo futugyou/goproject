@@ -154,7 +154,7 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E) error
 		return err
 	}
 
-	log.Println("InsertedIDs: ", result.InsertedIDs)
+	log.Println("Inserted Count: ", len(result.InsertedIDs))
 	return nil
 }
 

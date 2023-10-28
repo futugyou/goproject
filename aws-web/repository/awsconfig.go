@@ -10,9 +10,11 @@ import (
 type IAwsConfigRepository interface {
 	core.IRepository[entity.AwsConfigEntity, string]
 	BulkWrite(ctx context.Context, entities []entity.AwsConfigEntity) error
+	DeleteAll(ctx context.Context) error
 }
 
 type IAwsConfigRelationshipRepository interface {
 	core.IRepository[entity.AwsConfigRelationshipEntity, string]
 	BulkWrite(ctx context.Context, entities []entity.AwsConfigRelationshipEntity) error
+	DeleteAll(ctx context.Context) error
 }
