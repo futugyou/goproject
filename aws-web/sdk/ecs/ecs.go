@@ -321,7 +321,7 @@ func GetEcsTasksByCluster(clusters []string) []types.Task {
 		}
 		taskOutput, err := svc.ListTasks(context.Background(), taskInput)
 		if err != nil {
-			log.Println(err)
+			log.Println("list ecs task error")
 			continue
 		}
 
@@ -331,7 +331,7 @@ func GetEcsTasksByCluster(clusters []string) []types.Task {
 		}
 		output, err := svc.DescribeTasks(context.Background(), input)
 		if err != nil {
-			log.Println(err)
+			log.Println("describe ecs task error")
 			continue
 		}
 

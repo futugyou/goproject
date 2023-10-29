@@ -95,13 +95,13 @@ func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata,
 
 		output, err := svc.DescribeParameters(awsenv.EmptyContext, input)
 		if err != nil {
-			log.Println(err)
+			log.Println("describe parameters error")
 			break
 		}
 
 		nextToken = output.NextToken
 		if len(output.Parameters) == 0 {
-			log.Println(err)
+			log.Println("no ssm data")
 			break
 		}
 
@@ -143,7 +143,7 @@ func (a *ParameterService) getParametersDatail(names []string) ([]types.Paramete
 		}
 
 		if err != nil {
-			log.Println(err)
+			log.Println("get ssm parameter error")
 			continue
 		}
 

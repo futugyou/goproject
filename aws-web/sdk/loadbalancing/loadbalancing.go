@@ -56,7 +56,7 @@ func GetTargetGroups() []types.TargetGroup {
 
 	result, err := svc.DescribeTargetGroups(context.TODO(), input)
 	if err != nil {
-		log.Println(err)
+		log.Println("describe target group error")
 		return []types.TargetGroup{}
 	}
 
@@ -73,7 +73,7 @@ func GetLoadbalanceListeners(lbs []string) []types.Listener {
 
 		result, err := svc.DescribeListeners(context.TODO(), input)
 		if err != nil {
-			log.Println(err)
+			log.Println("describe loadbalance listener error")
 			continue
 		}
 		listeners = append(listeners, result.Listeners...)

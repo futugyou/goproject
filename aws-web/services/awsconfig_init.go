@@ -126,7 +126,7 @@ func getAwsConfigData() []string {
 		log.Println(1)
 		output, err := svc.SelectResourceConfig(context.Background(), input)
 		if err != nil {
-			log.Println(err)
+			log.Println("select aws config resource error")
 			return []string{}
 		}
 		log.Println(2)

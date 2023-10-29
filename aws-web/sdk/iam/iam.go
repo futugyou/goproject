@@ -379,7 +379,7 @@ func ListAttachedAwsManagedPolices() []types.Policy {
 	}
 	output, err := svc.ListPolicies(awsenv.EmptyContext, input)
 	if err != nil {
-		log.Println(err)
+		log.Println("list iam policies error")
 		return []types.Policy{}
 	}
 

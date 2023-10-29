@@ -2,6 +2,7 @@ package servicediscovery
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -202,6 +203,7 @@ func GetNamespaceDetail(namespaceId string) *types.Namespace {
 
 	result, err := svc.GetNamespace(awsenv.EmptyContext, input)
 	if err != nil {
+		log.Println("get namespace error")
 		return nil
 	}
 

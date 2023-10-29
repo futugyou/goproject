@@ -23,7 +23,7 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 		clusterinput := &ecs.ListClustersInput{}
 		clusteroutput, err := svc.ListClusters(awsenv.EmptyContext, clusterinput)
 		if err != nil {
-			log.Println(err)
+			log.Println("list ecs clusters error")
 			continue
 		}
 
@@ -35,7 +35,7 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 
 			serviceoutput, err := svc.ListServices(awsenv.EmptyContext, serviceinput)
 			if err != nil {
-				log.Println(err)
+				log.Println("list ecs service error")
 				continue
 			}
 
@@ -63,7 +63,7 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 				}
 
 				if err != nil {
-					log.Println(err)
+					log.Println("dscribe ecs serive error")
 					continue
 				}
 

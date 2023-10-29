@@ -2,6 +2,7 @@ package route53
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/route53"
@@ -42,6 +43,7 @@ func GetHostedZoneVpcId(hostedZoneId string) string {
 
 	result, err := svc.GetHostedZone(awsenv.EmptyContext, input)
 	if err != nil {
+		log.Println("get hosted zone error")
 		return ""
 	}
 
