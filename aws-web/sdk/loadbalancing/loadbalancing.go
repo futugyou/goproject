@@ -51,6 +51,7 @@ func DescribeDescribeListeners() {
 }
 
 func GetTargetGroups() []types.TargetGroup {
+	svc = elasticloadbalancingv2.NewFromConfig(awsenv.Cfg)
 	input := &elasticloadbalancingv2.DescribeTargetGroupsInput{}
 
 	result, err := svc.DescribeTargetGroups(context.TODO(), input)
@@ -63,6 +64,7 @@ func GetTargetGroups() []types.TargetGroup {
 }
 
 func GetLoadbalanceListeners(lbs []string) []types.Listener {
+	svc = elasticloadbalancingv2.NewFromConfig(awsenv.Cfg)
 	listeners := make([]types.Listener, 0)
 	for _, ls := range lbs {
 		input := &elasticloadbalancingv2.DescribeListenersInput{

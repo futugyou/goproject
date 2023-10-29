@@ -372,6 +372,7 @@ func AddUserToGroup() {
 }
 
 func ListAttachedAwsManagedPolices() []types.Policy {
+	svc = iam.NewFromConfig(awsenv.Cfg)
 	input := &iam.ListPoliciesInput{
 		OnlyAttached: true,
 		Scope:        types.PolicyScopeTypeAws,

@@ -195,6 +195,7 @@ func GetNamespace() {
 }
 
 func GetNamespaceDetail(namespaceId string) *types.Namespace {
+	svc = servicediscovery.NewFromConfig(awsenv.Cfg)
 	input := &servicediscovery.GetNamespaceInput{
 		Id: aws.String(namespaceId),
 	}

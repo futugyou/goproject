@@ -35,6 +35,7 @@ func GetHostedZone() {
 }
 
 func GetHostedZoneVpcId(hostedZoneId string) string {
+	svc = route53.NewFromConfig(awsenv.Cfg)
 	input := &route53.GetHostedZoneInput{
 		Id: aws.String(hostedZoneId),
 	}

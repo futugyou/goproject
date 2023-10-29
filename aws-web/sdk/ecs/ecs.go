@@ -312,6 +312,7 @@ func DescribeTasks() {
 }
 
 func GetEcsTasksByCluster(clusters []string) []types.Task {
+	svc = ecs.NewFromConfig(awsenv.Cfg)
 	result := make([]types.Task, 0)
 
 	for _, cluster := range clusters {
