@@ -1,0 +1,37 @@
+name: AWS Vercel Preview Deployment
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_AWS_WEB_ID }}
+on:
+  push:
+    branches-ignore:
+      - master
+    paths: 
+    - 'aws-web/**'
+    - '.github/workflows/aws-vercel-preview.yaml'
+jobs:
+  Deploy-Preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: Preview – aws-web
+    env:
+      working-directory: ./aws-web
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install Vercel CLI
+        run: npm install --global vercel@canary
+        working-directory: ${{env.working-directory}}
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{env.working-directory}}
+
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{env.working-directory}}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{env.working-directory}}

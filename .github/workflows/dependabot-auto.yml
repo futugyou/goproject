@@ -1,5 +1,7 @@
-name: Dependabot auto
-on: pull_request
+name: Dependabot Auto Merge
+on:  
+  workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: write
@@ -15,24 +17,16 @@ jobs:
         uses: dependabot/fetch-metadata@v1
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
+      
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Show Dependabot info
-        run:  |
-          echo  ${{ steps.metadata.outputs.dependency-names }} 
-          echo  ${{ steps.metadata.outputs.dependency-type }} 
-          echo  ${{ steps.metadata.outputs.update-type }} 
-          echo  ${{ steps.metadata.outputs.updated-dependencies-json }} 
-          echo  ${{ steps.metadata.outputs.directory }} 
-          echo  ${{ steps.metadata.outputs.package-ecosystem }} 
-          echo  ${{ steps.metadata.outputs.target-branch }} 
-          echo  ${{ steps.metadata.outputs.previous-version }} 
-          echo  ${{ steps.metadata.outputs.new-version }} 
-          echo  ${{ steps.metadata.outputs.alert-state }} 
-          echo  ${{ steps.metadata.outputs.cvss }} 
-          echo  ${{ steps.metadata.outputs.compatibility-score }} 
-          echo  ${{ steps.metadata.outputs.maintainer-changes }} 
-          echo  ${{ steps.metadata.outputs.dependency-group }} 
+          
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
