@@ -8,13 +8,13 @@
 
 ## AWS Service
 [![AWS Preview](https://github.com/futugyou/goproject/actions/workflows/aws-vercel-preview.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/aws-vercel-preview.yaml)
-[![AWS Production](https://github.com/futugyou/goproject/actions/workflows/aws-vercel-production.yml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/aws-vercel-production.yml)
+[![AWS Production](https://github.com/futugyou/goproject/actions/workflows/aws-vercel-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/aws-vercel-production.yaml)
 
 ## Identity Service
-[![Identity Preview](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-preview.yml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-preview.yml)
-[![Identity Production](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-production.yml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-production.yml)
+[![Identity Preview](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-preview.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-preview.yaml)
+[![Identity Production](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/identity-vercel-production.yaml)
 
 ## OpenAI Service
-[![OpenAI Preview](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-preview.yml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-preview.yml)
-[![OpenAI Production](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-production.yml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-production.yml)
+[![OpenAI Preview](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-preview.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-preview.yaml)
+[![OpenAI Production](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-production.yaml)
 
