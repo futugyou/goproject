@@ -202,12 +202,6 @@ func main() {
 	// secretsmanager.GetSecretValue()
 
 	// loadbalancing.DescribeTargetGroups()
-
-	config := services.NewAwsConfigService()
-	//config.SyncResourcesByConfig()
-	config.SyncFileResources(awsenv.AwsConfigFilePath)
-	res := config.GetResourceGraph()
-	fmt.Println(len(res.Nodes), len(res.Edges))
 }
 
 func SyncData() {
@@ -217,6 +211,7 @@ func SyncData() {
 	secService := services.NewEcsClusterService()
 	secService.SyncAllEcsServices()
 
-	config := services.NewAwsConfigService()
-	config.SyncResourcesByConfig()
+	// current data is useful, no need to update
+	// config := services.NewAwsConfigService()
+	// config.SyncResourcesByConfig()
 }
