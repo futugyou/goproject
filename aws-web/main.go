@@ -36,6 +36,25 @@ func main() {
 
 	fmt.Println("not from github action")
 
+	awsServiceDemo()
+
+	awsSdkDemo()
+
+}
+
+func SyncData() {
+	parameterService := services.NewParameterService()
+	parameterService.SyncAllParameter()
+
+	secService := services.NewEcsClusterService()
+	secService.SyncAllEcsServices()
+
+	// current data is useful, no need to update
+	// config := services.NewAwsConfigService()
+	// config.SyncResourcesByConfig()
+}
+
+func awsServiceDemo() {
 	// regionService := services.NewRegionService()
 	// regions, _ := regionService.GetRegions()
 	// fmt.Println(regions)
@@ -79,7 +98,9 @@ func main() {
 	// keyService.CreateKeyValue("key", "value")
 	// fmt.Println(keyService.GetValueByKey("key"))
 	// fmt.Println(keyService.GetAllKeyValues())
+}
 
+func awsSdkDemo() {
 	// servicediscovery.ListNamespace()
 	// servicediscovery.ListServices()
 	// servicediscovery.RegisterInstance()
@@ -170,11 +191,18 @@ func main() {
 	// ec2.DetachInternetGateway()
 	// ec2.DeleteInternetGateway()
 
-	// s3.ListBuckets()
-	// s3.ListObjectsV2("/")
-	// s3.GetBucketCors("/")
-	// s3.GetBucketPolicy("/")
-	s3.GetBucketPolicyStatus("/")
+	names := s3.ListBuckets()
+	for _, name := range names {
+		// s3.ListObjectsV2(name)
+		// s3.GetBucketCors(name)
+		// s3.GetBucketPolicy(name)
+		// s3.GetBucketPolicyStatus(name)
+		// s3.GetBucketAccelerateConfiguration(name)
+		// s3.GetBucketAcl(name)
+		// s3.GetBucketLocation(name)
+		s3.GetBucketWebsite(name)
+	}
+
 	// s3.GetObject("", "")
 	// s3.PutObject("", "")
 
@@ -206,16 +234,4 @@ func main() {
 	// secretsmanager.GetSecretValue()
 
 	// loadbalancing.DescribeTargetGroups()
-}
-
-func SyncData() {
-	parameterService := services.NewParameterService()
-	parameterService.SyncAllParameter()
-
-	secService := services.NewEcsClusterService()
-	secService.SyncAllEcsServices()
-
-	// current data is useful, no need to update
-	// config := services.NewAwsConfigService()
-	// config.SyncResourcesByConfig()
 }

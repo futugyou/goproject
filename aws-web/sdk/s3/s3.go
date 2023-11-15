@@ -18,18 +18,24 @@ func init() {
 	svc = s3.NewFromConfig(awsenv.Cfg)
 }
 
-func ListBuckets() {
+func ListBuckets() []string {
 	input := s3.ListBucketsInput{}
+	result := make([]string, 0)
 	output, err := svc.ListBuckets(awsenv.EmptyContext, &input)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return result
 	}
+
 	for _, bucket := range output.Buckets {
 		fmt.Println(*bucket.Name, bucket.CreationDate)
+		result = append(result, *bucket.Name)
 	}
+
+	return result
 }
 
+// error if not exist
 func GetBucketCors(bucketName string) {
 	input := s3.GetBucketCorsInput{
 		Bucket: &bucketName,
@@ -44,6 +50,7 @@ func GetBucketCors(bucketName string) {
 	}
 }
 
+// error if not exist
 func GetBucketPolicy(bucketName string) {
 	input := s3.GetBucketPolicyInput{
 		Bucket: &bucketName,
@@ -55,10 +62,11 @@ func GetBucketPolicy(bucketName string) {
 	}
 
 	if output.Policy != nil {
-		fmt.Println(*output.Policy)
+		fmt.Println(bucketName, "\t", *output.Policy)
 	}
 }
 
+// error if not exist
 func GetBucketPolicyStatus(bucketName string) {
 	input := s3.GetBucketPolicyStatusInput{
 		Bucket: &bucketName,
@@ -70,8 +78,73 @@ func GetBucketPolicyStatus(bucketName string) {
 	}
 
 	if output.PolicyStatus != nil {
-		fmt.Println(output.PolicyStatus.IsPublic)
+		fmt.Println(bucketName, "\t", output.PolicyStatus.IsPublic)
 	}
+}
+
+// error if not unsupported
+// no need
+func GetBucketAccelerateConfiguration(bucketName string) {
+	input := s3.GetBucketAccelerateConfigurationInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketAccelerateConfiguration(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(bucketName, "\t", output.Status)
+}
+
+func GetBucketAcl(bucketName string) {
+	input := s3.GetBucketAclInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketAcl(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if output.Owner != nil {
+		if output.Owner.DisplayName != nil {
+			fmt.Println(*output.Owner.DisplayName)
+		}
+		if output.Owner.ID != nil {
+			fmt.Println(*output.Owner.ID)
+		}
+	}
+	for _, v := range output.Grants {
+		fmt.Println(v.Permission)
+	}
+}
+
+func GetBucketLocation(bucketName string) {
+	input := s3.GetBucketLocationInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketLocation(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(bucketName, "\t", output.LocationConstraint)
+}
+
+// no need
+func GetBucketWebsite(bucketName string) {
+	input := s3.GetBucketWebsiteInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketWebsite(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(bucketName, "\t", output.IndexDocument)
 }
 
 func ListObjectsV2(bucketName string) {
