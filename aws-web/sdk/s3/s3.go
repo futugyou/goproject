@@ -44,6 +44,21 @@ func GetBucketCors(bucketName string) {
 	}
 }
 
+func GetBucketPolicy(bucketName string) {
+	input := s3.GetBucketPolicyInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketPolicy(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if output.Policy != nil {
+		fmt.Println(*output.Policy)
+	}
+}
+
 func ListObjectsV2(bucketName string) {
 	objInput := s3.ListObjectsV2Input{
 		Bucket: &bucketName,

@@ -172,7 +172,8 @@ func main() {
 
 	// s3.ListBuckets()
 	// s3.ListObjectsV2("/")
-	s3.GetBucketCors("/")
+	// s3.GetBucketCors("/")
+	s3.GetBucketPolicy("/")
 	// s3.GetObject("", "")
 	// s3.PutObject("", "")
 
