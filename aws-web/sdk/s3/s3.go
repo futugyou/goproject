@@ -30,6 +30,20 @@ func ListBuckets() {
 	}
 }
 
+func GetBucketCors(bucketName string) {
+	input := s3.GetBucketCorsInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketCors(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, rule := range output.CORSRules {
+		fmt.Println(rule.AllowedHeaders, rule.AllowedMethods, rule.AllowedOrigins, rule.ExposeHeaders, rule.MaxAgeSeconds)
+	}
+}
+
 func ListObjectsV2(bucketName string) {
 	objInput := s3.ListObjectsV2Input{
 		Bucket: &bucketName,
