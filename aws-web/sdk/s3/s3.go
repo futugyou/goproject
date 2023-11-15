@@ -59,6 +59,21 @@ func GetBucketPolicy(bucketName string) {
 	}
 }
 
+func GetBucketPolicyStatus(bucketName string) {
+	input := s3.GetBucketPolicyStatusInput{
+		Bucket: &bucketName,
+	}
+	output, err := svc.GetBucketPolicyStatus(awsenv.EmptyContext, &input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if output.PolicyStatus != nil {
+		fmt.Println(output.PolicyStatus.IsPublic)
+	}
+}
+
 func ListObjectsV2(bucketName string) {
 	objInput := s3.ListObjectsV2Input{
 		Bucket: &bucketName,
