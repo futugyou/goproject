@@ -16,8 +16,9 @@ func (s *S3bucketService) InitData() {
 
 	accountService := NewAccountService()
 	accounts := accountService.GetAllAccounts()
-	
+
 	entities := make([]entity.S3bucketEntity, 0)
+	items := make([]entity.S3bucketItemEntity, 0)
 	for _, account := range accounts {
 		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		buckets, err := s.GetAllS3Bucket()
@@ -36,6 +37,22 @@ func (s *S3bucketService) InitData() {
 				CreationDate: *bucket.CreationDate,
 			}
 			entities = append(entities, b)
+
+			objs, err := s.ListItemsByBucketName(bucket.Name)
+			if err != nil {
+				continue
+			}
+
+			for _, obj := range objs {
+				item := entity.S3bucketItemEntity{
+					Id:           account.Id + *bucket.Name + *obj.Key,
+					BucketName:   *bucket.Name,
+					Key:          *obj.Key,
+					Size:         obj.Size,
+					CreationDate: *obj.LastModified,
+				}
+				items = append(items, item)
+			}
 		}
 	}
 
@@ -44,6 +61,29 @@ func (s *S3bucketService) InitData() {
 		s.repository.InsertMany(ctx, entities)
 	}
 
+	if len(items) > 0 && len(entities) > 0 {
+		for _, b := range entities {
+			sunItem := FilterS3bucketItemEntity(items, b.Name)
+			if len(sunItem) == 0 {
+				continue
+			}
+
+			s.itemRepository.DeleteByBucketName(ctx, b.Name)
+			s.itemRepository.InsertMany(ctx, sunItem)
+		}
+	}
+
+	log.Println("s3 sync end.")
+}
+
+func FilterS3bucketItemEntity(items []entity.S3bucketItemEntity, name string) []entity.S3bucketItemEntity {
+	sub := make([]entity.S3bucketItemEntity, 0)
+	for _, i := range items {
+		if i.BucketName == name {
+			sub = append(sub, i)
+		}
+	}
+	return sub
 }
 
 func (s *S3bucketService) GetBucketRegion(name *string, region string) string {
@@ -129,4 +169,20 @@ func (s *S3bucketService) GetAllS3Bucket() ([]types.Bucket, error) {
 	}
 
 	return output.Buckets, nil
+}
+
+func (s *S3bucketService) ListItemsByBucketName(name *string) ([]types.Object, error) {
+	svc := s3.NewFromConfig(awsenv.Cfg)
+
+	objInput := s3.ListObjectsV2Input{
+		Bucket: name,
+	}
+
+	output, err := svc.ListObjectsV2(awsenv.EmptyContext, &objInput)
+	if err != nil {
+		log.Println("get ListObjectsV2 error.")
+		return nil, err
+	}
+
+	return output.Contents, nil
 }
