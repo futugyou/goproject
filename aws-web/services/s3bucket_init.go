@@ -73,6 +73,8 @@ func (s *S3bucketService) InitData() {
 		}
 	}
 
+	log.Println("total bucket count ", len(entities))
+	log.Println("total item count ", len(items))
 	log.Println("s3 sync end.")
 }
 

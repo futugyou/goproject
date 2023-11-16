@@ -8,7 +8,6 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
-
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
@@ -19,7 +18,7 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
-	"github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
+	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
@@ -98,6 +97,10 @@ func awsServiceDemo() {
 	// keyService.CreateKeyValue("key", "value")
 	// fmt.Println(keyService.GetValueByKey("key"))
 	// fmt.Println(keyService.GetAllKeyValues())
+
+	s3Service := services.NewS3bucketService()
+	s3Service.InitData()
+
 }
 
 func awsSdkDemo() {
@@ -191,17 +194,17 @@ func awsSdkDemo() {
 	// ec2.DetachInternetGateway()
 	// ec2.DeleteInternetGateway()
 
-	names := s3.ListBuckets()
-	for _, name := range names {
-		// s3.ListObjectsV2(name)
-		// s3.GetBucketCors(name)
-		// s3.GetBucketPolicy(name)
-		// s3.GetBucketPolicyStatus(name)
-		// s3.GetBucketAccelerateConfiguration(name)
-		// s3.GetBucketAcl(name)
-		// s3.GetBucketLocation(name)
-		s3.GetBucketWebsite(name)
-	}
+	// names := s3.ListBuckets()
+	// for _, name := range names {
+	// s3.ListObjectsV2(name)
+	// s3.GetBucketCors(name)
+	// s3.GetBucketPolicy(name)
+	// s3.GetBucketPolicyStatus(name)
+	// s3.GetBucketAccelerateConfiguration(name)
+	// s3.GetBucketAcl(name)
+	// s3.GetBucketLocation(name)
+	// s3.GetBucketWebsite(name)
+	// }
 
 	// s3.GetObject("", "")
 	// s3.PutObject("", "")
