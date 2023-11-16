@@ -1,12 +1,50 @@
 package services
 
 import (
+	"context"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
 )
+
+func (s *S3bucketService) InitData() {
+	log.Println("s3 sync start..")
+	ctx := context.Background()
+
+	accountService := NewAccountService()
+	accounts := accountService.GetAllAccounts()
+	
+	entities := make([]entity.S3bucketEntity, 0)
+	for _, account := range accounts {
+		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+		buckets, err := s.GetAllS3Bucket()
+		if err != nil {
+			continue
+		}
+
+		for _, bucket := range buckets {
+			b := entity.S3bucketEntity{
+				Id:           account.Id + *bucket.Name,
+				Name:         *bucket.Name,
+				Region:       s.GetBucketRegion(bucket.Name, account.Region),
+				IsPublic:     s.GetBucketPolicyStatus(bucket.Name),
+				Policy:       s.GetBucketPolicy(bucket.Name),
+				Permissions:  s.GetBucketPermissions(bucket.Name),
+				CreationDate: *bucket.CreationDate,
+			}
+			entities = append(entities, b)
+		}
+	}
+
+	if len(entities) > 0 {
+		s.repository.DeleteAll(ctx)
+		s.repository.InsertMany(ctx, entities)
+	}
+
+}
 
 func (s *S3bucketService) GetBucketRegion(name *string, region string) string {
 	svc := s3.NewFromConfig(awsenv.Cfg)

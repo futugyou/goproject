@@ -58,6 +58,19 @@ func (a *S3bucketRepository) FilterPaging(ctx context.Context, page core.Paging,
 	return result, nil
 }
 
+func (a *S3bucketRepository) DeleteAll(ctx context.Context) error {
+	resource := new(entity.S3bucketEntity)
+	c := a.Client.Database(a.DBName).Collection(resource.GetType())
+	filter := bson.D{}
+	result, err := c.DeleteMany(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	log.Println("DeletedS3bucketEntityCount: ", result.DeletedCount)
+	return nil
+}
+
 func (a *S3bucketItemRepository) DeleteByBucketName(ctx context.Context, bucketName string) error {
 	entity := new(entity.S3bucketItemEntity)
 	c := a.Client.Database(a.DBName).Collection((*entity).GetType())

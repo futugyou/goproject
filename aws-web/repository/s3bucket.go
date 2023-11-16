@@ -9,6 +9,7 @@ import (
 
 type IS3bucketRepository interface {
 	core.IRepository[entity.S3bucketEntity, string]
+	DeleteAll(ctx context.Context) error
 	FilterPaging(ctx context.Context, page core.Paging, filter entity.S3bucketSearchFilter) ([]*entity.S3bucketEntity, error)
 }
 
