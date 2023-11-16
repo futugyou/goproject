@@ -2,6 +2,10 @@ package entity
 
 import "time"
 
+type S3bucketSearchFilter struct {
+	BucketName string `json:"bucketName,omitempty"`
+}
+
 type S3bucketEntity struct {
 	Id           string    `bson:"_id,omitempty"`
 	Name         string    `bson:"name"`
