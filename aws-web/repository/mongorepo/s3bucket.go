@@ -35,7 +35,7 @@ func (a *S3bucketRepository) FilterPaging(ctx context.Context, page core.Paging,
 
 	bsonfilter := bson.M{}
 	if len(filter.BucketName) > 0 {
-		bsonfilter = bson.M{"name": filter.BucketName}
+		bsonfilter = bson.M{"name": bson.M{"$regex": filter.BucketName, "$options": "im"}}
 	}
 
 	var skip int64 = (page.Page - 1) * page.Limit
@@ -86,7 +86,7 @@ func (a *S3bucketItemRepository) FilterPaging(ctx context.Context, page core.Pag
 
 	bsonfilter := bson.M{}
 	if len(filter.BucketName) > 0 {
-		bsonfilter = bson.M{"bucketName": filter.BucketName}
+		bsonfilter = bson.M{"bucketName": bson.M{"$regex": filter.BucketName, "$options": "im"}}
 	}
 
 	var skip int64 = (page.Page - 1) * page.Limit
