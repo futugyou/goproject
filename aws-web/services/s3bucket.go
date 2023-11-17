@@ -3,7 +3,9 @@ package services
 import (
 	"context"
 	"os"
+	"time"
 
+	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
@@ -61,5 +63,41 @@ func (s *S3bucketService) GetS3Buckets(paging core.Paging, filter model.S3Bucket
 		result = append(result, bucket)
 	}
 
+	return result
+}
+
+func (s *S3bucketService) GetS3BucketItems(filter model.S3BucketItemFilter) []model.S3BucketItemViewModel {
+	result := make([]model.S3BucketItemViewModel, 0)
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(filter.AccountId)
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	output, err := s.ListItems(filter.BucketName, filter.Perfix)
+	if err != nil {
+		return nil
+	}
+
+	for _, obj := range output.Contents {
+		i := model.S3BucketItemViewModel{
+			Id:           *obj.Key,
+			BucketName:   filter.BucketName,
+			Key:          *obj.Key,
+			Size:         obj.Size,
+			CreationDate: *obj.LastModified,
+			IsDirectory:  false,
+		}
+		result = append(result, i)
+	}
+
+	for _, obj := range output.CommonPrefixes {
+		i := model.S3BucketItemViewModel{
+			Id:           *obj.Prefix,
+			BucketName:   filter.BucketName,
+			Key:          *obj.Prefix,
+			Size:         0,
+			CreationDate: time.Time{},
+			IsDirectory:  true,
+		}
+		result = append(result, i)
+	}
 	return result
 }

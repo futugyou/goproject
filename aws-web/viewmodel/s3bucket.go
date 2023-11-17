@@ -20,6 +20,7 @@ type S3BucketItemViewModel struct {
 	Key          string    `json:"key"`
 	Size         int64     `json:"size"`
 	CreationDate time.Time `json:"creationDate"`
+	IsDirectory  bool      `json:"isDirectory"`
 }
 
 type S3BucketFilter struct {
@@ -28,5 +29,6 @@ type S3BucketFilter struct {
 
 type S3BucketItemFilter struct {
 	BucketName string `json:"name,omitempty"`
+	AccountId  string `json:"accountId"`
 	Perfix     string `json:"perfix,omitempty"`
 }

@@ -112,6 +112,12 @@ func S3Test() {
 	for _, s := range s3s {
 		fmt.Println(s.Name)
 	}
+
+	f := viewmodel.S3BucketItemFilter{}
+	s3items := s3Service.GetS3BucketItems(f)
+	for _, s := range s3items {
+		fmt.Println(s.Key)
+	}
 }
 
 func awsSdkDemo() {
