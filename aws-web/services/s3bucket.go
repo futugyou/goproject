@@ -1,10 +1,14 @@
 package services
 
 import (
+	"context"
 	"os"
 
+	"github.com/futugyousuzu/goproject/awsgolang/core"
+	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
+	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
 
 type S3bucketService struct {
@@ -22,4 +26,25 @@ func NewS3bucketService() *S3bucketService {
 		repository:     mongorepo.NewS3bucketRepository(config),
 		itemRepository: mongorepo.NewS3bucketItemRepository(config),
 	}
+}
+
+func (s *S3bucketService) GetS3Buckets(paging core.Paging, filter model.S3BucketFilter) []model.S3BucketViewModel {
+	ctx := context.Background()
+	result := make([]model.S3BucketViewModel, 0)
+
+	f := entity.S3bucketSearchFilter{
+		BucketName: filter.BucketName,
+	}
+
+	entities, err := s.repository.FilterPaging(ctx, paging, f)
+	if err != nil {
+		return result
+	}
+
+	for _, entity := range entities {
+		bucket := model.S3BucketViewModel(*entity)
+		result = append(result, bucket)
+	}
+
+	return result
 }
