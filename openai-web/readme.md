@@ -1,29 +1,34 @@
-install bee tool
-```
+# install bee tool
+
+```golang
 go install github.com/beego/bee/v2@develop
 ```
 
 init web api project
-```
+
+```golang
 bee api openai
 ```
 
 swagger doc
-```
+
+```golang
 bee generate docs
 ```
 
 route
-```
+
+```golang
 bee generate routers
 ```
 
-```
+```golang
 bee run 
 ```
 
 use docker command in parent folder
-```
+
+```docker
 docker build -t openai -f ./openai-web/Dockerfile .
 docker run  --name openai -p 8080:8080 -d openai
 

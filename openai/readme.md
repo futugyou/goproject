@@ -1,6 +1,7 @@
-![openai document](https://platform.openai.com/docs/introduction/overview)
+# ![openai document](https://platform.openai.com/docs/introduction/overview)
 
 ## Features
+
 - [x] [Auth](https://platform.openai.com/docs/api-reference/authentication)
 - [x] [Models](https://platform.openai.com/docs/api-reference/models)
 - [x] [Completions](https://platform.openai.com/docs/api-reference/completions)
