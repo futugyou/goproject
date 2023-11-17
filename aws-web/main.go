@@ -7,7 +7,9 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
+	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
+	"github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
@@ -98,9 +100,18 @@ func awsServiceDemo() {
 	// fmt.Println(keyService.GetValueByKey("key"))
 	// fmt.Println(keyService.GetAllKeyValues())
 
-	s3Service := services.NewS3bucketService()
-	s3Service.InitData()
+	S3Test()
+}
 
+func S3Test() {
+	s3Service := services.NewS3bucketService()
+	// s3Service.InitData()
+	paging := core.Paging{Page: 1, Limit: 5}
+	filter := viewmodel.S3BucketFilter{BucketName: ""}
+	s3s := s3Service.GetS3Buckets(paging, filter)
+	for _, s := range s3s {
+		fmt.Println(s.Name)
+	}
 }
 
 func awsSdkDemo() {
