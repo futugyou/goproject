@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -29,6 +30,7 @@ func (s *S3bucketService) InitData() {
 		for _, bucket := range buckets {
 			b := entity.S3bucketEntity{
 				Id:           account.Id + *bucket.Name,
+				AccountId:    account.Id,
 				Name:         *bucket.Name,
 				Region:       s.GetBucketRegion(bucket.Name, account.Region),
 				IsPublic:     s.GetBucketPolicyStatus(bucket.Name),
@@ -178,6 +180,27 @@ func (s *S3bucketService) ListItemsByBucketName(name *string) ([]types.Object, e
 
 	objInput := s3.ListObjectsV2Input{
 		Bucket: name,
+	}
+
+	output, err := svc.ListObjectsV2(awsenv.EmptyContext, &objInput)
+	if err != nil {
+		log.Println("get ListObjectsV2 error.")
+		return nil, err
+	}
+
+	return output.Contents, nil
+}
+
+func (s *S3bucketService) ListItems(name string, perfix string) ([]types.Object, error) {
+	svc := s3.NewFromConfig(awsenv.Cfg)
+
+	objInput := s3.ListObjectsV2Input{
+		Bucket:    aws.String(name),
+		Delimiter: aws.String("/"),
+	}
+
+	if len(perfix) > 0 {
+		objInput.Prefix = aws.String(perfix)
 	}
 
 	output, err := svc.ListObjectsV2(awsenv.EmptyContext, &objInput)

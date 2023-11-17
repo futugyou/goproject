@@ -4,6 +4,8 @@ import "time"
 
 type S3BucketViewModel struct {
 	Id           string    `json:"id,omitempty"`
+	AccountId    string    `json:"accountId"`
+	AccountName  string    `json:"accountName"`
 	Name         string    `json:"name"`
 	Region       string    `json:"region"`
 	IsPublic     bool      `json:"isPublic"`

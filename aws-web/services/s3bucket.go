@@ -9,6 +9,7 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
 	"github.com/futugyousuzu/goproject/awsgolang/repository/mongorepo"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
+	"golang.org/x/exp/slices"
 )
 
 type S3bucketService struct {
@@ -41,8 +42,22 @@ func (s *S3bucketService) GetS3Buckets(paging core.Paging, filter model.S3Bucket
 		return result
 	}
 
+	accountService := NewAccountService()
+	accounts := accountService.GetAllAccounts()
+
 	for _, entity := range entities {
-		bucket := model.S3BucketViewModel(*entity)
+		idx := slices.IndexFunc(accounts, func(c model.UserAccount) bool { return c.Id == entity.AccountId })
+		bucket := model.S3BucketViewModel{
+			Id:           entity.Id,
+			AccountId:    entity.AccountId,
+			AccountName:  accounts[idx].Alias,
+			Name:         entity.Name,
+			Region:       entity.Region,
+			IsPublic:     entity.IsPublic,
+			Policy:       entity.Policy,
+			Permissions:  entity.Permissions,
+			CreationDate: entity.CreationDate,
+		}
 		result = append(result, bucket)
 	}
 

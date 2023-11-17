@@ -8,6 +8,7 @@ type S3bucketSearchFilter struct {
 
 type S3bucketEntity struct {
 	Id           string    `bson:"_id,omitempty"`
+	AccountId    string    `bson:"accountId"`
 	Name         string    `bson:"name"`
 	Region       string    `bson:"region"`
 	IsPublic     bool      `bson:"isPublic"`
