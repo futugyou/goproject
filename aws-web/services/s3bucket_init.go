@@ -211,3 +211,14 @@ func (s *S3bucketService) ListItems(name string, perfix string) (*s3.ListObjects
 
 	return output, nil
 }
+
+func (s *S3bucketService) GetS3Object(bucket string, key string) (*s3.GetObjectOutput, error) {
+	svc := s3.NewFromConfig(awsenv.Cfg)
+
+	input := s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}
+
+	return svc.GetObject(awsenv.EmptyContext, &input)
+}

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
@@ -100,4 +101,12 @@ func (s *S3bucketService) GetS3BucketItems(filter model.S3BucketItemFilter) []mo
 		result = append(result, i)
 	}
 	return result
+}
+
+func (s *S3bucketService) GetS3BucketFile(filter model.S3BucketFileFilter) (*s3.GetObjectOutput, error) {
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(filter.AccountId)
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+
+	return s.GetS3Object(filter.BucketName, filter.FileName)
 }
