@@ -110,3 +110,12 @@ func (s *S3bucketService) GetS3BucketFile(filter model.S3BucketFileFilter) (*s3.
 
 	return s.GetS3Object(filter.BucketName, filter.FileName)
 }
+
+func (s *S3bucketService) GetS3FileUrl(filter model.S3BucketFileFilter) model.S3BucketUrlViewModel {
+	accountService := NewAccountService()
+	account := accountService.GetAccountByID(filter.AccountId)
+	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
+	url := s.PresignGetObject(filter.BucketName, filter.FileName)
+
+	return model.S3BucketUrlViewModel{Url: url}
+}

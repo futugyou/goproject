@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -221,4 +223,20 @@ func (s *S3bucketService) GetS3Object(bucket string, key string) (*s3.GetObjectO
 	}
 
 	return svc.GetObject(awsenv.EmptyContext, &input)
+}
+
+func (s *S3bucketService) PresignGetObject(bucket string, key string) string {
+	svc := s3.NewFromConfig(awsenv.Cfg)
+	presignClient := s3.NewPresignClient(svc)
+	request, err := presignClient.PresignGetObject(awsenv.EmptyContext, &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(600 * int64(time.Second))
+	})
+	if err != nil {
+		fmt.Println("PresignGetObject error")
+		return ""
+	}
+	return request.URL
 }

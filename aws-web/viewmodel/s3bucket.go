@@ -38,3 +38,7 @@ type S3BucketFileFilter struct {
 	AccountId  string `json:"accountId"`
 	FileName   string `json:"fileName,omitempty"`
 }
+
+type S3BucketUrlViewModel struct {
+	Url string `json:"url"`
+}
