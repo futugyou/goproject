@@ -32,6 +32,8 @@ func S3bucket(w http.ResponseWriter, r *http.Request) {
 		getS3bucketItem(w, r)
 	case "download":
 		downloadFile(w, r)
+	case "url":
+		getgetS3bucketItemUrl(w, r)
 	}
 }
 
@@ -94,5 +96,22 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	w.Header().Set("Content-Encoding", *file.ContentEncoding)
 	w.Header().Set("Content-Length", fmt.Sprint(file.ContentLength))
+	w.WriteHeader(200)
+}
+
+func getgetS3bucketItemUrl(w http.ResponseWriter, r *http.Request) {
+	service := services.NewS3bucketService()
+	bucketName := r.URL.Query().Get("bucketName")
+	accountId := r.URL.Query().Get("accountId")
+	fileName := r.URL.Query().Get("fileName")
+	filter := model.S3BucketFileFilter{
+		BucketName: bucketName,
+		AccountId:  accountId,
+		FileName:   fileName,
+	}
+
+	url := service.GetS3FileUrl(filter)
+	body, _ := json.Marshal(url)
+	w.Write(body)
 	w.WriteHeader(200)
 }
