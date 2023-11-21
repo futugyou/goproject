@@ -263,5 +263,6 @@ func Iot() {
 	// iot.ListJobs()
 	// iot.ListThings()
 	// iot.ListThingTypes()
-	iot.ListThingGroups()
+	// iot.ListThingGroups()
+	iot.ListThingRegistrationTasks()
 }

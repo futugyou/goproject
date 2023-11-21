@@ -109,3 +109,26 @@ func ListThingGroups() {
 		}
 	}
 }
+
+func ListThingRegistrationTasks() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListThingRegistrationTasksInput{
+			NextToken: nextToken, 
+		}
+
+		result, err := svc.ListThingRegistrationTasks(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, taskid := range result.TaskIds {
+			log.Println(taskid)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
