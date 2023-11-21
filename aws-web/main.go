@@ -261,5 +261,7 @@ func awsSdkDemo() {
 
 func Iot() {
 	// iot.ListJobs()
-	iot.ListThings()
+	// iot.ListThings()
+	// iot.ListThingTypes()
+	iot.ListThingGroups()
 }

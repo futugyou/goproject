@@ -3,6 +3,7 @@ package iot
 import (
 	"log"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -78,6 +79,30 @@ func ListThingTypes() {
 
 		for _, ty := range result.ThingTypes {
 			log.Println(*ty.ThingTypeName, *ty.ThingTypeArn)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
+
+func ListThingGroups() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListThingGroupsInput{
+			NextToken: nextToken,
+			Recursive:aws.Bool(true),
+		}
+
+		result, err := svc.ListThingGroups(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, group := range result.ThingGroups {
+			log.Println(*group.GroupArn,*group.GroupName)
 		}
 		if result.NextToken == nil {
 			return
