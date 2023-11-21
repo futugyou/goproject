@@ -61,3 +61,26 @@ func ListThings() {
 		}
 	}
 }
+
+func ListThingTypes() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListThingTypesInput{
+			NextToken: nextToken,
+		}
+
+		result, err := svc.ListThingTypes(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, ty := range result.ThingTypes {
+			log.Println(*ty.ThingTypeName, *ty.ThingTypeArn)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
