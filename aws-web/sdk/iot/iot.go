@@ -132,3 +132,27 @@ func ListThingRegistrationTasks() {
 		}
 	}
 }
+
+
+func ListTopicRuleDestinations() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListTopicRuleDestinationsInput{
+			NextToken: nextToken, 
+		}
+
+		result, err := svc.ListTopicRuleDestinations(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, summ := range result.DestinationSummaries {
+			log.Println(*summ.Arn,summ.Status,*summ.StatusReason,summ.HttpUrlSummary,summ.VpcDestinationSummary)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
