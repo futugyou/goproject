@@ -6,7 +6,10 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"net/url"
 	"strconv"
+
+	"github.com/futugyousuzu/goproject/awsgolang/core"
 )
 
 func IP4ToLong(ip string) uint32 {
@@ -49,4 +52,21 @@ func String(n int32) string {
 			return string(buf[pos:])
 		}
 	}
+}
+
+func GetPaging(url url.Values) core.Paging {
+	pageString := url.Get("page")
+	limitString := url.Get("limit")
+
+	page, _ := strconv.ParseInt(pageString, 10, 64)
+	limit, _ := strconv.ParseInt(limitString, 10, 64)
+	if page == 0 {
+		page = 1
+	}
+
+	if limit == 0 {
+		limit = 10
+	}
+
+	return core.Paging{Page: page, Limit: limit}
 }
