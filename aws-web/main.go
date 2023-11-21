@@ -10,6 +10,7 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	"github.com/futugyousuzu/goproject/awsgolang/viewmodel"
+
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
@@ -25,6 +26,7 @@ import (
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
 	// "github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/iot"
 )
 
 func main() {
@@ -100,7 +102,7 @@ func awsServiceDemo() {
 	// fmt.Println(keyService.GetValueByKey("key"))
 	// fmt.Println(keyService.GetAllKeyValues())
 
-	S3Test()
+	// S3Test()
 }
 
 func S3Test() {
@@ -254,4 +256,9 @@ func awsSdkDemo() {
 	// secretsmanager.GetSecretValue()
 
 	// loadbalancing.DescribeTargetGroups()
+	Iot()
+}
+
+func Iot() {
+	iot.ListJobs()
 }
