@@ -31,6 +31,7 @@ type S3BucketItemFilter struct {
 	BucketName string `json:"bucketName,omitempty"`
 	AccountId  string `json:"accountId"`
 	Perfix     string `json:"perfix,omitempty"`
+	Del        string `json:"del,omitempty"`
 }
 
 type S3BucketFileFilter struct {

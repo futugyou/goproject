@@ -193,12 +193,16 @@ func (s *S3bucketService) ListItemsByBucketName(name *string) ([]types.Object, e
 	return output.Contents, nil
 }
 
-func (s *S3bucketService) ListItems(name string, perfix string) (*s3.ListObjectsV2Output, error) {
+func (s *S3bucketService) ListItems(name string, perfix string, del string) (*s3.ListObjectsV2Output, error) {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	objInput := s3.ListObjectsV2Input{
-		Bucket:    aws.String(name),
-		Delimiter: aws.String("/"),
+		Bucket: aws.String(name),
+		// Delimiter: aws.String("/"),
+	}
+
+	if del != "1" {
+		objInput.Delimiter = aws.String("/")
 	}
 
 	if len(perfix) > 0 {

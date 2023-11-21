@@ -72,7 +72,7 @@ func (s *S3bucketService) GetS3BucketItems(filter model.S3BucketItemFilter) []mo
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(filter.AccountId)
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-	output, err := s.ListItems(filter.BucketName, filter.Perfix)
+	output, err := s.ListItems(filter.BucketName, filter.Perfix, filter.Del)
 	if err != nil {
 		return nil
 	}

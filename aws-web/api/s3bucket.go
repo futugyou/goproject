@@ -53,10 +53,12 @@ func getS3bucketItem(w http.ResponseWriter, r *http.Request) {
 	bucketName := r.URL.Query().Get("bucketName")
 	accountId := r.URL.Query().Get("accountId")
 	perfix := r.URL.Query().Get("perfix")
+	del := r.URL.Query().Get("del")
 	filter := model.S3BucketItemFilter{
 		BucketName: bucketName,
 		AccountId:  accountId,
 		Perfix:     perfix,
+		Del:        del,
 	}
 
 	items := service.GetS3BucketItems(filter)
