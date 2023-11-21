@@ -156,3 +156,26 @@ func ListTopicRuleDestinations() {
 		}
 	}
 }
+
+func ListTopicRules() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListTopicRulesInput{
+			NextToken: nextToken, 
+		}
+
+		result, err := svc.ListTopicRules(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, rule := range result.Rules {
+			log.Println(*rule.RuleArn,*rule.RuleDisabled,*rule.RuleName,*rule.TopicPattern,*rule.CreatedAt)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}

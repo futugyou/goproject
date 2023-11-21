@@ -265,5 +265,6 @@ func Iot() {
 	// iot.ListThingTypes()
 	// iot.ListThingGroups()
 	// iot.ListThingRegistrationTasks()
-	iot.ListTopicRuleDestinations()
+	// iot.ListTopicRuleDestinations()
+	iot.ListTopicRules()
 }
