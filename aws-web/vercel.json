@@ -239,6 +239,67 @@
 				"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
 				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
 			}
+		},
+
+		{
+			"src": "/api/v1/s3",
+			"dest": "/api/s3bucket.go?type=getBucket",
+			"methods": [
+				"GET",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Credentials": "true",
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+				"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
+			}
+		},
+		{
+			"src": "/api/v1/s3/items",
+			"dest": "/api/s3bucket.go?type=getItem",
+			"methods": [
+				"GET",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Credentials": "true",
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+				"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
+			}
+		},
+		{
+			"src": "/api/v1/s3/download",
+			"dest": "/api/s3bucket.go?type=download",
+			"methods": [
+				"GET",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Credentials": "true",
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+				"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization, Content-Description, Content-Disposition, Content-Transfer-Encoding, Content-Encoding"
+			}
+		},
+		{
+			"src": "/api/v1/s3/url",
+			"dest": "/api/s3bucket.go?type=url",
+			"methods": [
+				"GET",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Credentials": "true",
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+				"Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization, Content-Description, Content-Disposition, Content-Transfer-Encoding, Content-Encoding"
+			}
 		}
 	]
 }

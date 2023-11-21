@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
@@ -207,4 +209,22 @@ func PutObject(bucket, key string) {
 		return
 	}
 	fmt.Println(output.ResultMetadata)
+}
+
+func PresignGetObject(bucket, key string) (*v4.PresignedHTTPRequest, error) {
+	presignClient := s3.NewPresignClient(svc)
+	request, err := presignClient.PresignGetObject(awsenv.EmptyContext, &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(60 * int64(time.Second))
+	})
+	if err != nil {
+		fmt.Printf("Couldn't get a presigned request to get %v:%v. Here's why: %v\n",
+			bucket, key, err)
+	} else {
+		fmt.Println(request.URL)
+	}
+
+	return request, err
 }

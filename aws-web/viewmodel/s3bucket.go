@@ -24,11 +24,22 @@ type S3BucketItemViewModel struct {
 }
 
 type S3BucketFilter struct {
-	BucketName string `json:"name,omitempty"`
+	BucketName string `json:"bucketName,omitempty"`
 }
 
 type S3BucketItemFilter struct {
-	BucketName string `json:"name,omitempty"`
+	BucketName string `json:"bucketName,omitempty"`
 	AccountId  string `json:"accountId"`
 	Perfix     string `json:"perfix,omitempty"`
+	Del        string `json:"del,omitempty"`
+}
+
+type S3BucketFileFilter struct {
+	BucketName string `json:"bucketName,omitempty"`
+	AccountId  string `json:"accountId"`
+	FileName   string `json:"fileName,omitempty"`
+}
+
+type S3BucketUrlViewModel struct {
+	Url string `json:"url"`
 }
