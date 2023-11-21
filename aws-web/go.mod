@@ -32,7 +32,7 @@ require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.21.6
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.21.6
 
-require github.com/aws/aws-sdk-go-v2/service/iot v1.45.0 // indirect
+require github.com/aws/aws-sdk-go-v2/service/iot v1.45.0
 
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect

@@ -17,15 +17,47 @@ func init() {
 }
 
 func ListJobs() {
-	input := &iot.ListJobsInput{}
+	var nextToken *string = nil
+	for {
+		input := &iot.ListJobsInput{
+			NextToken: nextToken,
+		}
 
-	result, err := svc.ListJobs(awsenv.EmptyContext, input)
-	if err != nil {
-		log.Println(err.Error())
-		return
+		result, err := svc.ListJobs(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, job := range result.Jobs {
+			log.Println(*job.JobId, job.Status, *job.ThingGroupId, job.TargetSelection)
+		}
+		if result.NextToken == nil {
+			return
+		}
 	}
+}
 
-	for _, job := range result.Jobs {
-		log.Println(*job.JobId, job.Status, *job.ThingGroupId, job.TargetSelection)
+func ListThings() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListThingsInput{
+			NextToken: nextToken,
+		}
+
+		result, err := svc.ListThings(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, thing := range result.Things {
+			log.Println(*thing.ThingArn, *thing.ThingName, *thing.ThingTypeName, thing.Version)
+		}
+		if result.NextToken == nil {
+			return
+		}
 	}
 }
