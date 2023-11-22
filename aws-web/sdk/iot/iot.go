@@ -333,3 +333,95 @@ func DescribeEndpoint() {
 		log.Println("EndpointAddress:\t", *result.EndpointAddress)
 	}
 }
+
+func ListBillingGroups() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListBillingGroupsInput{
+			NextToken: nextToken,
+		}
+
+		result, err := svc.ListBillingGroups(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, item := range result.BillingGroups {
+			log.Println(*item.GroupArn, *item.GroupName)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
+
+func ListAuthorizers() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListAuthorizersInput{
+			Marker: nextToken,
+		}
+
+		result, err := svc.ListAuthorizers(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextMarker
+
+		for _, item := range result.Authorizers {
+			log.Println(*item.AuthorizerArn, *item.AuthorizerName)
+		}
+		if result.NextMarker == nil {
+			return
+		}
+	}
+}
+
+func ListCACertificates() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListCACertificatesInput{
+			Marker: nextToken,
+		}
+
+		result, err := svc.ListCACertificates(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextMarker
+
+		for _, item := range result.Certificates {
+			log.Println(*item.CertificateArn, *item.CertificateId, item.Status)
+		}
+		if result.NextMarker == nil {
+			return
+		}
+	}
+}
+
+func ListCertificates() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListCertificatesInput{
+			Marker: nextToken,
+		}
+
+		result, err := svc.ListCertificates(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextMarker
+
+		for _, item := range result.Certificates {
+			log.Println(*item.CertificateArn, *item.CertificateId, item.Status)
+		}
+		if result.NextMarker == nil {
+			return
+		}
+	}
+}
