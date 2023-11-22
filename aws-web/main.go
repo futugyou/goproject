@@ -270,5 +270,6 @@ func Iot() {
 	// iot.ListActiveViolations()
 	// iot.ListStreams()
 	// iot.DescribeThing()
-	iot.DescribeThingGroup()
+	// iot.DescribeThingGroup()
+	iot.GetRegistrationCode()
 }

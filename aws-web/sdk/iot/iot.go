@@ -305,3 +305,17 @@ func DescribeThingGroup() {
 	log.Println("ThingGroupMetadata:\t", result.ThingGroupMetadata)
 	log.Println("ThingGroupProperties:\t", result.ThingGroupProperties)
 }
+
+func GetRegistrationCode() {
+	input := &iot.GetRegistrationCodeInput{}
+
+	result, err := svc.GetRegistrationCode(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.RegistrationCode != nil {
+		log.Println("RegistrationCode:\t", *result.RegistrationCode)
+	}
+}
