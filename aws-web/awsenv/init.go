@@ -26,6 +26,9 @@ var (
 	AwsConfigFilePath       string
 	HostedZoneId            string
 	AwsSecretName           string
+	IotThingName            string
+	IotThingGroupName       string
+	IotTopicRuleName        string
 )
 
 func init() {
@@ -40,6 +43,9 @@ func init() {
 	ECSServiceName = os.Getenv("ECS_SERVICE_NAME")
 	AwsConfigFilePath = os.Getenv("AWS_CONFIG_FILE_PATH")
 	AwsSecretName = os.Getenv("AWS_SECRET_NAME")
+	IotThingName = os.Getenv("AWS_IOT_THING_NAME")
+	IotThingGroupName = os.Getenv("AWS_IOT_THING_GROUP_NAME")
+	IotTopicRuleName = os.Getenv("AWS_IOT_TOPIC_RULE_NAME")
 
 	var err error
 	Cfg, err = config.LoadDefaultConfig(EmptyContext)

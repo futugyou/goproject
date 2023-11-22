@@ -55,7 +55,7 @@ func ListThings() {
 		nextToken = result.NextToken
 
 		for _, thing := range result.Things {
-			log.Println(*thing.ThingArn, *thing.ThingName, *thing.ThingTypeName, thing.Version)
+			log.Println(*thing.ThingArn, *thing.ThingName, thing.ThingTypeName, thing.Version)
 		}
 		if result.NextToken == nil {
 			return
@@ -91,7 +91,7 @@ func ListThingGroups() {
 	for {
 		input := &iot.ListThingGroupsInput{
 			NextToken: nextToken,
-			Recursive:aws.Bool(true),
+			Recursive: aws.Bool(true),
 		}
 
 		result, err := svc.ListThingGroups(awsenv.EmptyContext, input)
@@ -102,7 +102,7 @@ func ListThingGroups() {
 		nextToken = result.NextToken
 
 		for _, group := range result.ThingGroups {
-			log.Println(*group.GroupArn,*group.GroupName)
+			log.Println(*group.GroupArn, *group.GroupName)
 		}
 		if result.NextToken == nil {
 			return
@@ -114,7 +114,7 @@ func ListThingRegistrationTasks() {
 	var nextToken *string = nil
 	for {
 		input := &iot.ListThingRegistrationTasksInput{
-			NextToken: nextToken, 
+			NextToken: nextToken,
 		}
 
 		result, err := svc.ListThingRegistrationTasks(awsenv.EmptyContext, input)
@@ -133,12 +133,11 @@ func ListThingRegistrationTasks() {
 	}
 }
 
-
 func ListTopicRuleDestinations() {
 	var nextToken *string = nil
 	for {
 		input := &iot.ListTopicRuleDestinationsInput{
-			NextToken: nextToken, 
+			NextToken: nextToken,
 		}
 
 		result, err := svc.ListTopicRuleDestinations(awsenv.EmptyContext, input)
@@ -149,7 +148,7 @@ func ListTopicRuleDestinations() {
 		nextToken = result.NextToken
 
 		for _, summ := range result.DestinationSummaries {
-			log.Println(*summ.Arn,summ.Status,*summ.StatusReason,summ.HttpUrlSummary,summ.VpcDestinationSummary)
+			log.Println(*summ.Arn, summ.Status, *summ.StatusReason, summ.HttpUrlSummary, summ.VpcDestinationSummary)
 		}
 		if result.NextToken == nil {
 			return
@@ -161,7 +160,7 @@ func ListTopicRules() {
 	var nextToken *string = nil
 	for {
 		input := &iot.ListTopicRulesInput{
-			NextToken: nextToken, 
+			NextToken: nextToken,
 		}
 
 		result, err := svc.ListTopicRules(awsenv.EmptyContext, input)
@@ -172,10 +171,96 @@ func ListTopicRules() {
 		nextToken = result.NextToken
 
 		for _, rule := range result.Rules {
-			log.Println(*rule.RuleArn,*rule.RuleDisabled,*rule.RuleName,*rule.TopicPattern,*rule.CreatedAt)
+			log.Println(*rule.RuleArn, *rule.RuleDisabled, *rule.RuleName, *rule.TopicPattern, *rule.CreatedAt)
 		}
 		if result.NextToken == nil {
 			return
 		}
+	}
+}
+
+func ListActiveViolations() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListActiveViolationsInput{
+			NextToken: nextToken,
+		}
+
+		result, err := svc.ListActiveViolations(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, item := range result.ActiveViolations {
+			log.Println(*item.Behavior)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
+
+func ListStreams() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListStreamsInput{
+			NextToken: nextToken,
+		}
+
+		result, err := svc.ListStreams(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, item := range result.Streams {
+			log.Println(*item.StreamArn, *item.StreamId)
+		}
+		if result.NextToken == nil {
+			return
+		}
+	}
+}
+
+func DescribeThing() {
+	input := &iot.DescribeThingInput{
+		ThingName: aws.String(awsenv.IotThingName),
+	}
+
+	result, err := svc.DescribeThing(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.BillingGroupName != nil {
+		log.Println("BillingGroupName:\t", *result.BillingGroupName)
+	}
+
+	if result.DefaultClientId != nil {
+		log.Println("DefaultClientId:\t", *result.DefaultClientId)
+	}
+
+	if result.ThingArn != nil {
+		log.Println("ThingArn:\t", *result.ThingArn)
+	}
+
+	if result.ThingId != nil {
+		log.Println("ThingId:\t", *result.ThingId)
+	}
+
+	if result.ThingName != nil {
+		log.Println("ThingName:\t", *result.ThingName)
+	}
+
+	if result.ThingTypeName != nil {
+		log.Println("ThingTypeName:\t", *result.ThingTypeName)
+	}
+
+	for key, value := range result.Attributes {
+		log.Println(key, "  ", value)
 	}
 }
