@@ -269,5 +269,6 @@ func Iot() {
 	// iot.ListTopicRules()
 	// iot.ListActiveViolations()
 	// iot.ListStreams()
-	iot.DescribeThing()
+	// iot.DescribeThing()
+	iot.DescribeThingGroup()
 }

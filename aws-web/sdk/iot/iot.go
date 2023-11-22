@@ -264,3 +264,44 @@ func DescribeThing() {
 		log.Println(key, "  ", value)
 	}
 }
+
+func DescribeThingGroup() {
+	input := &iot.DescribeThingGroupInput{
+		ThingGroupName: aws.String(awsenv.IotThingGroupName),
+	}
+
+	result, err := svc.DescribeThingGroup(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.IndexName != nil {
+		log.Println("IndexName:\t", *result.IndexName)
+	}
+
+	if result.QueryString != nil {
+		log.Println("QueryString:\t", *result.QueryString)
+	}
+
+	if result.QueryVersion != nil {
+		log.Println("QueryVersion:\t", *result.QueryVersion)
+	}
+
+	log.Println("Status:\t", result.Status)
+
+	if result.ThingGroupArn != nil {
+		log.Println("ThingGroupArn:\t", *result.ThingGroupArn)
+	}
+
+	if result.ThingGroupId != nil {
+		log.Println("ThingGroupId:\t", *result.ThingGroupId)
+	}
+
+	if result.ThingGroupName != nil {
+		log.Println("ThingGroupName:\t", *result.ThingGroupName)
+	}
+
+	log.Println("ThingGroupMetadata:\t", result.ThingGroupMetadata)
+	log.Println("ThingGroupProperties:\t", result.ThingGroupProperties)
+}
