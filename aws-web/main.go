@@ -271,5 +271,6 @@ func Iot() {
 	// iot.ListStreams()
 	// iot.DescribeThing()
 	// iot.DescribeThingGroup()
-	iot.GetRegistrationCode()
+	// iot.GetRegistrationCode()
+	iot.DescribeEndpoint()
 }

@@ -319,3 +319,17 @@ func GetRegistrationCode() {
 		log.Println("RegistrationCode:\t", *result.RegistrationCode)
 	}
 }
+
+func DescribeEndpoint() {
+	input := &iot.DescribeEndpointInput{}
+
+	result, err := svc.DescribeEndpoint(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.EndpointAddress != nil {
+		log.Println("EndpointAddress:\t", *result.EndpointAddress)
+	}
+}
