@@ -279,5 +279,6 @@ func Iot() {
 	// iot.ListCertificates()
 	// iot.ListPolicies()
 	// iot.ListRetainedMessages()
-	iot.ListNamedShadowsForThing()
+	// iot.ListNamedShadowsForThing()
+	iot.GetThingShadow()
 }

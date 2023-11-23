@@ -548,3 +548,16 @@ func ListNamedShadowsForThing() {
 		}
 	}
 }
+
+func GetThingShadow() {
+	input := &iotdataplane.GetThingShadowInput{
+		ThingName: aws.String(awsenv.IotThingName),
+	}
+
+	result, err := svciotdataplane.GetThingShadow(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	log.Println("Payload:\t", string(result.Payload))
+}
