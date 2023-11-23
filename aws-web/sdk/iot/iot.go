@@ -425,3 +425,26 @@ func ListCertificates() {
 		}
 	}
 }
+
+func ListPolicies() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListPoliciesInput{
+			Marker: nextToken,
+		}
+
+		result, err := svc.ListPolicies(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextMarker
+
+		for _, item := range result.Policies {
+			log.Println(*item.PolicyArn, *item.PolicyName)
+		}
+		if result.NextMarker == nil {
+			return
+		}
+	}
+}
