@@ -277,5 +277,6 @@ func Iot() {
 	// iot.ListAuthorizers()
 	// iot.ListCACertificates()
 	// iot.ListCertificates()
-	iot.ListPolicies()
+	// iot.ListPolicies()
+	iot.ListRetainedMessages()
 }

@@ -5,16 +5,19 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
+	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
 var (
-	svc *iot.Client
+	svc             *iot.Client
+	svciotdataplane *iotdataplane.Client
 )
 
 func init() {
 	svc = iot.NewFromConfig(awsenv.Cfg)
+	svciotdataplane = iotdataplane.NewFromConfig(awsenv.Cfg)
 }
 
 func ListJobs() {
@@ -482,5 +485,29 @@ func GetPolicy(name string) {
 	}
 	if result.PolicyName != nil {
 		log.Println("PolicyName:\t", *result.PolicyName)
+	}
+}
+
+func ListRetainedMessages() {
+	var nextToken *string = nil
+	for {
+		input := &iotdataplane.ListRetainedMessagesInput{
+			NextToken: nextToken,
+		}
+
+		result, err := svciotdataplane.ListRetainedMessages(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+
+		for _, item := range result.RetainedTopics {
+			log.Println(*item.Topic, item.Qos, item.PayloadSize)
+
+		}
+		if result.NextToken == nil {
+			return
+		}
 	}
 }
