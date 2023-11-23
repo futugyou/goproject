@@ -504,10 +504,25 @@ func ListRetainedMessages() {
 
 		for _, item := range result.RetainedTopics {
 			log.Println(*item.Topic, item.Qos, item.PayloadSize)
-
+			GetRetainedMessage(*item.Topic)
+			log.Println()
 		}
 		if result.NextToken == nil {
 			return
 		}
 	}
+}
+
+func GetRetainedMessage(name string) {
+	input := &iotdataplane.GetRetainedMessageInput{
+		Topic: aws.String(name),
+	}
+
+	result, err := svciotdataplane.GetRetainedMessage(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	log.Println("Payload:\t", string(result.Payload))
 }
