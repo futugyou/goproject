@@ -2,6 +2,7 @@ package iot
 
 import (
 	"log"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
@@ -525,4 +526,25 @@ func GetRetainedMessage(name string) {
 	}
 
 	log.Println("Payload:\t", string(result.Payload))
+}
+
+func ListNamedShadowsForThing() {
+	var nextToken *string = nil
+	for {
+		input := &iotdataplane.ListNamedShadowsForThingInput{
+			NextToken: nextToken,
+			ThingName: aws.String(awsenv.IotThingName),
+		}
+
+		result, err := svciotdataplane.ListNamedShadowsForThing(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextToken
+		log.Println("Results:\t", strings.Join(result.Results, ","))
+		if result.NextToken == nil {
+			return
+		}
+	}
 }
