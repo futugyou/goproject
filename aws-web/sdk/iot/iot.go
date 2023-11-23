@@ -442,9 +442,45 @@ func ListPolicies() {
 
 		for _, item := range result.Policies {
 			log.Println(*item.PolicyArn, *item.PolicyName)
+			GetPolicy(*item.PolicyName)
+			log.Println()
 		}
 		if result.NextMarker == nil {
 			return
 		}
+	}
+}
+
+func GetPolicy(name string) {
+	input := &iot.GetPolicyInput{
+		PolicyName: aws.String(name),
+	}
+
+	result, err := svc.GetPolicy(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.CreationDate != nil {
+		log.Println("CreationDate:\t", *result.CreationDate)
+	}
+	if result.DefaultVersionId != nil {
+		log.Println("DefaultVersionId:\t", *result.DefaultVersionId)
+	}
+	if result.GenerationId != nil {
+		log.Println("GenerationId:\t", *result.GenerationId)
+	}
+	if result.LastModifiedDate != nil {
+		log.Println("LastModifiedDate:\t", *result.LastModifiedDate)
+	}
+	if result.PolicyArn != nil {
+		log.Println("PolicyArn:\t", *result.PolicyArn)
+	}
+	if result.PolicyDocument != nil {
+		log.Println("PolicyDocument:\t", *result.PolicyDocument)
+	}
+	if result.PolicyName != nil {
+		log.Println("PolicyName:\t", *result.PolicyName)
 	}
 }
