@@ -325,7 +325,7 @@ func GetRegistrationCode() {
 }
 
 func DescribeEndpoint() {
-	endpointtypes := []string{"iot:Data", "iot:Data-ATS", "iot:CredentialProvider", "iot:Jobs"}
+	endpointtypes := []string{"iot:Data", "iot:Data-ATS", "iot:CredentialProvider", "iot:Jobs", "iot:DeviceAdvisor", "iot:Data-Beta"}
 	for _, t := range endpointtypes {
 		input := &iot.DescribeEndpointInput{
 			EndpointType: aws.String(t),
@@ -334,7 +334,7 @@ func DescribeEndpoint() {
 		result, err := svc.DescribeEndpoint(awsenv.EmptyContext, input)
 		if err != nil {
 			log.Println(err.Error())
-			return
+			continue
 		}
 
 		if result.EndpointAddress != nil {
@@ -565,4 +565,26 @@ func GetThingShadow() {
 		return
 	}
 	log.Println("Payload:\t", string(result.Payload))
+}
+
+func ListDomainConfigurations() {
+	var nextToken *string = nil
+	for {
+		input := &iot.ListDomainConfigurationsInput{
+			Marker: nextToken,
+		}
+
+		result, err := svc.ListDomainConfigurations(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		nextToken = result.NextMarker
+		for _, item := range result.DomainConfigurations {
+			log.Println(*item.DomainConfigurationArn, *item.DomainConfigurationName, item.ServiceType)
+		}
+		if result.NextMarker == nil {
+			return
+		}
+	}
 }
