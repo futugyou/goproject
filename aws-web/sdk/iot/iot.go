@@ -405,6 +405,8 @@ func ListCACertificates() {
 
 		for _, item := range result.Certificates {
 			log.Println(*item.CertificateArn, *item.CertificateId, item.Status)
+			DescribeCACertificate(*item.CertificateId)
+			log.Println()
 		}
 		if result.NextMarker == nil {
 			return
@@ -649,4 +651,66 @@ func DescribeDomainConfiguration(name string) {
 		log.Println("ServerCertificateStatus:\t", item.ServerCertificateStatus)
 	}
 
+}
+
+func DescribeCACertificate(name string) {
+	input := &iot.DescribeCACertificateInput{
+		CertificateId: aws.String(name),
+	}
+
+	result, err := svc.DescribeCACertificate(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.CertificateDescription != nil {
+		if result.CertificateDescription.CertificateArn != nil {
+			log.Println("CertificateArn:\t", *result.CertificateDescription.CertificateArn)
+		}
+		if result.CertificateDescription.CertificateId != nil {
+			log.Println("CertificateId:\t", *result.CertificateDescription.CertificateId)
+		}
+		if result.CertificateDescription.CertificatePem != nil {
+			log.Println("CertificatePem:\t", *result.CertificateDescription.CertificatePem)
+		}
+		if result.CertificateDescription.CreationDate != nil {
+			log.Println("CreationDate:\t", *result.CertificateDescription.CreationDate)
+		}
+		if result.CertificateDescription.CustomerVersion != nil {
+			log.Println("CustomerVersion:\t", *result.CertificateDescription.CustomerVersion)
+		}
+		if result.CertificateDescription.GenerationId != nil {
+			log.Println("GenerationId:\t", *result.CertificateDescription.GenerationId)
+		}
+		if result.CertificateDescription.LastModifiedDate != nil {
+			log.Println("LastModifiedDate:\t", *result.CertificateDescription.LastModifiedDate)
+		}
+		if result.CertificateDescription.OwnedBy != nil {
+			log.Println("OwnedBy:\t", *result.CertificateDescription.OwnedBy)
+		}
+		if result.CertificateDescription.Validity != nil {
+			if result.CertificateDescription.Validity.NotAfter != nil {
+				log.Println("NotAfter:\t", *result.CertificateDescription.Validity.NotAfter)
+			}
+			if result.CertificateDescription.Validity.NotBefore != nil {
+				log.Println("NotBefore:\t", *result.CertificateDescription.Validity.NotBefore)
+			}
+		}
+
+		log.Println("AutoRegistrationStatus:\t", result.CertificateDescription.AutoRegistrationStatus)
+		log.Println("CertificateMode:\t", result.CertificateDescription.CertificateMode)
+		log.Println("Status:\t", result.CertificateDescription.Status)
+	}
+	if result.RegistrationConfig != nil {
+		if result.RegistrationConfig.RoleArn != nil {
+			log.Println("RoleArn:\t", *result.RegistrationConfig.RoleArn)
+		}
+		if result.RegistrationConfig.TemplateBody != nil {
+			log.Println("TemplateBody:\t", *result.RegistrationConfig.TemplateBody)
+		}
+		if result.RegistrationConfig.TemplateName != nil {
+			log.Println("TemplateName:\t", *result.RegistrationConfig.TemplateName)
+		}
+	}
 }
