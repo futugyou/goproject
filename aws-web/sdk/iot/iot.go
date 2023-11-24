@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
+	"github.com/aws/aws-sdk-go-v2/service/iot/types"
 	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
@@ -430,6 +431,8 @@ func ListCertificates() {
 
 		for _, item := range result.Certificates {
 			log.Println(*item.CertificateArn, *item.CertificateId, item.Status)
+			DescribeCertificate(*item.CertificateId)
+			log.Println()
 		}
 		if result.NextMarker == nil {
 			return
@@ -664,44 +667,8 @@ func DescribeCACertificate(name string) {
 		return
 	}
 
-	if result.CertificateDescription != nil {
-		if result.CertificateDescription.CertificateArn != nil {
-			log.Println("CertificateArn:\t", *result.CertificateDescription.CertificateArn)
-		}
-		if result.CertificateDescription.CertificateId != nil {
-			log.Println("CertificateId:\t", *result.CertificateDescription.CertificateId)
-		}
-		if result.CertificateDescription.CertificatePem != nil {
-			log.Println("CertificatePem:\t", *result.CertificateDescription.CertificatePem)
-		}
-		if result.CertificateDescription.CreationDate != nil {
-			log.Println("CreationDate:\t", *result.CertificateDescription.CreationDate)
-		}
-		if result.CertificateDescription.CustomerVersion != nil {
-			log.Println("CustomerVersion:\t", *result.CertificateDescription.CustomerVersion)
-		}
-		if result.CertificateDescription.GenerationId != nil {
-			log.Println("GenerationId:\t", *result.CertificateDescription.GenerationId)
-		}
-		if result.CertificateDescription.LastModifiedDate != nil {
-			log.Println("LastModifiedDate:\t", *result.CertificateDescription.LastModifiedDate)
-		}
-		if result.CertificateDescription.OwnedBy != nil {
-			log.Println("OwnedBy:\t", *result.CertificateDescription.OwnedBy)
-		}
-		if result.CertificateDescription.Validity != nil {
-			if result.CertificateDescription.Validity.NotAfter != nil {
-				log.Println("NotAfter:\t", *result.CertificateDescription.Validity.NotAfter)
-			}
-			if result.CertificateDescription.Validity.NotBefore != nil {
-				log.Println("NotBefore:\t", *result.CertificateDescription.Validity.NotBefore)
-			}
-		}
+	showCACertificateDescription(result.CertificateDescription)
 
-		log.Println("AutoRegistrationStatus:\t", result.CertificateDescription.AutoRegistrationStatus)
-		log.Println("CertificateMode:\t", result.CertificateDescription.CertificateMode)
-		log.Println("Status:\t", result.CertificateDescription.Status)
-	}
 	if result.RegistrationConfig != nil {
 		if result.RegistrationConfig.RoleArn != nil {
 			log.Println("RoleArn:\t", *result.RegistrationConfig.RoleArn)
@@ -711,6 +678,121 @@ func DescribeCACertificate(name string) {
 		}
 		if result.RegistrationConfig.TemplateName != nil {
 			log.Println("TemplateName:\t", *result.RegistrationConfig.TemplateName)
+		}
+	}
+}
+
+func showCACertificateDescription(CertificateDescription *types.CACertificateDescription) {
+	if CertificateDescription != nil {
+		if CertificateDescription.CertificateArn != nil {
+			log.Println("CertificateArn:\t", *CertificateDescription.CertificateArn)
+		}
+		if CertificateDescription.CertificateId != nil {
+			log.Println("CertificateId:\t", *CertificateDescription.CertificateId)
+		}
+		if CertificateDescription.CertificatePem != nil {
+			log.Println("CertificatePem:\t", *CertificateDescription.CertificatePem)
+		}
+		if CertificateDescription.CreationDate != nil {
+			log.Println("CreationDate:\t", *CertificateDescription.CreationDate)
+		}
+		if CertificateDescription.CustomerVersion != nil {
+			log.Println("CustomerVersion:\t", *CertificateDescription.CustomerVersion)
+		}
+		if CertificateDescription.GenerationId != nil {
+			log.Println("GenerationId:\t", *CertificateDescription.GenerationId)
+		}
+		if CertificateDescription.LastModifiedDate != nil {
+			log.Println("LastModifiedDate:\t", *CertificateDescription.LastModifiedDate)
+		}
+		if CertificateDescription.OwnedBy != nil {
+			log.Println("OwnedBy:\t", *CertificateDescription.OwnedBy)
+		}
+		if CertificateDescription.Validity != nil {
+			if CertificateDescription.Validity.NotAfter != nil {
+				log.Println("NotAfter:\t", *CertificateDescription.Validity.NotAfter)
+			}
+			if CertificateDescription.Validity.NotBefore != nil {
+				log.Println("NotBefore:\t", *CertificateDescription.Validity.NotBefore)
+			}
+		}
+
+		log.Println("AutoRegistrationStatus:\t", CertificateDescription.AutoRegistrationStatus)
+		log.Println("CertificateMode:\t", CertificateDescription.CertificateMode)
+		log.Println("Status:\t", CertificateDescription.Status)
+	}
+}
+
+func DescribeCertificate(name string) {
+	input := &iot.DescribeCertificateInput{
+		CertificateId: aws.String(name),
+	}
+
+	result, err := svc.DescribeCertificate(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	showCertificateDescription(result.CertificateDescription)
+}
+
+func showCertificateDescription(CertificateDescription *types.CertificateDescription) {
+	if CertificateDescription != nil {
+		if CertificateDescription.CertificateArn != nil {
+			log.Println("CertificateArn:\t", *CertificateDescription.CertificateArn)
+		}
+		if CertificateDescription.CertificateId != nil {
+			log.Println("CertificateId:\t", *CertificateDescription.CertificateId)
+		}
+		if CertificateDescription.CertificatePem != nil {
+			log.Println("CertificatePem:\t", *CertificateDescription.CertificatePem)
+		}
+		if CertificateDescription.CreationDate != nil {
+			log.Println("CreationDate:\t", *CertificateDescription.CreationDate)
+		}
+		if CertificateDescription.CustomerVersion != nil {
+			log.Println("CustomerVersion:\t", *CertificateDescription.CustomerVersion)
+		}
+		if CertificateDescription.GenerationId != nil {
+			log.Println("GenerationId:\t", *CertificateDescription.GenerationId)
+		}
+		if CertificateDescription.LastModifiedDate != nil {
+			log.Println("LastModifiedDate:\t", *CertificateDescription.LastModifiedDate)
+		}
+		if CertificateDescription.OwnedBy != nil {
+			log.Println("OwnedBy:\t", *CertificateDescription.OwnedBy)
+		}
+		if CertificateDescription.Validity != nil {
+			if CertificateDescription.Validity.NotAfter != nil {
+				log.Println("NotAfter:\t", *CertificateDescription.Validity.NotAfter)
+			}
+			if CertificateDescription.Validity.NotBefore != nil {
+				log.Println("NotBefore:\t", *CertificateDescription.Validity.NotBefore)
+			}
+		}
+		if CertificateDescription.PreviousOwnedBy != nil {
+			log.Println("PreviousOwnedBy:\t", *CertificateDescription.PreviousOwnedBy)
+		}
+
+		log.Println("CertificateMode:\t", CertificateDescription.CertificateMode)
+		log.Println("Status:\t", CertificateDescription.Status)
+		if CertificateDescription.TransferData != nil {
+			if CertificateDescription.TransferData.AcceptDate != nil {
+				log.Println("AcceptDate:\t", *CertificateDescription.TransferData.AcceptDate)
+			}
+			if CertificateDescription.TransferData.RejectDate != nil {
+				log.Println("RejectDate:\t", *CertificateDescription.TransferData.RejectDate)
+			}
+			if CertificateDescription.TransferData.RejectReason != nil {
+				log.Println("RejectReason:\t", *CertificateDescription.TransferData.RejectReason)
+			}
+			if CertificateDescription.TransferData.TransferDate != nil {
+				log.Println("TransferDate:\t", *CertificateDescription.TransferData.TransferDate)
+			}
+			if CertificateDescription.TransferData.TransferMessage != nil {
+				log.Println("TransferMessage:\t", *CertificateDescription.TransferData.TransferMessage)
+			}
 		}
 	}
 }
