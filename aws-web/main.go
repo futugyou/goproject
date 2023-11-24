@@ -272,7 +272,7 @@ func Iot() {
 	// iot.DescribeThing()
 	// iot.DescribeThingGroup()
 	// iot.GetRegistrationCode()
-	// iot.DescribeEndpoint()
+	iot.DescribeEndpoint()
 	// iot.ListBillingGroups()
 	// iot.ListAuthorizers()
 	// iot.ListCACertificates()
@@ -280,5 +280,5 @@ func Iot() {
 	// iot.ListPolicies()
 	// iot.ListRetainedMessages()
 	// iot.ListNamedShadowsForThing()
-	iot.GetThingShadow()
+	// iot.GetThingShadow()
 }

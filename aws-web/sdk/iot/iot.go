@@ -325,16 +325,21 @@ func GetRegistrationCode() {
 }
 
 func DescribeEndpoint() {
-	input := &iot.DescribeEndpointInput{}
+	endpointtypes := []string{"iot:Data", "iot:Data-ATS", "iot:CredentialProvider", "iot:Jobs"}
+	for _, t := range endpointtypes {
+		input := &iot.DescribeEndpointInput{
+			EndpointType: aws.String(t),
+		}
 
-	result, err := svc.DescribeEndpoint(awsenv.EmptyContext, input)
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
+		result, err := svc.DescribeEndpoint(awsenv.EmptyContext, input)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
 
-	if result.EndpointAddress != nil {
-		log.Println("EndpointAddress:\t", *result.EndpointAddress)
+		if result.EndpointAddress != nil {
+			log.Println(t, " :\t", *result.EndpointAddress)
+		}
 	}
 }
 
