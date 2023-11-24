@@ -582,9 +582,71 @@ func ListDomainConfigurations() {
 		nextToken = result.NextMarker
 		for _, item := range result.DomainConfigurations {
 			log.Println(*item.DomainConfigurationArn, *item.DomainConfigurationName, item.ServiceType)
+			DescribeDomainConfiguration(*item.DomainConfigurationName)
+			log.Println()
 		}
 		if result.NextMarker == nil {
 			return
 		}
 	}
+}
+
+func DescribeDomainConfiguration(name string) {
+	input := &iot.DescribeDomainConfigurationInput{
+		DomainConfigurationName: aws.String(name),
+	}
+
+	result, err := svc.DescribeDomainConfiguration(awsenv.EmptyContext, input)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if result.AuthorizerConfig != nil {
+		if result.AuthorizerConfig.AllowAuthorizerOverride != nil {
+			log.Println("AllowAuthorizerOverride:\t", *result.AuthorizerConfig.AllowAuthorizerOverride)
+		}
+		if result.AuthorizerConfig.DefaultAuthorizerName != nil {
+			log.Println("DefaultAuthorizerName:\t", *result.AuthorizerConfig.DefaultAuthorizerName)
+		}
+	}
+
+	if result.DomainConfigurationArn != nil {
+		log.Println("DomainConfigurationArn:\t", *result.DomainConfigurationArn)
+	}
+
+	if result.DomainConfigurationName != nil {
+		log.Println("DomainConfigurationName:\t", *result.DomainConfigurationName)
+	}
+
+	if result.DomainName != nil {
+		log.Println("DomainName:\t", *result.DomainName)
+	}
+
+	if result.LastStatusChangeDate != nil {
+		log.Println("LastStatusChangeDate:\t", *result.LastStatusChangeDate)
+	}
+
+	if result.TlsConfig != nil {
+		if result.TlsConfig.SecurityPolicy != nil {
+			log.Println("SecurityPolicy:\t", *result.TlsConfig.SecurityPolicy)
+		}
+	}
+
+	log.Println("ServiceType:\t", result.ServiceType)
+
+	log.Println("DomainConfigurationStatus:\t", result.DomainConfigurationStatus)
+
+	log.Println("DomainType:\t", result.DomainType)
+
+	for _, item := range result.ServerCertificates {
+		if item.ServerCertificateArn != nil {
+			log.Println("ServerCertificateArn:\t", *item.ServerCertificateArn)
+		}
+		if item.ServerCertificateStatusDetail != nil {
+			log.Println("ServerCertificateStatusDetail:\t", *item.ServerCertificateStatusDetail)
+		}
+		log.Println("ServerCertificateStatus:\t", item.ServerCertificateStatus)
+	}
+
 }
