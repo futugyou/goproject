@@ -55,6 +55,9 @@ func SyncData() {
 	// current data is useful, no need to update
 	// config := services.NewAwsConfigService()
 	// config.SyncResourcesByConfig()
+
+	s3Service := services.NewS3bucketService()
+	s3Service.InitData()
 }
 
 func awsServiceDemo() {
@@ -107,7 +110,7 @@ func awsServiceDemo() {
 
 func S3Test() {
 	s3Service := services.NewS3bucketService()
-	// s3Service.InitData()
+	s3Service.InitData()
 	paging := core.Paging{Page: 1, Limit: 5}
 	filter := viewmodel.S3BucketFilter{BucketName: ""}
 	s3s := s3Service.GetS3Buckets(paging, filter)
@@ -256,7 +259,7 @@ func awsSdkDemo() {
 	// secretsmanager.GetSecretValue()
 
 	// loadbalancing.DescribeTargetGroups()
-	Iot()
+	// Iot()
 }
 
 func Iot() {
@@ -276,10 +279,10 @@ func Iot() {
 	// iot.ListBillingGroups()
 	// iot.ListAuthorizers()
 	// iot.ListCACertificates()
-	iot.ListCertificates()
+	// iot.ListCertificates()
 	// iot.ListPolicies()
 	// iot.ListRetainedMessages()
 	// iot.ListNamedShadowsForThing()
 	// iot.GetThingShadow()
-	// iot.ListDomainConfigurations()
+	iot.ListDomainConfigurations()
 }
