@@ -82,7 +82,7 @@ func (s *S3bucketService) GetS3BucketItems(filter model.S3BucketItemFilter) []mo
 			Id:           *obj.Key,
 			BucketName:   filter.BucketName,
 			Key:          *obj.Key,
-			Size:         obj.Size,
+			Size:         *obj.Size,
 			CreationDate: *obj.LastModified,
 			IsDirectory:  false,
 		}

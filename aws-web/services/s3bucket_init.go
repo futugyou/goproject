@@ -52,7 +52,7 @@ func (s *S3bucketService) InitData() {
 					Id:           account.Id + *bucket.Name + *obj.Key,
 					BucketName:   *bucket.Name,
 					Key:          *obj.Key,
-					Size:         obj.Size,
+					Size:         *obj.Size,
 					CreationDate: *obj.LastModified,
 				}
 				items = append(items, item)
@@ -119,8 +119,8 @@ func (s *S3bucketService) GetBucketPolicyStatus(name *string) bool {
 		return false
 	}
 
-	if output.PolicyStatus != nil {
-		return output.PolicyStatus.IsPublic
+	if output.PolicyStatus != nil && output.PolicyStatus.IsPublic != nil {
+		return *output.PolicyStatus.IsPublic
 	}
 
 	return false
