@@ -11,22 +11,22 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/services"
 	"github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/config"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
-	// "github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatch"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/cloudwatchlogs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/config"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/dynamodb"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ec2"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecr"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ecs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/efs"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/iam"
 	"github.com/futugyousuzu/goproject/awsgolang/sdk/iot"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/loadbalancing"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/route53"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/s3"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/secretsmanager"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/servicediscovery"
+	"github.com/futugyousuzu/goproject/awsgolang/sdk/ssm"
 )
 
 func main() {
@@ -126,69 +126,97 @@ func S3Test() {
 }
 
 func awsSdkDemo() {
-	// servicediscovery.ListNamespace()
-	// servicediscovery.ListServices()
-	// servicediscovery.RegisterInstance()
-	// servicediscovery.CreateService()
-	// servicediscovery.CreateNamespace()
-	// servicediscovery.GetNamespace()
+	// ServiceDiscovery()
 
-	// cloudwatch.GetMetricData()
-	// cloudwatch.ListDashboards()
-	// cloudwatch.ListMetrics()
-	// cloudwatch.GetMetricStatistics()
+	// CloudWatch()
 
-	// cloudwatchlogs.DescribeExportTasks()
-	// cloudwatchlogs.DescribeLogGroups()
-	// cloudwatchlogs.GetLogEvents()
-	// cloudwatchlogs.DescribeLogStreams()
-	// cloudwatchlogs.GetLogGroupFields()
-	// cloudwatchlogs.DescribeQueries()
+	// CloudWatchLogs
 
-	// ecr.DescribeRepositories()
-	// ecr.CreateRepository()
-	// ecr.DeleteRepository()
+	// Ecr()
 
-	// iam.ListUsers()
-	// iam.ListAccessKeys("")
-	// iam.ListGroups()
-	// iam.ListAccountAliases()
-	// iam.CreateAccountAlias()
-	// iam.DeleteAccountAlias()
-	// iam.ListInstanceProfiles()
-	// iam.ListPolicies()
-	// iam.ListRoles()
-	// iam.CreateGroup()
-	// iam.DeleteGroup()
-	// iam.CreateUser()
-	// iam.DeleteUser()
-	// iam.GetAccountAuthorizationDetails()
-	// iam.CreateLoginProfile()
-	// iam.UpdateLoginProfile()
-	// iam.AddUserToGroup()
+	// Iam()
 
-	// ecs.DescribeClusters()
-	// ecs.DescribeCapacityProviders()
-	// ecs.CreateAndDeleteCluster()
-	// ecs.DescribeTaskDefinition()
-	// ecs.ListContainerInstances()
-	// ecs.ListAccountSettings()
-	// ecs.ListServices()
-	// ecs.ListTaskDefinitions()
-	// ecs.ListTasks()
-	// ecs.DescribeServices()
-	// ecs.DescribeTaskDefinition2()
-	// ecs.DescribeTasks()
+	// Ecs()
 
-	// ssm.DescribeParameters()
-	// ssm.ListAssociations()
-	// ssm.ListCommands()
-	// ssm.GetParametersByPath()
-	// ssm.GetParameters("/")
-	// ssm.PutParameter()
-	// ssm.DeleteParameter()
+	// Ssm()
 
-	// ec2.DescribeSecurityGroups()
+	// Ec2()
+
+	// S3()
+
+	// Dynamodb()
+
+	// Efs()
+
+	// AConfig()
+
+	// Route53()
+
+	// Secretsmanager
+
+	// Loadbalancing()
+
+	// Iot()
+}
+
+func Loadbalancing() {
+	loadbalancing.DescribeTargetGroups()
+}
+
+func Secretsmanager() {
+	secretsmanager.GetSecretValue()
+}
+
+func Route53() {
+	route53.GetHostedZone()
+}
+
+func AConfig() {
+	config.DeliverConfigSnapshot()
+	// config.DescribeConfigRules()
+	// config.DescribeConfigurationRecorders()
+	// config.DeleteConfigurationRecorder()
+
+}
+
+func Efs() {
+	efs.DescribeFileSystems()
+	// efs.DescribeAccessPoints()
+}
+
+func Dynamodb() {
+	dynamodb.ListGlobalTables()
+	// dynamodb.ListTables()
+	// dynamodb.DescribeTable("/")
+	// dynamodb.CreateTable()
+	// dynamodb.CreateBackup()
+	// dynamodb.ListBackups()
+	// dynamodb.DeleteBackup("/")
+	// dynamodb.DeleteTable()
+	// dynamodb.Scan("/")
+	// dynamodb.Query("/")
+	// dynamodb.GetItem()
+	// dynamodb.PutItem()
+	// dynamodb.UpdateItem()
+	// dynamodb.DeleteItem()
+}
+
+func S3() {
+	names := s3.ListBuckets()
+	for _, name := range names {
+		s3.ListObjectsV2(name)
+		// s3.GetBucketCors(name)
+		// s3.GetBucketPolicy(name)
+		// s3.GetBucketPolicyStatus(name)
+		// s3.GetBucketAccelerateConfiguration(name)
+		// s3.GetBucketAcl(name)
+		// s3.GetBucketLocation(name)
+		// s3.GetBucketWebsite(name)
+	}
+}
+
+func Ec2() {
+	ec2.DescribeSecurityGroups()
 	// ec2.DescribeVpcs()
 	// ec2.CreateVpc()
 	// ec2.AssociateVpcCidrBlock()
@@ -215,51 +243,82 @@ func awsSdkDemo() {
 	// ec2.AttachInternetGateway()
 	// ec2.DetachInternetGateway()
 	// ec2.DeleteInternetGateway()
+}
 
-	// names := s3.ListBuckets()
-	// for _, name := range names {
-	// s3.ListObjectsV2(name)
-	// s3.GetBucketCors(name)
-	// s3.GetBucketPolicy(name)
-	// s3.GetBucketPolicyStatus(name)
-	// s3.GetBucketAccelerateConfiguration(name)
-	// s3.GetBucketAcl(name)
-	// s3.GetBucketLocation(name)
-	// s3.GetBucketWebsite(name)
-	// }
+func Ssm() {
+	ssm.DescribeParameters()
+	// ssm.ListAssociations()
+	// ssm.ListCommands()
+	// ssm.GetParametersByPath()
+	// ssm.GetParameters("/")
+	// ssm.PutParameter()
+	// ssm.DeleteParameter()
+}
 
-	// s3.GetObject("", "")
-	// s3.PutObject("", "")
+func Ecs() {
+	ecs.DescribeClusters()
+	// ecs.DescribeCapacityProviders()
+	// ecs.CreateAndDeleteCluster()
+	// ecs.DescribeTaskDefinition()
+	// ecs.ListContainerInstances()
+	// ecs.ListAccountSettings()
+	// ecs.ListServices()
+	// ecs.ListTaskDefinitions()
+	// ecs.ListTasks()
+	// ecs.DescribeServices()
+	// ecs.DescribeTaskDefinition2()
+	// ecs.DescribeTasks()
+}
 
-	// dynamodb.ListGlobalTables()
-	// dynamodb.ListTables()
-	// dynamodb.DescribeTable("/")
-	// dynamodb.CreateTable()
-	// dynamodb.CreateBackup()
-	// dynamodb.ListBackups()
-	// dynamodb.DeleteBackup("/")
-	// dynamodb.DeleteTable()
-	// dynamodb.Scan("/")
-	// dynamodb.Query("/")
-	// dynamodb.GetItem()
-	// dynamodb.PutItem()
-	// dynamodb.UpdateItem()
-	// dynamodb.DeleteItem()
+func Iam() {
+	iam.ListUsers()
+	// iam.ListAccessKeys("")
+	// iam.ListGroups()
+	// iam.ListAccountAliases()
+	// iam.CreateAccountAlias()
+	// iam.DeleteAccountAlias()
+	// iam.ListInstanceProfiles()
+	// iam.ListPolicies()
+	// iam.ListRoles()
+	// iam.CreateGroup()
+	// iam.DeleteGroup()
+	// iam.CreateUser()
+	// iam.DeleteUser()
+	// iam.GetAccountAuthorizationDetails()
+	// iam.CreateLoginProfile()
+	// iam.UpdateLoginProfile()
+	// iam.AddUserToGroup()
+}
 
-	// efs.DescribeFileSystems()
-	// efs.DescribeAccessPoints()
+func CloudWatch() {
+	cloudwatch.GetMetricData()
+	// cloudwatch.ListDashboards()
+	// cloudwatch.ListMetrics()
+	// cloudwatch.GetMetricStatistics()
+}
 
-	// config.DeliverConfigSnapshot()
-	// config.DescribeConfigRules()
-	// config.DescribeConfigurationRecorders()
-	// config.DeleteConfigurationRecorder()
+func Ecr() {
+	ecr.DescribeRepositories()
+	// ecr.CreateRepository()
+	// ecr.DeleteRepository()
+}
 
-	// route53.GetHostedZone()
+func CloudWatchLogs() {
+	cloudwatchlogs.DescribeExportTasks()
+	// cloudwatchlogs.DescribeLogGroups()
+	// cloudwatchlogs.GetLogEvents()
+	// cloudwatchlogs.DescribeLogStreams()
+	// cloudwatchlogs.GetLogGroupFields()
+	// cloudwatchlogs.DescribeQueries()
+}
 
-	// secretsmanager.GetSecretValue()
-
-	// loadbalancing.DescribeTargetGroups()
-	// Iot()
+func ServiceDiscovery() {
+	servicediscovery.ListNamespace()
+	// servicediscovery.ListServices()
+	// servicediscovery.RegisterInstance()
+	// servicediscovery.CreateService()
+	// servicediscovery.CreateNamespace()
+	// servicediscovery.GetNamespace()
 }
 
 func Iot() {
