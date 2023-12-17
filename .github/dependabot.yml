@@ -6,6 +6,15 @@
 version: 2
 updates:
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    directory: "/aws-web" # Location of package manifests
+    schedule:
+      interval: "daily"
+    groups:
+      aws:
+        patterns:
+        - "github.com/aws/aws-sdk-go-v2*" 
+
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/identity-center" # Location of package manifests
     schedule:
       interval: "daily"
