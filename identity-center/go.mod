@@ -12,7 +12,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.0.18
 	github.com/robfig/cron v1.2.0
 	go.mongodb.org/mongo-driver v1.13.1
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 )
 
 require (
