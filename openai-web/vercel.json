@@ -120,5 +120,12 @@
         "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
       }
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "GOOS": "linux",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0"
+    }
+  }
 }

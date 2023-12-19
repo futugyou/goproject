@@ -240,7 +240,6 @@
 				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization"
 			}
 		},
-
 		{
 			"src": "/api/v1/s3",
 			"dest": "/api/s3bucket.go?type=getBucket",
@@ -301,5 +300,12 @@
 				"Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization, Content-Description, Content-Disposition, Content-Transfer-Encoding, Content-Encoding"
 			}
 		}
-	]
+	],
+	"build": {
+		"env": {
+			"GOOS": "linux",
+			"GOARCH": "amd64",
+			"CGO_ENABLED": "0"
+		}
+	}
 }
