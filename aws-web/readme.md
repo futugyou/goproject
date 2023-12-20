@@ -16,3 +16,12 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 npm install -g markdownlint-cli
 markdownlint  '**/*.md'
 ```
+
+## go test
+
+```cmd
+go get -u github.com/cweill/gotests/...
+gotests -all -w ./*
+go install gotest.tools/gotestsum@latest
+gotestsum --junitfile ./tmp/test-reports/aws-web-unit-tests.xml
+```
