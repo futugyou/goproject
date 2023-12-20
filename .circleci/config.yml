@@ -6,7 +6,7 @@ version: 2.1
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
   aws-web-build:
-    working_directory: ~/goproject/aws-web
+    working_directory: ~/goproject
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#docker-machine-macos-windows-executor
     docker:
@@ -17,12 +17,13 @@ jobs:
       - checkout 
       - restore_cache:
           keys:
-            - go-mod-v4-{{ checksum "go.sum" }}
+            - go-mod-v4-{{ checksum "aws-web/go.sum" }}
       - run:
           name: Install Dependencies
           command: go mod download
+          working_directory: ~/goproject/aws-web
       - save_cache:
-          key: go-mod-v4-{{ checksum "go.sum" }}
+          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
           paths:
             - "/go/pkg/mod"
       - run:
@@ -30,8 +31,9 @@ jobs:
           command: |
             mkdir -p /tmp/test-reports
             gotestsum --junitfile /tmp/test-reports/unit-tests.xml
+          working_directory: ~/goproject/aws-web
       - store_test_results:
-          path: /tmp/test-reports
+          path: /tmp/aws-web/test-reports
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
