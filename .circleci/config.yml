@@ -15,27 +15,17 @@ workflows:
       # the path-filtering/filter job determines which pipeline
       # parameters to update.
       - path-filtering/filter:
-          name: aws-web
+          name: workflow-dispatch
           # 3-column, whitespace-delimited mapping. One mapping per
           # line:
           # <regex path-to-test> <parameter-to-set> <value-of-pipeline-parameter>
           mapping: |
             aws-web/.* aws-web true
+            identity-center/.* identity-center true
+            openai-web/.* openai-web true
           base-revision: master
           # this is the path of the configuration we should trigger once
           # path filtering and pipeline parameter value updates are
           # complete. In this case, we are using the parent dynamic
           # configuration itself.
-          config-path: .circleci/aws-web.yml
-      - path-filtering/filter:
-          name: identity-center
-          mapping: |
-            identity-center/.* identity-center true
-          base-revision: master
-          config-path: .circleci/identity-center.yml
-      - path-filtering/filter:
-          name: openai-web
-          mapping: |
-            openai-web/.* openai-web true
-          base-revision: master
-          config-path: .circleci/openai-web.yml
+          config-path: .circleci/next.yml
