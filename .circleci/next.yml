@@ -25,7 +25,7 @@ jobs:
     steps:
       - checkout 
       - go/load-cache:
-          keys: go-mod-v4-{{ checksum "aws-web/go.sum" }}
+          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
       - go/mod-download:
           working_directory: ~/goproject/aws-web
       - go/save-cache:
@@ -47,7 +47,7 @@ jobs:
     steps:
       - checkout 
       - go/load-cache:
-          keys: go-mod-v4-{{ checksum "identity-center/go.sum" }}
+          : go-mod-v4-{{ checksum "identity-center/go.sum" }}
       - go/mod-download:
           working_directory: ~/goproject/identity-center
       - go/save-cache:
@@ -69,7 +69,7 @@ jobs:
     steps:
       - checkout 
       - go/load-cache:
-          keys: go-mod-v4-{{ checksum "openai-web/go.sum" }}
+          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
       - go/mod-download:
           working_directory: ~/goproject/openai-web
       - go/save-cache:
