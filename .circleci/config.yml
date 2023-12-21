@@ -1,44 +1,29 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
-jobs:
-  aws-web-build:
-    working_directory: ~/goproject
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: circleci/golang:1.15.8
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
-    steps:
-      - checkout 
-      - restore_cache:
-          keys:
-            - go-mod-v4-{{ checksum "aws-web/go.sum" }}
-      - run:
-          name: Install Dependencies
-          command: go mod download
-          working_directory: ~/goproject/aws-web
-      - save_cache:
-          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-          paths:
-            - "/go/pkg/mod"
-      - run:
-          name: Run tests
-          command: |
-            mkdir -p /tmp/test-reports
-            gotestsum --junitfile /tmp/test-reports/unit-tests.xml
-          working_directory: ~/goproject/aws-web
-      - store_test_results:
-          path: /tmp/aws-web/test-reports
+# this allows you to use CircleCI's dynamic configuration feature
+setup: true
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
+# the path-filtering orb is required to continue a pipeline based on
+# the path of an updated fileset
+orbs:
+  path-filtering: circleci/path-filtering@0.1.1
+
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  # the always-run workflow is always triggered, regardless of the pipeline parameters.
+  dispatch:
     jobs:
-      - aws-web-build
+      # the path-filtering/filter job determines which pipeline
+      # parameters to update.
+      - path-filtering/filter:
+          name: aws-web
+          # 3-column, whitespace-delimited mapping. One mapping per
+          # line:
+          # <regex path-to-test> <parameter-to-set> <value-of-pipeline-parameter>
+          mapping: |
+            aws-web/.*
+          base-revision: master
+          # this is the path of the configuration we should trigger once
+          # path filtering and pipeline parameter value updates are
+          # complete. In this case, we are using the parent dynamic
+          # configuration itself.
+          config-path: .circleci/aws-web.yml
