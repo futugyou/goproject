@@ -6,7 +6,7 @@ setup: true
 # the path-filtering orb is required to continue a pipeline based on
 # the path of an updated fileset
 orbs:
-  path-filtering: circleci/path-filtering@0.1.1
+  path-filtering: circleci/path-filtering@1.0.0
 
 workflows:
   # the always-run workflow is always triggered, regardless of the pipeline parameters.
@@ -27,3 +27,15 @@ workflows:
           # complete. In this case, we are using the parent dynamic
           # configuration itself.
           config-path: .circleci/aws-web.yml
+      - path-filtering/filter:
+          name: identity-center
+          mapping: |
+            identity-center/.* identity-center true
+          base-revision: master
+          config-path: .circleci/identity-center.yml
+      - path-filtering/filter:
+          name: openai-web
+          mapping: |
+            openai-web/.* openai-web true
+          base-revision: master
+          config-path: .circleci/openai-web.yml

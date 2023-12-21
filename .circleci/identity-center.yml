@@ -3,14 +3,14 @@
 version: 2.1
 
 parameters:
-  aws-web:
+  identity-center:
     type: boolean
     default: false
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  aws-web-build:
+  identity-center-build:
     working_directory: ~/goproject
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#docker-machine-macos-windows-executor
@@ -22,36 +22,36 @@ jobs:
       - checkout 
       - restore_cache:
           keys:
-            - go-mod-v4-{{ checksum "aws-web/go.sum" }}
+            - go-mod-v4-{{ checksum "identity-center/go.sum" }}
       - run:
           name: Install Dependencies
           command: go mod download
-          working_directory: ~/goproject/aws-web
+          working_directory: ~/goproject/identity-center
       - run:
           name: Build Project
           command: go build .
-          working_directory: ~/goproject/aws-web
+          working_directory: ~/goproject/identity-center
       - save_cache:
-          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
+          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
           paths:
             - "/go/pkg/mod"
       - run:
           name: Run tests
           command: |
-            mkdir -p /tmp/aws-web/test-reports
-            gotestsum --junitfile /tmp/aws-web/test-reports/unit-tests.xml
-          working_directory: ~/goproject/aws-web
+            mkdir -p /tmp/identity-center/test-reports
+            gotestsum --junitfile /tmp/identity-center/test-reports/unit-tests.xml
+          working_directory: ~/goproject/identity-center
       - store_test_results:
-          path: /tmp/aws-web/test-reports
+          path: /tmp/identity-center/test-reports
       - run:
-          name: Aws-web down
-          command: echo "aws-web job finish"
-          working_directory: ~/goproject/aws-web
+          name: identity-center down
+          command: echo "identity-center job finish"
+          working_directory: ~/goproject/identity-center
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  aws-web: # This is the name of the workflow, feel free to change it to better match your workflow.
+  identity-center: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - aws-web-build
+      - identity-center-build
