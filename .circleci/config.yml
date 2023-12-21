@@ -1,83 +1,31 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
+# this allows you to use CircleCI's dynamic configuration feature
+setup: true
+
+# the path-filtering orb is required to continue a pipeline based on
+# the path of an updated fileset
 orbs:
-  go: circleci/go@1.10.0
-
-parameters:
-  aws-web:
-    type: boolean
-    default: false
-  identity-center:
-    type: boolean
-    default: false
-  openai-web:
-    type: boolean
-    default: false
-
-jobs:
-  aws-web-build:
-    executor:
-      name: go/default
-      tag: '1.20.8'
-    steps:
-      - checkout 
-      - go/load-cache:
-          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-      - go/mod-download
-      - go/save-cache:
-          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-          path: "/go/pkg/mod"
-      - go/test
-      - run:
-          name: Aws-web finish
-          command: echo "aws-web job finish"
-
-  identity-center-build:
-    executor:
-      name: go/default
-      tag: '1.20.8'
-    steps:
-      - checkout 
-      - go/load-cache:
-          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
-      - go/mod-download
-      - go/save-cache:
-          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
-          path: "/go/pkg/mod"
-      - go/test
-      - run:
-          name: identity-center finish
-          command: echo "identity-center job finish"
-
-  openai-web-build:
-    executor:
-      name: go/default
-      tag: '1.20.8'
-    steps:
-      - checkout 
-      - go/load-cache:
-          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
-      - go/mod-download
-      - go/save-cache:
-          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
-          path: "/go/pkg/mod"
-      - go/test
-      - run:
-          name: openai-web finish
-          command: echo "openai-web job finish"
+  path-filtering: circleci/path-filtering@1.0.0
 
 workflows:
-  aws-web:
-    when: << pipeline.parameters.aws-web >>
+  # the always-run workflow is always triggered, regardless of the pipeline parameters.
+  dispatch:
     jobs:
-      - aws-web-build
-  identity-center: 
-    when: << pipeline.parameters.identity-center >>
-    jobs:
-      - identity-center-build
-  openai-web:
-    when: << pipeline.parameters.openai-web >>
-    jobs:
-      - openai-web-build
+      # the path-filtering/filter job determines which pipeline
+      # parameters to update.
+      - path-filtering/filter:
+          name: workflow-dispatch
+          # 3-column, whitespace-delimited mapping. One mapping per
+          # line:
+          # <regex path-to-test> <parameter-to-set> <value-of-pipeline-parameter>
+          mapping: |
+            aws-web/.* aws-web true
+            identity-center/.* identity-center true
+            openai-web/.* openai-web true
+          base-revision: master
+          # this is the path of the configuration we should trigger once
+          # path filtering and pipeline parameter value updates are
+          # complete. In this case, we are using the parent dynamic
+          # configuration itself.
+          config-path: .circleci/next.yml

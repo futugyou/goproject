@@ -18,7 +18,6 @@ parameters:
 
 jobs:
   aws-web-build:
-    working_directory: ~/goproject
     executor:
       name: go/default
       tag: '1.20.8'
@@ -26,43 +25,33 @@ jobs:
       - checkout 
       - go/load-cache:
           key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-      - go/mod-download:
-          working_directory: ~/goproject/aws-web
+      - go/mod-download
       - go/save-cache:
           key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-          path: "/go/pkg/mod" 
-          working_directory: ~/goproject/aws-web
-      - go/test:
-          working_directory: ~/goproject/aws-web
+          path: "/go/pkg/mod"
+      - go/test
       - run:
           name: Aws-web finish
           command: echo "aws-web job finish"
-          working_directory: ~/goproject/aws-web
 
   identity-center-build:
-    working_directory: ~/goproject
     executor:
       name: go/default
       tag: '1.20.8'
     steps:
       - checkout 
       - go/load-cache:
-          : go-mod-v4-{{ checksum "identity-center/go.sum" }}
-      - go/mod-download:
-          working_directory: ~/goproject/identity-center
+          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
+      - go/mod-download
       - go/save-cache:
           key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
-          path: "/go/pkg/mod" 
-          working_directory: ~/goproject/identity-center
-      - go/test:
-          working_directory: ~/goproject/identity-center
+          path: "/go/pkg/mod"
+      - go/test
       - run:
           name: identity-center finish
           command: echo "identity-center job finish"
-          working_directory: ~/goproject/identity-center
 
   openai-web-build:
-    working_directory: ~/goproject
     executor:
       name: go/default
       tag: '1.20.8'
@@ -70,18 +59,14 @@ jobs:
       - checkout 
       - go/load-cache:
           key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
-      - go/mod-download:
-          working_directory: ~/goproject/openai-web
+      - go/mod-download
       - go/save-cache:
           key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
-          path: "/go/pkg/mod" 
-          working_directory: ~/goproject/openai-web
-      - go/test:
-          working_directory: ~/goproject/openai-web
+          path: "/go/pkg/mod"
+      - go/test
       - run:
           name: openai-web finish
           command: echo "openai-web job finish"
-          working_directory: ~/goproject/openai-web
 
 workflows:
   aws-web:
