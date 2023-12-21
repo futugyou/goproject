@@ -27,6 +27,10 @@ jobs:
           name: Install Dependencies
           command: go mod download
           working_directory: ~/goproject/aws-web
+      - run:
+          name: Build Project
+          command: go build .
+          working_directory: ~/goproject/aws-web
       - save_cache:
           key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
           paths:
@@ -39,6 +43,10 @@ jobs:
           working_directory: ~/goproject/aws-web
       - store_test_results:
           path: /tmp/aws-web/test-reports
+      - run:
+          name: Aws-web down
+          command: echo "aws-web job finish"
+          working_directory: ~/goproject/aws-web
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
