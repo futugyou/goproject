@@ -2,6 +2,11 @@
 # See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
+parameters:
+  aws-web:
+    type: boolean
+    default: false
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
@@ -29,8 +34,8 @@ jobs:
       - run:
           name: Run tests
           command: |
-            mkdir -p /tmp/test-reports
-            gotestsum --junitfile /tmp/test-reports/unit-tests.xml
+            mkdir -p /tmp/aws-web/test-reports
+            gotestsum --junitfile /tmp/aws-web/test-reports/unit-tests.xml
           working_directory: ~/goproject/aws-web
       - store_test_results:
           path: /tmp/aws-web/test-reports
@@ -38,7 +43,8 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
+  aws-web: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
+    when: << pipeline.parameters.aws-web >>
     jobs:
       - aws-web-build
