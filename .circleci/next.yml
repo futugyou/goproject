@@ -1,0 +1,98 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/configuration-reference
+version: 2.1
+
+orbs:
+  go: circleci/go@1.10.0
+
+parameters:
+  aws-web:
+    type: boolean
+    default: false
+  identity-center:
+    type: boolean
+    default: false
+  openai-web:
+    type: boolean
+    default: false
+
+jobs:
+  aws-web-build:
+    working_directory: ~/goproject
+    executor:
+      name: go/default
+      tag: '1.20.8'
+    steps:
+      - checkout 
+      - go/load-cache:
+          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
+      - go/mod-download:
+          working_directory: ~/goproject/aws-web
+      - go/save-cache:
+          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
+          path: "/go/pkg/mod" 
+          working_directory: ~/goproject/aws-web
+      - go/test:
+          working_directory: ~/goproject/aws-web
+      - run:
+          name: Aws-web finish
+          command: echo "aws-web job finish"
+          working_directory: ~/goproject/aws-web
+
+  identity-center-build:
+    working_directory: ~/goproject
+    executor:
+      name: go/default
+      tag: '1.20.8'
+    steps:
+      - checkout 
+      - go/load-cache:
+          : go-mod-v4-{{ checksum "identity-center/go.sum" }}
+      - go/mod-download:
+          working_directory: ~/goproject/identity-center
+      - go/save-cache:
+          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
+          path: "/go/pkg/mod" 
+          working_directory: ~/goproject/identity-center
+      - go/test:
+          working_directory: ~/goproject/identity-center
+      - run:
+          name: identity-center finish
+          command: echo "identity-center job finish"
+          working_directory: ~/goproject/identity-center
+
+  openai-web-build:
+    working_directory: ~/goproject
+    executor:
+      name: go/default
+      tag: '1.20.8'
+    steps:
+      - checkout 
+      - go/load-cache:
+          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
+      - go/mod-download:
+          working_directory: ~/goproject/openai-web
+      - go/save-cache:
+          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
+          path: "/go/pkg/mod" 
+          working_directory: ~/goproject/openai-web
+      - go/test:
+          working_directory: ~/goproject/openai-web
+      - run:
+          name: openai-web finish
+          command: echo "openai-web job finish"
+          working_directory: ~/goproject/openai-web
+
+workflows:
+  aws-web:
+    when: << pipeline.parameters.aws-web >>
+    jobs:
+      - aws-web-build
+  identity-center: 
+    when: << pipeline.parameters.identity-center >>
+    jobs:
+      - identity-center-build
+  openai-web:
+    when: << pipeline.parameters.openai-web >>
+    jobs:
+      - openai-web-build
