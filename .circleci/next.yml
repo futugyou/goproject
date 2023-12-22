@@ -1,10 +1,6 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 # See: https://circleci.com/docs/configuration-reference
-version: 2.1
-
-orbs:
-  go: circleci/go@1.10.0
-
+version: 2.1 
 parameters:
   aws-web:
     type: boolean
@@ -18,55 +14,91 @@ parameters:
 
 jobs:
   aws-web-build:
-    executor:
-      name: go/default
-      tag: '1.20.8'
+    working_directory: ~/goproject
+    docker:
+      - image: circleci/golang:1.15.8
     steps:
       - checkout 
-      - go/load-cache:
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "aws-web/go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go mod download
+          working_directory: ~/goproject/aws-web
+      - save_cache:
           key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-      - go/mod-download
-      - go/save-cache:
-          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
-          path: "/go/pkg/mod"
-      - go/test
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p /tmp/aws-web/test-reports
+            gotestsum --junitfile /tmp/aws-web/test-reports/unit-tests.xml
+          working_directory: ~/goproject/aws-web
+      - store_test_results:
+          path: /tmp/aws-web/test-reports
       - run:
           name: Aws-web finish
           command: echo "aws-web job finish"
 
   identity-center-build:
-    executor:
-      name: go/default
-      tag: '1.20.8'
+    working_directory: ~/goproject
+    docker:
+      - image: circleci/golang:1.15.8
     steps:
       - checkout 
-      - go/load-cache:
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "identity-center/go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go mod download
+          working_directory: ~/goproject/identity-center
+      - save_cache:
           key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
-      - go/mod-download
-      - go/save-cache:
-          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
-          path: "/go/pkg/mod"
-      - go/test
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p /tmp/identity-center/test-reports
+            gotestsum --junitfile /tmp/identity-center/test-reports/unit-tests.xml
+          working_directory: ~/goproject/identity-center
+      - store_test_results:
+          path: /tmp/identity-center/test-reports
       - run:
           name: identity-center finish
           command: echo "identity-center job finish"
 
   openai-web-build:
-    executor:
-      name: go/default
-      tag: '1.20.8'
+    working_directory: ~/goproject
+    docker:
+      - image: circleci/golang:1.15.8
     steps:
       - checkout 
-      - go/load-cache:
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "openai-web/go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go mod download
+          working_directory: ~/goproject/openai-web
+      - save_cache:
           key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
-      - go/mod-download
-      - go/save-cache:
-          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
-          path: "/go/pkg/mod"
-      - go/test
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p /tmp/openai-web/test-reports
+            gotestsum --junitfile /tmp/openai-web/test-reports/unit-tests.xml
+          working_directory: ~/goproject/openai-web
+      - store_test_results:
+          path: /tmp/openai-web/test-reports
       - run:
           name: openai-web finish
-          command: echo "openai-web job finish"
+          command: echo "openai-web finish"
 
 workflows:
   aws-web:
