@@ -1,6 +1,10 @@
 package main
 
 import (
+	"os"
+
+	_ "github.com/joho/godotenv/autoload"
+
 	"context"
 	"fmt"
 	"log"
@@ -86,7 +90,7 @@ func client_1() {
 }
 
 func client_2() {
-	clientId := ""
+	clientId := os.Getenv("AZURE_CLIENT_ID")
 
 	// The auth provider will only authorize requests to
 	// the allowed hosts, in this case Microsoft Graph

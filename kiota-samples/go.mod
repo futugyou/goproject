@@ -13,6 +13,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/microsoft/kiota-abstractions-go v1.5.3 // indirect
 	github.com/microsoft/kiota-authentication-azure-go v1.0.1 // indirect
