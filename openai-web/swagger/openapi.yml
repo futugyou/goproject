@@ -1,0 +1,468 @@
+openapi: 3.0.1
+info:
+  title: openai web API
+  description: |
+    provider some api for openai demo.
+  version: 1.0.0
+servers:
+- url: /api/v1
+security:
+- OauthSecurity:
+  - all
+tags:
+- name: model
+  description: |
+    Operations about Models
+- name: chat
+  description: |
+    Operations about Chat
+- name: fine-tune
+  description: |
+    Operations about fine tune
+- name: autio
+  description: |
+    Operations about Chat
+- name: test
+  description: |
+    Operations about test
+- name: examples
+  description: |
+    Operations about Examples
+- name: completions
+  description: |
+    Operations about completion
+- name: edits
+  description: |
+    Operations about edit
+paths:
+  /autio/transcription:
+    post:
+      tags:
+      - autio
+      description: |-
+        create audio transcription
+        <br>
+      operationId: AudioController.CreateAudioTranscription
+      parameters:
+      - name: request
+        in: query
+        schema: {}
+      requestBody:
+        description: body for create audio transcription content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/lib.CreateAudioTranscriptionRequest'
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/lib.CreateAudioTranscriptionResponse'
+      x-codegen-request-body-name: body
+  /autio/translation:
+    post:
+      tags:
+      - autio
+      description: |-
+        create audio translation
+        <br>
+      operationId: AudioController.CreateAudioTranslation
+      parameters:
+      - name: request
+        in: query
+        schema: {}
+      requestBody:
+        description: body for create audio translation content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/lib.CreateAudioTranslationRequest'
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/lib.CreateAudioTranslationResponse'
+      x-codegen-request-body-name: body
+  /chat/:
+    post:
+      tags:
+      - chat
+      description: |-
+        create chat
+        <br>
+      operationId: ChatController.CreateChat
+      parameters:
+      - name: request
+        in: query
+        schema: {}
+      requestBody:
+        description: body for create chat content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/lib.CreateChatCompletionRequest'
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/lib.CreateChatCompletionResponse'
+      x-codegen-request-body-name: body
+  /chat/sse:
+    post:
+      tags:
+      - chat
+      description: |-
+        Create Chat Stream
+        <br>
+      operationId: ChatController.Create Chat With SSE
+      requestBody:
+        description: body for create Chat content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/services.CreateChatRequest'
+        required: true
+      x-codegen-request-body-name: body
+  /completions/:
+    post:
+      tags:
+      - completions
+      description: |-
+        create completion
+        <br>
+      operationId: CompletionController.Create Completion
+      requestBody:
+        description: body for create completion content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/models.CompletionModel'
+        required: true
+      x-codegen-request-body-name: body
+  /completions/sse:
+    post:
+      tags:
+      - completions
+      description: |-
+        create completion stream
+        <br>
+      operationId: CompletionController.Create Completion With SSE
+      requestBody:
+        description: body for create completion content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/lib.CreateCompletionRequest'
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/lib.CreateCompletionResponse'
+      x-codegen-request-body-name: body
+  /edits/:
+    post:
+      tags:
+      - edits
+      description: |-
+        create edit
+        <br>
+      operationId: EditController.Create edit
+      requestBody:
+        description: body for create edit content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/services.CreateEditsRequest'
+        required: true
+      responses:
+        "200":
+          description: "{test} \tstring"
+          content: {}
+      x-codegen-request-body-name: body
+  /examples/:
+    get:
+      tags:
+      - examples
+      operationId: ExampleController.get all examples
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/services.ExampleModel'
+    post:
+      tags:
+      - examples
+      operationId: ExampleController.create examples
+      requestBody:
+        description: body for create example content
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/services.ExampleModel'
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/services.ExampleModel[]"
+      x-codegen-request-body-name: body
+  /examples/init:
+    post:
+      tags:
+      - examples
+      operationId: ExampleController.init examples
+      responses:
+        "200":
+          description: "{string}"
+          content: {}
+  /examples/reset:
+    post:
+      tags:
+      - examples
+      operationId: ExampleController.set examples
+      responses:
+        "200":
+          description: "{string}"
+          content: {}
+  /fine-tune/{fine_tune_id}/events:
+    get:
+      tags:
+      - fine-tune
+      description: |-
+        get fine tune by fine_tune_id
+        <br>
+      operationId: FineTuneController.Get Fine Tune Events
+      parameters:
+      - name: fine_tune_id
+        in: path
+        description: The key for fine_tune
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/lib.ListFinetuneEventResponse'
+        "403":
+          description: fine_tune_id is empty
+          content: {}
+  /model/:
+    get:
+      tags:
+      - model
+      description: |-
+        list model
+        <br>
+      operationId: ModelController.ListModel
+      responses:
+        "200":
+          description: "{list model} \t[]string"
+          content: {}
+  /test/:
+    get:
+      tags:
+      - test
+      description: |-
+        do the test
+        <br>
+      operationId: TestController.test openai lib
+components:
+  schemas:
+    lib.CreateAudioTranscriptionRequest:
+      title: CreateAudioTranscriptionRequest
+      type: object
+    lib.CreateAudioTranscriptionResponse:
+      title: CreateAudioTranscriptionResponse
+      type: object
+    lib.CreateAudioTranslationRequest:
+      title: CreateAudioTranslationRequest
+      type: object
+    lib.CreateAudioTranslationResponse:
+      title: CreateAudioTranslationResponse
+      type: object
+    lib.CreateChatCompletionRequest:
+      title: CreateChatCompletionRequest
+      type: object
+    lib.CreateChatCompletionResponse:
+      title: CreateChatCompletionResponse
+      type: object
+    lib.CreateCompletionRequest:
+      title: CreateCompletionRequest
+      type: object
+    lib.CreateCompletionResponse:
+      title: CreateCompletionResponse
+      type: object
+    lib.ListFinetuneEventResponse:
+      title: ListFinetuneEventResponse
+      type: object
+    models.CompletionModel:
+      title: CompletionModel
+      type: object
+      properties:
+        best_of:
+          type: integer
+          format: int32
+        echo:
+          type: boolean
+        frequency_penalty:
+          type: number
+          format: float
+        logprobs:
+          type: integer
+          format: int64
+        max_tokens:
+          type: integer
+          format: int32
+        model:
+          type: string
+        presence_penalty:
+          type: number
+          format: float
+        prompt:
+          type: string
+        stop:
+          type: array
+          items:
+            type: string
+        stream:
+          type: boolean
+        suffix:
+          type: string
+        temperature:
+          type: number
+          format: float
+        top_p:
+          type: number
+          format: float
+    models.Object:
+      title: Object
+      type: object
+    models.User:
+      title: User
+      type: object
+    services.Chat:
+      title: Chat
+      type: object
+      properties:
+        content:
+          type: string
+        role:
+          type: string
+    services.CreateChatRequest:
+      title: CreateChatRequest
+      type: object
+      properties:
+        frequency_penalty:
+          type: number
+          format: float
+        max_tokens:
+          type: integer
+          format: int32
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/services.Chat'
+        model:
+          type: string
+        presence_penalty:
+          type: number
+          format: float
+        temperature:
+          type: number
+          format: float
+        top_p:
+          type: number
+          format: float
+    services.CreateEditsRequest:
+      title: CreateEditsRequest
+      type: object
+      properties:
+        input:
+          type: string
+        instruction:
+          type: string
+        model:
+          type: string
+        "n":
+          type: integer
+          format: int32
+        temperature:
+          type: number
+          format: float
+        top_p:
+          type: number
+          format: float
+    services.ExampleModel:
+      title: ExampleModel
+      type: object
+      properties:
+        description:
+          type: string
+        frequency_penalty:
+          type: number
+          format: float
+        key:
+          type: string
+        max_tokens:
+          type: integer
+          format: int32
+        model:
+          type: string
+        presence_penalty:
+          type: number
+          format: float
+        prompt:
+          type: string
+        sample_response:
+          type: string
+        stop:
+          type: array
+          items:
+            type: string
+        subTitle:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        temperature:
+          type: number
+          format: float
+        title:
+          type: string
+        top_p:
+          type: number
+          format: float
+    services.ExampleModel[]:
+      title: "ExampleModel[]"
+      type: object
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://identity-center.vercel.app/authorize
+          tokenUrl: https://identity-center.vercel.app/token
+          scopes:
+            all: all scope
+            openai: openai scope
+x-original-swagger-version: "2.0"
