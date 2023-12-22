@@ -1,0 +1,11 @@
+name: Golang OpenAPI registry
+description: This repository contains the OpenAPI definitions for goproject.
+tags:
+- golang
+apis:
+- name: golang openai v1.0
+  description: This is demo.
+  baseUrl: https://github.com/futugyou/goproject
+  properties:
+  - type: x-openapi
+    url: openai-web/swagger/openapi.yml
