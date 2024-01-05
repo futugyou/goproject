@@ -16,7 +16,7 @@ jobs:
   aws-web-build:
     working_directory: ~/goproject
     docker:
-      - image: circleci/golang:1.15.8
+      - image: cimg/go:1.21.5
     steps:
       - checkout 
       - restore_cache:
