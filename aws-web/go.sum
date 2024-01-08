@@ -53,8 +53,8 @@ github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.20.6 h1:NsASOf0gktPrIAxoy9O
 github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.20.6/go.mod h1:+tOnpHyRlCKfPpnSPFCvAs150h7sx+VXib8qQSMICR8=
 github.com/aws/aws-sdk-go-v2/service/route53 v1.36.1 h1:dc3cH08KcmVkeh762FrB7/10UJydwpGKJU/6lLJ/KxM=
 github.com/aws/aws-sdk-go-v2/service/route53 v1.36.1/go.mod h1:8qqfpG4mug2JLlEyWPSFhEGvJiaZ9iPmMDDMYc5Xtas=
-github.com/aws/aws-sdk-go-v2/service/s3 v1.47.8 h1:vPmag9qVmGho0jvtK5+nLwixJeX6Smd0IZE1OJIQ7wE=
-github.com/aws/aws-sdk-go-v2/service/s3 v1.47.8/go.mod h1:4qXHrG1Ne3VGIMZPCB8OjH/pLFO94sKABIusjh0KWPU=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0 h1:PJTdBMsyvra6FtED7JZtDpQrIAflYDHFoZAu/sKYkwU=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0/go.mod h1:4qXHrG1Ne3VGIMZPCB8OjH/pLFO94sKABIusjh0KWPU=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.1 h1:Sn3MAV9YeACCULaxNWWYFH1a6G4wYFwBn3/TA5MwE2Q=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.1/go.mod h1:qutL00aW8GSo2D0I6UEOqMvRS3ZyuBrOC1BLe5D2jPc=
 github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.27.6 h1:e4+QYScyIPLbsDErcz3sj9Y7BRynhl3QeB7k9Gdpcbw=
