@@ -19,8 +19,8 @@ github.com/aws/aws-sdk-go-v2/internal/v4a v1.2.10 h1:5oE2WzJE56/mVveuDZPJESKlg/0
 github.com/aws/aws-sdk-go-v2/internal/v4a v1.2.10/go.mod h1:FHbKWQtRBYUz4vO5WBWjzMD2by126ny5y/1EoaWoLfI=
 github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.32.2 h1:vQfCIHSDouEvbE4EuDrlCGKcrtABEqF3cMt61nGEV4g=
 github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.32.2/go.mod h1:3ToKMEhVj+Q+HzZ8Hqin6LdAKtsi3zVXVNUPpQMd+Xk=
-github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.30.2 h1:9apthAVGtCrw6LkswOcRpa1fMWur+7cGqO0yR65qsZM=
-github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.30.2/go.mod h1:jZNaJEtn9TLi3pfxycLz79HVkKxP8ZdYm92iaNFgBsA=
+github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.31.0 h1:Rk+Ft0Mu/eiNt2iJ2oS8Gf1h5m6q5crwS8cmlTylnvM=
+github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.31.0/go.mod h1:jZNaJEtn9TLi3pfxycLz79HVkKxP8ZdYm92iaNFgBsA=
 github.com/aws/aws-sdk-go-v2/service/configservice v1.44.0 h1:xMScFSSjA+YjDU8xAy9OYyCYiJxHkVDaMib59DU84UY=
 github.com/aws/aws-sdk-go-v2/service/configservice v1.44.0/go.mod h1:OxCAnijQ8xI3ZHSHDaF8r83HuK6G7mfWhLmReKCAwjs=
 github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.8 h1:XKO0BswTDeZMLDBd/b5pCEZGttNXrzRUVtFvp2Ak/Vo=
@@ -51,8 +51,8 @@ github.com/aws/aws-sdk-go-v2/service/iot v1.47.1 h1:o/g1HR9YddZZHJ1bUXIk8GJRnibD
 github.com/aws/aws-sdk-go-v2/service/iot v1.47.1/go.mod h1:FmR808JJTWpNqUU2PUlf2yoCYWb1Sgd9Q1QeSKpMhFk=
 github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.20.6 h1:NsASOf0gktPrIAxoy9OVO3P4xe9E+EtCs0IT2Bx99+M=
 github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.20.6/go.mod h1:+tOnpHyRlCKfPpnSPFCvAs150h7sx+VXib8qQSMICR8=
-github.com/aws/aws-sdk-go-v2/service/route53 v1.36.1 h1:dc3cH08KcmVkeh762FrB7/10UJydwpGKJU/6lLJ/KxM=
-github.com/aws/aws-sdk-go-v2/service/route53 v1.36.1/go.mod h1:8qqfpG4mug2JLlEyWPSFhEGvJiaZ9iPmMDDMYc5Xtas=
+github.com/aws/aws-sdk-go-v2/service/route53 v1.37.0 h1:f3hBZWtpn9clZGXJoqahQeec9ZPZnu22g8pg+zNyif0=
+github.com/aws/aws-sdk-go-v2/service/route53 v1.37.0/go.mod h1:8qqfpG4mug2JLlEyWPSFhEGvJiaZ9iPmMDDMYc5Xtas=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0 h1:PJTdBMsyvra6FtED7JZtDpQrIAflYDHFoZAu/sKYkwU=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0/go.mod h1:4qXHrG1Ne3VGIMZPCB8OjH/pLFO94sKABIusjh0KWPU=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.1 h1:Sn3MAV9YeACCULaxNWWYFH1a6G4wYFwBn3/TA5MwE2Q=
