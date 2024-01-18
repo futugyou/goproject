@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.15
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.32.2
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.31.0
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.8
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.9
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.144.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.24.7
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.37.0
