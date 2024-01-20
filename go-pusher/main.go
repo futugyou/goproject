@@ -68,8 +68,16 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 		"color": d.Color,
 	}
 
-	err = pusherClient.Trigger("my-channel", "my-event", data)
+	attributes := "subscription_count,user_count"
+	params := pusher.TriggerParams{Info: &attributes}
+
+	channels, err := pusherClient.TriggerMultiWithParams([]string{"my-channel", "my-channel-2", "my-channel-3"}, "my-event", data, params)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
+	}
+
+	for k, v := range channels.Channels {
+		fmt.Println(k, &v.SubscriptionCount, &v.UserCount)
 	}
 }
