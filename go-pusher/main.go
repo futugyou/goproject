@@ -27,6 +27,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		batchpush(w, r)
 		return
 	}
+	if r.URL.Path == "/api/info" {
+		info(w, r)
+		return
+	}
 	http.NotFound(w, r)
 }
 
@@ -147,5 +151,38 @@ func batchpush(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf(", user_count: %d", *attributes.UserCount)
 		}
 		fmt.Println()
+	}
+}
+
+func info(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	pusherClient := pusher.Client{
+		AppID:   config.APP_ID,
+		Key:     config.APP_KEY,
+		Secret:  config.APP_SECRET,
+		Cluster: config.APP_CLUSTER,
+		Secure:  true,
+	}
+
+	prefixFilter := "humble-"
+	attributes := "user_count,subscription_count"
+	params := pusher.ChannelsParams{FilterByPrefix: &prefixFilter, Info: &attributes}
+	channels, err := pusherClient.Channels(params)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for ch, _ := range channels.Channels {
+		users, err := pusherClient.GetChannelUsers(ch)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		for _, v := range users.List {
+			fmt.Println(v.ID)
+		}
 	}
 }
