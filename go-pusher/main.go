@@ -8,7 +8,10 @@ import (
 	"github.com/pusher/pusher-http-go/v5"
 )
 
+var config *PusherConfig
+
 func main() {
+	config = NewPusherConfig()
 	mux := &MyMux{}
 	http.ListenAndServe(":9090", mux)
 }
@@ -43,10 +46,10 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pusherClient := pusher.Client{
-		AppID:   "",
-		Key:     "",
-		Secret:  "",
-		Cluster: "ap3",
+		AppID:   config.APP_ID,
+		Key:     config.APP_KEY,
+		Secret:  config.APP_SECRET,
+		Cluster: config.APP_CLUSTER,
 		Secure:  true,
 	}
 
