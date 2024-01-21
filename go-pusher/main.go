@@ -48,11 +48,12 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type Data struct {
-	X0    interface{} `json:"x0"`
-	X1    interface{} `json:"x1"`
-	Y0    interface{} `json:"y0"`
-	Y1    interface{} `json:"y1"`
-	Color string      `json:"color"`
+	X0       interface{} `json:"x0"`
+	X1       interface{} `json:"x1"`
+	Y0       interface{} `json:"y0"`
+	Y1       interface{} `json:"y1"`
+	Color    string      `json:"color"`
+	SocketID string      `json:"socketID"`
 }
 
 type User struct {
@@ -99,6 +100,9 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 
 	attributes := "subscription_count,user_count"
 	params := pusher.TriggerParams{Info: &attributes}
+	if d.SocketID != "" {
+		params.SocketID = &d.SocketID
+	}
 
 	channels, err := pusherClient.TriggerMultiWithParams([]string{"my-channel", "my-channel-2", "my-channel-3"}, "my-event", data, params)
 	if err != nil {
