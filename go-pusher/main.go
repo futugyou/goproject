@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	pushnotifications "github.com/pusher/push-notifications-go"
 	"github.com/pusher/pusher-http-go/v5"
 )
 
@@ -42,6 +43,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.URL.Path == "/api/to" {
 		touser(w, r)
+		return
+	}
+	if r.URL.Path == "/api/beams/push" {
+		beamspush(w, r)
 		return
 	}
 	http.NotFound(w, r)
@@ -289,4 +294,32 @@ func touser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+}
+
+func beamspush(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	beamsClient, err := pushnotifications.New(config.INSTANCE_ID, config.SECRET_KEY)
+	if err != nil {
+		fmt.Println("Could not create Beams Client:", err.Error())
+		return
+	}
+
+	publishRequest := map[string]interface{}{
+		"web": map[string]interface{}{
+			"notification": map[string]interface{}{
+				"title":     "Hello",
+				"body":      "Hello, world",
+				"deep_link": "https://www.pusher.com",
+			},
+		},
+	}
+
+	pubId, err := beamsClient.PublishToInterests([]string{"hello"}, publishRequest)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Publish Id:", pubId)
 }

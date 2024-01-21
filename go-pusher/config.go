@@ -11,6 +11,8 @@ type PusherConfig struct {
 	APP_KEY     string
 	APP_SECRET  string
 	APP_CLUSTER string
+	INSTANCE_ID string
+	SECRET_KEY  string
 }
 
 func NewPusherConfig() *PusherConfig {
@@ -19,5 +21,7 @@ func NewPusherConfig() *PusherConfig {
 		APP_KEY:     os.Getenv("APP_KEY"),
 		APP_SECRET:  os.Getenv("APP_SECRET"),
 		APP_CLUSTER: os.Getenv("APP_CLUSTER"),
+		INSTANCE_ID: os.Getenv("INSTANCE_ID"),
+		SECRET_KEY:  os.Getenv("SECRET_KEY"),
 	}
 }
