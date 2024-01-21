@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/pusher/pusher-http-go/v5"
@@ -29,6 +30,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.URL.Path == "/api/info" {
 		info(w, r)
+		return
+	}
+	if r.URL.Path == "/api/hook" {
+		hook(w, r)
 		return
 	}
 	http.NotFound(w, r)
@@ -185,4 +190,31 @@ func info(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(v.ID)
 		}
 	}
+}
+
+func hook(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	body, _ := io.ReadAll(r.Body)
+	pusherClient := pusher.Client{
+		AppID:   config.APP_ID,
+		Key:     config.APP_KEY,
+		Secret:  config.APP_SECRET,
+		Cluster: config.APP_CLUSTER,
+		Secure:  true,
+	}
+	webhook, err := pusherClient.Webhook(r.Header, body)
+
+	if err == nil {
+		for _, event := range webhook.Events {
+			switch event.Name {
+			case "channel_occupied":
+				fmt.Println("Channel occupied: " + event.Channel)
+			case "channel_vacated":
+				fmt.Println("Channel vacated: " + event.Channel)
+			}
+		}
+	}
+
+	fmt.Fprintf(res, "ok")
 }
