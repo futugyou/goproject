@@ -40,6 +40,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		auth(w, r)
 		return
 	}
+	if r.URL.Path == "/api/to" {
+		touser(w, r)
+		return
+	}
 	http.NotFound(w, r)
 }
 
@@ -49,6 +53,10 @@ type Data struct {
 	Y0    interface{} `json:"y0"`
 	Y1    interface{} `json:"y1"`
 	Color string      `json:"color"`
+}
+
+type User struct {
+	Userid string `json:"userid"`
 }
 
 func cors(w http.ResponseWriter, r *http.Request) {
@@ -252,4 +260,29 @@ func auth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, string(response))
+}
+
+func touser(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	pusherClient := pusher.Client{
+		AppID:   config.APP_ID,
+		Key:     config.APP_KEY,
+		Secret:  config.APP_SECRET,
+		Cluster: config.APP_CLUSTER,
+		Secure:  true,
+	}
+
+	var u User
+	err := json.NewDecoder(r.Body).Decode(&u)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	data := map[string]string{"hello": "world"}
+	err = pusherClient.SendToUser(u.Userid, "my-event", data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
