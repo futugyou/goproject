@@ -36,6 +36,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		hook(w, r)
 		return
 	}
+	if r.URL.Path == "/api/auth" {
+		auth(w, r)
+		return
+	}
 	http.NotFound(w, r)
 }
 
@@ -180,7 +184,7 @@ func info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for ch, _ := range channels.Channels {
+	for ch := range channels.Channels {
 		users, err := pusherClient.GetChannelUsers(ch)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -216,5 +220,36 @@ func hook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintf(res, "ok")
+	fmt.Fprintf(w, "ok")
+}
+
+func auth(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	pusherClient := pusher.Client{
+		AppID:   config.APP_ID,
+		Key:     config.APP_KEY,
+		Secret:  config.APP_SECRET,
+		Cluster: config.APP_CLUSTER,
+		Secure:  true,
+	}
+	params, _ := io.ReadAll(r.Body)
+	presenceData := pusher.MemberData{
+		UserID: "1",
+		UserInfo: map[string]string{
+			"twitter": "pusher",
+		},
+	}
+
+	// This authenticates every user. Don't do this in production!
+	// private channel
+	// response, err := pusherClient.AuthorizePrivateChannel(params)
+	// presence channel
+	response, err := pusherClient.AuthorizePresenceChannel(params, presenceData)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Fprint(w, string(response))
 }
