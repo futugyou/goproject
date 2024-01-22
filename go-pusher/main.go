@@ -53,6 +53,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		beamspushuser(w, r)
 		return
 	}
+	if r.URL.Path == "/api/beams/auth" {
+		beamsauth(w, r)
+		return
+	}
 	http.NotFound(w, r)
 }
 
@@ -380,4 +384,32 @@ func beamspushuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Publish Id:", pubId)
+}
+
+func beamsauth(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	// do some user check
+
+	beamsClient, err := pushnotifications.New(config.INSTANCE_ID, config.SECRET_KEY)
+	if err != nil {
+		fmt.Println("Could not create Beams Client:", err.Error())
+		return
+	}
+
+	userid := "fake-user-id"
+	beamsToken, err := beamsClient.GenerateToken(userid)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	beamsTokenJson, err := json.Marshal(beamsToken)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(beamsTokenJson)
 }
