@@ -57,6 +57,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		beamsauth(w, r)
 		return
 	}
+	if r.URL.Path == "/api/beams/del" {
+		beamsuserdel(w, r)
+		return
+	}
 	http.NotFound(w, r)
 }
 
@@ -412,4 +416,22 @@ func beamsauth(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(beamsTokenJson)
+}
+
+func beamsuserdel(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+
+	// do some user id check
+
+	beamsClient, err := pushnotifications.New(config.INSTANCE_ID, config.SECRET_KEY)
+	if err != nil {
+		fmt.Println("Could not create Beams Client:", err.Error())
+		return
+	}
+
+	userid := "fake-user-id"
+	err = beamsClient.DeleteUser(userid)
+	if err != nil {
+		fmt.Println("Could not delete user:", err.Error())
+	}
 }
