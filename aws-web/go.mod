@@ -19,7 +19,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.44.7
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyousuzu/identity/client v0.0.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 )
 
