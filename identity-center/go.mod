@@ -6,7 +6,7 @@ require (
 	github.com/futugyousuzu/identity/mongo v0.0.0
 	github.com/go-oauth2/oauth2/v4 v4.5.2
 	github.com/go-session/session/v3 v3.2.1
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/json-iterator/go v1.1.12
 	github.com/lestrrat-go/jwx/v2 v2.0.19
