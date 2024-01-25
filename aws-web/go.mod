@@ -9,12 +9,12 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.32.2
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.31.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.27.0
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.144.1
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.145.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.24.7
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.38.0
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.38.1
 	github.com/aws/aws-sdk-go-v2/service/efs v1.26.6
 	github.com/aws/aws-sdk-go-v2/service/iam v1.28.7
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.1
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.27.6
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.44.7
 	github.com/chidiwilliams/flatbson v0.3.0
