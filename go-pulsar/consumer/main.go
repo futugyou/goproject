@@ -22,6 +22,7 @@ func main() {
 	defer client.Close()
 
 	createConsumer(client)
+	createReader(client)
 }
 
 func createConsumer(client pulsar.Client) {
@@ -39,7 +40,8 @@ func createConsumer(client pulsar.Client) {
 		// may block here
 		msg, err := consumer.Receive(context.Background())
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err.Error())
+			continue
 		}
 
 		fmt.Printf("Received message msgId: %#v -- content: '%s'\n",
@@ -50,5 +52,30 @@ func createConsumer(client pulsar.Client) {
 
 	if err := consumer.Unsubscribe(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func createReader(client pulsar.Client) {
+	reader, err := client.CreateReader(pulsar.ReaderOptions{
+		Topic:          "topic-1",
+		StartMessageID: pulsar.EarliestMessageID(),
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer reader.Close()
+
+	for {
+		if !reader.HasNext() {
+			break
+		}
+		msg, err := reader.Next(context.Background())
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		fmt.Printf("Received message msgId: %#v -- content: '%s'\n", msg.ID(), string(msg.Payload()))
 	}
 }
