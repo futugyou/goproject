@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -18,4 +20,27 @@ func main() {
 	}
 
 	defer client.Close()
+
+	createProducer(client)
+}
+
+func createProducer(client pulsar.Client) {
+	producer, err := client.CreateProducer(pulsar.ProducerOptions{
+		Topic: "my-topic",
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = producer.Send(context.Background(), &pulsar.ProducerMessage{
+		Payload: []byte("hello"),
+	})
+
+	defer producer.Close()
+
+	if err != nil {
+		fmt.Println("Failed to publish message", err)
+	}
+	fmt.Println("Published message")
 }
