@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -17,12 +18,57 @@ type TimeSeries struct {
 	Volume float64
 }
 
-func ReadTimeSeries(r io.Reader) ([]*TimeSeries, error) {
+type TimeSeriesClient struct {
+	httpClient *httpClient
+	function   string
+	symbol     string
+	interval   string
+	apikey     string
+	datatype   string
+}
+
+func NewTimeSeriesClient(httpClient *httpClient) *TimeSeriesClient {
+	return &TimeSeriesClient{
+		httpClient: httpClient,
+		function:   "TIME_SERIES_INTRADAY",
+		symbol:     "IBM",
+		interval:   "5min",
+		apikey:     "demo",
+		datatype:   "csv",
+	}
+}
+
+func (t *TimeSeriesClient) CreateRequestUrl() string {
+	endpoint := &url.URL{}
+	endpoint.Scheme = "https"
+	endpoint.Host = "www.alphavantage.co"
+	endpoint.Path = "query"
+	query := endpoint.Query()
+	query.Set("function", t.function)
+	query.Set("symbol", t.symbol)
+	query.Set("interval", t.interval)
+	query.Set("apikey", t.apikey)
+	query.Set("datatype", t.datatype)
+	endpoint.RawQuery = query.Encode()
+
+	return endpoint.String()
+}
+
+func (t *TimeSeriesClient) ReadTimeSeries() ([]*TimeSeries, error) {
+	path := t.CreateRequestUrl()
+
+	r, err := t.httpClient.Get(path)
+	if err != nil {
+		return nil, err
+	}
+
+	defer r.Close()
+
 	reader := csv.NewReader(r)
 	reader.ReuseRecord = true
 	reader.LazyQuotes = true
 	reader.TrimLeadingSpace = true
-	fmt.Println(1111)
+
 	if _, err := reader.Read(); err != nil {
 		if err == io.EOF {
 			return nil, nil
@@ -38,10 +84,9 @@ func ReadTimeSeries(r io.Reader) ([]*TimeSeries, error) {
 			if err == io.EOF {
 				break
 			}
-
 			return nil, err
 		}
-		value, err := readTimeSeriesItem(record)
+		value, err := t.readTimeSeriesItem(record)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +97,7 @@ func ReadTimeSeries(r io.Reader) ([]*TimeSeries, error) {
 
 }
 
-func readTimeSeriesItem(s []string) (*TimeSeries, error) {
+func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	const (
 		timestamp = iota
 		open

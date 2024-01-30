@@ -16,7 +16,7 @@ func NewHttpClient() *httpClient {
 	}
 }
 
-func (c *httpClient) Get(path string) (interface{}, error) {
+func (c *httpClient) Get(path string) (io.ReadCloser, error) {
 	var body io.Reader
 	req, _ := http.NewRequest("GET", path, body)
 	resp, err := c.http.Do(req)
@@ -24,18 +24,11 @@ func (c *httpClient) Get(path string) (interface{}, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
 	if err := checkResponseStatusCode(resp); err != nil {
 		return nil, err
 	}
-
-	response, err := ReadTimeSeries(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
+ 
+	return resp.Body, nil
 }
 
 func checkResponseStatusCode(resp *http.Response) error {
