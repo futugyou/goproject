@@ -6,3 +6,4 @@ bolg-service/storage/*
 */*/app.conf
 openai/static/*
 aws-web/data/*
+go.work
