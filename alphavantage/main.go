@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	_ "github.com/joho/godotenv/autoload"
+
+	"fmt"
+)
 
 func main() {
 	h := NewHttpClient()

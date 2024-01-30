@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 )
@@ -33,7 +34,7 @@ func NewTimeSeriesClient(httpClient *httpClient) *TimeSeriesClient {
 		function:   "TIME_SERIES_INTRADAY",
 		symbol:     "IBM",
 		interval:   "5min",
-		apikey:     "demo",
+		apikey:     os.Getenv("ALPHAVANTAGE_API_KEY"),
 		datatype:   "csv",
 	}
 }
