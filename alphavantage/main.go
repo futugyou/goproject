@@ -9,7 +9,7 @@ import (
 func main() {
 	s := NewTimeSeriesClient()
 	p := TimeSeriesParameter{
-		Function: "TIME_SERIES_INTRADAY",
+		Function: "TIME_SERIES_DAILY",
 		Symbol:   "IBM",
 		Interval: "15min",
 	}

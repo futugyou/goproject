@@ -36,15 +36,15 @@ func NewTimeSeriesClient() *TimeSeriesClient {
 	return &TimeSeriesClient{
 		httpClient: NewHttpClient(),
 		apikey:     os.Getenv("ALPHAVANTAGE_API_KEY"),
-		datatype:   "csv",
+		datatype:   Alphavantage_Datatype,
 	}
 }
 
 func (t *TimeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	endpoint := &url.URL{}
-	endpoint.Scheme = "https"
-	endpoint.Host = "www.alphavantage.co"
-	endpoint.Path = "query"
+	endpoint.Scheme = Alphavantage_Http_Scheme
+	endpoint.Host = Alphavantage_Host
+	endpoint.Path = Alphavantage_Path
 	query := endpoint.Query()
 	query.Set("function", p.Function)
 	query.Set("symbol", p.Symbol)
@@ -114,7 +114,7 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 
 	value := &TimeSeries{}
 
-	d, err := time.Parse("2006-01-02 15:04:05", s[timestamp])
+	d, err := parseTime(s[timestamp])
 	if err != nil {
 		return nil, fmt.Errorf("error parsing timestamp %s", s[timestamp])
 	}
