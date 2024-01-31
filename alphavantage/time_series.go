@@ -20,10 +20,39 @@ type TimeSeries struct {
 	Volume float64   `json:"volume"`
 }
 
+// const (
+// 	TIME_SERIES_INTRADAY = iota
+// 	TIME_SERIES_DAILY
+// 	TIME_SERIES_DAILY_ADJUSTED
+// 	TIME_SERIES_WEEKLY
+// 	TIME_SERIES_WEEKLY_ADJUSTED
+// 	TIME_SERIES_MONTHLY
+// 	TIME_SERIES_MONTHLY_ADJUSTED
+// 	GLOBAL_QUOTE
+// 	SYMBOL_SEARCH
+// 	MARKET_STATUS
+// )
+
+type timeSeriesFunctionType struct {
+	name string
+}
+
+// const TIME_SERIES_INTRADAY FunctionType = "TIME_SERIES_INTRADAY"
+// const TIME_SERIES_DAILY FunctionType = "TIME_SERIES_DAILY"
+// const TIME_SERIES_DAILY_ADJUSTED FunctionType = "TIME_SERIES_DAILY_ADJUSTED"
+// const TIME_SERIES_WEEKLY FunctionType = "TIME_SERIES_WEEKLY"
+// const TIME_SERIES_WEEKLY_ADJUSTED FunctionType = "TIME_SERIES_WEEKLY_ADJUSTED"
+// const TIME_SERIES_MONTHLY FunctionType = "TIME_SERIES_MONTHLY"
+// const TIME_SERIES_MONTHLY_ADJUSTED FunctionType = "TIME_SERIES_MONTHLY_ADJUSTED"
+// const GLOBAL_QUOTE FunctionType = "GLOBAL_QUOTE"
+// const SYMBOL_SEARCH FunctionType = "SYMBOL_SEARCH"
+// const MARKET_STATUS FunctionType = "MARKET_STATUS"
+
 type TimeSeriesParameter struct {
-	Function string `json:"function"`
-	Symbol   string `json:"symbol"`
-	Interval string `json:"interval"`
+	Function   string            `json:"function"`
+	Symbol     string            `json:"symbol"`
+	Interval   string            `json:"interval"`
+	Dictionary map[string]string `json:"dictionary"`
 }
 
 type TimeSeriesClient struct {
@@ -51,14 +80,21 @@ func (t *TimeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	query.Set("interval", p.Interval)
 	query.Set("apikey", t.apikey)
 	query.Set("datatype", t.datatype)
+	for k, v := range p.Dictionary {
+		query.Set(k, v)
+	}
 	endpoint.RawQuery = query.Encode()
 
 	return endpoint.String()
 }
 
 func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
-	path := t.createRequestUrl(p)
+	_, err := t.checkTimeSeriesParameter(p.Function)
+	if err != nil {
+		return nil, err
+	}
 
+	path := t.createRequestUrl(p)
 	r, err := t.httpClient.get(path)
 	if err != nil {
 		return nil, err
@@ -151,4 +187,34 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	value.Volume = f
 
 	return value, nil
+}
+
+func (t *TimeSeriesClient) checkTimeSeriesParameter(function string) (*timeSeriesFunctionType, error) {
+	result := timeSeriesFunctionType{}
+	switch function {
+	case "TIME_SERIES_INTRADAY":
+		result.name = "TIME_SERIES_INTRADAY"
+	case "TIME_SERIES_DAILY":
+		result.name = "TIME_SERIES_DAILY"
+	case "TIME_SERIES_DAILY_ADJUSTED":
+		result.name = "TIME_SERIES_DAILY_ADJUSTED"
+	case "TIME_SERIES_WEEKLY":
+		result.name = "TIME_SERIES_WEEKLY"
+	case "TIME_SERIES_WEEKLY_ADJUSTED":
+		result.name = "TIME_SERIES_WEEKLY_ADJUSTED"
+	case "TIME_SERIES_MONTHLY":
+		result.name = "TIME_SERIES_MONTHLY"
+	case "TIME_SERIES_MONTHLY_ADJUSTED":
+		result.name = "TIME_SERIES_MONTHLY_ADJUSTED"
+	case "GLOBAL_QUOTE":
+		result.name = "GLOBAL_QUOTE"
+	case "SYMBOL_SEARCH":
+		result.name = "SYMBOL_SEARCH"
+	case "MARKET_STATUS":
+		result.name = "MARKET_STATUS"
+	default:
+		return nil, fmt.Errorf("invalid function name %s", function)
+	}
+
+	return &result, nil
 }
