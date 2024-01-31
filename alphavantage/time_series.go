@@ -11,43 +11,44 @@ import (
 )
 
 type TimeSeries struct {
-	Time   time.Time
-	Open   float64
-	High   float64
-	Low    float64
-	Close  float64
-	Volume float64
+	Symbol string    `json:"symbol"`
+	Time   time.Time `json:"time"`
+	Open   float64   `json:"open"`
+	High   float64   `json:"high"`
+	Low    float64   `json:"low"`
+	Close  float64   `json:"close"`
+	Volume float64   `json:"volume"`
+}
+
+type TimeSeriesParameter struct {
+	Function string `json:"function"`
+	Symbol   string `json:"symbol"`
+	Interval string `json:"interval"`
 }
 
 type TimeSeriesClient struct {
 	httpClient *httpClient
-	function   string
-	symbol     string
-	interval   string
 	apikey     string
 	datatype   string
 }
 
-func NewTimeSeriesClient(httpClient *httpClient) *TimeSeriesClient {
+func NewTimeSeriesClient() *TimeSeriesClient {
 	return &TimeSeriesClient{
-		httpClient: httpClient,
-		function:   "TIME_SERIES_INTRADAY",
-		symbol:     "IBM",
-		interval:   "5min",
+		httpClient: NewHttpClient(),
 		apikey:     os.Getenv("ALPHAVANTAGE_API_KEY"),
 		datatype:   "csv",
 	}
 }
 
-func (t *TimeSeriesClient) CreateRequestUrl() string {
+func (t *TimeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	endpoint := &url.URL{}
 	endpoint.Scheme = "https"
 	endpoint.Host = "www.alphavantage.co"
 	endpoint.Path = "query"
 	query := endpoint.Query()
-	query.Set("function", t.function)
-	query.Set("symbol", t.symbol)
-	query.Set("interval", t.interval)
+	query.Set("function", p.Function)
+	query.Set("symbol", p.Symbol)
+	query.Set("interval", p.Interval)
 	query.Set("apikey", t.apikey)
 	query.Set("datatype", t.datatype)
 	endpoint.RawQuery = query.Encode()
@@ -55,10 +56,10 @@ func (t *TimeSeriesClient) CreateRequestUrl() string {
 	return endpoint.String()
 }
 
-func (t *TimeSeriesClient) ReadTimeSeries() ([]*TimeSeries, error) {
-	path := t.CreateRequestUrl()
+func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
+	path := t.createRequestUrl(p)
 
-	r, err := t.httpClient.Get(path)
+	r, err := t.httpClient.get(path)
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +88,13 @@ func (t *TimeSeriesClient) ReadTimeSeries() ([]*TimeSeries, error) {
 			}
 			return nil, err
 		}
+
 		value, err := t.readTimeSeriesItem(record)
 		if err != nil {
 			return nil, err
 		}
+
+		value.Symbol = p.Symbol
 		result = append(result, value)
 	}
 

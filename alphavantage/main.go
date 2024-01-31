@@ -7,10 +7,13 @@ import (
 )
 
 func main() {
-	h := NewHttpClient()
-	s := NewTimeSeriesClient(h)
-
-	result, err := s.ReadTimeSeries()
+	s := NewTimeSeriesClient()
+	p := TimeSeriesParameter{
+		Function: "TIME_SERIES_INTRADAY",
+		Symbol:   "IBM",
+		Interval: "15min",
+	}
+	result, err := s.ReadTimeSeries(p)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
