@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -21,4 +22,8 @@ func parseTime(value string) (time.Time, error) {
 	}
 
 	return time.Time{}, fmt.Errorf("time parse error, raw data is %s", value)
+}
+
+func parseFloat(value string) (float64, error) {
+	return strconv.ParseFloat(value, 64)
 }

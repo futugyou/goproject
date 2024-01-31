@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/url"
 	"os"
-	"strconv"
+	"slices"
 	"time"
 )
 
@@ -156,31 +156,31 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	}
 	value.Time = d
 
-	f, err := strconv.ParseFloat(s[open], 64)
+	f, err := parseFloat(s[open])
 	if err != nil {
 		return nil, fmt.Errorf("error parsing open %s", s[open])
 	}
 	value.Open = f
 
-	f, err = strconv.ParseFloat(s[high], 64)
+	f, err = parseFloat(s[high])
 	if err != nil {
 		return nil, fmt.Errorf("error parsing high %s", s[high])
 	}
 	value.High = f
 
-	f, err = strconv.ParseFloat(s[low], 64)
+	f, err = parseFloat(s[low])
 	if err != nil {
 		return nil, fmt.Errorf("error parsing low %s", s[low])
 	}
 	value.Low = f
 
-	f, err = strconv.ParseFloat(s[close], 64)
+	f, err = parseFloat(s[close])
 	if err != nil {
 		return nil, fmt.Errorf("error parsing close %s", s[close])
 	}
 	value.Close = f
 
-	f, err = strconv.ParseFloat(s[volume], 64)
+	f, err = parseFloat(s[volume])
 	if err != nil {
 		return nil, fmt.Errorf("error parsing volume %s", s[volume])
 	}
@@ -190,31 +190,17 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 }
 
 func (t *TimeSeriesClient) checkTimeSeriesParameter(function string) (*timeSeriesFunctionType, error) {
-	result := timeSeriesFunctionType{}
-	switch function {
-	case "TIME_SERIES_INTRADAY":
-		result.name = "TIME_SERIES_INTRADAY"
-	case "TIME_SERIES_DAILY":
-		result.name = "TIME_SERIES_DAILY"
-	case "TIME_SERIES_DAILY_ADJUSTED":
-		result.name = "TIME_SERIES_DAILY_ADJUSTED"
-	case "TIME_SERIES_WEEKLY":
-		result.name = "TIME_SERIES_WEEKLY"
-	case "TIME_SERIES_WEEKLY_ADJUSTED":
-		result.name = "TIME_SERIES_WEEKLY_ADJUSTED"
-	case "TIME_SERIES_MONTHLY":
-		result.name = "TIME_SERIES_MONTHLY"
-	case "TIME_SERIES_MONTHLY_ADJUSTED":
-		result.name = "TIME_SERIES_MONTHLY_ADJUSTED"
-	case "GLOBAL_QUOTE":
-		result.name = "GLOBAL_QUOTE"
-	case "SYMBOL_SEARCH":
-		result.name = "SYMBOL_SEARCH"
-	case "MARKET_STATUS":
-		result.name = "MARKET_STATUS"
-	default:
+	if have := slices.Contains(functionList, function); !have {
 		return nil, fmt.Errorf("invalid function name %s", function)
 	}
 
-	return &result, nil
+	result := &timeSeriesFunctionType{
+		name: function,
+	}
+	return result, nil
+}
+
+var functionList = []string{"TIME_SERIES_INTRADAY", "TIME_SERIES_DAILY", "TIME_SERIES_DAILY_ADJUSTED",
+	"TIME_SERIES_WEEKLY", "TIME_SERIES_WEEKLY_ADJUSTED", "TIME_SERIES_MONTHLY", "TIME_SERIES_MONTHLY_ADJUSTED",
+	"GLOBAL_QUOTE", "SYMBOL_SEARCH", "MARKET_STATUS",
 }
