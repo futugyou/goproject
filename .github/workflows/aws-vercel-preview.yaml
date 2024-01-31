@@ -30,9 +30,9 @@ jobs:
         working-directory: ${{env.working-directory}}
 
       - name: Build Project Artifacts
-        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 VERCEL_FORCE_NO_BUILD_CACHE=1 vercel build --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ${{env.working-directory}}
 
       - name: Deploy Project Artifacts to Vercel
-        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 VERCEL_FORCE_NO_BUILD_CACHE=1 vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ${{env.working-directory}}
