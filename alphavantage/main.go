@@ -7,15 +7,18 @@ import (
 )
 
 func main() {
-	h := NewHttpClient()
-	s := NewTimeSeriesClient(h)
-
-	result, err := s.ReadTimeSeries()
+	s := NewTimeSeriesClient()
+	p := TimeSeriesParameter{
+		Function: "TIME_SERIES_WEEKLY",
+		Symbol:   "IBM",
+		Interval: "15min",
+	}
+	result, err := s.ReadTimeSeries(p)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	for _, v := range result {
-		fmt.Println(v.Close)
+		fmt.Println(v.DividendAmount, v.SplitCoefficient)
 	}
 }

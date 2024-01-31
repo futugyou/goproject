@@ -16,7 +16,7 @@ func NewHttpClient() *httpClient {
 	}
 }
 
-func (c *httpClient) Get(path string) (io.ReadCloser, error) {
+func (c *httpClient) get(path string) (io.ReadCloser, error) {
 	var body io.Reader
 	req, _ := http.NewRequest("GET", path, body)
 	resp, err := c.http.Do(req)
@@ -27,7 +27,7 @@ func (c *httpClient) Get(path string) (io.ReadCloser, error) {
 	if err := checkResponseStatusCode(resp); err != nil {
 		return nil, err
 	}
- 
+
 	return resp.Body, nil
 }
 
