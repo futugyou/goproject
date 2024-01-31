@@ -9,7 +9,7 @@ import (
 func main() {
 	s := NewTimeSeriesClient()
 	p := TimeSeriesParameter{
-		Function: "TIME_SERIES_DAILY",
+		Function: "TIME_SERIES_WEEKLY",
 		Symbol:   "IBM",
 		Interval: "15min",
 	}
@@ -19,6 +19,6 @@ func main() {
 		return
 	}
 	for _, v := range result {
-		fmt.Println(v.Close)
+		fmt.Println(v.DividendAmount, v.SplitCoefficient)
 	}
 }

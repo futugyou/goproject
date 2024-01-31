@@ -11,42 +11,21 @@ import (
 )
 
 type TimeSeries struct {
-	Symbol string    `json:"symbol"`
-	Time   time.Time `json:"time"`
-	Open   float64   `json:"open"`
-	High   float64   `json:"high"`
-	Low    float64   `json:"low"`
-	Close  float64   `json:"close"`
-	Volume float64   `json:"volume"`
+	Symbol           string    `json:"symbol"`
+	Time             time.Time `json:"time"`
+	Open             float64   `json:"open"`
+	High             float64   `json:"high"`
+	Low              float64   `json:"low"`
+	Close            float64   `json:"close"`
+	Volume           float64   `json:"volume"`
+	AdjustedClose    float64   `json:"adjusted_close"`
+	DividendAmount   float64   `json:"dividend_amount"`
+	SplitCoefficient float64   `json:"split_coefficient"`
 }
-
-// const (
-// 	TIME_SERIES_INTRADAY = iota
-// 	TIME_SERIES_DAILY
-// 	TIME_SERIES_DAILY_ADJUSTED
-// 	TIME_SERIES_WEEKLY
-// 	TIME_SERIES_WEEKLY_ADJUSTED
-// 	TIME_SERIES_MONTHLY
-// 	TIME_SERIES_MONTHLY_ADJUSTED
-// 	GLOBAL_QUOTE
-// 	SYMBOL_SEARCH
-// 	MARKET_STATUS
-// )
 
 type timeSeriesFunctionType struct {
 	name string
 }
-
-// const TIME_SERIES_INTRADAY FunctionType = "TIME_SERIES_INTRADAY"
-// const TIME_SERIES_DAILY FunctionType = "TIME_SERIES_DAILY"
-// const TIME_SERIES_DAILY_ADJUSTED FunctionType = "TIME_SERIES_DAILY_ADJUSTED"
-// const TIME_SERIES_WEEKLY FunctionType = "TIME_SERIES_WEEKLY"
-// const TIME_SERIES_WEEKLY_ADJUSTED FunctionType = "TIME_SERIES_WEEKLY_ADJUSTED"
-// const TIME_SERIES_MONTHLY FunctionType = "TIME_SERIES_MONTHLY"
-// const TIME_SERIES_MONTHLY_ADJUSTED FunctionType = "TIME_SERIES_MONTHLY_ADJUSTED"
-// const GLOBAL_QUOTE FunctionType = "GLOBAL_QUOTE"
-// const SYMBOL_SEARCH FunctionType = "SYMBOL_SEARCH"
-// const MARKET_STATUS FunctionType = "MARKET_STATUS"
 
 type TimeSeriesParameter struct {
 	Function   string            `json:"function"`
@@ -125,7 +104,13 @@ func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries,
 			return nil, err
 		}
 
-		value, err := t.readTimeSeriesItem(record)
+		var value *TimeSeries
+		switch p.Function {
+		case TIME_SERIES_INTRADAY, TIME_SERIES_DAILY, TIME_SERIES_WEEKLY,TIME_SERIES_MONTHLY:
+			value, err = t.readTimeSeriesItem(record)
+		case TIME_SERIES_DAILY_ADJUSTED: //,TIME_SERIES_WEEKLY_ADJUSTED, TIME_SERIES_MONTHLY_ADJUSTED:
+			value, err = t.readTimeSeriesItem2(record)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -189,6 +174,78 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	return value, nil
 }
 
+func (t *TimeSeriesClient) readTimeSeriesItem2(s []string) (*TimeSeries, error) {
+	const (
+		timestamp = iota
+		open
+		high
+		low
+		close
+		adjusted_close
+		volume
+		dividend_amount
+		split_coefficient
+	)
+
+	value := &TimeSeries{}
+
+	d, err := parseTime(s[timestamp])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing timestamp %s", s[timestamp])
+	}
+	value.Time = d
+
+	f, err := parseFloat(s[open])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing open %s", s[open])
+	}
+	value.Open = f
+
+	f, err = parseFloat(s[high])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing high %s", s[high])
+	}
+	value.High = f
+
+	f, err = parseFloat(s[low])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing low %s", s[low])
+	}
+	value.Low = f
+
+	f, err = parseFloat(s[close])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing close %s", s[close])
+	}
+	value.Close = f
+
+	f, err = parseFloat(s[volume])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing volume %s", s[volume])
+	}
+	value.Volume = f
+
+	f, err = parseFloat(s[adjusted_close])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing adjusted_close %s", s[adjusted_close])
+	}
+	value.AdjustedClose = f
+
+	f, err = parseFloat(s[dividend_amount])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing dividend_amount %s", s[dividend_amount])
+	}
+	value.DividendAmount = f
+
+	f, err = parseFloat(s[split_coefficient])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing split_coefficient %s", s[split_coefficient])
+	}
+	value.SplitCoefficient = f
+
+	return value, nil
+}
+
 func (t *TimeSeriesClient) checkTimeSeriesParameter(function string) (*timeSeriesFunctionType, error) {
 	if have := slices.Contains(functionList, function); !have {
 		return nil, fmt.Errorf("invalid function name %s", function)
@@ -200,7 +257,18 @@ func (t *TimeSeriesClient) checkTimeSeriesParameter(function string) (*timeSerie
 	return result, nil
 }
 
-var functionList = []string{"TIME_SERIES_INTRADAY", "TIME_SERIES_DAILY", "TIME_SERIES_DAILY_ADJUSTED",
-	"TIME_SERIES_WEEKLY", "TIME_SERIES_WEEKLY_ADJUSTED", "TIME_SERIES_MONTHLY", "TIME_SERIES_MONTHLY_ADJUSTED",
-	"GLOBAL_QUOTE", "SYMBOL_SEARCH", "MARKET_STATUS",
+const TIME_SERIES_INTRADAY string = "TIME_SERIES_INTRADAY"
+const TIME_SERIES_DAILY string = "TIME_SERIES_DAILY"
+const TIME_SERIES_DAILY_ADJUSTED string = "TIME_SERIES_DAILY_ADJUSTED"
+const TIME_SERIES_WEEKLY string = "TIME_SERIES_WEEKLY"
+const TIME_SERIES_WEEKLY_ADJUSTED string = "TIME_SERIES_WEEKLY_ADJUSTED"
+const TIME_SERIES_MONTHLY string = "TIME_SERIES_MONTHLY"
+const TIME_SERIES_MONTHLY_ADJUSTED string = "TIME_SERIES_MONTHLY_ADJUSTED"
+const GLOBAL_QUOTE string = "GLOBAL_QUOTE"
+const SYMBOL_SEARCH string = "SYMBOL_SEARCH"
+const MARKET_STATUS string = "MARKET_STATUS"
+
+var functionList = []string{TIME_SERIES_INTRADAY, TIME_SERIES_DAILY, TIME_SERIES_DAILY_ADJUSTED,
+	TIME_SERIES_WEEKLY, TIME_SERIES_WEEKLY_ADJUSTED, TIME_SERIES_MONTHLY, TIME_SERIES_MONTHLY_ADJUSTED,
+	GLOBAL_QUOTE, SYMBOL_SEARCH, MARKET_STATUS,
 }
