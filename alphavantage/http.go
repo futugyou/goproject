@@ -10,7 +10,7 @@ type httpClient struct {
 	http *http.Client
 }
 
-func NewHttpClient() *httpClient {
+func newHttpClient() *httpClient {
 	return &httpClient{
 		http: &http.Client{},
 	}

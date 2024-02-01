@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-const Alphavantage_Http_Scheme string = "https"
-const Alphavantage_Host string = "www.alphavantage.co"
-const Alphavantage_Path string = "query"
-const Alphavantage_Datatype string = "csv"
+const _Alphavantage_Http_Scheme string = "https"
+const _Alphavantage_Host string = "www.alphavantage.co"
+const _Alphavantage_Path string = "query"
+const _Alphavantage_Datatype string = "csv"
 
 var time_format = []string{"2006-01-02 15:04:05", "2006-01-02"}
 

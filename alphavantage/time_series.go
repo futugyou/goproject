@@ -33,25 +33,25 @@ type TimeSeriesParameter struct {
 	Dictionary map[string]string `json:"dictionary"`
 }
 
-type TimeSeriesClient struct {
+type timeSeriesClient struct {
 	httpClient *httpClient
 	apikey     string
 	datatype   string
 }
 
-func NewTimeSeriesClient(apikey string) *TimeSeriesClient {
-	return &TimeSeriesClient{
-		httpClient: NewHttpClient(),
+func NewTimeSeriesClient(apikey string) *timeSeriesClient {
+	return &timeSeriesClient{
+		httpClient: newHttpClient(),
 		apikey:     apikey,
-		datatype:   Alphavantage_Datatype,
+		datatype:   _Alphavantage_Datatype,
 	}
 }
 
-func (t *TimeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
+func (t *timeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	endpoint := &url.URL{}
-	endpoint.Scheme = Alphavantage_Http_Scheme
-	endpoint.Host = Alphavantage_Host
-	endpoint.Path = Alphavantage_Path
+	endpoint.Scheme = _Alphavantage_Http_Scheme
+	endpoint.Host = _Alphavantage_Host
+	endpoint.Path = _Alphavantage_Path
 	query := endpoint.Query()
 	query.Set("function", p.Function)
 	query.Set("symbol", p.Symbol)
@@ -66,7 +66,7 @@ func (t *TimeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	return endpoint.String()
 }
 
-func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
+func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
 	_, err := t.checkTimeSeriesParameter(p.Function)
 	if err != nil {
 		return nil, err
@@ -105,9 +105,9 @@ func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries,
 
 		var value *TimeSeries
 		switch p.Function {
-		case TIME_SERIES_INTRADAY, TIME_SERIES_DAILY, TIME_SERIES_WEEKLY, TIME_SERIES_MONTHLY:
+		case _TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_WEEKLY, _TIME_SERIES_MONTHLY:
 			value, err = t.readTimeSeriesItem(record)
-		case TIME_SERIES_DAILY_ADJUSTED, TIME_SERIES_WEEKLY_ADJUSTED, TIME_SERIES_MONTHLY_ADJUSTED:
+		case _TIME_SERIES_DAILY_ADJUSTED, _TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY_ADJUSTED:
 			value, err = t.readTimeSeriesAdjustedItem(record)
 		}
 		if err != nil {
@@ -122,7 +122,7 @@ func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries,
 
 }
 
-func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
+func (t *timeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	const (
 		timestamp = iota
 		open
@@ -173,7 +173,7 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	return value, nil
 }
 
-func (t *TimeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, error) {
+func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, error) {
 	const (
 		timestamp = iota
 		open
@@ -248,7 +248,7 @@ func (t *TimeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, 
 	return value, nil
 }
 
-func (t *TimeSeriesClient) checkTimeSeriesParameter(function string) (*timeSeriesFunctionType, error) {
+func (t *timeSeriesClient) checkTimeSeriesParameter(function string) (*timeSeriesFunctionType, error) {
 	if have := slices.Contains(functionList, function); !have {
 		return nil, fmt.Errorf("invalid function name %s", function)
 	}
@@ -259,18 +259,18 @@ func (t *TimeSeriesClient) checkTimeSeriesParameter(function string) (*timeSerie
 	return result, nil
 }
 
-const TIME_SERIES_INTRADAY string = "TIME_SERIES_INTRADAY"
-const TIME_SERIES_DAILY string = "TIME_SERIES_DAILY"
-const TIME_SERIES_DAILY_ADJUSTED string = "TIME_SERIES_DAILY_ADJUSTED"
-const TIME_SERIES_WEEKLY string = "TIME_SERIES_WEEKLY"
-const TIME_SERIES_WEEKLY_ADJUSTED string = "TIME_SERIES_WEEKLY_ADJUSTED"
-const TIME_SERIES_MONTHLY string = "TIME_SERIES_MONTHLY"
-const TIME_SERIES_MONTHLY_ADJUSTED string = "TIME_SERIES_MONTHLY_ADJUSTED"
-const GLOBAL_QUOTE string = "GLOBAL_QUOTE"
-const SYMBOL_SEARCH string = "SYMBOL_SEARCH"
-const MARKET_STATUS string = "MARKET_STATUS"
+const _TIME_SERIES_INTRADAY string = "TIME_SERIES_INTRADAY"
+const _TIME_SERIES_DAILY string = "TIME_SERIES_DAILY"
+const _TIME_SERIES_DAILY_ADJUSTED string = "TIME_SERIES_DAILY_ADJUSTED"
+const _TIME_SERIES_WEEKLY string = "TIME_SERIES_WEEKLY"
+const _TIME_SERIES_WEEKLY_ADJUSTED string = "TIME_SERIES_WEEKLY_ADJUSTED"
+const _TIME_SERIES_MONTHLY string = "TIME_SERIES_MONTHLY"
+const _TIME_SERIES_MONTHLY_ADJUSTED string = "TIME_SERIES_MONTHLY_ADJUSTED"
+const _GLOBAL_QUOTE string = "GLOBAL_QUOTE"
+const _SYMBOL_SEARCH string = "SYMBOL_SEARCH"
+const _MARKET_STATUS string = "MARKET_STATUS"
 
-var functionList = []string{TIME_SERIES_INTRADAY, TIME_SERIES_DAILY, TIME_SERIES_DAILY_ADJUSTED,
-	TIME_SERIES_WEEKLY, TIME_SERIES_WEEKLY_ADJUSTED, TIME_SERIES_MONTHLY, TIME_SERIES_MONTHLY_ADJUSTED,
-	GLOBAL_QUOTE, SYMBOL_SEARCH, MARKET_STATUS,
+var functionList = []string{_TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_DAILY_ADJUSTED,
+	_TIME_SERIES_WEEKLY, _TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY, _TIME_SERIES_MONTHLY_ADJUSTED,
+	_GLOBAL_QUOTE, _SYMBOL_SEARCH, _MARKET_STATUS,
 }
