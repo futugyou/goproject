@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// TODO: update model
+// timestamp,open,high,low,close,volume
 type TimeSeries struct {
 	Symbol           string    `json:"symbol"`
 	Time             time.Time `json:"time"`
@@ -20,6 +22,62 @@ type TimeSeries struct {
 	AdjustedClose    float64   `json:"adjusted_close"`
 	DividendAmount   float64   `json:"dividend_amount"`
 	SplitCoefficient float64   `json:"split_coefficient"`
+}
+
+// timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient
+type TimeSeriesAdjusted struct {
+	Symbol           string    `json:"symbol"`
+	Time             time.Time `json:"time"`
+	Open             float64   `json:"open"`
+	High             float64   `json:"high"`
+	Low              float64   `json:"low"`
+	Close            float64   `json:"close"`
+	Volume           float64   `json:"volume"`
+	AdjustedClose    float64   `json:"adjusted_close"`
+	DividendAmount   float64   `json:"dividend_amount"`
+	SplitCoefficient float64   `json:"split_coefficient"`
+}
+
+// symbol,open,high,low,price,volume,latestDay,previousClose,change,changePercent
+type GlobalEndpoint struct {
+	Symbol        string    `json:"symbol"`
+	Open          float64   `json:"open"`
+	High          float64   `json:"high"`
+	Low           float64   `json:"low"`
+	Price         float64   `json:"price"`
+	Volume        float64   `json:"volume"`
+	LatestDay     time.Time `json:"latestDay"`
+	PreviousClose float64   `json:"previous_close"`
+	Change        float64   `json:"change"`
+	ChangePercent float64   `json:"change_percent"`
+}
+
+// symbol,name,type,region,marketOpen,marketClose,timezone,currency,matchScore
+type SymbolSearch struct {
+	Symbol      string        `json:"symbol"`
+	Name        string        `json:"name"`
+	Type        string        `json:"type"`
+	Region      string        `json:"region"`
+	MarketOpen  time.Duration `json:"marketOpen"`
+	MarketClose time.Duration `json:"marketClose"`
+	Timezone    string        `json:"timezone"`
+	Currency    string        `json:"currency"`
+	MatchScore  float64       `json:"matchScore"`
+}
+
+type MarketStatus struct {
+	Endpoint string   `json:"endpoint"`
+	Markets  []Market `json:"markets"`
+}
+
+type Market struct {
+	MarketType       string `json:"market_type"`
+	Region           string `json:"region"`
+	PrimaryExchanges string `json:"primary_exchanges"`
+	LocalOpen        string `json:"local_open"`
+	LocalClose       string `json:"local_close"`
+	CurrentStatus    string `json:"current_status"`
+	Notes            string `json:"notes"`
 }
 
 type timeSeriesFunctionType struct {
