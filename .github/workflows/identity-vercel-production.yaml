@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@canary
+        run: npm install --global vercel@33.2.0
         working-directory: ${{env.working-directory}}
 
       - name: Pull Vercel Environment Information
