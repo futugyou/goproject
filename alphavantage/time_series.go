@@ -1,11 +1,10 @@
-package main
+package alphavantage
 
 import (
 	"encoding/csv"
 	"fmt"
 	"io"
 	"net/url"
-	"os"
 	"slices"
 	"time"
 )
@@ -40,10 +39,10 @@ type TimeSeriesClient struct {
 	datatype   string
 }
 
-func NewTimeSeriesClient() *TimeSeriesClient {
+func NewTimeSeriesClient(apikey string) *TimeSeriesClient {
 	return &TimeSeriesClient{
 		httpClient: NewHttpClient(),
-		apikey:     os.Getenv("ALPHAVANTAGE_API_KEY"),
+		apikey:     apikey,
 		datatype:   Alphavantage_Datatype,
 	}
 }
