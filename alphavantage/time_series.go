@@ -106,10 +106,10 @@ func (t *TimeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries,
 
 		var value *TimeSeries
 		switch p.Function {
-		case TIME_SERIES_INTRADAY, TIME_SERIES_DAILY, TIME_SERIES_WEEKLY,TIME_SERIES_MONTHLY:
+		case TIME_SERIES_INTRADAY, TIME_SERIES_DAILY, TIME_SERIES_WEEKLY, TIME_SERIES_MONTHLY:
 			value, err = t.readTimeSeriesItem(record)
-		case TIME_SERIES_DAILY_ADJUSTED: //,TIME_SERIES_WEEKLY_ADJUSTED, TIME_SERIES_MONTHLY_ADJUSTED:
-			value, err = t.readTimeSeriesItem2(record)
+		case TIME_SERIES_DAILY_ADJUSTED, TIME_SERIES_WEEKLY_ADJUSTED, TIME_SERIES_MONTHLY_ADJUSTED:
+			value, err = t.readTimeSeriesAdjustedItem(record)
 		}
 		if err != nil {
 			return nil, err
@@ -174,7 +174,7 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	return value, nil
 }
 
-func (t *TimeSeriesClient) readTimeSeriesItem2(s []string) (*TimeSeries, error) {
+func (t *TimeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, error) {
 	const (
 		timestamp = iota
 		open
@@ -237,11 +237,14 @@ func (t *TimeSeriesClient) readTimeSeriesItem2(s []string) (*TimeSeries, error) 
 	}
 	value.DividendAmount = f
 
-	f, err = parseFloat(s[split_coefficient])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing split_coefficient %s", s[split_coefficient])
+	// this for TIME_SERIES_DAILY_ADJUSTED API, and it is Premium.
+	if len(s) > split_coefficient {
+		f, err = parseFloat(s[split_coefficient])
+		if err != nil {
+			return nil, fmt.Errorf("error parsing split_coefficient %s", s[split_coefficient])
+		}
+		value.SplitCoefficient = f
 	}
-	value.SplitCoefficient = f
 
 	return value, nil
 }
