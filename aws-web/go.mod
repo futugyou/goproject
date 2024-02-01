@@ -16,7 +16,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/iam v1.28.7
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.1
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.27.6
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.44.7
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.45.0
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/google/uuid v1.6.0
@@ -29,7 +29,7 @@ require github.com/aws/aws-sdk-go-v2/service/route53 v1.37.1
 
 require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.2
 
-require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.26.7
+require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.27.0
 
 require github.com/aws/aws-sdk-go-v2/service/iot v1.49.0
 
