@@ -6,6 +6,23 @@ import (
 	"time"
 )
 
+const _TIME_SERIES_INTRADAY string = "TIME_SERIES_INTRADAY"
+const _TIME_SERIES_DAILY string = "TIME_SERIES_DAILY"
+const _TIME_SERIES_DAILY_ADJUSTED string = "TIME_SERIES_DAILY_ADJUSTED"
+const _TIME_SERIES_WEEKLY string = "TIME_SERIES_WEEKLY"
+const _TIME_SERIES_WEEKLY_ADJUSTED string = "TIME_SERIES_WEEKLY_ADJUSTED"
+const _TIME_SERIES_MONTHLY string = "TIME_SERIES_MONTHLY"
+const _TIME_SERIES_MONTHLY_ADJUSTED string = "TIME_SERIES_MONTHLY_ADJUSTED"
+const _GLOBAL_QUOTE string = "GLOBAL_QUOTE"
+const _SYMBOL_SEARCH string = "SYMBOL_SEARCH"
+const _MARKET_STATUS string = "MARKET_STATUS"
+
+const _1min string = "1min"
+const _5min string = "5min"
+const _15min string = "15min"
+const _30min string = "30min"
+const _60min string = "60min"
+
 const _Alphavantage_Http_Scheme string = "https"
 const _Alphavantage_Host string = "www.alphavantage.co"
 const _Alphavantage_Path string = "query"

@@ -4,8 +4,16 @@ import (
 	"fmt"
 	"net/url"
 	"slices"
+	"strings"
 	"time"
 )
+
+var timeSeriesDataFunctionList = []string{_TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_DAILY_ADJUSTED,
+	_TIME_SERIES_WEEKLY, _TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY, _TIME_SERIES_MONTHLY_ADJUSTED,
+	_GLOBAL_QUOTE, _SYMBOL_SEARCH, _MARKET_STATUS,
+}
+
+var timeSeriesDataIntervalList = []string{_1min, _5min, _15min, _30min, _60min}
 
 // TODO: update model
 // timestamp,open,high,low,close,volume
@@ -123,7 +131,7 @@ func (t *timeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 }
 
 func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
-	_, err := t.checkTimeSeriesParameter(p.Function)
+	err := t.checkTimeSeriesParamter(p)
 	if err != nil {
 		return nil, err
 	}
@@ -283,8 +291,24 @@ func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, 
 	return value, nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesParameter(function string) (*timeSeriesFunctionType, error) {
-	if have := slices.Contains(functionList, function); !have {
+func (t *timeSeriesClient) checkTimeSeriesParamter(p TimeSeriesParameter) error {
+	if len(strings.Trim(p.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+	_, err := t.checkTimeSeriesFunction(p.Function)
+	if err != nil {
+		return err
+	}
+
+	if p.Function == _TIME_SERIES_INTRADAY {
+		return t.checkTimeSeriesInterval(p.Interval)
+	}
+
+	return nil
+}
+
+func (t *timeSeriesClient) checkTimeSeriesFunction(function string) (*timeSeriesFunctionType, error) {
+	if have := slices.Contains(timeSeriesDataFunctionList, function); !have {
 		return nil, fmt.Errorf("invalid function name %s", function)
 	}
 
@@ -294,18 +318,9 @@ func (t *timeSeriesClient) checkTimeSeriesParameter(function string) (*timeSerie
 	return result, nil
 }
 
-const _TIME_SERIES_INTRADAY string = "TIME_SERIES_INTRADAY"
-const _TIME_SERIES_DAILY string = "TIME_SERIES_DAILY"
-const _TIME_SERIES_DAILY_ADJUSTED string = "TIME_SERIES_DAILY_ADJUSTED"
-const _TIME_SERIES_WEEKLY string = "TIME_SERIES_WEEKLY"
-const _TIME_SERIES_WEEKLY_ADJUSTED string = "TIME_SERIES_WEEKLY_ADJUSTED"
-const _TIME_SERIES_MONTHLY string = "TIME_SERIES_MONTHLY"
-const _TIME_SERIES_MONTHLY_ADJUSTED string = "TIME_SERIES_MONTHLY_ADJUSTED"
-const _GLOBAL_QUOTE string = "GLOBAL_QUOTE"
-const _SYMBOL_SEARCH string = "SYMBOL_SEARCH"
-const _MARKET_STATUS string = "MARKET_STATUS"
-
-var functionList = []string{_TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_DAILY_ADJUSTED,
-	_TIME_SERIES_WEEKLY, _TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY, _TIME_SERIES_MONTHLY_ADJUSTED,
-	_GLOBAL_QUOTE, _SYMBOL_SEARCH, _MARKET_STATUS,
+func (t *timeSeriesClient) checkTimeSeriesInterval(interval string) error {
+	if have := slices.Contains(timeSeriesDataIntervalList, interval); !have {
+		return fmt.Errorf("invalid interval name %s", interval)
+	}
+	return nil
 }
