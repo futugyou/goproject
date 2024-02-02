@@ -8,26 +8,25 @@ import (
 	"time"
 )
 
-var timeSeriesDataFunctionList = []string{_TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_DAILY_ADJUSTED,
-	_TIME_SERIES_WEEKLY, _TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY, _TIME_SERIES_MONTHLY_ADJUSTED,
-	_GLOBAL_QUOTE, _SYMBOL_SEARCH, _MARKET_STATUS,
+var timeSeriesDataFunctionList = []string{_TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY,
+	_TIME_SERIES_WEEKLY, _TIME_SERIES_MONTHLY,
+}
+
+var timeSeriesDataaAjustedFunctionList = []string{_TIME_SERIES_DAILY_ADJUSTED,
+	_TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY_ADJUSTED,
 }
 
 var timeSeriesDataIntervalList = []string{_1min, _5min, _15min, _30min, _60min}
 
-// TODO: update model
 // timestamp,open,high,low,close,volume
 type TimeSeries struct {
-	Symbol           string    `json:"symbol"`
-	Time             time.Time `json:"time"`
-	Open             float64   `json:"open"`
-	High             float64   `json:"high"`
-	Low              float64   `json:"low"`
-	Close            float64   `json:"close"`
-	Volume           float64   `json:"volume"`
-	AdjustedClose    float64   `json:"adjusted_close"`
-	DividendAmount   float64   `json:"dividend_amount"`
-	SplitCoefficient float64   `json:"split_coefficient"`
+	Symbol string    `json:"symbol"`
+	Time   time.Time `json:"time"`
+	Open   float64   `json:"open"`
+	High   float64   `json:"high"`
+	Low    float64   `json:"low"`
+	Close  float64   `json:"close"`
+	Volume float64   `json:"volume"`
 }
 
 // timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient
@@ -111,6 +110,60 @@ func NewTimeSeriesClient(apikey string) *timeSeriesClient {
 	}
 }
 
+func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
+	err := t.checkTimeSeriesParamter(p)
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createRequestUrl(p)
+	csvData, err := t.httpClient.getCsv(path)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*TimeSeries, 0)
+
+	for i := 0; i < len(csvData); i++ {
+		value, err := t.readTimeSeriesItem(csvData[i])
+		if err != nil {
+			return nil, err
+		}
+
+		value.Symbol = p.Symbol
+		result = append(result, value)
+	}
+
+	return result, nil
+}
+
+func (t *timeSeriesClient) ReadTimeSeriesAdjusted(p TimeSeriesParameter) ([]*TimeSeriesAdjusted, error) {
+	err := t.checkTimeSeriesAdjustedParamter(p)
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createRequestUrl(p)
+	csvData, err := t.httpClient.getCsv(path)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*TimeSeriesAdjusted, 0)
+
+	for i := 0; i < len(csvData); i++ {
+		value, err := t.readTimeSeriesAdjustedItem(csvData[i])
+		if err != nil {
+			return nil, err
+		}
+
+		value.Symbol = p.Symbol
+		result = append(result, value)
+	}
+
+	return result, nil
+}
+
 func (t *timeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	endpoint := &url.URL{}
 	endpoint.Scheme = _Alphavantage_Http_Scheme
@@ -128,41 +181,6 @@ func (t *timeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
 	endpoint.RawQuery = query.Encode()
 
 	return endpoint.String()
-}
-
-func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
-	err := t.checkTimeSeriesParamter(p)
-	if err != nil {
-		return nil, err
-	}
-
-	path := t.createRequestUrl(p)
-	csvData, err := t.httpClient.getCsv(path)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]*TimeSeries, 0)
-
-	for i := 0; i < len(csvData); i++ {
-		record := csvData[i]
-		var value *TimeSeries
-		switch p.Function {
-		case _TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_WEEKLY, _TIME_SERIES_MONTHLY:
-			value, err = t.readTimeSeriesItem(record)
-		case _TIME_SERIES_DAILY_ADJUSTED, _TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY_ADJUSTED:
-			value, err = t.readTimeSeriesAdjustedItem(record)
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		value.Symbol = p.Symbol
-		result = append(result, value)
-	}
-
-	return result, nil
-
 }
 
 func (t *timeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
@@ -216,7 +234,7 @@ func (t *timeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	return value, nil
 }
 
-func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, error) {
+func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeriesAdjusted, error) {
 	const (
 		timestamp = iota
 		open
@@ -229,7 +247,7 @@ func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeries, 
 		split_coefficient
 	)
 
-	value := &TimeSeries{}
+	value := &TimeSeriesAdjusted{}
 
 	d, err := parseTime(s[timestamp])
 	if err != nil {
@@ -295,7 +313,26 @@ func (t *timeSeriesClient) checkTimeSeriesParamter(p TimeSeriesParameter) error 
 	if len(strings.Trim(p.Symbol, " ")) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
-	_, err := t.checkTimeSeriesFunction(p.Function)
+	_, err := t.checkTimeSeriesFunction(timeSeriesDataFunctionList, p.Function)
+	if err != nil {
+		_, err := t.checkTimeSeriesFunction(timeSeriesDataaAjustedFunctionList, p.Function)
+		if err != nil {
+			return err
+		}
+	}
+
+	if p.Function == _TIME_SERIES_INTRADAY {
+		return t.checkTimeSeriesInterval(p.Interval)
+	}
+
+	return nil
+}
+
+func (t *timeSeriesClient) checkTimeSeriesAdjustedParamter(p TimeSeriesParameter) error {
+	if len(strings.Trim(p.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+	_, err := t.checkTimeSeriesFunction(timeSeriesDataaAjustedFunctionList, p.Function)
 	if err != nil {
 		return err
 	}
@@ -307,8 +344,8 @@ func (t *timeSeriesClient) checkTimeSeriesParamter(p TimeSeriesParameter) error 
 	return nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesFunction(function string) (*timeSeriesFunctionType, error) {
-	if have := slices.Contains(timeSeriesDataFunctionList, function); !have {
+func (t *timeSeriesClient) checkTimeSeriesFunction(functionList []string, function string) (*timeSeriesFunctionType, error) {
+	if have := slices.Contains(functionList, function); !have {
 		return nil, fmt.Errorf("invalid function name %s", function)
 	}
 
