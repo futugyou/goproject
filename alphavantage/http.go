@@ -48,7 +48,6 @@ func (c *httpClient) getCsv(path string) ([][]string, error) {
 
 	defer readCloser.Close()
 
-	result := make([][]string, 0)
 	reader := csv.NewReader(readCloser)
 	reader.ReuseRecord = true
 	reader.LazyQuotes = true
@@ -61,16 +60,9 @@ func (c *httpClient) getCsv(path string) ([][]string, error) {
 		return nil, err
 	}
 
-	for {
-		record, err := reader.Read()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-
-		result = append(result, record)
+	result, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
 	}
 
 	return result, nil
