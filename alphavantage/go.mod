@@ -1,3 +1,3 @@
-module github.com/futugyousuzu/alphavantage
+module github.com/futugyou/alphavantage
 
 go 1.21.5

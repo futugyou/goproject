@@ -6,7 +6,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/futugyousuzu/alphavantage"
+	"github.com/futugyou/alphavantage"
 )
 
 func main() {

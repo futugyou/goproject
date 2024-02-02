@@ -1,6 +1,7 @@
 package alphavantage
 
 import (
+	"encoding/csv"
 	"fmt"
 	"io"
 	"net/http"
@@ -37,4 +38,40 @@ func checkResponseStatusCode(resp *http.Response) error {
 	}
 
 	return nil
+}
+
+func (c *httpClient) getCsv(path string) ([][]string, error) {
+	readCloser, err := c.get(path)
+	if err != nil {
+		return nil, err
+	}
+
+	defer readCloser.Close()
+
+	result := make([][]string, 0)
+	reader := csv.NewReader(readCloser)
+	reader.ReuseRecord = true
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
+
+	if _, err := reader.Read(); err != nil {
+		if err == io.EOF {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	for {
+		record, err := reader.Read()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+
+		result = append(result, record)
+	}
+
+	return result, nil
 }
