@@ -24,6 +24,6 @@ func main() {
 		return
 	}
 	for _, v := range result {
-		fmt.Println(v.DividendAmount, v.SplitCoefficient)
+		fmt.Println(v.Symbol, v.Time, v.Open, v.High, v.Low, v.Close, v.Volume, v.AdjustedClose, v.DividendAmount, v.SplitCoefficient)
 	}
 }

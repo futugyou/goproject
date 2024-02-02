@@ -1,9 +1,7 @@
 package alphavantage
 
 import (
-	"encoding/csv"
 	"fmt"
-	"io"
 	"net/url"
 	"slices"
 	"time"
@@ -131,36 +129,15 @@ func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries,
 	}
 
 	path := t.createRequestUrl(p)
-	r, err := t.httpClient.get(path)
+	csvData, err := t.httpClient.getCsv(path)
 	if err != nil {
-		return nil, err
-	}
-
-	defer r.Close()
-
-	reader := csv.NewReader(r)
-	reader.ReuseRecord = true
-	reader.LazyQuotes = true
-	reader.TrimLeadingSpace = true
-
-	if _, err := reader.Read(); err != nil {
-		if err == io.EOF {
-			return nil, nil
-		}
 		return nil, err
 	}
 
 	result := make([]*TimeSeries, 0)
 
-	for {
-		record, err := reader.Read()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-
+	for i := 0; i < len(csvData); i++ {
+		record := csvData[i]
 		var value *TimeSeries
 		switch p.Function {
 		case _TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY, _TIME_SERIES_WEEKLY, _TIME_SERIES_MONTHLY:
