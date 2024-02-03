@@ -22,15 +22,15 @@ type GlobalQuote struct {
 
 // symbol,name,type,region,marketOpen,marketClose,timezone,currency,matchScore
 type SymbolSearch struct {
-	Symbol      string        `json:"symbol"`
-	Name        string        `json:"name"`
-	Type        string        `json:"type"`
-	Region      string        `json:"region"`
-	MarketOpen  time.Duration `json:"marketOpen"`
-	MarketClose time.Duration `json:"marketClose"`
-	Timezone    string        `json:"timezone"`
-	Currency    string        `json:"currency"`
-	MatchScore  float64       `json:"matchScore"`
+	Symbol      string  `json:"symbol"`
+	Name        string  `json:"name"`
+	Type        string  `json:"type"`
+	Region      string  `json:"region"`
+	MarketOpen  string  `json:"marketOpen"`
+	MarketClose string  `json:"marketClose"`
+	Timezone    string  `json:"timezone"`
+	Currency    string  `json:"currency"`
+	MatchScore  float64 `json:"matchScore"`
 }
 
 type MarketStatus struct {
@@ -62,6 +62,21 @@ func (t GlobalQuoteParameter) Validation() error {
 	return nil
 }
 
+// parameter for SYMBOL_SEARCH API
+type SymbolSearchParameter struct {
+	// A text string of your choice. For example: keywords=microsoft.
+	Keywords string `json:"keywords"`
+}
+
+func (t SymbolSearchParameter) Validation() error {
+	if len(strings.Trim(t.Keywords, " ")) == 0 {
+		return fmt.Errorf("keywords can not be empty or whitespace")
+	}
+
+	return nil
+}
+
+// A lightweight alternative to the time series APIs, this service returns the latest price and volume information for a ticker of your choice.
 func (t *TimeSeriesClient) GlobalQuote(p GlobalQuoteParameter) ([]*GlobalQuote, error) {
 	err := p.Validation()
 	if err != nil {
@@ -69,8 +84,8 @@ func (t *TimeSeriesClient) GlobalQuote(p GlobalQuoteParameter) ([]*GlobalQuote, 
 	}
 
 	innnerParameter := timeSeriesParameter{
-		Function:   _GLOBAL_QUOTE,
-		Symbol:     p.Symbol,
+		Function: _GLOBAL_QUOTE,
+		Symbol:   p.Symbol,
 	}
 
 	path := t.createRequestUrl(innnerParameter)
@@ -87,7 +102,6 @@ func (t *TimeSeriesClient) GlobalQuote(p GlobalQuoteParameter) ([]*GlobalQuote, 
 			return nil, err
 		}
 
-		value.Symbol = p.Symbol
 		result = append(result, value)
 	}
 
@@ -164,6 +178,70 @@ func (t *TimeSeriesClient) readGlobalQuoteItem(s []string) (*GlobalQuote, error)
 		return nil, fmt.Errorf("error parsing change_percent %s", s[changePercent])
 	}
 	value.ChangePercent = f
+
+	return value, nil
+}
+
+// A lightweight alternative to the time series APIs, this service returns the latest price and volume information for a ticker of your choice.
+func (t *TimeSeriesClient) SymbolSearch(p SymbolSearchParameter) ([]*SymbolSearch, error) {
+	err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	innnerParameter := timeSeriesParameter{
+		Function:   _SYMBOL_SEARCH,
+		Dictionary: map[string]string{"keywords": p.Keywords},
+	}
+
+	path := t.createRequestUrl(innnerParameter)
+	csvData, err := t.httpClient.getCsv(path)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*SymbolSearch, 0)
+
+	for i := 0; i < len(csvData); i++ {
+		value, err := t.readSymbolSearchItem(csvData[i])
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, value)
+	}
+
+	return result, nil
+}
+
+func (t *TimeSeriesClient) readSymbolSearchItem(s []string) (*SymbolSearch, error) {
+	const (
+		symbol = iota
+		name
+		symbolType
+		region
+		marketOpen
+		marketClose
+		timezone
+		currency
+		matchScore
+	)
+
+	value := &SymbolSearch{}
+	value.Symbol = s[symbol]
+	value.Name = s[name]
+	value.Type = s[symbolType]
+	value.Region = s[region]
+	value.Timezone = s[timezone]
+	value.Currency = s[currency]
+	value.MarketOpen = s[marketOpen]
+	value.MarketClose = s[marketClose]
+
+	f, err := parseFloat(s[matchScore])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing matchScore %s", s[matchScore])
+	}
+	value.MatchScore = f
 
 	return value, nil
 }
