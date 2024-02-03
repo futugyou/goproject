@@ -3,6 +3,7 @@ package alphavantage
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -42,5 +43,12 @@ func parseTime(value string) (time.Time, error) {
 }
 
 func parseFloat(value string) (float64, error) {
+	if value[len(value)-1] == '%' {
+		v, err := strconv.ParseFloat(strings.Trim(value, "%"), 64)
+		if err != nil {
+			return 0, err
+		}
+		return v / 100, nil
+	}
 	return strconv.ParseFloat(value, 64)
 }
