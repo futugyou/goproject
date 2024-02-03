@@ -55,7 +55,7 @@ func (t TimeSeriesMonthlyAdjustedParameter) Validation() error {
 
 // This API returns raw (as-traded) daily open/high/low/close/volume values, adjusted close values, and historical split/dividend events of the global equity specified,
 // covering 20+ years of historical data. The OHLCV data is sometimes called "candles" in finance literature.
-func (t *timeSeriesClient) TimeSeriesDailyAdjusted(p TimeSeriesDailyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
+func (t *TimeSeriesClient) TimeSeriesDailyAdjusted(p TimeSeriesDailyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (t *timeSeriesClient) TimeSeriesDailyAdjusted(p TimeSeriesDailyAdjustedPara
 // This API returns weekly adjusted time series
 // (last trading day of each week, weekly open, weekly high, weekly low, weekly close, weekly adjusted close, weekly volume, weekly dividend)
 // of the global equity specified, covering 20+ years of historical data.
-func (t *timeSeriesClient) TimeSeriesWeeklyAdjusted(p TimeSeriesWeeklyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
+func (t *TimeSeriesClient) TimeSeriesWeeklyAdjusted(p TimeSeriesWeeklyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func (t *timeSeriesClient) TimeSeriesWeeklyAdjusted(p TimeSeriesWeeklyAdjustedPa
 // This API returns monthly adjusted time series 
 // (last trading day of each month, monthly open, monthly high, monthly low, monthly close, monthly adjusted close, monthly volume, monthly dividend)
 // of the equity specified, covering 20+ years of historical data.
-func (t *timeSeriesClient) TimeSeriesMonthlyAdjusted(p TimeSeriesMonthlyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
+func (t *TimeSeriesClient) TimeSeriesMonthlyAdjusted(p TimeSeriesMonthlyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (t *timeSeriesClient) TimeSeriesMonthlyAdjusted(p TimeSeriesMonthlyAdjusted
 	return t.readTimeSeriesAdjusted(innnerParameter)
 }
 
-func (t *timeSeriesClient) readTimeSeriesAdjusted(p timeSeriesParameter) ([]*TimeSeriesAdjusted, error) {
+func (t *TimeSeriesClient) readTimeSeriesAdjusted(p timeSeriesParameter) ([]*TimeSeriesAdjusted, error) {
 	path := t.createRequestUrl(p)
 	csvData, err := t.httpClient.getCsv(path)
 	if err != nil {
@@ -125,7 +125,7 @@ func (t *timeSeriesClient) readTimeSeriesAdjusted(p timeSeriesParameter) ([]*Tim
 	return result, nil
 }
 
-func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeriesAdjusted, error) {
+func (t *TimeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeriesAdjusted, error) {
 	const (
 		timestamp = iota
 		open

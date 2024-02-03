@@ -16,6 +16,13 @@ func main() {
 	dic["month"] = "2024-01"
 
 	s := alphavantage.NewTimeSeriesClient(apikey)
+
+	// TimeSeries(s, dic)
+	// TimeSeriesAdjusted(s, dic)
+	GlobalQuote(s, dic)
+}
+
+func TimeSeries(s *alphavantage.TimeSeriesClient, dic map[string]string) {
 	p := alphavantage.TimeSeriesIntradayParameter{
 		Symbol:     "IBM",
 		Interval:   "15min",
@@ -29,7 +36,9 @@ func main() {
 	for _, v := range result {
 		fmt.Println(v.Symbol, v.Time, v.Open, v.High, v.Low, v.Close, v.Volume)
 	}
+}
 
+func TimeSeriesAdjusted(s *alphavantage.TimeSeriesClient, dic map[string]string) {
 	pp := alphavantage.TimeSeriesMonthlyAdjustedParameter{
 		Symbol:     "IBM",
 		Dictionary: dic,
@@ -42,5 +51,20 @@ func main() {
 	}
 	for _, v := range result1 {
 		fmt.Println(v.Symbol, v.Time, v.Open, v.High, v.Low, v.Close, v.Volume, v.AdjustedClose, v.DividendAmount, v.SplitCoefficient)
+	}
+}
+
+func GlobalQuote(s *alphavantage.TimeSeriesClient, dic map[string]string) {
+	pp := alphavantage.GlobalQuoteParameter{
+		Symbol: "IBM",
+	}
+
+	result1, err := s.GlobalQuote(pp)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	for _, v := range result1 {
+		fmt.Println(v.Symbol, v.Open, v.High, v.Low, v.Price, v.Volume, v.LatestDay, v.PreviousClose, v.Change, v.ChangePercent)
 	}
 }

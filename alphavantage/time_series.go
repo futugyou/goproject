@@ -43,48 +43,6 @@ type TimeSeriesAdjusted struct {
 	SplitCoefficient float64   `json:"split_coefficient"`
 }
 
-// symbol,open,high,low,price,volume,latestDay,previousClose,change,changePercent
-type GlobalEndpoint struct {
-	Symbol        string    `json:"symbol"`
-	Open          float64   `json:"open"`
-	High          float64   `json:"high"`
-	Low           float64   `json:"low"`
-	Price         float64   `json:"price"`
-	Volume        float64   `json:"volume"`
-	LatestDay     time.Time `json:"latestDay"`
-	PreviousClose float64   `json:"previous_close"`
-	Change        float64   `json:"change"`
-	ChangePercent float64   `json:"change_percent"`
-}
-
-// symbol,name,type,region,marketOpen,marketClose,timezone,currency,matchScore
-type SymbolSearch struct {
-	Symbol      string        `json:"symbol"`
-	Name        string        `json:"name"`
-	Type        string        `json:"type"`
-	Region      string        `json:"region"`
-	MarketOpen  time.Duration `json:"marketOpen"`
-	MarketClose time.Duration `json:"marketClose"`
-	Timezone    string        `json:"timezone"`
-	Currency    string        `json:"currency"`
-	MatchScore  float64       `json:"matchScore"`
-}
-
-type MarketStatus struct {
-	Endpoint string   `json:"endpoint"`
-	Markets  []Market `json:"markets"`
-}
-
-type Market struct {
-	MarketType       string `json:"market_type"`
-	Region           string `json:"region"`
-	PrimaryExchanges string `json:"primary_exchanges"`
-	LocalOpen        string `json:"local_open"`
-	LocalClose       string `json:"local_close"`
-	CurrentStatus    string `json:"current_status"`
-	Notes            string `json:"notes"`
-}
-
 type timeSeriesFunctionType struct {
 	name string
 }
@@ -166,7 +124,7 @@ func (t TimeSeriesMonthlyParameter) Validation() error {
 	return nil
 }
 
-type timeSeriesClient struct {
+type TimeSeriesClient struct {
 	httpClient *httpClient
 	apikey     string
 	datatype   string
@@ -177,8 +135,8 @@ type timeSeriesClient struct {
 // (1) daily, (2) weekly, (3) monthly, and (4) intraday, with 20+ years of historical depth.
 // A lightweight ticker quote endpoint and several utility functions
 // such as ticker search and market open/closure status are also included for your convenience.
-func NewTimeSeriesClient(apikey string) *timeSeriesClient {
-	return &timeSeriesClient{
+func NewTimeSeriesClient(apikey string) *TimeSeriesClient {
+	return &TimeSeriesClient{
 		httpClient: newHttpClient(),
 		apikey:     apikey,
 		datatype:   _Alphavantage_Datatype,
@@ -189,7 +147,7 @@ func NewTimeSeriesClient(apikey string) *timeSeriesClient {
 // covering extended trading hours where applicable (e.g., 4:00am to 8:00pm Eastern Time for the US market).
 // You can query both raw (as-traded) and split/dividend-adjusted intraday data from this endpoint.
 // The OHLCV data is sometimes called "candles" in finance literature.
-func (t *timeSeriesClient) TimeSeriesIntraday(p TimeSeriesIntradayParameter) ([]*TimeSeries, error) {
+func (t *TimeSeriesClient) TimeSeriesIntraday(p TimeSeriesIntradayParameter) ([]*TimeSeries, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -209,7 +167,7 @@ func (t *timeSeriesClient) TimeSeriesIntraday(p TimeSeriesIntradayParameter) ([]
 // covering 20+ years of historical data. The OHLCV data is sometimes called "candles" in finance literature.
 // If you are also interested in split/dividend-adjusted data, please use the Daily Adjusted API,
 // which covers adjusted close values and historical split and dividend events.
-func (t *timeSeriesClient) TimeSeriesDaily(p TimeSeriesDailyParameter) ([]*TimeSeries, error) {
+func (t *TimeSeriesClient) TimeSeriesDaily(p TimeSeriesDailyParameter) ([]*TimeSeries, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -227,7 +185,7 @@ func (t *timeSeriesClient) TimeSeriesDaily(p TimeSeriesDailyParameter) ([]*TimeS
 // This API returns weekly time series
 // (last trading day of each week, weekly open, weekly high, weekly low, weekly close, weekly volume)
 // of the global equity specified, covering 20+ years of historical data.
-func (t *timeSeriesClient) TimeSeriesWeekly(p TimeSeriesWeeklyParameter) ([]*TimeSeries, error) {
+func (t *TimeSeriesClient) TimeSeriesWeekly(p TimeSeriesWeeklyParameter) ([]*TimeSeries, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -245,7 +203,7 @@ func (t *timeSeriesClient) TimeSeriesWeekly(p TimeSeriesWeeklyParameter) ([]*Tim
 // This API returns monthly time series
 // (last trading day of each month, monthly open, monthly high, monthly low, monthly close, monthly volume)
 // of the global equity specified, covering 20+ years of historical data.
-func (t *timeSeriesClient) TimeSeriesMonthly(p TimeSeriesMonthlyParameter) ([]*TimeSeries, error) {
+func (t *TimeSeriesClient) TimeSeriesMonthly(p TimeSeriesMonthlyParameter) ([]*TimeSeries, error) {
 	err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -260,7 +218,7 @@ func (t *timeSeriesClient) TimeSeriesMonthly(p TimeSeriesMonthlyParameter) ([]*T
 	return t.readTimeSeries(innnerParameter)
 }
 
-func (t *timeSeriesClient) readTimeSeries(p timeSeriesParameter) ([]*TimeSeries, error) {
+func (t *TimeSeriesClient) readTimeSeries(p timeSeriesParameter) ([]*TimeSeries, error) {
 	path := t.createRequestUrl(p)
 	csvData, err := t.httpClient.getCsv(path)
 	if err != nil {
@@ -282,7 +240,7 @@ func (t *timeSeriesClient) readTimeSeries(p timeSeriesParameter) ([]*TimeSeries,
 	return result, nil
 }
 
-func (t *timeSeriesClient) createRequestUrl(p timeSeriesParameter) string {
+func (t *TimeSeriesClient) createRequestUrl(p timeSeriesParameter) string {
 	endpoint := &url.URL{}
 	endpoint.Scheme = _Alphavantage_Http_Scheme
 	endpoint.Host = _Alphavantage_Host
@@ -301,7 +259,7 @@ func (t *timeSeriesClient) createRequestUrl(p timeSeriesParameter) string {
 	return endpoint.String()
 }
 
-func (t *timeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
+func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	const (
 		timestamp = iota
 		open
@@ -352,7 +310,7 @@ func (t *timeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	return value, nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesParamter(p timeSeriesParameter) error {
+func (t *TimeSeriesClient) checkTimeSeriesParamter(p timeSeriesParameter) error {
 	if len(strings.Trim(p.Symbol, " ")) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
@@ -371,7 +329,7 @@ func (t *timeSeriesClient) checkTimeSeriesParamter(p timeSeriesParameter) error 
 	return nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesAdjustedParamter(p timeSeriesParameter) error {
+func (t *TimeSeriesClient) checkTimeSeriesAdjustedParamter(p timeSeriesParameter) error {
 	if len(strings.Trim(p.Symbol, " ")) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
@@ -387,7 +345,7 @@ func (t *timeSeriesClient) checkTimeSeriesAdjustedParamter(p timeSeriesParameter
 	return nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesFunction(functionList []string, function string) (*timeSeriesFunctionType, error) {
+func (t *TimeSeriesClient) checkTimeSeriesFunction(functionList []string, function string) (*timeSeriesFunctionType, error) {
 	if have := slices.Contains(functionList, function); !have {
 		return nil, fmt.Errorf("invalid function name %s", function)
 	}
@@ -398,7 +356,7 @@ func (t *timeSeriesClient) checkTimeSeriesFunction(functionList []string, functi
 	return result, nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesInterval(interval string) error {
+func (t *TimeSeriesClient) checkTimeSeriesInterval(interval string) error {
 	if have := slices.Contains(timeSeriesDataIntervalList, interval); !have {
 		return fmt.Errorf("invalid interval name %s", interval)
 	}
