@@ -89,11 +89,129 @@ type timeSeriesFunctionType struct {
 	name string
 }
 
-type TimeSeriesParameter struct {
+type timeSeriesParameter struct {
 	Function   string            `json:"function"`
 	Symbol     string            `json:"symbol"`
 	Interval   string            `json:"interval"`
 	Dictionary map[string]string `json:"dictionary"`
+}
+
+// parameter for TIME_SERIES_INTRADAY API
+type TimeSeriesIntradayParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// Time interval between two consecutive data points in the time series. The following values are supported: 1min, 5min, 15min, 30min, 60min
+	Interval string `json:"interval"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#intraday
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesIntradayParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	if have := slices.Contains(timeSeriesDataIntervalList, t.Interval); !have {
+		return fmt.Errorf("invalid interval name %s, allowed interval are  %s", t.Interval, strings.Join(timeSeriesDataIntervalList, ","))
+	}
+
+	return nil
+}
+
+// parameter for TIME_SERIES_DAILY API
+type TimeSeriesDailyParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#daily
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesDailyParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	return nil
+}
+
+// parameter for TIME_SERIES_WEEKLY API
+type TimeSeriesWeeklyParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#weekly
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesWeeklyParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	return nil
+}
+
+// parameter for TIME_SERIES_MONTHLY API
+type TimeSeriesMonthlyParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#monthly
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesMonthlyParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	return nil
+}
+
+// parameter for TIME_SERIES_DAILY_ADJUSTED API
+type TimeSeriesDailyAdjustedParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#dailyadj
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesDailyAdjustedParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	return nil
+}
+
+// parameter for TIME_SERIES_WEEKLY_ADJUSTED API
+type TimeSeriesWeeklyAdjustedParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#weeklyadj
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesWeeklyAdjustedParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	return nil
+}
+
+// parameter for TIME_SERIES_MONTHLY_ADJUSTED API
+type TimeSeriesMonthlyAdjustedParameter struct {
+	// The name of the equity of your choice. For example: symbol=IBM
+	Symbol string `json:"symbol"`
+	// other option parameter, see https://www.alphavantage.co/documentation/#monthlyadj
+	Dictionary map[string]string `json:"dictionary"`
+}
+
+func (t TimeSeriesMonthlyAdjustedParameter) Validation() error {
+	if len(strings.Trim(t.Symbol, " ")) == 0 {
+		return fmt.Errorf("symbol can not be empty or whitespace")
+	}
+
+	return nil
 }
 
 type timeSeriesClient struct {
@@ -102,6 +220,11 @@ type timeSeriesClient struct {
 	datatype   string
 }
 
+// api client for get Time Series Stock Data
+// This suite of APIs provide global equity data in 4 different temporal resolutions:
+// (1) daily, (2) weekly, (3) monthly, and (4) intraday, with 20+ years of historical depth.
+// A lightweight ticker quote endpoint and several utility functions
+// such as ticker search and market open/closure status are also included for your convenience.
 func NewTimeSeriesClient(apikey string) *timeSeriesClient {
 	return &timeSeriesClient{
 		httpClient: newHttpClient(),
@@ -110,12 +233,82 @@ func NewTimeSeriesClient(apikey string) *timeSeriesClient {
 	}
 }
 
-func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries, error) {
-	err := t.checkTimeSeriesParamter(p)
+// This API returns current and 20+ years of historical intraday OHLCV time series of the equity specified,
+// covering extended trading hours where applicable (e.g., 4:00am to 8:00pm Eastern Time for the US market).
+// You can query both raw (as-traded) and split/dividend-adjusted intraday data from this endpoint.
+// The OHLCV data is sometimes called "candles" in finance literature.
+func (t *timeSeriesClient) TimeSeriesIntraday(p TimeSeriesIntradayParameter) ([]*TimeSeries, error) {
+	err := p.Validation()
 	if err != nil {
 		return nil, err
 	}
 
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_INTRADAY,
+		Symbol:     p.Symbol,
+		Interval:   p.Interval,
+		Dictionary: p.Dictionary,
+	}
+
+	return t.readTimeSeries(innnerParameter)
+}
+
+// This API returns raw (as-traded) daily time series (date, daily open, daily high, daily low, daily close, daily volume) of the global equity specified,
+// covering 20+ years of historical data. The OHLCV data is sometimes called "candles" in finance literature.
+// If you are also interested in split/dividend-adjusted data, please use the Daily Adjusted API,
+// which covers adjusted close values and historical split and dividend events.
+func (t *timeSeriesClient) TimeSeriesDaily(p TimeSeriesDailyParameter) ([]*TimeSeries, error) {
+	err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_DAILY,
+		Symbol:     p.Symbol,
+		Dictionary: p.Dictionary,
+	}
+
+	return t.readTimeSeries(innnerParameter)
+}
+
+// This API returns weekly time series
+// (last trading day of each week, weekly open, weekly high, weekly low, weekly close, weekly volume)
+// of the global equity specified, covering 20+ years of historical data.
+func (t *timeSeriesClient) TimeSeriesWeekly(p TimeSeriesWeeklyParameter) ([]*TimeSeries, error) {
+	err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_WEEKLY,
+		Symbol:     p.Symbol,
+		Dictionary: p.Dictionary,
+	}
+
+	return t.readTimeSeries(innnerParameter)
+}
+
+// This API returns monthly time series
+// (last trading day of each month, monthly open, monthly high, monthly low, monthly close, monthly volume)
+// of the global equity specified, covering 20+ years of historical data.
+func (t *timeSeriesClient) TimeSeriesMonthly(p TimeSeriesMonthlyParameter) ([]*TimeSeries, error) {
+	err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_MONTHLY,
+		Symbol:     p.Symbol,
+		Dictionary: p.Dictionary,
+	}
+
+	return t.readTimeSeries(innnerParameter)
+}
+
+func (t *timeSeriesClient) readTimeSeries(p timeSeriesParameter) ([]*TimeSeries, error) {
 	path := t.createRequestUrl(p)
 	csvData, err := t.httpClient.getCsv(path)
 	if err != nil {
@@ -137,12 +330,49 @@ func (t *timeSeriesClient) ReadTimeSeries(p TimeSeriesParameter) ([]*TimeSeries,
 	return result, nil
 }
 
-func (t *timeSeriesClient) ReadTimeSeriesAdjusted(p TimeSeriesParameter) ([]*TimeSeriesAdjusted, error) {
-	err := t.checkTimeSeriesAdjustedParamter(p)
+func (t *timeSeriesClient) TimeSeriesDailyAdjusted(p TimeSeriesDailyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
+	err := p.Validation()
 	if err != nil {
 		return nil, err
 	}
 
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_DAILY_ADJUSTED,
+		Symbol:     p.Symbol,
+		Dictionary: p.Dictionary,
+	}
+	return t.readTimeSeriesAdjusted(innnerParameter)
+}
+
+func (t *timeSeriesClient) TimeSeriesWeeklyAdjusted(p TimeSeriesWeeklyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
+	err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_WEEKLY_ADJUSTED,
+		Symbol:     p.Symbol,
+		Dictionary: p.Dictionary,
+	}
+	return t.readTimeSeriesAdjusted(innnerParameter)
+}
+
+func (t *timeSeriesClient) TimeSeriesMonthlyAdjusted(p TimeSeriesMonthlyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {
+	err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	innnerParameter := timeSeriesParameter{
+		Function:   _TIME_SERIES_MONTHLY_ADJUSTED,
+		Symbol:     p.Symbol,
+		Dictionary: p.Dictionary,
+	}
+	return t.readTimeSeriesAdjusted(innnerParameter)
+}
+
+func (t *timeSeriesClient) readTimeSeriesAdjusted(p timeSeriesParameter) ([]*TimeSeriesAdjusted, error) {
 	path := t.createRequestUrl(p)
 	csvData, err := t.httpClient.getCsv(path)
 	if err != nil {
@@ -164,7 +394,7 @@ func (t *timeSeriesClient) ReadTimeSeriesAdjusted(p TimeSeriesParameter) ([]*Tim
 	return result, nil
 }
 
-func (t *timeSeriesClient) createRequestUrl(p TimeSeriesParameter) string {
+func (t *timeSeriesClient) createRequestUrl(p timeSeriesParameter) string {
 	endpoint := &url.URL{}
 	endpoint.Scheme = _Alphavantage_Http_Scheme
 	endpoint.Host = _Alphavantage_Host
@@ -309,7 +539,7 @@ func (t *timeSeriesClient) readTimeSeriesAdjustedItem(s []string) (*TimeSeriesAd
 	return value, nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesParamter(p TimeSeriesParameter) error {
+func (t *timeSeriesClient) checkTimeSeriesParamter(p timeSeriesParameter) error {
 	if len(strings.Trim(p.Symbol, " ")) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
@@ -328,7 +558,7 @@ func (t *timeSeriesClient) checkTimeSeriesParamter(p TimeSeriesParameter) error 
 	return nil
 }
 
-func (t *timeSeriesClient) checkTimeSeriesAdjustedParamter(p TimeSeriesParameter) error {
+func (t *timeSeriesClient) checkTimeSeriesAdjustedParamter(p timeSeriesParameter) error {
 	if len(strings.Trim(p.Symbol, " ")) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}

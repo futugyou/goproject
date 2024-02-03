@@ -16,13 +16,12 @@ func main() {
 	dic["month"] = "2024-01"
 
 	s := alphavantage.NewTimeSeriesClient(apikey)
-	p := alphavantage.TimeSeriesParameter{
-		Function:   "TIME_SERIES_INTRADAY",
+	p := alphavantage.TimeSeriesIntradayParameter{
 		Symbol:     "IBM",
 		Interval:   "15min",
 		Dictionary: dic,
 	}
-	result, err := s.ReadTimeSeries(p)
+	result, err := s.TimeSeriesIntraday(p)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -31,14 +30,12 @@ func main() {
 		fmt.Println(v.Symbol, v.Time, v.Open, v.High, v.Low, v.Close, v.Volume)
 	}
 
-	p = alphavantage.TimeSeriesParameter{
-		Function:   "TIME_SERIES_MONTHLY_ADJUSTED",
+	pp := alphavantage.TimeSeriesMonthlyAdjustedParameter{
 		Symbol:     "IBM",
-		Interval:   "15min",
 		Dictionary: dic,
 	}
 
-	result1, err := s.ReadTimeSeriesAdjusted(p)
+	result1, err := s.TimeSeriesMonthlyAdjusted(pp)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
