@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/jszwec/csvutil"
 )
 
 type httpClient struct {
@@ -66,4 +68,34 @@ func (c *httpClient) getCsv(path string) ([][]string, error) {
 	}
 
 	return result, nil
+}
+
+func (c *httpClient) getCsvByUtil(path string, response interface{}) error {
+	fmt.Println(path)
+	readCloser, err := c.get(path)
+	if err != nil {
+		return err
+	}
+
+	defer readCloser.Close()
+
+	reader := csv.NewReader(readCloser)
+	reader.ReuseRecord = true
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
+
+	dec, err := csvutil.NewDecoder(reader)
+	if err != nil {
+		return err
+	}
+
+	timeFunc := csvutil.UnmarshalFunc(unmarshalTime)
+	floatFunc := csvutil.UnmarshalFunc(unmarshalFloat)
+	dec.WithUnmarshalers(
+		csvutil.NewUnmarshalers(
+			timeFunc,
+			floatFunc,
+		),
+	)
+	return dec.Decode(response)
 }
