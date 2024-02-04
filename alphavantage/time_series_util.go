@@ -8,29 +8,29 @@ import (
 
 // symbol,open,high,low,price,volume,latestDay,previousClose,change,changePercent
 type GlobalQuote struct {
-	Symbol        string    `json:"symbol"`
-	Open          float64   `json:"open"`
-	High          float64   `json:"high"`
-	Low           float64   `json:"low"`
-	Price         float64   `json:"price"`
-	Volume        float64   `json:"volume"`
-	LatestDay     time.Time `json:"latestDay"`
-	PreviousClose float64   `json:"previous_close"`
-	Change        float64   `json:"change"`
-	ChangePercent float64   `json:"change_percent"`
+	Symbol        string    `json:"symbol" csv:"symbol"`
+	Open          float64   `json:"open" csv:"open"`
+	High          float64   `json:"high" csv:"high"`
+	Low           float64   `json:"low" csv:"low"`
+	Price         float64   `json:"price" csv:"price"`
+	Volume        float64   `json:"volume" csv:"volume"`
+	LatestDay     time.Time `json:"latestDay" csv:"latestDay"`
+	PreviousClose float64   `json:"previous_close" csv:"previousClose"`
+	Change        float64   `json:"change" csv:"change"`
+	ChangePercent float64   `json:"change_percent" csv:"changePercent"`
 }
 
 // symbol,name,type,region,marketOpen,marketClose,timezone,currency,matchScore
 type SymbolSearch struct {
-	Symbol      string  `json:"symbol"`
-	Name        string  `json:"name"`
-	Type        string  `json:"type"`
-	Region      string  `json:"region"`
-	MarketOpen  string  `json:"marketOpen"`
-	MarketClose string  `json:"marketClose"`
-	Timezone    string  `json:"timezone"`
-	Currency    string  `json:"currency"`
-	MatchScore  float64 `json:"matchScore"`
+	Symbol      string  `json:"symbol" csv:"symbol"`
+	Name        string  `json:"name" csv:"name"`
+	Type        string  `json:"type" csv:"type"`
+	Region      string  `json:"region" csv:"region"`
+	MarketOpen  string  `json:"marketOpen" csv:"marketOpen"`
+	MarketClose string  `json:"marketClose" csv:"marketClose"`
+	Timezone    string  `json:"timezone" csv:"timezone"`
+	Currency    string  `json:"currency" csv:"currency"`
+	MatchScore  float64 `json:"matchScore" csv:"matchScore"`
 }
 
 type MarketStatus struct {
@@ -89,20 +89,11 @@ func (t *TimeSeriesClient) GlobalQuote(p GlobalQuoteParameter) ([]*GlobalQuote, 
 	}
 
 	path := t.createRequestUrl(innnerParameter)
-	csvData, err := t.httpClient.getCsv(path)
-	if err != nil {
-		return nil, err
-	}
-
 	result := make([]*GlobalQuote, 0)
 
-	for i := 0; i < len(csvData); i++ {
-		value, err := t.readGlobalQuoteItem(csvData[i])
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, value)
+	err = t.httpClient.getCsvByUtil(path, &result)
+	if err != nil {
+		return nil, err
 	}
 
 	return result, nil
@@ -195,20 +186,11 @@ func (t *TimeSeriesClient) SymbolSearch(p SymbolSearchParameter) ([]*SymbolSearc
 	}
 
 	path := t.createRequestUrl(innnerParameter)
-	csvData, err := t.httpClient.getCsv(path)
-	if err != nil {
-		return nil, err
-	}
-
 	result := make([]*SymbolSearch, 0)
 
-	for i := 0; i < len(csvData); i++ {
-		value, err := t.readSymbolSearchItem(csvData[i])
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, value)
+	err = t.httpClient.getCsvByUtil(path, &result)
+	if err != nil {
+		return nil, err
 	}
 
 	return result, nil
