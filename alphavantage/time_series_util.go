@@ -99,80 +99,6 @@ func (t *TimeSeriesClient) GlobalQuote(p GlobalQuoteParameter) ([]*GlobalQuote, 
 	return result, nil
 }
 
-func (t *TimeSeriesClient) readGlobalQuoteItem(s []string) (*GlobalQuote, error) {
-	const (
-		symbol = iota
-		open
-		high
-		low
-		price
-		volume
-		latestDay
-		previousClose
-		change
-		changePercent
-	)
-
-	value := &GlobalQuote{}
-	value.Symbol = s[symbol]
-
-	d, err := parseFloat(s[open])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing open %s", s[open])
-	}
-	value.Open = d
-
-	f, err := parseFloat(s[high])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing high %s", s[high])
-	}
-	value.High = f
-
-	f, err = parseFloat(s[low])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing low %s", s[low])
-	}
-	value.Low = f
-
-	f, err = parseFloat(s[price])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing price %s", s[price])
-	}
-	value.Price = f
-
-	f, err = parseFloat(s[volume])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing volume %s", s[volume])
-	}
-	value.Volume = f
-
-	ti, err := parseTime(s[latestDay])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing latestDay %s", s[latestDay])
-	}
-	value.LatestDay = ti
-
-	f, err = parseFloat(s[previousClose])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing previous_close %s", s[previousClose])
-	}
-	value.PreviousClose = f
-
-	f, err = parseFloat(s[change])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing change %s", s[change])
-	}
-	value.Change = f
-
-	f, err = parseFloat(s[changePercent])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing change_percent %s", s[changePercent])
-	}
-	value.ChangePercent = f
-
-	return value, nil
-}
-
 // A lightweight alternative to the time series APIs, this service returns the latest price and volume information for a ticker of your choice.
 func (t *TimeSeriesClient) SymbolSearch(p SymbolSearchParameter) ([]*SymbolSearch, error) {
 	err := p.Validation()
@@ -194,38 +120,6 @@ func (t *TimeSeriesClient) SymbolSearch(p SymbolSearchParameter) ([]*SymbolSearc
 	}
 
 	return result, nil
-}
-
-func (t *TimeSeriesClient) readSymbolSearchItem(s []string) (*SymbolSearch, error) {
-	const (
-		symbol = iota
-		name
-		symbolType
-		region
-		marketOpen
-		marketClose
-		timezone
-		currency
-		matchScore
-	)
-
-	value := &SymbolSearch{}
-	value.Symbol = s[symbol]
-	value.Name = s[name]
-	value.Type = s[symbolType]
-	value.Region = s[region]
-	value.Timezone = s[timezone]
-	value.Currency = s[currency]
-	value.MarketOpen = s[marketOpen]
-	value.MarketClose = s[marketClose]
-
-	f, err := parseFloat(s[matchScore])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing matchScore %s", s[matchScore])
-	}
-	value.MatchScore = f
-
-	return value, nil
 }
 
 // This endpoint returns the current market status (open vs. closed) of major trading venues for equities, forex, and cryptocurrencies around the world.

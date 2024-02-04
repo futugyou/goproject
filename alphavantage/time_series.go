@@ -8,14 +8,6 @@ import (
 	"time"
 )
 
-var timeSeriesDataFunctionList = []string{_TIME_SERIES_INTRADAY, _TIME_SERIES_DAILY,
-	_TIME_SERIES_WEEKLY, _TIME_SERIES_MONTHLY,
-}
-
-var timeSeriesDataaAjustedFunctionList = []string{_TIME_SERIES_DAILY_ADJUSTED,
-	_TIME_SERIES_WEEKLY_ADJUSTED, _TIME_SERIES_MONTHLY_ADJUSTED,
-}
-
 var timeSeriesDataIntervalList = []string{_1min, _5min, _15min, _30min, _60min}
 
 // timestamp,open,high,low,close,volume
@@ -41,10 +33,6 @@ type TimeSeriesAdjusted struct {
 	AdjustedClose    float64   `json:"adjusted_close"`
 	DividendAmount   float64   `json:"dividend_amount"`
 	SplitCoefficient float64   `json:"split_coefficient"`
-}
-
-type timeSeriesFunctionType struct {
-	name string
 }
 
 type timeSeriesParameter struct {
@@ -308,57 +296,4 @@ func (t *TimeSeriesClient) readTimeSeriesItem(s []string) (*TimeSeries, error) {
 	value.Volume = f
 
 	return value, nil
-}
-
-func (t *TimeSeriesClient) checkTimeSeriesParamter(p timeSeriesParameter) error {
-	if len(strings.Trim(p.Symbol, " ")) == 0 {
-		return fmt.Errorf("symbol can not be empty or whitespace")
-	}
-	_, err := t.checkTimeSeriesFunction(timeSeriesDataFunctionList, p.Function)
-	if err != nil {
-		_, err := t.checkTimeSeriesFunction(timeSeriesDataaAjustedFunctionList, p.Function)
-		if err != nil {
-			return err
-		}
-	}
-
-	if p.Function == _TIME_SERIES_INTRADAY {
-		return t.checkTimeSeriesInterval(p.Interval)
-	}
-
-	return nil
-}
-
-func (t *TimeSeriesClient) checkTimeSeriesAdjustedParamter(p timeSeriesParameter) error {
-	if len(strings.Trim(p.Symbol, " ")) == 0 {
-		return fmt.Errorf("symbol can not be empty or whitespace")
-	}
-	_, err := t.checkTimeSeriesFunction(timeSeriesDataaAjustedFunctionList, p.Function)
-	if err != nil {
-		return err
-	}
-
-	if p.Function == _TIME_SERIES_INTRADAY {
-		return t.checkTimeSeriesInterval(p.Interval)
-	}
-
-	return nil
-}
-
-func (t *TimeSeriesClient) checkTimeSeriesFunction(functionList []string, function string) (*timeSeriesFunctionType, error) {
-	if have := slices.Contains(functionList, function); !have {
-		return nil, fmt.Errorf("invalid function name %s", function)
-	}
-
-	result := &timeSeriesFunctionType{
-		name: function,
-	}
-	return result, nil
-}
-
-func (t *TimeSeriesClient) checkTimeSeriesInterval(interval string) error {
-	if have := slices.Contains(timeSeriesDataIntervalList, interval); !have {
-		return fmt.Errorf("invalid interval name %s", interval)
-	}
-	return nil
 }
