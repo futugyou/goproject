@@ -52,3 +52,21 @@ func parseFloat(value string) (float64, error) {
 	}
 	return strconv.ParseFloat(value, 64)
 }
+
+func unmarshalTime(data []byte, t *time.Time) error {
+	tt, err := parseTime(string(data))
+	if err != nil {
+		return err
+	}
+	*t = tt
+	return nil
+}
+
+func unmarshalFloat(data []byte, t *float64) error {
+	tt, err := parseFloat(string(data))
+	if err != nil {
+		return err
+	}
+	*t = tt
+	return nil
+}
