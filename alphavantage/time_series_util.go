@@ -227,3 +227,19 @@ func (t *TimeSeriesClient) readSymbolSearchItem(s []string) (*SymbolSearch, erro
 
 	return value, nil
 }
+
+// This endpoint returns the current market status (open vs. closed) of major trading venues for equities, forex, and cryptocurrencies around the world.
+func (t *TimeSeriesClient) MarketStatus() (*MarketStatus, error) {
+	innnerParameter := timeSeriesParameter{
+		Function: _MARKET_STATUS,
+	}
+
+	path := t.createRequestUrl(innnerParameter)
+	result := &MarketStatus{}
+	err := t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

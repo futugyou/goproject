@@ -2,6 +2,7 @@ package alphavantage
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -98,4 +99,31 @@ func (c *httpClient) getCsvByUtil(path string, response interface{}) error {
 		),
 	)
 	return dec.Decode(response)
+}
+
+func (c *httpClient) getJson(path string, response interface{}) error {
+	fmt.Println(path)
+	readCloser, err := c.get(path)
+	if err != nil {
+		return err
+	}
+
+	defer readCloser.Close()
+
+	all, err := io.ReadAll(readCloser)
+	if err != nil {
+		return err
+	}
+
+	switch result := response.(type) {
+	case *string:
+		*result = string(all)
+	default:
+		if err = json.Unmarshal(all, response); err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	return nil
 }

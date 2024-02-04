@@ -20,7 +20,8 @@ func main() {
 	// TimeSeries(s, dic)
 	// TimeSeriesAdjusted(s, dic)
 	// GlobalQuote(s, dic)
-	SymbolSearch(s, dic)
+	// SymbolSearch(s, dic)
+	MarketStatus(s, dic)
 }
 
 func TimeSeries(s *alphavantage.TimeSeriesClient, dic map[string]string) {
@@ -82,5 +83,18 @@ func SymbolSearch(s *alphavantage.TimeSeriesClient, dic map[string]string) {
 	}
 	for _, v := range result1 {
 		fmt.Println(v.Symbol, v.Currency, v.MarketClose, v.MarketOpen, v.MatchScore, v.Name, v.Region, v.Timezone, v.Type)
+	}
+}
+
+func MarketStatus(s *alphavantage.TimeSeriesClient, dic map[string]string) {
+
+	v, err := s.MarketStatus()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(v.Endpoint)
+	for _, vv := range v.Markets {
+		fmt.Println(vv.CurrentStatus, vv.LocalClose, vv.LocalOpen, vv.MarketType, vv.Notes, vv.Notes, vv.PrimaryExchanges, vv.Region)
 	}
 }
