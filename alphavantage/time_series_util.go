@@ -55,7 +55,7 @@ type GlobalQuoteParameter struct {
 }
 
 func (t GlobalQuoteParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -69,7 +69,7 @@ type SymbolSearchParameter struct {
 }
 
 func (t SymbolSearchParameter) Validation() error {
-	if len(strings.Trim(t.Keywords, " ")) == 0 {
+	if len(strings.TrimSpace(t.Keywords)) == 0 {
 		return fmt.Errorf("keywords can not be empty or whitespace")
 	}
 

@@ -14,7 +14,7 @@ type TimeSeriesDailyAdjustedParameter struct {
 }
 
 func (t TimeSeriesDailyAdjustedParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -30,7 +30,7 @@ type TimeSeriesWeeklyAdjustedParameter struct {
 }
 
 func (t TimeSeriesWeeklyAdjustedParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -46,7 +46,7 @@ type TimeSeriesMonthlyAdjustedParameter struct {
 }
 
 func (t TimeSeriesMonthlyAdjustedParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -86,7 +86,7 @@ func (t *TimeSeriesClient) TimeSeriesWeeklyAdjusted(p TimeSeriesWeeklyAdjustedPa
 	return t.readTimeSeriesAdjusted(innnerParameter)
 }
 
-// This API returns monthly adjusted time series 
+// This API returns monthly adjusted time series
 // (last trading day of each month, monthly open, monthly high, monthly low, monthly close, monthly adjusted close, monthly volume, monthly dividend)
 // of the equity specified, covering 20+ years of historical data.
 func (t *TimeSeriesClient) TimeSeriesMonthlyAdjusted(p TimeSeriesMonthlyAdjustedParameter) ([]*TimeSeriesAdjusted, error) {

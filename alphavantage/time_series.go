@@ -53,7 +53,7 @@ type TimeSeriesIntradayParameter struct {
 }
 
 func (t TimeSeriesIntradayParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -73,7 +73,7 @@ type TimeSeriesDailyParameter struct {
 }
 
 func (t TimeSeriesDailyParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -89,7 +89,7 @@ type TimeSeriesWeeklyParameter struct {
 }
 
 func (t TimeSeriesWeeklyParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
@@ -105,7 +105,7 @@ type TimeSeriesMonthlyParameter struct {
 }
 
 func (t TimeSeriesMonthlyParameter) Validation() error {
-	if len(strings.Trim(t.Symbol, " ")) == 0 {
+	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
 
