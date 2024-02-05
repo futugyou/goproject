@@ -84,6 +84,22 @@ type TickerSentiment struct {
 	TickerSentimentLabel string `json:"ticker_sentiment_label,omitempty"`
 }
 
+type TopGainersLosers struct {
+	Metadata           string               `json:"metadata"`
+	LastUpdated        string               `json:"last_updated"`
+	TopGainers         []MostActivelyTraded `json:"top_gainers"`
+	TopLosers          []MostActivelyTraded `json:"top_losers"`
+	MostActivelyTraded []MostActivelyTraded `json:"most_actively_traded"`
+}
+
+type MostActivelyTraded struct {
+	Ticker           string `json:"ticker"`
+	Price            string `json:"price"`
+	ChangeAmount     string `json:"change_amount"`
+	ChangePercentage string `json:"change_percentage"`
+	Volume           string `json:"volume"`
+}
+
 type IntelligenceClient struct {
 	httpClient *httpClient
 	apikey     string
@@ -110,6 +126,20 @@ func (t *IntelligenceClient) NewsSentiment(p SentimentParameter) (*NewsSentiment
 	result := &NewsSentiment{}
 
 	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (t *IntelligenceClient) TopGainersLosers() (*TopGainersLosers, error) {
+	dic := make(map[string]string)
+	dic["function"] = "TOP_GAINERS_LOSERS"
+	path := t.createQuerytUrl(dic)
+	result := &TopGainersLosers{}
+
+	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
 	}
