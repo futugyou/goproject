@@ -1,7 +1,6 @@
 package alphavantage
 
 import (
-	"net/url"
 	"strconv"
 	"strings"
 )
@@ -101,18 +100,20 @@ type MostActivelyTraded struct {
 }
 
 type IntelligenceClient struct {
-	httpClient *httpClient
-	apikey     string
+	innerClient
 }
 
 // The APIs in this section contain advanced market intelligence built with our decades of expertise in AI,
 // machine learning, and quantitative finance.
 // We hope these highly differentiated alternative datasets can help turbocharge your trading strategy,
 // market research, and financial software application to the next level.
-func NewIntelligenceClientClient(apikey string) *IntelligenceClient {
+// TODO: https://alphavantageapi.co/timeseries/ return Forbidden
+func NewIntelligenceClient(apikey string) *IntelligenceClient {
 	return &IntelligenceClient{
-		httpClient: newHttpClient(),
-		apikey:     apikey,
+		innerClient{
+			httpClient: newHttpClient(),
+			apikey:     apikey,
+		},
 	}
 }
 
@@ -145,19 +146,4 @@ func (t *IntelligenceClient) TopGainersLosers() (*TopGainersLosers, error) {
 	}
 
 	return result, nil
-}
-
-func (t *IntelligenceClient) createQuerytUrl(dic map[string]string) string {
-	endpoint := &url.URL{}
-	endpoint.Scheme = _Alphavantage_Http_Scheme
-	endpoint.Host = _Alphavantage_Host
-	endpoint.Path = _Alphavantage_Path
-	query := endpoint.Query()
-	query.Set("apikey", t.apikey)
-	for k, v := range dic {
-		query.Set(k, v)
-	}
-	endpoint.RawQuery = query.Encode()
-
-	return endpoint.String()
 }
