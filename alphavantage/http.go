@@ -120,7 +120,6 @@ func (c *httpClient) getJson(path string, response interface{}) error {
 		*result = string(all)
 	default:
 		if err = json.Unmarshal(all, response); err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
