@@ -2,6 +2,7 @@ package alphavantage
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +31,26 @@ const _Alphavantage_Path string = "query"
 const _Alphavantage_Datatype string = "csv"
 
 var time_format = []string{"2006-01-02 15:04:05", "2006-01-02"}
+
+type innerClient struct {
+	httpClient *httpClient
+	apikey     string
+}
+
+func (t *innerClient) createQuerytUrl(dic map[string]string) string {
+	endpoint := &url.URL{}
+	endpoint.Scheme = _Alphavantage_Http_Scheme
+	endpoint.Host = _Alphavantage_Host
+	endpoint.Path = _Alphavantage_Path
+	query := endpoint.Query()
+	query.Set("apikey", t.apikey)
+	for k, v := range dic {
+		query.Set(k, v)
+	}
+	endpoint.RawQuery = query.Encode()
+
+	return endpoint.String()
+}
 
 func parseTime(value string) (time.Time, error) {
 	for _, f := range time_format {
