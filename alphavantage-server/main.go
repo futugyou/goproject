@@ -10,6 +10,33 @@ import (
 )
 
 func main() {
+	// StockDataAPIs()
+	AlphaIntelligence()
+}
+
+func AlphaIntelligence() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewIntelligenceClientClient(apikey)
+	NewsSentiment(s)
+}
+
+func NewsSentiment(s *alphavantage.IntelligenceClient) {
+	p := alphavantage.SentimentParameter{
+		Tickers: "IBM",
+	}
+	result, err := s.NewsSentiment(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.Items, result.RelevanceScoreDefinition, result.SentimentScoreDefinition)
+	for _, vv := range result.Feed {
+		fmt.Println(vv.BannerImage, vv.CategoryWithinSource, vv.OverallSentimentLabel, vv.OverallSentimentScore, vv.Source, vv.SourceDomain)
+	}
+}
+
+func StockDataAPIs() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 
 	dic := make(map[string]string)
