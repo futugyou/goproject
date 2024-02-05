@@ -17,7 +17,21 @@ func main() {
 func AlphaIntelligence() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewIntelligenceClientClient(apikey)
-	NewsSentiment(s)
+	// NewsSentiment(s)
+	TopGainersLosers(s)
+}
+
+func TopGainersLosers(s *alphavantage.IntelligenceClient) {
+	result, err := s.TopGainersLosers()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.LastUpdated, result.Metadata)
+	for _, vv := range result.MostActivelyTraded {
+		fmt.Println(vv.Volume, vv.ChangeAmount, vv.ChangePercentage, vv.Price, vv.Ticker)
+	}
 }
 
 func NewsSentiment(s *alphavantage.IntelligenceClient) {
