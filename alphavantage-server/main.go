@@ -11,12 +11,32 @@ import (
 
 func main() {
 	// StockDataAPIs()
-	AlphaIntelligence()
+	// AlphaIntelligence()
+	Fundamentals()
+}
+
+func Fundamentals() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewFundamentalsClient(apikey)
+	CompanyOverview(s)
+}
+
+func CompanyOverview(s *alphavantage.FundamentalsClient) {
+	p := alphavantage.CompanyOverviewParameter{
+		Symbol: "IBM",
+	}
+	result, err := s.CompanyOverview(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.Address, result.AssetType)
 }
 
 func AlphaIntelligence() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
-	s := alphavantage.NewIntelligenceClientClient(apikey)
+	s := alphavantage.NewIntelligenceClient(apikey)
 	// NewsSentiment(s)
 	TopGainersLosers(s)
 }
