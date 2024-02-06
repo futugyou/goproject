@@ -19,7 +19,8 @@ func Fundamentals() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewFundamentalsClient(apikey)
 	// CompanyOverview(s)
-	IncomeStatement(s)
+	// IncomeStatement(s)
+	BalanceSheet(s)
 }
 
 func CompanyOverview(s *alphavantage.FundamentalsClient) {
@@ -51,6 +52,25 @@ func IncomeStatement(s *alphavantage.FundamentalsClient) {
 	}
 	for _, v := range result.QuarterlyReports {
 		fmt.Println(v.ComprehensiveIncomeNetOfTax)
+	}
+}
+
+func BalanceSheet(s *alphavantage.FundamentalsClient) {
+	p := alphavantage.BalanceSheetParameter{
+		Symbol: "IBM",
+	}
+	result, err := s.BalanceSheet(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.Symbol)
+	for _, v := range result.AnnualReports {
+		fmt.Println(v.AccumulatedDepreciationAmortizationPPE)
+	}
+	for _, v := range result.QuarterlyReports {
+		fmt.Println(v.CashAndCashEquivalentsAtCarryingValue)
 	}
 }
 

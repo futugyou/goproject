@@ -91,13 +91,14 @@ type IncomeStatementParameter struct {
 	// The symbol of the ticker of your choice. For example: symbol=IBM.
 	Symbol string `json:"symbol"`
 }
+
 type IncomeStatement struct {
-	Symbol           string   `json:"symbol"`
-	AnnualReports    []Report `json:"annualReports"`
-	QuarterlyReports []Report `json:"quarterlyReports"`
+	Symbol           string                  `json:"symbol"`
+	AnnualReports    []IncomeStatementReport `json:"annualReports"`
+	QuarterlyReports []IncomeStatementReport `json:"quarterlyReports"`
 }
 
-type Report struct {
+type IncomeStatementReport struct {
 	FiscalDateEnding                  string `json:"fiscalDateEnding"`
 	ReportedCurrency                  string `json:"reportedCurrency"`
 	GrossProfit                       string `json:"grossProfit"`
@@ -126,6 +127,9 @@ type Report struct {
 	NetIncome                         string `json:"netIncome"`
 }
 
+// This API returns the annual and quarterly income statements for the company of interest,
+// with normalized fields mapped to GAAP and IFRS taxonomies of the SEC.
+// Data is generally refreshed on the same day a company reports its latest earnings and financials.
 func (t *FundamentalsClient) IncomeStatement(p IncomeStatementParameter) (*IncomeStatement, error) {
 	dic := make(map[string]string)
 	dic["function"] = "INCOME_STATEMENT"
@@ -133,6 +137,78 @@ func (t *FundamentalsClient) IncomeStatement(p IncomeStatementParameter) (*Incom
 
 	path := t.createQuerytUrl(dic)
 	result := &IncomeStatement{}
+
+	err := t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// parameter for BALANCE_SHEET API
+type BalanceSheetParameter struct {
+	// The symbol of the ticker of your choice. For example: symbol=IBM.
+	Symbol string `json:"symbol"`
+}
+
+type BalanceSheet struct {
+	Symbol           string               `json:"symbol"`
+	AnnualReports    []BalanceSheetReport `json:"annualReports"`
+	QuarterlyReports []BalanceSheetReport `json:"quarterlyReports"`
+}
+
+type BalanceSheetReport struct {
+	FiscalDateEnding                       string `json:"fiscalDateEnding"`
+	ReportedCurrency                       string `json:"reportedCurrency"`
+	TotalAssets                            string `json:"totalAssets"`
+	TotalCurrentAssets                     string `json:"totalCurrentAssets"`
+	CashAndCashEquivalentsAtCarryingValue  string `json:"cashAndCashEquivalentsAtCarryingValue"`
+	CashAndShortTermInvestments            string `json:"cashAndShortTermInvestments"`
+	Inventory                              string `json:"inventory"`
+	CurrentNetReceivables                  string `json:"currentNetReceivables"`
+	TotalNonCurrentAssets                  string `json:"totalNonCurrentAssets"`
+	PropertyPlantEquipment                 string `json:"propertyPlantEquipment"`
+	AccumulatedDepreciationAmortizationPPE string `json:"accumulatedDepreciationAmortizationPPE"`
+	IntangibleAssets                       string `json:"intangibleAssets"`
+	IntangibleAssetsExcludingGoodwill      string `json:"intangibleAssetsExcludingGoodwill"`
+	Goodwill                               string `json:"goodwill"`
+	Investments                            string `json:"investments"`
+	LongTermInvestments                    string `json:"longTermInvestments"`
+	ShortTermInvestments                   string `json:"shortTermInvestments"`
+	OtherCurrentAssets                     string `json:"otherCurrentAssets"`
+	OtherNonCurrentAssets                  string `json:"otherNonCurrentAssets"`
+	TotalLiabilities                       string `json:"totalLiabilities"`
+	TotalCurrentLiabilities                string `json:"totalCurrentLiabilities"`
+	CurrentAccountsPayable                 string `json:"currentAccountsPayable"`
+	DeferredRevenue                        string `json:"deferredRevenue"`
+	CurrentDebt                            string `json:"currentDebt"`
+	ShortTermDebt                          string `json:"shortTermDebt"`
+	TotalNonCurrentLiabilities             string `json:"totalNonCurrentLiabilities"`
+	CapitalLeaseObligations                string `json:"capitalLeaseObligations"`
+	LongTermDebt                           string `json:"longTermDebt"`
+	CurrentLongTermDebt                    string `json:"currentLongTermDebt"`
+	LongTermDebtNoncurrent                 string `json:"longTermDebtNoncurrent"`
+	ShortLongTermDebtTotal                 string `json:"shortLongTermDebtTotal"`
+	OtherCurrentLiabilities                string `json:"otherCurrentLiabilities"`
+	OtherNonCurrentLiabilities             string `json:"otherNonCurrentLiabilities"`
+	TotalShareholderEquity                 string `json:"totalShareholderEquity"`
+	TreasuryStock                          string `json:"treasuryStock"`
+	RetainedEarnings                       string `json:"retainedEarnings"`
+	CommonStock                            string `json:"commonStock"`
+	CommonStockSharesOutstanding           string `json:"commonStockSharesOutstanding"`
+}
+
+// This API returns the annual and quarterly balance sheets for the company of interest,
+// with normalized fields mapped to GAAP and IFRS taxonomies of the SEC.
+// Data is generally refreshed on the same day a company reports its latest earnings and financials.
+func (t *FundamentalsClient) BalanceSheet(p BalanceSheetParameter) (*BalanceSheet, error) {
+	dic := make(map[string]string)
+	dic["function"] = "BALANCE_SHEET"
+	dic["symbol"] = p.Symbol
+
+	path := t.createQuerytUrl(dic)
+	result := &BalanceSheet{}
 
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
