@@ -217,3 +217,66 @@ func (t *FundamentalsClient) BalanceSheet(p BalanceSheetParameter) (*BalanceShee
 
 	return result, nil
 }
+
+// parameter for CASH_FLOW API
+type CashFlowParameter struct {
+	// The symbol of the ticker of your choice. For example: symbol=IBM.
+	Symbol string `json:"symbol"`
+}
+
+type CashFlow struct {
+	Symbol           string           `json:"symbol"`
+	AnnualReports    []CashFlowReport `json:"annualReports"`
+	QuarterlyReports []CashFlowReport `json:"quarterlyReports"`
+}
+
+type CashFlowReport struct {
+	FiscalDateEnding                                          string `json:"fiscalDateEnding"`
+	ReportedCurrency                                          string `json:"reportedCurrency"`
+	OperatingCashflow                                         string `json:"operatingCashflow"`
+	PaymentsForOperatingActivities                            string `json:"paymentsForOperatingActivities"`
+	ProceedsFromOperatingActivities                           string `json:"proceedsFromOperatingActivities"`
+	ChangeInOperatingLiabilities                              string `json:"changeInOperatingLiabilities"`
+	ChangeInOperatingAssets                                   string `json:"changeInOperatingAssets"`
+	DepreciationDepletionAndAmortization                      string `json:"depreciationDepletionAndAmortization"`
+	CapitalExpenditures                                       string `json:"capitalExpenditures"`
+	ChangeInReceivables                                       string `json:"changeInReceivables"`
+	ChangeInInventory                                         string `json:"changeInInventory"`
+	ProfitLoss                                                string `json:"profitLoss"`
+	CashflowFromInvestment                                    string `json:"cashflowFromInvestment"`
+	CashflowFromFinancing                                     string `json:"cashflowFromFinancing"`
+	ProceedsFromRepaymentsOfShortTermDebt                     string `json:"proceedsFromRepaymentsOfShortTermDebt"`
+	PaymentsForRepurchaseOfCommonStock                        string `json:"paymentsForRepurchaseOfCommonStock"`
+	PaymentsForRepurchaseOfEquity                             string `json:"paymentsForRepurchaseOfEquity"`
+	PaymentsForRepurchaseOfPreferredStock                     string `json:"paymentsForRepurchaseOfPreferredStock"`
+	DividendPayout                                            string `json:"dividendPayout"`
+	DividendPayoutCommonStock                                 string `json:"dividendPayoutCommonStock"`
+	DividendPayoutPreferredStock                              string `json:"dividendPayoutPreferredStock"`
+	ProceedsFromIssuanceOfCommonStock                         string `json:"proceedsFromIssuanceOfCommonStock"`
+	ProceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet string `json:"proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet"`
+	ProceedsFromIssuanceOfPreferredStock                      string `json:"proceedsFromIssuanceOfPreferredStock"`
+	ProceedsFromRepurchaseOfEquity                            string `json:"proceedsFromRepurchaseOfEquity"`
+	ProceedsFromSaleOfTreasuryStock                           string `json:"proceedsFromSaleOfTreasuryStock"`
+	ChangeInCashAndCashEquivalents                            string `json:"changeInCashAndCashEquivalents"`
+	ChangeInExchangeRate                                      string `json:"changeInExchangeRate"`
+	NetIncome                                                 string `json:"netIncome"`
+}
+
+// This API returns the annual and quarterly cash flow for the company of interest,
+// with normalized fields mapped to GAAP and IFRS taxonomies of the SEC.
+// Data is generally refreshed on the same day a company reports its latest earnings and financials.
+func (t *FundamentalsClient) CashFlow(p CashFlowParameter) (*CashFlow, error) {
+	dic := make(map[string]string)
+	dic["function"] = "CASH_FLOW"
+	dic["symbol"] = p.Symbol
+
+	path := t.createQuerytUrl(dic)
+	result := &CashFlow{}
+
+	err := t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

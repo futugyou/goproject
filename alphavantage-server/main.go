@@ -20,7 +20,8 @@ func Fundamentals() {
 	s := alphavantage.NewFundamentalsClient(apikey)
 	// CompanyOverview(s)
 	// IncomeStatement(s)
-	BalanceSheet(s)
+	// BalanceSheet(s)
+	CashFlow(s)
 }
 
 func CompanyOverview(s *alphavantage.FundamentalsClient) {
@@ -71,6 +72,25 @@ func BalanceSheet(s *alphavantage.FundamentalsClient) {
 	}
 	for _, v := range result.QuarterlyReports {
 		fmt.Println(v.CashAndCashEquivalentsAtCarryingValue)
+	}
+}
+
+func CashFlow(s *alphavantage.FundamentalsClient) {
+	p := alphavantage.CashFlowParameter{
+		Symbol: "IBM",
+	}
+	result, err := s.CashFlow(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.Symbol)
+	for _, v := range result.AnnualReports {
+		fmt.Println(v.CapitalExpenditures)
+	}
+	for _, v := range result.QuarterlyReports {
+		fmt.Println(v.ChangeInCashAndCashEquivalents)
 	}
 }
 
