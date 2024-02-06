@@ -280,3 +280,47 @@ func (t *FundamentalsClient) CashFlow(p CashFlowParameter) (*CashFlow, error) {
 
 	return result, nil
 }
+
+// parameter for EARNINGS API
+type EarningsParameter struct {
+	// The symbol of the ticker of your choice. For example: symbol=IBM.
+	Symbol string `json:"symbol"`
+}
+
+type Earnings struct {
+	Symbol            string             `json:"symbol"`
+	AnnualEarnings    []AnnualEarning    `json:"annualEarnings"`
+	QuarterlyEarnings []QuarterlyEarning `json:"quarterlyEarnings"`
+}
+
+type AnnualEarning struct {
+	FiscalDateEnding string `json:"fiscalDateEnding"`
+	ReportedEPS      string `json:"reportedEPS"`
+}
+
+type QuarterlyEarning struct {
+	FiscalDateEnding   string `json:"fiscalDateEnding"`
+	ReportedDate       string `json:"reportedDate"`
+	ReportedEPS        string `json:"reportedEPS"`
+	EstimatedEPS       string `json:"estimatedEPS"`
+	Surprise           string `json:"surprise"`
+	SurprisePercentage string `json:"surprisePercentage"`
+}
+
+// This API returns the annual and quarterly earnings (EPS) for the company of interest.
+// Quarterly data also includes analyst estimates and surprise metrics.
+func (t *FundamentalsClient) Earnings(p EarningsParameter) (*Earnings, error) {
+	dic := make(map[string]string)
+	dic["function"] = "EARNINGS"
+	dic["symbol"] = p.Symbol
+
+	path := t.createQuerytUrl(dic)
+	result := &Earnings{}
+
+	err := t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
