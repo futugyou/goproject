@@ -85,3 +85,59 @@ func (t *FundamentalsClient) CompanyOverview(p CompanyOverviewParameter) (*Compa
 
 	return result, nil
 }
+
+// parameter for INCOME_STATEMENT API
+type IncomeStatementParameter struct {
+	// The symbol of the ticker of your choice. For example: symbol=IBM.
+	Symbol string `json:"symbol"`
+}
+type IncomeStatement struct {
+	Symbol           string   `json:"symbol"`
+	AnnualReports    []Report `json:"annualReports"`
+	QuarterlyReports []Report `json:"quarterlyReports"`
+}
+
+type Report struct {
+	FiscalDateEnding                  string `json:"fiscalDateEnding"`
+	ReportedCurrency                  string `json:"reportedCurrency"`
+	GrossProfit                       string `json:"grossProfit"`
+	TotalRevenue                      string `json:"totalRevenue"`
+	CostOfRevenue                     string `json:"costOfRevenue"`
+	CostofGoodsAndServicesSold        string `json:"costofGoodsAndServicesSold"`
+	OperatingIncome                   string `json:"operatingIncome"`
+	SellingGeneralAndAdministrative   string `json:"sellingGeneralAndAdministrative"`
+	ResearchAndDevelopment            string `json:"researchAndDevelopment"`
+	OperatingExpenses                 string `json:"operatingExpenses"`
+	InvestmentIncomeNet               string `json:"investmentIncomeNet"`
+	NetInterestIncome                 string `json:"netInterestIncome"`
+	InterestIncome                    string `json:"interestIncome"`
+	InterestExpense                   string `json:"interestExpense"`
+	NonInterestIncome                 string `json:"nonInterestIncome"`
+	OtherNonOperatingIncome           string `json:"otherNonOperatingIncome"`
+	Depreciation                      string `json:"depreciation"`
+	DepreciationAndAmortization       string `json:"depreciationAndAmortization"`
+	IncomeBeforeTax                   string `json:"incomeBeforeTax"`
+	IncomeTaxExpense                  string `json:"incomeTaxExpense"`
+	InterestAndDebtExpense            string `json:"interestAndDebtExpense"`
+	NetIncomeFromContinuingOperations string `json:"netIncomeFromContinuingOperations"`
+	ComprehensiveIncomeNetOfTax       string `json:"comprehensiveIncomeNetOfTax"`
+	Ebit                              string `json:"ebit"`
+	Ebitda                            string `json:"ebitda"`
+	NetIncome                         string `json:"netIncome"`
+}
+
+func (t *FundamentalsClient) IncomeStatement(p IncomeStatementParameter) (*IncomeStatement, error) {
+	dic := make(map[string]string)
+	dic["function"] = "INCOME_STATEMENT"
+	dic["symbol"] = p.Symbol
+
+	path := t.createQuerytUrl(dic)
+	result := &IncomeStatement{}
+
+	err := t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

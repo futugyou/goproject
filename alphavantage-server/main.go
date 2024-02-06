@@ -18,7 +18,8 @@ func main() {
 func Fundamentals() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewFundamentalsClient(apikey)
-	CompanyOverview(s)
+	// CompanyOverview(s)
+	IncomeStatement(s)
 }
 
 func CompanyOverview(s *alphavantage.FundamentalsClient) {
@@ -32,6 +33,25 @@ func CompanyOverview(s *alphavantage.FundamentalsClient) {
 	}
 
 	fmt.Println(result.Address, result.AssetType)
+}
+
+func IncomeStatement(s *alphavantage.FundamentalsClient) {
+	p := alphavantage.IncomeStatementParameter{
+		Symbol: "IBM",
+	}
+	result, err := s.IncomeStatement(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.Symbol)
+	for _, v := range result.AnnualReports {
+		fmt.Println(v.CostOfRevenue)
+	}
+	for _, v := range result.QuarterlyReports {
+		fmt.Println(v.ComprehensiveIncomeNetOfTax)
+	}
 }
 
 func AlphaIntelligence() {
