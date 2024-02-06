@@ -367,3 +367,42 @@ func (t *FundamentalsClient) ListingStatus(p ListingStatusParameter) ([]ListingS
 
 	return result, nil
 }
+
+// parameter for EARNINGS_CALENDAR API
+type EarningsCalendarParameter struct {
+	// By default, no symbol will be set for this API. When no symbol is set, the API endpoint will return the full list of company earnings scheduled.
+	// If a symbol is set, the API endpoint will return the expected earnings for that specific symbol. For example, symbol=IBM
+	Symbol string `json:"symbol"`
+	// By default, horizon=3month and the API will return a list of expected company earnings in the next 3 months.
+	// You may set horizon=6month or horizon=12month to query the earnings scheduled for the next 6 months or 12 months, respectively.
+	Horizon string `json:"horizon"`
+}
+
+// symbol,name,reportDate,fiscalDateEnding,estimate,currency
+type EarningsCalendar struct {
+	Symbol           string    `json:"symbol" csv:"symbol"`
+	Name             string    `json:"name" csv:"name"`
+	ReportDate       time.Time `json:"reportDate" csv:"reportDate"`
+	FiscalDateEnding time.Time `json:"fiscalDateEnding" csv:"fiscalDateEnding"`
+	Estimate         float64   `json:"estimate" csv:"estimate"`
+	Currency         string    `json:"currency" csv:"currency"`
+}
+
+// This API returns the annual and quarterly earnings (EPS) for the company of interest.
+// Quarterly data also includes analyst estimates and surprise metrics.
+func (t *FundamentalsClient) EarningsCalendar(p EarningsCalendarParameter) ([]EarningsCalendar, error) {
+	dic := make(map[string]string)
+	dic["function"] = "EARNINGS_CALENDAR"
+	dic["symbol"] = p.Symbol
+	dic["horizon"] = p.Horizon
+
+	path := t.createQuerytUrl(dic)
+	result := make([]EarningsCalendar, 0)
+
+	err := t.httpClient.getCsvByUtil(path, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

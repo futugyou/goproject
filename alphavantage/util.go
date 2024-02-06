@@ -68,6 +68,10 @@ func parseTime(value string) (time.Time, error) {
 }
 
 func parseFloat(value string) (float64, error) {
+	if len(strings.TrimSpace(value)) == 0 {
+		return 0, nil
+	}
+
 	if value[len(value)-1] == '%' {
 		v, err := strconv.ParseFloat(strings.Trim(value, "%"), 64)
 		if err != nil {
