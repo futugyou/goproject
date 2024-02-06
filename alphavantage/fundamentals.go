@@ -406,3 +406,29 @@ func (t *FundamentalsClient) EarningsCalendar(p EarningsCalendarParameter) ([]Ea
 
 	return result, nil
 }
+
+// symbol,name,ipoDate,priceRangeLow,priceRangeHigh,currency,exchange
+type IpoCalendar struct {
+	Symbol         string    `json:"symbol" csv:"symbol"`
+	Name           string    `json:"name" csv:"name"`
+	IpoDate        time.Time `json:"ipoDate" csv:"ipoDate"`
+	PriceRangeLow  float64   `json:"priceRangeLow" csv:"priceRangeLow"`
+	PriceRangeHigh float64   `json:"priceRangeHigh" csv:"priceRangeHigh"`
+	Currency       string    `json:"currency" csv:"currency"`
+	Exchange       string    `json:"exchange" csv:"exchange"`
+}
+
+// This API returns a list of IPOs expected in the next 3 months.
+func (t *FundamentalsClient) IpoCalendar() ([]IpoCalendar, error) {
+	dic := make(map[string]string)
+	dic["function"] = "IPO_CALENDAR"
+	path := t.createQuerytUrl(dic)
+	result := make([]IpoCalendar, 0)
+
+	err := t.httpClient.getCsvByUtil(path, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

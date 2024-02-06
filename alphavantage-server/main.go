@@ -24,7 +24,8 @@ func Fundamentals() {
 	// CashFlow(s)
 	// Earnings(s)
 	// ListingStatus(s)
-	EarningsCalendar(s)
+	// EarningsCalendar(s)
+	IpoCalendar(s)
 }
 
 func CompanyOverview(s *alphavantage.FundamentalsClient) {
@@ -137,6 +138,17 @@ func EarningsCalendar(s *alphavantage.FundamentalsClient) {
 	}
 	for _, v := range result {
 		fmt.Println(v.Symbol, v.Name, v.ReportDate, v.FiscalDateEnding, v.Estimate, v.Currency)
+	}
+}
+
+func IpoCalendar(s *alphavantage.FundamentalsClient) {
+	result, err := s.IpoCalendar()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	for _, v := range result {
+		fmt.Println(v.Symbol, v.Name, v.Exchange, v.IpoDate, v.PriceRangeHigh, v.PriceRangeLow, v.Currency)
 	}
 }
 
