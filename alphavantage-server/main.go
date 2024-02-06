@@ -22,7 +22,8 @@ func Fundamentals() {
 	// IncomeStatement(s)
 	// BalanceSheet(s)
 	// CashFlow(s)
-	Earnings(s)
+	// Earnings(s)
+	ListingStatus(s)
 }
 
 func CompanyOverview(s *alphavantage.FundamentalsClient) {
@@ -111,6 +112,18 @@ func Earnings(s *alphavantage.FundamentalsClient) {
 	}
 	for _, v := range result.QuarterlyEarnings {
 		fmt.Println(v.FiscalDateEnding, v.ReportedEPS)
+	}
+}
+
+func ListingStatus(s *alphavantage.FundamentalsClient) {
+	p := alphavantage.ListingStatusParameter{}
+	result, err := s.ListingStatus(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	for _, v := range result {
+		fmt.Println(v.Symbol, v.DelistingDate, v.IpoDate)
 	}
 }
 

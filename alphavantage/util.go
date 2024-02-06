@@ -53,6 +53,10 @@ func (t *innerClient) createQuerytUrl(dic map[string]string) string {
 }
 
 func parseTime(value string) (time.Time, error) {
+	if value == "null" {
+		return time.Time{}, nil
+	}
+
 	for _, f := range time_format {
 		d, err := time.Parse(f, value)
 		if err == nil {

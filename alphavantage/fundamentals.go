@@ -1,5 +1,7 @@
 package alphavantage
 
+import "time"
+
 type FundamentalsClient struct {
 	innerClient
 }
@@ -318,6 +320,47 @@ func (t *FundamentalsClient) Earnings(p EarningsParameter) (*Earnings, error) {
 	result := &Earnings{}
 
 	err := t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// parameter for LISTING_STATUS API
+type ListingStatusParameter struct {
+	// If no date is set, the API endpoint will return a list of active or delisted symbols as of the latest trading day.
+	// If a date is set, the API endpoint will "travel back" in time and return a list of active or delisted symbols on that particular date in history.
+	// Any YYYY-MM-DD date later than 2010-01-01 is supported. For example, date=2013-08-03
+	Date string `json:"date"`
+	// By default, state=active and the API will return a list of actively traded stocks and ETFs.
+	// Set state=delisted to query a list of delisted assets.
+	State string `json:"state"`
+}
+
+// symbol,name,exchange,assetType,ipoDate,delistingDate,status
+type ListingStatus struct {
+	Symbol        string    `json:"symbol" csv:"symbol"`
+	Name          string    `json:"name" csv:"name"`
+	Exchange      string    `json:"exchange" csv:"exchange"`
+	AssetType     string    `json:"assetType" csv:"assetType"`
+	IpoDate       time.Time `json:"ipoDate" csv:"ipoDate"`
+	DelistingDate time.Time `json:"delistingDate" csv:"delistingDate"`
+	Status        string    `json:"status" csv:"status"`
+}
+
+// This API returns the annual and quarterly earnings (EPS) for the company of interest.
+// Quarterly data also includes analyst estimates and surprise metrics.
+func (t *FundamentalsClient) ListingStatus(p ListingStatusParameter) ([]ListingStatus, error) {
+	dic := make(map[string]string)
+	dic["function"] = "LISTING_STATUS"
+	dic["date"] = p.Date
+	dic["state"] = p.State
+
+	path := t.createQuerytUrl(dic)
+	result := make([]ListingStatus, 0)
+
+	err := t.httpClient.getCsvByUtil(path, &result)
 	if err != nil {
 		return nil, err
 	}
