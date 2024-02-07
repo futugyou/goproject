@@ -22,7 +22,25 @@ func ForeignExchangeRates() {
 	// CurrencyExchange(s)
 	// FxIntraday(s)
 	// FxDaily(s)
-	FxWeekly(s)
+	// FxWeekly(s)
+	FxMonthly(s)
+}
+
+func FxMonthly(s *alphavantage.ForeignExchangeRatesClient) {
+	p := alphavantage.FxMonthlyParameter{
+		FromSymbol: "EUR",
+		ToSymbol:   "USD",
+	}
+
+	result, err := s.FxMonthly(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.FromSymbol, v.ToSymbol, v.Close, v.High, v.Low, v.Open, v.Timestamp)
+	}
 }
 
 func FxWeekly(s *alphavantage.ForeignExchangeRatesClient) {
