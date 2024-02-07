@@ -187,3 +187,61 @@ func (t *ForeignExchangeRatesClient) FxDaily(p FxDailyParameter) ([]FxDaily, err
 
 	return result, nil
 }
+
+// parameter for FX_WEEKLY API
+type FxWeeklyParameter struct {
+	// A three-letter symbol from the forex currency list. For example: from_symbol=EUR
+	FromSymbol string `json:"from_symbol"`
+	// A three-letter symbol from the forex currency list. For example: from_symbol=EUR
+	ToSymbol string `json:"to_symbol"`
+}
+
+func (p FxWeeklyParameter) Validation() (map[string]string, error) {
+	dic := make(map[string]string)
+	dic["function"] = "FX_WEEKLY"
+	if len(strings.TrimSpace(p.FromSymbol)) == 0 {
+		return nil, fmt.Errorf("from_symbol not be empty or whitespace")
+	}
+	dic["from_symbol"] = strings.TrimSpace(p.FromSymbol)
+
+	if len(strings.TrimSpace(p.ToSymbol)) == 0 {
+		return nil, fmt.Errorf("to_symbol not be empty or whitespace")
+	}
+	dic["to_symbol"] = strings.TrimSpace(p.ToSymbol)
+
+	dic["datatype"] = "csv"
+	return dic, nil
+}
+
+// timestamp,open,high,low,close
+type FxWeekly struct {
+	FromSymbol string    `json:"from_symbol" csv:"-"`
+	ToSymbol   string    `json:"to_symbol" csv:"-"`
+	Timestamp  time.Time `json:"timestamp" csv:"timestamp"`
+	Open       float64   `json:"open" csv:"open"`
+	High       float64   `json:"high" csv:"high"`
+	Low        float64   `json:"low" csv:"low"`
+	Close      float64   `json:"close" csv:"close"`
+}
+
+func (t *ForeignExchangeRatesClient) FxWeekly(p FxWeeklyParameter) ([]FxWeekly, error) {
+	dic, err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := make([]FxWeekly, 0)
+
+	err = t.httpClient.getCsvByUtil(path, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(result); i++ {
+		result[i].FromSymbol = p.FromSymbol
+		result[i].ToSymbol = p.ToSymbol
+	}
+
+	return result, nil
+}

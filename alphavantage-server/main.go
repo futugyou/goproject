@@ -21,7 +21,25 @@ func ForeignExchangeRates() {
 	s := alphavantage.NewForeignExchangeRatesClient(apikey)
 	// CurrencyExchange(s)
 	// FxIntraday(s)
-	FxDaily(s)
+	// FxDaily(s)
+	FxWeekly(s)
+}
+
+func FxWeekly(s *alphavantage.ForeignExchangeRatesClient) {
+	p := alphavantage.FxWeeklyParameter{
+		FromSymbol: "EUR",
+		ToSymbol:   "USD",
+	}
+
+	result, err := s.FxWeekly(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.FromSymbol, v.ToSymbol, v.Close, v.High, v.Low, v.Open, v.Timestamp)
+	}
 }
 
 func FxDaily(s *alphavantage.ForeignExchangeRatesClient) {
