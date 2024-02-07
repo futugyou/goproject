@@ -12,7 +12,29 @@ import (
 func main() {
 	// StockDataAPIs()
 	// AlphaIntelligence()
-	Fundamentals()
+	// Fundamentals()
+	ForeignExchangeRates()
+}
+
+func ForeignExchangeRates() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewForeignExchangeRatesClient(apikey)
+	CurrencyExchange(s)
+}
+
+func CurrencyExchange(s *alphavantage.ForeignExchangeRatesClient) {
+	p := alphavantage.CurrencyExchangeParameter{
+		FromCurrency: "USD",
+		ToCurrency:   "JPY",
+	}
+
+	result, err := s.CurrencyExchange(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.RealtimeCurrencyExchangeRate.FromCurrencyCode, result.RealtimeCurrencyExchangeRate.ToCurrencyCode)
 }
 
 func Fundamentals() {
