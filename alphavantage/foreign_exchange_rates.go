@@ -1,5 +1,12 @@
 package alphavantage
 
+import (
+	"fmt"
+	"slices"
+	"strings"
+	"time"
+)
+
 type ForeignExchangeRatesClient struct {
 	innerClient
 }
@@ -52,6 +59,71 @@ func (t *ForeignExchangeRatesClient) CurrencyExchange(p CurrencyExchangeParamete
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	return result, nil
+}
+
+// parameter for FX_INTRADAY API
+type FxIntradayParameter struct {
+	// A three-letter symbol from the forex currency list. For example: from_symbol=EUR
+	FromSymbol string `json:"from_symbol"`
+	// A three-letter symbol from the forex currency list. For example: from_symbol=EUR
+	ToSymbol string `json:"to_symbol"`
+	// Time interval between two consecutive data points in the time series. The following values are supported: 1min, 5min, 15min, 30min, 60min
+	Interval string `json:"interval"`
+}
+
+func (p FxIntradayParameter) Validation() (map[string]string, error) {
+	dic := make(map[string]string)
+	dic["function"] = "FX_INTRADAY"
+	if len(strings.TrimSpace(p.FromSymbol)) == 0 {
+		return nil, fmt.Errorf("from_symbol not be empty or whitespace")
+	}
+	dic["from_symbol"] = strings.TrimSpace(p.FromSymbol)
+
+	if len(strings.TrimSpace(p.ToSymbol)) == 0 {
+		return nil, fmt.Errorf("to_symbol not be empty or whitespace")
+	}
+	dic["to_symbol"] = strings.TrimSpace(p.ToSymbol)
+
+	if slices.Contains(timeSeriesDataIntervalList, strings.TrimSpace(p.Interval)) {
+		dic["interval"] = strings.TrimSpace(p.Interval)
+	} else {
+		return nil, fmt.Errorf("interval only can be %s", strings.Join(timeSeriesDataIntervalList, ","))
+	}
+
+	return dic, nil
+}
+
+// timestamp,open,high,low,close
+type FxIntraday struct {
+	FromSymbol string    `json:"from_symbol" csv:"-"`
+	ToSymbol   string    `json:"to_symbol" csv:"-"`
+	Timestamp  time.Time `json:"timestamp" csv:"timestamp"`
+	Open       float64   `json:"open" csv:"open"`
+	High       float64   `json:"high" csv:"high"`
+	Low        float64   `json:"low" csv:"low"`
+	Close      float64   `json:"close" csv:"close"`
+}
+
+func (t *ForeignExchangeRatesClient) FxIntraday(p FxIntradayParameter) ([]FxIntraday, error) {
+	dic, err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := make([]FxIntraday, 0)
+
+	err = t.httpClient.getCsvByUtil(path, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(result); i++ {
+		result[i].FromSymbol = p.FromSymbol
+		result[i].ToSymbol = p.ToSymbol
 	}
 
 	return result, nil

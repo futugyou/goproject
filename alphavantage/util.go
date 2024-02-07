@@ -31,6 +31,7 @@ const _Alphavantage_Path string = "query"
 const _Alphavantage_Datatype string = "csv"
 
 var time_format = []string{"2006-01-02 15:04:05", "2006-01-02"}
+var timeSeriesDataIntervalList = []string{_1min, _5min, _15min, _30min, _60min}
 
 type innerClient struct {
 	httpClient *httpClient

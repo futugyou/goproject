@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-var timeSeriesDataIntervalList = []string{_1min, _5min, _15min, _30min, _60min}
-
 // timestamp,open,high,low,close,volume
 type TimeSeries struct {
 	Symbol string    `json:"symbol"`

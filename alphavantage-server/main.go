@@ -19,7 +19,26 @@ func main() {
 func ForeignExchangeRates() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewForeignExchangeRatesClient(apikey)
-	CurrencyExchange(s)
+	// CurrencyExchange(s)
+	FxIntraday(s)
+}
+
+func FxIntraday(s *alphavantage.ForeignExchangeRatesClient) {
+	p := alphavantage.FxIntradayParameter{
+		FromSymbol: "EUR",
+		ToSymbol:   "USD",
+		Interval:   "5min",
+	}
+
+	result, err := s.FxIntraday(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.FromSymbol, v.ToSymbol, v.Close, v.High, v.Low, v.Open, v.Timestamp)
+	}
 }
 
 func CurrencyExchange(s *alphavantage.ForeignExchangeRatesClient) {
