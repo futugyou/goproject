@@ -32,10 +32,10 @@ type CurrencyExchangeParameter struct {
 }
 
 type CurrencyExchange struct {
-	RealtimeCurrencyExchangeRate RealtimeCurrencyExchangeRate `json:"Realtime Currency Exchange Rate"`
+	ForeignExchangeRate ForeignExchangeRate `json:"Realtime Currency Exchange Rate"`
 }
 
-type RealtimeCurrencyExchangeRate struct {
+type ForeignExchangeRate struct {
 	FromCurrencyCode string `json:"1. From_Currency Code"`
 	FromCurrencyName string `json:"2. From_Currency Name"`
 	ToCurrencyCode   string `json:"3. To_Currency Code"`

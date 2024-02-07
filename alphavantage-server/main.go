@@ -13,7 +13,31 @@ func main() {
 	// StockDataAPIs()
 	// AlphaIntelligence()
 	// Fundamentals()
-	ForeignExchangeRates()
+	// ForeignExchangeRates()
+	DigitalCurrency()
+}
+
+func DigitalCurrency() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewDigitalCurrencyClient(apikey)
+	CryptoExchange(s)
+}
+
+func CryptoExchange(s *alphavantage.DigitalCurrencyClient) {
+	p := alphavantage.CryptoExchangeParameter{
+		FromCurrency: "BTC",
+		ToCurrency:   "CNY",
+	}
+
+	result, err := s.CryptoExchange(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(result.DigitalExchangeRate.FromCurrencyCode, result.DigitalExchangeRate.ToCurrencyCode,
+		result.DigitalExchangeRate.AskPrice, result.DigitalExchangeRate.BidPrice,
+		result.DigitalExchangeRate.ExchangeRate, result.DigitalExchangeRate.LastRefreshed, result.DigitalExchangeRate.TimeZone)
 }
 
 func ForeignExchangeRates() {
@@ -107,7 +131,7 @@ func CurrencyExchange(s *alphavantage.ForeignExchangeRatesClient) {
 		return
 	}
 
-	fmt.Println(result.RealtimeCurrencyExchangeRate.FromCurrencyCode, result.RealtimeCurrencyExchangeRate.ToCurrencyCode)
+	fmt.Println(result.ForeignExchangeRate.FromCurrencyCode, result.ForeignExchangeRate.ToCurrencyCode)
 }
 
 func Fundamentals() {
