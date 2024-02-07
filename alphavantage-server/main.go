@@ -22,7 +22,45 @@ func DigitalCurrency() {
 	s := alphavantage.NewDigitalCurrencyClient(apikey)
 	// CryptoExchange(s)
 	// CryptoIntraday(s)
-	CurrencyDaily(s)
+	// CurrencyDaily(s)
+	// CurrencyWeekly(s)
+	CurrencyMonthly(s)
+}
+
+func CurrencyMonthly(s *alphavantage.DigitalCurrencyClient) {
+	p := alphavantage.CurrencyMonthlyParameter{
+		Symbol: "BTC",
+		Market: "AFN",
+	}
+
+	result, err := s.CurrencyMonthly(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.Symbol, v.Market, v.MarketOpen, v.MarketHigh, v.MarketLow, v.MarketOpen,
+			v.USDOpen, v.USDHigh, v.USDLow, v.USDOpen, v.Timestamp, v.USDmarketCap, v.Volume)
+	}
+}
+
+func CurrencyWeekly(s *alphavantage.DigitalCurrencyClient) {
+	p := alphavantage.CurrencyWeeklyParameter{
+		Symbol: "BTC",
+		Market: "AFN",
+	}
+
+	result, err := s.CurrencyWeekly(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.Symbol, v.Market, v.MarketOpen, v.MarketHigh, v.MarketLow, v.MarketOpen,
+			v.USDOpen, v.USDHigh, v.USDLow, v.USDOpen, v.Timestamp, v.USDmarketCap, v.Volume)
+	}
 }
 
 func CurrencyDaily(s *alphavantage.DigitalCurrencyClient) {
@@ -38,7 +76,8 @@ func CurrencyDaily(s *alphavantage.DigitalCurrencyClient) {
 	}
 
 	for _, v := range result {
-		fmt.Println(v.Symbol, v.Market, v.MarketOpen, v.MarketHigh, v.MarketLow, v.MarketOpen, v.Timestamp)
+		fmt.Println(v.Symbol, v.Market, v.MarketOpen, v.MarketHigh, v.MarketLow, v.MarketOpen,
+			v.USDOpen, v.USDHigh, v.USDLow, v.USDOpen, v.Timestamp, v.USDmarketCap, v.Volume)
 	}
 }
 
