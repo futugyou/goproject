@@ -64,6 +64,7 @@ type DigitalExchangeRate struct {
 	AskPrice         string `json:"9. Ask Price"`
 }
 
+// This API returns the realtime exchange rate for any pair of digital currency (e.g., Bitcoin) or physical currency (e.g., USD).
 func (t *DigitalCurrencyClient) CryptoExchange(p CryptoExchangeParameter) (*CryptoExchang, error) {
 	dic, err := p.Validation()
 	if err != nil {
@@ -114,7 +115,7 @@ func (p CryptoIntradayParameter) Validation() (map[string]string, error) {
 	return dic, nil
 }
 
-// timestamp,open,high,low,close
+// timestamp,open,high,low,close,volume
 type CryptoIntraday struct {
 	Symbol    string    `json:"symbol" csv:"-"`
 	Market    string    `json:"market" csv:"-"`
@@ -126,6 +127,7 @@ type CryptoIntraday struct {
 	Volume    float64   `json:"volume" csv:"volume"`
 }
 
+// This API returns intraday time series (timestamp, open, high, low, close, volume) of the cryptocurrency specified, updated realtime.
 func (t *DigitalCurrencyClient) CryptoIntraday(p CryptoIntradayParameter) ([]CryptoIntraday, error) {
 	dic, err := p.Validation()
 	if err != nil {
@@ -146,4 +148,160 @@ func (t *DigitalCurrencyClient) CryptoIntraday(p CryptoIntradayParameter) ([]Cry
 	}
 
 	return result, nil
+}
+
+// parameter for DIGITAL_CURRENCY_DAILY API
+type CurrencyDailyParameter struct {
+	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
+	Symbol string `json:"symbol"`
+	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
+	Market string `json:"market"`
+}
+
+func (p CurrencyDailyParameter) Validation() (map[string]string, error) {
+	dic := make(map[string]string)
+	dic["function"] = "DIGITAL_CURRENCY_DAILY"
+	if len(strings.TrimSpace(p.Symbol)) == 0 {
+		return nil, fmt.Errorf("symbol not be empty or whitespace")
+	}
+	dic["symbol"] = strings.TrimSpace(p.Symbol)
+
+	if len(strings.TrimSpace(p.Market)) == 0 {
+		return nil, fmt.Errorf("market not be empty or whitespace")
+	}
+	dic["market"] = strings.TrimSpace(p.Market)
+
+	dic["datatype"] = "csv"
+	return dic, nil
+}
+
+// timestamp,open (market),high (market),low (market),close (market),open (USD),high (USD),low (USD),close (USD),volume,market cap (USD)
+type CurrencyDaily struct {
+	Symbol       string    `json:"symbol"`
+	Market       string    `json:"market"`
+	Timestamp    time.Time `json:"timestamp"`
+	MarketOpen   float64   `json:"marketOpen"`
+	MarketHigh   float64   `json:"marketHigh"`
+	MarketLow    float64   `json:"marketLow"`
+	MarketClose  float64   `json:"marketClose"`
+	USDOpen      float64   `json:"usdOpen"`
+	USDHigh      float64   `json:"usdHigh"`
+	USDLow       float64   `json:"usdLow"`
+	USDClose     float64   `json:"usdClose"`
+	Volume       float64   `json:"volume"`
+	USDmarketCap float64   `json:"usdMarketCap"`
+}
+
+func (t *DigitalCurrencyClient) CurrencyDaily(p CurrencyDailyParameter) ([]CurrencyDaily, error) {
+	dic, err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := make([]CurrencyDaily, 0)
+
+	csvData, err := t.httpClient.getCsv(path)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(csvData); i++ {
+		value, err := t.readCryptoCurrencyItem(csvData[i])
+		if err != nil {
+			return nil, err
+		}
+
+		value.Symbol = p.Symbol
+		value.Market = p.Market
+		result = append(result, *value)
+	}
+
+	return result, nil
+}
+
+func (t *DigitalCurrencyClient) readCryptoCurrencyItem(s []string) (*CurrencyDaily, error) {
+	const (
+		timestamp = iota
+		marketopen
+		markethigh
+		marketlow
+		marketclose
+		usdopen
+		usdhigh
+		usdlow
+		usdclose
+		volume
+		cap
+	)
+
+	value := &CurrencyDaily{}
+
+	d, err := parseTime(s[timestamp])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing timestamp %s", s[timestamp])
+	}
+	value.Timestamp = d
+
+	f, err := parseFloat(s[marketopen])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing marketopen %s", s[marketopen])
+	}
+	value.MarketOpen = f
+
+	f, err = parseFloat(s[markethigh])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing markethigh %s", s[markethigh])
+	}
+	value.MarketHigh = f
+
+	f, err = parseFloat(s[marketlow])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing marketlow %s", s[marketlow])
+	}
+	value.MarketLow = f
+
+	f, err = parseFloat(s[marketclose])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing marketclose %s", s[marketclose])
+	}
+	value.MarketClose = f
+
+	f, err = parseFloat(s[usdopen])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing usdopen %s", s[usdopen])
+	}
+	value.USDOpen = f
+
+	f, err = parseFloat(s[usdhigh])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing usdhigh %s", s[usdhigh])
+	}
+	value.USDHigh = f
+
+	f, err = parseFloat(s[usdlow])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing usdlow %s", s[usdlow])
+	}
+	value.USDLow = f
+
+	f, err = parseFloat(s[usdclose])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing usdclose %s", s[usdclose])
+	}
+	value.USDClose = f
+
+	f, err = parseFloat(s[volume])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing volume %s", s[volume])
+	}
+	value.Volume = f
+
+	f, err = parseFloat(s[cap])
+	if err != nil {
+		return nil, fmt.Errorf("error parsing cap %s", s[cap])
+	}
+	value.USDmarketCap = f
+
+	return value, nil
 }

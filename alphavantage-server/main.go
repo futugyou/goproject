@@ -21,7 +21,25 @@ func DigitalCurrency() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewDigitalCurrencyClient(apikey)
 	// CryptoExchange(s)
-	CryptoIntraday(s)
+	// CryptoIntraday(s)
+	CurrencyDaily(s)
+}
+
+func CurrencyDaily(s *alphavantage.DigitalCurrencyClient) {
+	p := alphavantage.CurrencyDailyParameter{
+		Symbol: "BTC",
+		Market: "AFN",
+	}
+
+	result, err := s.CurrencyDaily(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.Symbol, v.Market, v.MarketOpen, v.MarketHigh, v.MarketLow, v.MarketOpen, v.Timestamp)
+	}
 }
 
 func CryptoIntraday(s *alphavantage.DigitalCurrencyClient) {

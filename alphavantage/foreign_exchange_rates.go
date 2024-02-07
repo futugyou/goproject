@@ -47,6 +47,7 @@ type ForeignExchangeRate struct {
 	AskPrice         string `json:"9. Ask Price"`
 }
 
+// This API returns the realtime exchange rate for a pair of digital currency (e.g., Bitcoin) and physical currency (e.g., USD).
 func (t *ForeignExchangeRatesClient) CurrencyExchange(p CurrencyExchangeParameter) (*CurrencyExchange, error) {
 	dic := make(map[string]string)
 	dic["function"] = "CURRENCY_EXCHANGE_RATE"
@@ -108,6 +109,7 @@ type FxIntraday struct {
 	Close      float64   `json:"close" csv:"close"`
 }
 
+// This API returns intraday time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
 func (t *ForeignExchangeRatesClient) FxIntraday(p FxIntradayParameter) ([]FxIntraday, error) {
 	dic, err := p.Validation()
 	if err != nil {
@@ -166,6 +168,7 @@ type FxDaily struct {
 	Close      float64   `json:"close" csv:"close"`
 }
 
+// This API returns the daily time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
 func (t *ForeignExchangeRatesClient) FxDaily(p FxDailyParameter) ([]FxDaily, error) {
 	dic, err := p.Validation()
 	if err != nil {
@@ -224,6 +227,8 @@ type FxWeekly struct {
 	Close      float64   `json:"close" csv:"close"`
 }
 
+// This API returns the weekly time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
+// The latest data point is the price information for the week (or partial week) containing the current trading day, updated realtime.
 func (t *ForeignExchangeRatesClient) FxWeekly(p FxWeeklyParameter) ([]FxWeekly, error) {
 	dic, err := p.Validation()
 	if err != nil {
@@ -282,6 +287,8 @@ type FxMonthly struct {
 	Close      float64   `json:"close" csv:"close"`
 }
 
+// This API returns the monthly time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
+// The latest data point is the prices information for the month (or partial month) containing the current trading day, updated realtime.
 func (t *ForeignExchangeRatesClient) FxMonthly(p FxMonthlyParameter) ([]FxMonthly, error) {
 	dic, err := p.Validation()
 	if err != nil {
