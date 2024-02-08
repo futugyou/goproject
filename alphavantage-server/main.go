@@ -21,10 +21,10 @@ func DigitalCurrency() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewDigitalCurrencyClient(apikey)
 	// CryptoExchange(s)
-	// CryptoIntraday(s)
+	CryptoIntraday(s)
 	// CurrencyDaily(s)
 	// CurrencyWeekly(s)
-	CurrencyMonthly(s)
+	// CurrencyMonthly(s)
 }
 
 func CurrencyMonthly(s *alphavantage.DigitalCurrencyClient) {
@@ -85,7 +85,7 @@ func CryptoIntraday(s *alphavantage.DigitalCurrencyClient) {
 	p := alphavantage.CryptoIntradayParameter{
 		Symbol:   "ETH",
 		Market:   "USD",
-		Interval: "5min",
+		Interval: alphavantage.T15min,
 	}
 
 	result, err := s.CryptoIntraday(p)
