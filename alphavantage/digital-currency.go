@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/futugyou/alphavantage/enums"
 )
 
 type DigitalCurrencyClient struct {
@@ -88,7 +90,7 @@ type CryptoIntradayParameter struct {
 	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
 	Market string `json:"market"`
 	// Time interval between two consecutive data points in the time series. The following values are supported: 1min, 5min, 15min, 30min, 60min
-	Interval TimeInterval `json:"interval"`
+	Interval enums.TimeInterval `json:"interval"`
 }
 
 func (p CryptoIntradayParameter) Validation() (map[string]string, error) {

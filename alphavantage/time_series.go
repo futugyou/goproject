@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/futugyou/alphavantage/enums"
 )
 
 // timestamp,open,high,low,close,volume
@@ -33,10 +35,10 @@ type TimeSeriesAdjusted struct {
 }
 
 type timeSeriesParameter struct {
-	Function   string            `json:"function"`
-	Symbol     string            `json:"symbol"`
-	Interval   TimeInterval      `json:"interval"`
-	Dictionary map[string]string `json:"dictionary"`
+	Function   string             `json:"function"`
+	Symbol     string             `json:"symbol"`
+	Interval   enums.TimeInterval `json:"interval"`
+	Dictionary map[string]string  `json:"dictionary"`
 }
 
 // parameter for TIME_SERIES_INTRADAY API
@@ -44,7 +46,7 @@ type TimeSeriesIntradayParameter struct {
 	// The name of the equity of your choice. For example: symbol=IBM
 	Symbol string `json:"symbol"`
 	// Time interval between two consecutive data points in the time series. The following values are supported: 1min, 5min, 15min, 30min, 60min
-	Interval TimeInterval `json:"interval"`
+	Interval enums.TimeInterval `json:"interval"`
 	// other option parameter, see https://www.alphavantage.co/documentation/#intraday
 	Dictionary map[string]string `json:"dictionary"`
 }

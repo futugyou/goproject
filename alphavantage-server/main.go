@@ -7,6 +7,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyou/alphavantage"
+	"github.com/futugyou/alphavantage/enums"
 )
 
 func main() {
@@ -85,7 +86,7 @@ func CryptoIntraday(s *alphavantage.DigitalCurrencyClient) {
 	p := alphavantage.CryptoIntradayParameter{
 		Symbol:   "ETH",
 		Market:   "USD",
-		Interval: alphavantage.T15min,
+		Interval: enums.T15min,
 	}
 
 	result, err := s.CryptoIntraday(p)
@@ -181,7 +182,7 @@ func FxIntraday(s *alphavantage.ForeignExchangeRatesClient) {
 	p := alphavantage.FxIntradayParameter{
 		FromSymbol: "EUR",
 		ToSymbol:   "USD",
-		Interval:   alphavantage.T5min,
+		Interval:   enums.T5min,
 	}
 
 	result, err := s.FxIntraday(p)
@@ -401,7 +402,7 @@ func StockDataAPIs() {
 func TimeSeries(s *alphavantage.TimeSeriesClient, dic map[string]string) {
 	p := alphavantage.TimeSeriesIntradayParameter{
 		Symbol:     "IBM",
-		Interval:   alphavantage.T15min,
+		Interval:   enums.T15min,
 		Dictionary: dic,
 	}
 	result, err := s.TimeSeriesIntraday(p)
