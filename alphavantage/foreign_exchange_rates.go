@@ -2,7 +2,6 @@ package alphavantage
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 )
@@ -72,7 +71,7 @@ type FxIntradayParameter struct {
 	// A three-letter symbol from the forex currency list. For example: from_symbol=EUR
 	ToSymbol string `json:"to_symbol"`
 	// Time interval between two consecutive data points in the time series. The following values are supported: 1min, 5min, 15min, 30min, 60min
-	Interval string `json:"interval"`
+	Interval TimeInterval `json:"interval"`
 }
 
 func (p FxIntradayParameter) Validation() (map[string]string, error) {
@@ -88,11 +87,7 @@ func (p FxIntradayParameter) Validation() (map[string]string, error) {
 	}
 	dic["to_symbol"] = strings.TrimSpace(p.ToSymbol)
 
-	if slices.Contains(timeSeriesDataIntervalList, strings.TrimSpace(p.Interval)) {
-		dic["interval"] = strings.TrimSpace(p.Interval)
-	} else {
-		return nil, fmt.Errorf("interval only can be %s", strings.Join(timeSeriesDataIntervalList, ","))
-	}
+	dic["interval"] = p.Interval.String()
 
 	dic["datatype"] = "csv"
 	return dic, nil

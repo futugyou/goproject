@@ -49,20 +49,12 @@ const T15min timeInterval = "15min"
 const T30min timeInterval = "30min"
 const T60min timeInterval = "60min"
 
-const _1min string = "1min"
-const _5min string = "5min"
-const _15min string = "15min"
-const _30min string = "30min"
-const _60min string = "60min"
-
 const _Alphavantage_Http_Scheme string = "https"
 const _Alphavantage_Host string = "www.alphavantage.co"
 const _Alphavantage_Path string = "query"
 const _Alphavantage_Datatype string = "csv"
 
 var time_format = []string{"2006-01-02 15:04:05", "2006-01-02"}
-
-var timeSeriesDataIntervalList = []string{_1min, _5min, _15min, _30min, _60min}
 
 type innerClient struct {
 	httpClient *httpClient

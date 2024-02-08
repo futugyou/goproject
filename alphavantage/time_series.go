@@ -3,7 +3,6 @@ package alphavantage
 import (
 	"fmt"
 	"net/url"
-	"slices"
 	"strings"
 	"time"
 )
@@ -36,7 +35,7 @@ type TimeSeriesAdjusted struct {
 type timeSeriesParameter struct {
 	Function   string            `json:"function"`
 	Symbol     string            `json:"symbol"`
-	Interval   string            `json:"interval"`
+	Interval   TimeInterval      `json:"interval"`
 	Dictionary map[string]string `json:"dictionary"`
 }
 
@@ -45,7 +44,7 @@ type TimeSeriesIntradayParameter struct {
 	// The name of the equity of your choice. For example: symbol=IBM
 	Symbol string `json:"symbol"`
 	// Time interval between two consecutive data points in the time series. The following values are supported: 1min, 5min, 15min, 30min, 60min
-	Interval string `json:"interval"`
+	Interval TimeInterval `json:"interval"`
 	// other option parameter, see https://www.alphavantage.co/documentation/#intraday
 	Dictionary map[string]string `json:"dictionary"`
 }
@@ -54,11 +53,6 @@ func (t TimeSeriesIntradayParameter) Validation() error {
 	if len(strings.TrimSpace(t.Symbol)) == 0 {
 		return fmt.Errorf("symbol can not be empty or whitespace")
 	}
-
-	if have := slices.Contains(timeSeriesDataIntervalList, t.Interval); !have {
-		return fmt.Errorf("invalid interval name %s, allowed interval are  %s", t.Interval, strings.Join(timeSeriesDataIntervalList, ","))
-	}
-
 	return nil
 }
 
@@ -234,7 +228,7 @@ func (t *TimeSeriesClient) createRequestUrl(p timeSeriesParameter) string {
 	query := endpoint.Query()
 	query.Set("function", p.Function)
 	query.Set("symbol", p.Symbol)
-	query.Set("interval", p.Interval)
+	query.Set("interval", p.Interval.String())
 	query.Set("apikey", t.apikey)
 	query.Set("datatype", t.datatype)
 	for k, v := range p.Dictionary {

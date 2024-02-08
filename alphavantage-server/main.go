@@ -181,7 +181,7 @@ func FxIntraday(s *alphavantage.ForeignExchangeRatesClient) {
 	p := alphavantage.FxIntradayParameter{
 		FromSymbol: "EUR",
 		ToSymbol:   "USD",
-		Interval:   "5min",
+		Interval:   alphavantage.T5min,
 	}
 
 	result, err := s.FxIntraday(p)
@@ -401,7 +401,7 @@ func StockDataAPIs() {
 func TimeSeries(s *alphavantage.TimeSeriesClient, dic map[string]string) {
 	p := alphavantage.TimeSeriesIntradayParameter{
 		Symbol:     "IBM",
-		Interval:   "15min",
+		Interval:   alphavantage.T15min,
 		Dictionary: dic,
 	}
 	result, err := s.TimeSeriesIntraday(p)
