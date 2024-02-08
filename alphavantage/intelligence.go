@@ -3,6 +3,8 @@ package alphavantage
 import (
 	"strconv"
 	"strings"
+
+	"github.com/futugyou/alphavantage/enums"
 )
 
 // parameter for NEWS_SENTIMENT API
@@ -13,7 +15,7 @@ type SentimentParameter struct {
 	Tickers string `json:"tickers"`
 	// The news topics of your choice. For example: topics=technology will filter for articles that write about the technology sector;
 	// topics=technology,ipo will filter for articles that simultaneously cover technology and IPO in their content.
-	Topics string `json:"topics"`
+	Topics enums.SentimentTopics `json:"topics"`
 	// The time range of the news articles you are targeting, in YYYYMMDDTHHMM format.
 	TimeFrom string `json:"time_from"`
 	// The time range of the news articles you are targeting, in YYYYMMDDTHHMM format.
@@ -31,8 +33,8 @@ func (p SentimentParameter) Validation() (map[string]string, error) {
 	if len(strings.TrimSpace(p.Tickers)) > 0 {
 		dic["tickers"] = strings.TrimSpace(p.Tickers)
 	}
-	if len(strings.TrimSpace(p.Topics)) > 0 {
-		dic["topics"] = strings.TrimSpace(p.Topics)
+	if p.Topics != nil {
+		dic["topics"] = p.Topics.String()
 	}
 	if len(strings.TrimSpace(p.TimeFrom)) > 0 {
 		dic["time_from"] = strings.TrimSpace(p.TimeFrom)
