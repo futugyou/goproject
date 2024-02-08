@@ -166,17 +166,16 @@ type innerDigitalCurrency struct {
 	USDmarketCap float64   `json:"usdMarketCap"`
 }
 
-// parameter for DIGITAL_CURRENCY_DAILY API
-type CurrencyDailyParameter struct {
+type innerDigitalCurrencyParameter struct {
 	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
 	Symbol string `json:"symbol"`
 	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
 	Market string `json:"market"`
 }
 
-func (p CurrencyDailyParameter) Validation() (map[string]string, error) {
+func (p innerDigitalCurrencyParameter) Validation(function string) (map[string]string, error) {
 	dic := make(map[string]string)
-	dic["function"] = "DIGITAL_CURRENCY_DAILY"
+	dic["function"] = function
 	if len(strings.TrimSpace(p.Symbol)) == 0 {
 		return nil, fmt.Errorf("symbol not be empty or whitespace")
 	}
@@ -191,19 +190,98 @@ func (p CurrencyDailyParameter) Validation() (map[string]string, error) {
 	return dic, nil
 }
 
+// parameter for DIGITAL_CURRENCY_DAILY API
+type CurrencyDailyParameter struct {
+	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
+	Symbol string `json:"symbol"`
+	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
+	Market string `json:"market"`
+}
+
 // timestamp,open (market),high (market),low (market),close (market),open (USD),high (USD),low (USD),close (USD),volume,market cap (USD)
 type CurrencyDaily struct {
 	innerDigitalCurrency
 }
 
 func (t *DigitalCurrencyClient) CurrencyDaily(p CurrencyDailyParameter) ([]CurrencyDaily, error) {
-	dic, err := p.Validation()
+	pp := innerDigitalCurrencyParameter(p)
+	inner, err := t.innerDigitalCurrency(pp, "DIGITAL_CURRENCY_DAILY")
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]CurrencyDaily, 0)
+	for i := 0; i < len(inner); i++ {
+		result = append(result, CurrencyDaily{inner[i]})
+	}
+
+	return result, nil
+}
+
+// parameter for DIGITAL_CURRENCY_WEEKLY API
+type CurrencyWeeklyParameter struct {
+	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
+	Symbol string `json:"symbol"`
+	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
+	Market string `json:"market"`
+}
+
+// timestamp,open (market),high (market),low (market),close (market),open (USD),high (USD),low (USD),close (USD),volume,market cap (USD)
+type CurrencyWeekly struct {
+	innerDigitalCurrency
+}
+
+func (t *DigitalCurrencyClient) CurrencyWeekly(p CurrencyWeeklyParameter) ([]CurrencyWeekly, error) {
+	pp := innerDigitalCurrencyParameter(p)
+	inner, err := t.innerDigitalCurrency(pp, "DIGITAL_CURRENCY_WEEKLY")
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]CurrencyWeekly, 0)
+	for i := 0; i < len(inner); i++ {
+		result = append(result, CurrencyWeekly{inner[i]})
+	}
+
+	return result, nil
+}
+
+// parameter for DIGITAL_CURRENCY_MONTHLY API
+type CurrencyMonthlyParameter struct {
+	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
+	Symbol string `json:"symbol"`
+	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
+	Market string `json:"market"`
+}
+
+// timestamp,open (market),high (market),low (market),close (market),open (USD),high (USD),low (USD),close (USD),volume,market cap (USD)
+type CurrencyMonthly struct {
+	innerDigitalCurrency
+}
+
+func (t *DigitalCurrencyClient) CurrencyMonthly(p CurrencyMonthlyParameter) ([]CurrencyMonthly, error) {
+	pp := innerDigitalCurrencyParameter(p)
+	inner, err := t.innerDigitalCurrency(pp, "DIGITAL_CURRENCY_MONTHLY")
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]CurrencyMonthly, 0)
+	for i := 0; i < len(inner); i++ {
+		result = append(result, CurrencyMonthly{inner[i]})
+	}
+
+	return result, nil
+}
+
+func (t *DigitalCurrencyClient) innerDigitalCurrency(p innerDigitalCurrencyParameter, function string) ([]innerDigitalCurrency, error) {
+	dic, err := p.Validation(function)
 	if err != nil {
 		return nil, err
 	}
 
 	path := t.createQuerytUrl(dic)
-	result := make([]CurrencyDaily, 0)
+	result := make([]innerDigitalCurrency, 0)
 
 	csvData, err := t.httpClient.getCsv(path)
 	if err != nil {
@@ -218,7 +296,7 @@ func (t *DigitalCurrencyClient) CurrencyDaily(p CurrencyDailyParameter) ([]Curre
 
 		value.Symbol = p.Symbol
 		value.Market = p.Market
-		result = append(result, CurrencyDaily{*value})
+		result = append(result, *value)
 	}
 
 	return result, nil
@@ -308,120 +386,4 @@ func (t *DigitalCurrencyClient) readCryptoCurrencyItem(s []string) (*innerDigita
 	value.USDmarketCap = f
 
 	return value, nil
-}
-
-// parameter for DIGITAL_CURRENCY_WEEKLY API
-type CurrencyWeeklyParameter struct {
-	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
-	Symbol string `json:"symbol"`
-	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
-	Market string `json:"market"`
-}
-
-func (p CurrencyWeeklyParameter) Validation() (map[string]string, error) {
-	dic := make(map[string]string)
-	dic["function"] = "DIGITAL_CURRENCY_WEEKLY"
-	if len(strings.TrimSpace(p.Symbol)) == 0 {
-		return nil, fmt.Errorf("symbol not be empty or whitespace")
-	}
-	dic["symbol"] = strings.TrimSpace(p.Symbol)
-
-	if len(strings.TrimSpace(p.Market)) == 0 {
-		return nil, fmt.Errorf("market not be empty or whitespace")
-	}
-	dic["market"] = strings.TrimSpace(p.Market)
-
-	dic["datatype"] = "csv"
-	return dic, nil
-}
-
-// timestamp,open (market),high (market),low (market),close (market),open (USD),high (USD),low (USD),close (USD),volume,market cap (USD)
-type CurrencyWeekly struct {
-	innerDigitalCurrency
-}
-
-func (t *DigitalCurrencyClient) CurrencyWeekly(p CurrencyWeeklyParameter) ([]CurrencyWeekly, error) {
-	dic, err := p.Validation()
-	if err != nil {
-		return nil, err
-	}
-
-	path := t.createQuerytUrl(dic)
-	result := make([]CurrencyWeekly, 0)
-
-	csvData, err := t.httpClient.getCsv(path)
-	if err != nil {
-		return nil, err
-	}
-
-	for i := 0; i < len(csvData); i++ {
-		value, err := t.readCryptoCurrencyItem(csvData[i])
-		if err != nil {
-			return nil, err
-		}
-
-		value.Symbol = p.Symbol
-		value.Market = p.Market
-		result = append(result, CurrencyWeekly{*value})
-	}
-
-	return result, nil
-}
-
-// parameter for DIGITAL_CURRENCY_MONTHLY API
-type CurrencyMonthlyParameter struct {
-	// The digital/crypto currency of your choice. It can be any of the currencies in the digital currency list. For example: symbol=ETH.
-	Symbol string `json:"symbol"`
-	// The exchange market of your choice. It can be any of the market in the market list. For example: market=USD.
-	Market string `json:"market"`
-}
-
-func (p CurrencyMonthlyParameter) Validation() (map[string]string, error) {
-	dic := make(map[string]string)
-	dic["function"] = "DIGITAL_CURRENCY_MONTHLY"
-	if len(strings.TrimSpace(p.Symbol)) == 0 {
-		return nil, fmt.Errorf("symbol not be empty or whitespace")
-	}
-	dic["symbol"] = strings.TrimSpace(p.Symbol)
-
-	if len(strings.TrimSpace(p.Market)) == 0 {
-		return nil, fmt.Errorf("market not be empty or whitespace")
-	}
-	dic["market"] = strings.TrimSpace(p.Market)
-
-	dic["datatype"] = "csv"
-	return dic, nil
-}
-
-// timestamp,open (market),high (market),low (market),close (market),open (USD),high (USD),low (USD),close (USD),volume,market cap (USD)
-type CurrencyMonthly struct {
-	innerDigitalCurrency
-}
-
-func (t *DigitalCurrencyClient) CurrencyMonthly(p CurrencyMonthlyParameter) ([]CurrencyMonthly, error) {
-	dic, err := p.Validation()
-	if err != nil {
-		return nil, err
-	}
-
-	path := t.createQuerytUrl(dic)
-	result := make([]CurrencyMonthly, 0)
-
-	csvData, err := t.httpClient.getCsv(path)
-	if err != nil {
-		return nil, err
-	}
-
-	for i := 0; i < len(csvData); i++ {
-		value, err := t.readCryptoCurrencyItem(csvData[i])
-		if err != nil {
-			return nil, err
-		}
-
-		value.Symbol = p.Symbol
-		value.Market = p.Market
-		result = append(result, CurrencyMonthly{*value})
-	}
-
-	return result, nil
 }
