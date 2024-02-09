@@ -68,3 +68,48 @@ func (t *CommoditiesClient) CrudeOilWti(p CrudeOilWtiParameter) (*CrudeOilWti, e
 
 	return result, nil
 }
+
+// parameter for BRENT API
+type CrudeOilBrentParameter struct {
+	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
+	Interval enums.LongInterval `json:"interval"`
+}
+
+func (p CrudeOilBrentParameter) Validation() (map[string]string, error) {
+	dic := make(map[string]string)
+	dic["function"] = "BRENT"
+	if p.Interval != nil {
+		dic["interval"] = p.Interval.String()
+	}
+
+	dic["datatype"] = "json"
+	return dic, nil
+}
+
+type CrudeOilBrent struct {
+	Name     string  `json:"name"`
+	Interval string  `json:"interval"`
+	Unit     string  `json:"unit"`
+	Data     []Datum `json:"data"`
+}
+
+// This API returns the West Texas Intermediate (WTI) crude oil prices in daily, weekly, and monthly horizons.
+// Source: U.S. Energy Information Administration, Crude Oil Prices: West Texas Intermediate (WTI) -
+// Cushing, Oklahoma, retrieved from FRED, Federal Reserve Bank of St. Louis.
+// This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
+// By using this data feed, you agree to be bound by the FRED® API Terms of Use.
+func (t *CommoditiesClient) CrudeOilBrent(p CrudeOilBrentParameter) (*CrudeOilBrent, error) {
+	dic, err := p.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &CrudeOilBrent{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
