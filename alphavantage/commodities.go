@@ -19,15 +19,14 @@ func NewCommoditiesClient(apikey string) *CommoditiesClient {
 	}
 }
 
-// parameter for WTI API
-type CrudeOilWtiParameter struct {
+type innerCommoditiesParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
 	Interval enums.LongInterval `json:"interval"`
 }
 
-func (p CrudeOilWtiParameter) Validation() (map[string]string, error) {
+func (p innerCommoditiesParameter) Validation(function string) (map[string]string, error) {
 	dic := make(map[string]string)
-	dic["function"] = "WTI"
+	dic["function"] = function
 	if p.Interval != nil {
 		dic["interval"] = p.Interval.String()
 	}
@@ -36,7 +35,7 @@ func (p CrudeOilWtiParameter) Validation() (map[string]string, error) {
 	return dic, nil
 }
 
-type CrudeOilWti struct {
+type innerCommoditiesResult struct {
 	Name     string  `json:"name"`
 	Interval string  `json:"interval"`
 	Unit     string  `json:"unit"`
@@ -48,24 +47,46 @@ type Datum struct {
 	Value string `json:"value"`
 }
 
+func (t *CommoditiesClient) innerCommoditiesRequest(p innerCommoditiesParameter, function string) (*innerCommoditiesResult, error) {
+	dic, err := p.Validation(function)
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &innerCommoditiesResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// parameter for WTI API
+type CrudeOilWtiParameter struct {
+	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
+	Interval enums.LongInterval `json:"interval"`
+}
+
+type CrudeOilWti struct {
+	innerCommoditiesResult
+}
+
 // This API returns the West Texas Intermediate (WTI) crude oil prices in daily, weekly, and monthly horizons.
 // Source: U.S. Energy Information Administration, Crude Oil Prices: West Texas Intermediate (WTI) -
 // Cushing, Oklahoma, retrieved from FRED, Federal Reserve Bank of St. Louis.
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) CrudeOilWti(p CrudeOilWtiParameter) (*CrudeOilWti, error) {
-	dic, err := p.Validation()
+	pp := innerCommoditiesParameter(p)
+	inner, err := t.innerCommoditiesRequest(pp, "WTI")
+
 	if err != nil {
 		return nil, err
 	}
 
-	path := t.createQuerytUrl(dic)
-	result := &CrudeOilWti{}
-	err = t.httpClient.getJson(path, result)
-	if err != nil {
-		return nil, err
-	}
-
+	result := &CrudeOilWti{*inner}
 	return result, nil
 }
 
@@ -75,41 +96,22 @@ type CrudeOilBrentParameter struct {
 	Interval enums.LongInterval `json:"interval"`
 }
 
-func (p CrudeOilBrentParameter) Validation() (map[string]string, error) {
-	dic := make(map[string]string)
-	dic["function"] = "BRENT"
-	if p.Interval != nil {
-		dic["interval"] = p.Interval.String()
-	}
-
-	dic["datatype"] = "json"
-	return dic, nil
-}
-
 type CrudeOilBrent struct {
-	Name     string  `json:"name"`
-	Interval string  `json:"interval"`
-	Unit     string  `json:"unit"`
-	Data     []Datum `json:"data"`
+	innerCommoditiesResult
 }
 
-// This API returns the West Texas Intermediate (WTI) crude oil prices in daily, weekly, and monthly horizons.
-// Source: U.S. Energy Information Administration, Crude Oil Prices: West Texas Intermediate (WTI) -
-// Cushing, Oklahoma, retrieved from FRED, Federal Reserve Bank of St. Louis.
+// This API returns the Brent (Europe) crude oil prices in daily, weekly, and monthly horizons.
+// Source: U.S. Energy Information Administration, Crude Oil Prices: Brent - Europe, retrieved from FRED, Federal Reserve Bank of St. Louis.
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) CrudeOilBrent(p CrudeOilBrentParameter) (*CrudeOilBrent, error) {
-	dic, err := p.Validation()
+	pp := innerCommoditiesParameter(p)
+	inner, err := t.innerCommoditiesRequest(pp, "BRENT")
+
 	if err != nil {
 		return nil, err
 	}
 
-	path := t.createQuerytUrl(dic)
-	result := &CrudeOilBrent{}
-	err = t.httpClient.getJson(path, result)
-	if err != nil {
-		return nil, err
-	}
-
+	result := &CrudeOilBrent{*inner}
 	return result, nil
 }
