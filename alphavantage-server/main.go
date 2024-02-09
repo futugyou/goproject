@@ -15,7 +15,27 @@ func main() {
 	// AlphaIntelligence()
 	// Fundamentals()
 	// ForeignExchangeRates()
-	DigitalCurrency()
+	// DigitalCurrency()
+	Commodities()
+}
+
+func Commodities() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewCommoditiesClient(apikey)
+	CrudeOilWti(s)
+}
+
+func CrudeOilWti(s *alphavantage.CommoditiesClient) {
+	p := alphavantage.CrudeOilWtiParameter{
+		Interval: enums.LWeekly,
+	}
+
+	result, err := s.CrudeOilWti(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(result.Name, len(result.Data))
 }
 
 func DigitalCurrency() {
