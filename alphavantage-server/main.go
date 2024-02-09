@@ -23,7 +23,21 @@ func Commodities() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewCommoditiesClient(apikey)
 	// CrudeOilWti(s)
-	CrudeOilBrent(s)
+	// CrudeOilBrent(s)
+	AllCommodities(s)
+}
+
+func AllCommodities(s *alphavantage.CommoditiesClient) {
+	p := alphavantage.AllCommoditiesParameter{
+		Interval: enums.LWeekly,
+	}
+
+	result, err := s.AllCommodities(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(result.Name, len(result.Data))
 }
 
 func CrudeOilBrent(s *alphavantage.CommoditiesClient) {
