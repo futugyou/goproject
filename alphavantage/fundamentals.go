@@ -1,6 +1,10 @@
 package alphavantage
 
-import "time"
+import (
+	"github.com/futugyou/alphavantage/enums"
+
+	"time"
+)
 
 type FundamentalsClient struct {
 	innerClient
@@ -335,7 +339,7 @@ type ListingStatusParameter struct {
 	Date string `json:"date"`
 	// By default, state=active and the API will return a list of actively traded stocks and ETFs.
 	// Set state=delisted to query a list of delisted assets.
-	State string `json:"state"`
+	State enums.ListingState `json:"state"`
 }
 
 // symbol,name,exchange,assetType,ipoDate,delistingDate,status
@@ -355,7 +359,9 @@ func (t *FundamentalsClient) ListingStatus(p ListingStatusParameter) ([]ListingS
 	dic := make(map[string]string)
 	dic["function"] = "LISTING_STATUS"
 	dic["date"] = p.Date
-	dic["state"] = p.State
+	if p.State != nil {
+		dic["state"] = p.State.String()
+	}
 
 	path := t.createQuerytUrl(dic)
 	result := make([]ListingStatus, 0)
@@ -375,7 +381,7 @@ type EarningsCalendarParameter struct {
 	Symbol string `json:"symbol"`
 	// By default, horizon=3month and the API will return a list of expected company earnings in the next 3 months.
 	// You may set horizon=6month or horizon=12month to query the earnings scheduled for the next 6 months or 12 months, respectively.
-	Horizon string `json:"horizon"`
+	Horizon enums.CalendarHorizon `json:"horizon"`
 }
 
 // symbol,name,reportDate,fiscalDateEnding,estimate,currency
@@ -394,7 +400,9 @@ func (t *FundamentalsClient) EarningsCalendar(p EarningsCalendarParameter) ([]Ea
 	dic := make(map[string]string)
 	dic["function"] = "EARNINGS_CALENDAR"
 	dic["symbol"] = p.Symbol
-	dic["horizon"] = p.Horizon
+	if p.Horizon != nil {
+		dic["horizon"] = p.Horizon.String()
+	}
 
 	path := t.createQuerytUrl(dic)
 	result := make([]EarningsCalendar, 0)

@@ -22,7 +22,7 @@ type SentimentParameter struct {
 	TimeTo string `json:"time_to"`
 	// By default, sort=LATEST and the API will return the latest articles first.
 	// You can also set sort=EARLIEST or sort=RELEVANCE based on your use case.
-	Sort string `json:"sort"`
+	Sort enums.SentimentSort `json:"sort"`
 	// By default, limit=50 and the API will return up to 50 matching results. You can also set limit=1000 to output up to 1000 results.
 	Limit int `json:"limit"`
 }
@@ -42,8 +42,8 @@ func (p SentimentParameter) Validation() (map[string]string, error) {
 	if len(strings.TrimSpace(p.TimeTo)) > 0 {
 		dic["time_to"] = strings.TrimSpace(p.TimeTo)
 	}
-	if len(strings.TrimSpace(p.Sort)) > 0 {
-		dic["sort"] = strings.TrimSpace(p.Sort)
+	if p.Sort != nil {
+		dic["sort"] = p.Sort.String()
 	}
 	if p.Limit > 50 && p.Limit < 1000 {
 		dic["limit"] = strconv.Itoa(p.Limit)
