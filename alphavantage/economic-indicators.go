@@ -1,6 +1,9 @@
 package alphavantage
 
-import "github.com/futugyou/alphavantage/enums"
+import (
+	"github.com/futugyou/alphavantage/enums"
+	"github.com/futugyou/alphavantage/functions"
+)
 
 type EconomicIndicatorsClient struct {
 	innerClient
@@ -18,9 +21,9 @@ func NewEconomicIndicatorsClient(apikey string) *EconomicIndicatorsClient {
 
 type EconomicIndicatorsParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval           `json:"interval"`
-	Function enums.EconomicIndicatorsType `json:"function"`
-	Maturity enums.Maturity               `json:"maturity"`
+	Interval enums.LongInterval               `json:"interval"`
+	Function functions.EconomicIndicatorsType `json:"function"`
+	Maturity enums.Maturity                   `json:"maturity"`
 }
 
 func (p EconomicIndicatorsParameter) Validation() (map[string]string, error) {

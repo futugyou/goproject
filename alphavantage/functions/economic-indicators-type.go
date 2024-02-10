@@ -1,4 +1,4 @@
-package enums
+package functions
 
 type EconomicIndicatorsType interface {
 	private()

@@ -8,6 +8,7 @@ import (
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage/enums"
+	"github.com/futugyou/alphavantage/functions"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func EconomicIndicators() {
 	s := alphavantage.NewEconomicIndicatorsClient(apikey)
 	p := alphavantage.EconomicIndicatorsParameter{
 		Interval: enums.LWeekly,
-		Function: enums.RealGDP,
+		Function: functions.RealGDP,
 	}
 
 	result, err := s.GetEconomicIndicatorsDara(p)
