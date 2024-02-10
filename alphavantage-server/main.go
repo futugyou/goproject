@@ -16,7 +16,24 @@ func main() {
 	// Fundamentals()
 	// ForeignExchangeRates()
 	// DigitalCurrency()
-	Commodities()
+	// Commodities()
+	EconomicIndicators()
+}
+
+func EconomicIndicators() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewEconomicIndicatorsClient(apikey)
+	p := alphavantage.EconomicIndicatorsParameter{
+		Interval: enums.LWeekly,
+		Function: enums.RealGDP,
+	}
+
+	result, err := s.GetEconomicIndicatorsDara(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(result.Name, len(result.Data))
 }
 
 func Commodities() {
