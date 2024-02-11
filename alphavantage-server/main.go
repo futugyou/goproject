@@ -8,6 +8,7 @@ import (
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage/enums"
+	"github.com/futugyou/alphavantage/functions"
 )
 
 func main() {
@@ -17,7 +18,29 @@ func main() {
 	// ForeignExchangeRates()
 	// DigitalCurrency()
 	// Commodities()
-	EconomicIndicators()
+	// EconomicIndicators()
+	TechnicalIndicators()
+}
+
+func TechnicalIndicators() {
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	s := alphavantage.NewTechnicalIndicatorsClient(apikey)
+	p := alphavantage.TechnicalIndicatorsParameter{
+		Interval:   enums.I60min,
+		Symbol:     "IBM",
+		SeriesType: enums.TechnicalSeriesTypeClose,
+		Function:   functions.MAMA,
+	}
+
+	result, err := s.GetTechnicalIndicatorsData(p)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range result {
+		fmt.Println(v.Symbol, v.Function, v.Time, v.Item1, v.Item2, v.Item3)
+	}
 }
 
 func EconomicIndicators() {
