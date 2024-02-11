@@ -19,13 +19,12 @@ const _GLOBAL_QUOTE string = "GLOBAL_QUOTE"
 const _SYMBOL_SEARCH string = "SYMBOL_SEARCH"
 const _MARKET_STATUS string = "MARKET_STATUS"
 
-
 const _Alphavantage_Http_Scheme string = "https"
 const _Alphavantage_Host string = "www.alphavantage.co"
 const _Alphavantage_Path string = "query"
 const _Alphavantage_Datatype string = "csv"
 
-var time_format = []string{"2006-01-02 15:04:05", "2006-01-02"}
+var time_format = []string{"2006-01-02 15:04", "2006-01-02 15:04:05", "2006-01-02"}
 
 type innerClient struct {
 	httpClient *httpClient
