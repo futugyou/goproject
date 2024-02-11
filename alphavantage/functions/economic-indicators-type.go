@@ -1,13 +1,13 @@
 package functions
 
 type EconomicIndicatorsType interface {
-	private()
+	privateEconomicIndicatorsType()
 	String() string
 }
 
 type economicIndicatorsType string
 
-func (c economicIndicatorsType) private() {}
+func (c economicIndicatorsType) privateEconomicIndicatorsType() {}
 func (c economicIndicatorsType) String() string {
 	return string(c)
 }
