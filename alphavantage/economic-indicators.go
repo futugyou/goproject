@@ -119,7 +119,7 @@ type TreasuryYieldParameter struct {
 	Maturity enums.Maturity                 `json:"maturity"`
 }
 
-// This API returns the annual and quarterly Real GDP of the United States.
+// This API returns the daily, weekly, and monthly US treasury yield of a given maturity timeline (e.g., 5 year, 30 year, etc).
 func (t *EconomicIndicatorsClient) TreasuryYield(p TreasuryYieldParameter) (*EconomicIndicatorsResult, error) {
 	pp := innerEconomicIndicatorsParameter{TreasuryInterval: p.Interval, Maturity: p.Maturity, Function: functions.TreasuryYield}
 	dic, err := pp.Validation()
@@ -138,12 +138,131 @@ func (t *EconomicIndicatorsClient) TreasuryYield(p TreasuryYieldParameter) (*Eco
 }
 
 type InterestRateParameter struct {
-	Interval enums.EconomicFundsInterval `json:"interval"` 
+	Interval enums.EconomicFundsInterval `json:"interval"`
 }
 
-// This API returns the annual and quarterly Real GDP of the United States.
+// This API returns the daily, weekly, and monthly federal funds rate (interest rate) of the United States.
 func (t *EconomicIndicatorsClient) InterestRate(p InterestRateParameter) (*EconomicIndicatorsResult, error) {
-	pp := innerEconomicIndicatorsParameter{FundsInterval: p.Interval,  Function: functions.FederalFunds}
+	pp := innerEconomicIndicatorsParameter{FundsInterval: p.Interval, Function: functions.FederalFunds}
+	dic, err := pp.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &EconomicIndicatorsResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type CPIParameter struct {
+	Interval enums.EconomicCPIInterval `json:"interval"`
+}
+
+// This API returns the monthly and semiannual consumer price index (CPI) of the United States.
+// CPI is widely regarded as the barometer of inflation levels in the broader economy.
+func (t *EconomicIndicatorsClient) CPI(p CPIParameter) (*EconomicIndicatorsResult, error) {
+	pp := innerEconomicIndicatorsParameter{CPIInterval: p.Interval, Function: functions.CPI}
+	dic, err := pp.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &EconomicIndicatorsResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// This API returns the annual inflation rates (consumer prices) of the United States.
+func (t *EconomicIndicatorsClient) Inflation() (*EconomicIndicatorsResult, error) {
+	pp := innerEconomicIndicatorsParameter{Function: functions.Inflation}
+	dic, err := pp.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &EconomicIndicatorsResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// This API returns the monthly Advance Retail Sales: Retail Trade data of the United States.
+func (t *EconomicIndicatorsClient) RetailSales() (*EconomicIndicatorsResult, error) {
+	pp := innerEconomicIndicatorsParameter{Function: functions.RetailSales}
+	dic, err := pp.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &EconomicIndicatorsResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// This API returns the monthly manufacturers' new orders of durable goods in the United States.
+func (t *EconomicIndicatorsClient) DurableGoods() (*EconomicIndicatorsResult, error) {
+	pp := innerEconomicIndicatorsParameter{Function: functions.DurableGoods}
+	dic, err := pp.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &EconomicIndicatorsResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// This API returns the monthly unemployment data of the United States.
+// The unemployment rate represents the number of unemployed as a percentage of the labor force.
+// Labor force data are restricted to people 16 years of age and older, who currently reside in 1 of the 50 states or the District of Columbia,
+// who do not reside in institutions (e.g., penal and mental facilities, homes for the aged), and who are not on active duty in the Armed Forces (source).
+func (t *EconomicIndicatorsClient) UnemploymentRate() (*EconomicIndicatorsResult, error) {
+	pp := innerEconomicIndicatorsParameter{Function: functions.UnemploymentRate}
+	dic, err := pp.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	path := t.createQuerytUrl(dic)
+	result := &EconomicIndicatorsResult{}
+	err = t.httpClient.getJson(path, result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// This API returns the monthly US All Employees: 
+// Total Nonfarm (commonly known as Total Nonfarm Payroll),
+// a measure of the number of U.S. workers in the economy that excludes proprietors, private household employees, unpaid volunteers, farm employees,
+// and the unincorporated self-employed.
+func (t *EconomicIndicatorsClient) NonfarmPayroll() (*EconomicIndicatorsResult, error) {
+	pp := innerEconomicIndicatorsParameter{Function: functions.NonfarmPayroll}
 	dic, err := pp.Validation()
 	if err != nil {
 		return nil, err
