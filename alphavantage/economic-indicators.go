@@ -20,8 +20,8 @@ func NewEconomicIndicatorsClient(apikey string) *EconomicIndicatorsClient {
 }
 
 type EconomicIndicatorsParameter struct {
-	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval               `json:"interval"`
+	// By default, interval=annual. Strings quarterly and annual are accepted.
+	Interval enums.EconomicInterval           `json:"interval"`
 	Function functions.EconomicIndicatorsType `json:"function"`
 	Maturity enums.Maturity                   `json:"maturity"`
 }

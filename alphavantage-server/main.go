@@ -25,7 +25,7 @@ func EconomicIndicators() {
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	s := alphavantage.NewEconomicIndicatorsClient(apikey)
 	p := alphavantage.EconomicIndicatorsParameter{
-		Interval: enums.LWeekly,
+		Interval: enums.EconomicQuarterly,
 		Function: functions.RealGDP,
 	}
 
@@ -47,7 +47,7 @@ func Commodities() {
 
 func AllCommodities(s *alphavantage.CommoditiesClient) {
 	p := alphavantage.AllCommoditiesParameter{
-		Interval: enums.LWeekly,
+		Interval: enums.CommoditiesMonthly2,
 	}
 
 	result, err := s.AllCommodities(p)
@@ -60,7 +60,7 @@ func AllCommodities(s *alphavantage.CommoditiesClient) {
 
 func CrudeOilBrent(s *alphavantage.CommoditiesClient) {
 	p := alphavantage.CrudeOilBrentParameter{
-		Interval: enums.LWeekly,
+		Interval: enums.CommoditiesWeekly,
 	}
 
 	result, err := s.CrudeOilBrent(p)
@@ -73,7 +73,7 @@ func CrudeOilBrent(s *alphavantage.CommoditiesClient) {
 
 func CrudeOilWti(s *alphavantage.CommoditiesClient) {
 	p := alphavantage.CrudeOilWtiParameter{
-		Interval: enums.LWeekly,
+		Interval: enums.CommoditiesDaily,
 	}
 
 	result, err := s.CrudeOilWti(p)

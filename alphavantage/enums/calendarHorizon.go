@@ -1,13 +1,13 @@
 package enums
 
 type CalendarHorizon interface {
-	private()
+	privateCalendarHorizon()
 	String() string
 }
 
 type calendarHorizon string
 
-func (c calendarHorizon) private() {}
+func (c calendarHorizon) privateCalendarHorizon() {}
 func (c calendarHorizon) String() string {
 	return string(c)
 }

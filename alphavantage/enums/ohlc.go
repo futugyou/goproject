@@ -1,13 +1,13 @@
 package enums
 
 type OHLC interface {
-	private()
+	privateOHLC()
 	String() string
 }
 
 type ohlc string
 
-func (c ohlc) private() {}
+func (c ohlc) privateOHLC() {}
 func (c ohlc) String() string {
 	return string(c)
 }

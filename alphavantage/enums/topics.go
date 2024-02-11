@@ -1,13 +1,13 @@
 package enums
 
 type SentimentTopics interface {
-	private()
+	privateSentimentTopics()
 	String() string
 }
 
 type sentimentTopics string
 
-func (c sentimentTopics) private() {}
+func (c sentimentTopics) privateSentimentTopics() {}
 func (c sentimentTopics) String() string {
 	return string(c)
 }

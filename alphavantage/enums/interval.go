@@ -1,13 +1,13 @@
 package enums
 
 type Interval interface {
-	private()
+	privateInterval()
 	String() string
 }
 
 type interval string
 
-func (c interval) private() {}
+func (c interval) privateInterval() {}
 func (c interval) String() string {
 	return string(c)
 }

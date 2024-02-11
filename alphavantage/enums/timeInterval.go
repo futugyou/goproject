@@ -1,13 +1,13 @@
 package enums
 
 type TimeInterval interface {
-	private()
+	privateTimeInterval()
 	String() string
 }
 
 type timeInterval string
 
-func (c timeInterval) private() {}
+func (c timeInterval) privateTimeInterval() {}
 func (c timeInterval) String() string {
 	return string(c)
 }

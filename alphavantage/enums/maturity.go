@@ -1,13 +1,13 @@
 package enums
 
 type Maturity interface {
-	private()
+	privateMaturity()
 	String() string
 }
 
 type maturity string
 
-func (c maturity) private() {}
+func (c maturity) privateMaturity() {}
 func (c maturity) String() string {
 	return string(c)
 }

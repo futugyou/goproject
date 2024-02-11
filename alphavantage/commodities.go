@@ -21,7 +21,9 @@ func NewCommoditiesClient(apikey string) *CommoditiesClient {
 
 type innerCommoditiesParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval
+	// By default, interval=monthly. Strings monthly, quarterly, and annual are accepted.
+	Interval2 enums.CommoditiesInterval2
 }
 
 func (p innerCommoditiesParameter) Validation(function string) (map[string]string, error) {
@@ -29,6 +31,9 @@ func (p innerCommoditiesParameter) Validation(function string) (map[string]strin
 	dic["function"] = function
 	if p.Interval != nil {
 		dic["interval"] = p.Interval.String()
+	}
+	if p.Interval2 != nil {
+		dic["interval"] = p.Interval2.String()
 	}
 
 	dic["datatype"] = "json"
@@ -66,7 +71,7 @@ func (t *CommoditiesClient) innerCommoditiesRequest(p innerCommoditiesParameter,
 // parameter for WTI API
 type CrudeOilWtiParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval `json:"interval"`
 }
 
 type CrudeOilWti struct {
@@ -79,7 +84,7 @@ type CrudeOilWti struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) CrudeOilWti(p CrudeOilWtiParameter) (*CrudeOilWti, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "WTI")
 
 	if err != nil {
@@ -93,7 +98,7 @@ func (t *CommoditiesClient) CrudeOilWti(p CrudeOilWtiParameter) (*CrudeOilWti, e
 // parameter for BRENT API
 type CrudeOilBrentParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval `json:"interval"`
 }
 
 type CrudeOilBrent struct {
@@ -105,7 +110,7 @@ type CrudeOilBrent struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) CrudeOilBrent(p CrudeOilBrentParameter) (*CrudeOilBrent, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "BRENT")
 
 	if err != nil {
@@ -119,7 +124,7 @@ func (t *CommoditiesClient) CrudeOilBrent(p CrudeOilBrentParameter) (*CrudeOilBr
 // parameter for NATURAL_GAS API
 type NaturalGasParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval `json:"interval"`
 }
 
 type NaturalGas struct {
@@ -131,7 +136,7 @@ type NaturalGas struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) NaturalGas(p NaturalGasParameter) (*NaturalGas, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "NATURAL_GAS")
 
 	if err != nil {
@@ -145,7 +150,7 @@ func (t *CommoditiesClient) NaturalGas(p NaturalGasParameter) (*NaturalGas, erro
 // parameter for COPPER API
 type CopperParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Copper struct {
@@ -157,7 +162,7 @@ type Copper struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Copper(p CopperParameter) (*Copper, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "COPPER")
 
 	if err != nil {
@@ -171,7 +176,7 @@ func (t *CommoditiesClient) Copper(p CopperParameter) (*Copper, error) {
 // parameter for ALUMINUM API
 type AluminumParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Aluminum struct {
@@ -183,7 +188,7 @@ type Aluminum struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Aluminum(p CopperParameter) (*Aluminum, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "ALUMINUM")
 
 	if err != nil {
@@ -197,7 +202,7 @@ func (t *CommoditiesClient) Aluminum(p CopperParameter) (*Aluminum, error) {
 // parameter for WHEAT API
 type WheatParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Wheat struct {
@@ -209,7 +214,7 @@ type Wheat struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Wheat(p WheatParameter) (*Wheat, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "WHEAT")
 
 	if err != nil {
@@ -223,7 +228,7 @@ func (t *CommoditiesClient) Wheat(p WheatParameter) (*Wheat, error) {
 // parameter for CORN API
 type CornParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Corn struct {
@@ -235,7 +240,7 @@ type Corn struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Corn(p CornParameter) (*Corn, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "CORN")
 
 	if err != nil {
@@ -249,7 +254,7 @@ func (t *CommoditiesClient) Corn(p CornParameter) (*Corn, error) {
 // parameter for COTTON API
 type CottonParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Cotton struct {
@@ -261,7 +266,7 @@ type Cotton struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Cotton(p CottonParameter) (*Cotton, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "COTTON")
 
 	if err != nil {
@@ -275,7 +280,7 @@ func (t *CommoditiesClient) Cotton(p CottonParameter) (*Cotton, error) {
 // parameter for SUGAR API
 type SugarParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Sugar struct {
@@ -287,7 +292,7 @@ type Sugar struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Sugar(p SugarParameter) (*Sugar, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "SUGAR")
 
 	if err != nil {
@@ -301,7 +306,7 @@ func (t *CommoditiesClient) Sugar(p SugarParameter) (*Sugar, error) {
 // parameter for COFFEE API
 type CoffeeParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type Coffee struct {
@@ -313,7 +318,7 @@ type Coffee struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) Coffee(p CoffeeParameter) (*Coffee, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "COFFEE")
 
 	if err != nil {
@@ -327,7 +332,7 @@ func (t *CommoditiesClient) Coffee(p CoffeeParameter) (*Coffee, error) {
 // parameter for ALL_COMMODITIES API
 type AllCommoditiesParameter struct {
 	// By default, interval=monthly. Strings daily, weekly, and monthly are accepted.
-	Interval enums.LongInterval `json:"interval"`
+	Interval enums.CommoditiesInterval2 `json:"interval"`
 }
 
 type AllCommodities struct {
@@ -339,7 +344,7 @@ type AllCommodities struct {
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
 func (t *CommoditiesClient) AllCommodities(p AllCommoditiesParameter) (*AllCommodities, error) {
-	pp := innerCommoditiesParameter(p)
+	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "ALL_COMMODITIES")
 
 	if err != nil {

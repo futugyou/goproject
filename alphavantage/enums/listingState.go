@@ -1,13 +1,13 @@
 package enums
 
 type ListingState interface {
-	private()
+	privateListingState()
 	String() string
 }
 
 type listingState string
 
-func (c listingState) private() {}
+func (c listingState) privateListingState() {}
 func (c listingState) String() string {
 	return string(c)
 }
