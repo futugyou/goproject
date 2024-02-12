@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.27.1
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.146.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.24.7
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.38.2
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.38.3
 	github.com/aws/aws-sdk-go-v2/service/efs v1.26.6
 	github.com/aws/aws-sdk-go-v2/service/iam v1.28.7
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.1
@@ -31,7 +31,7 @@ require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.26.2
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.27.0
 
-require github.com/aws/aws-sdk-go-v2/service/iot v1.49.0
+require github.com/aws/aws-sdk-go-v2/service/iot v1.50.0
 
 require (
 	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.20.6
