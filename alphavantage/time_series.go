@@ -230,7 +230,9 @@ func (t *TimeSeriesClient) createRequestUrl(p timeSeriesParameter) string {
 	query := endpoint.Query()
 	query.Set("function", p.Function)
 	query.Set("symbol", p.Symbol)
-	query.Set("interval", p.Interval.String())
+	if p.Interval != nil {
+		query.Set("interval", p.Interval.String())
+	}
 	query.Set("apikey", t.apikey)
 	query.Set("datatype", t.datatype)
 	for k, v := range p.Dictionary {
