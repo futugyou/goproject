@@ -66,3 +66,13 @@ func SyncStockSymbolData() {
 func StockSymbolFilter(e StockEntity) primitive.D {
 	return bson.D{{Key: "symbol", Value: e.Symbol}}
 }
+
+func StockSymbolDatas() ([]StockEntity, error) {
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewStockRepository(config)
+	return repository.GetAll(context.Background())
+}
