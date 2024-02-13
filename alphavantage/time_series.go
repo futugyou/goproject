@@ -20,20 +20,6 @@ type TimeSeries struct {
 	Volume float64   `json:"volume"`
 }
 
-// timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient
-type TimeSeriesAdjusted struct {
-	Symbol           string    `json:"symbol"`
-	Time             time.Time `json:"time"`
-	Open             float64   `json:"open"`
-	High             float64   `json:"high"`
-	Low              float64   `json:"low"`
-	Close            float64   `json:"close"`
-	Volume           float64   `json:"volume"`
-	AdjustedClose    float64   `json:"adjusted_close"`
-	DividendAmount   float64   `json:"dividend_amount"`
-	SplitCoefficient float64   `json:"split_coefficient"`
-}
-
 type timeSeriesParameter struct {
 	Function   string             `json:"function"`
 	Symbol     string             `json:"symbol"`

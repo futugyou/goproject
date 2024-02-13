@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 
+	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -12,7 +14,7 @@ import (
 type IRepository[E IEntity, K any] interface {
 	GetAll(ctx context.Context) ([]E, error)
 	Paging(ctx context.Context, page Paging) ([]E, error)
-	InsertMany(ctx context.Context, items []E) error
+	InsertMany(ctx context.Context, items []E, filter DataFilter[E]) error
 }
 
 type DBConfig struct {
@@ -57,25 +59,66 @@ func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]E, error) {
 	return result, nil
 }
 
-func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E) error {
+type DataFilter[E IEntity] func(e E) primitive.D
+
+func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filter DataFilter[E]) error {
 	if len(items) == 0 {
 		return nil
 	}
 
-	item := items[0]
-	c := s.Client.Database(s.DBName).Collection(item.GetType())
-	entitys := make([]interface{}, len(items))
+	models := make([]mongo.WriteModel, len(items))
 	for i := 0; i < len(items); i++ {
-		entitys[i] = items[i]
+		e := items[i]
+		doc, err := flatbson.Flatten(e)
+		if err != nil {
+			log.Println("BulkWrite: ", i, err)
+			continue
+		}
+		model := mongo.NewUpdateOneModel().
+			SetFilter(filter(e)).
+			SetUpsert(true).
+			SetUpdate(bson.M{
+				"$set": doc,
+			})
+		models[i] = model
 	}
 
-	result, err := c.InsertMany(ctx, entitys)
+	item := items[0]
+	tableName := item.GetType()
+	c := s.Client.Database(s.DBName).Collection(tableName)
+	opts := options.BulkWrite().SetOrdered(false)
+	results, err := c.BulkWrite(ctx, models, opts)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
-	log.Println("Inserted Count: ", len(result.InsertedIDs))
+	log.Printf("%s, the number of documents inserted: %d\n", tableName, results.InsertedCount)
+	log.Printf("%s, the number of documents deleted: %d\n", tableName, results.DeletedCount)
+	log.Printf("%s, the number of documents matched by filters in update and replace operations: %d\n", tableName, results.MatchedCount)
+	log.Printf("%s, the number of documents upserted by update and replace operations: %d\n", tableName, results.UpsertedCount)
+	log.Printf("%s, the number of documents modified by update and replace operations: %d\n", tableName, results.ModifiedCount)
+
 	return nil
+
+	// if len(items) == 0 {
+	// 	return nil
+	// }
+
+	// item := items[0]
+	// c := s.Client.Database(s.DBName).Collection(item.GetType())
+	// entitys := make([]interface{}, len(items))
+	// for i := 0; i < len(items); i++ {
+	// 	entitys[i] = items[i]
+	// }
+
+	// result, err := c.InsertMany(ctx, entitys)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// log.Println("Inserted Count: ", len(result.InsertedIDs))
+	// return nil
 }
 
 func (s *MongoRepository[E, K]) Paging(ctx context.Context, page Paging) ([]*E, error) {
