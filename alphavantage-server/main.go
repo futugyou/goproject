@@ -17,5 +17,5 @@ func SymbolData() {
 }
 
 func StockSeries() {
-	stockSeries.SyncStockSeriesData()
+	stockSeries.SyncStockSeriesData("")
 }

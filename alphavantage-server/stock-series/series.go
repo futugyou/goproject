@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
@@ -13,7 +14,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func SyncStockSeriesData() {
+// For example, month=2009-01. Any month in the last 20+ years since 2000-01 (January 2000) is supported.
+// DOTO: add month table
+func SyncStockSeriesData(month string) {
 	log.Println("stock series data sync start.")
 	// get stock symbol data from db
 	list, err := stock.StockSymbolDatas()
@@ -37,6 +40,12 @@ func SyncStockSeriesData() {
 			Symbol:   symbol,
 			Interval: enums.T60min,
 		}
+		dic := make(map[string]string)
+		dic["outputsize"] = "full"
+		if len(strings.TrimSpace(month)) > 0 {
+			dic["month"] = "month"
+		}
+		p.Dictionary = dic
 		s, err := client.TimeSeriesIntraday(p)
 		if err != nil {
 			log.Println(err)
