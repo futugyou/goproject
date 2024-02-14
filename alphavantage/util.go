@@ -46,6 +46,21 @@ func (t *innerClient) createQuerytUrl(dic map[string]string) string {
 	return endpoint.String()
 }
 
+func (t *innerClient) createUrl(dic map[string]string,path string) string {
+	endpoint := &url.URL{}
+	endpoint.Scheme = _Alphavantage_Http_Scheme
+	endpoint.Host = _Alphavantage_Host
+	endpoint.Path = path
+	query := endpoint.Query()
+	query.Set("apikey", t.apikey)
+	for k, v := range dic {
+		query.Set(k, v)
+	}
+	endpoint.RawQuery = query.Encode()
+
+	return endpoint.String()
+}
+
 func parseTime(value string) (time.Time, error) {
 	if value == "null" {
 		return time.Time{}, nil
