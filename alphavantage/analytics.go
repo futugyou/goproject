@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/futugyou/alphavantage/enums"
-	"github.com/gopherjs/gopherjs/compiler/natives/src/strconv"
 )
 
 type AnalyticsClient struct {
