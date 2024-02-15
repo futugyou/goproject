@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"time"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyou/alphavantage-server/news"
@@ -9,17 +12,32 @@ import (
 )
 
 func main() {
-	// SymbolData()
-	// StockSeries()
-	News()
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		ProcessToRun()
+		return
+	}
+	// StockSeries("IBM")
+}
+
+func ProcessToRun() {
+	w := time.Now().Weekday()
+	if w == time.Saturday {
+		// Commodities data
+		// Economic Indicators data
+	} else {
+		index := int(time.Sunday)
+		symbol := stock.StockList[index]
+		StockSeries(symbol)
+	}
+
 }
 
 func SymbolData() {
 	stock.SyncStockSymbolData()
 }
 
-func StockSeries() {
-	stockSeries.SyncStockSeriesData("")
+func StockSeries(symbol string) {
+	stockSeries.SyncStockSeriesData(symbol)
 }
 
 func News() {

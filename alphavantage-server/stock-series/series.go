@@ -58,10 +58,17 @@ func SyncStockSeriesData(symbol string) {
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 	repository := NewStockSeriesRepository(config)
-	repository.InsertMany(context.Background(), data, StockFilter)
+	r, err := repository.InsertMany(context.Background(), data, StockFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
 	// update month
-	UpdateStaockMonth(month, symbol)
+	if r.UpsertedCount > 0 {
+		UpdateStaockMonth(month, symbol)
+	}
+
 	log.Println("stock series data sync finish")
 }
 
