@@ -15,7 +15,7 @@ import (
 func SyncStockSeriesData(symbol string) {
 	log.Println("stock series data sync start.")
 	// get sync month
-	month := GetStaockMonth()
+	month := GetStaockMonth(symbol)
 
 	log.Printf("start to get %s data, month %s \n", symbol, month)
 
@@ -61,7 +61,7 @@ func SyncStockSeriesData(symbol string) {
 	repository.InsertMany(context.Background(), data, StockFilter)
 
 	// update month
-	UpdateStaockMonth(month)
+	UpdateStaockMonth(month, symbol)
 	log.Println("stock series data sync finish")
 }
 

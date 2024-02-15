@@ -20,7 +20,7 @@ func (StockSeriesEntity) GetType() string {
 type StockSeriesConfigEntity struct {
 	Id     string `bson:"_id,omitempty"`
 	Month  string `bson:"month"`
-	Filter string `bson:"filter"`
+	Symbol string    `bson:"symbol"`
 }
 
 func (StockSeriesConfigEntity) GetType() string {

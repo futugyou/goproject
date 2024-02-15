@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetStaockMonth() string {
+func GetStaockMonth(symbol string) string {
 	month := "2000-01"
 
 	config := core.DBConfig{
@@ -19,15 +19,19 @@ func GetStaockMonth() string {
 	}
 
 	repo := NewStockSeriesConfigRepository(config)
-	c, _ := repo.GetAll(context.Background())
-	if len(c) > 0 && len(c[0].Month) > 0 {
-		month = c[0].Month
+	configList, _ := repo.GetAll(context.Background())
+	if len(configList) > 0 {
+		for _, config := range configList {
+			if config.Symbol == symbol {
+				month = config.Month
+			}
+		}
 	}
 
 	return month
 }
 
-func UpdateStaockMonth(month string) {
+func UpdateStaockMonth(month string, symbol string) {
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
@@ -37,7 +41,7 @@ func UpdateStaockMonth(month string) {
 	configs := []StockSeriesConfigEntity{
 		{
 			Month:  t.AddDate(0, 1, 0).Format("2006-01"),
-			Filter: "month",
+			Symbol: symbol,
 		},
 	}
 	repo := NewStockSeriesConfigRepository(config)
@@ -45,5 +49,5 @@ func UpdateStaockMonth(month string) {
 }
 
 func StockConfigFilter(e StockSeriesConfigEntity) primitive.D {
-	return bson.D{{Key: "filter", Value: e.Filter}}
+	return bson.D{{Key: "symbol", Value: e.Symbol}}
 }
