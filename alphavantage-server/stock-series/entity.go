@@ -16,3 +16,13 @@ type StockSeriesEntity struct {
 func (StockSeriesEntity) GetType() string {
 	return "stock-series"
 }
+
+type StockSeriesConfigEntity struct {
+	Id     string `bson:"_id,omitempty"`
+	Month  string `bson:"month"`
+	Filter string `bson:"filter"`
+}
+
+func (StockSeriesConfigEntity) GetType() string {
+	return "stock-series-config"
+}

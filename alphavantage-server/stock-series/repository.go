@@ -16,3 +16,16 @@ func NewStockSeriesRepository(config core.DBConfig) *StockSeriesRepository {
 	baseRepo := core.NewMongoRepository[StockSeriesEntity, string](config)
 	return &StockSeriesRepository{baseRepo}
 }
+
+type IStockSeriesConfigRepository interface {
+	core.IRepository[StockSeriesConfigEntity, string]
+}
+
+type StockSeriesConfigRepository struct {
+	*core.MongoRepository[StockSeriesConfigEntity, string]
+}
+
+func NewStockSeriesConfigRepository(config core.DBConfig) *StockSeriesConfigRepository {
+	baseRepo := core.NewMongoRepository[StockSeriesConfigEntity, string](config)
+	return &StockSeriesConfigRepository{baseRepo}
+}
