@@ -44,6 +44,7 @@ func checkResponseStatusCode(resp *http.Response) error {
 }
 
 func (c *httpClient) getCsv(path string) ([][]string, error) {
+	fmt.Println(path)
 	readCloser, err := c.get(path)
 	if err != nil {
 		return nil, err

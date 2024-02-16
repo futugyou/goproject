@@ -9,8 +9,6 @@ import (
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
 	"github.com/futugyou/alphavantage-server/stock"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func SyncNewsSentimentData() {
@@ -99,6 +97,6 @@ func getTopics(topic []alphavantage.Topic) []string {
 	return r
 }
 
-func NewsFilter(e NewsEntity) primitive.D {
-	return bson.D{{Key: "title", Value: e.Title}}
+func NewsFilter(e NewsEntity) []core.DataFilterItem {
+	return []core.DataFilterItem{{Key: "title", Value: e.Title}}
 }

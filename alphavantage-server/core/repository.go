@@ -7,7 +7,6 @@ import (
 
 	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -68,7 +67,11 @@ func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]E, error) {
 	return result, nil
 }
 
-type DataFilter[E IEntity] func(e E) primitive.D
+type DataFilter[E IEntity] func(e E) []DataFilterItem
+type DataFilterItem struct {
+	Key   string
+	Value interface{}
+}
 
 func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filter DataFilter[E]) (*InsertManyResult, error) {
 	if len(items) == 0 {
@@ -78,13 +81,18 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filte
 	models := make([]mongo.WriteModel, len(items))
 	for i := 0; i < len(items); i++ {
 		e := items[i]
+		items := filter(e)
+		ff := bson.D{}
+		for _, val := range items {
+			ff = append(ff, bson.E(val))
+		}
 		doc, err := flatbson.Flatten(e)
 		if err != nil {
 			log.Println("BulkWrite: ", i, err)
 			continue
 		}
 		model := mongo.NewUpdateOneModel().
-			SetFilter(filter(e)).
+			SetFilter(ff).
 			SetUpsert(true).
 			SetUpdate(bson.M{
 				"$set": doc,

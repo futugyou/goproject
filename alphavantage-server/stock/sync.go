@@ -8,8 +8,6 @@ import (
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func SyncStockSymbolData() {
@@ -63,8 +61,8 @@ func SyncStockSymbolData() {
 	repository.InsertMany(context.Background(), inputList, StockSymbolFilter)
 }
 
-func StockSymbolFilter(e StockEntity) primitive.D {
-	return bson.D{{Key: "symbol", Value: e.Symbol}}
+func StockSymbolFilter(e StockEntity) []core.DataFilterItem {
+	return []core.DataFilterItem{{Key: "symbol", Value: e.Symbol}}
 }
 
 func StockSymbolDatas() ([]StockEntity, error) {

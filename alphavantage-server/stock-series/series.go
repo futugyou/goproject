@@ -8,8 +8,6 @@ import (
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
 	"github.com/futugyou/alphavantage/enums"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func SyncStockSeriesData(symbol string) {
@@ -64,6 +62,7 @@ func SyncStockSeriesData(symbol string) {
 		return
 	}
 
+	log.Printf("current data sync count %d \n", r.UpsertedCount)
 	// update month
 	if r.UpsertedCount > 0 {
 		UpdateStaockMonth(month, symbol)
@@ -72,6 +71,6 @@ func SyncStockSeriesData(symbol string) {
 	log.Println("stock series data sync finish")
 }
 
-func StockFilter(e StockSeriesEntity) primitive.D {
-	return bson.D{{Key: "symbol", Value: e.Symbol}, {Key: "time", Value: e.Time}}
+func StockFilter(e StockSeriesEntity) []core.DataFilterItem {
+	return []core.DataFilterItem{{Key: "symbol", Value: e.Symbol}, {Key: "time", Value: e.Time}}
 }

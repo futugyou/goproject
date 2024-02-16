@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/futugyou/alphavantage-server/core"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func GetStaockMonth(symbol string) string {
@@ -48,6 +46,6 @@ func UpdateStaockMonth(month string, symbol string) {
 	repo.InsertMany(context.Background(), configs, StockConfigFilter)
 }
 
-func StockConfigFilter(e StockSeriesConfigEntity) primitive.D {
-	return bson.D{{Key: "symbol", Value: e.Symbol}}
+func StockConfigFilter(e StockSeriesConfigEntity) []core.DataFilterItem {
+	return []core.DataFilterItem{{Key: "symbol", Value: e.Symbol}}
 }
