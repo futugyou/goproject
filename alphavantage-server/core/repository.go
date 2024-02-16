@@ -19,6 +19,14 @@ type InsertManyResult struct {
 	UpsertedCount int64
 }
 
+func (i InsertManyResult) String() {
+	log.Printf("matched count %d \n", i.MatchedCount)
+	log.Printf("inserted count %d \n", i.InsertedCount)
+	log.Printf("modified count %d \n", i.ModifiedCount)
+	log.Printf("deleted count %d \n", i.DeletedCount)
+	log.Printf("upserted count %d \n", i.UpsertedCount)
+}
+
 type IRepository[E IEntity, K any] interface {
 	GetOne(ctx context.Context, filter []DataFilterItem) (*E, error)
 	Update(ctx context.Context, obj E, filter []DataFilterItem) error

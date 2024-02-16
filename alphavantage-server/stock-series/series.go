@@ -63,7 +63,7 @@ func SyncStockSeriesData(symbol string) {
 		return
 	}
 
-	log.Printf("current data sync count %d \n", r.UpsertedCount)
+	r.String()
 	// update month
 	if r.UpsertedCount > 0 || checkTime(month) {
 		UpdateStaockMonth(month, symbol)

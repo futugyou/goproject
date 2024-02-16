@@ -19,7 +19,7 @@ func SyncNewsSentimentData(symbol string) {
 	y, m, d := t.Date()
 	p := alphavantage.SentimentParameter{
 		Tickers:  symbol,
-		TimeFrom: time.Date(y, m, d-1, 0, 0, 0, 1, t.Location()).Format("20060102T1504"),
+		TimeFrom: time.Date(y, m, d-7, 0, 0, 0, 1, t.Location()).Format("20060102T1504"),
 		TimeTo:   time.Date(y, m, d, 0, 0, 0, -1, t.Location()).Format("20060102T1504"),
 	}
 	s, err := client.NewsSentiment(p)
@@ -67,8 +67,8 @@ func SyncNewsSentimentData(symbol string) {
 		log.Println(err)
 		return
 	}
-
-	log.Printf("current data sync count %d \n", r.UpsertedCount)
+	
+	r.String() 
 	log.Println("news sentiment data sync finish")
 }
 

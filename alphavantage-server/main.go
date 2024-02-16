@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
+	"github.com/futugyou/alphavantage-server/income"
 	"github.com/futugyou/alphavantage-server/news"
 	"github.com/futugyou/alphavantage-server/stock"
 	stockSeries "github.com/futugyou/alphavantage-server/stock-series"
@@ -16,7 +17,7 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	SymbolData("IBM")
+	// Income("IBM")
 }
 
 func ProcessToRun() {
@@ -30,6 +31,7 @@ func ProcessToRun() {
 		SymbolData(symbol)
 		News(symbol)
 		StockSeries(symbol)
+		Income(symbol)
 	}
 
 }
@@ -44,4 +46,8 @@ func StockSeries(symbol string) {
 
 func News(symbol string) {
 	news.SyncNewsSentimentData(symbol)
+}
+
+func Income(symbol string) {
+	income.SyncIncomeStatementData(symbol)
 }
