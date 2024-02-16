@@ -8,66 +8,51 @@ import (
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
-	"github.com/futugyou/alphavantage-server/stock"
 )
 
-func SyncNewsSentimentData() {
-	log.Println("news sentiment data sync start.")
-	// get stock symbol data from db
-	list, err := stock.StockSymbolDatas()
-	if err != nil {
+func SyncNewsSentimentData(symbol string) {
+	log.Printf("%s news sentiment data sync start. \n", symbol)
+	// get news data from alphavantage
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	client := alphavantage.NewIntelligenceClient(apikey)
+	t := time.Now()
+	y, m, d := t.Date()
+	p := alphavantage.SentimentParameter{
+		Tickers:  symbol,
+		TimeFrom: time.Date(y, m, d-1, 0, 0, 0, 1, t.Location()).Format("20060102T1504"),
+		TimeTo:   time.Date(y, m, d, 0, 0, 0, -1, t.Location()).Format("20060102T1504"),
+	}
+	s, err := client.NewsSentiment(p)
+	if err != nil || s == nil {
 		log.Println(err)
 		return
 	}
-
-	if len(list) == 0 {
-		return
-	}
-
+	log.Printf("%s feed count is %d \n", symbol, len(s.Feed))
 	// create news list
 	data := make([]NewsEntity, 0)
-	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
-	client := alphavantage.NewIntelligenceClient(apikey)
-	for i := 0; i < len(list); i++ {
-		symbol := list[i].Symbol
-		log.Printf("start to get %s data \n", symbol)
-		t := time.Now()
-		y, m, d := t.Date()
-		p := alphavantage.SentimentParameter{
-			Tickers:  symbol,
-			TimeFrom: time.Date(y, m, d-1, 0, 0, 0, 1, t.Location()).Format("20060102T1504"),
-			TimeTo:   time.Date(y, m, d, 0, 0, 0, -1, t.Location()).Format("20060102T1504"),
-		}
-		s, err := client.NewsSentiment(p)
-		if err != nil || s == nil {
+	for ii := 0; ii < len(s.Feed); ii++ {
+		timePublished, err := time.Parse("20060102T150405", s.Feed[ii].TimePublished)
+		if err != nil {
 			log.Println(err)
 			continue
 		}
-		log.Printf("%s feed count is %d \n", symbol, len(s.Feed))
-		for ii := 0; ii < len(s.Feed); ii++ {
-			timePublished, err := time.Parse("20060102T150405", s.Feed[ii].TimePublished)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			e := NewsEntity{
-				Id:                    s.Feed[ii].Title + s.Feed[ii].TimePublished,
-				Title:                 s.Feed[ii].Title,
-				URL:                   s.Feed[ii].URL,
-				TimePublished:         timePublished,
-				Authors:               s.Feed[ii].Authors,
-				Summary:               s.Feed[ii].Summary,
-				BannerImage:           s.Feed[ii].BannerImage,
-				Source:                s.Feed[ii].Source,
-				CategoryWithinSource:  s.Feed[ii].CategoryWithinSource,
-				SourceDomain:          s.Feed[ii].SourceDomain,
-				Topics:                getTopics(s.Feed[ii].Topics),
-				OverallSentimentScore: s.Feed[ii].OverallSentimentScore,
-				OverallSentimentLabel: s.Feed[ii].OverallSentimentLabel,
-				TickerSentiment:       getTickerSentiment(s.Feed[ii].TickerSentiment),
-			}
-			data = append(data, e)
+		e := NewsEntity{
+			Id:                    s.Feed[ii].Title + s.Feed[ii].TimePublished,
+			Title:                 s.Feed[ii].Title,
+			URL:                   s.Feed[ii].URL,
+			TimePublished:         timePublished,
+			Authors:               s.Feed[ii].Authors,
+			Summary:               s.Feed[ii].Summary,
+			BannerImage:           s.Feed[ii].BannerImage,
+			Source:                s.Feed[ii].Source,
+			CategoryWithinSource:  s.Feed[ii].CategoryWithinSource,
+			SourceDomain:          s.Feed[ii].SourceDomain,
+			Topics:                getTopics(s.Feed[ii].Topics),
+			OverallSentimentScore: s.Feed[ii].OverallSentimentScore,
+			OverallSentimentLabel: s.Feed[ii].OverallSentimentLabel,
+			TickerSentiment:       getTickerSentiment(s.Feed[ii].TickerSentiment),
 		}
+		data = append(data, e)
 	}
 
 	// insert data
@@ -77,7 +62,13 @@ func SyncNewsSentimentData() {
 	}
 
 	repository := NewNewsRepository(config)
-	repository.InsertMany(context.Background(), data, NewsFilter)
+	r, err := repository.InsertMany(context.Background(), data, NewsFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Printf("current data sync count %d \n", r.UpsertedCount)
 	log.Println("news sentiment data sync finish")
 }
 
