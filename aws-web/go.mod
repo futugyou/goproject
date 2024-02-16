@@ -7,27 +7,27 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.27.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.34.0
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.33.0
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.28.0
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.33.1
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.28.1
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.147.0
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.25.0
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.39.0
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.25.1
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.39.1
 	github.com/aws/aws-sdk-go-v2/service/efs v1.27.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.29.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.49.0
-	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.28.0
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.46.0
+	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.28.1
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.46.1
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.45.0
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.45.1
 
 require github.com/aws/aws-sdk-go-v2/service/route53 v1.38.0
 
-require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.27.0
+require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.27.1
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.28.0
 
