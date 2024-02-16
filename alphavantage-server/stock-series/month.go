@@ -17,13 +17,9 @@ func GetStaockMonth(symbol string) string {
 	}
 
 	repo := NewStockSeriesConfigRepository(config)
-	configList, _ := repo.GetAll(context.Background())
-	if len(configList) > 0 {
-		for _, config := range configList {
-			if config.Symbol == symbol {
-				month = config.Month
-			}
-		}
+	conf, _ := repo.GetOne(context.Background(), []core.DataFilterItem{{Key: "symbol", Value: symbol}})
+	if conf != nil {
+		month = conf.Month
 	}
 
 	return month
@@ -36,14 +32,14 @@ func UpdateStaockMonth(month string, symbol string) {
 	}
 
 	t, _ := time.Parse("2006-01", month)
-	configs := []StockSeriesConfigEntity{
-		{
+	repo := NewStockSeriesConfigRepository(config)
+	repo.Update(context.Background(),
+		StockSeriesConfigEntity{
 			Month:  t.AddDate(0, 1, 0).Format("2006-01"),
 			Symbol: symbol,
 		},
-	}
-	repo := NewStockSeriesConfigRepository(config)
-	repo.InsertMany(context.Background(), configs, StockConfigFilter)
+		[]core.DataFilterItem{{Key: "symbol", Value: symbol}},
+	)
 }
 
 func StockConfigFilter(e StockSeriesConfigEntity) []core.DataFilterItem {

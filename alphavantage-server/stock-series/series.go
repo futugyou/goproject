@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
@@ -64,7 +65,7 @@ func SyncStockSeriesData(symbol string) {
 
 	log.Printf("current data sync count %d \n", r.UpsertedCount)
 	// update month
-	if r.UpsertedCount > 0 {
+	if r.UpsertedCount > 0 || checkTime(month) {
 		UpdateStaockMonth(month, symbol)
 	}
 
@@ -73,4 +74,10 @@ func SyncStockSeriesData(symbol string) {
 
 func StockFilter(e StockSeriesEntity) []core.DataFilterItem {
 	return []core.DataFilterItem{{Key: "symbol", Value: e.Symbol}, {Key: "time", Value: e.Time}}
+}
+
+func checkTime(month string) bool {
+	t, _ := time.Parse("2006-01", month)
+	tt, _ := time.Parse("2006-01", time.Now().Format("2006-01"))
+	return t.Before(tt)
 }
