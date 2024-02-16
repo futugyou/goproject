@@ -20,6 +20,8 @@ type InsertManyResult struct {
 }
 
 type IRepository[E IEntity, K any] interface {
+	GetOne(ctx context.Context, filter []DataFilterItem) (*E, error)
+	Update(ctx context.Context, obj E, filter []DataFilterItem) error
 	GetAll(ctx context.Context) ([]E, error)
 	Paging(ctx context.Context, page Paging) ([]E, error)
 	InsertMany(ctx context.Context, items []E, filter DataFilter[E]) (*InsertManyResult, error)
@@ -112,10 +114,10 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filte
 
 	result := &InsertManyResult{
 		InsertedCount: results.InsertedCount,
-		MatchedCount:  results.DeletedCount,
-		ModifiedCount: results.MatchedCount,
-		DeletedCount:  results.UpsertedCount,
-		UpsertedCount: results.ModifiedCount,
+		MatchedCount:  results.MatchedCount,
+		ModifiedCount: results.ModifiedCount,
+		DeletedCount:  results.DeletedCount,
+		UpsertedCount: results.UpsertedCount,
 	}
 	return result, nil
 }
@@ -152,4 +154,45 @@ func (s *MongoRepository[E, K]) Paging(ctx context.Context, page Paging) ([]*E, 
 	}
 
 	return result, nil
+}
+
+func (s *MongoRepository[E, K]) GetOne(ctx context.Context, filter []DataFilterItem) (*E, error) {
+	entity := new(E)
+	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+	ff := bson.D{}
+	for _, val := range filter {
+		ff = append(ff, bson.E(val))
+	}
+	err := c.FindOne(ctx, ff).Decode(&entity)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return entity, nil
+}
+
+func (s *MongoRepository[E, K]) Update(ctx context.Context, obj E, filter []DataFilterItem) error {
+	c := s.Client.Database(s.DBName).Collection(obj.GetType())
+	opt := options.Update().SetUpsert(true)
+	doc, err := flatbson.Flatten(obj)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	ff := bson.D{}
+	for _, val := range filter {
+		ff = append(ff, bson.E(val))
+	}
+	result, err := c.UpdateOne(ctx, ff, bson.M{
+		"$set": doc,
+	}, opt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	log.Println("update count: ", result.UpsertedCount)
+	return nil
 }
