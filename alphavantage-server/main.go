@@ -16,7 +16,7 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	// StockSeries("IBM")
+	SymbolData("IBM")
 }
 
 func ProcessToRun() {
@@ -27,14 +27,15 @@ func ProcessToRun() {
 	} else {
 		index := int(time.Sunday)
 		symbol := stock.StockList[index]
-		StockSeries(symbol)
+		SymbolData(symbol)
 		News(symbol)
+		StockSeries(symbol)
 	}
 
 }
 
-func SymbolData() {
-	stock.SyncStockSymbolData()
+func SymbolData(symbol string) {
+	stock.SyncStockSymbolData(symbol)
 }
 
 func StockSeries(symbol string) {
@@ -42,5 +43,5 @@ func StockSeries(symbol string) {
 }
 
 func News(symbol string) {
-	news.SyncNewsSentimentData(symbol  )
+	news.SyncNewsSentimentData(symbol)
 }

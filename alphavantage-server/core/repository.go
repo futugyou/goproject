@@ -193,6 +193,8 @@ func (s *MongoRepository[E, K]) Update(ctx context.Context, obj E, filter []Data
 		return err
 	}
 
-	log.Println("update count: ", result.UpsertedCount)
+	log.Println("match count: ", result.MatchedCount)
+	log.Println("insert count: ", result.UpsertedCount)
+	log.Println("update count: ", result.ModifiedCount)
 	return nil
 }
