@@ -8,6 +8,7 @@ import (
 
 	"github.com/futugyou/alphavantage-server/balance"
 	"github.com/futugyou/alphavantage-server/cash"
+	"github.com/futugyou/alphavantage-server/earnings"
 	"github.com/futugyou/alphavantage-server/income"
 	"github.com/futugyou/alphavantage-server/news"
 	"github.com/futugyou/alphavantage-server/stock"
@@ -19,7 +20,7 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	Cash("IBM")
+	Earning("IBM")
 }
 
 func ProcessToRun() {
@@ -61,4 +62,8 @@ func Balance(symbol string) {
 
 func Cash(symbol string) {
 	cash.SyncCashSheetData(symbol)
+}
+
+func Earning(symbol string) {
+	earnings.SyncEarningsData(symbol)
 }

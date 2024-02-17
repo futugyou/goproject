@@ -294,17 +294,12 @@ type EarningsParameter struct {
 }
 
 type Earnings struct {
-	Symbol            string             `json:"symbol"`
-	AnnualEarnings    []AnnualEarning    `json:"annualEarnings"`
-	QuarterlyEarnings []QuarterlyEarning `json:"quarterlyEarnings"`
+	Symbol            string           `json:"symbol"`
+	AnnualEarnings    []EarningsReport `json:"annualEarnings"`
+	QuarterlyEarnings []EarningsReport `json:"quarterlyEarnings"`
 }
 
-type AnnualEarning struct {
-	FiscalDateEnding string `json:"fiscalDateEnding"`
-	ReportedEPS      string `json:"reportedEPS"`
-}
-
-type QuarterlyEarning struct {
+type EarningsReport struct {
 	FiscalDateEnding   string `json:"fiscalDateEnding"`
 	ReportedDate       string `json:"reportedDate"`
 	ReportedEPS        string `json:"reportedEPS"`
