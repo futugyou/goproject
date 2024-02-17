@@ -8,6 +8,7 @@ import (
 
 	"github.com/futugyou/alphavantage-server/balance"
 	"github.com/futugyou/alphavantage-server/cash"
+	"github.com/futugyou/alphavantage-server/commodities"
 	"github.com/futugyou/alphavantage-server/earnings"
 	"github.com/futugyou/alphavantage-server/expected"
 	"github.com/futugyou/alphavantage-server/income"
@@ -21,22 +22,27 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	Expected("IBM")
+	CommoditiesData()
 }
 
 func ProcessToRun() {
 	w := time.Now().Weekday()
 	if w == time.Saturday {
-		// Commodities data
+		CommoditiesData()
 		// Economic Indicators data
 	} else {
 		index := int(time.Sunday)
 		symbol := stock.StockList[index]
 		SymbolData(symbol)
-		News(symbol)
-		StockSeries(symbol)
+
 		Income(symbol)
 		Balance(symbol)
+		Cash(symbol)
+		Earning(symbol)
+		Expected(symbol)
+
+		News(symbol)
+		StockSeries(symbol)
 	}
 
 }
@@ -71,4 +77,8 @@ func Earning(symbol string) {
 
 func Expected(symbol string) {
 	expected.SyncExpectedData(symbol)
+}
+
+func CommoditiesData() {
+	commodities.SyncAllCommoditiesData()
 }

@@ -187,7 +187,7 @@ type Aluminum struct {
 // Source: International Monetary Fund (IMF Terms of Use), Global price of Aluminum, retrieved from FRED, Federal Reserve Bank of St. Louis.
 // This data feed uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 // By using this data feed, you agree to be bound by the FRED® API Terms of Use.
-func (t *CommoditiesClient) Aluminum(p CopperParameter) (*Aluminum, error) {
+func (t *CommoditiesClient) Aluminum(p AluminumParameter) (*Aluminum, error) {
 	pp := innerCommoditiesParameter{Interval2: p.Interval}
 	inner, err := t.innerCommoditiesRequest(pp, "ALUMINUM")
 
