@@ -7,6 +7,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyou/alphavantage-server/balance"
+	"github.com/futugyou/alphavantage-server/cash"
 	"github.com/futugyou/alphavantage-server/income"
 	"github.com/futugyou/alphavantage-server/news"
 	"github.com/futugyou/alphavantage-server/stock"
@@ -18,7 +19,7 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	Balance("IBM")
+	Cash("IBM")
 }
 
 func ProcessToRun() {
@@ -56,4 +57,8 @@ func Income(symbol string) {
 
 func Balance(symbol string) {
 	balance.SyncBalanceSheetData(symbol)
+}
+
+func Cash(symbol string) {
+	cash.SyncCashSheetData(symbol)
 }

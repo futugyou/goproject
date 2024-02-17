@@ -45,5 +45,5 @@ type BalanceEntity struct {
 }
 
 func (BalanceEntity) GetType() string {
-	return "Balances"
+	return "balances"
 }
