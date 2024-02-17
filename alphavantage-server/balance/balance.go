@@ -48,7 +48,7 @@ func SyncBalanceSheetData(symbol string) {
 	}
 
 	r.String()
-	log.Println("Balance sentiment data sync finish")
+	log.Println("balance data sync finish")
 }
 
 func createBalanceEntity(Balance alphavantage.BalanceSheetReport, symbol string, dataType string) BalanceEntity {

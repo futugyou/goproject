@@ -48,7 +48,7 @@ func SyncCashSheetData(symbol string) {
 	}
 
 	r.String()
-	log.Println("Cash sentiment data sync finish")
+	log.Println("cash data sync finish")
 }
 
 func createCashEntity(cash alphavantage.CashFlowReport, symbol string, dataType string) CashEntity {

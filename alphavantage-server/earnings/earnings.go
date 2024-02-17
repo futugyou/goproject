@@ -48,7 +48,7 @@ func SyncEarningsData(symbol string) {
 	}
 
 	r.String()
-	log.Println("Earnings sentiment data sync finish")
+	log.Println("earnings data sync finish")
 }
 
 func createEarningsEntity(earnings alphavantage.EarningsReport, symbol string, dataType string) EarningsEntity {
