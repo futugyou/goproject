@@ -62,12 +62,12 @@ func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]E, error) {
 	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return result, err
 	}
 
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Println(err)
-		return nil, err
+		return result, err
 	}
 
 	for _, data := range result {
