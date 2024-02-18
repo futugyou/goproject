@@ -72,16 +72,17 @@ func SyncMonthlyCommoditiesData() {
 	log.Println("commodities monthly data sync finish")
 }
 
-func convertData(name string, interval string, unit string, d []alphavantage.Datum) []CommoditiesEntity {
+func convertData(name string, interval string, unit string, datatype string, d []alphavantage.Datum) []CommoditiesEntity {
 	data := make([]CommoditiesEntity, 0)
 	for _, v := range d {
 		data = append(data, CommoditiesEntity{
-			Id:       name + v.Date,
+			Id:       datatype + v.Date,
 			Name:     name,
 			Interval: interval,
 			Unit:     unit,
 			Date:     v.Date,
 			Value:    v.Value,
+			DataType: datatype,
 		})
 	}
 	return data
@@ -98,7 +99,7 @@ func wti(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "wti", s.Data)
 }
 
 func brent(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -111,7 +112,7 @@ func brent(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "brent", s.Data)
 }
 
 func gas(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -124,7 +125,7 @@ func gas(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "gas", s.Data)
 }
 
 func copper(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -137,7 +138,7 @@ func copper(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "copper", s.Data)
 }
 
 func aluminum(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -150,7 +151,7 @@ func aluminum(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "aluminum", s.Data)
 }
 
 func wheat(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -163,7 +164,7 @@ func wheat(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "wheat", s.Data)
 }
 
 func corn(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -176,7 +177,7 @@ func corn(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "corn", s.Data)
 }
 
 func cotton(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -189,7 +190,7 @@ func cotton(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "cotton", s.Data)
 }
 
 func sugar(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -202,7 +203,7 @@ func sugar(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "sugar", s.Data)
 }
 
 func coffee(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -215,7 +216,7 @@ func coffee(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "coffee", s.Data)
 }
 
 func all(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
@@ -228,7 +229,7 @@ func all(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "all", s.Data)
 }
 
 func SyncDailyEconomicData() {
@@ -352,7 +353,7 @@ func realgdp(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity 
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "realgdp", s.Data)
 }
 
 func realgdpcapita(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -363,7 +364,7 @@ func realgdpcapita(client *alphavantage.EconomicIndicatorsClient) []CommoditiesE
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "realgdpcapita", s.Data)
 }
 
 func treasury(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -378,7 +379,7 @@ func treasury(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "treasury", s.Data)
 }
 
 func interest(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -392,7 +393,7 @@ func interest(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "interest", s.Data)
 }
 
 func cpi(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -406,7 +407,7 @@ func cpi(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "cpi", s.Data)
 }
 
 func inflation(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -417,7 +418,7 @@ func inflation(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntit
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "inflation", s.Data)
 }
 
 func retail(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -428,7 +429,7 @@ func retail(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "retail", s.Data)
 }
 
 func durable(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -439,7 +440,7 @@ func durable(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity 
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "durable", s.Data)
 }
 
 func unemployment(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -450,7 +451,7 @@ func unemployment(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEn
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "unemployment", s.Data)
 }
 
 func payroll(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
@@ -461,9 +462,9 @@ func payroll(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity 
 		return []CommoditiesEntity{}
 	}
 
-	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+	return convertData(s.Name, s.Interval, s.Unit, "payroll", s.Data)
 }
 
 func CommoditiesFilter(e CommoditiesEntity) []core.DataFilterItem {
-	return []core.DataFilterItem{{Key: "name", Value: e.Name}, {Key: "date", Value: e.Date}}
+	return []core.DataFilterItem{{Key: "type", Value: e.DataType}, {Key: "date", Value: e.Date}}
 }
