@@ -10,16 +10,42 @@ import (
 	"github.com/futugyou/alphavantage/enums"
 )
 
-func SyncAllCommoditiesData() {
-	log.Println("commodities data sync start")
+func SyncDailyCommoditiesData() {
+	log.Println("commodities daily data sync start")
 	// get commodities data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	client := alphavantage.NewCommoditiesClient(apikey)
 
-	// get all commodities data
+	// get daily commodities data
 	data := wti(client)
 	data = append(data, brent(client)...)
 	data = append(data, gas(client)...)
+
+	// insert data
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewCommoditiesRepository(config)
+	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	r.String()
+	log.Println("commodities daily data sync finish")
+}
+
+func SyncMonthlyCommoditiesData() {
+	log.Println("commodities monthly data sync start")
+	// get commodities data from alphavantage
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	client := alphavantage.NewCommoditiesClient(apikey)
+
+	// get monthly commodities data
+	data := copper(client)
 	data = append(data, copper(client)...)
 	data = append(data, aluminum(client)...)
 	data = append(data, wheat(client)...)
@@ -43,7 +69,7 @@ func SyncAllCommoditiesData() {
 	}
 
 	r.String()
-	log.Println("commodities data sync finish")
+	log.Println("commodities monthly data sync finish")
 }
 
 func convertData(name string, interval string, unit string, d []alphavantage.Datum) []CommoditiesEntity {
@@ -202,6 +228,239 @@ func all(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 		log.Println(err)
 		return []CommoditiesEntity{}
 	}
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func SyncDailyEconomicData() {
+	log.Println("economic daily data sync start")
+	// get economic data from alphavantage
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	client := alphavantage.NewEconomicIndicatorsClient(apikey)
+
+	// get daily economic data
+	data := treasury(client)
+	data = append(data, interest(client)...)
+
+	// insert data
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewCommoditiesRepository(config)
+	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	r.String()
+	log.Println("economic daily data sync finish")
+}
+
+func SyncMonthlyEconomicData() {
+	log.Println("economic monthly data sync start")
+	// get economic data from alphavantage
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	client := alphavantage.NewEconomicIndicatorsClient(apikey)
+
+	// get monthly economic data
+	data := cpi(client)
+	data = append(data, retail(client)...)
+	data = append(data, durable(client)...)
+	data = append(data, unemployment(client)...)
+	data = append(data, payroll(client)...)
+
+	// insert data
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewCommoditiesRepository(config)
+	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	r.String()
+	log.Println("economic monthly data sync finish")
+}
+
+func SyncQuarterlyEconomicData() {
+	log.Println("economic quarterly data sync start")
+	// get economic data from alphavantage
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	client := alphavantage.NewEconomicIndicatorsClient(apikey)
+
+	// get quarterly economic data
+	data := realgdp(client)
+	data = append(data, realgdpcapita(client)...)
+
+	// insert data
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewCommoditiesRepository(config)
+	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	r.String()
+	log.Println("economic quarterly data sync finish")
+}
+
+func SyncAnnualEconomicData() {
+	log.Println("economic annual data sync start")
+	// get economic data from alphavantage
+	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	client := alphavantage.NewEconomicIndicatorsClient(apikey)
+
+	// get annual economic data
+	data := inflation(client)
+
+	// insert data
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewCommoditiesRepository(config)
+	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	r.String()
+	log.Println("economic annual data sync finish")
+}
+
+func realgdp(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get real gdp from alphavantage")
+	p := alphavantage.RealGdpParameter{
+		Interval: enums.EconomicGdpQuarterly,
+	}
+	s, err := client.RealGdp(p)
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func realgdpcapita(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get real-gdp-per-capita from alphavantage")
+	s, err := client.RealGdpPerCapita()
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func treasury(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get treasury from alphavantage")
+	p := alphavantage.TreasuryYieldParameter{
+		Interval: enums.EconomicTreasuryDaily,
+		Maturity: enums.M5year,
+	}
+	s, err := client.TreasuryYield(p)
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func interest(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get interest from alphavantage")
+	p := alphavantage.InterestRateParameter{
+		Interval: enums.EconomicFundsDaily,
+	}
+	s, err := client.InterestRate(p)
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func cpi(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get cpi from alphavantage")
+	p := alphavantage.CPIParameter{
+		Interval: enums.EconomicCPIMonthly,
+	}
+	s, err := client.CPI(p)
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func inflation(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get inflation from alphavantage")
+	s, err := client.Inflation()
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func retail(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get retail-sales from alphavantage")
+	s, err := client.RetailSales()
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func durable(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get durable-goods from alphavantage")
+	s, err := client.DurableGoods()
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func unemployment(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get unemployment from alphavantage")
+	s, err := client.UnemploymentRate()
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
+	return convertData(s.Name, s.Interval, s.Unit, s.Data)
+}
+
+func payroll(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity {
+	log.Println("get nonfarm-payroll from alphavantage")
+	s, err := client.NonfarmPayroll()
+	if err != nil || s == nil {
+		log.Println(err)
+		return []CommoditiesEntity{}
+	}
+
 	return convertData(s.Name, s.Interval, s.Unit, s.Data)
 }
 

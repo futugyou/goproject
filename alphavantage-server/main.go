@@ -29,7 +29,7 @@ func ProcessToRun() {
 	w := time.Now().Weekday()
 	if w == time.Saturday {
 		CommoditiesData()
-		// Economic Indicators data
+		EconomicIndicatorsData()
 	} else {
 		index := int(time.Sunday)
 		symbol := stock.StockList[index]
@@ -80,5 +80,13 @@ func Expected(symbol string) {
 }
 
 func CommoditiesData() {
-	commodities.SyncAllCommoditiesData()
+	commodities.SyncDailyCommoditiesData()
+	commodities.SyncMonthlyCommoditiesData()
+}
+
+func EconomicIndicatorsData() {
+	commodities.SyncDailyEconomicData()
+	commodities.SyncMonthlyEconomicData()
+	commodities.SyncQuarterlyEconomicData()
+	commodities.SyncAnnualEconomicData()
 }

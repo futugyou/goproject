@@ -58,7 +58,7 @@ type EconomicIndicatorsResult struct {
 	Data     []Datum `json:"data"`
 }
 
-func (t *EconomicIndicatorsClient) GetEconomicIndicatorsDara(p innerEconomicIndicatorsParameter) (*EconomicIndicatorsResult, error) {
+func (t *EconomicIndicatorsClient) GetEconomicIndicatorsData(p innerEconomicIndicatorsParameter) (*EconomicIndicatorsResult, error) {
 	dic, err := p.Validation()
 	if err != nil {
 		return nil, err
@@ -257,7 +257,7 @@ func (t *EconomicIndicatorsClient) UnemploymentRate() (*EconomicIndicatorsResult
 	return result, nil
 }
 
-// This API returns the monthly US All Employees: 
+// This API returns the monthly US All Employees:
 // Total Nonfarm (commonly known as Total Nonfarm Payroll),
 // a measure of the number of U.S. workers in the economy that excludes proprietors, private household employees, unpaid volunteers, farm employees,
 // and the unincorporated self-employed.
