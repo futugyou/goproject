@@ -81,3 +81,33 @@ func GetCurrentStock() (string, error) {
 
 	return data[0].Symbol, nil
 }
+
+func InitAllStock() (bool, []string, error) {
+	result := make([]string, 0)
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewBaseDataRepository(config)
+	data, err := repository.GetAll(context.Background())
+	if err != nil {
+		log.Println(err)
+		return false, result, err
+	}
+
+	if len(data) > 0 {
+		for i := 0; i < len(data); i++ {
+			result = append(result, data[i].Symbol)
+		}
+		return false, result, nil
+	}
+
+	for i := 0; i < len(stock.StockList); i++ {
+		symbol := stock.StockList[i]
+		AddNewStock(symbol)
+		result = append(result, symbol)
+	}
+
+	return true, result, nil
+}

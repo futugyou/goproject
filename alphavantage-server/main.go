@@ -24,10 +24,15 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	// commodities.CreateCommoditiesIndex()
 }
 
 func ProcessToRun() {
+	// only init data when first time
+	init, stockList, err := InitBaseData()
+	if init || err != nil {
+		return
+	}
+
 	d := time.Now().Day()
 	w := time.Now().Weekday()
 	count := 0
@@ -46,9 +51,9 @@ func ProcessToRun() {
 
 	// Runs monthly stock sync from 3 to 3+len(StockList)
 	// This will consume 5 tokens, so go on.
-	for i := 0; i < len(stock.StockList); i++ {
+	for i := 0; i < len(stockList); i++ {
 		if d == i+3 {
-			symbol := stock.StockList[i]
+			symbol := stockList[i]
 			income.SyncIncomeStatementData(symbol)
 			balance.SyncBalanceSheetData(symbol)
 			cash.SyncCashSheetData(symbol)
@@ -95,4 +100,12 @@ func EconomicIndicatorsData() {
 	commodities.SyncMonthlyEconomicData()
 	commodities.SyncQuarterlyEconomicData()
 	commodities.SyncAnnualEconomicData()
+}
+
+func InitBaseData() (bool, []string, error) {
+	init, list, err := base.InitAllStock()
+	if init && err == nil {
+		commodities.CreateCommoditiesIndex()
+	}
+	return init, list, err
 }
