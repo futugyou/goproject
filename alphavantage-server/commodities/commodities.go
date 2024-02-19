@@ -10,6 +10,18 @@ import (
 	"github.com/futugyou/alphavantage/enums"
 )
 
+func CreateCommoditiesIndex() {
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := NewCommoditiesRepository(config)
+	if err := repository.CreateIndex(context.Background()); err != nil {
+		log.Println(err)
+	}
+}
+
 func SyncDailyCommoditiesData() {
 	log.Println("commodities daily data sync start")
 	// get commodities data from alphavantage
