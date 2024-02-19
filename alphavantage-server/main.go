@@ -1,12 +1,14 @@
 package main
 
 import (
+	"log"
 	"os"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/futugyou/alphavantage-server/balance"
+	"github.com/futugyou/alphavantage-server/base"
 	"github.com/futugyou/alphavantage-server/cash"
 	"github.com/futugyou/alphavantage-server/commodities"
 	"github.com/futugyou/alphavantage-server/earnings"
@@ -22,61 +24,65 @@ func main() {
 		ProcessToRun()
 		return
 	}
-	CommoditiesData()
+	// commodities.CreateCommoditiesIndex()
 }
 
 func ProcessToRun() {
+	d := time.Now().Day()
 	w := time.Now().Weekday()
-	if w == time.Saturday {
-		CommoditiesData()
-		EconomicIndicatorsData()
-	} else {
-		index := int(time.Sunday)
-		symbol := stock.StockList[index]
-		SymbolData(symbol)
+	count := 0
+	// The number of available tokens is 25, but leave 3 as preparation
+	totalCount := 22
 
-		Income(symbol)
-		Balance(symbol)
-		Cash(symbol)
-		Earning(symbol)
-		Expected(symbol)
-
-		News(symbol)
-		StockSeries(symbol)
+	// 1. Runs on the 2nd of every month
+	// This will consume 17 tokens, so return.
+	if d == 2 {
+		commodities.SyncMonthlyCommoditiesData()
+		commodities.SyncMonthlyEconomicData()
+		commodities.SyncQuarterlyEconomicData()
+		commodities.SyncAnnualEconomicData()
+		return
 	}
 
-}
+	// Runs monthly stock sync from 3 to 3+len(StockList)
+	// This will consume 5 tokens, so go on.
+	for i := 0; i < len(stock.StockList); i++ {
+		if d == i+3 {
+			symbol := stock.StockList[i]
+			income.SyncIncomeStatementData(symbol)
+			balance.SyncBalanceSheetData(symbol)
+			cash.SyncCashSheetData(symbol)
+			earnings.SyncEarningsData(symbol)
+			expected.SyncExpectedData(symbol)
+			count += 5
+		}
+	}
 
-func SymbolData(symbol string) {
+	// Runs every Saturday or (3 of month and Sunday)
+	// This will consume 5 tokens, so go on.
+	if w == time.Saturday || (w == time.Sunday && d == 3) {
+		commodities.SyncDailyCommoditiesData()
+		commodities.SyncDailyEconomicData()
+		count += 5
+	}
+
+	symbol, err := base.GetCurrentStock()
+	if err != nil || len(symbol) == 0 {
+		log.Println(err)
+		return
+	}
+
+	// This will consume 2 tokens
 	stock.SyncStockSymbolData(symbol)
-}
-
-func StockSeries(symbol string) {
-	stockSeries.SyncStockSeriesData(symbol)
-}
-
-func News(symbol string) {
+	// This will consume 1 tokens
 	news.SyncNewsSentimentData(symbol)
-}
+	count += 3
 
-func Income(symbol string) {
-	income.SyncIncomeStatementData(symbol)
-}
+	for i := count; i < totalCount; i++ {
+		stockSeries.SyncStockSeriesData(symbol)
+	}
 
-func Balance(symbol string) {
-	balance.SyncBalanceSheetData(symbol)
-}
-
-func Cash(symbol string) {
-	cash.SyncCashSheetData(symbol)
-}
-
-func Earning(symbol string) {
-	earnings.SyncEarningsData(symbol)
-}
-
-func Expected(symbol string) {
-	expected.SyncExpectedData(symbol)
+	base.UpdateStockRunningData(symbol)
 }
 
 func CommoditiesData() {
