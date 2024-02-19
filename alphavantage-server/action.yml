@@ -1,0 +1,21 @@
+name: "sync alphavantage data"
+description: "sync data for alphavantage"
+
+inputs:
+  mongodb_url:
+    description: "mongodb url"
+    required: true
+  db_name:
+    description: "mongodb name"
+    required: true
+  alphavantage_api_key:
+    description: "alphavantage api key" 
+    required: true
+
+runs:
+  using: docker
+  image: Dockerfile 
+  env:
+    db_name: "${{ inputs.db_name }}"
+    mongodb_url: "${{ inputs.mongodb_url }}"
+    ALPHAVANTAGE_API_KEY: "${{ inputs.alphavantage_api_key }}"
