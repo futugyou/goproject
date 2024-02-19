@@ -1,6 +1,8 @@
 package alphavantage
 
 import (
+	"fmt"
+
 	"github.com/futugyou/alphavantage/enums"
 )
 
@@ -41,10 +43,11 @@ func (p innerCommoditiesParameter) Validation(function string) (map[string]strin
 }
 
 type innerCommoditiesResult struct {
-	Name     string  `json:"name"`
-	Interval string  `json:"interval"`
-	Unit     string  `json:"unit"`
-	Data     []Datum `json:"data"`
+	Name        string  `json:"name"`
+	Interval    string  `json:"interval"`
+	Unit        string  `json:"unit"`
+	Data        []Datum `json:"data"`
+	Information string  `json:"Information"`
 }
 
 type Datum struct {
@@ -63,6 +66,10 @@ func (t *CommoditiesClient) innerCommoditiesRequest(p innerCommoditiesParameter,
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

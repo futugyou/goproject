@@ -1,6 +1,8 @@
 package alphavantage
 
 import (
+	"fmt"
+
 	"github.com/futugyou/alphavantage/enums"
 
 	"time"
@@ -74,6 +76,7 @@ type CompanyOverview struct {
 	SharesOutstanding          string `json:"SharesOutstanding"`
 	DividendDate               string `json:"DividendDate"`
 	ExDividendDate             string `json:"ExDividendDate"`
+	Information                string `json:"Information"`
 }
 
 func (t *FundamentalsClient) CompanyOverview(p CompanyOverviewParameter) (*CompanyOverview, error) {
@@ -89,6 +92,10 @@ func (t *FundamentalsClient) CompanyOverview(p CompanyOverviewParameter) (*Compa
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -102,6 +109,7 @@ type IncomeStatement struct {
 	Symbol           string                  `json:"symbol"`
 	AnnualReports    []IncomeStatementReport `json:"annualReports"`
 	QuarterlyReports []IncomeStatementReport `json:"quarterlyReports"`
+	Information      string                  `json:"Information"`
 }
 
 type IncomeStatementReport struct {
@@ -149,6 +157,10 @@ func (t *FundamentalsClient) IncomeStatement(p IncomeStatementParameter) (*Incom
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -162,6 +174,7 @@ type BalanceSheet struct {
 	Symbol           string               `json:"symbol"`
 	AnnualReports    []BalanceSheetReport `json:"annualReports"`
 	QuarterlyReports []BalanceSheetReport `json:"quarterlyReports"`
+	Information      string               `json:"Information"`
 }
 
 type BalanceSheetReport struct {
@@ -221,6 +234,10 @@ func (t *FundamentalsClient) BalanceSheet(p BalanceSheetParameter) (*BalanceShee
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -234,6 +251,7 @@ type CashFlow struct {
 	Symbol           string           `json:"symbol"`
 	AnnualReports    []CashFlowReport `json:"annualReports"`
 	QuarterlyReports []CashFlowReport `json:"quarterlyReports"`
+	Information      string           `json:"Information"`
 }
 
 type CashFlowReport struct {
@@ -284,6 +302,10 @@ func (t *FundamentalsClient) CashFlow(p CashFlowParameter) (*CashFlow, error) {
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -297,6 +319,7 @@ type Earnings struct {
 	Symbol            string           `json:"symbol"`
 	AnnualEarnings    []EarningsReport `json:"annualEarnings"`
 	QuarterlyEarnings []EarningsReport `json:"quarterlyEarnings"`
+	Information       string           `json:"Information"`
 }
 
 type EarningsReport struct {
@@ -321,6 +344,10 @@ func (t *FundamentalsClient) Earnings(p EarningsParameter) (*Earnings, error) {
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

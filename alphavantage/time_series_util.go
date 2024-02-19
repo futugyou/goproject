@@ -34,8 +34,9 @@ type SymbolSearch struct {
 }
 
 type MarketStatus struct {
-	Endpoint string   `json:"endpoint"`
-	Markets  []Market `json:"markets"`
+	Endpoint    string   `json:"endpoint"`
+	Markets     []Market `json:"markets"`
+	Information string   `json:"Information"`
 }
 
 type Market struct {
@@ -133,6 +134,10 @@ func (t *TimeSeriesClient) MarketStatus() (*MarketStatus, error) {
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

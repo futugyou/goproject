@@ -1,6 +1,7 @@
 package alphavantage
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -56,6 +57,7 @@ type NewsSentiment struct {
 	SentimentScoreDefinition string `json:"sentiment_score_definition,omitempty"`
 	RelevanceScoreDefinition string `json:"relevance_score_definition,omitempty"`
 	Feed                     []Feed `json:"feed,omitempty"`
+	Information              string `json:"Information"`
 }
 
 type Feed struct {
@@ -91,6 +93,7 @@ type TopGainersLosers struct {
 	TopGainers         []MostActivelyTraded `json:"top_gainers"`
 	TopLosers          []MostActivelyTraded `json:"top_losers"`
 	MostActivelyTraded []MostActivelyTraded `json:"most_actively_traded"`
+	Information        string               `json:"Information"`
 }
 
 type MostActivelyTraded struct {
@@ -133,6 +136,10 @@ func (t *IntelligenceClient) NewsSentiment(p SentimentParameter) (*NewsSentiment
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -145,6 +152,10 @@ func (t *IntelligenceClient) TopGainersLosers() (*TopGainersLosers, error) {
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

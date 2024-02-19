@@ -51,6 +51,7 @@ func (p CryptoExchangeParameter) Validation() (map[string]string, error) {
 
 type CryptoExchang struct {
 	DigitalExchangeRate DigitalExchangeRate `json:"Realtime Currency Exchange Rate"`
+	Information         string              `json:"Information"`
 }
 
 type DigitalExchangeRate struct {
@@ -78,6 +79,10 @@ func (t *DigitalCurrencyClient) CryptoExchange(p CryptoExchangeParameter) (*Cryp
 	err = t.httpClient.getJson(path, &result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

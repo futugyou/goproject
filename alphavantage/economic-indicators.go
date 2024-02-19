@@ -1,6 +1,8 @@
 package alphavantage
 
 import (
+	"fmt"
+
 	"github.com/futugyou/alphavantage/enums"
 	"github.com/futugyou/alphavantage/functions"
 )
@@ -52,10 +54,11 @@ func (p innerEconomicIndicatorsParameter) Validation() (map[string]string, error
 }
 
 type EconomicIndicatorsResult struct {
-	Name     string  `json:"name"`
-	Interval string  `json:"interval"`
-	Unit     string  `json:"unit"`
-	Data     []Datum `json:"data"`
+	Name        string  `json:"name"`
+	Interval    string  `json:"interval"`
+	Unit        string  `json:"unit"`
+	Data        []Datum `json:"data"`
+	Information string  `json:"Information"`
 }
 
 func (t *EconomicIndicatorsClient) GetEconomicIndicatorsData(p innerEconomicIndicatorsParameter) (*EconomicIndicatorsResult, error) {
@@ -69,6 +72,10 @@ func (t *EconomicIndicatorsClient) GetEconomicIndicatorsData(p innerEconomicIndi
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
@@ -93,6 +100,10 @@ func (t *EconomicIndicatorsClient) RealGdp(p RealGdpParameter) (*EconomicIndicat
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -109,6 +120,10 @@ func (t *EconomicIndicatorsClient) RealGdpPerCapita() (*EconomicIndicatorsResult
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
@@ -134,6 +149,10 @@ func (t *EconomicIndicatorsClient) TreasuryYield(p TreasuryYieldParameter) (*Eco
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -154,6 +173,10 @@ func (t *EconomicIndicatorsClient) InterestRate(p InterestRateParameter) (*Econo
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
@@ -179,6 +202,10 @@ func (t *EconomicIndicatorsClient) CPI(p CPIParameter) (*EconomicIndicatorsResul
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -195,6 +222,10 @@ func (t *EconomicIndicatorsClient) Inflation() (*EconomicIndicatorsResult, error
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
@@ -215,6 +246,10 @@ func (t *EconomicIndicatorsClient) RetailSales() (*EconomicIndicatorsResult, err
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -231,6 +266,10 @@ func (t *EconomicIndicatorsClient) DurableGoods() (*EconomicIndicatorsResult, er
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
@@ -254,6 +293,10 @@ func (t *EconomicIndicatorsClient) UnemploymentRate() (*EconomicIndicatorsResult
 		return nil, err
 	}
 
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
+	}
+
 	return result, nil
 }
 
@@ -273,6 +316,10 @@ func (t *EconomicIndicatorsClient) NonfarmPayroll() (*EconomicIndicatorsResult, 
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

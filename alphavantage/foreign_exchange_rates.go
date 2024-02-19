@@ -34,6 +34,7 @@ type CurrencyExchangeParameter struct {
 
 type CurrencyExchange struct {
 	ForeignExchangeRate ForeignExchangeRate `json:"Realtime Currency Exchange Rate"`
+	Information         string              `json:"Information"`
 }
 
 type ForeignExchangeRate struct {
@@ -61,6 +62,10 @@ func (t *ForeignExchangeRatesClient) CurrencyExchange(p CurrencyExchangeParamete
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Information) > 0 {
+		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
