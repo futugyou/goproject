@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/jszwec/csvutil"
@@ -140,6 +141,15 @@ func (c *httpClient) getJson(path string, response interface{}) error {
 	default:
 		if err = json.Unmarshal(all, response); err != nil {
 			return err
+		}
+
+		// 1. respose is &sometype{}
+		// 2. use reflect.Indirect or Elem
+		ps := reflect.Indirect(reflect.ValueOf(response))
+		// ps := reflect.ValueOf(response).Elem()
+		information := ps.FieldByName("Information").String()
+		if len(information) > 0 && information != "<invalid Value>" {
+			return fmt.Errorf(information)
 		}
 	}
 
