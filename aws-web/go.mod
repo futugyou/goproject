@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.40.0
 	github.com/aws/aws-sdk-go-v2/service/efs v1.27.1
 	github.com/aws/aws-sdk-go-v2/service/iam v1.30.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.50.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.50.1
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.28.1
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.47.0
 	github.com/chidiwilliams/flatbson v0.3.0
@@ -23,7 +23,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.45.1
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.45.2
 
 require github.com/aws/aws-sdk-go-v2/service/route53 v1.39.0
 
