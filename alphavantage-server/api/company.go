@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func CrosForVercel(w http.ResponseWriter, r *http.Request) bool {
+func crosForVercel(w http.ResponseWriter, r *http.Request) bool {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS, HEAD")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Origin, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, x-requested-with, account-id")
@@ -24,7 +24,7 @@ func CrosForVercel(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func Company(w http.ResponseWriter, r *http.Request) {
-	if CrosForVercel(w, r) {
+	if crosForVercel(w, r) {
 		return
 	}
 
