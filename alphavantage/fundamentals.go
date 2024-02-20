@@ -1,8 +1,6 @@
 package alphavantage
 
 import (
-	"fmt"
-
 	"github.com/futugyou/alphavantage/enums"
 
 	"time"
@@ -92,10 +90,6 @@ func (t *FundamentalsClient) CompanyOverview(p CompanyOverviewParameter) (*Compa
 		return nil, err
 	}
 
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
-	}
-
 	return result, nil
 }
 
@@ -155,10 +149,6 @@ func (t *FundamentalsClient) IncomeStatement(p IncomeStatementParameter) (*Incom
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
@@ -234,10 +224,6 @@ func (t *FundamentalsClient) BalanceSheet(p BalanceSheetParameter) (*BalanceShee
 		return nil, err
 	}
 
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
-	}
-
 	return result, nil
 }
 
@@ -302,10 +288,6 @@ func (t *FundamentalsClient) CashFlow(p CashFlowParameter) (*CashFlow, error) {
 		return nil, err
 	}
 
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
-	}
-
 	return result, nil
 }
 
@@ -344,10 +326,6 @@ func (t *FundamentalsClient) Earnings(p EarningsParameter) (*Earnings, error) {
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

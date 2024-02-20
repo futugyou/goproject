@@ -81,10 +81,6 @@ func (t *DigitalCurrencyClient) CryptoExchange(p CryptoExchangeParameter) (*Cryp
 		return nil, err
 	}
 
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
-	}
-
 	return result, nil
 }
 

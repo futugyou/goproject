@@ -1,8 +1,6 @@
 package alphavantage
 
 import (
-	"fmt"
-
 	"github.com/futugyou/alphavantage/enums"
 )
 
@@ -66,10 +64,6 @@ func (t *CommoditiesClient) innerCommoditiesRequest(p innerCommoditiesParameter,
 	err = t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil

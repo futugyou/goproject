@@ -1,7 +1,6 @@
 package alphavantage
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -136,10 +135,6 @@ func (t *IntelligenceClient) NewsSentiment(p SentimentParameter) (*NewsSentiment
 		return nil, err
 	}
 
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
-	}
-
 	return result, nil
 }
 
@@ -152,10 +147,6 @@ func (t *IntelligenceClient) TopGainersLosers() (*TopGainersLosers, error) {
 	err := t.httpClient.getJson(path, result)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(result.Information) > 0 {
-		return nil, fmt.Errorf(result.Information)
 	}
 
 	return result, nil
