@@ -1,6 +1,10 @@
 package api
 
 import (
+	"context"
+	"os"
+
+	"github.com/futugyou/alphavantage-server/core"
 	"github.com/futugyou/alphavantage-server/stock"
 	_ "github.com/joho/godotenv/autoload"
 
@@ -32,7 +36,13 @@ func Company(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllCompany(w http.ResponseWriter, r *http.Request) {
-	datas, err := stock.StockSymbolDatas()
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	repository := stock.NewStockRepository(config)
+	datas, err := repository.GetAll(context.Background())
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

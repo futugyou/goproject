@@ -91,13 +91,3 @@ func getTopics(topic []alphavantage.Topic) []string {
 func NewsFilter(e NewsEntity) []core.DataFilterItem {
 	return []core.DataFilterItem{{Key: "title", Value: e.Title}}
 }
-
-func NewsData() ([]NewsEntity, error) {
-	config := core.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	repository := NewNewsRepository(config)
-	return repository.GetAll(context.Background())
-}

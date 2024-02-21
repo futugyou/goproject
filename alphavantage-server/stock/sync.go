@@ -122,13 +122,3 @@ func SyncStockSymbolData(symbol string) {
 func StockSymbolFilter(e StockEntity) []core.DataFilterItem {
 	return []core.DataFilterItem{{Key: "symbol", Value: e.Symbol}}
 }
-
-func StockSymbolDatas() ([]StockEntity, error) {
-	config := core.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	repository := NewStockRepository(config)
-	return repository.GetAll(context.Background())
-}
