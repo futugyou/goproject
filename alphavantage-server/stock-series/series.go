@@ -81,3 +81,12 @@ func checkTime(month string) bool {
 	tt, _ := time.Parse("2006-01", time.Now().Format("2006-01"))
 	return t.Before(tt)
 }
+
+func StockSeriesData() ([]StockSeriesEntity, error) {
+	config := core.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+	repository := NewStockSeriesRepository(config)
+	return repository.GetAll(context.Background())
+}
