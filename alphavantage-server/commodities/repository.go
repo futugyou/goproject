@@ -3,6 +3,7 @@ package commodities
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/futugyou/alphavantage-server/core"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,4 +36,28 @@ func (a *CommoditiesRepository) CreateIndex(ctx context.Context) error {
 	}
 	fmt.Println("Name of Index Created: " + name)
 	return nil
+}
+
+func (s *CommoditiesRepository) GetCommoditiesByType(ctx context.Context, dataType string) ([]CommoditiesEntity, error) {
+	result := make([]CommoditiesEntity, 0)
+	entity := new(CommoditiesEntity)
+	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+
+	filter := bson.D{{Key: "type", Value: dataType}}
+	cursor, err := c.Find(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		return result, err
+	}
+
+	if err = cursor.All(ctx, &result); err != nil {
+		log.Println(err)
+		return result, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
 }

@@ -1,12 +1,13 @@
 package api
 
 import (
+	_ "github.com/joho/godotenv/autoload"
+
 	"context"
 	"os"
 
 	"github.com/futugyou/alphavantage-server/core"
 	"github.com/futugyou/alphavantage-server/stock"
-	_ "github.com/joho/godotenv/autoload"
 
 	"encoding/json"
 	"net/http"
