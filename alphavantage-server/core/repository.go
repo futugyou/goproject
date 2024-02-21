@@ -12,6 +12,7 @@ import (
 )
 
 type InsertManyResult struct {
+	TabelName     string
 	InsertedCount int64
 	MatchedCount  int64
 	ModifiedCount int64
@@ -20,11 +21,11 @@ type InsertManyResult struct {
 }
 
 func (i InsertManyResult) String() {
-	log.Printf("matched count %d \n", i.MatchedCount)
-	log.Printf("inserted count %d \n", i.InsertedCount)
-	log.Printf("modified count %d \n", i.ModifiedCount)
-	log.Printf("deleted count %d \n", i.DeletedCount)
-	log.Printf("upserted count %d \n", i.UpsertedCount)
+	log.Printf("table %s matched count %d \n", i.TabelName, i.MatchedCount)
+	log.Printf("table %s inserted count %d \n", i.TabelName, i.InsertedCount)
+	log.Printf("table %s modified count %d \n", i.TabelName, i.ModifiedCount)
+	log.Printf("table %s deleted count %d \n", i.TabelName, i.DeletedCount)
+	log.Printf("table %s upserted count %d \n", i.TabelName, i.UpsertedCount)
 }
 
 type IRepository[E IEntity, K any] interface {
@@ -121,6 +122,7 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filte
 	}
 
 	result := &InsertManyResult{
+		TabelName:     tableName,
 		InsertedCount: results.InsertedCount,
 		MatchedCount:  results.MatchedCount,
 		ModifiedCount: results.ModifiedCount,
@@ -201,8 +203,8 @@ func (s *MongoRepository[E, K]) Update(ctx context.Context, obj E, filter []Data
 		return err
 	}
 
-	log.Println("match count: ", result.MatchedCount)
-	log.Println("insert count: ", result.UpsertedCount)
-	log.Println("update count: ", result.ModifiedCount)
+	log.Printf("table %s matched count: %d \n", obj.GetType(), result.MatchedCount)
+	log.Printf("table %s inserted count: %d \n", obj.GetType(), result.UpsertedCount)
+	log.Printf("table %s updated count: %d \n", obj.GetType(), result.ModifiedCount)
 	return nil
 }
