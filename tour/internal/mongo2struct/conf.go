@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github/go-project/tour/internal/word"
 	"log"
+	"slices"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,8 +18,10 @@ type MongoDBConfig struct {
 }
 
 type Struct struct {
-	Name string
-	Item []StructItem
+	PackageName string
+	StructName  string
+	Items       []StructItem
+	Imports     []string
 }
 
 type StructItem struct {
@@ -52,35 +55,53 @@ func (m *MongoDBConfig) Generator() {
 	}
 
 	for _, c := range tables {
-		generatorTabel(db, c.Name)
+		s, _ := generatorStruct(db, c.Name)
+		t := NewStructTemplate(*s)
+		t.Generate()
 	}
 }
 
-func generatorTabel(db *mongo.Database, collectionName string) {
+func generatorStruct(db *mongo.Database, collectionName string) (*Struct, error) {
 	c := db.Collection(collectionName)
 	result := c.FindOne(context.Background(), bson.D{})
 	b, err := result.Raw()
 	if err != nil {
 		log.Println(err)
-		return
+		return nil, err
 	}
 	e, err := b.Elements()
 	if err != nil {
 		log.Println(err)
-		return
+		return nil, err
 	}
 
-	s := Struct{Name: collectionName, Item: make([]StructItem, 0)}
+	s := &Struct{
+		PackageName: collectionName,
+		StructName:  word.UnderscoreToUpperCamelCase(collectionName),
+		Items:       make([]StructItem, 0),
+		Imports:     make([]string, 0),
+	}
 
 	for _, v := range e {
 		itemType := convertBsontypeTogotype(v.Value())
-		s.Item = append(s.Item, StructItem{
+		s.Imports = createImports(s.Imports, itemType)
+		s.Items = append(s.Items, StructItem{
 			Name: word.UnderscoreToUpperCamelCase(v.Key()),
 			Type: itemType,
 			Tag:  fmt.Sprintf("`bson:\"%s\"`", v.Key()),
 		})
 	}
-	fmt.Println(s)
+
+	return s, nil
+}
+
+func createImports(s []string, itemType string) []string {
+	// for now 'time' only
+	if itemType == "time.Time" && !slices.Contains(s, "\"time\"") {
+		s = append(s, "\"time\"")
+	}
+
+	return s
 }
 
 func convertBsontypeTogotype(value bson.RawValue) string {
