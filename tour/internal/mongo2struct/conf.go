@@ -3,6 +3,7 @@ package mongo2struct
 import (
 	"context"
 	"fmt"
+	"github/go-project/tour/internal/word"
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -73,7 +74,11 @@ func generatorTabel(db *mongo.Database, collectionName string) {
 
 	for _, v := range e {
 		itemType := convertBsontypeTogotype(v.Value())
-		s.Item = append(s.Item, StructItem{Name: v.Key(), Type: itemType, Tag: fmt.Sprintf("`bson:\"%s\"`", v.Key())})
+		s.Item = append(s.Item, StructItem{
+			Name: word.UnderscoreToUpperCamelCase(v.Key()),
+			Type: itemType,
+			Tag:  fmt.Sprintf("`bson:\"%s\"`", v.Key()),
+		})
 	}
 	fmt.Println(s)
 }
