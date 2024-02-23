@@ -20,6 +20,7 @@ func ToLower(s string) string {
 
 // UnderscoreToUpperCamelCase UnderscoreToUpperCamelCase
 func UnderscoreToUpperCamelCase(s string) string {
+	s = strings.Replace(s, "-", " ", -1)
 	s = strings.Replace(s, "_", " ", -1)
 	caser := cases.Title(language.English)
 	s = caser.String(s)

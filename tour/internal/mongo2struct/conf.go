@@ -13,15 +13,20 @@ import (
 )
 
 type MongoDBConfig struct {
+	EntityFolder  string
+	RepoFolder    string
 	DBName        string
 	ConnectString string
 }
 
 type Struct struct {
-	PackageName string
-	StructName  string
-	Items       []StructItem
-	Imports     []string
+	EntityFolder string
+	RepoFolder   string
+	PackageName  string
+	FileName     string
+	StructName   string
+	Items        []StructItem
+	Imports      []string
 }
 
 type StructItem struct {
@@ -30,12 +35,18 @@ type StructItem struct {
 	Tag  string
 }
 
-func (m MongoDBConfig) Check() error {
+func (m *MongoDBConfig) Check() error {
 	if len(m.DBName) == 0 {
 		return fmt.Errorf("mongodb name can not be nil")
 	}
 	if len(m.ConnectString) == 0 {
 		return fmt.Errorf("mongodb url can not be nil")
+	}
+	if len(m.EntityFolder) == 0 {
+		m.EntityFolder = "entity"
+	}
+	if len(m.RepoFolder) == 0 {
+		m.RepoFolder = "repository"
 	}
 	return nil
 }
@@ -55,13 +66,13 @@ func (m *MongoDBConfig) Generator() {
 	}
 
 	for _, c := range tables {
-		s, _ := generatorStruct(db, c.Name)
-		t := NewStructTemplate(*s)
-		t.Generate()
+		s, _ := m.generatorStruct(db, c.Name)
+		t := NewStructTemplate()
+		t.Generate(*s)
 	}
 }
 
-func generatorStruct(db *mongo.Database, collectionName string) (*Struct, error) {
+func (m *MongoDBConfig) generatorStruct(db *mongo.Database, collectionName string) (*Struct, error) {
 	c := db.Collection(collectionName)
 	result := c.FindOne(context.Background(), bson.D{})
 	b, err := result.Raw()
@@ -76,10 +87,13 @@ func generatorStruct(db *mongo.Database, collectionName string) (*Struct, error)
 	}
 
 	s := &Struct{
-		PackageName: collectionName,
-		StructName:  word.UnderscoreToUpperCamelCase(collectionName),
-		Items:       make([]StructItem, 0),
-		Imports:     make([]string, 0),
+		FileName:     collectionName,
+		EntityFolder: m.EntityFolder,
+		RepoFolder:   m.RepoFolder,
+		PackageName:  m.EntityFolder,
+		StructName:   word.UnderscoreToUpperCamelCase(collectionName),
+		Items:        make([]StructItem, 0),
+		Imports:      make([]string, 0),
 	}
 
 	for _, v := range e {
@@ -120,7 +134,7 @@ func convertBsontypeTogotype(value bson.RawValue) string {
 	case bson.TypeBinary:
 	case bson.TypeUndefined:
 	case bson.TypeObjectID:
-		fmt.Println(5)
+		return "string"
 	case bson.TypeBoolean:
 		return "bool"
 	case bson.TypeDateTime:

@@ -38,6 +38,8 @@ var mongoDBConfig = mongo2struct.MongoDBConfig{}
 
 func init() {
 	mongoCmd.AddCommand(mongo2structCmd)
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.DBName, "dbName", "n", "", "please input mongodb name !")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.ConnectString, "url", "u", "", "please input mongodb url !")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.DBName, "dbName", "n", "", "mongodb name")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.ConnectString, "url", "u", "", "mongodb url")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.RepoFolder, "repo", "r", "repository", "folder for repository files")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.EntityFolder, "entity", "e", "entity", "folder for entity files")
 }
