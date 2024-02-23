@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/go-oauth2/oauth2/v4 v4.5.2
-	github.com/lestrrat-go/jwx/v2 v2.0.11
+	github.com/lestrrat-go/jwx/v2 v2.0.19
 	go.mongodb.org/mongo-driver v1.12.0
 	go.uber.org/mock v0.2.0
 	golang.org/x/crypto v0.19.0
@@ -17,7 +17,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
-	github.com/lestrrat-go/blackmagic v1.0.1 // indirect
+	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.4 // indirect
 	github.com/lestrrat-go/iter v1.0.2 // indirect
