@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github/go-project/tour/internal/word"
 	"log"
+	"os/exec"
 	"slices"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -51,6 +52,13 @@ func (m *MongoDBConfig) Check() error {
 	return nil
 }
 
+func (m *MongoDBConfig) FormatCode() {
+	cmd := exec.Command("go", "fmt", fmt.Sprintf("./%s", m.EntityFolder))
+	cmd.Run()
+	cmd = exec.Command("go", "fmt", fmt.Sprintf("./%s", m.RepoFolder))
+	cmd.Run()
+}
+
 func (m *MongoDBConfig) Generator() {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(m.ConnectString))
 	if err != nil {
@@ -70,6 +78,8 @@ func (m *MongoDBConfig) Generator() {
 		t := NewStructTemplate()
 		t.Generate(*s)
 	}
+
+	m.FormatCode()
 }
 
 func (m *MongoDBConfig) generatorStruct(db *mongo.Database, collectionName string) (*Struct, error) {
