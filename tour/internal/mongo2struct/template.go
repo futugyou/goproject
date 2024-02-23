@@ -16,7 +16,7 @@ type {{ .StructName}}Entity struct {
 } 
 	
 func ({{ .StructName}}Entity) GetType() string {
-	return "{{ .PackageName }}"
+	return "{{ .FileName }}"
 }                
 		 `
 
@@ -48,6 +48,7 @@ func (t *StructTemplate) Generate(obj Struct) error {
 		fmt.Println(err)
 		return err
 	}
+
 	return nil
 }
 

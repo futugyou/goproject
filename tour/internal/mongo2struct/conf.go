@@ -7,6 +7,7 @@ import (
 	"log"
 	"os/exec"
 	"slices"
+	"unicode"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -101,7 +102,7 @@ func (m *MongoDBConfig) generatorStruct(db *mongo.Database, collectionName strin
 		EntityFolder: m.EntityFolder,
 		RepoFolder:   m.RepoFolder,
 		PackageName:  m.EntityFolder,
-		StructName:   word.UnderscoreToUpperCamelCase(collectionName),
+		StructName:   UnderscoreToUpperCamelCase(collectionName),
 		Items:        make([]StructItem, 0),
 		Imports:      make([]string, 0),
 	}
@@ -110,13 +111,21 @@ func (m *MongoDBConfig) generatorStruct(db *mongo.Database, collectionName strin
 		itemType := convertBsontypeTogotype(v.Value())
 		s.Imports = createImports(s.Imports, itemType)
 		s.Items = append(s.Items, StructItem{
-			Name: word.UnderscoreToUpperCamelCase(v.Key()),
+			Name: UnderscoreToUpperCamelCase(v.Key()),
 			Type: itemType,
 			Tag:  fmt.Sprintf("`bson:\"%s\"`", v.Key()),
 		})
 	}
 
 	return s, nil
+}
+
+func UnderscoreToUpperCamelCase(s string) string {
+	s = word.UnderscoreToUpperCamelCase(s)
+	if unicode.IsDigit(rune(s[0])) {
+		s = "A" + s
+	}
+	return s
 }
 
 func createImports(s []string, itemType string) []string {
