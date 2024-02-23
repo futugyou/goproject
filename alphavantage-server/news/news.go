@@ -89,5 +89,5 @@ func getTopics(topic []alphavantage.Topic) []string {
 }
 
 func NewsFilter(e NewsEntity) []core.DataFilterItem {
-	return []core.DataFilterItem{{Key: "title", Value: e.Title}}
+	return []core.DataFilterItem{{Key: "title", Value: e.Title}, {Key: "time_published", Value: e.TimePublished}}
 }
