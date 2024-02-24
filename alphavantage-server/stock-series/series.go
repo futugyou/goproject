@@ -65,7 +65,9 @@ func SyncStockSeriesData(symbol string) {
 
 	r.String()
 	// update month
-	if r.UpsertedCount > 0 || checkTime(month) {
+	// Condition 'r.UpsertedCount > 0' cannot be used because there may be no data for the month being queried.
+	// TODO: alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
+	if checkTime(month) {
 		UpdateStaockMonth(month, symbol)
 	}
 
