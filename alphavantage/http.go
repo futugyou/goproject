@@ -22,7 +22,10 @@ func newHttpClient() *httpClient {
 	}
 }
 
-const limit_error_message = "thank you for using Alpha Vantage! Our standard API rate limit is 25 requests per day. Please subscribe to any of the premium plans at https://www.alphavantage.co/premium/ to instantly remove all daily rate limits. "
+var errorFeilds = []string{
+	"Error Message",
+	"Information",
+}
 
 func (c *httpClient) get(path string) (io.ReadCloser, error) {
 	var body io.Reader
@@ -75,10 +78,13 @@ func (c *httpClient) getCsv(path string) ([][]string, error) {
 
 	// {
 	// 		"Information": "Thank you for using Alpha Vantage! Our standard API rate limit is 25 requests per day. Please subscribe to any of the premium plans at https://www.alphavantage.co/premium/ to instantly remove all daily rate limits."
+	//		"Error Message": "Invalid API call. Please retry or visit the documentation (https://www.alphavantage.co/documentation/) for XXXX."
 	// }
 	if len(result) == 2 && len(result[0]) == 1 {
-		if message, ok := strings.CutPrefix(result[0][0], "Information\": \""); ok {
-			return nil, fmt.Errorf(message)
+		for _, field := range errorFeilds {
+			if message, ok := strings.CutPrefix(result[0][0], fmt.Sprintf("%s\": \"", field)); ok {
+				return nil, fmt.Errorf(message)
+			}
 		}
 	}
 
@@ -107,7 +113,7 @@ func (c *httpClient) getCsvByUtil(path string, response interface{}) error {
 
 	h := dec.Header()
 	if len(h) == 1 && h[0] == "{" {
-		return fmt.Errorf(limit_error_message)
+		return fmt.Errorf("invalid API call or API rate limit is 25 requests per day")
 	}
 
 	timeFunc := csvutil.UnmarshalFunc(unmarshalTime)
@@ -147,9 +153,11 @@ func (c *httpClient) getJson(path string, response interface{}) error {
 		// 2. use reflect.Indirect or Elem
 		ps := reflect.Indirect(reflect.ValueOf(response))
 		// ps := reflect.ValueOf(response).Elem()
-		information := ps.FieldByName("Information").String()
-		if len(information) > 0 && information != "<invalid Value>" {
-			return fmt.Errorf(information)
+		for _, field := range errorFeilds {
+			msg := ps.FieldByName(field).String()
+			if len(msg) > 0 && msg != "<invalid Value>" {
+				return fmt.Errorf(msg)
+			}
 		}
 	}
 
