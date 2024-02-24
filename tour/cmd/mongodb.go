@@ -24,13 +24,14 @@ var mongo2structCmd = &cobra.Command{
 	Short: "mongodb to golang struct and base repository",
 	Long:  "mongodb to golang struct and base repository",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := mongoDBConfig.Check()
+		db, err := mongoDBConfig.ConnectDBDatabase()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		mongoDBConfig.Generator()
+		m := mongo2struct.NewManager(db, mongoDBConfig.EntityFolder, mongoDBConfig.RepoFolder)
+		m.Generator()
 	},
 }
 

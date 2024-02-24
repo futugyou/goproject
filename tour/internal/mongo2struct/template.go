@@ -7,7 +7,7 @@ import (
 	"text/template"
 )
 
-const structTpl = `
+const entityTplString = `
 package {{ .PackageName }}
 {{ $import := len .Imports }}{{ if gt $import 0 }}{{ .Imports | ToImportsList }}{{ end }}
 type {{ .StructName}}Entity struct {
@@ -20,20 +20,22 @@ func ({{ .StructName}}Entity) GetType() string {
 }                
 		 `
 
-type StructTemplate struct {
-	structTpl string
+type Template struct {
+	entityTplString     string
+	repositoryTplString string
 }
 
-func NewStructTemplate() *StructTemplate {
-	return &StructTemplate{
-		structTpl: structTpl,
+func NewTemplate() *Template {
+	return &Template{
+		entityTplString:     entityTplString,
+		repositoryTplString: "",
 	}
 }
 
-func (t *StructTemplate) Generate(obj Struct) error {
+func (t *Template) GenerateEntity(obj EntityStruct) error {
 	tpl := template.Must(template.New("sql2struct").Funcs(template.FuncMap{
-		"ToImportsList": ToImportsList,
-	}).Parse(t.structTpl))
+		"ToImportsList": t.toImportsList,
+	}).Parse(t.entityTplString))
 	if _, err := os.Stat(fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName)); os.IsNotExist(err) {
 		os.MkdirAll(fmt.Sprintf("./%s", obj.EntityFolder), 0700)
 	}
@@ -52,7 +54,11 @@ func (t *StructTemplate) Generate(obj Struct) error {
 	return nil
 }
 
-func ToImportsList(list []string) string {
+func (t *Template) GenerateRepository(obj interface{}) error {
+	return nil
+}
+
+func (t *Template) toImportsList(list []string) string {
 	if len(list) == 0 {
 		return ""
 	}
