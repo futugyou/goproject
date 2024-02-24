@@ -1,11 +1,0 @@
---2024-02-09 01:40:27--  https://www.alphavantage.co/query?function=WTI
-Resolving www.alphavantage.co (www.alphavantage.co)... 104.22.70.209, 104.22.71.209, 172.67.23.2, ...
-Connecting to www.alphavantage.co (www.alphavantage.co)|104.22.70.209|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 189 [application/json]
-Saving to: ‘query?function=WTI’
-
-query?function=WTI                                0%[                                                                                                        ]       0  --.-KB/s               query?function=WTI                              100%[=======================================================================================================>]     189  --.-KB/s    in 0s      
-
-2024-02-09 01:40:27 (22.4 MB/s) - ‘query?function=WTI’ saved [189/189]
-
