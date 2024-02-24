@@ -52,6 +52,7 @@ func (p CryptoExchangeParameter) Validation() (map[string]string, error) {
 type CryptoExchang struct {
 	DigitalExchangeRate DigitalExchangeRate `json:"Realtime Currency Exchange Rate"`
 	Information         string              `json:"Information"`
+	ErrorMessage        string              `json:"Error Message"`
 }
 
 type DigitalExchangeRate struct {

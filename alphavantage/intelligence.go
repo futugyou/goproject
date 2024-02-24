@@ -57,6 +57,7 @@ type NewsSentiment struct {
 	RelevanceScoreDefinition string `json:"relevance_score_definition,omitempty"`
 	Feed                     []Feed `json:"feed,omitempty"`
 	Information              string `json:"Information"`
+	ErrorMessage             string `json:"Error Message"`
 }
 
 type Feed struct {
@@ -93,6 +94,7 @@ type TopGainersLosers struct {
 	TopLosers          []MostActivelyTraded `json:"top_losers"`
 	MostActivelyTraded []MostActivelyTraded `json:"most_actively_traded"`
 	Information        string               `json:"Information"`
+	ErrorMessage       string               `json:"Error Message"`
 }
 
 type MostActivelyTraded struct {

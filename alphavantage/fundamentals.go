@@ -75,6 +75,7 @@ type CompanyOverview struct {
 	DividendDate               string `json:"DividendDate"`
 	ExDividendDate             string `json:"ExDividendDate"`
 	Information                string `json:"Information"`
+	ErrorMessage               string `json:"Error Message"`
 }
 
 func (t *FundamentalsClient) CompanyOverview(p CompanyOverviewParameter) (*CompanyOverview, error) {
@@ -104,6 +105,7 @@ type IncomeStatement struct {
 	AnnualReports    []IncomeStatementReport `json:"annualReports"`
 	QuarterlyReports []IncomeStatementReport `json:"quarterlyReports"`
 	Information      string                  `json:"Information"`
+	ErrorMessage     string                  `json:"Error Message"`
 }
 
 type IncomeStatementReport struct {
@@ -165,6 +167,7 @@ type BalanceSheet struct {
 	AnnualReports    []BalanceSheetReport `json:"annualReports"`
 	QuarterlyReports []BalanceSheetReport `json:"quarterlyReports"`
 	Information      string               `json:"Information"`
+	ErrorMessage     string               `json:"Error Message"`
 }
 
 type BalanceSheetReport struct {
@@ -238,6 +241,7 @@ type CashFlow struct {
 	AnnualReports    []CashFlowReport `json:"annualReports"`
 	QuarterlyReports []CashFlowReport `json:"quarterlyReports"`
 	Information      string           `json:"Information"`
+	ErrorMessage     string           `json:"Error Message"`
 }
 
 type CashFlowReport struct {
@@ -302,6 +306,7 @@ type Earnings struct {
 	AnnualEarnings    []EarningsReport `json:"annualEarnings"`
 	QuarterlyEarnings []EarningsReport `json:"quarterlyEarnings"`
 	Information       string           `json:"Information"`
+	ErrorMessage      string           `json:"Error Message"`
 }
 
 type EarningsReport struct {

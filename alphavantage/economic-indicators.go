@@ -52,11 +52,12 @@ func (p innerEconomicIndicatorsParameter) Validation() (map[string]string, error
 }
 
 type EconomicIndicatorsResult struct {
-	Name        string  `json:"name"`
-	Interval    string  `json:"interval"`
-	Unit        string  `json:"unit"`
-	Data        []Datum `json:"data"`
-	Information string  `json:"Information"`
+	Name         string  `json:"name"`
+	Interval     string  `json:"interval"`
+	Unit         string  `json:"unit"`
+	Data         []Datum `json:"data"`
+	Information  string  `json:"Information"`
+	ErrorMessage string  `json:"Error Message"`
 }
 
 func (t *EconomicIndicatorsClient) GetEconomicIndicatorsData(p innerEconomicIndicatorsParameter) (*EconomicIndicatorsResult, error) {

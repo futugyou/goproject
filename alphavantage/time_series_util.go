@@ -34,9 +34,10 @@ type SymbolSearch struct {
 }
 
 type MarketStatus struct {
-	Endpoint    string   `json:"endpoint"`
-	Markets     []Market `json:"markets"`
-	Information string   `json:"Information"`
+	Endpoint     string   `json:"endpoint"`
+	Markets      []Market `json:"markets"`
+	Information  string   `json:"Information"`
+	ErrorMessage string   `json:"Error Message"`
 }
 
 type Market struct {

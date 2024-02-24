@@ -41,11 +41,12 @@ func (p innerCommoditiesParameter) Validation(function string) (map[string]strin
 }
 
 type innerCommoditiesResult struct {
-	Name        string  `json:"name"`
-	Interval    string  `json:"interval"`
-	Unit        string  `json:"unit"`
-	Data        []Datum `json:"data"`
-	Information string  `json:"Information"`
+	Name         string  `json:"name"`
+	Interval     string  `json:"interval"`
+	Unit         string  `json:"unit"`
+	Data         []Datum `json:"data"`
+	Information  string  `json:"Information"`
+	ErrorMessage string  `json:"Error Message"`
 }
 
 type Datum struct {

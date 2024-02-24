@@ -35,6 +35,7 @@ type CurrencyExchangeParameter struct {
 type CurrencyExchange struct {
 	ForeignExchangeRate ForeignExchangeRate `json:"Realtime Currency Exchange Rate"`
 	Information         string              `json:"Information"`
+	ErrorMessage        string              `json:"Error Message"`
 }
 
 type ForeignExchangeRate struct {

@@ -59,9 +59,10 @@ func (p AnalyticsFixedWindowParameter) Validation() (map[string]string, error) {
 }
 
 type AnalyticsResult struct {
-	MetaData    MetaData `json:"meta_data"`
-	Payload     Payload  `json:"payload"`
-	Information string   `json:"Information"`
+	MetaData     MetaData `json:"meta_data"`
+	Payload      Payload  `json:"payload"`
+	Information  string   `json:"Information"`
+	ErrorMessage string   `json:"Error Message"`
 }
 
 type MetaData struct {
