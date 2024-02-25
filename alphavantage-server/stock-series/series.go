@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/futugyou/alphavantage"
@@ -56,9 +57,11 @@ func SyncStockSeriesData(symbol string) {
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
+
 	repository := NewStockSeriesRepository(config)
 	r, err := repository.InsertMany(context.Background(), data, StockFilter)
-	if err != nil {
+	// alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
+	if err != nil && !strings.Contains(err.Error(), "Invalid API call") {
 		log.Println(err)
 		return
 	}
@@ -66,7 +69,6 @@ func SyncStockSeriesData(symbol string) {
 	r.String()
 	// update month
 	// Condition 'r.UpsertedCount > 0' cannot be used because there may be no data for the month being queried.
-	// TODO: alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
 	if checkTime(month) {
 		UpdateStaockMonth(month, symbol)
 	}
