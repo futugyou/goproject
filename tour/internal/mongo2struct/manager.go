@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os/exec"
+	"sync"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -41,29 +42,53 @@ func (m *Manager) generatorEntity() error {
 		log.Println(err)
 		return err
 	}
-
+	
+	var wg sync.WaitGroup
 	for _, entity := range entityList {
-		t := NewTemplate()
-		t.GenerateEntity(entity)
+		wg.Add(1)
+		go func(entity EntityStruct, wg *sync.WaitGroup) {
+			defer wg.Done()
+			t := NewTemplate()
+			t.GenerateEntity(entity)
+		}(entity, &wg)
 	}
 
+	wg.Wait()
 	return nil
 }
 
 func (m *Manager) createEntityList(tables []*mongo.CollectionSpecification) ([]EntityStruct, error) {
 	entityList := make([]EntityStruct, 0)
+	ch := make(chan *EntityStruct)
+	var wg sync.WaitGroup
 	for _, c := range tables {
-		eles, err := m.createRawElements(c.Name)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-
-		builder := NewEntityStructBuilder(m.EntityFolder, c.Name, eles)
-		entity := builder.Build()
-		entityList = append(entityList, *entity)
+		wg.Add(1)
+		go m.createEntitySingle(c.Name, &wg, ch)
 	}
+	go func() {
+		for v := range ch {
+			if v != nil {
+				entityList = append(entityList, *v)
+			}
+		}
+	}()
+
+	wg.Wait()
+	close(ch)
 	return entityList, nil
+}
+
+func (m *Manager) createEntitySingle(name string, wg *sync.WaitGroup, ch chan *EntityStruct) {
+	defer wg.Done()
+
+	eles, err := m.createRawElements(name)
+	if err != nil {
+		log.Println(err)
+		ch <- nil
+	}
+
+	builder := NewEntityStructBuilder(m.EntityFolder, name, eles)
+	ch <- builder.Build()
 }
 
 func (m *Manager) createRawElements(name string) ([]bson.RawElement, error) {
