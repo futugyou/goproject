@@ -25,9 +25,16 @@ func NewManager(db *mongo.Database, entityFolder string, repoFolder string) *Man
 }
 
 func (m *Manager) Generator() {
+	m.generatorCore()
 	m.generatorEntity()
 	m.generatorRepository()
 	m.formatCode()
+}
+
+func (m *Manager) generatorCore() error {
+	t := NewTemplate()
+	t.GenerateCore()
+	return nil
 }
 
 func (m *Manager) generatorEntity() error {
@@ -42,7 +49,7 @@ func (m *Manager) generatorEntity() error {
 		log.Println(err)
 		return err
 	}
-	
+
 	var wg sync.WaitGroup
 	for _, entity := range entityList {
 		wg.Add(1)
