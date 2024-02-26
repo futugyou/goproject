@@ -38,8 +38,10 @@ func NewTemplate() *Template {
 	}
 }
 
+const templateName string = "mongo_struct_template"
+
 func (t *Template) GenerateEntity(obj EntityStruct) error {
-	tpl := template.Must(template.New("sql2struct").Funcs(template.FuncMap{
+	tpl := template.Must(template.New(templateName).Funcs(template.FuncMap{
 		"ToImportsList": t.toImportsList,
 	}).Parse(t.entityTplString))
 	if _, err := os.Stat(fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName)); os.IsNotExist(err) {
@@ -62,7 +64,7 @@ func (t *Template) GenerateEntity(obj EntityStruct) error {
 
 func (t *Template) GenerateCore() error {
 	for _, v := range t.Core {
-		tpl := template.Must(template.New("sql2struct").Funcs(template.FuncMap{
+		tpl := template.Must(template.New(templateName).Funcs(template.FuncMap{
 			"ToImportsList": t.toImportsList,
 		}).Parse(v.Tpl))
 		if _, err := os.Stat(fmt.Sprintf("./core/%s.go", v.Key)); os.IsNotExist(err) {
@@ -81,6 +83,25 @@ func (t *Template) GenerateCore() error {
 		}
 	}
 
+	return nil
+}
+
+func (t *Template) GenerateBaseRepoImpl(obj interface{}) error {
+	tpl := template.Must(template.New(templateName).Parse(t.baseRepoImplTplString))
+	if _, err := os.Stat("./mongorepo/respository.go"); os.IsNotExist(err) {
+		os.MkdirAll("./mongorepo", 0700)
+	}
+
+	f, err := os.OpenFile("./mongorepo/respository.go", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	err = tpl.Execute(f, obj)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
