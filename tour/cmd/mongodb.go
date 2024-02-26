@@ -36,7 +36,7 @@ var mongo2structCmd = &cobra.Command{
 			return
 		}
 
-		m := mongo2struct.NewManager(db, mongoDBConfig.EntityFolder, mongoDBConfig.RepoFolder)
+		m := mongo2struct.NewManager(db, mongoDBConfig.EntityFolder, mongoDBConfig.RepoFolder, mongoDBConfig.PkgName)
 		m.Generator()
 	},
 }
@@ -49,12 +49,14 @@ func init() {
 	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.ConnectString, "url", "u", "", "mongodb url, can also set in .env named 'mongodb_url'")
 	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.RepoFolder, "repo", "r", "repository", "folder for repository files, can also set in .env named 'repository_folder'")
 	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.EntityFolder, "entity", "e", "entity", "folder for entity files, can also set in .env named 'entity_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.PkgName, "package", "p", "", "package name, can also set in .env named 'package_name'")
 
 	// use godotenv and .env file
 	mongodb_url := os.Getenv("mongodb_url")
 	db_name := os.Getenv("db_name")
 	entity_folder := os.Getenv("entity_folder")
 	repository_folder := os.Getenv("repository_folder")
+	package_name := os.Getenv("package_name")
 	if len(strings.TrimSpace(mongodb_url)) > 0 {
 		mongoDBConfig.ConnectString = strings.TrimSpace(mongodb_url)
 	}
@@ -66,5 +68,8 @@ func init() {
 	}
 	if len(strings.TrimSpace(repository_folder)) > 0 {
 		mongoDBConfig.RepoFolder = strings.TrimSpace(repository_folder)
+	}
+	if len(strings.TrimSpace(package_name)) > 0 {
+		mongoDBConfig.PkgName = strings.TrimSpace(package_name)
 	}
 }

@@ -12,6 +12,7 @@ import (
 type MongoDBConfig struct {
 	EntityFolder  string
 	RepoFolder    string
+	PkgName       string
 	DBName        string
 	ConnectString string
 }

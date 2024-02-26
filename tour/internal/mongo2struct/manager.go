@@ -11,18 +11,20 @@ import (
 )
 
 type Manager struct {
-	DB           *mongo.Database
-	EntityFolder string
-	RepoFolder   string
-	Template     *Template
+	DB              *mongo.Database
+	EntityFolder    string
+	RepoFolder      string
+	Template        *Template
+	BasePackageName string
 }
 
-func NewManager(db *mongo.Database, entityFolder string, repoFolder string) *Manager {
+func NewManager(db *mongo.Database, entityFolder string, repoFolder string, pkgName string) *Manager {
 	return &Manager{
-		DB:           db,
-		EntityFolder: entityFolder,
-		RepoFolder:   repoFolder,
-		Template:     NewTemplate(),
+		DB:              db,
+		EntityFolder:    entityFolder,
+		RepoFolder:      repoFolder,
+		Template:        NewTemplate(),
+		BasePackageName: pkgName,
 	}
 }
 
@@ -35,6 +37,12 @@ func (m *Manager) Generator() {
 
 func (m *Manager) generatorCore() error {
 	m.Template.GenerateCore()
+	obj := struct {
+		BasePackageName string
+	}{
+		BasePackageName: m.BasePackageName,
+	}
+	m.Template.GenerateBaseRepoImpl(obj)
 	return nil
 }
 
