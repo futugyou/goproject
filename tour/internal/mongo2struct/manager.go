@@ -14,6 +14,7 @@ type Manager struct {
 	DB           *mongo.Database
 	EntityFolder string
 	RepoFolder   string
+	Template     *Template
 }
 
 func NewManager(db *mongo.Database, entityFolder string, repoFolder string) *Manager {
@@ -21,6 +22,7 @@ func NewManager(db *mongo.Database, entityFolder string, repoFolder string) *Man
 		DB:           db,
 		EntityFolder: entityFolder,
 		RepoFolder:   repoFolder,
+		Template:     NewTemplate(),
 	}
 }
 
@@ -32,8 +34,7 @@ func (m *Manager) Generator() {
 }
 
 func (m *Manager) generatorCore() error {
-	t := NewTemplate()
-	t.GenerateCore()
+	m.Template.GenerateCore()
 	return nil
 }
 
@@ -55,8 +56,7 @@ func (m *Manager) generatorEntity() error {
 		wg.Add(1)
 		go func(entity EntityStruct, wg *sync.WaitGroup) {
 			defer wg.Done()
-			t := NewTemplate()
-			t.GenerateEntity(entity)
+			m.Template.GenerateEntity(entity)
 		}(entity, &wg)
 	}
 
