@@ -10,7 +10,7 @@ import (
 )
 
 //go:generate go install github.com/joho/godotenv/cmd/godotenv@latest
-//go:generate godotenv -f ./.env go run ../tour/main.go  mongo g -p github.com/futugyou/InfrTtemplate
+//go:generate godotenv -f ./.env go run ../tour/main.go  mongo generate
 func main() {
 	// config := mongorepo.DBConfig{
 	// 	DBName:        os.Getenv("db_name"),

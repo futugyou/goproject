@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github/go-project/tour/internal/mongo2struct"
+	"github/go-project/tour/util"
 	"log"
 	"os"
 	"strings"
@@ -26,7 +27,7 @@ var mongoCmd = &cobra.Command{
 }
 
 var mongo2structCmd = &cobra.Command{
-	Use:   "g",
+	Use:   "generate",
 	Short: "mongodb to golang struct and base repository",
 	Long:  "mongodb to golang struct and base repository",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -44,32 +45,21 @@ var mongo2structCmd = &cobra.Command{
 var mongoDBConfig = mongo2struct.MongoDBConfig{}
 
 func init() {
+	// Priority: flags > .env
 	mongoCmd.AddCommand(mongo2structCmd)
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.DBName, "dbName", "n", "", "mongodb name, can also set in .env named 'db_name'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.ConnectString, "url", "u", "", "mongodb url, can also set in .env named 'mongodb_url'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.RepoFolder, "repo", "r", "repository", "folder for repository files, can also set in .env named 'repository_folder'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.EntityFolder, "entity", "e", "entity", "folder for entity files, can also set in .env named 'entity_folder'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.PkgName, "package", "p", "", "package name, can also set in .env named 'package_name'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.DBName, "dbName", "n", os.Getenv("db_name"), "mongodb name, can also set in .env named 'db_name'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.ConnectString, "url", "u", os.Getenv("mongodb_url"), "mongodb url, can also set in .env named 'mongodb_url'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.RepoFolder, "repo", "r", os.Getenv("repository_folder"), "folder for repository files, can also set in .env named 'repository_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.EntityFolder, "entity", "e", os.Getenv("entity_folder"), "folder for entity files, can also set in .env named 'entity_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.PkgName, "package", "p", os.Getenv("package_name"), "package name, can also set in .env named 'package_name'")
 
-	// use godotenv and .env file
-	mongodb_url := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	entity_folder := os.Getenv("entity_folder")
-	repository_folder := os.Getenv("repository_folder")
-	package_name := os.Getenv("package_name")
-	if len(strings.TrimSpace(mongodb_url)) > 0 {
-		mongoDBConfig.ConnectString = strings.TrimSpace(mongodb_url)
+	if len(mongoDBConfig.RepoFolder) == 0 {
+		mongoDBConfig.RepoFolder = "repository"
 	}
-	if len(strings.TrimSpace(db_name)) > 0 {
-		mongoDBConfig.DBName = strings.TrimSpace(db_name)
+	if len(mongoDBConfig.EntityFolder) == 0 {
+		mongoDBConfig.EntityFolder = "entity"
 	}
-	if len(strings.TrimSpace(entity_folder)) > 0 {
-		mongoDBConfig.EntityFolder = strings.TrimSpace(entity_folder)
-	}
-	if len(strings.TrimSpace(repository_folder)) > 0 {
-		mongoDBConfig.RepoFolder = strings.TrimSpace(repository_folder)
-	}
-	if len(strings.TrimSpace(package_name)) > 0 {
-		mongoDBConfig.PkgName = strings.TrimSpace(package_name)
+	if len(mongoDBConfig.PkgName) == 0 {
+		mongoDBConfig.PkgName = util.GetModuleName()
 	}
 }
