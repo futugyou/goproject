@@ -8,10 +8,11 @@ import (
 )
 
 type Template struct {
-	entityTplString       string
-	repositoryTplString   string
-	baseRepoImplTplString string
-	Core                  []CoreTemplate
+	entityTplString        string
+	repoInterfaceTplString string
+	baseRepoImplTplString  string
+	repoImplTplString      string
+	Core                   []CoreTemplate
 }
 
 type CoreTemplate struct {
@@ -22,9 +23,10 @@ type CoreTemplate struct {
 
 func NewTemplate() *Template {
 	return &Template{
-		entityTplString:       entityTplString,
-		repositoryTplString:   "",
-		baseRepoImplTplString: base_mongorepo_TplString,
+		entityTplString:        entityTplString,
+		repoInterfaceTplString: repoInterfaceTplString,
+		baseRepoImplTplString:  base_mongorepo_TplString,
+		repoImplTplString:      repoMongoImplTplString,
 		Core: []CoreTemplate{{
 			Key: "entity",
 			Tpl: core_entity_TplString,
@@ -41,42 +43,12 @@ func NewTemplate() *Template {
 const templateName string = "mongo_struct_template"
 
 func (t *Template) GenerateEntity(obj EntityStruct) error {
-	tpl := template.Must(template.New(templateName).Funcs(template.FuncMap{
-		"ToImportsList": t.toImportsList,
-	}).Parse(t.entityTplString))
-	if _, err := os.Stat(fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName)); os.IsNotExist(err) {
-		os.MkdirAll(fmt.Sprintf("./%s", obj.EntityFolder), 0700)
-	}
-
-	f, err := os.OpenFile(fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	err = tpl.Execute(f, obj)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return nil
+	return t.generate(t.entityTplString, fmt.Sprintf("./%s", obj.EntityFolder), fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName), obj)
 }
 
 func (t *Template) GenerateCore() error {
 	for _, v := range t.Core {
-		tpl := template.Must(template.New(templateName).Funcs(template.FuncMap{
-			"ToImportsList": t.toImportsList,
-		}).Parse(v.Tpl))
-		if _, err := os.Stat(fmt.Sprintf("./core/%s.go", v.Key)); os.IsNotExist(err) {
-			os.MkdirAll("./core", 0700)
-		}
-
-		f, err := os.OpenFile(fmt.Sprintf("./core/%s.go", v.Key), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-		err = tpl.Execute(f, 1)
+		err := t.generate(v.Tpl, "./core", fmt.Sprintf("./core/%s.go", v.Key), 1)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -87,25 +59,38 @@ func (t *Template) GenerateCore() error {
 }
 
 func (t *Template) GenerateBaseRepoImpl(obj interface{}) error {
-	tpl := template.Must(template.New(templateName).Parse(t.baseRepoImplTplString))
-	if _, err := os.Stat("./mongorepo/respository.go"); os.IsNotExist(err) {
-		os.MkdirAll("./mongorepo", 0700)
-	}
+	return t.generate(t.baseRepoImplTplString, "./mongorepo", "./mongorepo/respository.go", obj)
+}
 
-	f, err := os.OpenFile("./mongorepo/respository.go", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+func (t *Template) GenerateRepository(obj RepositoryStruct) error {
+	err := t.generate(t.repoImplTplString, "./mongorepo", fmt.Sprintf("./mongorepo/%s.go", obj.FileName), obj)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+	return t.generate(t.repoInterfaceTplString, "./repository", fmt.Sprintf("./repository/%s.go", obj.FileName), obj)
+}
+
+func (t *Template) generate(templateString string, folder string, fileName string, obj interface{}) error {
+	tpl := template.Must(template.New(templateName).Funcs(template.FuncMap{
+		"ToImportsList": t.toImportsList,
+	}).Parse(templateString))
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		os.MkdirAll(folder, 0700)
+	}
+
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
 	err = tpl.Execute(f, obj)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	return nil
-}
 
-func (t *Template) GenerateRepository(obj interface{}) error {
 	return nil
 }
 
