@@ -1,7 +1,7 @@
 package mongo2struct
 
 const repoInterfaceTplString = `
-package repository
+package {{ .InterfacePackageName }}
 
 import (
 	"{{ .BasePackageName }}/core"
@@ -13,7 +13,7 @@ type I{{ .RepoName }}Repository interface {
 }
 `
 const repoMongoImplTplString = `
-package mongorepo
+package {{ .PackageName }}
 
 import (
 	"{{ .BasePackageName }}/entity"

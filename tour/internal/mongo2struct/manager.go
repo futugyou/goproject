@@ -63,7 +63,6 @@ func (m *Manager) getEntityStructList() ([]EntityStruct, error) {
 	if err != nil {
 		return []EntityStruct{}, err
 	}
-
 	return m.createEntityList(tables)
 }
 
@@ -127,22 +126,30 @@ func (m *Manager) createRawElements(name string) ([]bson.RawElement, error) {
 }
 
 func (m *Manager) generatorRepository(eList []EntityStruct) error {
-	obj := struct {
-		BasePackageName string
-	}{
+	// base mongo repository implement
+	obj := BaseMongoRepoConfig{
+		PackageName:     m.MongoRepoFolder,
 		BasePackageName: m.BasePackageName,
+		Folder:          m.MongoRepoFolder,
+		FileName:        "respository",
 	}
 
 	err := m.Template.GenerateBaseRepoImpl(obj)
 	if err != nil {
 		return err
 	}
+
+	// other mongo repository implement
 	list := make([]RepositoryStruct, 0)
 	for _, v := range eList {
 		list = append(list, RepositoryStruct{
-			BasePackageName: m.BasePackageName,
-			FileName:        v.FileName,
-			RepoName:        v.StructName,
+			BasePackageName:      m.BasePackageName,
+			FileName:             v.FileName,
+			RepoName:             v.StructName,
+			PackageName:          m.MongoRepoFolder,
+			Folder:               m.MongoRepoFolder,
+			InterfacePackageName: m.RepoFolder,
+			InterfaceFolder:      m.RepoFolder,
 		})
 	}
 	var wg sync.WaitGroup

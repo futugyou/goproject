@@ -66,7 +66,7 @@ func init() {
 		mongoDBConfig.CoreFoler = "core"
 	}
 	if len(mongoDBConfig.MongoRepoFolder) == 0 {
-		mongoDBConfig.MongoRepoFolder = "mongo"
+		mongoDBConfig.MongoRepoFolder = "mongorepo"
 	}
 	if len(mongoDBConfig.PkgName) == 0 {
 		mongoDBConfig.PkgName = util.GetModuleName()

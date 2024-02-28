@@ -1,7 +1,14 @@
 package mongo2struct
 
+type BaseMongoRepoConfig struct {
+	PackageName     string
+	BasePackageName string
+	Folder          string
+	FileName string
+}
+
 const base_mongorepo_TplString = `
-package mongorepo
+package {{ .PackageName }}
 
 import (
 	"context"

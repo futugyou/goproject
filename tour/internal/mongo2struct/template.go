@@ -58,12 +58,12 @@ func (t *Template) GenerateCore(obj CoreConfig) error {
 	return nil
 }
 
-func (t *Template) GenerateBaseRepoImpl(obj interface{}) error {
-	return t.generate(t.baseRepoImplTplString, "./mongorepo", "./mongorepo/respository.go", obj)
+func (t *Template) GenerateBaseRepoImpl(obj BaseMongoRepoConfig) error {
+	return t.generate(t.baseRepoImplTplString, fmt.Sprintf("./%s", obj.Folder), fmt.Sprintf("./%s/%s.go", obj.Folder, obj.FileName), obj)
 }
 
 func (t *Template) GenerateRepository(obj RepositoryStruct) error {
-	err := t.generate(t.repoImplTplString, "./mongorepo", fmt.Sprintf("./mongorepo/%s.go", obj.FileName), obj)
+	err := t.generate(t.repoImplTplString, fmt.Sprintf("./%s", obj.Folder), fmt.Sprintf("./%s/%s.go", obj.Folder, obj.FileName), obj)
 	if err != nil {
 		fmt.Println(err)
 		return err
