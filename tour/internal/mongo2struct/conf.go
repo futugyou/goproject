@@ -10,11 +10,13 @@ import (
 )
 
 type MongoDBConfig struct {
-	EntityFolder  string
-	RepoFolder    string
-	PkgName       string
-	DBName        string
-	ConnectString string
+	EntityFolder    string
+	RepoFolder      string
+	CoreFoler       string
+	MongoRepoFolder string
+	PkgName         string
+	DBName          string
+	ConnectString   string
 }
 
 func (m *MongoDBConfig) Check() error {

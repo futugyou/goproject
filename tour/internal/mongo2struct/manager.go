@@ -16,15 +16,19 @@ type Manager struct {
 	RepoFolder      string
 	Template        *Template
 	BasePackageName string
+	CoreFoler       string
+	MongoRepoFolder string
 }
 
-func NewManager(db *mongo.Database, entityFolder string, repoFolder string, pkgName string) *Manager {
+func NewManager(db *mongo.Database, entityFolder string, repoFolder string, pkgName string, coreFoler string, mongoRepoFolder string) *Manager {
 	return &Manager{
 		DB:              db,
 		EntityFolder:    entityFolder,
 		RepoFolder:      repoFolder,
 		Template:        NewTemplate(),
 		BasePackageName: pkgName,
+		CoreFoler:       coreFoler,
+		MongoRepoFolder: mongoRepoFolder,
 	}
 }
 
