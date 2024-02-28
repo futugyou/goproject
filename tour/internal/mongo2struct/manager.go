@@ -52,14 +52,10 @@ func (m *Manager) Generator() {
 }
 
 func (m *Manager) generatorCore() error {
-	m.Template.GenerateCore()
-	obj := struct {
-		BasePackageName string
-	}{
-		BasePackageName: m.BasePackageName,
-	}
-
-	return m.Template.GenerateBaseRepoImpl(obj)
+	return m.Template.GenerateCore(CoreConfig{
+		PackageName: m.CoreFoler,
+		Folder:      m.CoreFoler,
+	})
 }
 
 func (m *Manager) getEntityStructList() ([]EntityStruct, error) {
@@ -130,7 +126,17 @@ func (m *Manager) createRawElements(name string) ([]bson.RawElement, error) {
 	return b.Elements()
 }
 
-func (m *Manager) generatorRepository(eList []EntityStruct) {
+func (m *Manager) generatorRepository(eList []EntityStruct) error {
+	obj := struct {
+		BasePackageName string
+	}{
+		BasePackageName: m.BasePackageName,
+	}
+
+	err := m.Template.GenerateBaseRepoImpl(obj)
+	if err != nil {
+		return err
+	}
 	list := make([]RepositoryStruct, 0)
 	for _, v := range eList {
 		list = append(list, RepositoryStruct{
@@ -149,7 +155,7 @@ func (m *Manager) generatorRepository(eList []EntityStruct) {
 	}
 
 	wg.Wait()
-
+	return nil
 }
 
 func (m *Manager) formatCode() {

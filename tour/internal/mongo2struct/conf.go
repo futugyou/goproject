@@ -26,12 +26,6 @@ func (m *MongoDBConfig) Check() error {
 	if len(m.ConnectString) == 0 {
 		return fmt.Errorf("mongodb url can not be nil")
 	}
-	if len(m.EntityFolder) == 0 {
-		m.EntityFolder = "entity"
-	}
-	if len(m.RepoFolder) == 0 {
-		m.RepoFolder = "repository"
-	}
 	return nil
 }
 

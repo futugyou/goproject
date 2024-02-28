@@ -1,7 +1,46 @@
 package mongo2struct
 
+type CoreConfig struct {
+	PackageName string
+	Folder      string
+}
+
+const core_entity_TplString = `
+package {{ .PackageName }}
+
+type IEntity interface {
+	GetType() string
+}
+`
+
+const core_page_TplString = `
+package {{ .PackageName }}
+
+type Paging struct {
+	Page      int64
+	Limit     int64
+	SortField string
+	Direct    SortDirect
+}
+
+const ASC sortDirect = "ASC"
+const DESC sortDirect = "DESC"
+
+type SortDirect interface {
+	privateSortDirect()
+	String() string
+}
+
+type sortDirect string
+
+func (c sortDirect) privateSortDirect() {}
+func (c sortDirect) String() string {
+	return string(c)
+}
+`
+
 const core_repository_TplString = `
-package core
+package {{ .PackageName }}
 
 import (
 	"context"

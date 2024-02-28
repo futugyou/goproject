@@ -46,9 +46,9 @@ func (t *Template) GenerateEntity(obj EntityStruct) error {
 	return t.generate(t.entityTplString, fmt.Sprintf("./%s", obj.EntityFolder), fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName), obj)
 }
 
-func (t *Template) GenerateCore() error {
+func (t *Template) GenerateCore(obj CoreConfig) error {
 	for _, v := range t.Core {
-		err := t.generate(v.Tpl, "./core", fmt.Sprintf("./core/%s.go", v.Key), 1)
+		err := t.generate(v.Tpl, fmt.Sprintf("./%s", obj.Folder), fmt.Sprintf("./%s/%s.go", obj.Folder, v.Key), obj)
 		if err != nil {
 			fmt.Println(err)
 			return err
