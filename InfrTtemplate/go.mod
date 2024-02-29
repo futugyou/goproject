@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/joho/godotenv v1.5.1
+	github.com/modern-go/reflect2 v1.0.2
 	github.com/swaggest/rest v0.2.61
 )
 

@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"net/http"
+	"os"
 	"time"
 
+	"github.com/modern-go/reflect2"
 	"github.com/swaggest/openapi-go/openapi31"
 	"github.com/swaggest/rest/response/gzip"
 	"github.com/swaggest/rest/web"
@@ -31,7 +32,7 @@ func Test() {
 
 	// Declare input port type.
 	type helloInput struct {
-		Locale string `query:"locale" default:"en-US" pattern:"^[a-z]{2}-[A-Z]{2}$" enum:"ru-RU,en-US"`
+		Locale string `query:"locale" default:"en-US" pattern:"^[a-z]{2}-[A-Z]{2}$"`
 		Name   string `path:"name" minLength:"3"` // Field tags define parameter location and JSON schema constraints.
 
 		// Field tags of unnamed fields are applied to parent schema.
@@ -65,7 +66,6 @@ func Test() {
 
 		return nil
 	})
-
 	// Describe use case interactor.
 	u.SetTitle("Greeter")
 	u.SetDescription("Greeter greets you.")
@@ -74,13 +74,29 @@ func Test() {
 
 	// Add use case handler to router.
 	s.Get("/hello/{name}", u)
-
+	generateWithReflect(s, "./viewmodel")
 	// Swagger UI endpoint at /docs.
 	s.Docs("/docs", swgui.New)
-
+	DumpOpenAPISpec("./openapi.json", s)
 	// Start server.
-	log.Println("http://localhost:8011/docs")
-	if err := http.ListenAndServe("localhost:8011", s); err != nil {
-		log.Fatal(err)
+	// log.Println("http://localhost:8011/docs")
+	// if err := http.ListenAndServe("localhost:8011", s); err != nil {
+	// 	log.Fatal(err)
+	// }
+}
+
+func generateWithReflect(s *web.Service, folder string) {
+	t := reflect2.TypeByName("viewmodel.UserAccountRequest")
+	fmt.Println(t)
+	t = reflect2.TypeByName("viewmodel.UserAccountResponse")
+	fmt.Println(t)
+}
+
+func DumpOpenAPISpec(fn string, s *web.Service) error {
+	j, err := json.Marshal(s.OpenAPISchema())
+	if err != nil {
+		return err
 	}
+
+	return os.WriteFile(fn, j, 0600)
 }
