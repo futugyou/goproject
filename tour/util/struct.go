@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/printer"
@@ -31,6 +32,7 @@ func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
 							fls = append(fls, FieldInfo{
 								Name:     name.Name,
 								TypeName: typeNameBuf.String(),
+								Tag:      field.Tag.Value,
 							})
 						}
 
@@ -55,7 +57,13 @@ type StructInfo struct {
 	StructName  string
 	FieldInfos  []FieldInfo
 }
+
 type FieldInfo struct {
 	Name     string
 	TypeName string
+	Tag      string
+}
+
+func (f *FieldInfo) String() string {
+	return fmt.Sprintf("%s %s %s", f.Name, f.TypeName, f.Tag)
 }
