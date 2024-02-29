@@ -12,7 +12,7 @@ import (
 )
 
 //go:generate go install github.com/joho/godotenv/cmd/godotenv@latest
-//go:generate godotenv -f ./.env go run ../tour/main.go  mongo generate
+//go:generate godotenv -f ./.env go run ../tour/main.go openapi generate
 func main() {
 	// Test()
 	// s := NewBaseDataService()

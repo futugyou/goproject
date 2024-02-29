@@ -22,4 +22,5 @@ func init() {
 	rootCmd.AddCommand(timeCmd)
 	rootCmd.AddCommand(sqlCmd)
 	rootCmd.AddCommand(mongoCmd)
+	rootCmd.AddCommand(openapiCmd)
 }
