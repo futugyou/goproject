@@ -151,3 +151,32 @@ func GetReflectTypeFromStructInfo(t string, structs []StructInfo) (reflect.Type,
 
 	return reflect.StructOf(fields), nil
 }
+
+func CreateInstanceByStructInfos(structs []StructInfo) []reflect.Type {
+	result := make([]reflect.Type, 0)
+	for _, info := range structs {
+		fields := make([]reflect.StructField, 0)
+		for _, v := range info.FieldInfos {
+			ty, err := stringToReflectType(v.TypeName, structs)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			anonymous := false
+			if v.Name == v.TypeName {
+				anonymous = true
+			}
+			fields = append(fields, reflect.StructField{
+				Name:      v.Name,
+				Type:      ty,
+				Tag:       reflect.StructTag(v.Tag),
+				Anonymous: anonymous,
+			})
+		}
+		reflectType := reflect.StructOf(fields)
+
+		result = append(result, reflectType)
+	}
+
+	return result
+}
