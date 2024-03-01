@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -35,7 +36,7 @@ func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
 						fieldTypeName := typeNameBuf.String()
 						fieldTag := ""
 						if field.Tag != nil {
-							fieldTag = field.Tag.Value
+							fieldTag = strings.ReplaceAll(field.Tag.Value, "`", "")
 						}
 
 						// if nestedStruct, ok := field.Type.(*ast.StructType); ok {
@@ -96,7 +97,7 @@ func (f *FieldInfo) String() string {
 	return fmt.Sprintf("%s %s %s", f.Name, f.TypeName, f.Tag)
 }
 
-func StringToReflectType(t string) (reflect.Type, error) {
+func stringToReflectType(t string, structs []StructInfo) (reflect.Type, error) {
 	switch t {
 	case "string":
 		return reflect.TypeOf(""), nil
@@ -109,5 +110,44 @@ func StringToReflectType(t string) (reflect.Type, error) {
 	case "time.Time":
 		return reflect.TypeOf(time.Time{}), nil
 	}
-	return nil, fmt.Errorf("%s can not convert to reflect.Type", t)
+	return GetReflectTypeFromStructInfo(t, structs)
+}
+
+func GetReflectTypeFromStructInfo(t string, structs []StructInfo) (reflect.Type, error) {
+	var info *StructInfo
+	for _, s := range structs {
+		if t == s.StructName {
+			info = &StructInfo{
+				PackageName: s.PackageName,
+				StructName:  s.StructName,
+				FieldInfos:  s.FieldInfos,
+			}
+			break
+		}
+	}
+
+	if info == nil || len(info.FieldInfos) == 0 {
+		return nil, fmt.Errorf("%s can not convert to reflect.Type", t)
+	}
+
+	fields := make([]reflect.StructField, 0)
+	for _, v := range info.FieldInfos {
+		ty, err := stringToReflectType(v.TypeName, structs)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		anonymous := false
+		if v.Name == v.TypeName {
+			anonymous = true
+		}
+		fields = append(fields, reflect.StructField{
+			Name:      v.Name,
+			Type:      ty,
+			Tag:       reflect.StructTag(v.Tag),
+			Anonymous: anonymous,
+		})
+	}
+
+	return reflect.StructOf(fields), nil
 }
