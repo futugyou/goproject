@@ -2,7 +2,9 @@ package openapi
 
 import (
 	"fmt"
+	"os"
 	"reflect"
+	"strings"
 
 	"github/go-project/tour/util"
 
@@ -64,11 +66,23 @@ func (m *Manager) GenerateOpenAPI() error {
 			return err
 		}
 	}
-	schema, err := reflector.Spec.MarshalYAML()
+
+	return m.dumpOpenAPISpec(reflector.Spec)
+}
+
+func (m *Manager) dumpOpenAPISpec(spec *openapi3.Spec) error {
+	var schema []byte
+	var err error
+	ot := strings.ToLower(m.Config.OutputType)
+	if ot == "yaml" || ot == "yml" {
+		schema, err = spec.MarshalYAML()
+	} else {
+		schema, err = spec.MarshalJSON()
+	}
+
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(string(schema))
-	return nil
+	fmt.Println(m.Config.OutputPath)
+	return os.WriteFile(m.Config.OutputPath, schema, 0600)
 }
