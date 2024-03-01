@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
 	"github/go-project/tour/internal/openapi"
+	"github/go-project/tour/util"
 	"log"
 	"os"
 	"strings"
@@ -30,6 +32,28 @@ var openapiSubCmd = &cobra.Command{
 			log.Println(err)
 			return
 		}
+		datas, err := os.ReadFile(openapiConfig.APIRoutePath)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		configs := make([]openapi.OperationConfig, 0)
+		err = json.Unmarshal(datas, &configs)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		l, _ := util.GetStructsFromFolder(openapiConfig.ModelFolder)
+		openapiConfig.JsonConfig = configs
+		m, err := openapi.NewManager(l, openapiConfig)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		err = m.GenerateOpenAPI()
+		if err != nil {
+			log.Println(err)
+		}
 	},
 }
 
@@ -38,10 +62,12 @@ var openapiConfig = openapi.OpenAPIConfig{}
 func init() {
 	// Priority: flags > .env
 	openapiCmd.AddCommand(openapiSubCmd)
-	openapiSubCmd.Flags().StringVarP(&openapiConfig.Title, "title", "t", os.Getenv("title"), "openapi name, can also set in .env named 'title'")
-	openapiSubCmd.Flags().StringVarP(&openapiConfig.Description, "description", "d", os.Getenv("description"), "openapi url, can also set in .env named 'description'")
-	openapiSubCmd.Flags().StringVarP(&openapiConfig.Version, "version", "r", os.Getenv("version"), "openapi version, can also set in .env named 'version'")
-	openapiSubCmd.Flags().StringVarP(&openapiConfig.ModelFolder, "folder", "f", os.Getenv("version"), "openapi folder, can also set in .env named 'folder'")
-	openapiSubCmd.Flags().StringVarP(&openapiConfig.OutputPath, "path", "p", os.Getenv("path"), "openapi output file path, can also set in .env named 'path'")
-	openapiSubCmd.Flags().StringVarP(&openapiConfig.OutputType, "type", "", os.Getenv("type"), "openapi output file type, json/yaml, can also set in .env named 'type'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.SpceVersion, "specversion", "v", os.Getenv("spec_version"), "openapi spec version, can also set in .env named 'spec_version'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.Title, "title", "t", os.Getenv("title"), "doc name, can also set in .env named 'title'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.Description, "description", "d", os.Getenv("description"), "doc description, can also set in .env named 'description'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.APIVersion, "api", "i", os.Getenv("version"), "doc version, can also set in .env named 'version'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.ModelFolder, "folder", "f", os.Getenv("version"), "model folder, can also set in .env named 'folder'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.OutputPath, "path", "p", os.Getenv("path"), "output file path, can also set in .env named 'path'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.OutputType, "type", "", os.Getenv("type"), "output file type, json/yaml, can also set in .env named 'type'")
+	openapiSubCmd.Flags().StringVarP(&openapiConfig.APIRoutePath, "routepath", "", os.Getenv("route_path"), "openapi route file path, can also set in .env named 'route_path'")
 }
