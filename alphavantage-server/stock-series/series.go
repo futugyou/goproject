@@ -31,7 +31,8 @@ func SyncStockSeriesData(symbol string) {
 		},
 	}
 	s, err := client.TimeSeriesIntraday(p)
-	if err != nil {
+	// alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
+	if err != nil && !strings.Contains(err.Error(), "Invalid API call") {
 		log.Println(err)
 		return
 	}
@@ -60,8 +61,7 @@ func SyncStockSeriesData(symbol string) {
 
 	repository := NewStockSeriesRepository(config)
 	r, err := repository.InsertMany(context.Background(), data, StockFilter)
-	// alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
-	if err != nil && !strings.Contains(err.Error(), "Invalid API call") {
+	if err != nil {
 		log.Println(err)
 		return
 	}
