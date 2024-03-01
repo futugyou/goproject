@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 	"strings"
@@ -9,7 +8,7 @@ import (
 	"github/go-project/tour/util"
 
 	"github.com/swaggest/jsonschema-go"
-	"github.com/swaggest/openapi-go/openapi3"
+	"github.com/swaggest/openapi-go/openapi31"
 )
 
 type Manager struct {
@@ -39,8 +38,8 @@ func NewManager(ts []util.StructInfo, config OpenAPIConfig) (*Manager, error) {
 }
 
 func (m *Manager) GenerateOpenAPI() error {
-	reflector := openapi3.Reflector{}
-	reflector.Spec = &openapi3.Spec{Openapi: m.Config.SpceVersion}
+	reflector := openapi31.NewReflector()
+	reflector.Spec = &openapi31.Spec{Openapi: m.Config.SpceVersion}
 	reflector.Spec.Info.
 		WithTitle(m.Config.Title).
 		WithVersion(m.Config.APIVersion).
@@ -70,7 +69,7 @@ func (m *Manager) GenerateOpenAPI() error {
 	return m.dumpOpenAPISpec(reflector.Spec)
 }
 
-func (m *Manager) dumpOpenAPISpec(spec *openapi3.Spec) error {
+func (m *Manager) dumpOpenAPISpec(spec *openapi31.Spec) error {
 	var schema []byte
 	var err error
 	ot := strings.ToLower(m.Config.OutputType)
@@ -83,6 +82,6 @@ func (m *Manager) dumpOpenAPISpec(spec *openapi3.Spec) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(m.Config.OutputPath)
+
 	return os.WriteFile(m.Config.OutputPath, schema, 0600)
 }

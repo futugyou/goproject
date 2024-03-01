@@ -40,7 +40,7 @@ func (m *OpenAPIConfig) Check() error {
 		m.OutputType = "json"
 	}
 	if len(m.SpceVersion) == 0 {
-		m.SpceVersion = "3.0.3"
+		m.SpceVersion = "3.1.3"
 	}
 	return nil
 }
