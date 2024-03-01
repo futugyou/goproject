@@ -8,6 +8,8 @@ import (
 	"go/printer"
 	"go/token"
 	"log"
+	"reflect"
+	"time"
 )
 
 func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
@@ -92,4 +94,20 @@ type FieldInfo struct {
 
 func (f *FieldInfo) String() string {
 	return fmt.Sprintf("%s %s %s", f.Name, f.TypeName, f.Tag)
+}
+
+func StringToReflectType(t string) (reflect.Type, error) {
+	switch t {
+	case "string":
+		return reflect.TypeOf(""), nil
+	case "bool":
+		return reflect.TypeOf(false), nil
+	case "int", "int64", "int16", "int8", "int32", "uint", "uint16", "uint32", "uint64", "uint8":
+		return reflect.TypeOf(int64(0)), nil
+	case "float32", "float64":
+		return reflect.TypeOf(float64(0)), nil
+	case "time.Time":
+		return reflect.TypeOf(time.Time{}), nil
+	}
+	return nil, fmt.Errorf("%s can not convert to reflect.Type", t)
 }
