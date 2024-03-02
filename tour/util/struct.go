@@ -132,6 +132,16 @@ func stringToReflectType(t string, structs []StructInfo) (reflect.Type, error) {
 			}
 		}
 	}
+
+	// handle array
+	if arrayType, ok := strings.CutPrefix(t, "[]"); ok {
+		keyType, err := stringToReflectType(arrayType, structs)
+		if err != nil {
+			return nil, fmt.Errorf("%s can not convert to reflect.Type", t)
+		}
+		return reflect.ArrayOf(0, keyType), nil
+	}
+
 	return GetReflectTypeFromStructInfo(t, structs)
 }
 
