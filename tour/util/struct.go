@@ -24,6 +24,11 @@ func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
 					fls := make([]FieldInfo, 0)
 					v := x.Type.(*ast.StructType)
 					for _, field := range v.Fields.List {
+
+						// if mapType, ok := field.Type.(*ast.MapType); ok {
+						// 	fmt.Println(mapType.Key, mapType.Value)
+						// }
+
 						// get field.Type as string
 						var typeNameBuf bytes.Buffer
 						err := printer.Fprint(&typeNameBuf, fset, field.Type)
@@ -109,6 +114,23 @@ func stringToReflectType(t string, structs []StructInfo) (reflect.Type, error) {
 		return reflect.TypeOf(float64(0)), nil
 	case "time.Time":
 		return reflect.TypeOf(time.Time{}), nil
+	}
+
+	// handle map, only handle map[xxx]xxx, not map[xxx]map[xxx]xxx...
+	if strings.Contains(t, "map[") {
+		if maptype, ok := strings.CutPrefix(t, "map["); ok {
+			if maptypeSplit := strings.Split(maptype, "]"); len(maptypeSplit) == 2 {
+				keyType, err := stringToReflectType(maptypeSplit[0], structs)
+				if err != nil {
+					return nil, fmt.Errorf("%s can not convert to reflect.Type", t)
+				}
+				valueType, err := stringToReflectType(maptypeSplit[1], structs)
+				if err != nil {
+					return nil, fmt.Errorf("%s can not convert to reflect.Type", t)
+				}
+				return reflect.MapOf(keyType, valueType), nil
+			}
+		}
 	}
 	return GetReflectTypeFromStructInfo(t, structs)
 }
