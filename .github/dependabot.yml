@@ -18,3 +18,23 @@ updates:
     directory: "/identity-center" # Location of package manifests
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/container"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/k8sbuilder"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/openai-web"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/tour"
+    schedule:
+      interval: "daily"
