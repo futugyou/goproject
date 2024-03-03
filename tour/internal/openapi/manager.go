@@ -16,18 +16,18 @@ type Manager struct {
 	Config OpenAPIConfig
 }
 
-func NewManager(ts []util.StructInfo, config OpenAPIConfig) (*Manager, error) {
+func NewManager(astManager util.ASTManager, config OpenAPIConfig) (*Manager, error) {
 	sList := make([]OpenAPIOperation, 0)
-	for _, js := range config.JsonConfig {
-		req, err := util.GetReflectTypeFromStructInfo(js.Request, ts)
+	for _, api := range config.APIConfigs {
+		req, err := astManager.GetReflectTypeByName(api.Request)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := util.GetReflectTypeFromStructInfo(js.Response, ts)
+		resp, err := astManager.GetReflectTypeByName(api.Response)
 		if err != nil {
 			return nil, err
 		}
-		o := NewOpenAPIOperation(js.Method, js.Path, js.Description, req, resp)
+		o := NewOpenAPIOperation(api.Method, api.Path, api.Description, req, resp)
 		sList = append(sList, *o)
 	}
 	m := &Manager{
