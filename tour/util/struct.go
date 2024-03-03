@@ -15,8 +15,8 @@ import (
 )
 
 type ASTManager struct {
-	FilePath string
-	cache    map[string]StructInfo
+	FilePath        string
+	structInfoCache []StructInfo
 }
 
 type StructInfo struct {
@@ -37,12 +37,16 @@ func (f *FieldInfo) String() string {
 
 func NewASTManager(filePath string) *ASTManager {
 	return &ASTManager{
-		FilePath: filePath,
-		cache:    map[string]StructInfo{},
+		FilePath:        filePath,
+		structInfoCache: []StructInfo{},
 	}
 }
 
 func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
+	if len(m.structInfoCache) > 0 {
+		return m.structInfoCache, nil
+	}
+
 	fset := token.NewFileSet()
 	fileInfo, err := os.Stat(m.FilePath)
 	if err != nil {
@@ -56,7 +60,7 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 		}
 		for _, pack := range packages {
 			for _, file := range pack.Files {
-				ast.Inspect(file, astInspectFunc(fset, &structs, file.Name.Name))
+				ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name))
 			}
 		}
 	} else {
@@ -64,20 +68,19 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 		if err != nil {
 			return nil, err
 		}
-		ast.Inspect(file, astInspectFunc(fset, &structs, file.Name.Name))
+		ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name))
 	}
-
+	m.structInfoCache = structs
 	return
 }
 
-func astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string) func(ast.Node) bool {
+func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string) func(ast.Node) bool {
 	return func(n ast.Node) bool {
 		switch x := n.(type) {
 		case *ast.TypeSpec:
 			fls := make([]FieldInfo, 0)
 			v := x.Type.(*ast.StructType)
 			for _, field := range v.Fields.List {
-
 				// if mapType, ok := field.Type.(*ast.MapType); ok {
 				// 	fmt.Println(mapType.Key, mapType.Value)
 				// }
@@ -96,7 +99,6 @@ func astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName stri
 				if field.Tag != nil {
 					fieldTag = strings.ReplaceAll(field.Tag.Value, "`", "")
 				}
-
 				// if nestedStruct, ok := field.Type.(*ast.StructType); ok {
 				// 	for _, nestedField := range nestedStruct.Fields.List {
 				// 		nestedFieldName := nestedField.Names[0].Name
@@ -165,7 +167,6 @@ func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
 						if field.Tag != nil {
 							fieldTag = strings.ReplaceAll(field.Tag.Value, "`", "")
 						}
-
 						// if nestedStruct, ok := field.Type.(*ast.StructType); ok {
 						// 	for _, nestedField := range nestedStruct.Fields.List {
 						// 		nestedFieldName := nestedField.Names[0].Name
