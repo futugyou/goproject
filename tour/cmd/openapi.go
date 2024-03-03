@@ -44,13 +44,9 @@ var openapiSubCmd = &cobra.Command{
 			return
 		}
 
-		structInfos, err := util.GetStructsFromFolder(openapiConfig.ModelFolder)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		astManager := util.NewASTManager(openapiConfig.ModelFolder)
 
-		m, err := openapi.NewManager(structInfos, openapiConfig)
+		m, err := openapi.NewManager(*astManager, openapiConfig)
 		if err != nil {
 			log.Println(err)
 			return

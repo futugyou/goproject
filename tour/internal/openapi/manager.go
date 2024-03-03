@@ -16,14 +16,14 @@ type Manager struct {
 	Config OpenAPIConfig
 }
 
-func NewManager(ts []util.StructInfo, config OpenAPIConfig) (*Manager, error) {
+func NewManager(astManager util.ASTManager, config OpenAPIConfig) (*Manager, error) {
 	sList := make([]OpenAPIOperation, 0)
 	for _, api := range config.APIConfigs {
-		req, err := util.GetReflectTypeFromStructInfo(api.Request, ts)
+		req, err := astManager.GetReflectTypeByName(api.Request)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := util.GetReflectTypeFromStructInfo(api.Response, ts)
+		resp, err := astManager.GetReflectTypeByName(api.Response)
 		if err != nil {
 			return nil, err
 		}
