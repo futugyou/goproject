@@ -15,8 +15,9 @@ import (
 )
 
 type ASTManager struct {
-	FilePath        string
-	structInfoCache []StructInfo
+	FilePath         string
+	structInfoCache  []StructInfo
+	reflectTypeCache map[string]reflect.Type
 }
 
 type StructInfo struct {
@@ -37,8 +38,9 @@ func (f *FieldInfo) String() string {
 
 func NewASTManager(filePath string) *ASTManager {
 	return &ASTManager{
-		FilePath:        filePath,
-		structInfoCache: []StructInfo{},
+		FilePath:         filePath,
+		structInfoCache:  []StructInfo{},
+		reflectTypeCache: map[string]reflect.Type{},
 	}
 }
 
@@ -253,10 +255,15 @@ func stringToReflectType(t string, structs []StructInfo) (reflect.Type, error) {
 }
 
 func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, error) {
+	if rt, ok := m.reflectTypeCache[structName]; ok {
+		return rt, nil
+	}
+
 	structs, err := m.GetStructInfo()
 	if err != nil {
 		return nil, err
 	}
+
 	var info *StructInfo
 	for _, s := range structs {
 		if structName == s.StructName {
@@ -275,11 +282,17 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 
 	fields := make([]reflect.StructField, 0)
 	for _, v := range info.FieldInfos {
-		ty, err := stringToReflectType(v.TypeName, structs)
-		if err != nil {
-			log.Println(err)
-			continue
+		var ty reflect.Type
+		var ok bool
+		if ty, ok = m.reflectTypeCache[v.TypeName]; !ok {
+			ty, err = stringToReflectType(v.TypeName, structs)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			m.reflectTypeCache[v.TypeName] = ty
 		}
+
 		anonymous := false
 		if v.Name == v.TypeName {
 			anonymous = true
@@ -292,16 +305,26 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 		})
 	}
 
-	return reflect.StructOf(fields), nil
+	rt := reflect.StructOf(fields)
+	m.reflectTypeCache[structName] = rt
+
+	return rt, nil
 }
 
 func (m *ASTManager) GetAllReflectType() ([]reflect.Type, error) {
+	result := make([]reflect.Type, 0)
+	if len(m.reflectTypeCache) > 0 {
+		for _, v := range m.reflectTypeCache {
+			result = append(result, v)
+		}
+		return result, nil
+	}
+
 	structs, err := m.GetStructInfo()
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]reflect.Type, 0)
 	for _, info := range structs {
 		fields := make([]reflect.StructField, 0)
 		for _, v := range info.FieldInfos {
