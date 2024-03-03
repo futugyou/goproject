@@ -23,6 +23,8 @@ type ASTManager struct {
 type StructInfo struct {
 	PackageName string
 	StructName  string
+	Doc         string
+	Comment     string
 	FieldInfos  []FieldInfo
 }
 
@@ -84,6 +86,9 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 		case *ast.TypeSpec:
 			fls := make([]FieldInfo, 0)
 			v := x.Type.(*ast.StructType)
+			structDoc := convertCommentGroup(x.Doc)
+			structComment := convertCommentGroup(x.Comment)
+
 			for _, field := range v.Fields.List {
 				// if mapType, ok := field.Type.(*ast.MapType); ok {
 				// 	fmt.Println(mapType.Key, mapType.Value)
@@ -100,8 +105,8 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 				fieldTypeName := typeNameBuf.String()
 				fieldName := ""
 				fieldTag := ""
-				fieldDoc := ""
-				fieldComment := ""
+				fieldDoc := convertCommentGroup(field.Doc)
+				fieldComment := convertCommentGroup(field.Comment)
 
 				if len(field.Names) == 0 {
 					fieldName = fieldTypeName
@@ -111,28 +116,6 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 
 				if field.Tag != nil {
 					fieldTag = strings.ReplaceAll(field.Tag.Value, "`", "")
-				}
-
-				if field.Doc != nil {
-					for _, v := range field.Doc.List {
-						if v != nil {
-							if doc, ok := strings.CutPrefix(v.Text, "//"); ok {
-								fieldDoc += (doc + " ")
-							}
-						}
-					}
-					fieldDoc = strings.TrimSpace(fieldDoc)
-				}
-
-				if field.Comment != nil {
-					for _, v := range field.Comment.List {
-						if v != nil {
-							if doc, ok := strings.CutPrefix(v.Text, "//"); ok {
-								fieldComment += (doc + " ")
-							}
-						}
-					}
-					fieldComment = strings.TrimSpace(fieldComment)
 				}
 
 				// if nestedStruct, ok := field.Type.(*ast.StructType); ok {
@@ -162,12 +145,29 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 			*structs = append(*structs, StructInfo{
 				PackageName: packageName,
 				StructName:  x.Name.Name,
+				Doc:         structDoc,
+				Comment:     structComment,
 				FieldInfos:  fls,
 			})
 		}
 
 		return true
 	}
+}
+
+func convertCommentGroup(comment *ast.CommentGroup) string {
+	d := ""
+	if comment != nil {
+		for _, v := range comment.List {
+			if v != nil {
+				if doc, ok := strings.CutPrefix(v.Text, "//"); ok {
+					d += (doc + " ")
+				}
+			}
+		}
+		d = strings.TrimSpace(d)
+	}
+	return d
 }
 
 func (m *ASTManager) stringToReflectType(t string) (reflect.Type, error) {
