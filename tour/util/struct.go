@@ -30,6 +30,8 @@ type FieldInfo struct {
 	Name     string
 	TypeName string
 	Tag      string
+	Doc      string
+	Comment  string
 }
 
 func (f *FieldInfo) String() string {
@@ -56,7 +58,7 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 	}
 
 	if fileInfo.IsDir() {
-		packages, err := parser.ParseDir(fset, m.FilePath, nil, 0)
+		packages, err := parser.ParseDir(fset, m.FilePath, nil, parser.ParseComments)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +68,7 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 			}
 		}
 	} else {
-		file, err := parser.ParseFile(fset, m.FilePath, nil, 0)
+		file, err := parser.ParseFile(fset, m.FilePath, nil, parser.ParseComments)
 		if err != nil {
 			return nil, err
 		}
@@ -95,12 +97,44 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 					continue
 				}
 
-				fieldName := ""
 				fieldTypeName := typeNameBuf.String()
+				fieldName := ""
 				fieldTag := ""
+				fieldDoc := ""
+				fieldComment := ""
+
+				if len(field.Names) == 0 {
+					fieldName = fieldTypeName
+				} else {
+					fieldName = field.Names[0].Name
+				}
+
 				if field.Tag != nil {
 					fieldTag = strings.ReplaceAll(field.Tag.Value, "`", "")
 				}
+
+				if field.Doc != nil {
+					for _, v := range field.Doc.List {
+						if v != nil {
+							if doc, ok := strings.CutPrefix(v.Text, "//"); ok {
+								fieldDoc += (doc + " ")
+							}
+						}
+					}
+					fieldDoc = strings.TrimSpace(fieldDoc)
+				}
+
+				if field.Comment != nil {
+					for _, v := range field.Comment.List {
+						if v != nil {
+							if doc, ok := strings.CutPrefix(v.Text, "//"); ok {
+								fieldComment += (doc + " ")
+							}
+						}
+					}
+					fieldComment = strings.TrimSpace(fieldComment)
+				}
+
 				// if nestedStruct, ok := field.Type.(*ast.StructType); ok {
 				// 	for _, nestedField := range nestedStruct.Fields.List {
 				// 		nestedFieldName := nestedField.Names[0].Name
@@ -117,15 +151,12 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 
 				// }
 
-				if len(field.Names) == 0 {
-					fieldName = fieldTypeName
-				} else {
-					fieldName = field.Names[0].Name
-				}
 				fls = append(fls, FieldInfo{
 					Name:     fieldName,
 					TypeName: fieldTypeName,
 					Tag:      fieldTag,
+					Doc:      fieldDoc,
+					Comment:  fieldComment,
 				})
 			}
 			*structs = append(*structs, StructInfo{
@@ -225,6 +256,7 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 		if v.Name == v.TypeName {
 			anonymous = true
 		}
+
 		fields = append(fields, reflect.StructField{
 			Name:      v.Name,
 			Type:      ty,
