@@ -8,10 +8,132 @@ import (
 	"go/printer"
 	"go/token"
 	"log"
+	"os"
 	"reflect"
 	"strings"
 	"time"
 )
+
+type ASTManager struct {
+	FilePath string
+	cache    map[string]StructInfo
+}
+
+type StructInfo struct {
+	PackageName string
+	StructName  string
+	FieldInfos  []FieldInfo
+}
+
+type FieldInfo struct {
+	Name     string
+	TypeName string
+	Tag      string
+}
+
+func (f *FieldInfo) String() string {
+	return fmt.Sprintf("%s %s %s", f.Name, f.TypeName, f.Tag)
+}
+
+func NewASTManager(filePath string) *ASTManager {
+	return &ASTManager{
+		FilePath: filePath,
+		cache:    map[string]StructInfo{},
+	}
+}
+
+func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
+	fset := token.NewFileSet()
+	fileInfo, err := os.Stat(m.FilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if fileInfo.IsDir() {
+		packages, err := parser.ParseDir(fset, m.FilePath, nil, 0)
+		if err != nil {
+			return nil, err
+		}
+		for _, pack := range packages {
+			for _, file := range pack.Files {
+				ast.Inspect(file, astInspectFunc(fset, &structs, file.Name.Name))
+			}
+		}
+	} else {
+		file, err := parser.ParseFile(fset, m.FilePath, nil, 0)
+		if err != nil {
+			return nil, err
+		}
+		ast.Inspect(file, astInspectFunc(fset, &structs, file.Name.Name))
+	}
+
+	return
+}
+
+func astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string) func(ast.Node) bool {
+	return func(n ast.Node) bool {
+		switch x := n.(type) {
+		case *ast.TypeSpec:
+			fls := make([]FieldInfo, 0)
+			v := x.Type.(*ast.StructType)
+			for _, field := range v.Fields.List {
+
+				// if mapType, ok := field.Type.(*ast.MapType); ok {
+				// 	fmt.Println(mapType.Key, mapType.Value)
+				// }
+
+				// get field.Type as string
+				var typeNameBuf bytes.Buffer
+				err := printer.Fprint(&typeNameBuf, fset, field.Type)
+				if err != nil {
+					log.Fatalf("failed printing %s", err)
+					continue
+				}
+
+				fieldName := ""
+				fieldTypeName := typeNameBuf.String()
+				fieldTag := ""
+				if field.Tag != nil {
+					fieldTag = strings.ReplaceAll(field.Tag.Value, "`", "")
+				}
+
+				// if nestedStruct, ok := field.Type.(*ast.StructType); ok {
+				// 	for _, nestedField := range nestedStruct.Fields.List {
+				// 		nestedFieldName := nestedField.Names[0].Name
+				// 		var typeNameBuf2 bytes.Buffer
+				// 		printer.Fprint(&typeNameBuf2, fset, nestedField.Type)
+				// 		fmt.Printf("  1%s: %s\n", nestedFieldName, typeNameBuf2.String())
+				// 	}
+				// }
+
+				// if arrayType, ok := field.Type.(*ast.ArrayType); ok {
+				// 	var typeNameBuf2 bytes.Buffer
+				// 	printer.Fprint(&typeNameBuf2, fset, arrayType.Elt)
+				// 	fmt.Printf("  2 : %s\n", typeNameBuf2.String())
+
+				// }
+
+				if len(field.Names) == 0 {
+					fieldName = fieldTypeName
+				} else {
+					fieldName = field.Names[0].Name
+				}
+				fls = append(fls, FieldInfo{
+					Name:     fieldName,
+					TypeName: fieldTypeName,
+					Tag:      fieldTag,
+				})
+			}
+			*structs = append(*structs, StructInfo{
+				PackageName: packageName,
+				StructName:  x.Name.Name,
+				FieldInfos:  fls,
+			})
+		}
+
+		return true
+	}
+}
 
 func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
 	fset := token.NewFileSet()
@@ -84,22 +206,6 @@ func GetStructsFromFolder(filePath string) (structs []StructInfo, err error) {
 	}
 
 	return
-}
-
-type StructInfo struct {
-	PackageName string
-	StructName  string
-	FieldInfos  []FieldInfo
-}
-
-type FieldInfo struct {
-	Name     string
-	TypeName string
-	Tag      string
-}
-
-func (f *FieldInfo) String() string {
-	return fmt.Sprintf("%s %s %s", f.Name, f.TypeName, f.Tag)
 }
 
 func stringToReflectType(t string, structs []StructInfo) (reflect.Type, error) {
