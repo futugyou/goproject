@@ -58,7 +58,7 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 	if err != nil {
 		return nil, err
 	}
-
+	var currentGenDecl *ast.GenDecl // Keep track of the current GenDecl
 	if fileInfo.IsDir() {
 		packages, err := parser.ParseDir(fset, m.FilePath, nil, parser.ParseComments)
 		if err != nil {
@@ -66,7 +66,7 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 		}
 		for _, pack := range packages {
 			for _, file := range pack.Files {
-				ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name))
+				ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name, currentGenDecl))
 			}
 		}
 	} else {
@@ -74,22 +74,29 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 		if err != nil {
 			return nil, err
 		}
-		ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name))
+		ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name, currentGenDecl))
 	}
 	m.structInfoCache = structs
 	return
 }
 
-func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string) func(ast.Node) bool {
+func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string, currentGenDecl *ast.GenDecl) func(ast.Node) bool {
 	return func(n ast.Node) bool {
 		switch x := n.(type) {
+		case *ast.GenDecl:
+			currentGenDecl = x
 		case *ast.TypeSpec:
-			fls := make([]FieldInfo, 0)
-			v := x.Type.(*ast.StructType)
-			structDoc := convertCommentGroup(x.Doc)
-			structComment := convertCommentGroup(x.Comment)
+			structDoc := strings.TrimSpace(x.Doc.Text())
+			structComment := strings.TrimSpace(x.Comment.Text())
 
-			for _, field := range v.Fields.List {
+			if x.Doc == nil {
+				structDoc = strings.TrimSpace(currentGenDecl.Doc.Text())
+			}
+
+			fls := make([]FieldInfo, 0)
+			structType := x.Type.(*ast.StructType)
+
+			for _, field := range structType.Fields.List {
 				// if mapType, ok := field.Type.(*ast.MapType); ok {
 				// 	fmt.Println(mapType.Key, mapType.Value)
 				// }
@@ -105,9 +112,8 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 				fieldTypeName := typeNameBuf.String()
 				fieldName := ""
 				fieldTag := ""
-				fieldDoc := convertCommentGroup(field.Doc)
-				fieldComment := convertCommentGroup(field.Comment)
-
+				fieldDoc := strings.TrimSpace(field.Doc.Text())
+				fieldComment := strings.TrimSpace(field.Comment.Text())
 				if len(field.Names) == 0 {
 					fieldName = fieldTypeName
 				} else {
@@ -153,21 +159,6 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 
 		return true
 	}
-}
-
-func convertCommentGroup(comment *ast.CommentGroup) string {
-	d := ""
-	if comment != nil {
-		for _, v := range comment.List {
-			if v != nil {
-				if doc, ok := strings.CutPrefix(v.Text, "//"); ok {
-					d += (doc + " ")
-				}
-			}
-		}
-		d = strings.TrimSpace(d)
-	}
-	return d
 }
 
 func (m *ASTManager) stringToReflectType(t string) (reflect.Type, error) {
@@ -280,15 +271,11 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 	return rt, nil
 }
 
-func (m *ASTManager) GetAllReflectType() ([]reflect.Type, error) {
-	result := make([]reflect.Type, 0)
+func (m *ASTManager) GetAllReflectType() (map[string]reflect.Type, error) {
 	if len(m.reflectTypeCache) > 0 {
-		for _, v := range m.reflectTypeCache {
-			result = append(result, v)
-		}
-		return result, nil
+		return m.reflectTypeCache, nil
 	}
-
+	result := map[string]reflect.Type{}
 	structs, err := m.GetStructInfo()
 	if err != nil {
 		return nil, err
@@ -299,7 +286,7 @@ func (m *ASTManager) GetAllReflectType() ([]reflect.Type, error) {
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, reflectType)
+		result[info.StructName] = reflectType
 	}
 
 	return result, nil
