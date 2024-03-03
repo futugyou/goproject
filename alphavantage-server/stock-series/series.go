@@ -37,36 +37,39 @@ func SyncStockSeriesData(symbol string) {
 		return
 	}
 
-	// create insert data
-	data := make([]StockSeriesEntity, 0)
-	for ii := 0; ii < len(s); ii++ {
-		e := StockSeriesEntity{
-			Id:     s[ii].Symbol + s[ii].Time.Format("2006-01-02 15:04:05"),
-			Symbol: s[ii].Symbol,
-			Time:   s[ii].Time,
-			Open:   s[ii].Open,
-			High:   s[ii].High,
-			Low:    s[ii].Low,
-			Close:  s[ii].Close,
-			Volume: s[ii].Volume,
+	if len(s) > 0 {
+		// create insert data
+		data := make([]StockSeriesEntity, 0)
+		for ii := 0; ii < len(s); ii++ {
+			e := StockSeriesEntity{
+				Id:     s[ii].Symbol + s[ii].Time.Format("2006-01-02 15:04:05"),
+				Symbol: s[ii].Symbol,
+				Time:   s[ii].Time,
+				Open:   s[ii].Open,
+				High:   s[ii].High,
+				Low:    s[ii].Low,
+				Close:  s[ii].Close,
+				Volume: s[ii].Volume,
+			}
+			data = append(data, e)
 		}
-		data = append(data, e)
+
+		// insert data
+		config := core.DBConfig{
+			DBName:        os.Getenv("db_name"),
+			ConnectString: os.Getenv("mongodb_url"),
+		}
+
+		repository := NewStockSeriesRepository(config)
+		r, err := repository.InsertMany(context.Background(), data, StockFilter)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		r.String()
 	}
 
-	// insert data
-	config := core.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	repository := NewStockSeriesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, StockFilter)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	r.String()
 	// update month
 	// Condition 'r.UpsertedCount > 0' cannot be used because there may be no data for the month being queried.
 	if checkTime(month) {
