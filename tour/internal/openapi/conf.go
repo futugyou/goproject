@@ -1,15 +1,14 @@
 package openapi
 
 type OpenAPIConfig struct {
-	SpceVersion  string
-	Title        string
-	Description  string
-	APIVersion   string
-	APIRoutePath string
-	ModelFolder  string
-	OutputPath   string
-	OutputType   string
-	JsonConfig   []OperationConfig
+	SpceVersion string            `json:"spce_version"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	APIVersion  string            `json:"apiVersion"`
+	ModelFolder string            `json:"model"`
+	OutputPath  string            `json:"output"`
+	OutputType  string            `json:"type"`
+	APIConfigs  []OperationConfig `json:"apis"`
 }
 
 type OperationConfig struct {

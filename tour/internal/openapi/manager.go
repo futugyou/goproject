@@ -18,16 +18,16 @@ type Manager struct {
 
 func NewManager(ts []util.StructInfo, config OpenAPIConfig) (*Manager, error) {
 	sList := make([]OpenAPIOperation, 0)
-	for _, js := range config.JsonConfig {
-		req, err := util.GetReflectTypeFromStructInfo(js.Request, ts)
+	for _, api := range config.APIConfigs {
+		req, err := util.GetReflectTypeFromStructInfo(api.Request, ts)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := util.GetReflectTypeFromStructInfo(js.Response, ts)
+		resp, err := util.GetReflectTypeFromStructInfo(api.Response, ts)
 		if err != nil {
 			return nil, err
 		}
-		o := NewOpenAPIOperation(js.Method, js.Path, js.Description, req, resp)
+		o := NewOpenAPIOperation(api.Method, api.Path, api.Description, req, resp)
 		sList = append(sList, *o)
 	}
 	m := &Manager{
