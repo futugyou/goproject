@@ -252,6 +252,83 @@ func stringToReflectType(t string, structs []StructInfo) (reflect.Type, error) {
 	return GetReflectTypeFromStructInfo(t, structs)
 }
 
+func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, error) {
+	structs, err := m.GetStructInfo()
+	if err != nil {
+		return nil, err
+	}
+	var info *StructInfo
+	for _, s := range structs {
+		if structName == s.StructName {
+			info = &StructInfo{
+				PackageName: s.PackageName,
+				StructName:  s.StructName,
+				FieldInfos:  s.FieldInfos,
+			}
+			break
+		}
+	}
+
+	if info == nil || len(info.FieldInfos) == 0 {
+		return nil, fmt.Errorf("%s can not convert to reflect.Type", structName)
+	}
+
+	fields := make([]reflect.StructField, 0)
+	for _, v := range info.FieldInfos {
+		ty, err := stringToReflectType(v.TypeName, structs)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		anonymous := false
+		if v.Name == v.TypeName {
+			anonymous = true
+		}
+		fields = append(fields, reflect.StructField{
+			Name:      v.Name,
+			Type:      ty,
+			Tag:       reflect.StructTag(v.Tag),
+			Anonymous: anonymous,
+		})
+	}
+
+	return reflect.StructOf(fields), nil
+}
+
+func (m *ASTManager) GetAllReflectType() ([]reflect.Type, error) {
+	structs, err := m.GetStructInfo()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]reflect.Type, 0)
+	for _, info := range structs {
+		fields := make([]reflect.StructField, 0)
+		for _, v := range info.FieldInfos {
+			ty, err := stringToReflectType(v.TypeName, structs)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			anonymous := false
+			if v.Name == v.TypeName {
+				anonymous = true
+			}
+			fields = append(fields, reflect.StructField{
+				Name:      v.Name,
+				Type:      ty,
+				Tag:       reflect.StructTag(v.Tag),
+				Anonymous: anonymous,
+			})
+		}
+		reflectType := reflect.StructOf(fields)
+
+		result = append(result, reflectType)
+	}
+
+	return result, nil
+}
+
 func GetReflectTypeFromStructInfo(t string, structs []StructInfo) (reflect.Type, error) {
 	var info *StructInfo
 	for _, s := range structs {
