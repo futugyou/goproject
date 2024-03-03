@@ -257,10 +257,19 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 			anonymous = true
 		}
 
+		tag := reflect.StructTag(v.Tag)
+		if _, ok := tag.Lookup("description"); !ok {
+			if len(v.Comment) > 0 {
+				tag = reflect.StructTag(fmt.Sprintf("%s description:\"%s\"", v.Tag, v.Comment))
+			} else if len(v.Doc) > 0 {
+				tag = reflect.StructTag(fmt.Sprintf("%s description:\"%s\"", v.Tag, v.Doc))
+			}
+		}
+
 		fields = append(fields, reflect.StructField{
 			Name:      v.Name,
 			Type:      ty,
-			Tag:       reflect.StructTag(v.Tag),
+			Tag:       tag,
 			Anonymous: anonymous,
 		})
 	}
