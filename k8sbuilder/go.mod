@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/onsi/ginkgo/v2 v2.15.0
-	github.com/onsi/gomega v1.30.0
+	github.com/onsi/gomega v1.31.1
 	github.com/robfig/cron v1.2.0
 	k8s.io/api v0.29.2
 	k8s.io/apimachinery v0.29.2
