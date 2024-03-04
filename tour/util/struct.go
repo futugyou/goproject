@@ -3,16 +3,19 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"github/go-project/tour/internal/word"
 	"go/ast"
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
+
+	"github/go-project/tour/internal/word"
 )
 
 type ASTManager struct {
@@ -54,31 +57,51 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 		return m.structInfoCache, nil
 	}
 
-	fset := token.NewFileSet()
 	fileInfo, err := os.Stat(m.FilePath)
 	if err != nil {
 		return nil, err
 	}
+
+	fset := token.NewFileSet()
 	var currentGenDecl *ast.GenDecl // Keep track of the current GenDecl
 	if fileInfo.IsDir() {
-		packages, err := parser.ParseDir(fset, m.FilePath, nil, parser.ParseComments)
-		if err != nil {
-			return nil, err
-		}
-		for _, pack := range packages {
-			for _, file := range pack.Files {
-				ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name, currentGenDecl))
-			}
-		}
+		filepath.Walk(m.FilePath, m.filepathWalkFunc(fset, &structs, currentGenDecl))
 	} else {
-		file, err := parser.ParseFile(fset, m.FilePath, nil, parser.ParseComments)
-		if err != nil {
+		var file *ast.File
+		if file, err = parser.ParseFile(fset, m.FilePath, nil, parser.ParseComments); err != nil {
 			return nil, err
 		}
+
 		ast.Inspect(file, m.astInspectFunc(fset, &structs, file.Name.Name, currentGenDecl))
 	}
+
 	m.structInfoCache = structs
 	return
+}
+
+func (m *ASTManager) filepathWalkFunc(fset *token.FileSet, structs *[]StructInfo, currentGenDecl *ast.GenDecl) filepath.WalkFunc {
+	return func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			return nil
+		}
+
+		var packages map[string]*ast.Package
+		if packages, err = parser.ParseDir(fset, path, nil, parser.ParseComments); err != nil {
+			return err
+		}
+
+		for _, pack := range packages {
+			for _, file := range pack.Files {
+				ast.Inspect(file, m.astInspectFunc(fset, structs, file.Name.Name, currentGenDecl))
+			}
+		}
+
+		return nil
+	}
 }
 
 func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string, currentGenDecl *ast.GenDecl) func(ast.Node) bool {
@@ -115,20 +138,18 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 
 				// get field.Type as string
 				var typeNameBuf bytes.Buffer
-				err := printer.Fprint(&typeNameBuf, fset, field.Type)
-				if err != nil {
+				if err := printer.Fprint(&typeNameBuf, fset, field.Type); err != nil {
 					log.Fatalf("failed printing %s", err)
 					continue
 				}
 
 				fieldTypeName := typeNameBuf.String()
-				fieldName := ""
+				fieldName := fieldTypeName
 				fieldTag := ""
 				fieldDoc := strings.TrimSpace(field.Doc.Text())
 				fieldComment := strings.TrimSpace(field.Comment.Text())
-				if len(field.Names) == 0 {
-					fieldName = fieldTypeName
-				} else {
+
+				if len(field.Names) > 0 {
 					fieldName = field.Names[0].Name
 				}
 
@@ -160,6 +181,7 @@ func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, 
 					Comment:  fieldComment,
 				})
 			}
+
 			*structs = append(*structs, StructInfo{
 				PackageName: packageName,
 				StructName:  x.Name.Name,
@@ -247,11 +269,11 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 		var ty reflect.Type
 		var ok bool
 		if ty, ok = m.reflectTypeCache[v.TypeName]; !ok {
-			ty, err = m.stringToReflectType(v.TypeName)
-			if err != nil {
+			if ty, err = m.stringToReflectType(v.TypeName); err != nil {
 				log.Println(err)
 				continue
 			}
+
 			m.reflectTypeCache[v.TypeName] = ty
 		}
 
