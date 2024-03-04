@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"fmt"
+	"github/go-project/tour/internal/word"
 	"go/ast"
 	"go/parser"
 	"go/printer"
@@ -82,6 +83,17 @@ func (m *ASTManager) GetStructInfo() (structs []StructInfo, err error) {
 
 func (m *ASTManager) astInspectFunc(fset *token.FileSet, structs *[]StructInfo, packageName string, currentGenDecl *ast.GenDecl) func(ast.Node) bool {
 	return func(n ast.Node) bool {
+		// switch x := n.(type) {
+		// case *ast.FuncDecl:
+		// 	fmt.Printf("%s:\tFuncDecl %s\t%s\n", fset.Position(n.Pos()), x.Name, x.Doc.Text())
+		// case *ast.TypeSpec:
+		// 	fmt.Printf("%s:\tTypeSpec %s\t%s\n", fset.Position(n.Pos()), x.Name, x.Doc.Text())
+		// case *ast.Field:
+		// 	fmt.Printf("%s:\tField %s\t%s\n", fset.Position(n.Pos()), x.Names, x.Doc.Text())
+		// case *ast.GenDecl:
+		// 	fmt.Printf("%s:\tGenDecl %s\n", fset.Position(n.Pos()), x.Doc.Text())
+		// }
+
 		switch x := n.(type) {
 		case *ast.GenDecl:
 			currentGenDecl = x
@@ -255,6 +267,14 @@ func (m *ASTManager) GetReflectTypeByName(structName string) (reflect.Type, erro
 			} else if len(v.Doc) > 0 {
 				tag = reflect.StructTag(fmt.Sprintf("%s description:\"%s\"", v.Tag, v.Doc))
 			}
+		}
+
+		if text, ok := tag.Lookup("bson"); ok {
+			tag = reflect.StructTag(fmt.Sprintf("%s json:\"%s\"", v.Tag, text))
+		}
+
+		if _, ok := tag.Lookup("json"); !ok {
+			tag = reflect.StructTag(fmt.Sprintf("%s json:\"%s\"", v.Tag, word.CamelCaseToUnderscore(v.Name)))
 		}
 
 		fields = append(fields, reflect.StructField{
