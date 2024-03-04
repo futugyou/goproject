@@ -22,10 +22,32 @@ var openapiCmd = &cobra.Command{
 	},
 }
 
+var openapiSubCmdLongDesc = strings.Join([]string{
+	"generate an openapi.json or yaml, file spec is:",
+	`{
+		"spce_version": "3.1.3",
+		"title": "this is new title",
+		"description": "this is description",
+		"apiVersion": "0.0.1",
+		"model": "./viewmodel",
+		"output": "./openapi.yaml",
+		"type": "yaml",
+		"apis": [
+			{
+				"method": "POST",
+				"path": "/getall",
+				"request": "UserAccountRequest",
+				"response": "UserAccountResponse",
+				"description": "this is test"
+			}
+		]
+	}`,
+}, "\n")
+
 var openapiSubCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "generate an openapi.json or yaml",
-	Long:  "generate an openapi.json or yaml",
+	Long:  openapiSubCmdLongDesc,
 	Run: func(cmd *cobra.Command, args []string) {
 		datas, err := os.ReadFile(openapiConfigPath)
 		if err != nil {
