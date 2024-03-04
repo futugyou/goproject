@@ -311,3 +311,23 @@ func (m *ASTManager) GetAllReflectType() (map[string]reflect.Type, error) {
 
 	return result, nil
 }
+
+// this will not save in cache
+func (m *ASTManager) ConvertReflectTypeTag(req reflect.Type, from string, to string) reflect.Type {
+	fields := make([]reflect.StructField, 0)
+	for i := 0; i < req.NumField(); i++ {
+		tag := req.Field(i).Tag
+		if text, ok := tag.Lookup(from); ok {
+			tag = reflect.StructTag(fmt.Sprintf("%s %s:\"%s\"", tag, to, text))
+		}
+
+		fields = append(fields, reflect.StructField{
+			Name:      req.Field(i).Name,
+			Type:      req.Field(i).Type,
+			Tag:       tag,
+			Anonymous: req.Field(i).Anonymous,
+		})
+	}
+
+	return reflect.StructOf(fields)
+}

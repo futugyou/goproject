@@ -23,17 +23,25 @@ func NewManager(astManager util.ASTManager, config OpenAPIConfig) (*Manager, err
 		if err != nil {
 			return nil, err
 		}
+
+		if api.Method == "DELETE" || api.Method == "GET" {
+			req = astManager.ConvertReflectTypeTag(req, "json", "query")
+		}
+
 		resp, err := astManager.GetReflectTypeByName(api.Response)
 		if err != nil {
 			return nil, err
 		}
+
 		o := NewOpenAPIOperation(api.Method, api.Path, api.Description, req, resp)
 		sList = append(sList, *o)
 	}
+
 	m := &Manager{
 		Infos:  sList,
 		Config: config,
 	}
+
 	return m, nil
 }
 
