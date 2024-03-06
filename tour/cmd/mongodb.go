@@ -12,7 +12,7 @@ import (
 
 var mongoLongDesc = strings.Join([]string{
 	"generate entity and repository from existed mongodb",
-	"command 'g' mean to generate all file",
+	"command 'generate' mean to generate all file",
 }, "\n")
 
 var mongoCmd = &cobra.Command{
@@ -50,11 +50,11 @@ func init() {
 	mongoCmd.AddCommand(mongo2structCmd)
 	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.DBName, "dbName", "n", os.Getenv("db_name"), "mongodb name, can also set in .env named 'db_name'")
 	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.ConnectString, "url", "u", os.Getenv("mongodb_url"), "mongodb url, can also set in .env named 'mongodb_url'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.RepoFolder, "repo", "r", os.Getenv("repository_folder"), "folder for repository files, can also set in .env named 'repository_folder'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.EntityFolder, "entity", "e", os.Getenv("entity_folder"), "folder for entity files, can also set in .env named 'entity_folder'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.PkgName, "package", "p", os.Getenv("package_name"), "package name, can also set in .env named 'package_name'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.CoreFoler, "core", "c", os.Getenv("core_folder"), "folder for core files, can also set in .env named 'core_folder'")
-	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.MongoRepoFolder, "mongo", "m", os.Getenv("mongo_name"), "folder for mongodb repository files, can also set in .env named 'mongo_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.RepoFolder, "repo", "r", os.Getenv("repository_folder"), "optional. folder for repository files, can also set in .env named 'repository_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.EntityFolder, "entity", "e", os.Getenv("entity_folder"), "optional. folder for entity files, can also set in .env named 'entity_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.PkgName, "package", "p", os.Getenv("package_name"), "optional. package name, can also set in .env named 'package_name'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.CoreFoler, "core", "c", os.Getenv("core_folder"), "optional. folder for core files, can also set in .env named 'core_folder'")
+	mongo2structCmd.Flags().StringVarP(&mongoDBConfig.MongoRepoFolder, "mongo", "m", os.Getenv("mongo_name"), "optional. folder for mongodb repository files, can also set in .env named 'mongo_folder'")
 
 	if len(mongoDBConfig.RepoFolder) == 0 {
 		mongoDBConfig.RepoFolder = "repository"

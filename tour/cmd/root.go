@@ -23,4 +23,5 @@ func init() {
 	rootCmd.AddCommand(sqlCmd)
 	rootCmd.AddCommand(mongoCmd)
 	rootCmd.AddCommand(openapiCmd)
+	rootCmd.AddCommand(dynamoCmd)
 }
