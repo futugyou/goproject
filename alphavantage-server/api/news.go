@@ -2,6 +2,7 @@ package api
 
 import (
 	_ "github.com/joho/godotenv/autoload"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"context"
 	"encoding/json"
@@ -16,13 +17,18 @@ func News(w http.ResponseWriter, r *http.Request) {
 	if crosForVercel(w, r) {
 		return
 	}
+
+	ticker := r.URL.Query().Get("ticker")
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
 	repository := news.NewNewsRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
+		Key:   "ticker_sentiment",
+		Value: bson.M{"$elemMatch": bson.M{"$lt": ticker}},
+	}})
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
