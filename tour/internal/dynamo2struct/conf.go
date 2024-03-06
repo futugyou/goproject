@@ -1,7 +1,13 @@
 package dynamo2struct
 
 import (
+	"context"
 	"fmt"
+	"log"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
 type DynamoDBConfig struct {
@@ -26,4 +32,27 @@ func (m *DynamoDBConfig) Check() error {
 		return fmt.Errorf("dynamodb Region can not be nil")
 	}
 	return nil
+}
+
+func (m *DynamoDBConfig) ConnectDBDatabase() (*dynamodb.Client, error) {
+	if err := m.Check(); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(m.AccessKey, m.AccessSecret, ""),
+		),
+	)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	cfg.Region = m.Region
+	svc := dynamodb.NewFromConfig(cfg)
+
+	return svc, nil
 }

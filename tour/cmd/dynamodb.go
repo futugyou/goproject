@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github/go-project/tour/internal/dynamo2struct"
 	"github/go-project/tour/util"
 	"log"
@@ -31,7 +32,12 @@ var dynamo2structCmd = &cobra.Command{
 	Short: "dynamodb to golang struct and base repository",
 	Long:  "dynamodb to golang struct and base repository",
 	Run: func(cmd *cobra.Command, args []string) {
-
+		svc, err := dynamoDBConfig.ConnectDBDatabase()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Println(svc.Options())
 	},
 }
 
