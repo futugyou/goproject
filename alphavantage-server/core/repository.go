@@ -32,6 +32,7 @@ type IRepository[E IEntity, K any] interface {
 	GetOne(ctx context.Context, filter []DataFilterItem) (*E, error)
 	Update(ctx context.Context, obj E, filter []DataFilterItem) error
 	GetAll(ctx context.Context) ([]E, error)
+	GetAllByFilter(ctx context.Context, filter []DataFilterItem) ([]E, error)
 	Paging(ctx context.Context, page Paging) ([]E, error)
 	InsertMany(ctx context.Context, items []E, filter DataFilter[E]) (*InsertManyResult, error)
 }
@@ -55,12 +56,19 @@ func NewMongoRepository[E IEntity, K any](config DBConfig) *MongoRepository[E, K
 }
 
 func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]E, error) {
+	return s.GetAllByFilter(ctx, []DataFilterItem{})
+}
+
+func (s *MongoRepository[E, K]) GetAllByFilter(ctx context.Context, filter []DataFilterItem) ([]E, error) {
 	result := make([]E, 0)
 	entity := new(E)
 	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
 
-	filter := bson.D{}
-	cursor, err := c.Find(ctx, filter)
+	ff := bson.D{}
+	for _, val := range filter {
+		ff = append(ff, bson.E(val))
+	}
+	cursor, err := c.Find(ctx, ff)
 	if err != nil {
 		log.Println(err)
 		return result, err
