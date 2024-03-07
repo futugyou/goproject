@@ -3,6 +3,7 @@ package dynamo2struct
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -34,23 +35,46 @@ func NewManager(db *dynamodb.Client, entityFolder string, repoFolder string, pkg
 	}
 }
 
+type TableInfo struct {
+	Name    string
+	ColInfo map[string]string
+}
+
 func (m *Manager) Generator() {
 	tables, err := m.getAllTable()
 	if err != nil {
 		log.Println(err)
 		return
-	} 
-
-	for _, table := range tables {
-		cols, err := m.getTableColum(table)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		fmt.Println(cols)
 	}
 
+	tInfos := m.concurrentGetTableColum(tables)
+	fmt.Println(len(tInfos))
+}
+
+func (m *Manager) concurrentGetTableColum(tables []string) []TableInfo {
+	tInfos := make([]TableInfo, 0)
+	var wg sync.WaitGroup
+	for _, table := range tables {
+		wg.Add(1)
+		go func(table string, tInfos *[]TableInfo, wg *sync.WaitGroup) {
+			defer wg.Done()
+
+			var cols map[string]string
+			var err error
+			if cols, err = m.getTableColum(table); err != nil {
+				log.Println(err)
+				return
+			}
+
+			*tInfos = append(*tInfos, TableInfo{
+				Name:    table,
+				ColInfo: cols,
+			})
+		}(table, &tInfos, &wg)
+	}
+
+	wg.Wait()
+	return tInfos
 }
 
 func (m *Manager) getAllTable() ([]string, error) {
