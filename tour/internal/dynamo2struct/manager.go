@@ -48,7 +48,9 @@ func (m *Manager) Generator() {
 	}
 
 	tInfos := m.concurrentGetTableColum(tables)
-	fmt.Println(len(tInfos))
+	for _, v := range tInfos {
+		fmt.Println(v.Name, v.ColInfo)
+	}
 }
 
 func (m *Manager) concurrentGetTableColum(tables []string) []TableInfo {
@@ -91,20 +93,20 @@ func (m *Manager) getAllTable() ([]string, error) {
 
 func (m *Manager) getTableColum(tableName string) (map[string]string, error) {
 	result := make(map[string]string)
-	describeInput := dynamodb.DescribeTableInput{
-		TableName: aws.String(tableName),
-	}
+	// describeInput := dynamodb.DescribeTableInput{
+	// 	TableName: aws.String(tableName),
+	// }
 
-	describeOutput, err := m.DB.DescribeTable(awsenv.EmptyContext, &describeInput)
-	if err != nil {
-		return result, err
-	}
+	// describeOutput, err := m.DB.DescribeTable(awsenv.EmptyContext, &describeInput)
+	// if err != nil {
+	// 	return result, err
+	// }
 
-	for _, schema := range describeOutput.Table.KeySchema {
-		if schema.AttributeName != nil {
-			result[*schema.AttributeName] = "string"
-		}
-	}
+	// for _, schema := range describeOutput.Table.KeySchema {
+	// 	if schema.AttributeName != nil {
+	// 		result[*schema.AttributeName] = "string"
+	// 	}
+	// }
 
 	input := dynamodb.ScanInput{
 		TableName: aws.String(tableName),
