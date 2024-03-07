@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github/go-project/tour/internal/dynamo2struct"
 	"github/go-project/tour/util"
 	"log"
@@ -37,7 +36,9 @@ var dynamo2structCmd = &cobra.Command{
 			log.Println(err)
 			return
 		}
-		fmt.Println(svc.Options())
+		m := dynamo2struct.NewManager(svc, dynamoDBConfig.EntityFolder, dynamoDBConfig.RepoFolder,
+			dynamoDBConfig.PkgName, dynamoDBConfig.CoreFoler, dynamoDBConfig.DynamoRepoFolder)
+		m.Generator()
 	},
 }
 
