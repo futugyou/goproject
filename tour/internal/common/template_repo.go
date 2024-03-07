@@ -1,4 +1,4 @@
-package mongo2struct
+package common
 
 const repoInterfaceTplString = `
 package {{ .InterfacePackageName }}

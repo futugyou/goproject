@@ -1,9 +1,4 @@
-package mongo2struct
-
-type CoreConfig struct {
-	PackageName string
-	Folder      string
-}
+package common
 
 const core_entity_TplString = `
 package {{ .PackageName }}

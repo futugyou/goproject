@@ -2,24 +2,10 @@ package mongo2struct
 
 import (
 	"fmt"
+	"github/go-project/tour/internal/common"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
-
-type EntityStruct struct {
-	EntityFolder string
-	FileName     string
-	PackageName  string
-	Imports      []string
-	StructName   string
-	Items        []EntityStructItem
-}
-
-type EntityStructItem struct {
-	Name string
-	Type string
-	Tag  string
-}
 
 type EntityStructBuilder struct {
 	EntityFolder   string
@@ -35,8 +21,8 @@ func NewEntityStructBuilder(folder string, collectionName string, elements []bso
 	}
 }
 
-func (b *EntityStructBuilder) Build() *EntityStruct {
-	return &EntityStruct{
+func (b *EntityStructBuilder) Build() *common.EntityStruct {
+	return &common.EntityStruct{
 		EntityFolder: b.EntityFolder,
 		FileName:     b.CollectionName,
 		PackageName:  b.EntityFolder,
@@ -46,12 +32,12 @@ func (b *EntityStructBuilder) Build() *EntityStruct {
 	}
 }
 
-func (b *EntityStructBuilder) buildItems() []EntityStructItem {
-	items := make([]EntityStructItem, 0)
+func (b *EntityStructBuilder) buildItems() []common.EntityStructItem {
+	items := make([]common.EntityStructItem, 0)
 	for _, v := range b.Elements {
 		itemType := convertBsontypeTogotype(v.Value())
 
-		items = append(items, EntityStructItem{
+		items = append(items, common.EntityStructItem{
 			Name: UnderscoreToUpperCamelCase(v.Key()),
 			Type: itemType,
 			Tag:  fmt.Sprintf("`bson:\"%s\"`", v.Key()),

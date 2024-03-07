@@ -1,4 +1,4 @@
-package mongo2struct
+package common
 
 import (
 	"fmt"
@@ -21,11 +21,11 @@ type CoreTemplate struct {
 	Obj interface{}
 }
 
-func NewTemplate() *Template {
+func NewDefaultTemplate(baseRepoTplString string) *Template {
 	return &Template{
 		entityTplString:        entityTplString,
 		repoInterfaceTplString: repoInterfaceTplString,
-		baseRepoImplTplString:  base_mongorepo_TplString,
+		baseRepoImplTplString:  baseRepoTplString,
 		repoImplTplString:      repoMongoImplTplString,
 		Core: []CoreTemplate{{
 			Key: "entity",
@@ -42,10 +42,6 @@ func NewTemplate() *Template {
 
 const templateName string = "mongo_struct_template"
 
-func (t *Template) GenerateEntity(obj EntityStruct) error {
-	return t.generate(t.entityTplString, fmt.Sprintf("./%s", obj.EntityFolder), fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName), obj)
-}
-
 func (t *Template) GenerateCore(obj CoreConfig) error {
 	for _, v := range t.Core {
 		err := t.generate(v.Tpl, fmt.Sprintf("./%s", obj.Folder), fmt.Sprintf("./%s/%s.go", obj.Folder, v.Key), obj)
@@ -58,8 +54,12 @@ func (t *Template) GenerateCore(obj CoreConfig) error {
 	return nil
 }
 
-func (t *Template) GenerateBaseRepoImpl(obj BaseMongoRepoConfig) error {
-	return t.generate(t.baseRepoImplTplString, fmt.Sprintf("./%s", obj.Folder), fmt.Sprintf("./%s/%s.go", obj.Folder, obj.FileName), obj)
+func (t *Template) GenerateEntity(obj EntityStruct) error {
+	return t.generate(t.entityTplString, fmt.Sprintf("./%s", obj.EntityFolder), fmt.Sprintf("./%s/%s.go", obj.EntityFolder, obj.FileName), obj)
+}
+
+func (t *Template) GenerateBaseRepoImpl(obj BaseRepoImplConfig) error {
+	return t.generate(t.baseRepoImplTplString, fmt.Sprintf("./%s", obj.Folder), fmt.Sprintf("./%s/%s.go", obj.Folder, obj.FileName), obj.TemplateObj)
 }
 
 func (t *Template) GenerateRepository(obj RepositoryStruct) error {
