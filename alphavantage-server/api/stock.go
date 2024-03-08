@@ -14,7 +14,9 @@ func Stock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	datas, err := stockSeries.StockSeriesData()
+	symbol := r.URL.Query().Get("symbol")
+	year := r.URL.Query().Get("year")
+	datas, err := stockSeries.StockSeriesData(symbol, year)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

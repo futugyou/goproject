@@ -89,11 +89,20 @@ func checkTime(month string) bool {
 	return t.Before(tt)
 }
 
-func StockSeriesData() ([]StockSeriesEntity, error) {
+func StockSeriesData(symbol string, year string) ([]StockSeriesEntity, error) {
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
+
 	repository := NewStockSeriesRepository(config)
-	return repository.GetAll(context.Background())
+	start, _ := time.Parse("2006", year)
+	end := start.AddDate(1, 0, 0)
+	return repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
+		Key:   "symbol",
+		Value: symbol,
+	}, {
+		Key:   "time",
+		Value: map[string]interface{}{"$gte": start, "$lt": end},
+	}})
 }

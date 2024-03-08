@@ -47,7 +47,7 @@
 		},
 		{
 			"src": "/api/v1/stock",
-			"dest": "/api/stock",
+			"dest": "/api/stock.go",
 			"methods": [
 				"GET",
 				"OPTIONS"

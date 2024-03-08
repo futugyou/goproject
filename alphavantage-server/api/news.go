@@ -2,7 +2,6 @@ package api
 
 import (
 	_ "github.com/joho/godotenv/autoload"
-	"go.mongodb.org/mongo-driver/bson"
 
 	"context"
 	"encoding/json"
@@ -27,7 +26,7 @@ func News(w http.ResponseWriter, r *http.Request) {
 	repository := news.NewNewsRepository(config)
 	datas, err := repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
 		Key:   "ticker_sentiment",
-		Value: bson.M{"$elemMatch": bson.M{"$eq": ticker}},
+		Value: map[string]interface{}{"$elemMatch": map[string]interface{}{"$eq": ticker}},
 	}})
 	if err != nil {
 		w.Write([]byte(err.Error()))
