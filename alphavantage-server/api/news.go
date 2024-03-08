@@ -27,7 +27,7 @@ func News(w http.ResponseWriter, r *http.Request) {
 	repository := news.NewNewsRepository(config)
 	datas, err := repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
 		Key:   "ticker_sentiment",
-		Value: bson.M{"$elemMatch": bson.M{"$lt": ticker}},
+		Value: bson.M{"$elemMatch": bson.M{"$eq": ticker}},
 	}})
 	if err != nil {
 		w.Write([]byte(err.Error()))
