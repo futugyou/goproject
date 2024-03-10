@@ -478,5 +478,5 @@ func payroll(client *alphavantage.EconomicIndicatorsClient) []CommoditiesEntity 
 }
 
 func CommoditiesFilter(e CommoditiesEntity) []core.DataFilterItem {
-	return []core.DataFilterItem{{Key: "type", Value: e.DataType}, {Key: "date", Value: e.Date}}
+	return []core.DataFilterItem{{Key: "type", Value: e.DataType}, {Key: "date", Value: e.Date}, {Key: "interval", Value: e.Interval}}
 }
