@@ -84,7 +84,9 @@ func ProcessToRun() {
 	count += 3
 
 	for i := count; i < totalCount; i++ {
-		stockSeries.SyncStockSeriesData(symbol)
+		if stockSeries.SyncStockSeriesData(symbol) {
+			break
+		}
 	}
 
 	base.UpdateStockRunningData(symbol)

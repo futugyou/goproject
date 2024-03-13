@@ -12,7 +12,7 @@ import (
 	"github.com/futugyou/alphavantage/enums"
 )
 
-func SyncStockSeriesData(symbol string) {
+func SyncStockSeriesData(symbol string) bool {
 	log.Println("stock series data sync start.")
 	// get sync month
 	month := GetStaockMonth(symbol)
@@ -34,7 +34,7 @@ func SyncStockSeriesData(symbol string) {
 	// alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
 	if err != nil && !strings.Contains(err.Error(), "Invalid API call") {
 		log.Println(err)
-		return
+		return false
 	}
 
 	if len(s) > 0 {
@@ -64,19 +64,20 @@ func SyncStockSeriesData(symbol string) {
 		r, err := repository.InsertMany(context.Background(), data, StockFilter)
 		if err != nil {
 			log.Println(err)
-			return
+			return false
 		}
 
 		r.String()
 	}
 
 	// update month
-	// Condition 'r.UpsertedCount > 0' cannot be used because there may be no data for the month being queried.
-	if checkTime(month) {
+	needUpdate := checkTime(month)
+	if needUpdate {
 		UpdateStaockMonth(month, symbol)
 	}
 
 	log.Println("stock series data sync finish")
+	return !needUpdate
 }
 
 func StockFilter(e StockSeriesEntity) []core.DataFilterItem {
