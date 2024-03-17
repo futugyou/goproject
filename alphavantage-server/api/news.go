@@ -24,10 +24,18 @@ func News(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repository := news.NewNewsRepository(config)
-	datas, err := repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
-		Key:   "ticker_sentiment",
-		Value: map[string]interface{}{"$elemMatch": map[string]interface{}{"$eq": ticker}},
-	}})
+	var datas []news.NewsEntity
+	var err error
+
+	if ticker == "" {
+		datas, err = repository.GetAll(context.Background())
+	} else {
+		datas, err = repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
+			Key:   "ticker_sentiment",
+			Value: map[string]interface{}{"$elemMatch": map[string]interface{}{"$eq": ticker}},
+		}})
+	}
+
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
