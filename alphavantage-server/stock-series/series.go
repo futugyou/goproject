@@ -32,9 +32,13 @@ func SyncStockSeriesData(symbol string) bool {
 	}
 	s, err := client.TimeSeriesIntraday(p)
 	// alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
-	if err != nil && !strings.Contains(err.Error(), "Invalid API call") {
+	if err != nil {
 		log.Println(err)
-		return false
+		// Stop outside loop when 'API rate limit is 25 requests per day'
+		// Donot stop outside loop when other error
+		if strings.Contains(err.Error(), "Thank you for using Alpha Vantage") {
+			return true
+		}
 	}
 
 	if len(s) > 0 {
