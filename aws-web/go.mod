@@ -35,7 +35,7 @@ require github.com/aws/aws-sdk-go-v2/service/iot v1.53.3
 
 require (
 	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.22.4
-	go.mongodb.org/mongo-driver v1.14.0
+	go.mongodb.org/mongo-driver v1.15.0
 )
 
 require (
