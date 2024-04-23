@@ -15,7 +15,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/efs v1.28.4
 	github.com/aws/aws-sdk-go-v2/service/iam v1.32.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
-	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.29.5
+	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.29.6
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.49.5
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyousuzu/identity/client v0.0.0
