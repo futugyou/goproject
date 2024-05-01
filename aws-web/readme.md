@@ -28,4 +28,4 @@ gotestsum --junitfile ./tmp/test-reports/aws-web-unit-tests.xml
 
 ## doc
 
-1. [overview](./doc/01.dashboard.md)
+1. [awsconfig](./doc/01.awsconfig.md)
