@@ -25,3 +25,7 @@ gotests -all -w ./*
 go install gotest.tools/gotestsum@latest
 gotestsum --junitfile ./tmp/test-reports/aws-web-unit-tests.xml
 ```
+
+## doc
+
+1. [overview](./doc/01.dashboard.md)
