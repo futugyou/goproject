@@ -38,3 +38,18 @@ updates:
     directory: "/tour"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/alphavantage-server"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/bolg-service"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/infr-project"
+    schedule:
+      interval: "daily"
