@@ -1,5 +1,8 @@
-### check isolation
-```
+# readme
+
+## check isolation
+
+```shell
 // host/damain name
 hostname 
 
@@ -20,8 +23,9 @@ readlink /proc/$$/ns/user
 ip a
 ```
 
-### mount hierarchy, but is hierarchy not link with any subsystem, so it can not use cgroup to limit resouce. 
-```
+mount hierarchy, but is hierarchy not link with any subsystem,so it can not use cgroup to limit resouce.
+
+```shell
 mkdir cgroup-demo
 mount -t cgroup -o none,name=cgroup-demo cgroup-demo ./cgroup-demo
 
@@ -31,26 +35,30 @@ cgroup.procs:  process set id
 task: process id
 ```
 
-### /sys/fs/cgroup, subsystem with hierarchy will be here.
-```
+## /sys/fs/cgroup, subsystem with hierarchy will be here
+
+```shell
 cd /sys/fs/cgroup/memory
 mkdir cgroup-demo-memory
 
 ls cgroup-demo-memory will see many file, we can write pid to 'tasks' and modify meory.limit_in_bytes to limit meory use.
 ```
 
-### read command line args
-```
+## read command line args
+
+```shell
 go get github.com/urfave/cli
 ```
 
-### log
-```
+## log
+
+```shell
 go get github.com/sirupsen/logrus
 ```
 
-### export 
-```
+## export
+
+```shell
 docker pull busybox
 docker run -d busybox top -b
 docker ps
@@ -58,7 +66,8 @@ docker export -o busybox.tar  'ID'
 mkdir busybox && tar -xvf busybox.tar -C busybox/
 ```
 
-### mount 
-```
+## mount
+
+```shell
 mount -t aufs -o dirs=/root/writeLayer:/root/busybox none /root/mn
 ```

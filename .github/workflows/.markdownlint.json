@@ -1,0 +1,13 @@
+{
+    "MD013": {
+      "line_length": 100,
+      "code_block_line_length": 180,
+      "tables": false
+    },
+    "MD033": {
+      "allowed_elements": [
+        "details",
+        "summary"
+      ]
+    }
+  }
