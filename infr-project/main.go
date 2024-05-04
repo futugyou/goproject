@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+
+	"github.com/futugyou/infr-project/services"
 	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +14,7 @@ import (
 func main() {
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
+		_ = services.NewWorkflowService(os.Getenv("GITHUB_TOKEN"))
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
