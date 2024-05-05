@@ -15,17 +15,28 @@ type IHttpClient interface {
 }
 
 type httpClient struct {
-	http    *http.Client
-	token   string
-	baseurl string
+	http          *http.Client
+	token         string
+	baseurl       string
+	customeHeader map[string]string
 }
 
 func newHttpClient(token string, baseUrl string) *httpClient {
-	return &httpClient{
+	c := &httpClient{
 		token:   token,
 		baseurl: baseUrl,
 		http:    &http.Client{},
 	}
+	return c
+}
+
+func newHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
+	c := &httpClient{
+		baseurl:       baseUrl,
+		http:          &http.Client{},
+		customeHeader: customeHeader,
+	}
+	return c
 }
 
 func (c *httpClient) Post(path string, request, response interface{}) error {
@@ -51,7 +62,13 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 
 	req, _ := http.NewRequest(method, path, body)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))
+	if c.customeHeader != nil && len(c.customeHeader) > 0 {
+		for key, value := range c.customeHeader {
+			req.Header.Set(key, value)
+		}
+	} else {
+		req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))
+	}
 
 	return c.readHttpResponse(req, response)
 }
