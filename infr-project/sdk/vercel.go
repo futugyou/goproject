@@ -5,22 +5,22 @@ import (
 )
 
 type VercelClient struct {
-	baseurl string
-	token   string
-	http    IHttpClient
+	token string
+	http  IHttpClient
 }
 
-func NewVercelClient(baseurl string, token string) *VercelClient {
+const vercle_url string = "https://api.vercel.com"
+
+func NewVercelClient(token string) *VercelClient {
 	c := &VercelClient{
-		http: newHttpClient(token, baseurl),
+		http: newHttpClient(token, vercle_url),
 	}
-	c.baseurl = baseurl
 	c.token = token
 	return c
 }
 
 func (v *VercelClient) GetProjects() string {
-	path := v.baseurl + "/v9/projects"
+	path := "/v9/projects"
 	result := "[]"
 	err := v.http.Get(path, &result)
 
@@ -32,7 +32,7 @@ func (v *VercelClient) GetProjects() string {
 }
 
 func (v *VercelClient) GetProjectEnv(project string) string {
-	path := v.baseurl + "/v9/projects/" + project + "/env"
+	path := "/v9/projects/" + project + "/env"
 	result := "[]"
 	err := v.http.Get(path, &result)
 
