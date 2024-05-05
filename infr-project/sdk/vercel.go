@@ -1,21 +1,18 @@
 package sdk
 
 import (
-	"fmt"
-	"io"
 	"log"
-	"net/http"
 )
 
 type VercelClient struct {
 	baseurl string
 	token   string
-	http    *http.Client
+	http    IHttpClient
 }
 
 func NewVercelClient(baseurl string, token string) *VercelClient {
 	c := &VercelClient{
-		http: &http.Client{},
+		http: newHttpClient(token, baseurl),
 	}
 	c.baseurl = baseurl
 	c.token = token
@@ -24,46 +21,24 @@ func NewVercelClient(baseurl string, token string) *VercelClient {
 
 func (v *VercelClient) GetProjects() string {
 	path := v.baseurl + "/v9/projects"
-	var body io.Reader
-	req, _ := http.NewRequest("GET", path, body)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", v.token))
-	resp, err := v.http.Do(req)
+	result := "[]"
+	err := v.http.Get(path, &result)
 
 	if err != nil {
 		log.Println(err.Error())
-		return "[]"
+		return result
 	}
-
-	defer resp.Body.Close()
-	all, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Println(err.Error())
-		return "[]"
-	}
-	return string(all)
+	return result
 }
 
 func (v *VercelClient) GetProjectEnv(project string) string {
 	path := v.baseurl + "/v9/projects/" + project + "/env"
-	var body io.Reader
-	req, _ := http.NewRequest("GET", path, body)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", v.token))
-	resp, err := v.http.Do(req)
+	result := "[]"
+	err := v.http.Get(path, &result)
 
 	if err != nil {
 		log.Println(err.Error())
-		return "[]"
+		return result
 	}
-
-	defer resp.Body.Close()
-	all, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Println(err.Error())
-		return "[]"
-	}
-	return string(all)
+	return result
 }
