@@ -52,3 +52,22 @@ func (s *WorkflowService) WorkflowRuns(owner string, repo string, workflowID int
 	}
 	log.Println(wfrs.GetTotalCount())
 }
+
+func (s *WorkflowService) WorkflowJobs(owner string, repo string, runID int64) {
+	opts := &github.ListWorkflowJobsOptions{
+		Filter: "latest",
+		ListOptions: github.ListOptions{
+			Page:    1,
+			PerPage: 100},
+	}
+
+	wfjs, _, err := s.client.Actions.ListWorkflowJobs(context.Background(), owner, repo, runID, opts)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	for _, wf := range wfjs.Jobs {
+		log.Println(wf.GetName())
+	}
+	log.Println(wfjs.GetTotalCount())
+}
