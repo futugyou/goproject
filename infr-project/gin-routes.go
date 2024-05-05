@@ -16,6 +16,7 @@ func NewGinRoute() *gin.Engine {
 		v1.POST("/ping", pingEndpoint)
 		v1.GET("/workflow", workflowEndpoint)
 		v1.GET("/vercel", vercelProjectEndpoint)
+		v1.GET("/circleci", circleciPipeline)
 	}
 	return router
 }
@@ -37,5 +38,11 @@ func workflowEndpoint(c *gin.Context) {
 func vercelProjectEndpoint(c *gin.Context) {
 	f := sdk.NewVercelClient(os.Getenv("VERCEL_TOKEN"))
 	result := f.GetProjects()
+	c.JSON(200, result)
+}
+
+func circleciPipeline(c *gin.Context) {
+	f := sdk.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
+	result := f.Pipelines(os.Getenv("CIRCLECI_ORG_SLUG"))
 	c.JSON(200, result)
 }
