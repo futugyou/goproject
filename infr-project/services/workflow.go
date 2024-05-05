@@ -18,7 +18,7 @@ func NewWorkflowService(token string) *WorkflowService {
 	}
 }
 
-func (s *WorkflowService) Workflow(owner string, repo string) {
+func (s *WorkflowService) Workflows(owner string, repo string) {
 	opts := &github.ListOptions{
 		Page:    1,
 		PerPage: 100,
@@ -33,4 +33,22 @@ func (s *WorkflowService) Workflow(owner string, repo string) {
 		log.Println(wf.GetName())
 	}
 	log.Println(wfs.GetTotalCount())
+}
+
+func (s *WorkflowService) WorkflowRuns(owner string, repo string, workflowID int64) {
+	opts := &github.ListWorkflowRunsOptions{
+		ListOptions: github.ListOptions{
+			Page:    1,
+			PerPage: 100},
+	}
+
+	wfrs, _, err := s.client.Actions.ListWorkflowRunsByID(context.Background(), owner, repo, workflowID, opts)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	for _, wf := range wfrs.WorkflowRuns {
+		log.Println(wf.GetName())
+	}
+	log.Println(wfrs.GetTotalCount())
 }

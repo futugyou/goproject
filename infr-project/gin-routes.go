@@ -29,5 +29,5 @@ func workflowEndpoint(c *gin.Context) {
 	repo := c.Query("repo")
 
 	f := services.NewWorkflowService(os.Getenv("GITHUB_TOKEN"))
-	f.Workflow(owner, repo)
+	f.Workflows(owner, repo)
 }
