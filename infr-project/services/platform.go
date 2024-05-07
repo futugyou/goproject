@@ -1,5 +1,9 @@
 package services
 
+import (
+	"github.com/google/uuid"
+)
+
 type Platform struct {
 	Id           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -12,8 +16,7 @@ type Platform struct {
 
 func NewPlatform(name string, url string, rest string, property map[string]string) *Platform {
 	return &Platform{
-		//may be need an uuid
-		Id:           "",
+		Id:           uuid.New().String(),
 		Name:         name,
 		Activate:     true,
 		Url:          url,
