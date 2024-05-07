@@ -6,8 +6,32 @@ type Platform struct {
 	Activate     bool              `json:"activate"`
 	Url          string            `json:"url"`
 	RestEndpoint string            `json:"rest_endpoint"`
-	Token        string            `json:"token"`
 	Property     map[string]string `json:"property"`
+	Webhooks     []Webhook         `json:"webhooks"`
+}
+
+type State interface {
+	privateState()
+	String() string
+}
+
+type state string
+
+func (c state) privateState() {}
+func (c state) String() string {
+	return string(c)
+}
+
+const Init state = "Init"
+const Creating state = "Creating"
+const Ready state = "Ready"
+
+type Webhook struct {
+	Name     string            `json:"name"`
+	Url      string            `json:"url"`
+	Activate bool              `json:"activate"`
+	State    State             `json:"state"`
+	Property map[string]string `json:"property"`
 }
 
 type PlatformService struct {
