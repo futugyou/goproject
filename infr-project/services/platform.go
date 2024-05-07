@@ -48,36 +48,52 @@ func (w *Platform) UpdateProperty(property map[string]string) *Platform {
 	return w
 }
 
-type State interface {
-	privateState()
+func (w *Platform) ChangeWebhook(hook Webhook) *Platform {
+	f := false
+	for i := 0; i < len(w.Webhooks); i++ {
+		if w.Webhooks[i].Name == hook.Name {
+			w.Webhooks[i] = hook
+			f = true
+			break
+		}
+	}
+
+	if !f {
+		w.Webhooks = append(w.Webhooks, hook)
+	}
+	return w
+}
+
+type WebhookState interface {
+	privateWebhookState()
 	String() string
 }
 
-type state string
+type webhookState string
 
-func (c state) privateState() {}
-func (c state) String() string {
+func (c webhookState) privateWebhookState() {}
+func (c webhookState) String() string {
 	return string(c)
 }
 
-const Init state = "Init"
-const Creating state = "Creating"
-const Ready state = "Ready"
+const Init webhookState = "Init"
+const Creating webhookState = "Creating"
+const Ready webhookState = "Ready"
 
 type Webhook struct {
 	Name     string            `json:"name"`
 	Url      string            `json:"url"`
 	Activate bool              `json:"activate"`
-	State    State             `json:"state"`
+	State    WebhookState      `json:"state"`
 	Property map[string]string `json:"property"`
 }
 
-func NewWebhook(name string, url string, property map[string]string) *Webhook {
+func NewWebhook(name string, url string, activate bool, state WebhookState, property map[string]string) *Webhook {
 	return &Webhook{
 		Name:     name,
 		Url:      url,
-		Activate: true,
-		State:    Init,
+		Activate: activate,
+		State:    state,
 		Property: property,
 	}
 }
