@@ -33,12 +33,12 @@ func (w *Platform) Disable() *Platform {
 	return w
 }
 
-func (w *Platform) ChangeName(name string) *Platform {
+func (w *Platform) UpdateName(name string) *Platform {
 	w.Name = name
 	return w
 }
 
-func (w *Platform) ChangeUrl(url string) *Platform {
+func (w *Platform) UpdateUrl(url string) *Platform {
 	w.Url = url
 	return w
 }
@@ -48,7 +48,7 @@ func (w *Platform) UpdateProperty(property map[string]string) *Platform {
 	return w
 }
 
-func (w *Platform) ChangeWebhook(hook Webhook) *Platform {
+func (w *Platform) UpdateWebhook(hook Webhook) *Platform {
 	f := false
 	for i := 0; i < len(w.Webhooks); i++ {
 		if w.Webhooks[i].Name == hook.Name {
@@ -60,6 +60,15 @@ func (w *Platform) ChangeWebhook(hook Webhook) *Platform {
 
 	if !f {
 		w.Webhooks = append(w.Webhooks, hook)
+	}
+	return w
+}
+
+func (w *Platform) RemoveWebhook(hookName string) *Platform {
+	for i := len(w.Webhooks) - 1; i >= 0; i-- {
+		if w.Webhooks[i].Name == hookName {
+			w.Webhooks = append(w.Webhooks[:i], w.Webhooks[i+1:]...)
+		}
 	}
 	return w
 }
