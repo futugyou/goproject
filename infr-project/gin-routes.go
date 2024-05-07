@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/futugyou/infr-project/sdk"
@@ -17,6 +18,7 @@ func NewGinRoute() *gin.Engine {
 		v1.GET("/workflow", workflowEndpoint)
 		v1.GET("/vercel", vercelProjectEndpoint)
 		v1.GET("/circleci", circleciPipeline)
+		v1.GET("/vault", vaultSecret)
 	}
 	return router
 }
@@ -44,5 +46,15 @@ func vercelProjectEndpoint(c *gin.Context) {
 func circleciPipeline(c *gin.Context) {
 	f := sdk.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
 	result := f.Pipelines(os.Getenv("CIRCLECI_ORG_SLUG"))
+	c.JSON(200, result)
+}
+
+func vaultSecret(c *gin.Context) {
+	f := sdk.NewVaultClient()
+	result, err := f.GetAppSecret("VERCEL_TOKEN")
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	c.JSON(200, result)
 }
