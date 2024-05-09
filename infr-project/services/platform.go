@@ -1,6 +1,9 @@
 package services
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/google/uuid"
 )
 
@@ -76,21 +79,29 @@ func (w *Platform) RemoveWebhook(hookName string) *Platform {
 	return w
 }
 
+// WebhookState is the interface for webhook states.
 type WebhookState interface {
-	privateWebhookState()
+	privateWebhookState() // Prevents external implementation
 	String() string
 }
 
+// webhookState is the underlying implementation for WebhookState.
 type webhookState string
 
+// privateWebhookState makes webhookState implement WebhookState.
 func (c webhookState) privateWebhookState() {}
+
+// String makes webhookState implement WebhookState.
 func (c webhookState) String() string {
 	return string(c)
 }
 
-const WebhookInit webhookState = "Init"
-const WebhookCreating webhookState = "Creating"
-const WebhookReady webhookState = "Ready"
+// Constants for the different webhook states.
+const (
+	WebhookInit     webhookState = "Init"
+	WebhookCreating webhookState = "Creating"
+	WebhookReady    webhookState = "Ready"
+)
 
 type Webhook struct {
 	Name     string            `json:"name"`
@@ -98,6 +109,44 @@ type Webhook struct {
 	Activate bool              `json:"activate"`
 	State    WebhookState      `json:"state"`
 	Property map[string]string `json:"property"`
+}
+
+// MarshalJSON is a custom marshaler for Webhook that handles the serialization of WebhookState.
+// In this case, we can skip MarshalJSON, only implement UnmarshalJSON
+func (w Webhook) MarshalJSON() ([]byte, error) {
+	type Alias Webhook
+	return json.Marshal(&struct {
+		State string `json:"state"`
+		*Alias
+	}{
+		State: w.State.String(),
+		Alias: (*Alias)(&w),
+	})
+}
+
+// UnmarshalJSON is a custom unmarshaler for Webhook that handles the deserialization of WebhookState.
+func (w *Webhook) UnmarshalJSON(data []byte) error {
+	type Alias Webhook
+	aux := &struct {
+		State string `json:"state"`
+		*Alias
+	}{
+		Alias: (*Alias)(w),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	switch aux.State {
+	case string(WebhookInit):
+		w.State = WebhookInit
+	case string(WebhookCreating):
+		w.State = WebhookCreating
+	case string(WebhookReady):
+		w.State = WebhookReady
+	default:
+		return errors.New("invalid webhook state")
+	}
+	return nil
 }
 
 func NewWebhook(name string, url string, property map[string]string) *Webhook {
