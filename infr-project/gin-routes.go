@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
@@ -19,6 +20,7 @@ func NewGinRoute() *gin.Engine {
 		v1.GET("/vercel", vercelProjectEndpoint)
 		v1.GET("/circleci", circleciPipeline)
 		v1.GET("/vault", vaultSecret)
+		v1.GET("/resource", resourceMarshal)
 	}
 	return router
 }
@@ -57,4 +59,15 @@ func vaultSecret(c *gin.Context) {
 		return
 	}
 	c.JSON(200, result)
+}
+
+func resourceMarshal(c *gin.Context) {
+	f := services.NewResource("s", services.Excalidraw, "")
+	d, _ := json.Marshal(f)
+	log.Println(string(d))
+	t := "{\"id\":\"8c502184-2fc7-4dbe-8327-a36908f0f960\",\"name\":\"s\",\"type\":\"Excalidraw\",\"version\":0,\"data\":\"\",\"create_at\":\"2024-05-09T11:54:58.9941631Z\"}"
+
+	f = &services.Resource{}
+	json.Unmarshal([]byte(t), f)
+	c.JSON(200, f)
 }
