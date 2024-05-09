@@ -88,9 +88,9 @@ func (c webhookState) String() string {
 	return string(c)
 }
 
-const Init webhookState = "Init"
-const Creating webhookState = "Creating"
-const Ready webhookState = "Ready"
+const WebhookInit webhookState = "Init"
+const WebhookCreating webhookState = "Creating"
+const WebhookReady webhookState = "Ready"
 
 type Webhook struct {
 	Name     string            `json:"name"`
@@ -100,12 +100,12 @@ type Webhook struct {
 	Property map[string]string `json:"property"`
 }
 
-func NewWebhook(name string, url string, activate bool, state WebhookState, property map[string]string) *Webhook {
+func NewWebhook(name string, url string, property map[string]string) *Webhook {
 	return &Webhook{
 		Name:     name,
 		Url:      url,
-		Activate: activate,
-		State:    state,
+		Activate: true,
+		State:    WebhookInit,
 		Property: property,
 	}
 }
