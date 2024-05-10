@@ -1,11 +1,14 @@
 package services
 
 import (
+	"fmt"
 	"time"
+
+	eventsourcing "github.com/futugyou/infr-project/event_sourcing"
 )
 
 type IResourceEvent interface {
-	EventType() string
+	eventsourcing.IEvent
 }
 
 type ResourceCreatedEvent struct {
@@ -65,32 +68,18 @@ func (res *ResourceEventSourcer) Load(id string) ([]IResourceEvent, error) {
 }
 
 func (res *ResourceEventSourcer) Apply(aggregate Resource, event IResourceEvent) Resource {
-	resource := aggregate
-
-	switch e := event.(type) {
-	case ResourceCreatedEvent:
-		resource = Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 1, CreatedAt: e.CreatedAt}
-	case ResourceUpdatedEvent:
-		resource.Name = e.Name
-		resource.Type = e.Type
-		resource.Data = e.Data
-		resource.Version = e.Version
-		resource.CreatedAt = e.UpdatedAt
-	case ResourceDeletedEvent:
-		// TODO: how to handle delete
-	}
-
-	return resource
+	aggregate.Apply(event)
+	return aggregate
 }
 
-func (res *ResourceEventSourcer) GetAlltVersions() []Resource {
+func (res *ResourceEventSourcer) GetAllVersions(id string) ([]Resource, error) {
 	if len(res.allVersions) > 0 {
-		return res.allVersions
+		return res.allVersions, nil
 	}
 
 	if len(res.events) == 0 {
-		if _, err := res.Load(res.ResourceId); err != nil {
-			return res.allVersions
+		if _, err := res.Load(id); err != nil {
+			return []Resource{}, err
 		}
 	}
 
@@ -105,18 +94,33 @@ func (res *ResourceEventSourcer) GetAlltVersions() []Resource {
 		}
 	}
 
-	return res.allVersions
+	return res.allVersions, nil
 }
 
-func (res *ResourceEventSourcer) GetSpecificVersion(version int) Resource {
+func (res *ResourceEventSourcer) GetSpecificVersion(id string, version int) (*Resource, error) {
 	if len(res.allVersions) == 0 {
-		res.GetAlltVersions()
+		res.GetAllVersions(id)
 	}
 
 	for i := 0; i < len(res.allVersions); i++ {
 		if res.allVersions[i].Version == version {
-			return res.allVersions[i]
+			return &res.allVersions[i], nil
 		}
 	}
-	return Resource{}
+	return nil, fmt.Errorf("not found with id:%s version:%d", id, version)
+}
+
+type ResourceEventSourcerWithSnapshot struct {
+	ResourceEventSourcer
+	// other
+}
+
+func (res *ResourceEventSourcerWithSnapshot) TakeSnapshot() error {
+	// create snapshot
+	return nil
+}
+
+func (res *ResourceEventSourcerWithSnapshot) RestoreFromSnapshot() error {
+	// restore
+	return nil
 }
