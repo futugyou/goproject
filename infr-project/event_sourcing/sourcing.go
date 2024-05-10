@@ -6,14 +6,14 @@ type IEvent interface {
 
 type IAggregate interface {
 	AggregateName() string
+	AggregateId() string
 	Apply(event IEvent) error
 }
 
 type IEventSourcer[E IEvent, R IAggregate] interface {
-	Add(event E) error
 	Save(events []E) error
 	Load(id string) ([]E, error)
 	Apply(aggregate R, event E) R
-	GetAllVersions(id string) ([]R, error)
-	GetSpecificVersion(id string, version int) (*R, error)
+	GetAllVersions(aggregate R) ([]R, error)
+	GetSpecificVersion(aggregate R, version int) (*R, error)
 }

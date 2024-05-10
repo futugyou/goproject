@@ -122,6 +122,10 @@ func (r Resource) AggregateName() string {
 	return "resources"
 }
 
+func (r Resource) AggregateId() string {
+	return r.Id
+}
+
 func (r Resource) Apply(event eventsourcing.IEvent) error {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
@@ -177,8 +181,8 @@ func (s *ResourceService) CurrentResource(id string) Resource {
 	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
 		ResourceId: id,
 	}
-
-	allVersions, _ := sourcer.GetAllVersions(id)
+	aggregate := Resource{Id: id}
+	allVersions, _ := sourcer.GetAllVersions(aggregate)
 	return allVersions[len(allVersions)-1]
 }
 
@@ -201,7 +205,8 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
 		ResourceId: id,
 	}
-	allVersions, _ := sourcer.GetAllVersions(id)
+	aggregate := Resource{Id: id}
+	allVersions, _ := sourcer.GetAllVersions(aggregate)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}

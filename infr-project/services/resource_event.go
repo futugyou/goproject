@@ -72,13 +72,13 @@ func (res *ResourceEventSourcer) Apply(aggregate Resource, event IResourceEvent)
 	return aggregate
 }
 
-func (res *ResourceEventSourcer) GetAllVersions(id string) ([]Resource, error) {
+func (res *ResourceEventSourcer) GetAllVersions(aggregate Resource) ([]Resource, error) {
 	if len(res.allVersions) > 0 {
 		return res.allVersions, nil
 	}
 
 	if len(res.events) == 0 {
-		if _, err := res.Load(id); err != nil {
+		if _, err := res.Load(aggregate.Id); err != nil {
 			return []Resource{}, err
 		}
 	}
@@ -97,9 +97,9 @@ func (res *ResourceEventSourcer) GetAllVersions(id string) ([]Resource, error) {
 	return res.allVersions, nil
 }
 
-func (res *ResourceEventSourcer) GetSpecificVersion(id string, version int) (*Resource, error) {
+func (res *ResourceEventSourcer) GetSpecificVersion(aggregate Resource, version int) (*Resource, error) {
 	if len(res.allVersions) == 0 {
-		res.GetAllVersions(id)
+		res.GetAllVersions(aggregate)
 	}
 
 	for i := 0; i < len(res.allVersions); i++ {
@@ -107,7 +107,7 @@ func (res *ResourceEventSourcer) GetSpecificVersion(id string, version int) (*Re
 			return &res.allVersions[i], nil
 		}
 	}
-	return nil, fmt.Errorf("not found with id:%s version:%d", id, version)
+	return nil, fmt.Errorf("not found with id:%s version:%d", aggregate.Id, version)
 }
 
 type ResourceEventSourcerWithSnapshot struct {
