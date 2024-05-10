@@ -33,3 +33,49 @@ func (s *MemoryStorage[E]) SaveEvents(events []E) error {
 	}
 	return nil
 }
+
+type ISnapshotStore[R IAggregate] interface {
+	LoadSnapshot(id string) (*R, error)
+	LoadSnapshotByVersion(id string, version int) (*R, error)
+	SaveSnapshot(aggregate R) error
+}
+
+type MemorySnapshotStore[R IAggregate] struct {
+	storage map[string][]R
+}
+
+func NewMemorySnapshotStore[R IAggregate]() *MemorySnapshotStore[R] {
+	return &MemorySnapshotStore[R]{
+		storage: make(map[string][]R),
+	}
+}
+
+func (s *MemorySnapshotStore[R]) LoadSnapshot(id string) (*R, error) {
+	datas, ok := s.storage[id]
+	if !ok || len(datas) == 0 {
+		return nil, fmt.Errorf("no data for %s", id)
+	}
+
+	return &datas[len(datas)-1], nil
+}
+
+func (s *MemorySnapshotStore[R]) LoadSnapshotByVersion(id string, version int) (*R, error) {
+	datas, ok := s.storage[id]
+	if !ok {
+		return nil, fmt.Errorf("no data for %s", id)
+	}
+	for i := len(datas) - 1; i >= 0; i-- {
+		if datas[i].AggregateVersion() < version {
+			return &datas[i], nil
+		}
+	}
+	return nil, fmt.Errorf("no data for id %s version %d", id, version)
+}
+
+func (s *MemorySnapshotStore[R]) SaveSnapshot(aggregate R) error {
+	if aggregate.AggregateVersion()%5 != 0 {
+		return nil
+	}
+	s.storage[aggregate.AggregateId()] = append(s.storage[aggregate.AggregateId()], aggregate)
+	return nil
+}

@@ -11,6 +11,7 @@ type IEvent interface {
 type IAggregate interface {
 	AggregateName() string
 	AggregateId() string
+	AggregateVersion() int
 	Apply(event IEvent) error
 }
 
@@ -23,12 +24,14 @@ type IEventSourcer[E IEvent, R IAggregate] interface {
 }
 
 type GeneralEventSourcer[E IEvent, R IAggregate] struct {
-	storage IEventStorage[E]
+	storage       IEventStorage[E]
+	snapshotStore ISnapshotStore[R]
 }
 
 func NewEventSourcer[E IEvent, R IAggregate]() *GeneralEventSourcer[E, R] {
 	return &GeneralEventSourcer[E, R]{
-		storage: NewMemoryStorage[E](),
+		storage:       NewMemoryStorage[E](),
+		snapshotStore: NewMemorySnapshotStore[R](),
 	}
 }
 

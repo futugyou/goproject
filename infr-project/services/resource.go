@@ -126,6 +126,9 @@ func (r Resource) AggregateName() string {
 func (r Resource) AggregateId() string {
 	return r.Id
 }
+func (r Resource) AggregateVersion() int {
+	return r.Version
+}
 
 func (r Resource) Apply(event eventsourcing.IEvent) error {
 	switch e := event.(type) {
