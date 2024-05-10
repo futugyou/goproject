@@ -180,8 +180,7 @@ type ResourceService struct {
 
 func (s *ResourceService) CurrentResource(id string) Resource {
 	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
-	aggregate := Resource{Id: id}
-	allVersions, _ := sourcer.GetAllVersions(aggregate)
+	allVersions, _ := sourcer.GetAllVersions(id)
 	return allVersions[len(allVersions)-1]
 }
 
@@ -200,8 +199,7 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
-	aggregate := Resource{Id: id}
-	allVersions, _ := sourcer.GetAllVersions(aggregate)
+	allVersions, _ := sourcer.GetAllVersions(id)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}

@@ -62,6 +62,8 @@ func vaultSecret(c *gin.Context) {
 }
 
 func resourceMarshal(c *gin.Context) {
+	r := services.ResourceService{}
+	r.UpdateResourceDate("s", "")
 	f := services.NewResource("s", services.Excalidraw, "")
 	d, _ := json.Marshal(f)
 	log.Println(string(d))

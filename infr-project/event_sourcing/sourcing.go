@@ -1,6 +1,8 @@
 package eventsourcing
 
-import "errors"
+import (
+	"errors"
+)
 
 type IEvent interface {
 	EventType() string
@@ -16,8 +18,8 @@ type IEventSourcer[E IEvent, R IAggregate] interface {
 	Save(events []E) error
 	Load(id string) ([]E, error)
 	Apply(aggregate R, event E) R
-	GetAllVersions(aggregate R) ([]R, error)
-	GetSpecificVersion(aggregate R, version int) (*R, error)
+	GetAllVersions(id string) ([]R, error)
+	GetSpecificVersion(id string, version int) (*R, error)
 }
 
 type GeneralEventSourcer[E IEvent, R IAggregate] struct {
@@ -47,13 +49,14 @@ func (es *GeneralEventSourcer[E, R]) Apply(aggregate R, event E) R {
 	return aggregate
 }
 
-func (es *GeneralEventSourcer[E, R]) GetAllVersions(aggregate R) ([]R, error) {
-	events, err := es.Load(aggregate.AggregateId())
+func (es *GeneralEventSourcer[E, R]) GetAllVersions(id string) ([]R, error) {
+	events, err := es.Load(id)
 	if err != nil {
 		return nil, err
 	}
 
 	var aggregates []R
+	aggregate := *new(R)
 	for _, event := range events {
 		aggregate.Apply(event)
 		aggregates = append(aggregates, aggregate)
@@ -62,12 +65,13 @@ func (es *GeneralEventSourcer[E, R]) GetAllVersions(aggregate R) ([]R, error) {
 	return aggregates, nil
 }
 
-func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(aggregate R, version int) (*R, error) {
+func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) (*R, error) {
 	if version < 0 {
 		return nil, errors.New("invalid ID or version")
 	}
-	events, err := es.Load(aggregate.AggregateId())
-	if err == nil || version >= len(events) {
+	aggregate := *new(R)
+	events, err := es.Load(id)
+	if err == nil || version > len(events) {
 		return nil, errors.New("invalid ID or version")
 	}
 	for i := 0; i <= version; i++ {
