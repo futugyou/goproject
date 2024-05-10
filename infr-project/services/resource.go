@@ -2,8 +2,10 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
+	eventsourcing "github.com/futugyou/infr-project/event_sourcing"
 	"github.com/google/uuid"
 )
 
@@ -116,11 +118,11 @@ func (r *Resource) ChangeData(data string) *Resource {
 	return r
 }
 
-func (r *Resource) AggregateName() string {
+func (r Resource) AggregateName() string {
 	return "resources"
 }
 
-func onResourceCreated(resource Resource) {
+func CreateCreatedEvent(resource Resource) IResourceEvent {
 	event := ResourceCreatedEvent{
 		Id:        resource.Id,
 		Name:      resource.Name,
@@ -129,10 +131,10 @@ func onResourceCreated(resource Resource) {
 		CreatedAt: resource.CreatedAt,
 	}
 
-	saveEvent(event)
+	return event
 }
 
-func onResourceUpdated(resource Resource) {
+func CreateUpdatedEvent(resource Resource) IResourceEvent {
 	event := ResourceUpdatedEvent{
 		Id:        resource.Id,
 		Name:      resource.Name,
@@ -141,18 +143,55 @@ func onResourceUpdated(resource Resource) {
 		Version:   resource.Version,
 		UpdatedAt: time.Now().UTC(),
 	}
-
-	saveEvent(event)
+	return event
 }
 
-func onResourceDeleted(resource Resource) {
+func CreateDeletedEvent(resource Resource) IResourceEvent {
 	event := ResourceDeletedEvent{
 		Id: resource.Id,
 	}
-
-	saveEvent(event)
+	return event
 }
 
-func saveEvent(event interface{}) {
-	// repo
+type ResourceService struct {
+}
+
+func (s *ResourceService) CurrentResource(id string) Resource {
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
+		ResourceId: id,
+	}
+
+	allVersions := sourcer.GetAlltVersions()
+	return allVersions[len(allVersions)-1]
+}
+
+func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
+	resource := NewResource(name, resourceType, data)
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
+		ResourceId: resource.Id,
+	}
+
+	evt := CreateCreatedEvent(*resource)
+
+	if err := sourcer.Save([]IResourceEvent{evt}); err != nil {
+		return nil, err
+	}
+
+	return resource, nil
+}
+
+func (s *ResourceService) UpdateResourceDate(id string, data string) error {
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
+		ResourceId: id,
+	}
+	allVersions := sourcer.GetAlltVersions()
+	if len(allVersions) == 0 {
+		return errors.New("no resource id by " + id)
+	}
+
+	resource := allVersions[len(allVersions)-1]
+	resource = *resource.ChangeData(data)
+	evt := CreateUpdatedEvent(resource)
+
+	return sourcer.Save([]IResourceEvent{evt})
 }

@@ -83,7 +83,7 @@ func (res *ResourceEventSourcer) Apply(aggregate Resource, event IResourceEvent)
 	return resource
 }
 
-func (res *ResourceEventSourcer) GetResourceVersions() []Resource {
+func (res *ResourceEventSourcer) GetAlltVersions() []Resource {
 	if len(res.allVersions) > 0 {
 		return res.allVersions
 	}
@@ -108,9 +108,9 @@ func (res *ResourceEventSourcer) GetResourceVersions() []Resource {
 	return res.allVersions
 }
 
-func (res *ResourceEventSourcer) GetResourceVersion(version int) Resource {
+func (res *ResourceEventSourcer) GetSpecificVersion(version int) Resource {
 	if len(res.allVersions) == 0 {
-		res.GetResourceVersions()
+		res.GetAlltVersions()
 	}
 
 	for i := 0; i < len(res.allVersions); i++ {
