@@ -115,3 +115,61 @@ func (r *Resource) ChangeData(data string) *Resource {
 	r.Data = data
 	return r
 }
+
+type ResourceCreatedEvent struct {
+	Id        string
+	Name      string
+	Type      ResourceType
+	Data      string
+	CreatedAt time.Time
+}
+
+type ResourceUpdatedEvent struct {
+	Id        string
+	Name      string
+	Type      ResourceType
+	Data      string
+	Version   int
+	UpdatedAt time.Time
+}
+
+type ResourceDeletedEvent struct {
+	Id string
+}
+
+func onResourceCreated(resource Resource) {
+	event := ResourceCreatedEvent{
+		Id:        resource.Id,
+		Name:      resource.Name,
+		Type:      resource.Type,
+		Data:      resource.Data,
+		CreatedAt: resource.CreatedAt,
+	}
+
+	saveEvent(event)
+}
+
+func onResourceUpdated(resource Resource) {
+	event := ResourceUpdatedEvent{
+		Id:        resource.Id,
+		Name:      resource.Name,
+		Type:      resource.Type,
+		Data:      resource.Data,
+		Version:   resource.Version,
+		UpdatedAt: time.Now().UTC(),
+	}
+
+	saveEvent(event)
+}
+
+func onResourceDeleted(resource Resource) {
+	event := ResourceDeletedEvent{
+		Id: resource.Id,
+	}
+
+	saveEvent(event)
+}
+
+func saveEvent(event interface{}) {
+	// repo
+}
