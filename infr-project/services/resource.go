@@ -88,7 +88,7 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 		Id:        uuid.New().String(),
 		Name:      name,
 		Type:      resourceType,
-		Version:   0,
+		Version:   1,
 		Data:      data,
 		CreatedAt: time.Now().UTC(),
 	}
@@ -116,25 +116,8 @@ func (r *Resource) ChangeData(data string) *Resource {
 	return r
 }
 
-type ResourceCreatedEvent struct {
-	Id        string
-	Name      string
-	Type      ResourceType
-	Data      string
-	CreatedAt time.Time
-}
-
-type ResourceUpdatedEvent struct {
-	Id        string
-	Name      string
-	Type      ResourceType
-	Data      string
-	Version   int
-	UpdatedAt time.Time
-}
-
-type ResourceDeletedEvent struct {
-	Id string
+func (r *Resource) AggregateName() string {
+	return "resources"
 }
 
 func onResourceCreated(resource Resource) {
