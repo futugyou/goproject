@@ -10,12 +10,13 @@ import (
 )
 
 type Resource struct {
-	Id        string       `json:"id"`
-	Name      string       `json:"name"`
-	Type      ResourceType `json:"type"`
-	Version   int          `json:"version"`
-	Data      string       `json:"data"`
-	CreatedAt time.Time    `json:"created_at"`
+	eventsourcing.IAggregate `json:"-"`
+	Id                       string       `json:"id"`
+	Name                     string       `json:"name"`
+	Type                     ResourceType `json:"type"`
+	Version                  int          `json:"version"`
+	Data                     string       `json:"data"`
+	CreatedAt                time.Time    `json:"created_at"`
 }
 
 // ResourceType is the interface for resource types.
@@ -178,9 +179,7 @@ type ResourceService struct {
 }
 
 func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
-		ResourceId: id,
-	}
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
 	aggregate := Resource{Id: id}
 	allVersions, _ := sourcer.GetAllVersions(aggregate)
 	return allVersions[len(allVersions)-1]
@@ -188,9 +187,7 @@ func (s *ResourceService) CurrentResource(id string) Resource {
 
 func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
 	resource := NewResource(name, resourceType, data)
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
-		ResourceId: resource.Id,
-	}
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
 
 	evt := CreateCreatedEvent(*resource)
 
@@ -202,9 +199,7 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = &ResourceEventSourcer{
-		ResourceId: id,
-	}
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
 	aggregate := Resource{Id: id}
 	allVersions, _ := sourcer.GetAllVersions(aggregate)
 	if len(allVersions) == 0 {
