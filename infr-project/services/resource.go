@@ -46,14 +46,14 @@ const (
 
 // MarshalJSON is a custom marshaler for Resource that handles the serialization of ResourceType.
 // In this case, we can skip MarshalJSON, only implement UnmarshalJSON
-func (r Resource) MarshalJSON() ([]byte, error) {
+func (r *Resource) MarshalJSON() ([]byte, error) {
 	type Alias Resource
 	return json.Marshal(&struct {
 		Type string `json:"type"`
 		*Alias
 	}{
 		Type:  r.Type.String(),
-		Alias: (*Alias)(&r),
+		Alias: (*Alias)(r),
 	})
 }
 
@@ -119,21 +119,21 @@ func (r *Resource) ChangeData(data string) *Resource {
 	return r
 }
 
-func (r Resource) AggregateName() string {
+func (r *Resource) AggregateName() string {
 	return "resources"
 }
 
-func (r Resource) AggregateId() string {
+func (r *Resource) AggregateId() string {
 	return r.Id
 }
-func (r Resource) AggregateVersion() int {
+func (r *Resource) AggregateVersion() int {
 	return r.Version
 }
 
-func (r Resource) Apply(event eventsourcing.IEvent) error {
+func (r *Resource) Apply(event eventsourcing.IEvent) error {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
-		r = Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 1, CreatedAt: e.CreatedAt}
+		r = &Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 1, CreatedAt: e.CreatedAt}
 	case ResourceUpdatedEvent:
 		r.Name = e.Name
 		r.Type = e.Type
@@ -182,14 +182,14 @@ type ResourceService struct {
 }
 
 func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, *Resource] = eventsourcing.NewEventSourcer[IResourceEvent, *Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
-	return allVersions[len(allVersions)-1]
+	return *allVersions[len(allVersions)-1]
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
 	resource := NewResource(name, resourceType, data)
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, *Resource] = eventsourcing.NewEventSourcer[IResourceEvent, *Resource]()
 
 	evt := CreateCreatedEvent(*resource)
 
@@ -201,15 +201,15 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, *Resource] = eventsourcing.NewEventSourcer[IResourceEvent, *Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}
 
 	resource := allVersions[len(allVersions)-1]
-	resource = *resource.ChangeData(data)
-	evt := CreateUpdatedEvent(resource)
+	resource = resource.ChangeData(data)
+	evt := CreateUpdatedEvent(*resource)
 
 	return sourcer.Save([]IResourceEvent{evt})
 }
