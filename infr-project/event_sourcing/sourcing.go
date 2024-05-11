@@ -72,13 +72,29 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 	if version < 0 {
 		return nil, errors.New("invalid ID or version")
 	}
-	aggregate := *new(R)
-	events, err := es.Load(id)
-	if err == nil || version > len(events) {
-		return nil, errors.New("invalid ID or version")
+	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
+	if err != nil {
+		events, err := es.Load(id)
+		if err == nil || version > len(events) {
+			return nil, errors.New("invalid ID or version")
+		}
+		for i := 1; i <= version; i++ {
+			(*aggregate).Apply(events[i])
+		}
 	}
-	for i := 0; i <= version; i++ {
-		aggregate.Apply(events[i])
-	}
-	return &aggregate, nil
+	// TODO aggregate.version < version
+
+	return aggregate, nil
+}
+
+func (es *GeneralEventSourcer[E, R]) TakeSnapshot(aggregate R) error {
+	return es.snapshotStore.SaveSnapshot(aggregate)
+}
+
+func (es *GeneralEventSourcer[E, R]) RestoreFromSnapshot(id string) (*R, error) {
+	return es.snapshotStore.LoadSnapshot(id)
+}
+
+func (es *GeneralEventSourcer[E, R]) RestoreFromSnapshotByVersion(id string, version int) (*R, error) {
+	return es.snapshotStore.LoadSnapshotByVersion(id, version)
 }
