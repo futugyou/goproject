@@ -119,32 +119,28 @@ func (r *Resource) ChangeData(data string) *Resource {
 	return r
 }
 
-func (r *Resource) AggregateName() string {
+func (r Resource) AggregateName() string {
 	return "resources"
 }
 
-func (r *Resource) AggregateId() string {
+func (r Resource) AggregateId() string {
 	return r.Id
 }
-func (r *Resource) AggregateVersion() int {
+func (r Resource) AggregateVersion() int {
 	return r.Version
 }
 
-func (r *Resource) Apply(event eventsourcing.IEvent) error {
+func (r Resource) Apply(event eventsourcing.IEvent) (eventsourcing.IEventSourcing, error) {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
-		r = &Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 0, CreatedAt: e.CreatedAt}
+		return Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 0, CreatedAt: e.CreatedAt}, nil
 	case ResourceUpdatedEvent:
-		r.Name = e.Name
-		r.Type = e.Type
-		r.Data = e.Data
-		r.Version = e.Version()
-		r.CreatedAt = e.UpdatedAt
+		return Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: e.Version(), CreatedAt: e.UpdatedAt}, nil
 	case ResourceDeletedEvent:
 		// TODO: how to handle delete
 	}
 
-	return nil
+	return r, errors.New("event type not supported")
 }
 
 func CreateCreatedEvent(resource Resource) IResourceEvent {
@@ -182,14 +178,14 @@ type ResourceService struct {
 }
 
 func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, *Resource] = eventsourcing.NewEventSourcer[IResourceEvent, *Resource]()
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
-	return *allVersions[len(allVersions)-1]
+	return allVersions[len(allVersions)-1]
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
 	resource := NewResource(name, resourceType, data)
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, *Resource] = eventsourcing.NewEventSourcer[IResourceEvent, *Resource]()
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
 
 	evt := CreateCreatedEvent(*resource)
 
@@ -201,15 +197,15 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, *Resource] = eventsourcing.NewEventSourcer[IResourceEvent, *Resource]()
+	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}
 
 	resource := allVersions[len(allVersions)-1]
-	resource = resource.ChangeData(data)
-	evt := CreateUpdatedEvent(*resource)
+	resource = *resource.ChangeData(data)
+	evt := CreateUpdatedEvent(resource)
 
 	return sourcer.Save([]IResourceEvent{evt})
 }

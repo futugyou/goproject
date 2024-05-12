@@ -2,6 +2,7 @@ package eventsourcing
 
 import (
 	"errors"
+	"fmt"
 )
 
 // IEvent represents the interface for events.
@@ -19,12 +20,12 @@ type IAggregate interface {
 // IEventSourcing extends IAggregate with event sourcing specific methods, including versioning.
 type IEventSourcing interface {
 	IAggregate
-	Apply(event IEvent) error
+	Apply(event IEvent) (IEventSourcing, error)
 	AggregateVersion() int
 }
 
 type IEventApplier[E IEvent, R IEventSourcing] interface {
-	Apply(aggregate R, event E) R
+	Apply(aggregate R, event E) (R, error)
 }
 
 type IVersionManager[R IEventSourcing] interface {
@@ -63,9 +64,18 @@ func (es *GeneralEventSourcer[E, R]) Load(id string) ([]E, error) {
 	return events, nil
 }
 
-func (es *GeneralEventSourcer[E, R]) Apply(aggregate R, event E) R {
-	aggregate.Apply(event)
-	return aggregate
+func (es *GeneralEventSourcer[E, R]) Apply(aggregate R, event E) (R, error) {
+	newAggregate, err := aggregate.Apply(event)
+	if err != nil {
+		return aggregate, err
+	}
+
+	typedAggregate, ok := newAggregate.(R)
+	if !ok {
+		return aggregate, fmt.Errorf("apply method returned an instance of incorrect type")
+	}
+
+	return typedAggregate, nil
 }
 
 func (es *GeneralEventSourcer[E, R]) GetAllVersions(id string) ([]R, error) {
