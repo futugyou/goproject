@@ -2,22 +2,22 @@ package domain
 
 import "fmt"
 
-type IEventStore[E IDomainEvent] interface {
-	Save(events []E) error
-	Load(id string) ([]E, error)
+type IEventStore[Event IDomainEvent] interface {
+	Save(events []Event) error
+	Load(id string) ([]Event, error)
 }
 
-type MemoryEventStore[E IDomainEvent] struct {
-	storage map[string][]E
+type MemoryEventStore[Event IDomainEvent] struct {
+	storage map[string][]Event
 }
 
-func NewMemoryEventStore[E IDomainEvent]() *MemoryEventStore[E] {
-	return &MemoryEventStore[E]{
-		storage: make(map[string][]E),
+func NewMemoryEventStore[Event IDomainEvent]() *MemoryEventStore[Event] {
+	return &MemoryEventStore[Event]{
+		storage: make(map[string][]Event),
 	}
 }
 
-func (s *MemoryEventStore[E]) Load(id string) ([]E, error) {
+func (s *MemoryEventStore[Event]) Load(id string) ([]Event, error) {
 	events, ok := s.storage[id]
 	if !ok {
 		return nil, fmt.Errorf("no data for %s", id)
@@ -26,7 +26,7 @@ func (s *MemoryEventStore[E]) Load(id string) ([]E, error) {
 	return events, nil
 }
 
-func (s *MemoryEventStore[E]) Save(events []E) error {
+func (s *MemoryEventStore[Event]) Save(events []Event) error {
 	for _, event := range events {
 		id := event.EventType()
 		s.storage[id] = append(s.storage[id], event)
@@ -34,23 +34,23 @@ func (s *MemoryEventStore[E]) Save(events []E) error {
 	return nil
 }
 
-type ISnapshotStore[R IEventSourcing] interface {
-	LoadSnapshot(id string) (*R, error)
-	LoadSnapshotByVersion(id string, version int) (*R, error)
-	SaveSnapshot(aggregate R) error
+type ISnapshotStore[EventSourcing IEventSourcing] interface {
+	LoadSnapshot(id string) (*EventSourcing, error)
+	LoadSnapshotByVersion(id string, version int) (*EventSourcing, error)
+	SaveSnapshot(aggregate EventSourcing) error
 }
 
-type MemorySnapshotStore[R IEventSourcing] struct {
-	storage map[string][]R
+type MemorySnapshotStore[EventSourcing IEventSourcing] struct {
+	storage map[string][]EventSourcing
 }
 
-func NewMemorySnapshotStore[R IEventSourcing]() *MemorySnapshotStore[R] {
-	return &MemorySnapshotStore[R]{
-		storage: make(map[string][]R),
+func NewMemorySnapshotStore[EventSourcing IEventSourcing]() *MemorySnapshotStore[EventSourcing] {
+	return &MemorySnapshotStore[EventSourcing]{
+		storage: make(map[string][]EventSourcing),
 	}
 }
 
-func (s *MemorySnapshotStore[R]) LoadSnapshot(id string) (*R, error) {
+func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(id string) (*EventSourcing, error) {
 	datas, ok := s.storage[id]
 	if !ok || len(datas) == 0 {
 		return nil, fmt.Errorf("no data for %s", id)
@@ -72,7 +72,7 @@ func (s *MemorySnapshotStore[R]) LoadSnapshotByVersion(id string, version int) (
 	return nil, fmt.Errorf("no data for id %s version %d", id, version)
 }
 
-func (s *MemorySnapshotStore[R]) SaveSnapshot(aggregate R) error {
+func (s *MemorySnapshotStore[EventSourcing]) SaveSnapshot(aggregate EventSourcing) error {
 	if aggregate.AggregateVersion()%5 != 0 {
 		return nil
 	}

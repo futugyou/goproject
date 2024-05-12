@@ -1,17 +1,17 @@
 package domain
 
-type IEventApplier[E IDomainEvent, R IEventSourcing] interface {
-	Apply(aggregate R, event E) (R, error)
+type IEventApplier[Event IDomainEvent, EventSourcing IEventSourcing] interface {
+	Apply(aggregate EventSourcing, event Event) (EventSourcing, error)
 }
 
-type IVersionManager[R IEventSourcing] interface {
-	GetAllVersions(id string) ([]R, error)
-	GetSpecificVersion(id string, version int) (*R, error)
-	GetLatestVersion(id string) (*R, error)
+type IVersionManager[EventSourcing IEventSourcing] interface {
+	GetAllVersions(id string) ([]EventSourcing, error)
+	GetSpecificVersion(id string, version int) (*EventSourcing, error)
+	GetLatestVersion(id string) (*EventSourcing, error)
 }
 
-type IEventSourcer[E IDomainEvent, R IEventSourcing] interface {
-	IEventStore[E]
-	IEventApplier[E, R]
-	IVersionManager[R]
+type IEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing] interface {
+	IEventStore[Event]
+	IEventApplier[Event, EventSourcing]
+	IVersionManager[EventSourcing]
 }

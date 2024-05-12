@@ -5,25 +5,25 @@ import (
 	"fmt"
 )
 
-type GeneralEventSourcer[E IDomainEvent, R IEventSourcing] struct {
-	IEventStore[E]
-	ISnapshotStore[R]
+type GeneralEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing] struct {
+	IEventStore[Event]
+	ISnapshotStore[EventSourcing]
 }
 
-func NewEventSourcer[E IDomainEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
-	return &GeneralEventSourcer[E, R]{
-		IEventStore:    NewMemoryEventStore[E](),
-		ISnapshotStore: NewMemorySnapshotStore[R](),
+func NewEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing]() *GeneralEventSourcer[Event, EventSourcing] {
+	return &GeneralEventSourcer[Event, EventSourcing]{
+		IEventStore:    NewMemoryEventStore[Event](),
+		ISnapshotStore: NewMemorySnapshotStore[EventSourcing](),
 	}
 }
 
-func (es *GeneralEventSourcer[E, R]) Apply(aggregate R, event E) (R, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) Apply(aggregate EventSourcing, event Event) (EventSourcing, error) {
 	newAggregate, err := aggregate.Apply(event)
 	if err != nil {
 		return aggregate, err
 	}
 
-	typedAggregate, ok := newAggregate.(R)
+	typedAggregate, ok := newAggregate.(EventSourcing)
 	if !ok {
 		return aggregate, fmt.Errorf("apply method returned an instance of incorrect type")
 	}
@@ -31,14 +31,14 @@ func (es *GeneralEventSourcer[E, R]) Apply(aggregate R, event E) (R, error) {
 	return typedAggregate, nil
 }
 
-func (es *GeneralEventSourcer[E, R]) GetAllVersions(id string) ([]R, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) GetAllVersions(id string) ([]EventSourcing, error) {
 	events, err := es.Load(id)
 	if err != nil {
 		return nil, err
 	}
 
-	var aggregates []R
-	aggregate := *new(R)
+	var aggregates []EventSourcing
+	aggregate := *new(EventSourcing)
 	for _, event := range events {
 		aggregate.Apply(event)
 		aggregates = append(aggregates, aggregate)
@@ -47,7 +47,7 @@ func (es *GeneralEventSourcer[E, R]) GetAllVersions(id string) ([]R, error) {
 	return aggregates, nil
 }
 
-func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) (*R, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) GetSpecificVersion(id string, version int) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
@@ -61,7 +61,7 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 
 		if aggregate == nil {
 			// Initialize an empty aggregate if snapshot doesn't exist or an error occurred
-			aggregate = new(R)
+			aggregate = new(EventSourcing)
 		}
 
 		// Apply events to the snapshot or the newly created aggregate until the requested version is reached
@@ -86,12 +86,12 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 	return aggregate, nil
 }
 
-func (es *GeneralEventSourcer[E, R]) GetLatestVersion(id string) (*R, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) GetLatestVersion(id string) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
 	aggregate, err := es.RestoreFromSnapshot(id)
 	if err != nil {
 		// If an error occurs, we assume no snapshot is available and start from scratch
-		aggregate = new(R)
+		aggregate = new(EventSourcing)
 	}
 
 	// Load all events for the aggregate
@@ -113,14 +113,14 @@ func (es *GeneralEventSourcer[E, R]) GetLatestVersion(id string) (*R, error) {
 	return aggregate, nil
 }
 
-func (es *GeneralEventSourcer[E, R]) TakeSnapshot(aggregate R) error {
+func (es *GeneralEventSourcer[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing) error {
 	return es.SaveSnapshot(aggregate)
 }
 
-func (es *GeneralEventSourcer[E, R]) RestoreFromSnapshot(id string) (*R, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RestoreFromSnapshot(id string) (*EventSourcing, error) {
 	return es.LoadSnapshot(id)
 }
 
-func (es *GeneralEventSourcer[E, R]) RestoreFromSnapshotByVersion(id string, version int) (*R, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int) (*EventSourcing, error) {
 	return es.LoadSnapshotByVersion(id, version)
 }
