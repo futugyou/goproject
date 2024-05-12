@@ -29,6 +29,7 @@ type IEventSourcer[E IEvent, R IEventSourcing] interface {
 	Apply(aggregate R, event E) R
 	GetAllVersions(id string) ([]R, error)
 	GetSpecificVersion(id string, version int) (*R, error)
+	GetLatestVersion(id string) (*R, error)
 }
 
 type GeneralEventSourcer[E IEvent, R IEventSourcing] struct {
@@ -80,6 +81,7 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
+
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
 	if err != nil || (*aggregate).AggregateVersion() < version {
 		events, eventsErr := es.Load(id)
@@ -111,6 +113,33 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 		}
 	}
 
+	return aggregate, nil
+}
+
+func (es *GeneralEventSourcer[E, R]) GetLatestVersion(id string) (*R, error) {
+	// Attempt to restore the latest snapshot
+	aggregate, err := es.RestoreFromSnapshot(id)
+	if err != nil {
+		// If an error occurs, we assume no snapshot is available and start from scratch
+		aggregate = new(R)
+	}
+
+	// Load all events for the aggregate
+	events, eventsErr := es.Load(id)
+	if eventsErr != nil {
+		return nil, eventsErr
+	}
+
+	// Apply events to the snapshot or the newly created aggregate
+	for _, event := range events {
+		eventVersion := event.Version()
+		// Only apply events that are newer than the snapshot's version
+		if eventVersion > (*aggregate).AggregateVersion() {
+			(*aggregate).Apply(event)
+		}
+	}
+
+	// The aggregate is now at the latest version
 	return aggregate, nil
 }
 
