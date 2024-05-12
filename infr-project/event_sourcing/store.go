@@ -2,22 +2,22 @@ package eventsourcing
 
 import "fmt"
 
-type IEventStorage[E IEvent] interface {
+type IEventStore[E IEvent] interface {
 	GetEvents(aggregateId string) ([]E, error)
 	SaveEvents(events []E) error
 }
 
-type MemoryStorage[E IEvent] struct {
+type MemoryEventStore[E IEvent] struct {
 	storage map[string][]E
 }
 
-func NewMemoryStorage[E IEvent]() *MemoryStorage[E] {
-	return &MemoryStorage[E]{
+func NewMemoryEventStore[E IEvent]() *MemoryEventStore[E] {
+	return &MemoryEventStore[E]{
 		storage: make(map[string][]E),
 	}
 }
 
-func (s *MemoryStorage[E]) GetEvents(aggregateId string) ([]E, error) {
+func (s *MemoryEventStore[E]) GetEvents(aggregateId string) ([]E, error) {
 	events, ok := s.storage[aggregateId]
 	if !ok {
 		return nil, fmt.Errorf("no data for %s", aggregateId)
@@ -26,7 +26,7 @@ func (s *MemoryStorage[E]) GetEvents(aggregateId string) ([]E, error) {
 	return events, nil
 }
 
-func (s *MemoryStorage[E]) SaveEvents(events []E) error {
+func (s *MemoryEventStore[E]) SaveEvents(events []E) error {
 	for _, event := range events {
 		id := event.EventType()
 		s.storage[id] = append(s.storage[id], event)

@@ -33,23 +33,23 @@ type IEventSourcer[E IEvent, R IEventSourcing] interface {
 }
 
 type GeneralEventSourcer[E IEvent, R IEventSourcing] struct {
-	storage       IEventStorage[E]
+	eventStore    IEventStore[E]
 	snapshotStore ISnapshotStore[R]
 }
 
 func NewEventSourcer[E IEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
 	return &GeneralEventSourcer[E, R]{
-		storage:       NewMemoryStorage[E](),
+		eventStore:    NewMemoryEventStore[E](),
 		snapshotStore: NewMemorySnapshotStore[R](),
 	}
 }
 
 func (es *GeneralEventSourcer[E, R]) Save(events []E) error {
-	return es.storage.SaveEvents(events)
+	return es.eventStore.SaveEvents(events)
 }
 
 func (es *GeneralEventSourcer[E, R]) Load(id string) ([]E, error) {
-	events, err := es.storage.GetEvents(id)
+	events, err := es.eventStore.GetEvents(id)
 	if err != nil {
 		return nil, err
 	}
