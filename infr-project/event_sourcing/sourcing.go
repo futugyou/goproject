@@ -6,7 +6,7 @@ import (
 )
 
 // IEvent represents the interface for events.
-type IEvent interface {
+type IDomainEvent interface {
 	EventType() string
 	Version() int
 }
@@ -20,11 +20,11 @@ type IAggregate interface {
 // IEventSourcing extends IAggregate with event sourcing specific methods, including versioning.
 type IEventSourcing interface {
 	IAggregate
-	Apply(event IEvent) (IEventSourcing, error)
+	Apply(event IDomainEvent) (IEventSourcing, error)
 	AggregateVersion() int
 }
 
-type IEventApplier[E IEvent, R IEventSourcing] interface {
+type IEventApplier[E IDomainEvent, R IEventSourcing] interface {
 	Apply(aggregate R, event E) (R, error)
 }
 
@@ -34,18 +34,18 @@ type IVersionManager[R IEventSourcing] interface {
 	GetLatestVersion(id string) (*R, error)
 }
 
-type IEventSourcer[E IEvent, R IEventSourcing] interface {
+type IEventSourcer[E IDomainEvent, R IEventSourcing] interface {
 	IEventStore[E]
 	IEventApplier[E, R]
 	IVersionManager[R]
 }
 
-type GeneralEventSourcer[E IEvent, R IEventSourcing] struct {
+type GeneralEventSourcer[E IDomainEvent, R IEventSourcing] struct {
 	eventStore    IEventStore[E]
 	snapshotStore ISnapshotStore[R]
 }
 
-func NewEventSourcer[E IEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
+func NewEventSourcer[E IDomainEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
 	return &GeneralEventSourcer[E, R]{
 		eventStore:    NewMemoryEventStore[E](),
 		snapshotStore: NewMemorySnapshotStore[R](),

@@ -130,7 +130,7 @@ func (r Resource) AggregateVersion() int {
 	return r.Version
 }
 
-func (r Resource) Apply(event eventsourcing.IEvent) (eventsourcing.IEventSourcing, error) {
+func (r Resource) Apply(event eventsourcing.IDomainEvent) (eventsourcing.IEventSourcing, error) {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
 		return Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 0, CreatedAt: e.CreatedAt}, nil

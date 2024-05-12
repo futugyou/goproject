@@ -7,7 +7,7 @@ import (
 )
 
 type IResourceEvent interface {
-	eventsourcing.IEvent
+	eventsourcing.IDomainEvent
 }
 
 type ResourceCreatedEvent struct {

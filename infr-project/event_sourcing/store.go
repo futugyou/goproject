@@ -2,16 +2,16 @@ package eventsourcing
 
 import "fmt"
 
-type IEventStore[E IEvent] interface {
+type IEventStore[E IDomainEvent] interface {
 	Save(events []E) error
 	Load(id string) ([]E, error)
 }
 
-type MemoryEventStore[E IEvent] struct {
+type MemoryEventStore[E IDomainEvent] struct {
 	storage map[string][]E
 }
 
-func NewMemoryEventStore[E IEvent]() *MemoryEventStore[E] {
+func NewMemoryEventStore[E IDomainEvent]() *MemoryEventStore[E] {
 	return &MemoryEventStore[E]{
 		storage: make(map[string][]E),
 	}
