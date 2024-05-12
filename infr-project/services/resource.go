@@ -88,7 +88,7 @@ func (r *Resource) UnmarshalJSON(data []byte) error {
 }
 
 func NewResource(name string, resourceType ResourceType, data string) *Resource {
-	return &Resource{
+	r := &Resource{
 		Id:        uuid.New().String(),
 		Name:      name,
 		Type:      resourceType,
@@ -96,12 +96,15 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 		Data:      data,
 		CreatedAt: time.Now().UTC(),
 	}
+	r.createCreatedEvent()
+	return r
 }
 
 func (r *Resource) ChangeName(name string) *Resource {
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Name = name
+	r.createUpdatedEvent()
 	return r
 }
 
@@ -110,6 +113,7 @@ func (r *Resource) ChangeType(resourceType ResourceType, data string) *Resource 
 	r.CreatedAt = time.Now().UTC()
 	r.Type = resourceType
 	r.Data = data
+	r.createUpdatedEvent()
 	return r
 }
 
@@ -117,6 +121,7 @@ func (r *Resource) ChangeData(data string) *Resource {
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Data = data
+	r.createUpdatedEvent()
 	return r
 }
 
@@ -174,69 +179,33 @@ func (r *Resource) DomainEvents() []domain.IDomainEvent {
 	return domainEvents
 }
 
-func CreateCreatedEvent(resource Resource) IResourceEvent {
+func (r *Resource) createCreatedEvent() {
 	event := ResourceCreatedEvent{
-		Id:        resource.Id,
-		Name:      resource.Name,
-		Type:      resource.Type,
-		Data:      resource.Data,
-		CreatedAt: resource.CreatedAt,
+		Id:        r.Id,
+		Name:      r.Name,
+		Type:      r.Type,
+		Data:      r.Data,
+		CreatedAt: r.CreatedAt,
 	}
 
-	return event
+	r.AddDomainEvent(event)
 }
 
-func CreateUpdatedEvent(resource Resource) IResourceEvent {
+func (r *Resource) createUpdatedEvent() {
 	event := ResourceUpdatedEvent{
-		Id:              resource.Id,
-		Name:            resource.Name,
-		Type:            resource.Type,
-		Data:            resource.Data,
-		ResourceVersion: resource.Version,
+		Id:              r.Id,
+		Name:            r.Name,
+		Type:            r.Type,
+		Data:            r.Data,
+		ResourceVersion: r.Version,
 		UpdatedAt:       time.Now().UTC(),
 	}
-	return event
+	r.AddDomainEvent(event)
 }
 
-func CreateDeletedEvent(resource Resource) IResourceEvent {
-	event := ResourceDeletedEvent{
-		Id: resource.Id,
-	}
-	return event
-}
-
-type ResourceService struct {
-}
-
-func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
-	allVersions, _ := sourcer.GetAllVersions(id)
-	return *allVersions[len(allVersions)-1]
-}
-
-func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
-	resource := NewResource(name, resourceType, data)
-	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
-
-	evt := CreateCreatedEvent(*resource)
-
-	if err := sourcer.Save([]IResourceEvent{evt}); err != nil {
-		return nil, err
-	}
-
-	return resource, nil
-}
-
-func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
-	allVersions, _ := sourcer.GetAllVersions(id)
-	if len(allVersions) == 0 {
-		return errors.New("no resource id by " + id)
-	}
-
-	resource := allVersions[len(allVersions)-1]
-	resource = resource.ChangeData(data)
-	evt := CreateUpdatedEvent(*resource)
-
-	return sourcer.Save([]IResourceEvent{evt})
-}
+// func (r *Resource) createDeletedEvent() {
+// 	event := ResourceDeletedEvent{
+// 		Id: r.Id,
+// 	}
+// 	r.AddDomainEvent(event)
+// }
