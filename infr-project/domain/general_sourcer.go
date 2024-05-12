@@ -2,7 +2,6 @@ package domain
 
 import (
 	"errors"
-	"fmt"
 )
 
 type GeneralEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing] struct {
@@ -17,18 +16,8 @@ func NewEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing]() *Genera
 	}
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) Apply(aggregate EventSourcing, event Event) (EventSourcing, error) {
-	newAggregate, err := aggregate.Apply(event)
-	if err != nil {
-		return aggregate, err
-	}
-
-	typedAggregate, ok := newAggregate.(EventSourcing)
-	if !ok {
-		return aggregate, fmt.Errorf("apply method returned an instance of incorrect type")
-	}
-
-	return typedAggregate, nil
+func (es *GeneralEventSourcer[Event, EventSourcing]) Apply(aggregate EventSourcing, event Event) error {
+	return aggregate.Apply(event)
 }
 
 func (es *GeneralEventSourcer[Event, EventSourcing]) GetAllVersions(id string) ([]EventSourcing, error) {
@@ -40,7 +29,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) GetAllVersions(id string) (
 	var aggregates []EventSourcing
 	aggregate := *new(EventSourcing)
 	for _, event := range events {
-		aggregate.Apply(event)
+		es.Apply(aggregate, event)
 		aggregates = append(aggregates, aggregate)
 
 	}
@@ -68,7 +57,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) GetSpecificVersion(id strin
 		for _, event := range events {
 			eventVersion := event.Version()
 			if eventVersion > (*aggregate).AggregateVersion() && eventVersion <= version {
-				(*aggregate).Apply(event)
+				es.Apply(*aggregate, event)
 				if (*aggregate).AggregateVersion() == version {
 					break
 				}
@@ -105,7 +94,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) GetLatestVersion(id string)
 		eventVersion := event.Version()
 		// Only apply events that are newer than the snapshot's version
 		if eventVersion > (*aggregate).AggregateVersion() {
-			(*aggregate).Apply(event)
+			es.Apply(*aggregate, event)
 		}
 	}
 

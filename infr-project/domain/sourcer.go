@@ -1,7 +1,7 @@
 package domain
 
 type IEventApplier[Event IDomainEvent, EventSourcing IEventSourcing] interface {
-	Apply(aggregate EventSourcing, event Event) (EventSourcing, error)
+	Apply(aggregate EventSourcing, event Event) error
 }
 
 type IVersionManager[EventSourcing IEventSourcing] interface {

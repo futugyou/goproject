@@ -11,12 +11,13 @@ import (
 
 type Resource struct {
 	domain.IAggregate `json:"-"`
-	Id                string       `json:"id"`
-	Name              string       `json:"name"`
-	Type              ResourceType `json:"type"`
-	Version           int          `json:"version"`
-	Data              string       `json:"data"`
-	CreatedAt         time.Time    `json:"created_at"`
+	Id                string           `json:"id"`
+	Name              string           `json:"name"`
+	Type              ResourceType     `json:"type"`
+	Version           int              `json:"version"`
+	Data              string           `json:"data"`
+	CreatedAt         time.Time        `json:"created_at"`
+	domainEvents      []IResourceEvent `json:"-"`
 }
 
 // ResourceType is the interface for resource types.
@@ -119,28 +120,58 @@ func (r *Resource) ChangeData(data string) *Resource {
 	return r
 }
 
-func (r Resource) AggregateName() string {
+func (r *Resource) AggregateName() string {
 	return "resources"
 }
 
-func (r Resource) AggregateId() string {
+func (r *Resource) AggregateId() string {
 	return r.Id
 }
-func (r Resource) AggregateVersion() int {
+
+func (r *Resource) AggregateVersion() int {
 	return r.Version
 }
 
-func (r Resource) Apply(event domain.IDomainEvent) (domain.IEventSourcing, error) {
+func (r *Resource) Apply(event domain.IDomainEvent) error {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
-		return Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 0, CreatedAt: e.CreatedAt}, nil
+		r.Id = e.Id
+		r.Name = e.Name
+		r.Type = e.Type
+		r.Version = e.Version()
+		r.CreatedAt = e.CreatedAt
+		r.Data = e.Data
 	case ResourceUpdatedEvent:
-		return Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: e.Version(), CreatedAt: e.UpdatedAt}, nil
+		r.Id = e.Id
+		r.Name = e.Name
+		r.Type = e.Type
+		r.Version = e.Version()
+		r.CreatedAt = e.UpdatedAt
+		r.Data = e.Data
 	case ResourceDeletedEvent:
 		// TODO: how to handle delete
 	}
 
-	return r, errors.New("event type not supported")
+	return errors.New("event type not supported")
+}
+
+func (r *Resource) AddDomainEvent(event domain.IDomainEvent) {
+	switch event.(type) {
+	case IResourceEvent:
+		r.domainEvents = append(r.domainEvents, event)
+	}
+}
+
+func (r *Resource) ClearDomainEvents() {
+	r.domainEvents = []IResourceEvent{}
+}
+
+func (r *Resource) DomainEvents() []domain.IDomainEvent {
+	domainEvents := make([]domain.IDomainEvent, len(r.domainEvents))
+	for i, event := range r.domainEvents {
+		domainEvents[i] = event
+	}
+	return domainEvents
 }
 
 func CreateCreatedEvent(resource Resource) IResourceEvent {
@@ -178,14 +209,14 @@ type ResourceService struct {
 }
 
 func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer domain.IEventSourcer[IResourceEvent, Resource] = domain.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
-	return allVersions[len(allVersions)-1]
+	return *allVersions[len(allVersions)-1]
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
 	resource := NewResource(name, resourceType, data)
-	var sourcer domain.IEventSourcer[IResourceEvent, Resource] = domain.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
 
 	evt := CreateCreatedEvent(*resource)
 
@@ -197,15 +228,15 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer domain.IEventSourcer[IResourceEvent, Resource] = domain.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}
 
 	resource := allVersions[len(allVersions)-1]
-	resource = *resource.ChangeData(data)
-	evt := CreateUpdatedEvent(resource)
+	resource = resource.ChangeData(data)
+	evt := CreateUpdatedEvent(*resource)
 
 	return sourcer.Save([]IResourceEvent{evt})
 }
