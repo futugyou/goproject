@@ -3,11 +3,11 @@ package services
 import (
 	"time"
 
-	eventsourcing "github.com/futugyou/infr-project/event_sourcing"
+	domain "github.com/futugyou/infr-project/domain"
 )
 
 type IResourceEvent interface {
-	eventsourcing.IDomainEvent
+	domain.IDomainEvent
 }
 
 type ResourceCreatedEvent struct {

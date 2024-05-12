@@ -5,18 +5,18 @@ import (
 	"errors"
 	"time"
 
-	eventsourcing "github.com/futugyou/infr-project/event_sourcing"
+	domain "github.com/futugyou/infr-project/domain"
 	"github.com/google/uuid"
 )
 
 type Resource struct {
-	eventsourcing.IAggregate `json:"-"`
-	Id                       string       `json:"id"`
-	Name                     string       `json:"name"`
-	Type                     ResourceType `json:"type"`
-	Version                  int          `json:"version"`
-	Data                     string       `json:"data"`
-	CreatedAt                time.Time    `json:"created_at"`
+	domain.IAggregate `json:"-"`
+	Id                string       `json:"id"`
+	Name              string       `json:"name"`
+	Type              ResourceType `json:"type"`
+	Version           int          `json:"version"`
+	Data              string       `json:"data"`
+	CreatedAt         time.Time    `json:"created_at"`
 }
 
 // ResourceType is the interface for resource types.
@@ -130,7 +130,7 @@ func (r Resource) AggregateVersion() int {
 	return r.Version
 }
 
-func (r Resource) Apply(event eventsourcing.IDomainEvent) (eventsourcing.IEventSourcing, error) {
+func (r Resource) Apply(event domain.IDomainEvent) (domain.IEventSourcing, error) {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
 		return Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 0, CreatedAt: e.CreatedAt}, nil
@@ -178,14 +178,14 @@ type ResourceService struct {
 }
 
 func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer domain.IEventSourcer[IResourceEvent, Resource] = domain.NewEventSourcer[IResourceEvent, Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
 	return allVersions[len(allVersions)-1]
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
 	resource := NewResource(name, resourceType, data)
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer domain.IEventSourcer[IResourceEvent, Resource] = domain.NewEventSourcer[IResourceEvent, Resource]()
 
 	evt := CreateCreatedEvent(*resource)
 
@@ -197,7 +197,7 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer eventsourcing.IEventSourcer[IResourceEvent, Resource] = eventsourcing.NewEventSourcer[IResourceEvent, Resource]()
+	var sourcer domain.IEventSourcer[IResourceEvent, Resource] = domain.NewEventSourcer[IResourceEvent, Resource]()
 	allVersions, _ := sourcer.GetAllVersions(id)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)

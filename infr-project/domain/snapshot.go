@@ -1,4 +1,4 @@
-package eventsourcing
+package domain
 
 type ISnapshotter[E IDomainEvent, R IAggregate] interface {
 	TakeSnapshot(aggregate R) error

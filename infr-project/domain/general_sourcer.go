@@ -1,67 +1,20 @@
-package eventsourcing
+package domain
 
 import (
 	"errors"
 	"fmt"
 )
 
-// IEvent represents the interface for events.
-type IDomainEvent interface {
-	EventType() string
-	Version() int
-}
-
-// IAggregate represents the basic interface for aggregates.
-type IAggregate interface {
-	AggregateName() string
-	AggregateId() string
-}
-
-// IEventSourcing extends IAggregate with event sourcing specific methods, including versioning.
-type IEventSourcing interface {
-	IAggregate
-	Apply(event IDomainEvent) (IEventSourcing, error)
-	AggregateVersion() int
-}
-
-type IEventApplier[E IDomainEvent, R IEventSourcing] interface {
-	Apply(aggregate R, event E) (R, error)
-}
-
-type IVersionManager[R IEventSourcing] interface {
-	GetAllVersions(id string) ([]R, error)
-	GetSpecificVersion(id string, version int) (*R, error)
-	GetLatestVersion(id string) (*R, error)
-}
-
-type IEventSourcer[E IDomainEvent, R IEventSourcing] interface {
-	IEventStore[E]
-	IEventApplier[E, R]
-	IVersionManager[R]
-}
-
 type GeneralEventSourcer[E IDomainEvent, R IEventSourcing] struct {
-	eventStore    IEventStore[E]
-	snapshotStore ISnapshotStore[R]
+	IEventStore[E]
+	ISnapshotStore[R]
 }
 
 func NewEventSourcer[E IDomainEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
 	return &GeneralEventSourcer[E, R]{
-		eventStore:    NewMemoryEventStore[E](),
-		snapshotStore: NewMemorySnapshotStore[R](),
+		IEventStore:    NewMemoryEventStore[E](),
+		ISnapshotStore: NewMemorySnapshotStore[R](),
 	}
-}
-
-func (es *GeneralEventSourcer[E, R]) Save(events []E) error {
-	return es.eventStore.Save(events)
-}
-
-func (es *GeneralEventSourcer[E, R]) Load(id string) ([]E, error) {
-	events, err := es.eventStore.Load(id)
-	if err != nil {
-		return nil, err
-	}
-	return events, nil
 }
 
 func (es *GeneralEventSourcer[E, R]) Apply(aggregate R, event E) (R, error) {
@@ -161,13 +114,13 @@ func (es *GeneralEventSourcer[E, R]) GetLatestVersion(id string) (*R, error) {
 }
 
 func (es *GeneralEventSourcer[E, R]) TakeSnapshot(aggregate R) error {
-	return es.snapshotStore.SaveSnapshot(aggregate)
+	return es.SaveSnapshot(aggregate)
 }
 
 func (es *GeneralEventSourcer[E, R]) RestoreFromSnapshot(id string) (*R, error) {
-	return es.snapshotStore.LoadSnapshot(id)
+	return es.LoadSnapshot(id)
 }
 
 func (es *GeneralEventSourcer[E, R]) RestoreFromSnapshotByVersion(id string, version int) (*R, error) {
-	return es.snapshotStore.LoadSnapshotByVersion(id, version)
+	return es.LoadSnapshotByVersion(id, version)
 }

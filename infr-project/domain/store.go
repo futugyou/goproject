@@ -1,4 +1,4 @@
-package eventsourcing
+package domain
 
 import "fmt"
 
