@@ -81,24 +81,26 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
-	if err != nil {
+	if err != nil || (*aggregate).AggregateVersion() < version {
 		events, eventsErr := es.Load(id)
 		if eventsErr != nil {
 			return nil, eventsErr
 		}
 
-		// Initialize an empty aggregate to apply events to it
-		aggregate = new(R)
+		if aggregate == nil {
+			// Initialize an empty aggregate if snapshot doesn't exist or an error occurred
+			aggregate = new(R)
+		}
 
-		// Apply events up to the specified version, considering possible version jumps
+		// Apply events to the snapshot or the newly created aggregate until the requested version is reached
 		for _, event := range events {
 			eventVersion := event.Version()
-			if eventVersion <= version {
+			if eventVersion > (*aggregate).AggregateVersion() && eventVersion <= version {
 				(*aggregate).Apply(event)
 				if (*aggregate).AggregateVersion() == version {
 					break
 				}
-			} else {
+			} else if eventVersion > version {
 				break // Stop processing if the event's version surpasses the target version
 			}
 		}
@@ -108,7 +110,7 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 			return nil, errors.New("the requested version is not available")
 		}
 	}
-	// TODO (*aggregate).AggregateVersion() < version
+
 	return aggregate, nil
 }
 

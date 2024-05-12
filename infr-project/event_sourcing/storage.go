@@ -65,7 +65,7 @@ func (s *MemorySnapshotStore[R]) LoadSnapshotByVersion(id string, version int) (
 		return nil, fmt.Errorf("no data for %s", id)
 	}
 	for i := len(datas) - 1; i >= 0; i-- {
-		if datas[i].AggregateVersion() == version { //TODO it will change to '<' after add event verion
+		if datas[i].AggregateVersion() <= version { //TODO it will change to '<' after add event verion
 			return &datas[i], nil
 		}
 	}
