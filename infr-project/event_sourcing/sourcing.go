@@ -7,6 +7,7 @@ import (
 // IEvent represents the interface for events.
 type IEvent interface {
 	EventType() string
+	Version() int
 }
 
 // IAggregate represents the basic interface for aggregates.
@@ -77,21 +78,37 @@ func (es *GeneralEventSourcer[E, R]) GetAllVersions(id string) ([]R, error) {
 
 func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) (*R, error) {
 	if version < 0 {
-		return nil, errors.New("invalid ID or version")
+		return nil, errors.New("invalid version number, must be non-negative")
 	}
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
 	if err != nil {
-		events, err := es.Load(id)
-		if err == nil || version > len(events) {
-			return nil, errors.New("invalid ID or version")
+		events, eventsErr := es.Load(id)
+		if eventsErr != nil {
+			return nil, eventsErr
 		}
-		for i := 1; i <= version; i++ {
-			(*aggregate).Apply(events[i])
+
+		// Initialize an empty aggregate to apply events to it
+		aggregate = new(R)
+
+		// Apply events up to the specified version, considering possible version jumps
+		for _, event := range events {
+			eventVersion := event.Version()
+			if eventVersion <= version {
+				(*aggregate).Apply(event)
+				if (*aggregate).AggregateVersion() == version {
+					break
+				}
+			} else {
+				break // Stop processing if the event's version surpasses the target version
+			}
+		}
+
+		// After applying events, check if the current version of the aggregate matches the requested version
+		if (*aggregate).AggregateVersion() != version {
+			return nil, errors.New("the requested version is not available")
 		}
 	}
-
 	// TODO (*aggregate).AggregateVersion() < version
-
 	return aggregate, nil
 }
 

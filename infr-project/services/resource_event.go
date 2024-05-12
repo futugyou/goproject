@@ -11,34 +11,48 @@ type IResourceEvent interface {
 }
 
 type ResourceCreatedEvent struct {
-	Id        string
-	Name      string
-	Type      ResourceType
-	Data      string
-	CreatedAt time.Time
+	Id              string
+	Name            string
+	Type            ResourceType
+	Data            string
+	CreatedAt       time.Time
+	ResourceVersion int
 }
 
 func (e ResourceCreatedEvent) EventType() string {
 	return "ResourceCreated"
 }
 
+func (e ResourceCreatedEvent) Version() int {
+	return e.ResourceVersion
+}
+
 type ResourceUpdatedEvent struct {
-	Id        string
-	Name      string
-	Type      ResourceType
-	Data      string
-	Version   int
-	UpdatedAt time.Time
+	Id              string
+	Name            string
+	Type            ResourceType
+	Data            string
+	UpdatedAt       time.Time
+	ResourceVersion int
 }
 
 func (e ResourceUpdatedEvent) EventType() string {
 	return "ResourceUpdated"
 }
 
+func (e ResourceUpdatedEvent) Version() int {
+	return e.ResourceVersion
+}
+
 type ResourceDeletedEvent struct {
-	Id string
+	Id              string
+	ResourceVersion int
 }
 
 func (e ResourceDeletedEvent) EventType() string {
 	return "ResourceDeleted"
+}
+
+func (e ResourceDeletedEvent) Version() int {
+	return e.ResourceVersion
 }

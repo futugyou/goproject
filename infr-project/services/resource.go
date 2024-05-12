@@ -133,12 +133,12 @@ func (r *Resource) AggregateVersion() int {
 func (r *Resource) Apply(event eventsourcing.IEvent) error {
 	switch e := event.(type) {
 	case ResourceCreatedEvent:
-		r = &Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 1, CreatedAt: e.CreatedAt}
+		r = &Resource{Id: e.Id, Name: e.Name, Type: e.Type, Data: e.Data, Version: 0, CreatedAt: e.CreatedAt}
 	case ResourceUpdatedEvent:
 		r.Name = e.Name
 		r.Type = e.Type
 		r.Data = e.Data
-		r.Version = e.Version
+		r.Version = e.Version()
 		r.CreatedAt = e.UpdatedAt
 	case ResourceDeletedEvent:
 		// TODO: how to handle delete
@@ -161,12 +161,12 @@ func CreateCreatedEvent(resource Resource) IResourceEvent {
 
 func CreateUpdatedEvent(resource Resource) IResourceEvent {
 	event := ResourceUpdatedEvent{
-		Id:        resource.Id,
-		Name:      resource.Name,
-		Type:      resource.Type,
-		Data:      resource.Data,
-		Version:   resource.Version,
-		UpdatedAt: time.Now().UTC(),
+		Id:              resource.Id,
+		Name:            resource.Name,
+		Type:            resource.Type,
+		Data:            resource.Data,
+		ResourceVersion: resource.Version,
+		UpdatedAt:       time.Now().UTC(),
 	}
 	return event
 }
