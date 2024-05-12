@@ -3,8 +3,8 @@ package eventsourcing
 import "fmt"
 
 type IEventStore[E IEvent] interface {
-	GetEvents(aggregateId string) ([]E, error)
-	SaveEvents(events []E) error
+	Save(events []E) error
+	Load(id string) ([]E, error)
 }
 
 type MemoryEventStore[E IEvent] struct {
@@ -17,16 +17,16 @@ func NewMemoryEventStore[E IEvent]() *MemoryEventStore[E] {
 	}
 }
 
-func (s *MemoryEventStore[E]) GetEvents(aggregateId string) ([]E, error) {
-	events, ok := s.storage[aggregateId]
+func (s *MemoryEventStore[E]) Load(id string) ([]E, error) {
+	events, ok := s.storage[id]
 	if !ok {
-		return nil, fmt.Errorf("no data for %s", aggregateId)
+		return nil, fmt.Errorf("no data for %s", id)
 	}
 
 	return events, nil
 }
 
-func (s *MemoryEventStore[E]) SaveEvents(events []E) error {
+func (s *MemoryEventStore[E]) Save(events []E) error {
 	for _, event := range events {
 		id := event.EventType()
 		s.storage[id] = append(s.storage[id], event)

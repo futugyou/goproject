@@ -23,13 +23,20 @@ type IEventSourcing interface {
 	AggregateVersion() int
 }
 
-type IEventSourcer[E IEvent, R IEventSourcing] interface {
-	Save(events []E) error
-	Load(id string) ([]E, error)
+type IEventApplier[E IEvent, R IEventSourcing] interface {
 	Apply(aggregate R, event E) R
+}
+
+type IVersionManager[R IEventSourcing] interface {
 	GetAllVersions(id string) ([]R, error)
 	GetSpecificVersion(id string, version int) (*R, error)
 	GetLatestVersion(id string) (*R, error)
+}
+
+type IEventSourcer[E IEvent, R IEventSourcing] interface {
+	IEventStore[E]
+	IEventApplier[E, R]
+	IVersionManager[R]
 }
 
 type GeneralEventSourcer[E IEvent, R IEventSourcing] struct {
@@ -45,11 +52,11 @@ func NewEventSourcer[E IEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
 }
 
 func (es *GeneralEventSourcer[E, R]) Save(events []E) error {
-	return es.eventStore.SaveEvents(events)
+	return es.eventStore.Save(events)
 }
 
 func (es *GeneralEventSourcer[E, R]) Load(id string) ([]E, error) {
-	events, err := es.eventStore.GetEvents(id)
+	events, err := es.eventStore.Load(id)
 	if err != nil {
 		return nil, err
 	}
