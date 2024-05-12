@@ -4,18 +4,25 @@ import (
 	"errors"
 )
 
+// IEvent represents the interface for events.
 type IEvent interface {
 	EventType() string
 }
 
+// IAggregate represents the basic interface for aggregates.
 type IAggregate interface {
 	AggregateName() string
 	AggregateId() string
-	AggregateVersion() int
-	Apply(event IEvent) error
 }
 
-type IEventSourcer[E IEvent, R IAggregate] interface {
+// IEventSourcing extends IAggregate with event sourcing specific methods, including versioning.
+type IEventSourcing interface {
+	IAggregate
+	Apply(event IEvent) error
+	AggregateVersion() int
+}
+
+type IEventSourcer[E IEvent, R IEventSourcing] interface {
 	Save(events []E) error
 	Load(id string) ([]E, error)
 	Apply(aggregate R, event E) R
@@ -23,12 +30,12 @@ type IEventSourcer[E IEvent, R IAggregate] interface {
 	GetSpecificVersion(id string, version int) (*R, error)
 }
 
-type GeneralEventSourcer[E IEvent, R IAggregate] struct {
+type GeneralEventSourcer[E IEvent, R IEventSourcing] struct {
 	storage       IEventStorage[E]
 	snapshotStore ISnapshotStore[R]
 }
 
-func NewEventSourcer[E IEvent, R IAggregate]() *GeneralEventSourcer[E, R] {
+func NewEventSourcer[E IEvent, R IEventSourcing]() *GeneralEventSourcer[E, R] {
 	return &GeneralEventSourcer[E, R]{
 		storage:       NewMemoryStorage[E](),
 		snapshotStore: NewMemorySnapshotStore[R](),
@@ -82,7 +89,8 @@ func (es *GeneralEventSourcer[E, R]) GetSpecificVersion(id string, version int) 
 			(*aggregate).Apply(events[i])
 		}
 	}
-	// TODO aggregate.version < version
+
+	// TODO (*aggregate).AggregateVersion() < version
 
 	return aggregate, nil
 }

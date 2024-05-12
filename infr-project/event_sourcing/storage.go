@@ -34,17 +34,17 @@ func (s *MemoryStorage[E]) SaveEvents(events []E) error {
 	return nil
 }
 
-type ISnapshotStore[R IAggregate] interface {
+type ISnapshotStore[R IEventSourcing] interface {
 	LoadSnapshot(id string) (*R, error)
 	LoadSnapshotByVersion(id string, version int) (*R, error)
 	SaveSnapshot(aggregate R) error
 }
 
-type MemorySnapshotStore[R IAggregate] struct {
+type MemorySnapshotStore[R IEventSourcing] struct {
 	storage map[string][]R
 }
 
-func NewMemorySnapshotStore[R IAggregate]() *MemorySnapshotStore[R] {
+func NewMemorySnapshotStore[R IEventSourcing]() *MemorySnapshotStore[R] {
 	return &MemorySnapshotStore[R]{
 		storage: make(map[string][]R),
 	}
