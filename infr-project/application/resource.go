@@ -10,9 +10,9 @@ type ResourceService struct {
 	sourcer IEventSourcingService[services.IResourceEvent, *services.Resource]
 }
 
-func NewResourceService() *ResourceService {
+func NewResourceService(sourcer IEventSourcingService[services.IResourceEvent, *services.Resource]) *ResourceService {
 	return &ResourceService{
-		sourcer: NewEventSourcer[services.IResourceEvent, *services.Resource](),
+		sourcer: sourcer,
 	}
 }
 
