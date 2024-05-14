@@ -10,14 +10,13 @@ import (
 )
 
 type Resource struct {
-	domain.IAggregate `json:"-"`
-	Id                string           `json:"id"`
-	Name              string           `json:"name"`
-	Type              ResourceType     `json:"type"`
-	Version           int              `json:"version"`
-	Data              string           `json:"data"`
-	CreatedAt         time.Time        `json:"created_at"`
-	domainEvents      []IResourceEvent `json:"-"`
+	domain.BaseEventSourcing
+	Id        string       `json:"id"`
+	Name      string       `json:"name"`
+	Type      ResourceType `json:"type"`
+	Version   int          `json:"version"`
+	Data      string       `json:"data"`
+	CreatedAt time.Time    `json:"created_at"`
 }
 
 // ResourceType is the interface for resource types.
@@ -158,25 +157,6 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 	}
 
 	return errors.New("event type not supported")
-}
-
-func (r *Resource) AddDomainEvent(event domain.IDomainEvent) {
-	switch event.(type) {
-	case IResourceEvent:
-		r.domainEvents = append(r.domainEvents, event)
-	}
-}
-
-func (r *Resource) ClearDomainEvents() {
-	r.domainEvents = []IResourceEvent{}
-}
-
-func (r *Resource) DomainEvents() []domain.IDomainEvent {
-	domainEvents := make([]domain.IDomainEvent, len(r.domainEvents))
-	for i, event := range r.domainEvents {
-		domainEvents[i] = event
-	}
-	return domainEvents
 }
 
 func (r *Resource) createCreatedEvent() {
