@@ -10,14 +10,14 @@ type ResourceService struct {
 }
 
 func (s *ResourceService) CurrentResource(id string) Resource {
-	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
-	allVersions, _ := sourcer.GetAllVersions(id)
+	var sourcer domain.IEventSourcingService[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
+	allVersions, _ := sourcer.RetrieveAllVersions(id)
 	return *allVersions[len(allVersions)-1]
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType ResourceType, data string) (*Resource, error) {
 	resource := NewResource(name, resourceType, data)
-	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
+	var sourcer domain.IEventSourcingService[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
 
 	if err := sourcer.Save(resource.domainEvents); err != nil {
 		return nil, err
@@ -27,8 +27,8 @@ func (s *ResourceService) CreateResource(name string, resourceType ResourceType,
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	var sourcer domain.IEventSourcer[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
-	allVersions, _ := sourcer.GetAllVersions(id)
+	var sourcer domain.IEventSourcingService[IResourceEvent, *Resource] = domain.NewEventSourcer[IResourceEvent, *Resource]()
+	allVersions, _ := sourcer.RetrieveAllVersions(id)
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}

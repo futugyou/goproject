@@ -20,7 +20,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) Apply(aggregate EventSourci
 	return aggregate.Apply(event)
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) GetAllVersions(id string) ([]EventSourcing, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id string) ([]EventSourcing, error) {
 	events, err := es.Load(id)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) GetAllVersions(id string) (
 	return aggregates, nil
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) GetSpecificVersion(id string, version int) (*EventSourcing, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id string, version int) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
@@ -75,7 +75,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) GetSpecificVersion(id strin
 	return aggregate, nil
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) GetLatestVersion(id string) (*EventSourcing, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id string) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
 	aggregate, err := es.RestoreFromSnapshot(id)
 	if err != nil {
