@@ -1,50 +1,22 @@
-package domain
+package infrastructure
 
-import "fmt"
+import (
+	"fmt"
 
-type IEventStore[Event IDomainEvent] interface {
-	Save(events []Event) error
-	Load(id string) ([]Event, error)
-}
+	"github.com/futugyou/infr-project/domain"
+)
 
-type MemoryEventStore[Event IDomainEvent] struct {
-	storage map[string][]Event
-}
-
-func NewMemoryEventStore[Event IDomainEvent]() *MemoryEventStore[Event] {
-	return &MemoryEventStore[Event]{
-		storage: make(map[string][]Event),
-	}
-}
-
-func (s *MemoryEventStore[Event]) Load(id string) ([]Event, error) {
-	events, ok := s.storage[id]
-	if !ok {
-		return nil, fmt.Errorf("no data for %s", id)
-	}
-
-	return events, nil
-}
-
-func (s *MemoryEventStore[Event]) Save(events []Event) error {
-	for _, event := range events {
-		id := event.EventType()
-		s.storage[id] = append(s.storage[id], event)
-	}
-	return nil
-}
-
-type ISnapshotStore[EventSourcing IEventSourcing] interface {
+type ISnapshotStore[EventSourcing domain.IEventSourcing] interface {
 	LoadSnapshot(id string) (*EventSourcing, error)
 	LoadSnapshotByVersion(id string, version int) (*EventSourcing, error)
 	SaveSnapshot(aggregate EventSourcing) error
 }
 
-type MemorySnapshotStore[EventSourcing IEventSourcing] struct {
+type MemorySnapshotStore[EventSourcing domain.IEventSourcing] struct {
 	storage map[string][]EventSourcing
 }
 
-func NewMemorySnapshotStore[EventSourcing IEventSourcing]() *MemorySnapshotStore[EventSourcing] {
+func NewMemorySnapshotStore[EventSourcing domain.IEventSourcing]() *MemorySnapshotStore[EventSourcing] {
 	return &MemorySnapshotStore[EventSourcing]{
 		storage: make(map[string][]EventSourcing),
 	}

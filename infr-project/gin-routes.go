@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/futugyou/infr-project/application"
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
 	"github.com/gin-gonic/gin"
@@ -62,7 +63,7 @@ func vaultSecret(c *gin.Context) {
 }
 
 func resourceMarshal(c *gin.Context) {
-	r := services.ResourceService{}
+	r := application.ResourceService{}
 	r.UpdateResourceDate("s", "")
 	f := services.NewResource("s", services.Excalidraw, "")
 	d, _ := json.Marshal(f)

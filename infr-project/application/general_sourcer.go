@@ -1,18 +1,21 @@
-package domain
+package application
 
 import (
 	"errors"
+
+	domain "github.com/futugyou/infr-project/domain"
+	infr "github.com/futugyou/infr-project/infrastructure"
 )
 
-type GeneralEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing] struct {
-	IEventStore[Event]
-	ISnapshotStore[EventSourcing]
+type GeneralEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
+	infr.IEventStore[Event]
+	infr.ISnapshotStore[EventSourcing]
 }
 
-func NewEventSourcer[Event IDomainEvent, EventSourcing IEventSourcing]() *GeneralEventSourcer[Event, EventSourcing] {
+func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing]() *GeneralEventSourcer[Event, EventSourcing] {
 	return &GeneralEventSourcer[Event, EventSourcing]{
-		IEventStore:    NewMemoryEventStore[Event](),
-		ISnapshotStore: NewMemorySnapshotStore[EventSourcing](),
+		IEventStore:    infr.NewMemoryEventStore[Event](),
+		ISnapshotStore: infr.NewMemorySnapshotStore[EventSourcing](),
 	}
 }
 
