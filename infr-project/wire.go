@@ -7,7 +7,7 @@ import (
 )
 
 func ProvideSourcer() application.IEventSourcingService[services.IResourceEvent, *services.Resource] {
-	return application.NewEventSourcer[services.IResourceEvent, *services.Resource]()
+	return nil //application.NewEventSourcer[services.IResourceEvent, *services.Resource]()
 }
 
 // https://github.com/google/wire/pull/360#issuecomment-1141376353

@@ -19,10 +19,6 @@ func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourc
 	}
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) Apply(aggregate EventSourcing, event Event) error {
-	return aggregate.Apply(event)
-}
-
 func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id string) ([]EventSourcing, error) {
 	events, err := es.Load(id)
 	if err != nil {
@@ -32,7 +28,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id stri
 	var aggregates []EventSourcing
 	aggregate := *new(EventSourcing)
 	for _, event := range events {
-		es.Apply(aggregate, event)
+		aggregate.Apply(event)
 		aggregates = append(aggregates, aggregate)
 
 	}
@@ -60,7 +56,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id 
 		for _, event := range events {
 			eventVersion := event.Version()
 			if eventVersion > (*aggregate).AggregateVersion() && eventVersion <= version {
-				es.Apply(*aggregate, event)
+				(*aggregate).Apply(event)
 				if (*aggregate).AggregateVersion() == version {
 					break
 				}
@@ -97,7 +93,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id st
 		eventVersion := event.Version()
 		// Only apply events that are newer than the snapshot's version
 		if eventVersion > (*aggregate).AggregateVersion() {
-			es.Apply(*aggregate, event)
+			(*aggregate).Apply(event)
 		}
 	}
 

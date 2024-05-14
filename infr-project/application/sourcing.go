@@ -7,6 +7,5 @@ import (
 
 type IEventSourcingService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] interface {
 	infr.IEventStore[Event]
-	domain.IEventApplier[Event, EventSourcing]
 	domain.IAggregateRetriever[EventSourcing]
 }
