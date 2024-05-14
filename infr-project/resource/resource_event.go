@@ -27,6 +27,10 @@ func (e ResourceCreatedEvent) Version() int {
 	return e.ResourceVersion
 }
 
+func (e ResourceCreatedEvent) AggregateId() string {
+	return e.Id
+}
+
 type ResourceUpdatedEvent struct {
 	Id              string
 	Name            string
@@ -44,6 +48,10 @@ func (e ResourceUpdatedEvent) Version() int {
 	return e.ResourceVersion
 }
 
+func (e ResourceUpdatedEvent) AggregateId() string {
+	return e.Id
+}
+
 type ResourceDeletedEvent struct {
 	Id              string
 	ResourceVersion int
@@ -55,4 +63,8 @@ func (e ResourceDeletedEvent) EventType() string {
 
 func (e ResourceDeletedEvent) Version() int {
 	return e.ResourceVersion
+}
+
+func (e ResourceDeletedEvent) AggregateId() string {
+	return e.Id
 }

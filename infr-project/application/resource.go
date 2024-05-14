@@ -16,9 +16,12 @@ func NewResourceService(sourcer IEventSourcingService[resource.IResourceEvent, *
 	}
 }
 
-func (s *ResourceService) CurrentResource(id string) resource.Resource {
-	allVersions, _ := s.sourcer.RetrieveAllVersions(id)
-	return *allVersions[len(allVersions)-1]
+func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error) {
+	res, err := s.sourcer.RetrieveLatestVersion(id)
+	if err != nil {
+		return nil, err
+	}
+	return *res, nil
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
@@ -38,6 +41,7 @@ func (s *ResourceService) CreateResource(name string, resourceType resource.Reso
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 	allVersions, _ := s.sourcer.RetrieveAllVersions(id)
+
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
 	}

@@ -32,7 +32,7 @@ func (s *MemoryEventStore[Event]) Load(id string) ([]Event, error) {
 
 func (s *MemoryEventStore[Event]) Save(events []Event) error {
 	for _, event := range events {
-		id := event.EventType()
+		id := event.AggregateId()
 		s.storage[id] = append(s.storage[id], event)
 	}
 	return nil
