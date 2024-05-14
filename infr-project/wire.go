@@ -2,12 +2,13 @@ package main
 
 import (
 	"github.com/futugyou/infr-project/application"
-	"github.com/futugyou/infr-project/services"
+	"github.com/futugyou/infr-project/resource"
+
 	"github.com/google/wire"
 )
 
-func ProvideSourcer() application.IEventSourcingService[services.IResourceEvent, *services.Resource] {
-	return nil //application.NewEventSourcer[services.IResourceEvent, *services.Resource]()
+func ProvideSourcer() application.IEventSourcingService[resource.IResourceEvent, *resource.Resource] {
+	return nil //application.NewEventSourcer[resource.IResourceEvent, *resource.Resource]()
 }
 
 // https://github.com/google/wire/pull/360#issuecomment-1141376353

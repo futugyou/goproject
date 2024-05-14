@@ -3,29 +3,29 @@ package application
 import (
 	"errors"
 
-	services "github.com/futugyou/infr-project/services"
+	"github.com/futugyou/infr-project/resource"
 )
 
 type ResourceService struct {
-	sourcer IEventSourcingService[services.IResourceEvent, *services.Resource]
+	sourcer IEventSourcingService[resource.IResourceEvent, *resource.Resource]
 }
 
-func NewResourceService(sourcer IEventSourcingService[services.IResourceEvent, *services.Resource]) *ResourceService {
+func NewResourceService(sourcer IEventSourcingService[resource.IResourceEvent, *resource.Resource]) *ResourceService {
 	return &ResourceService{
 		sourcer: sourcer,
 	}
 }
 
-func (s *ResourceService) CurrentResource(id string) services.Resource {
+func (s *ResourceService) CurrentResource(id string) resource.Resource {
 	allVersions, _ := s.sourcer.RetrieveAllVersions(id)
 	return *allVersions[len(allVersions)-1]
 }
 
-func (s *ResourceService) CreateResource(name string, resourceType services.ResourceType, data string) (*services.Resource, error) {
-	resource := services.NewResource(name, resourceType, data)
+func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
+	res := resource.NewResource(name, resourceType, data)
 
-	es := resource.DomainEvents()
-	events := make([]services.IResourceEvent, 0)
+	es := res.DomainEvents()
+	events := make([]resource.IResourceEvent, 0)
 	for i := 0; i < len(es); i++ {
 		events = append(events, es[i])
 	}
@@ -33,7 +33,7 @@ func (s *ResourceService) CreateResource(name string, resourceType services.Reso
 		return nil, err
 	}
 
-	return resource, nil
+	return res, nil
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
@@ -42,10 +42,10 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 		return errors.New("no resource id by " + id)
 	}
 
-	resource := allVersions[len(allVersions)-1]
-	resource = resource.ChangeData(data)
-	es := resource.DomainEvents()
-	events := make([]services.IResourceEvent, 0)
+	res := allVersions[len(allVersions)-1]
+	res = res.ChangeData(data)
+	es := res.DomainEvents()
+	events := make([]resource.IResourceEvent, 0)
 	for i := 0; i < len(es); i++ {
 		events = append(events, es[i])
 	}

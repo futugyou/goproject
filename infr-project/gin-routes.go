@@ -7,6 +7,7 @@ import (
 
 	"github.com/futugyou/infr-project/application"
 	infr "github.com/futugyou/infr-project/infrastructure"
+	"github.com/futugyou/infr-project/resource"
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
 	"github.com/gin-gonic/gin"
@@ -64,17 +65,17 @@ func vaultSecret(c *gin.Context) {
 }
 
 func resourceMarshal(c *gin.Context) {
-	eventStore := infr.NewMemoryEventStore[services.IResourceEvent]()
-	snapshotStore := infr.NewMemorySnapshotStore[*services.Resource]()
-	sourcer := application.NewEventSourcer[services.IResourceEvent, *services.Resource](eventStore, snapshotStore)
+	eventStore := infr.NewMemoryEventStore[resource.IResourceEvent]()
+	snapshotStore := infr.NewMemorySnapshotStore[*resource.Resource]()
+	sourcer := application.NewEventSourcer[resource.IResourceEvent, *resource.Resource](eventStore, snapshotStore)
 	r := application.NewResourceService(sourcer)
 	r.UpdateResourceDate("s", "")
-	f := services.NewResource("s", services.Excalidraw, "")
+	f := resource.NewResource("s", resource.Excalidraw, "")
 	d, _ := json.Marshal(f)
 	log.Println(string(d))
 	t := "{\"id\":\"8c502184-2fc7-4dbe-8327-a36908f0f960\",\"name\":\"s\",\"type\":\"Excalidraw\",\"version\":0,\"data\":\"\",\"create_at\":\"2024-05-09T11:54:58.9941631Z\"}"
 
-	f = &services.Resource{}
+	f = &resource.Resource{}
 	json.Unmarshal([]byte(t), f)
 	c.JSON(200, f)
 }
