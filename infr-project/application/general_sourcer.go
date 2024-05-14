@@ -10,12 +10,18 @@ import (
 type GeneralEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
 	infra.IEventStore[Event]
 	infra.ISnapshotStore[EventSourcing]
+	instance EventSourcing
 }
 
-func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](eventStore infra.IEventStore[Event], snapshotStore infra.ISnapshotStore[EventSourcing]) *GeneralEventSourcer[Event, EventSourcing] {
+func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](
+	eventStore infra.IEventStore[Event],
+	snapshotStore infra.ISnapshotStore[EventSourcing],
+	instance EventSourcing,
+) *GeneralEventSourcer[Event, EventSourcing] {
 	return &GeneralEventSourcer[Event, EventSourcing]{
 		IEventStore:    eventStore,
 		ISnapshotStore: snapshotStore,
+		instance:       instance,
 	}
 }
 
@@ -24,9 +30,8 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id stri
 	if err != nil {
 		return nil, err
 	}
-
 	var aggregates []EventSourcing
-	aggregate := *new(EventSourcing)
+	aggregate := es.instance
 	for _, event := range events {
 		aggregate.Apply(event)
 		aggregates = append(aggregates, aggregate)
@@ -49,7 +54,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id 
 
 		if aggregate == nil {
 			// Initialize an empty aggregate if snapshot doesn't exist or an error occurred
-			aggregate = new(EventSourcing)
+			aggregate = &es.instance
 		}
 
 		// Apply events to the snapshot or the newly created aggregate until the requested version is reached
@@ -77,9 +82,9 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id 
 func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id string) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
 	aggregate, err := es.RestoreFromSnapshot(id)
-	if err != nil {
+	if err != nil || aggregate == nil {
 		// If an error occurs, we assume no snapshot is available and start from scratch
-		aggregate = new(EventSourcing)
+		aggregate = &es.instance
 	}
 
 	// Load all events for the aggregate
