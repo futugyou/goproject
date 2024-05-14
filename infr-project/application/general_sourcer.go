@@ -12,10 +12,10 @@ type GeneralEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventS
 	infr.ISnapshotStore[EventSourcing]
 }
 
-func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing]() *GeneralEventSourcer[Event, EventSourcing] {
+func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](eventStore infr.IEventStore[Event], snapshotStore infr.ISnapshotStore[EventSourcing]) *GeneralEventSourcer[Event, EventSourcing] {
 	return &GeneralEventSourcer[Event, EventSourcing]{
-		IEventStore:    infr.NewMemoryEventStore[Event](),
-		ISnapshotStore: infr.NewMemorySnapshotStore[EventSourcing](),
+		IEventStore:    eventStore,
+		ISnapshotStore: snapshotStore,
 	}
 }
 
