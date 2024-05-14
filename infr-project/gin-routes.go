@@ -67,15 +67,24 @@ func vaultSecret(c *gin.Context) {
 func resourceMarshal(c *gin.Context) {
 	eventStore := infra.NewMemoryEventStore[resource.IResourceEvent]()
 	snapshotStore := infra.NewMemorySnapshotStore[*resource.Resource]()
-	sourcer := application.NewEventSourcer[resource.IResourceEvent, *resource.Resource](eventStore, snapshotStore)
-	r := application.NewResourceService(sourcer)
-	r.UpdateResourceDate("s", "")
-	f := resource.NewResource("s", resource.Excalidraw, "")
-	d, _ := json.Marshal(f)
-	log.Println(string(d))
-	t := "{\"id\":\"8c502184-2fc7-4dbe-8327-a36908f0f960\",\"name\":\"s\",\"type\":\"Excalidraw\",\"version\":0,\"data\":\"\",\"create_at\":\"2024-05-09T11:54:58.9941631Z\"}"
+	var res *resource.Resource = &resource.Resource{}
+	sourcer := application.NewEventSourcer[resource.IResourceEvent, *resource.Resource](eventStore, snapshotStore, res)
 
-	f = &resource.Resource{}
-	json.Unmarshal([]byte(t), f)
-	c.JSON(200, f)
+	r := application.NewResourceService(sourcer)
+
+	res, _ = r.CreateResource("ok", resource.Excalidraw, "no data")
+	log.Println(1, *res, res.DomainEvents())
+
+	r.UpdateResourceDate(res.Id, "not ok")
+
+	res, _ = r.CurrentResource(res.Id)
+	log.Println(2, *res, res.DomainEvents())
+
+	es, _ := sourcer.Load(res.Id)
+	log.Println(2, es)
+
+	d, _ := json.Marshal(res)
+	log.Println(4, string(d))
+
+	c.JSON(200, res)
 }
