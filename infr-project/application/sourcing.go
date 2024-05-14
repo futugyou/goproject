@@ -2,10 +2,11 @@ package application
 
 import (
 	domain "github.com/futugyou/infr-project/domain"
-	infr "github.com/futugyou/infr-project/infrastructure"
+	infra "github.com/futugyou/infr-project/infrastructure"
 )
 
 type IEventSourcingService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] interface {
-	infr.IEventStore[Event]
+	infra.IEventStore[Event]
+	domain.ISnapshotter[Event, EventSourcing]
 	domain.IAggregateRetriever[EventSourcing]
 }

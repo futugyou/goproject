@@ -4,15 +4,15 @@ import (
 	"errors"
 
 	domain "github.com/futugyou/infr-project/domain"
-	infr "github.com/futugyou/infr-project/infrastructure"
+	infra "github.com/futugyou/infr-project/infrastructure"
 )
 
 type GeneralEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
-	infr.IEventStore[Event]
-	infr.ISnapshotStore[EventSourcing]
+	infra.IEventStore[Event]
+	infra.ISnapshotStore[EventSourcing]
 }
 
-func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](eventStore infr.IEventStore[Event], snapshotStore infr.ISnapshotStore[EventSourcing]) *GeneralEventSourcer[Event, EventSourcing] {
+func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](eventStore infra.IEventStore[Event], snapshotStore infra.ISnapshotStore[EventSourcing]) *GeneralEventSourcer[Event, EventSourcing] {
 	return &GeneralEventSourcer[Event, EventSourcing]{
 		IEventStore:    eventStore,
 		ISnapshotStore: snapshotStore,

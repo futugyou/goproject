@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/futugyou/infr-project/application"
-	infr "github.com/futugyou/infr-project/infrastructure"
+	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
@@ -65,8 +65,8 @@ func vaultSecret(c *gin.Context) {
 }
 
 func resourceMarshal(c *gin.Context) {
-	eventStore := infr.NewMemoryEventStore[resource.IResourceEvent]()
-	snapshotStore := infr.NewMemorySnapshotStore[*resource.Resource]()
+	eventStore := infra.NewMemoryEventStore[resource.IResourceEvent]()
+	snapshotStore := infra.NewMemorySnapshotStore[*resource.Resource]()
 	sourcer := application.NewEventSourcer[resource.IResourceEvent, *resource.Resource](eventStore, snapshotStore)
 	r := application.NewResourceService(sourcer)
 	r.UpdateResourceDate("s", "")
