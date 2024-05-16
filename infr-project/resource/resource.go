@@ -10,13 +10,10 @@ import (
 )
 
 type Resource struct {
-	domain.BaseEventSourcing
-	Id        string       `json:"id"`
-	Name      string       `json:"name"`
-	Type      ResourceType `json:"type"`
-	Version   int          `json:"version"`
-	Data      string       `json:"data"`
-	CreatedAt time.Time    `json:"created_at"`
+	domain.AggregateWithEventSourcing `json:"-"`
+	Type                              ResourceType `json:"type"`
+	Data                              string       `json:"data"`
+	CreatedAt                         time.Time    `json:"created_at"`
 }
 
 // ResourceType is the interface for resource types.
@@ -88,10 +85,15 @@ func (r *Resource) UnmarshalJSON(data []byte) error {
 
 func NewResource(name string, resourceType ResourceType, data string) *Resource {
 	r := &Resource{
-		Id:        uuid.New().String(),
-		Name:      name,
+		AggregateWithEventSourcing: domain.AggregateWithEventSourcing{
+			Aggregate: domain.Aggregate{
+				Id:   uuid.New().String(),
+				Name: name,
+			},
+			Version: 1,
+		},
+
 		Type:      resourceType,
-		Version:   1,
 		Data:      data,
 		CreatedAt: time.Now().UTC(),
 	}
@@ -126,14 +128,6 @@ func (r *Resource) ChangeData(data string) *Resource {
 
 func (r *Resource) AggregateName() string {
 	return "resources"
-}
-
-func (r *Resource) AggregateId() string {
-	return r.Id
-}
-
-func (r *Resource) AggregateVersion() int {
-	return r.Version
 }
 
 func (r *Resource) Apply(event domain.IDomainEvent) error {

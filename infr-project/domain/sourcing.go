@@ -8,18 +8,24 @@ type IEventSourcing interface {
 	AggregateVersion() int
 }
 
-type BaseEventSourcing struct {
+type AggregateWithEventSourcing struct {
+	Aggregate
 	domainEvents []IDomainEvent `json:"-"`
+	Version      int            `json:"version"`
 }
 
-func (b *BaseEventSourcing) AddDomainEvent(event IDomainEvent) {
+func (b *AggregateWithEventSourcing) AddDomainEvent(event IDomainEvent) {
 	b.domainEvents = append(b.domainEvents, event)
 }
 
-func (b *BaseEventSourcing) ClearDomainEvents() {
+func (b *AggregateWithEventSourcing) ClearDomainEvents() {
 	b.domainEvents = nil
 }
 
-func (b *BaseEventSourcing) DomainEvents() []IDomainEvent {
+func (b *AggregateWithEventSourcing) DomainEvents() []IDomainEvent {
 	return b.domainEvents
+}
+
+func (b *AggregateWithEventSourcing) AggregateVersion() int {
+	return b.Version
 }
