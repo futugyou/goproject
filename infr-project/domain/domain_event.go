@@ -13,3 +13,16 @@ type IDomainEventHolder[Event IDomainEvent] interface {
 	ClearDomainEvents()
 	DomainEvents() []Event
 }
+
+type DomainEvent struct {
+	Id              string
+	ResourceVersion int
+}
+
+func (d DomainEvent) Version() int {
+	return d.ResourceVersion
+}
+
+func (d DomainEvent) AggregateId() string {
+	return d.Id
+}

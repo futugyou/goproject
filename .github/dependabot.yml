@@ -28,6 +28,10 @@ updates:
     directory: "/k8sbuilder"
     schedule:
       interval: "daily"
+    groups:
+      aws:
+        patterns:
+        - "k8s.io*" 
 
   - package-ecosystem: "gomod"
     directory: "/openai-web"
