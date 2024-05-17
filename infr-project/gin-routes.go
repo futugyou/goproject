@@ -68,9 +68,8 @@ func resourceMarshal(c *gin.Context) {
 	eventStore := infra.NewMemoryEventStore[resource.IResourceEvent]()
 	snapshotStore := infra.NewMemorySnapshotStore[*resource.Resource]()
 	var res *resource.Resource = &resource.Resource{}
-	sourcer := application.NewEventSourcer[resource.IResourceEvent, *resource.Resource](eventStore, snapshotStore, res)
 
-	r := application.NewResourceService(sourcer)
+	r := application.NewResourceService(eventStore, snapshotStore, res)
 
 	res, _ = r.CreateResource("ok", resource.Excalidraw, "no data")
 	log.Println(1, *res, res.DomainEvents())
@@ -79,9 +78,6 @@ func resourceMarshal(c *gin.Context) {
 
 	res, _ = r.CurrentResource(res.Id)
 	log.Println(2, *res, res.DomainEvents())
-
-	es, _ := sourcer.Load(res.Id)
-	log.Println(2, es)
 
 	d, _ := json.Marshal(res)
 	log.Println(4, string(d))

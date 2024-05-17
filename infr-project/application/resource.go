@@ -3,21 +3,24 @@ package application
 import (
 	"errors"
 
+	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
 )
 
 type ResourceService struct {
-	sourcer IEventSourcingService[resource.IResourceEvent, *resource.Resource]
+	service *ApplicationService[resource.IResourceEvent, *resource.Resource]
 }
 
-func NewResourceService(sourcer IEventSourcingService[resource.IResourceEvent, *resource.Resource]) *ResourceService {
+func NewResourceService(eventStore infra.IEventStore[resource.IResourceEvent],
+	snapshotStore infra.ISnapshotStore[*resource.Resource],
+	instance *resource.Resource) *ResourceService {
 	return &ResourceService{
-		sourcer: sourcer,
+		service: NewApplicationService(eventStore, snapshotStore, instance),
 	}
 }
 
 func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error) {
-	res, err := s.sourcer.RetrieveLatestVersion(id)
+	res, err := s.service.RetrieveLatestVersion(id)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +35,7 @@ func (s *ResourceService) CreateResource(name string, resourceType resource.Reso
 	for i := 0; i < len(es); i++ {
 		events = append(events, es[i])
 	}
-	if err := s.sourcer.Save(events); err != nil {
+	if err := s.service.eventStore.Save(events); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +43,7 @@ func (s *ResourceService) CreateResource(name string, resourceType resource.Reso
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
-	allVersions, _ := s.sourcer.RetrieveAllVersions(id)
+	allVersions, _ := s.service.RetrieveAllVersions(id)
 
 	if len(allVersions) == 0 {
 		return errors.New("no resource id by " + id)
@@ -53,5 +56,5 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 	for i := 0; i < len(es); i++ {
 		events = append(events, es[i])
 	}
-	return s.sourcer.Save(events)
+	return s.service.eventStore.Save(events)
 }
