@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	"fmt"
 
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
@@ -81,13 +82,38 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id str
 }
 
 func (es *ApplicationService[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing) error {
+	// aggregate is created with version 1
+	// The current storage snapshot logic starts from the first version and is saved every 5 versions.
+	if aggregate.AggregateVersion()%5 != 1 {
+		return nil
+	}
 	return es.snapshotStore.SaveSnapshot(aggregate)
 }
 
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string) (*EventSourcing, error) {
-	return es.snapshotStore.LoadSnapshot(id)
+	datas, err := es.snapshotStore.LoadSnapshot(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &datas[len(datas)-1], nil
 }
 
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int) (*EventSourcing, error) {
-	return es.snapshotStore.LoadSnapshotByVersion(id, version)
+	if version < 0 {
+		return nil, errors.New("invalid version number, must be non-negative")
+	}
+
+	datas, err := es.snapshotStore.LoadSnapshot(id)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := len(datas); i >= 0; i-- {
+		if datas[i].AggregateVersion() <= version {
+			return &datas[i], nil
+		}
+	}
+
+	return nil, fmt.Errorf("can not found snapshot with id: %s and version: %d", id, version)
 }

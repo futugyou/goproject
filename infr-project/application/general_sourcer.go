@@ -109,13 +109,13 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id st
 }
 
 func (es *GeneralEventSourcer[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing) error {
-	return es.SaveSnapshot(aggregate)
+	return nil
 }
 
 func (es *GeneralEventSourcer[Event, EventSourcing]) RestoreFromSnapshot(id string) (*EventSourcing, error) {
-	return es.LoadSnapshot(id)
+	return nil, nil
 }
 
 func (es *GeneralEventSourcer[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int) (*EventSourcing, error) {
-	return es.LoadSnapshotByVersion(id, version)
+	return nil, nil
 }

@@ -7,8 +7,7 @@ import (
 )
 
 type ISnapshotStore[EventSourcing domain.IEventSourcing] interface {
-	LoadSnapshot(id string) (*EventSourcing, error)
-	LoadSnapshotByVersion(id string, version int) (*EventSourcing, error)
+	LoadSnapshot(id string) ([]EventSourcing, error)
 	SaveSnapshot(aggregate EventSourcing) error
 }
 
@@ -22,32 +21,16 @@ func NewMemorySnapshotStore[EventSourcing domain.IEventSourcing]() *MemorySnapsh
 	}
 }
 
-func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(id string) (*EventSourcing, error) {
+func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSourcing, error) {
 	datas, ok := s.storage[id]
 	if !ok || len(datas) == 0 {
 		return nil, fmt.Errorf("no data for %s", id)
 	}
 
-	return &datas[len(datas)-1], nil
-}
-
-func (s *MemorySnapshotStore[R]) LoadSnapshotByVersion(id string, version int) (*R, error) {
-	datas, ok := s.storage[id]
-	if !ok {
-		return nil, fmt.Errorf("no data for %s", id)
-	}
-	for i := len(datas) - 1; i >= 0; i-- {
-		if datas[i].AggregateVersion() <= version {
-			return &datas[i], nil
-		}
-	}
-	return nil, fmt.Errorf("no data for id %s version %d", id, version)
+	return datas, nil
 }
 
 func (s *MemorySnapshotStore[EventSourcing]) SaveSnapshot(aggregate EventSourcing) error {
-	if aggregate.AggregateVersion()%5 != 0 {
-		return nil
-	}
 	s.storage[aggregate.AggregateId()] = append(s.storage[aggregate.AggregateId()], aggregate)
 	return nil
 }
