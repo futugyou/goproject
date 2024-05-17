@@ -1,7 +1,7 @@
 package domain
 
 // IAggregate represents the basic interface for aggregates.
-type IAggregate interface {
+type IAggregateRoot interface {
 	AggregateName() string
 	AggregateId() string
 }
