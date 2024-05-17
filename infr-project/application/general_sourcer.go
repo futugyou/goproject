@@ -7,12 +7,14 @@ import (
 	infra "github.com/futugyou/infr-project/infrastructure"
 )
 
+// Deprecated: GeneralEventSourcer is deprecated, use ApplicationService instead.
 type GeneralEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
 	infra.IEventStore[Event]
 	infra.ISnapshotStore[EventSourcing]
 	instance EventSourcing
 }
 
+// Deprecated: GeneralEventSourcer is deprecated, so NewEventSourcer is deprecated, use ApplicationService instead.
 func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](
 	eventStore infra.IEventStore[Event],
 	snapshotStore infra.ISnapshotStore[EventSourcing],
