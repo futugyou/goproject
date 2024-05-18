@@ -2,6 +2,7 @@ package domain
 
 type IEventSourcingRepository[EventSourcing IEventSourcing] interface {
 	Load(id string) (*EventSourcing, error)
+	LoadAll(id string) ([]EventSourcing, error)
 	Save(aggregate EventSourcing) error
 }
 

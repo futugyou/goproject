@@ -8,17 +8,20 @@ type EventSourcingRepository[Aggregate domain.IEventSourcing] struct {
 	eventStore        IEventStore[domain.IDomainEvent]
 	snapshotStore     ISnapshotStore[Aggregate]
 	needStoreSnapshot func(Aggregate) bool
+	newAggregateFunc  func() Aggregate
 }
 
 func NewEventSourcingRepository[Aggregate domain.IEventSourcing](
 	eventStore IEventStore[domain.IDomainEvent],
 	snapshotStore ISnapshotStore[Aggregate],
 	needStoreSnapshot func(Aggregate) bool,
+	newAggregateFunc func() Aggregate,
 ) *EventSourcingRepository[Aggregate] {
 	return &EventSourcingRepository[Aggregate]{
 		eventStore:        eventStore,
 		snapshotStore:     snapshotStore,
 		needStoreSnapshot: needStoreSnapshot,
+		newAggregateFunc:  newAggregateFunc,
 	}
 }
 
@@ -47,6 +50,23 @@ func (r *EventSourcingRepository[Aggregate]) Load(id string) (*Aggregate, error)
 	}
 
 	return &aggregate, nil
+}
+
+func (r *EventSourcingRepository[Aggregate]) LoadAll(id string) ([]Aggregate, error) {
+	events, err := r.eventStore.Load(id)
+	if err != nil {
+		return nil, err
+	}
+
+	aggregate := r.newAggregateFunc()
+	result := make([]Aggregate, 0)
+	// Apply events to the aggregate to restore its state
+	for i := 0; i < len(events); i++ {
+		aggregate.Apply(events[i])
+		result = append(result, aggregate)
+	}
+
+	return result, nil
 }
 
 func (r *EventSourcingRepository[Aggregate]) Save(aggregate Aggregate) error {
