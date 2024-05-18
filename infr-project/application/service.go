@@ -9,22 +9,22 @@ import (
 )
 
 type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
-	eventStore    infra.IEventStore[Event]
-	snapshotStore infra.ISnapshotStore[EventSourcing]
-	domainService *domain.DomainService[Event, EventSourcing]
-	instance      EventSourcing
+	eventStore       infra.IEventStore[Event]
+	snapshotStore    infra.ISnapshotStore[EventSourcing]
+	domainService    *domain.DomainService[Event, EventSourcing]
+	newAggregateFunc func() EventSourcing
 }
 
 func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](
 	eventStore infra.IEventStore[Event],
 	snapshotStore infra.ISnapshotStore[EventSourcing],
-	instance EventSourcing,
+	newAggregateFunc func() EventSourcing,
 ) *ApplicationService[Event, EventSourcing] {
 	return &ApplicationService[Event, EventSourcing]{
-		eventStore:    eventStore,
-		snapshotStore: snapshotStore,
-		domainService: domain.NewDomainService[Event, EventSourcing](),
-		instance:      instance,
+		eventStore:       eventStore,
+		snapshotStore:    snapshotStore,
+		domainService:    domain.NewDomainService[Event, EventSourcing](),
+		newAggregateFunc: newAggregateFunc,
 	}
 }
 
@@ -33,11 +33,13 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id strin
 	if err != nil {
 		return nil, err
 	}
+
 	aggregate, err := es.RestoreFromSnapshot(id)
 	if err != nil || aggregate == nil {
-		// If no snapshot is available or an error occurs, start from scratch
-		aggregate = &es.instance
+		agg := es.newAggregateFunc()
+		aggregate = &agg
 	}
+
 	return es.domainService.RetrieveAllVersions(*aggregate, events)
 }
 
@@ -48,14 +50,14 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id s
 
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
 	if err != nil || (*aggregate).AggregateVersion() < version {
-		events, eventsErr := es.eventStore.Load(id)
-		if eventsErr != nil {
-			return nil, eventsErr
+		events, err := es.eventStore.Load(id)
+		if err != nil {
+			return nil, err
 		}
 
 		if aggregate == nil {
-			// Initialize an empty aggregate if snapshot doesn't exist or an error occurred
-			aggregate = &es.instance
+			agg := es.newAggregateFunc()
+			aggregate = &agg
 		}
 
 		return es.domainService.RetrieveSpecificVersion(*aggregate, events, version)
@@ -69,7 +71,8 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id str
 	aggregate, err := es.RestoreFromSnapshot(id)
 	if err != nil || aggregate == nil {
 		// If an error occurs, we assume no snapshot is available and start from scratch
-		aggregate = &es.instance
+		agg := es.newAggregateFunc()
+		aggregate = &agg
 	}
 
 	// Load all events for the aggregate

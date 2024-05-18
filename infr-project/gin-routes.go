@@ -67,17 +67,15 @@ func vaultSecret(c *gin.Context) {
 func resourceMarshal(c *gin.Context) {
 	eventStore := infra.NewMemoryEventStore[resource.IResourceEvent]()
 	snapshotStore := infra.NewMemorySnapshotStore[*resource.Resource]()
-	var res *resource.Resource = &resource.Resource{}
 
-	r := application.NewResourceService(eventStore, snapshotStore, res)
+	r := application.NewResourceService(eventStore, snapshotStore)
 
-	res, _ = r.CreateResource("ok", resource.Excalidraw, "no data")
-	log.Println(1, *res, res.DomainEvents())
+	res, _ := r.CreateResource("ok", resource.Excalidraw, "no data")
+	log.Println(1, res.DomainEvents())
 
 	r.UpdateResourceDate(res.Id, "not ok")
 
 	res, _ = r.CurrentResource(res.Id)
-	log.Println(2, *res, res.DomainEvents())
 
 	d, _ := json.Marshal(res)
 	log.Println(4, string(d))
