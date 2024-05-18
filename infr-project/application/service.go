@@ -34,11 +34,8 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id strin
 		return nil, err
 	}
 
-	aggregate, err := es.RestoreFromSnapshot(id)
-	if err != nil || aggregate == nil {
-		agg := es.newAggregateFunc()
-		aggregate = &agg
-	}
+	agg := es.newAggregateFunc()
+	aggregate := &agg
 
 	return es.domainService.RetrieveAllVersions(*aggregate, events)
 }
