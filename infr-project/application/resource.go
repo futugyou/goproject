@@ -11,15 +11,11 @@ type ResourceService struct {
 	service *ApplicationService[resource.IResourceEvent, *resource.Resource]
 }
 
-func newResource() *resource.Resource {
-	return &resource.Resource{}
-}
-
 func NewResourceService(eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 ) *ResourceService {
 	return &ResourceService{
-		service: NewApplicationService(eventStore, snapshotStore, newResource),
+		service: NewApplicationService(eventStore, snapshotStore, resource.ResourceFactory),
 	}
 }
 
