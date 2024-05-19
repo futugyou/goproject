@@ -1,5 +1,6 @@
 package domain
 
+// Deprecated: IEventSourcingRepository is deprecated, use ISnapshotStore and IEventStore.
 type IEventSourcingRepository[EventSourcing IEventSourcing] interface {
 	Load(id string) (*EventSourcing, error)
 	LoadAll(id string) ([]EventSourcing, error)

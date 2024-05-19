@@ -4,6 +4,7 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
+// Deprecated: EventSourcingRepository is deprecated.
 type EventSourcingRepository[Aggregate domain.IEventSourcing] struct {
 	eventStore        IEventStore[domain.IDomainEvent]
 	snapshotStore     ISnapshotStore[Aggregate]
@@ -11,6 +12,7 @@ type EventSourcingRepository[Aggregate domain.IEventSourcing] struct {
 	newAggregateFunc  func() Aggregate
 }
 
+// Deprecated: EventSourcingRepository is deprecated.
 func NewEventSourcingRepository[Aggregate domain.IEventSourcing](
 	eventStore IEventStore[domain.IDomainEvent],
 	snapshotStore ISnapshotStore[Aggregate],

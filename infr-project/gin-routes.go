@@ -67,8 +67,9 @@ func vaultSecret(c *gin.Context) {
 func resourceMarshal(c *gin.Context) {
 	eventStore := infra.NewMemoryEventStore[resource.IResourceEvent]()
 	snapshotStore := infra.NewMemorySnapshotStore[*resource.Resource]()
+	unitOfWork := infra.NewMemoryUnitOfWork()
 
-	r := application.NewResourceService(eventStore, snapshotStore)
+	r := application.NewResourceService(eventStore, snapshotStore, unitOfWork)
 
 	res, _ := r.CreateResource("ok", resource.Excalidraw, "no data")
 	log.Println(1, res.DomainEvents())
