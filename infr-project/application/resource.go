@@ -38,17 +38,7 @@ func (s *ResourceService) CreateResource(name string, resourceType resource.Reso
 	s.unitOfWork.Start()
 	res := resource.NewResource(name, resourceType, data)
 
-	es := res.DomainEvents()
-	events := make([]resource.IResourceEvent, 0)
-	for i := 0; i < len(es); i++ {
-		events = append(events, es[i])
-	}
-
-	if err := s.service.snapshotStore.SaveSnapshot(res); err != nil {
-		return nil, err
-	}
-
-	if err := s.service.eventStore.Save(events); err != nil {
+	if err := s.service.SaveSnapshotAndEvent(res); err != nil {
 		s.unitOfWork.Rollback()
 		return nil, err
 	}
@@ -62,23 +52,10 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 		return err
 	}
 
-	s.unitOfWork.Start()
 	aggregate := (*res)
 	aggregate = aggregate.ChangeData(data)
-
-	if aggregate.AggregateVersion()%5 == 1 {
-		if err := s.service.snapshotStore.SaveSnapshot(aggregate); err != nil {
-			return err
-		}
-	}
-
-	es := aggregate.DomainEvents()
-	events := make([]resource.IResourceEvent, 0)
-	for i := 0; i < len(es); i++ {
-		events = append(events, es[i])
-	}
-
-	if err := s.service.eventStore.Save(events); err != nil {
+	s.unitOfWork.Start()
+	if err := s.service.SaveSnapshotAndEvent(aggregate); err != nil {
 		s.unitOfWork.Rollback()
 		return err
 	}
