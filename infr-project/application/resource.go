@@ -11,13 +11,17 @@ type ResourceService struct {
 	unitOfWork domain.IUnitOfWork
 }
 
+func needStoreSnapshot(aggregate *resource.Resource) bool {
+	return aggregate.AggregateVersion()%5 == 1
+}
+
 func NewResourceService(
 	eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
 ) *ResourceService {
 	return &ResourceService{
-		service:    NewApplicationService(eventStore, snapshotStore, resource.ResourceFactory),
+		service:    NewApplicationService(eventStore, snapshotStore, resource.ResourceFactory, needStoreSnapshot),
 		unitOfWork: unitOfWork,
 	}
 }

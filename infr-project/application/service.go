@@ -9,22 +9,25 @@ import (
 )
 
 type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
-	eventStore       infra.IEventStore[Event]
-	snapshotStore    infra.ISnapshotStore[EventSourcing]
-	domainService    *domain.DomainService[Event, EventSourcing]
-	newAggregateFunc func() EventSourcing
+	eventStore        infra.IEventStore[Event]
+	snapshotStore     infra.ISnapshotStore[EventSourcing]
+	domainService     *domain.DomainService[Event, EventSourcing]
+	newAggregateFunc  func() EventSourcing
+	needStoreSnapshot func(EventSourcing) bool
 }
 
 func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](
 	eventStore infra.IEventStore[Event],
 	snapshotStore infra.ISnapshotStore[EventSourcing],
 	newAggregateFunc func() EventSourcing,
+	needStoreSnapshot func(EventSourcing) bool,
 ) *ApplicationService[Event, EventSourcing] {
 	return &ApplicationService[Event, EventSourcing]{
-		eventStore:       eventStore,
-		snapshotStore:    snapshotStore,
-		domainService:    domain.NewDomainService[Event, EventSourcing](),
-		newAggregateFunc: newAggregateFunc,
+		eventStore:        eventStore,
+		snapshotStore:     snapshotStore,
+		domainService:     domain.NewDomainService[Event, EventSourcing](),
+		newAggregateFunc:  newAggregateFunc,
+		needStoreSnapshot: needStoreSnapshot,
 	}
 }
 
@@ -81,6 +84,25 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id str
 	return es.domainService.RetrieveLatestVersion(*aggregate, events)
 }
 
+func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(aggregate EventSourcing) error {
+	es := aggregate.DomainEvents()
+	events := make([]Event, 0)
+	for i := 0; i < len(es); i++ {
+		ev, ok := es[i].(Event)
+		if !ok {
+			return fmt.Errorf("expected type Event but got %T", es[i])
+		}
+		events = append(events, ev)
+	}
+
+	if err := s.snapshotStore.SaveSnapshot(aggregate); err != nil {
+		return err
+	}
+
+	return s.eventStore.Save(events)
+}
+
+// Deprecated: TakeSnapshot is deprecated. it is not necessary to use it alone, may be use SaveSnapshotAndEvent is a good idea.
 func (es *ApplicationService[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing) error {
 	// aggregate is created with version 1
 	// The current storage snapshot logic starts from the first version and is saved every 5 versions.
