@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -11,6 +12,8 @@ import (
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func NewGinRoute() *gin.Engine {
@@ -65,9 +68,22 @@ func vaultSecret(c *gin.Context) {
 }
 
 func resourceMarshal(c *gin.Context) {
-	eventStore := infra.NewMemoryEventStore[resource.IResourceEvent]()
-	snapshotStore := infra.NewMemorySnapshotStore[*resource.Resource]()
-	unitOfWork := infra.NewMemoryUnitOfWork()
+	config := infra.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config)
+	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
+	unitOfWork, err := infra.NewMongoUnitOfWork(client)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	r := application.NewResourceService(eventStore, snapshotStore, unitOfWork)
 
