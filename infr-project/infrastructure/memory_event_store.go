@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/futugyou/infr-project/domain"
@@ -25,7 +26,7 @@ func (s *MemoryEventStore[Event]) Load(id string) ([]Event, error) {
 	return events, nil
 }
 
-func (s *MemoryEventStore[Event]) Save(events []Event) error {
+func (s *MemoryEventStore[Event]) Save(ctx context.Context, events []Event) error {
 	for _, event := range events {
 		id := event.AggregateId()
 		s.storage[id] = append(s.storage[id], event)

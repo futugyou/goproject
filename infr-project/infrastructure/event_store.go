@@ -1,10 +1,12 @@
 package infrastructure
 
 import (
+	"context"
+
 	"github.com/futugyou/infr-project/domain"
 )
 
 type IEventStore[Event domain.IDomainEvent] interface {
-	Save(events []Event) error
+	Save(ctx context.Context, events []Event) error
 	Load(id string) ([]Event, error)
 }

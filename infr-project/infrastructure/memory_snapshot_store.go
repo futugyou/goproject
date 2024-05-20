@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/futugyou/infr-project/domain"
@@ -25,7 +26,7 @@ func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSou
 	return datas, nil
 }
 
-func (s *MemorySnapshotStore[EventSourcing]) SaveSnapshot(aggregate EventSourcing) error {
+func (s *MemorySnapshotStore[EventSourcing]) SaveSnapshot(ctx context.Context, aggregate EventSourcing) error {
 	s.storage[aggregate.AggregateId()] = append(s.storage[aggregate.AggregateId()], aggregate)
 	return nil
 }

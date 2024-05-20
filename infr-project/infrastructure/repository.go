@@ -1,6 +1,8 @@
 package infrastructure
 
 import (
+	"context"
+
 	"github.com/futugyou/infr-project/domain"
 )
 
@@ -73,13 +75,13 @@ func (r *EventSourcingRepository[Aggregate]) LoadAll(id string) ([]Aggregate, er
 
 func (r *EventSourcingRepository[Aggregate]) Save(aggregate Aggregate) error {
 	// Save the events
-	if err := r.eventStore.Save(aggregate.DomainEvents()); err != nil {
+	if err := r.eventStore.Save(context.Background(), aggregate.DomainEvents()); err != nil {
 		return err
 	}
 
 	// Take a snapshot if necessary
 	if r.needStoreSnapshot(aggregate) {
-		if err := r.snapshotStore.SaveSnapshot(aggregate); err != nil {
+		if err := r.snapshotStore.SaveSnapshot(context.Background(), aggregate); err != nil {
 			return err
 		}
 	}

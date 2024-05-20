@@ -1,6 +1,8 @@
 package application
 
 import (
+	"context"
+
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
@@ -35,15 +37,16 @@ func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error)
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
-	s.unitOfWork.Start()
+	ctx := context.Background()
+	s.unitOfWork.Start(ctx)
 	res := resource.NewResource(name, resourceType, data)
 
-	if err := s.service.SaveSnapshotAndEvent(res); err != nil {
-		s.unitOfWork.Rollback()
+	if err := s.service.SaveSnapshotAndEvent(ctx, res); err != nil {
+		s.unitOfWork.Rollback(ctx)
 		return nil, err
 	}
 
-	return res, s.unitOfWork.Commit()
+	return res, s.unitOfWork.Commit(ctx)
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
@@ -54,11 +57,12 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 
 	aggregate := (*res)
 	aggregate = aggregate.ChangeData(data)
-	s.unitOfWork.Start()
-	if err := s.service.SaveSnapshotAndEvent(aggregate); err != nil {
-		s.unitOfWork.Rollback()
+	ctx := context.Background()
+	s.unitOfWork.Start(ctx)
+	if err := s.service.SaveSnapshotAndEvent(ctx, aggregate); err != nil {
+		s.unitOfWork.Rollback(ctx)
 		return err
 	}
 
-	return s.unitOfWork.Commit()
+	return s.unitOfWork.Commit(ctx)
 }

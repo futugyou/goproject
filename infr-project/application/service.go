@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -84,7 +85,7 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id str
 	return es.domainService.RetrieveLatestVersion(*aggregate, events)
 }
 
-func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(aggregate EventSourcing) error {
+func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(ctx context.Context, aggregate EventSourcing) error {
 	es := aggregate.DomainEvents()
 	events := make([]Event, 0)
 	for i := 0; i < len(es); i++ {
@@ -95,11 +96,11 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(aggregat
 		events = append(events, ev)
 	}
 
-	if err := s.snapshotStore.SaveSnapshot(aggregate); err != nil {
+	if err := s.snapshotStore.SaveSnapshot(ctx, aggregate); err != nil {
 		return err
 	}
 
-	return s.eventStore.Save(events)
+	return s.eventStore.Save(ctx, events)
 }
 
 // Deprecated: TakeSnapshot is deprecated. it is not necessary to use it alone, may be use SaveSnapshotAndEvent is a good idea.
@@ -109,7 +110,7 @@ func (es *ApplicationService[Event, EventSourcing]) TakeSnapshot(aggregate Event
 	if aggregate.AggregateVersion()%5 != 1 {
 		return nil
 	}
-	return es.snapshotStore.SaveSnapshot(aggregate)
+	return es.snapshotStore.SaveSnapshot(context.Background(), aggregate)
 }
 
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string) (*EventSourcing, error) {
