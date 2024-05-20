@@ -23,7 +23,7 @@ func NewResourceService(
 	unitOfWork domain.IUnitOfWork,
 ) *ResourceService {
 	return &ResourceService{
-		service:    NewApplicationService(eventStore, snapshotStore, resource.ResourceFactory, needStoreSnapshot),
+		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot),
 		unitOfWork: unitOfWork,
 	}
 }
@@ -37,55 +37,27 @@ func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error)
 }
 
 func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
-	ctx := context.Background()
-	ctx, err := s.unitOfWork.Start(ctx)
+	var res *resource.Resource
+	err := s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+		res = resource.NewResource(name, resourceType, data)
+		return s.service.SaveSnapshotAndEvent(ctx, res)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	defer func() {
-		if err != nil {
-			s.unitOfWork.Rollback(ctx)
-		} else {
-			err = s.unitOfWork.Commit(ctx)
-		}
-		s.unitOfWork.End(ctx)
-	}()
-
-	res := resource.NewResource(name, resourceType, data)
-
-	err = s.service.SaveSnapshotAndEvent(ctx, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, err
+	return res, nil
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 	res, err := s.service.RetrieveLatestVersion(id)
-	if err == nil {
-		return err
-	}
-
-	aggregate := (*res)
-	aggregate = aggregate.ChangeData(data)
-
-	ctx := context.Background()
-	ctx, err = s.unitOfWork.Start(ctx)
 	if err != nil {
 		return err
 	}
 
-	defer func() {
-		if err != nil {
-			s.unitOfWork.Rollback(ctx)
-		} else {
-			err = s.unitOfWork.Commit(ctx)
-		}
-		s.unitOfWork.End(ctx)
-	}()
+	aggregate := (*res).ChangeData(data)
 
-	err = s.service.SaveSnapshotAndEvent(ctx, aggregate)
-	return err
+	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
+	})
 }
