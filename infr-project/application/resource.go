@@ -38,15 +38,28 @@ func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error)
 
 func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
 	ctx := context.Background()
-	s.unitOfWork.Start(ctx)
-	res := resource.NewResource(name, resourceType, data)
-
-	if err := s.service.SaveSnapshotAndEvent(ctx, res); err != nil {
-		s.unitOfWork.Rollback(ctx)
+	ctx, err := s.unitOfWork.Start(ctx)
+	if err != nil {
 		return nil, err
 	}
 
-	return res, s.unitOfWork.Commit(ctx)
+	defer func() {
+		if err != nil {
+			s.unitOfWork.Rollback(ctx)
+		} else {
+			err = s.unitOfWork.Commit(ctx)
+		}
+		s.unitOfWork.End(ctx)
+	}()
+
+	res := resource.NewResource(name, resourceType, data)
+
+	err = s.service.SaveSnapshotAndEvent(ctx, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, err
 }
 
 func (s *ResourceService) UpdateResourceDate(id string, data string) error {
@@ -57,12 +70,22 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 
 	aggregate := (*res)
 	aggregate = aggregate.ChangeData(data)
+
 	ctx := context.Background()
-	s.unitOfWork.Start(ctx)
-	if err := s.service.SaveSnapshotAndEvent(ctx, aggregate); err != nil {
-		s.unitOfWork.Rollback(ctx)
+	ctx, err = s.unitOfWork.Start(ctx)
+	if err != nil {
 		return err
 	}
 
-	return s.unitOfWork.Commit(ctx)
+	defer func() {
+		if err != nil {
+			s.unitOfWork.Rollback(ctx)
+		} else {
+			err = s.unitOfWork.Commit(ctx)
+		}
+		s.unitOfWork.End(ctx)
+	}()
+
+	err = s.service.SaveSnapshotAndEvent(ctx, aggregate)
+	return err
 }
