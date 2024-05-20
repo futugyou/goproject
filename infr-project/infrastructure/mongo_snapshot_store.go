@@ -6,7 +6,6 @@ import (
 	"github.com/futugyou/infr-project/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type MongoSnapshotStore[EventSourcing domain.IEventSourcing] struct {
@@ -14,8 +13,7 @@ type MongoSnapshotStore[EventSourcing domain.IEventSourcing] struct {
 	Client *mongo.Client
 }
 
-func NewMongoSnapshotStore[EventSourcing domain.IEventSourcing](config DBConfig) *MongoSnapshotStore[EventSourcing] {
-	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+func NewMongoSnapshotStore[EventSourcing domain.IEventSourcing](client *mongo.Client, config DBConfig) *MongoSnapshotStore[EventSourcing] {
 	return &MongoSnapshotStore[EventSourcing]{
 		DBName: config.DBName,
 		Client: client,
@@ -27,7 +25,7 @@ func (s *MongoSnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSour
 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
 	result := make([]EventSourcing, 0)
 
-	filter := bson.D{{Key: "Id", Value: id}}
+	filter := bson.D{{Key: "id", Value: id}}
 	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
 	if err != nil {
@@ -45,9 +43,8 @@ func (s *MongoSnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSour
 	return result, nil
 }
 
-func (s *MongoSnapshotStore[EventSourcing]) SaveSnapshot(aggregate EventSourcing) error {
+func (s *MongoSnapshotStore[EventSourcing]) SaveSnapshot(ctx context.Context, aggregate EventSourcing) error {
 	c := s.Client.Database(s.DBName).Collection(aggregate.AggregateName())
-	ctx := context.Background()
 	_, err := c.InsertOne(ctx, aggregate)
 	return err
 }

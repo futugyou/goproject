@@ -6,7 +6,6 @@ import (
 	"github.com/futugyou/infr-project/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type DBConfig struct {
@@ -19,8 +18,7 @@ type MongoEventStore[Event domain.IDomainEvent] struct {
 	Client *mongo.Client
 }
 
-func NewMongoEventStore[Event domain.IDomainEvent](config DBConfig) *MongoEventStore[Event] {
-	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+func NewMongoEventStore[Event domain.IDomainEvent](client *mongo.Client, config DBConfig) *MongoEventStore[Event] {
 	return &MongoEventStore[Event]{
 		DBName: config.DBName,
 		Client: client,
@@ -49,7 +47,7 @@ func (s *MongoEventStore[Event]) Load(id string) ([]Event, error) {
 	return result, nil
 }
 
-func (s *MongoEventStore[Event]) Save(events []Event) error {
+func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) error {
 	if len(events) == 0 {
 		return nil
 	}
@@ -60,7 +58,6 @@ func (s *MongoEventStore[Event]) Save(events []Event) error {
 		entitys[i] = events[i]
 	}
 
-	ctx := context.Background()
 	_, err := c.InsertMany(ctx, entitys)
 
 	return err
