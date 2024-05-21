@@ -3,6 +3,7 @@ package infrastructure_mongo
 import (
 	"context"
 
+	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyou/infr-project/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -53,12 +54,19 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) error
 	}
 
 	c := s.Client.Database(s.DBName).Collection("domain_events")
-	entitys := make([]interface{}, len(events))
+	entities := make([]interface{}, len(events))
 	for i := 0; i < len(events); i++ {
-		entitys[i] = events[i]
+		eventType := events[i].EventType()
+		eventMap, err := flatbson.Flatten(events[i])
+		if err != nil {
+			return err
+		}
+
+		eventMap["event_type"] = eventType
+		entities[i] = eventMap
 	}
 
-	_, err := c.InsertMany(ctx, entitys)
+	_, err := c.InsertMany(ctx, entities)
 
 	return err
 }
