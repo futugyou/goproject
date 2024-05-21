@@ -99,8 +99,10 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(ctx cont
 		events = append(events, ev)
 	}
 
-	if err := s.snapshotStore.SaveSnapshot(ctx, aggregate); err != nil {
-		return err
+	if s.needStoreSnapshot(aggregate) {
+		if err := s.snapshotStore.SaveSnapshot(ctx, aggregate); err != nil {
+			return err
+		}		
 	}
 
 	return s.eventStore.Save(ctx, events)
