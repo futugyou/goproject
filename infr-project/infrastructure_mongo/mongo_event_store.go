@@ -1,4 +1,4 @@
-package infrastructure
+package infrastructure_mongo
 
 import (
 	"context"

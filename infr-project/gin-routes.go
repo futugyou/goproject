@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure"
+	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/resource"
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
