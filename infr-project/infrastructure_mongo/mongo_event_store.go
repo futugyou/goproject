@@ -5,6 +5,7 @@ import (
 
 	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/resource"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -30,19 +31,36 @@ func (s *MongoEventStore[Event]) Load(id string) ([]Event, error) {
 	c := s.Client.Database(s.DBName).Collection("domain_events")
 	result := make([]Event, 0)
 
-	filter := bson.D{{Key: "Id", Value: id}}
+	filter := bson.D{{Key: "id", Value: id}}
 	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = cursor.All(ctx, &result); err != nil {
+	var rawDocs []bson.Raw
+	if err = cursor.All(ctx, &rawDocs); err != nil {
 		return nil, err
 	}
 
-	for _, data := range result {
-		cursor.Decode(&data)
+	for _, rawDoc := range rawDocs {
+		var eventType struct {
+			Type string `bson:"event_type"`
+		}
+		if err := bson.Unmarshal(rawDoc, &eventType); err != nil {
+			return nil, err
+		}
+
+		event, err := resource.CreateEvent(eventType.Type)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := bson.Unmarshal(rawDoc, event); err != nil {
+			return nil, err
+		}
+
+		result = append(result, event.(Event))
 	}
 
 	return result, nil
