@@ -122,6 +122,10 @@ func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id strin
 		return nil, err
 	}
 
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("can not found snapshot with id: %s", id)
+	}
+
 	return &datas[len(datas)-1], nil
 }
 
