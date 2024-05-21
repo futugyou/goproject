@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"fmt"
 	"time"
 
 	domain "github.com/futugyou/infr-project/domain"
@@ -11,11 +12,11 @@ type IResourceEvent interface {
 }
 
 type ResourceCreatedEvent struct {
-	domain.DomainEvent
-	Name      string
-	Type      ResourceType
-	Data      string
-	CreatedAt time.Time
+	domain.DomainEvent `bson:",inline" json:",inline"`
+	Name               string    `bson:"name" json:"name"`
+	Type               string    `bson:"type" json:"type"`
+	Data               string    `bson:"data" json:"data"`
+	CreatedAt          time.Time `bson:"created_at" json:"created_at"`
 }
 
 func (e ResourceCreatedEvent) EventType() string {
@@ -23,11 +24,11 @@ func (e ResourceCreatedEvent) EventType() string {
 }
 
 type ResourceUpdatedEvent struct {
-	domain.DomainEvent
-	Name      string
-	Type      ResourceType
-	Data      string
-	UpdatedAt time.Time
+	domain.DomainEvent `bson:",inline" json:",inline"`
+	Name               string    `bson:"name" json:"name"`
+	Type               string    `bson:"type" json:"type"`
+	Data               string    `bson:"data" json:"data"`
+	UpdatedAt          time.Time `bson:"updated_at" json:"updated_at"`
 }
 
 func (e ResourceUpdatedEvent) EventType() string {
@@ -35,9 +36,22 @@ func (e ResourceUpdatedEvent) EventType() string {
 }
 
 type ResourceDeletedEvent struct {
-	domain.DomainEvent
+	domain.DomainEvent `bson:",inline" json:",inline"`
 }
 
 func (e ResourceDeletedEvent) EventType() string {
 	return "ResourceDeleted"
+}
+
+func CreateEvent(eventType string) (IResourceEvent, error) {
+	switch eventType {
+	case "ResourceCreated":
+		return &ResourceCreatedEvent{}, nil
+	case "ResourceUpdated":
+		return &ResourceUpdatedEvent{}, nil
+	case "ResourceDeleted":
+		return &ResourceDeletedEvent{}, nil
+	default:
+		return nil, fmt.Errorf("unknown event type: %s", eventType)
+	}
 }

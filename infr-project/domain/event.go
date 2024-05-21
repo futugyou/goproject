@@ -15,8 +15,9 @@ type IDomainEventHolder[Event IDomainEvent] interface {
 }
 
 type DomainEvent struct {
-	Id              string
-	ResourceVersion int
+	Id              string `bson:"id" json:"id"`
+	ResourceVersion int    `bson:"version" json:"version"`
+	EventType       string `bson:"event_type" json:"event_type"`
 }
 
 func (d DomainEvent) Version() int {

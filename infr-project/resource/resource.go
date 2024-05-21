@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -41,46 +40,19 @@ const (
 	Plate      resourceType = "Plate"
 )
 
-// MarshalJSON is a custom marshaler for Resource that handles the serialization of ResourceType.
-// In this case, we can skip MarshalJSON, only implement UnmarshalJSON
-func (r *Resource) MarshalJSON() ([]byte, error) {
-	type Alias Resource
-	return json.Marshal(&struct {
-		Type string `json:"type"`
-		*Alias
-	}{
-		Type:  r.Type.String(),
-		Alias: (*Alias)(r),
-	})
-}
-
-// UnmarshalJSON is a custom unmarshaler for Resource that handles the deserialization of ResourceType.
-func (r *Resource) UnmarshalJSON(data []byte) error {
-	type Alias Resource
-	aux := &struct {
-		Type string `json:"type"`
-		*Alias
-	}{
-		Alias: (*Alias)(r),
-	}
-
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	switch aux.Type {
-	case string(DrawIO):
-		r.Type = DrawIO
-	case string(Markdown):
-		r.Type = Markdown
-	case string(Excalidraw):
-		r.Type = Excalidraw
-	case string(Plate):
-		r.Type = Plate
+func getResourceType(rType string) ResourceType {
+	switch rType {
+	case "DrawIO":
+		return DrawIO
+	case "Markdown":
+		return Markdown
+	case "Excalidraw":
+		return Excalidraw
+	case "Plate":
+		return Plate
 	default:
-		return json.Unmarshal(data, &r)
+		return Markdown
 	}
-	return nil
 }
 
 func NewResource(name string, resourceType ResourceType, data string) *Resource {
@@ -132,21 +104,21 @@ func (r *Resource) AggregateName() string {
 
 func (r *Resource) Apply(event domain.IDomainEvent) error {
 	switch e := event.(type) {
-	case ResourceCreatedEvent:
+	case *ResourceCreatedEvent:
 		r.Id = e.Id
 		r.Name = e.Name
-		r.Type = e.Type
+		r.Type = getResourceType(e.Type)
 		r.Version = e.Version()
 		r.CreatedAt = e.CreatedAt
 		r.Data = e.Data
-	case ResourceUpdatedEvent:
+	case *ResourceUpdatedEvent:
 		r.Id = e.Id
 		r.Name = e.Name
-		r.Type = e.Type
+		r.Type = getResourceType(e.Type)
 		r.Version = e.Version()
 		r.CreatedAt = e.UpdatedAt
 		r.Data = e.Data
-	case ResourceDeletedEvent:
+	case *ResourceDeletedEvent:
 		// TODO: how to handle delete
 	}
 
@@ -160,7 +132,7 @@ func (r *Resource) createCreatedEvent() {
 			ResourceVersion: r.Version,
 		},
 		Name:      r.Name,
-		Type:      r.Type,
+		Type:      r.Type.String(),
 		Data:      r.Data,
 		CreatedAt: r.CreatedAt,
 	}
@@ -175,7 +147,7 @@ func (r *Resource) createUpdatedEvent() {
 			ResourceVersion: r.Version,
 		},
 		Name:      r.Name,
-		Type:      r.Type,
+		Type:      r.Type.String(),
 		Data:      r.Data,
 		UpdatedAt: time.Now().UTC(),
 	}
