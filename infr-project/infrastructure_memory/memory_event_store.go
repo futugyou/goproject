@@ -17,6 +17,22 @@ func NewMemoryEventStore[Event domain.IDomainEvent]() *MemoryEventStore[Event] {
 	}
 }
 
+func (s *MemoryEventStore[Event]) LoadGreaterthanVersion(id string, version int) ([]Event, error) {
+	events, ok := s.storage[id]
+	if !ok {
+		return nil, fmt.Errorf("no data for %s", id)
+	}
+
+	result := make([]Event, 0)
+	for i := 0; i < len(events); i++ {
+		if events[i].Version() > version {
+			result = append(result, events[i])
+		}
+	}
+
+	return result, nil
+}
+
 func (s *MemoryEventStore[Event]) Load(id string) ([]Event, error) {
 	events, ok := s.storage[id]
 	if !ok {

@@ -43,6 +43,21 @@ func (s *MongoSnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSour
 	return result, nil
 }
 
+// func (s *MongoSnapshotStore[EventSourcing]) LoadLatestSnapshot(id string) (*EventSourcing, error) {
+// 	a := new(EventSourcing)
+// 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
+
+// 	filter := bson.D{{Key: "id", Value: id}}
+// 	opts := &options.FindOneOptions{}
+// 	opts.SetSort(bson.D{{Key: "version", Value: -1}})
+// 	ctx := context.Background()
+// 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return a, nil
+// }
+
 func (s *MongoSnapshotStore[EventSourcing]) SaveSnapshot(ctx context.Context, aggregate EventSourcing) error {
 	c := s.Client.Database(s.DBName).Collection(aggregate.AggregateName())
 	_, err := c.InsertOne(ctx, aggregate)

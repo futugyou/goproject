@@ -7,6 +7,7 @@ import (
 	"github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/resource"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -28,10 +29,23 @@ func NewMongoEventStore[Event domain.IDomainEvent](client *mongo.Client, config 
 }
 
 func (s *MongoEventStore[Event]) Load(id string) ([]Event, error) {
+	filter := bson.D{{Key: "id", Value: id}}
+	return s.load(filter)
+}
+
+func (s *MongoEventStore[Event]) LoadGreaterthanVersion(id string, version int) ([]Event, error) {
+	filter := bson.D{
+		{Key: "id", Value: id},
+		{Key: "version", Value: bson.D{
+			{Key: "$gt", Value: version},
+		}},
+	}
+	return s.load(filter)
+}
+
+func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
 	c := s.Client.Database(s.DBName).Collection("domain_events")
 	result := make([]Event, 0)
-
-	filter := bson.D{{Key: "id", Value: id}}
 	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
 	if err != nil {
