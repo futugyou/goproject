@@ -81,10 +81,17 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 		r.Name = name
 	}
 
-	if version, ok := m["version"].(int); ok {
-		r.Version = version
+	if v, ok := m["version"]; ok {
+		switch version := v.(type) {
+		case int:
+			r.Version = version
+		case int32:
+			r.Version = int(version) 
+		default:
+			r.Version = 1
+		}
 	}
-
+	
 	if resourceType, ok := m["type"].(string); ok {
 		switch resourceType {
 		case string(DrawIO):
