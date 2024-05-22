@@ -54,7 +54,7 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id s
 
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
 	if err != nil || (*aggregate).AggregateVersion() < version {
-		events, err := es.eventStore.Load(id)
+		events, err := es.eventStore.LoadGreaterthanVersion(id, version)
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +80,7 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id str
 	}
 
 	// Load all events for the aggregate
-	events, err := es.eventStore.Load(id)
+	events, err := es.eventStore.LoadGreaterthanVersion(id, (*aggregate).AggregateVersion())
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(ctx cont
 	if s.needStoreSnapshot(aggregate) {
 		if err := s.snapshotStore.SaveSnapshot(ctx, aggregate); err != nil {
 			return err
-		}		
+		}
 	}
 
 	return s.eventStore.Save(ctx, events)
