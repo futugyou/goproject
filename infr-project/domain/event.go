@@ -2,6 +2,7 @@ package domain
 
 // IEvent represents the interface for events.
 type IDomainEvent interface {
+	AggregateEventName() string // this is use for storage table name, although ddd doesn’t need it
 	EventType() string
 	Version() int
 	AggregateId() string

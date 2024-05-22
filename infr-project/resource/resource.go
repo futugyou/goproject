@@ -127,9 +127,11 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 
 func (r *Resource) createCreatedEvent() {
 	event := ResourceCreatedEvent{
-		DomainEvent: domain.DomainEvent{
-			Id:              r.Id,
-			ResourceVersion: r.Version,
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+			},
 		},
 		Name:      r.Name,
 		Type:      r.Type.String(),
@@ -142,9 +144,11 @@ func (r *Resource) createCreatedEvent() {
 
 func (r *Resource) createUpdatedEvent() {
 	event := ResourceUpdatedEvent{
-		DomainEvent: domain.DomainEvent{
-			Id:              r.Id,
-			ResourceVersion: r.Version,
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+			},
 		},
 		Name:      r.Name,
 		Type:      r.Type.String(),

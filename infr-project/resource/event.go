@@ -11,12 +11,20 @@ type IResourceEvent interface {
 	domain.IDomainEvent
 }
 
-type ResourceCreatedEvent struct {
+type ResourceEvent struct {
 	domain.DomainEvent `bson:",inline" json:",inline"`
-	Name               string    `bson:"name" json:"name"`
-	Type               string    `bson:"type" json:"type"`
-	Data               string    `bson:"data" json:"data"`
-	CreatedAt          time.Time `bson:"created_at" json:"created_at"`
+}
+
+func (d ResourceEvent) AggregateEventName() string {
+	return "resource_events"
+}
+
+type ResourceCreatedEvent struct {
+	ResourceEvent `bson:",inline" json:",inline"`
+	Name          string    `bson:"name" json:"name"`
+	Type          string    `bson:"type" json:"type"`
+	Data          string    `bson:"data" json:"data"`
+	CreatedAt     time.Time `bson:"created_at" json:"created_at"`
 }
 
 func (e ResourceCreatedEvent) EventType() string {
@@ -24,11 +32,11 @@ func (e ResourceCreatedEvent) EventType() string {
 }
 
 type ResourceUpdatedEvent struct {
-	domain.DomainEvent `bson:",inline" json:",inline"`
-	Name               string    `bson:"name" json:"name"`
-	Type               string    `bson:"type" json:"type"`
-	Data               string    `bson:"data" json:"data"`
-	UpdatedAt          time.Time `bson:"updated_at" json:"updated_at"`
+	ResourceEvent `bson:",inline" json:",inline"`
+	Name          string    `bson:"name" json:"name"`
+	Type          string    `bson:"type" json:"type"`
+	Data          string    `bson:"data" json:"data"`
+	UpdatedAt     time.Time `bson:"updated_at" json:"updated_at"`
 }
 
 func (e ResourceUpdatedEvent) EventType() string {
@@ -36,7 +44,7 @@ func (e ResourceUpdatedEvent) EventType() string {
 }
 
 type ResourceDeletedEvent struct {
-	domain.DomainEvent `bson:",inline" json:",inline"`
+	ResourceEvent `bson:",inline" json:",inline"`
 }
 
 func (e ResourceDeletedEvent) EventType() string {

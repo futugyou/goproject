@@ -44,7 +44,8 @@ func (s *MongoEventStore[Event]) LoadGreaterthanVersion(id string, version int) 
 }
 
 func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
-	c := s.Client.Database(s.DBName).Collection("domain_events")
+	e := new(Event)
+	c := s.Client.Database(s.DBName).Collection((*e).AggregateEventName())
 	result := make([]Event, 0)
 	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
@@ -85,7 +86,8 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) error
 		return nil
 	}
 
-	c := s.Client.Database(s.DBName).Collection("domain_events")
+	e := new(Event)
+	c := s.Client.Database(s.DBName).Collection((*e).AggregateEventName())
 	entities := make([]interface{}, len(events))
 	for i := 0; i < len(events); i++ {
 		eventType := events[i].EventType()
