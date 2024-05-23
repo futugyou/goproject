@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -27,6 +28,7 @@ func NewGinRoute() *gin.Engine {
 		v1.GET("/circleci", circleciPipeline)
 		v1.GET("/vault", vaultSecret)
 		v1.GET("/resource", resourceMarshal)
+		v1.GET("/tf", terraformWS)
 	}
 	return router
 }
@@ -98,4 +100,18 @@ func resourceMarshal(c *gin.Context) {
 	log.Println(4, string(d))
 
 	c.JSON(200, res)
+}
+
+func terraformWS(c *gin.Context) {
+	tfclient, _ := sdk.NewTerraformClient(os.Getenv("TFC_TOKEN"))
+	ws, _ := tfclient.CheckWorkspace("test")
+	// _, err := tfclient.CreateConfigurationVersions(ws.ID, "./tmp")
+	plan, err := tfclient.CreateRun(ws, true)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = tfclient.ApplyRun(plan.ID)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
