@@ -75,3 +75,9 @@ func (s *TerraformClient) CreateRun(workspace *tfe.Workspace, planOnly bool) (*t
 	}
 	return s.client.Runs.Create(ctx, options)
 }
+
+func (s *TerraformClient) ApplyRun(runID string) error {
+	ctx := context.Background()
+	options := tfe.RunApplyOptions{}
+	return s.client.Runs.Apply(ctx, runID, options)
+}
