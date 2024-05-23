@@ -66,3 +66,12 @@ func (s *TerraformClient) CreateConfigurationVersions(workspaceID string, path s
 
 	return cv, s.client.ConfigurationVersions.Upload(ctx, cv.UploadURL, path)
 }
+
+func (s *TerraformClient) CreateRun(workspace *tfe.Workspace, planOnly bool) (*tfe.Run, error) {
+	ctx := context.Background()
+	options := tfe.RunCreateOptions{
+		Workspace: workspace,
+		PlanOnly:  tfe.Bool(planOnly),
+	}
+	return s.client.Runs.Create(ctx, options)
+}
