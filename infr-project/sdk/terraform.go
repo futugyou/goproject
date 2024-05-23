@@ -1,11 +1,9 @@
 package sdk
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
+	"context"
+
+	tfe "github.com/hashicorp/go-tfe"
 )
 
 const (
@@ -15,66 +13,42 @@ const (
 )
 
 type TerraformClient struct {
-	token string
+	client *tfe.Client
 }
 
-func NewTerraformClient(token string) *TerraformClient {
-	return &TerraformClient{
-		token: token,
+func NewTerraformClient(token string) (*TerraformClient, error) {
+	config := &tfe.Config{
+		Token:             token,
+		RetryServerErrors: true,
 	}
+
+	client, err := tfe.NewClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return &TerraformClient{
+		client: client,
+	}, nil
 }
 
 func (s *TerraformClient) CheckWorkspace(name string) (string, error) {
-	url := fmt.Sprintf("%s/organizations/%s/workspaces", tfcAPIBaseURL, organization)
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+s.token)
-	req.Header.Set("Content-Type", "application/vnd.api+json")
+	ctx := context.Background()
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	w, err := s.client.Workspaces.Read(ctx, organization, name)
+	if err != nil && err.Error() != "resource not found" {
+		return "", err
+	}
+
+	if w != nil {
+		return w.Name, nil
+	}
+
+	w, err = s.client.Workspaces.Create(ctx, organization, tfe.WorkspaceCreateOptions{
+		Name: tfe.String(name),
+	})
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to list workspaces: %s", body)
-	}
-
-	var result map[string]interface{}
-	json.Unmarshal(body, &result)
-	for _, data := range result["data"].([]interface{}) {
-		workspace := data.(map[string]interface{})
-		if workspace["attributes"].(map[string]interface{})["name"].(string) == name {
-			return workspace["id"].(string), nil
-		}
-	}
-
-	data := map[string]interface{}{
-		"data": map[string]interface{}{
-			"attributes": map[string]interface{}{
-				"name": name,
-			},
-			"type": "workspaces",
-		},
-	}
-	jsonData, _ := json.Marshal(data)
-	req, _ = http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	req.Header.Set("Authorization", "Bearer "+s.token)
-	req.Header.Set("Content-Type", "application/vnd.api+json")
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, _ = io.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusCreated {
-		return "", fmt.Errorf("failed to create workspace: %s", body)
-	}
-
-	json.Unmarshal(body, &result)
-	return result["data"].(map[string]interface{})["id"].(string), nil
+	return w.Name, nil
 }
