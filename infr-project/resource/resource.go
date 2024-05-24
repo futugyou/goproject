@@ -12,6 +12,7 @@ type Resource struct {
 	domain.AggregateWithEventSourcing `json:"-"`
 	Type                              ResourceType `json:"type"`
 	Data                              string       `json:"data"`
+	IsDelete                          bool         `json:"is_delete"`
 	CreatedAt                         time.Time    `json:"created_at"`
 }
 
@@ -64,7 +65,6 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 			},
 			Version: 1,
 		},
-
 		Type:      resourceType,
 		Data:      data,
 		CreatedAt: time.Now().UTC(),
@@ -98,6 +98,12 @@ func (r *Resource) ChangeData(data string) *Resource {
 	return r
 }
 
+func (r *Resource) DeleteResource() *Resource {
+	r.IsDelete = true
+	r.createDeletedEvent()
+	return r
+}
+
 func (r *Resource) AggregateName() string {
 	return "resources"
 }
@@ -119,7 +125,7 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 		r.CreatedAt = e.UpdatedAt
 		r.Data = e.Data
 	case *ResourceDeletedEvent:
-		// TODO: how to handle delete
+		r.IsDelete = true
 	}
 
 	return errors.New("event type not supported")
@@ -158,9 +164,15 @@ func (r *Resource) createUpdatedEvent() {
 	r.AddDomainEvent(event)
 }
 
-// func (r *Resource) createDeletedEvent() {
-// 	event := ResourceDeletedEvent{
-// 		Id: r.Id,
-// 	}
-// 	r.AddDomainEvent(event)
-// }
+func (r *Resource) createDeletedEvent() {
+	event := ResourceDeletedEvent{
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+			},
+		},
+		UpdatedAt: time.Now().UTC(),
+	}
+	r.AddDomainEvent(event)
+}

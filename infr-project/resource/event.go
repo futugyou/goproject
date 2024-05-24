@@ -45,6 +45,7 @@ func (e ResourceUpdatedEvent) EventType() string {
 
 type ResourceDeletedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
+	UpdatedAt     time.Time `bson:"updated_at" json:"updated_at"`
 }
 
 func (e ResourceDeletedEvent) EventType() string {
