@@ -105,13 +105,16 @@ func resourceMarshal(c *gin.Context) {
 func terraformWS(c *gin.Context) {
 	tfclient, _ := sdk.NewTerraformClient(os.Getenv("TFC_TOKEN"))
 	ws, _ := tfclient.CheckWorkspace("test")
-	// _, err := tfclient.CreateConfigurationVersions(ws.ID, "./tmp")
+	_, err := tfclient.CreateConfigurationVersions(ws.ID, "./tmp")
+	if err != nil {
+		fmt.Println("cv", err.Error())
+	}
 	plan, err := tfclient.CreateRun(ws, true)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("cr", err.Error())
 	}
 	err = tfclient.ApplyRun(plan.ID)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("ar", err.Error())
 	}
 }

@@ -1,8 +1,10 @@
 package sdk
 
 import (
+	"bytes"
 	"context"
 
+	"github.com/hashicorp/go-slug"
 	tfe "github.com/hashicorp/go-tfe"
 )
 
@@ -64,7 +66,23 @@ func (s *TerraformClient) CreateConfigurationVersions(workspaceID string, path s
 		return nil, err
 	}
 
-	return cv, s.client.ConfigurationVersions.Upload(ctx, cv.UploadURL, path)
+	packer, err := slug.NewPacker(
+		slug.DereferenceSymlinks(),    // dereferences symlinks
+		slug.ApplyTerraformIgnore(),   // ignores paths specified in .terraformignore
+		slug.AllowSymlinkTarget(path), // allow certain symlink target paths
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rawConfig := bytes.NewBuffer(nil)
+	_, err = packer.Pack(path, rawConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return cv, s.client.ConfigurationVersions.UploadTarGzip(ctx, cv.UploadURL, rawConfig)
 }
 
 func (s *TerraformClient) CreateRun(workspace *tfe.Workspace, planOnly bool) (*tfe.Run, error) {
