@@ -64,3 +64,33 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
 	})
 }
+
+// show all versions
+func (s *ResourceService) AllVersionResource(id string) ([]resource.Resource, error) {
+	re, err := s.service.RetrieveAllVersions(id)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]resource.Resource, 0)
+	for i := 0; i < len(re); i++ {
+		result = append(result, *re[i])
+	}
+	return result, nil
+}
+
+func (s *ResourceService) DeleteResource(id string, data string) error {
+	res, err := s.service.RetrieveLatestVersion(id)
+	if err != nil {
+		return err
+	}
+
+	aggregate, err := (*res).DeleteResource()
+	if err != nil {
+		return err
+	}
+
+	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
+	})
+}

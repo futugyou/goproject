@@ -97,6 +97,7 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) error
 		}
 
 		eventMap["event_type"] = eventType
+		eventMap["is_handled"] = 0
 		entities[i] = eventMap
 	}
 
