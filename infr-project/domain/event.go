@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 // IEvent represents the interface for events.
 type IDomainEvent interface {
 	AggregateEventName() string // this is use for storage table name, although ddd doesn’t need it
@@ -16,9 +18,10 @@ type IDomainEventHolder[Event IDomainEvent] interface {
 }
 
 type DomainEvent struct {
-	Id              string `bson:"id" json:"id"`
-	ResourceVersion int    `bson:"version" json:"version"`
-	EventType       string `bson:"event_type" json:"event_type"`
+	Id              string    `bson:"id" json:"id"`
+	ResourceVersion int       `bson:"version" json:"version"`
+	EventType       string    `bson:"event_type" json:"event_type"`
+	CreatedAt       time.Time `bson:"created_at" json:"created_at"`
 }
 
 func (d DomainEvent) Version() int {

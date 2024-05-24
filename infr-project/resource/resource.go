@@ -122,7 +122,7 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 		r.Name = e.Name
 		r.Type = getResourceType(e.Type)
 		r.Version = e.Version()
-		r.CreatedAt = e.UpdatedAt
+		r.CreatedAt = e.CreatedAt
 		r.Data = e.Data
 	case *ResourceDeletedEvent:
 		r.IsDelete = true
@@ -137,12 +137,12 @@ func (r *Resource) createCreatedEvent() {
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
 				ResourceVersion: r.Version,
+				CreatedAt:       r.CreatedAt,
 			},
 		},
-		Name:      r.Name,
-		Type:      r.Type.String(),
-		Data:      r.Data,
-		CreatedAt: r.CreatedAt,
+		Name: r.Name,
+		Type: r.Type.String(),
+		Data: r.Data,
 	}
 
 	r.AddDomainEvent(event)
@@ -156,10 +156,9 @@ func (r *Resource) createUpdatedEvent() {
 				ResourceVersion: r.Version,
 			},
 		},
-		Name:      r.Name,
-		Type:      r.Type.String(),
-		Data:      r.Data,
-		UpdatedAt: time.Now().UTC(),
+		Name: r.Name,
+		Type: r.Type.String(),
+		Data: r.Data,
 	}
 	r.AddDomainEvent(event)
 }
@@ -170,9 +169,9 @@ func (r *Resource) createDeletedEvent() {
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
 				ResourceVersion: r.Version,
+				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		UpdatedAt: time.Now().UTC(),
 	}
 	r.AddDomainEvent(event)
 }

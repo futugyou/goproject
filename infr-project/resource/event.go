@@ -2,7 +2,6 @@ package resource
 
 import (
 	"fmt"
-	"time"
 
 	domain "github.com/futugyou/infr-project/domain"
 )
@@ -21,10 +20,9 @@ func (d ResourceEvent) AggregateEventName() string {
 
 type ResourceCreatedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string    `bson:"name" json:"name"`
-	Type          string    `bson:"type" json:"type"`
-	Data          string    `bson:"data" json:"data"`
-	CreatedAt     time.Time `bson:"created_at" json:"created_at"`
+	Name          string `bson:"name" json:"name"`
+	Type          string `bson:"type" json:"type"`
+	Data          string `bson:"data" json:"data"`
 }
 
 func (e ResourceCreatedEvent) EventType() string {
@@ -33,10 +31,9 @@ func (e ResourceCreatedEvent) EventType() string {
 
 type ResourceUpdatedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string    `bson:"name" json:"name"`
-	Type          string    `bson:"type" json:"type"`
-	Data          string    `bson:"data" json:"data"`
-	UpdatedAt     time.Time `bson:"updated_at" json:"updated_at"`
+	Name          string `bson:"name" json:"name"`
+	Type          string `bson:"type" json:"type"`
+	Data          string `bson:"data" json:"data"`
 }
 
 func (e ResourceUpdatedEvent) EventType() string {
@@ -45,7 +42,6 @@ func (e ResourceUpdatedEvent) EventType() string {
 
 type ResourceDeletedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
-	UpdatedAt     time.Time `bson:"updated_at" json:"updated_at"`
 }
 
 func (e ResourceDeletedEvent) EventType() string {
