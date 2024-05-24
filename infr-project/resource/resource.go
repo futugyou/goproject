@@ -2,6 +2,7 @@ package resource
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	domain "github.com/futugyou/infr-project/domain"
@@ -73,35 +74,55 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 	return r
 }
 
-func (r *Resource) ChangeName(name string) *Resource {
+func (r *Resource) stateCheck() error {
+	if r.IsDelete {
+		return fmt.Errorf("id: %s is alrealdy deleted", r.Id)
+	}
+
+	return nil
+}
+
+func (r *Resource) ChangeName(name string) (*Resource, error) {
+	if err := r.stateCheck(); err != nil {
+		return r, err
+	}
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Name = name
 	r.createUpdatedEvent()
-	return r
+	return r, nil
 }
 
-func (r *Resource) ChangeType(resourceType ResourceType, data string) *Resource {
+func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource, error) {
+	if err := r.stateCheck(); err != nil {
+		return r, err
+	}
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Type = resourceType
 	r.Data = data
 	r.createUpdatedEvent()
-	return r
+	return r, nil
 }
 
-func (r *Resource) ChangeData(data string) *Resource {
+func (r *Resource) ChangeData(data string) (*Resource, error) {
+	if err := r.stateCheck(); err != nil {
+		return r, err
+	}
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Data = data
 	r.createUpdatedEvent()
-	return r
+	return r, nil
 }
 
-func (r *Resource) DeleteResource() *Resource {
+func (r *Resource) DeleteResource() (*Resource, error) {
+	if err := r.stateCheck(); err != nil {
+		return r, err
+	}
 	r.IsDelete = true
 	r.createDeletedEvent()
-	return r
+	return r, nil
 }
 
 func (r *Resource) AggregateName() string {
@@ -122,7 +143,6 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 		r.Name = e.Name
 		r.Type = getResourceType(e.Type)
 		r.Version = e.Version()
-		r.CreatedAt = e.CreatedAt
 		r.Data = e.Data
 	case *ResourceDeletedEvent:
 		r.IsDelete = true

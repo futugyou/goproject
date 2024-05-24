@@ -55,7 +55,10 @@ func (s *ResourceService) UpdateResourceDate(id string, data string) error {
 		return err
 	}
 
-	aggregate := (*res).ChangeData(data)
+	aggregate, err := (*res).ChangeData(data)
+	if err != nil {
+		return err
+	}
 
 	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
 		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
