@@ -13,6 +13,7 @@ import (
 
 	"net/http"
 
+	"github.com/futugyou/infr-project/api/internal"
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/resource"
@@ -20,6 +21,9 @@ import (
 
 func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	// cors
+	if internal.CorsForVercel(w, r) {
+		return
+	}
 
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),

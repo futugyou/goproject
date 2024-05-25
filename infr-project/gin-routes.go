@@ -12,6 +12,7 @@ import (
 
 func NewGinRoute() *gin.Engine {
 	router := gin.Default()
+	router.Use(Cors())
 
 	v1 := router.Group("/api/v1")
 	{
@@ -77,5 +78,15 @@ func terraformWS(c *gin.Context) {
 	err = tfclient.ApplyRun(plan.ID)
 	if err != nil {
 		fmt.Println("ar", err.Error())
+	}
+}
+
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS, HEAD")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Origin, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, x-requested-with, account-id")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 	}
 }
