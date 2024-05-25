@@ -42,7 +42,7 @@ const (
 	Plate      resourceType = "Plate"
 )
 
-func getResourceType(rType string) ResourceType {
+func GetResourceType(rType string) ResourceType {
 	switch rType {
 	case "DrawIO":
 		return DrawIO
@@ -134,14 +134,14 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 	case *ResourceCreatedEvent:
 		r.Id = e.Id
 		r.Name = e.Name
-		r.Type = getResourceType(e.Type)
+		r.Type = GetResourceType(e.Type)
 		r.Version = e.Version()
 		r.CreatedAt = e.CreatedAt
 		r.Data = e.Data
 	case *ResourceUpdatedEvent:
 		r.Id = e.Id
 		r.Name = e.Name
-		r.Type = getResourceType(e.Type)
+		r.Type = GetResourceType(e.Type)
 		r.Version = e.Version()
 		r.Data = e.Data
 	case *ResourceDeletedEvent:

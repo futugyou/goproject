@@ -79,7 +79,7 @@ func (s *ResourceService) AllVersionResource(id string) ([]resource.Resource, er
 	return result, nil
 }
 
-func (s *ResourceService) DeleteResource(id string, data string) error {
+func (s *ResourceService) DeleteResource(id string) error {
 	res, err := s.service.RetrieveLatestVersion(id)
 	if err != nil {
 		return err
