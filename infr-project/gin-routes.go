@@ -1,20 +1,13 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	"github.com/futugyou/infr-project/resource"
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func NewGinRoute() *gin.Engine {
@@ -27,8 +20,9 @@ func NewGinRoute() *gin.Engine {
 		v1.GET("/vercel", vercelProjectEndpoint)
 		v1.GET("/circleci", circleciPipeline)
 		v1.GET("/vault", vaultSecret)
-		v1.GET("/resource", resourceMarshal)
 		v1.GET("/tf", terraformWS)
+		// resource routes
+		ConfigResourceRoutes(v1)
 	}
 	return router
 }
@@ -67,39 +61,6 @@ func vaultSecret(c *gin.Context) {
 		return
 	}
 	c.JSON(200, result)
-}
-
-func resourceMarshal(c *gin.Context) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config)
-	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
-	unitOfWork, err := infra.NewMongoUnitOfWork(client)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	r := application.NewResourceService(eventStore, snapshotStore, unitOfWork)
-
-	res, _ := r.CreateResource("ok", resource.Excalidraw, "no data")
-	log.Println(1, res.DomainEvents())
-
-	r.UpdateResourceDate(res.Id, "not ok")
-
-	res, _ = r.CurrentResource(res.Id)
-
-	d, _ := json.Marshal(res)
-	log.Println(4, string(d))
-
-	c.JSON(200, res)
 }
 
 func terraformWS(c *gin.Context) {
