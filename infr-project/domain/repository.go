@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 // Deprecated: IEventSourcingRepository is deprecated, use ISnapshotStore and IEventStore.
 type IEventSourcingRepository[EventSourcing IEventSourcing] interface {
 	Load(id string) (*EventSourcing, error)
@@ -8,8 +10,8 @@ type IEventSourcingRepository[EventSourcing IEventSourcing] interface {
 }
 
 type IRepository[Aggregate IAggregateRoot] interface {
-	Get(id string) (*Aggregate, error)
-	Delete(id string) error
-	Update(aggregate Aggregate) error
-	Insert(aggregate Aggregate) error
+	Get(ctx context.Context, id string) (*Aggregate, error)
+	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, aggregate Aggregate) error
+	Insert(ctx context.Context, aggregate Aggregate) error
 }
