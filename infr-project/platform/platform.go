@@ -1,22 +1,25 @@
 package platform
 
 import (
+	"github.com/futugyou/infr-project/domain"
 	"github.com/google/uuid"
 )
 
 type Platform struct {
-	Id           string            `json:"id"`
-	Name         string            `json:"name"`
-	Activate     bool              `json:"activate"`
-	Url          string            `json:"url"`
-	RestEndpoint string            `json:"rest_endpoint"`
-	Property     map[string]string `json:"property"`
-	Webhooks     []Webhook         `json:"webhooks"`
+	domain.Aggregate `json:"-"`
+	Name             string            `json:"name"`
+	Activate         bool              `json:"activate"`
+	Url              string            `json:"url"`
+	RestEndpoint     string            `json:"rest_endpoint"`
+	Property         map[string]string `json:"property"`
+	Webhooks         []Webhook         `json:"webhooks"`
 }
 
 func NewPlatform(name string, url string, rest string, property map[string]string) *Platform {
 	return &Platform{
-		Id:           uuid.New().String(),
+		Aggregate: domain.Aggregate{
+			Id: uuid.New().String(),
+		},
 		Name:         name,
 		Activate:     true,
 		Url:          url,
@@ -74,4 +77,8 @@ func (w *Platform) RemoveWebhook(hookName string) *Platform {
 		}
 	}
 	return w
+}
+
+func (r *Platform) AggregateName() string {
+	return "platforms"
 }

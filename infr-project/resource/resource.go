@@ -11,6 +11,7 @@ import (
 
 type Resource struct {
 	domain.AggregateWithEventSourcing `json:"-"`
+	Name                              string       `json:"name"`
 	Type                              ResourceType `json:"type"`
 	Data                              string       `json:"data"`
 	IsDelete                          bool         `json:"is_delete"`
@@ -62,10 +63,10 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 		AggregateWithEventSourcing: domain.AggregateWithEventSourcing{
 			Aggregate: domain.Aggregate{
 				Id:   uuid.New().String(),
-				Name: name,
 			},
 			Version: 1,
 		},
+		Name: name,
 		Type:      resourceType,
 		Data:      data,
 		CreatedAt: time.Now().UTC(),

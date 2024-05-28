@@ -7,7 +7,6 @@ type IAggregateRoot interface {
 }
 
 type Aggregate struct {
-	Name string `json:"name"`
 	Id   string `json:"id"`
 }
 
