@@ -15,6 +15,14 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform", createPlatform)
 }
 
+// @Summary create platform
+// @Description create platform
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param request body application.CreateResourceRequest true "Request body"
+// @Success 200
+// @Router /platform [post]
 func createPlatform(c *gin.Context) {
 	service, err := createPlatformService()
 
@@ -22,17 +30,10 @@ func createPlatform(c *gin.Context) {
 		c.JSON(500, err.Error())
 		return
 	}
+	var aux application.CreateResourceRequest
 
-	aux := &struct {
-		Name     string            `json:"name"`
-		Url      string            `json:"url"`
-		Rest     string            `json:"rest"`
-		Property map[string]string `json:"property"`
-	}{}
-
-	err = c.ShouldBind(aux)
-	if err != nil {
-		c.JSON(500, err.Error())
+	if err := c.ShouldBindJSON(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
