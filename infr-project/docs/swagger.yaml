@@ -1,0 +1,38 @@
+definitions:
+  application.CreateResourceRequest:
+    properties:
+      name:
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      rest:
+        type: string
+      url:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /platform:
+    post:
+      consumes:
+      - application/json
+      description: create platform
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/application.CreateResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create platform
+      tags:
+      - Platform
+swagger: "2.0"

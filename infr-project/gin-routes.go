@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"log"
 	"os"
-
+	
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
+
+	docs "github.com/futugyou/infr-project/docs"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewGinRoute() *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
-
+	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := router.Group("/api/v1")
 	{
 		v1.POST("/ping", pingEndpoint)
@@ -27,6 +31,7 @@ func NewGinRoute() *gin.Engine {
 		// platform routes
 		ConfigPlatformRoutes(v1)
 	}
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router
 }
 
