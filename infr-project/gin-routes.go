@@ -24,6 +24,8 @@ func NewGinRoute() *gin.Engine {
 		v1.GET("/tf", terraformWS)
 		// resource routes
 		ConfigResourceRoutes(v1)
+		// platform routes
+		ConfigPlatformRoutes(v1)
 	}
 	return router
 }
