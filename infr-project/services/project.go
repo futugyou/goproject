@@ -4,14 +4,15 @@ import (
 	"time"
 
 	"github.com/futugyou/infr-project/core"
+	"github.com/futugyou/infr-project/platform"
 	"github.com/google/uuid"
 )
 
 type Project struct {
-	Id          string     `json:"id"`
-	Name        string     `json:"name"`
-	ProjectDate time.Time  `json:"project_date"`
-	Platforms   []Platform `json:"platforms"`
+	Id          string              `json:"id"`
+	Name        string              `json:"name"`
+	ProjectDate time.Time           `json:"project_date"`
+	Platforms   []platform.Platform `json:"platforms"`
 }
 
 func NewProject(name string) *Project {
@@ -19,7 +20,7 @@ func NewProject(name string) *Project {
 		Id:          uuid.New().String(),
 		Name:        name,
 		ProjectDate: time.Now().UTC(),
-		Platforms:   []Platform{},
+		Platforms:   []platform.Platform{},
 	}
 }
 
@@ -28,7 +29,7 @@ func (s *Project) ChangeName(name string) *Project {
 	return s
 }
 
-func (w *Project) UpdatePlatform(platform Platform) *Project {
+func (w *Project) UpdatePlatform(platform platform.Platform) *Project {
 	f := false
 	for i := 0; i < len(w.Platforms); i++ {
 		if w.Platforms[i].Id == platform.Id {

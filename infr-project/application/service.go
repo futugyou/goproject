@@ -9,10 +9,44 @@ import (
 	infra "github.com/futugyou/infr-project/infrastructure"
 )
 
+type AppService struct {
+	unitOfWork domain.IUnitOfWork
+}
+
+func NewAppService(
+	unitOfWork domain.IUnitOfWork,
+) *AppService {
+	return &AppService{
+		unitOfWork: unitOfWork,
+	}
+}
+
+func (s *AppService) withUnitOfWork(ctx context.Context, fn func(ctx context.Context) error) error {
+	ctx, err := s.unitOfWork.Start(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			s.unitOfWork.Rollback(ctx)
+		} else {
+			commitErr := s.unitOfWork.Commit(ctx)
+			if commitErr != nil {
+				err = commitErr
+			}
+		}
+		s.unitOfWork.End(ctx)
+	}()
+
+	err = fn(ctx)
+	return err
+}
+
 type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
 	eventStore        infra.IEventStore[Event]
 	snapshotStore     infra.ISnapshotStore[EventSourcing]
-	unitOfWork        domain.IUnitOfWork
+	innerService      *AppService
 	domainService     *domain.DomainService[Event, EventSourcing]
 	newAggregateFunc  func() EventSourcing
 	needStoreSnapshot func(EventSourcing) bool
@@ -28,7 +62,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 	return &ApplicationService[Event, EventSourcing]{
 		eventStore:        eventStore,
 		snapshotStore:     snapshotStore,
-		unitOfWork:        unitOfWork,
+		innerService:      NewAppService(unitOfWork),
 		domainService:     domain.NewDomainService[Event, EventSourcing](),
 		newAggregateFunc:  newAggregateFunc,
 		needStoreSnapshot: needStoreSnapshot,
@@ -151,23 +185,5 @@ func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion
 }
 
 func (s *ApplicationService[Event, EventSourcing]) withUnitOfWork(ctx context.Context, fn func(ctx context.Context) error) error {
-	ctx, err := s.unitOfWork.Start(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		if err != nil {
-			s.unitOfWork.Rollback(ctx)
-		} else {
-			commitErr := s.unitOfWork.Commit(ctx)
-			if commitErr != nil {
-				err = commitErr
-			}
-		}
-		s.unitOfWork.End(ctx)
-	}()
-
-	err = fn(ctx)
-	return err
+	return s.innerService.withUnitOfWork(ctx, fn)
 }
