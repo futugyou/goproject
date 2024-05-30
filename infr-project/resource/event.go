@@ -14,10 +14,6 @@ type ResourceEvent struct {
 	domain.DomainEvent `bson:",inline" json:",inline"`
 }
 
-func (d ResourceEvent) AggregateEventName() string {
-	return "resource_events"
-}
-
 type ResourceCreatedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
 	Name          string `bson:"name" json:"name"`
