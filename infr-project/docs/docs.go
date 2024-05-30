@@ -47,6 +47,35 @@ const docTemplate = `{
             }
         },
         "/resource": {
+            "put": {
+                "description": "update resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "update resource",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/application.UpdateResourceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
             "post": {
                 "description": "create resource",
                 "consumes": [
@@ -73,6 +102,103 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/resource/{id}": {
+            "get": {
+                "description": "get resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "get resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/resource.Resource"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "delete resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/resource/{id}/history": {
+            "get": {
+                "description": "get resource history",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "get resource history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/resource.Resource"
+                            }
+                        }
                     }
                 }
             }
@@ -111,6 +237,35 @@ const docTemplate = `{
                 "type": {
                     "type": "string"
                 }
+            }
+        },
+        "application.UpdateResourceRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.Resource": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "is_delete": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {}
             }
         }
     }
