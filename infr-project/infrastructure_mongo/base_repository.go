@@ -27,7 +27,7 @@ func (s *BaseRepository[Aggregate]) Get(ctx context.Context, id string) (*Aggreg
 	a := new(Aggregate)
 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
 
-	filter := bson.D{{Key: "id", Value: id}}
+	filter := bson.D{{Key: "aggregate.id", Value: id}}
 	opts := &options.FindOneOptions{}
 	opts.SetSort(bson.D{{Key: "version", Value: -1}})
 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
@@ -41,7 +41,7 @@ func (s *BaseRepository[Aggregate]) Delete(ctx context.Context, id string) error
 	a := new(Aggregate)
 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
 
-	filter := bson.D{{Key: "id", Value: id}}
+	filter := bson.D{{Key: "aggregate.id", Value: id}}
 	opts := &options.DeleteOptions{}
 	if _, err := c.DeleteOne(ctx, filter, opts); err != nil {
 		return err
@@ -52,7 +52,12 @@ func (s *BaseRepository[Aggregate]) Delete(ctx context.Context, id string) error
 
 func (s *BaseRepository[Aggregate]) Insert(ctx context.Context, aggregate Aggregate) error {
 	c := s.Client.Database(s.DBName).Collection(aggregate.AggregateName())
-	_, err := c.InsertOne(ctx, aggregate)
+	eventMap, err := flatbson.Flatten(aggregate)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.InsertOne(ctx, eventMap)
 	return err
 }
 
@@ -64,7 +69,7 @@ func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggreg
 		return err
 	}
 
-	filter := bson.D{{Key: "id", Value: aggregate.AggregateId()}}
+	filter := bson.D{{Key: "aggregate.id", Value: aggregate.AggregateId()}}
 	_, err = c.UpdateOne(ctx, filter, bson.M{
 		"$set": doc,
 	}, opt)
