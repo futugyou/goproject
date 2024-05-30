@@ -35,6 +35,37 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "$ref": "#/definitions/application.CreatePlatformRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/resource": {
+            "post": {
+                "description": "create resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "create resource",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
                             "$ref": "#/definitions/application.CreateResourceRequest"
                         }
                     }
@@ -48,7 +79,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "application.CreateResourceRequest": {
+        "application.CreatePlatformRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -64,6 +95,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "application.CreateResourceRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }

@@ -35,7 +35,7 @@ func (s *PlatformService) CreateResource(name string, url string, rest string, p
 	return res, nil
 }
 
-type CreateResourceRequest struct {
+type CreatePlatformRequest struct {
 	Name     string            `json:"name"`
 	Url      string            `json:"url"`
 	Rest     string            `json:"rest"`

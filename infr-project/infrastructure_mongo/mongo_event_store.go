@@ -2,6 +2,7 @@ package infrastructure_mongo
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyou/infr-project/domain"
@@ -17,14 +18,16 @@ type DBConfig struct {
 }
 
 type MongoEventStore[Event domain.IDomainEvent] struct {
-	DBName string
-	Client *mongo.Client
+	DBName    string
+	Client    *mongo.Client
+	TableName string
 }
 
-func NewMongoEventStore[Event domain.IDomainEvent](client *mongo.Client, config DBConfig) *MongoEventStore[Event] {
+func NewMongoEventStore[Event domain.IDomainEvent](client *mongo.Client, config DBConfig, tableName string) *MongoEventStore[Event] {
 	return &MongoEventStore[Event]{
-		DBName: config.DBName,
-		Client: client,
+		DBName:    config.DBName,
+		Client:    client,
+		TableName: tableName,
 	}
 }
 
@@ -44,8 +47,7 @@ func (s *MongoEventStore[Event]) LoadGreaterthanVersion(id string, version int) 
 }
 
 func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
-	e := new(Event)
-	c := s.Client.Database(s.DBName).Collection((*e).AggregateEventName())
+	c := s.Client.Database(s.DBName).Collection(s.TableName)
 	result := make([]Event, 0)
 	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
@@ -81,13 +83,18 @@ func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
 	return result, nil
 }
 
-func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) error {
+func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) (err error) {
 	if len(events) == 0 {
 		return nil
 	}
 
-	e := new(Event)
-	c := s.Client.Database(s.DBName).Collection((*e).AggregateEventName())
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("recovered from panic: %v", r)
+		}
+	}()
+ 
+	c := s.Client.Database(s.DBName).Collection(s.TableName)
 	entities := make([]interface{}, len(events))
 	for i := 0; i < len(events); i++ {
 		eventType := events[i].EventType()
@@ -101,7 +108,7 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) error
 		entities[i] = eventMap
 	}
 
-	_, err := c.InsertMany(ctx, entities)
+	_, err = c.InsertMany(ctx, entities)
 
 	return err
 }

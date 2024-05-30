@@ -94,3 +94,9 @@ func (s *ResourceService) DeleteResource(id string) error {
 		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
 	})
 }
+
+type CreateResourceRequest struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+	Data string `json:"data"`
+}

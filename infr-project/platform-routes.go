@@ -20,7 +20,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Tags Platform
 // @Accept json
 // @Produce json
-// @Param request body application.CreateResourceRequest true "Request body"
+// @Param request body application.CreatePlatformRequest true "Request body"
 // @Success 200
 // @Router /platform [post]
 func createPlatform(c *gin.Context) {
@@ -30,7 +30,7 @@ func createPlatform(c *gin.Context) {
 		c.JSON(500, err.Error())
 		return
 	}
-	var aux application.CreateResourceRequest
+	var aux application.CreatePlatformRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

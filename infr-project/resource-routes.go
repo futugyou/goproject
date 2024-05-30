@@ -84,6 +84,14 @@ func updateResource(c *gin.Context) {
 	c.JSON(200, "")
 }
 
+// @Summary create resource
+// @Description create resource
+// @Tags Resource
+// @Accept json
+// @Produce json
+// @Param request body application.CreateResourceRequest true "Request body"
+// @Success 200
+// @Router /resource [post]
 func createResource(c *gin.Context) {
 	service, err := createResourceService()
 
@@ -92,15 +100,10 @@ func createResource(c *gin.Context) {
 		return
 	}
 
-	aux := &struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
-		Data string `json:"data"`
-	}{}
+	var aux application.CreateResourceRequest
 
-	err = c.ShouldBind(aux)
-	if err != nil {
-		c.JSON(500, err.Error())
+	if err := c.ShouldBindJSON(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -143,7 +146,7 @@ func createResourceService() (*application.ResourceService, error) {
 		return nil, err
 	}
 
-	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config)
+	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config, "resource_events")
 	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
 	unitOfWork, err := infra.NewMongoUnitOfWork(client)
 	if err != nil {

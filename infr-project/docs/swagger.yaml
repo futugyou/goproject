@@ -1,5 +1,5 @@
 definitions:
-  application.CreateResourceRequest:
+  application.CreatePlatformRequest:
     properties:
       name:
         type: string
@@ -10,6 +10,15 @@ definitions:
       rest:
         type: string
       url:
+        type: string
+    type: object
+  application.CreateResourceRequest:
+    properties:
+      data:
+        type: string
+      name:
+        type: string
+      type:
         type: string
     type: object
 info:
@@ -26,7 +35,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/application.CreateResourceRequest'
+          $ref: '#/definitions/application.CreatePlatformRequest'
       produces:
       - application/json
       responses:
@@ -35,4 +44,24 @@ paths:
       summary: create platform
       tags:
       - Platform
+  /resource:
+    post:
+      consumes:
+      - application/json
+      description: create resource
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/application.CreateResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create resource
+      tags:
+      - Resource
 swagger: "2.0"

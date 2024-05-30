@@ -37,7 +37,7 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config)
+	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config, "resource_events")
 	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
 	unitOfWork, err := infra.NewMongoUnitOfWork(client)
 	if err != nil {
