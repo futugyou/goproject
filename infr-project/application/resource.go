@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
@@ -85,6 +86,10 @@ func (s *ResourceService) DeleteResource(id string) error {
 		return err
 	}
 
+	if res == nil || (*res).Id == "" {
+		return fmt.Errorf("resource: %s not found", id)
+	}
+
 	aggregate, err := (*res).DeleteResource()
 	if err != nil {
 		return err
@@ -98,5 +103,10 @@ func (s *ResourceService) DeleteResource(id string) error {
 type CreateResourceRequest struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
+	Data string `json:"data"`
+}
+
+type UpdateResourceRequest struct {
+	Id   string `json:"id"`
 	Data string `json:"data"`
 }

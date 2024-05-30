@@ -16,10 +16,18 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 	v1.GET("/resource/:id", getResource)
 	v1.POST("/resource", createResource)
 	v1.PUT("/resource", updateResource)
-	v1.DELETE("/resource", deleteResource)
+	v1.DELETE("/resource/:id", deleteResource)
 	v1.GET("/resource/:id/history", getResourceHistory)
 }
 
+// @Summary get resource history
+// @Description get resource history
+// @Tags Resource
+// @Accept json
+// @Produce json
+// @Param id path string true "Resource ID"
+// @Success 200 {array}  resource.Resource
+// @Router /resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
 	r, err := createResourceService()
 
@@ -38,6 +46,14 @@ func getResourceHistory(c *gin.Context) {
 	c.JSON(200, res)
 }
 
+// @Summary delete resource
+// @Description delete resource
+// @Tags Resource
+// @Accept json
+// @Produce json
+// @Param id path string true "Resource ID"
+// @Success 200 {string} string "ok"
+// @Router /resource/{id} [delete]
 func deleteResource(c *gin.Context) {
 	r, err := createResourceService()
 
@@ -53,9 +69,17 @@ func deleteResource(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, "")
+	c.JSON(200, "ok")
 }
 
+// @Summary update resource
+// @Description update resource
+// @Tags Resource
+// @Accept json
+// @Produce json
+// @Param request body application.UpdateResourceRequest true "Request body"
+// @Success 200
+// @Router /resource [put]
 func updateResource(c *gin.Context) {
 	service, err := createResourceService()
 
@@ -64,14 +88,10 @@ func updateResource(c *gin.Context) {
 		return
 	}
 
-	aux := &struct {
-		Id   string `json:"id"`
-		Data string `json:"data"`
-	}{}
+	var aux application.UpdateResourceRequest
 
-	err = c.ShouldBind(aux)
-	if err != nil {
-		c.JSON(500, err.Error())
+	if err := c.ShouldBindJSON(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -117,6 +137,14 @@ func createResource(c *gin.Context) {
 	c.JSON(200, res)
 }
 
+// @Summary get resource
+// @Description get resource
+// @Tags Resource
+// @Accept json
+// @Produce json
+// @Param id path string true "Resource ID"
+// @Success 200 {object}  resource.Resource
+// @Router /resource/{id} [get]
 func getResource(c *gin.Context) {
 	r, err := createResourceService()
 
@@ -129,6 +157,11 @@ func getResource(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(500, err.Error())
+		return
+	}
+
+	if res == nil || res.Id == "" {
+		c.JSON(404, "resource not found")
 		return
 	}
 
