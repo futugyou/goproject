@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"reflect"
 )
 
 type DomainService[Event IDomainEvent, EventSourcing IEventSourcing] struct {
@@ -15,7 +16,12 @@ func (ds *DomainService[Event, EventSourcing]) RetrieveAllVersions(aggregate Eve
 	var aggregates []EventSourcing
 	for _, event := range events {
 		aggregate.Apply(event)
-		aggregates = append(aggregates, aggregate)
+		
+		aggregateValue := reflect.ValueOf(aggregate).Elem()
+		tmp := reflect.New(aggregateValue.Type()).Interface().(EventSourcing)
+		reflect.ValueOf(tmp).Elem().Set(aggregateValue)
+
+		aggregates = append(aggregates, tmp)
 	}
 	return aggregates, nil
 }

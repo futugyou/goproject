@@ -121,6 +121,7 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err
 	}
+	r.Version = r.Version + 1
 	r.IsDelete = true
 	r.createDeletedEvent()
 	return r, nil

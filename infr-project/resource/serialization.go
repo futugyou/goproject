@@ -86,12 +86,12 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 		case int:
 			r.Version = version
 		case int32:
-			r.Version = int(version) 
+			r.Version = int(version)
 		default:
 			r.Version = 1
 		}
 	}
-	
+
 	if resourceType, ok := m["type"].(string); ok {
 		switch resourceType {
 		case string(DrawIO):
@@ -127,9 +127,12 @@ func makeMap(r *Resource) map[string]interface{} {
 		"id":         r.Id,
 		"name":       r.Name,
 		"version":    r.Version,
-		"type":       r.Type.String(),
 		"data":       r.Data,
 		"created_at": r.CreatedAt.Format(time.RFC3339),
 	}
+	if r.Type != nil {
+		m["type"] = r.Type.String()
+	}
+
 	return m
 }
