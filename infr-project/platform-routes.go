@@ -37,7 +37,7 @@ func createPlatform(c *gin.Context) {
 		return
 	}
 
-	res, err := service.CreateResource(aux.Name, aux.Url, aux.Rest, aux.Property)
+	res, err := service.CreatePlatform(aux.Name, aux.Url, aux.Rest, aux.Property)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	domain "github.com/futugyou/infr-project/domain"
 	platform "github.com/futugyou/infr-project/platform"
@@ -22,9 +23,19 @@ func NewPlatformService(
 	}
 }
 
-func (s *PlatformService) CreateResource(name string, url string, rest string, property map[string]string) (*platform.Platform, error) {
+func (s *PlatformService) CreatePlatform(name string, url string, rest string, property map[string]string) (*platform.Platform, error) {
 	var res *platform.Platform
-	err := s.innerService.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+	ctx := context.Background()
+	res, err := s.repository.GetPlatformByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if res != nil {
+		return nil, fmt.Errorf("name: %s is existed", name)
+	}
+
+	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = platform.NewPlatform(name, url, rest, property)
 		return s.repository.Insert(ctx, res)
 	})
