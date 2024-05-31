@@ -35,6 +35,38 @@
                 }
             }
         },
+        "/platform/{id}": {
+            "get": {
+                "description": "get platform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "get platform",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/platform.Platform"
+                        }
+                    }
+                }
+            }
+        },
         "/resource": {
             "put": {
                 "description": "update resource",
@@ -235,6 +267,56 @@
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "platform.Platform": {
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "rest_endpoint": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "webhooks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/platform.Webhook"
+                    }
+                }
+            }
+        },
+        "platform.Webhook": {
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "state": {},
+                "url": {
                     "type": "string"
                 }
             }

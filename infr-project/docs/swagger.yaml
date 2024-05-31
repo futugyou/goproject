@@ -28,6 +28,39 @@ definitions:
       id:
         type: string
     type: object
+  platform.Platform:
+    properties:
+      activate:
+        type: boolean
+      name:
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      rest_endpoint:
+        type: string
+      url:
+        type: string
+      webhooks:
+        items:
+          $ref: '#/definitions/platform.Webhook'
+        type: array
+    type: object
+  platform.Webhook:
+    properties:
+      activate:
+        type: boolean
+      name:
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      state: {}
+      url:
+        type: string
+    type: object
   resource.Resource:
     properties:
       created_at:
@@ -61,6 +94,27 @@ paths:
         "200":
           description: OK
       summary: create platform
+      tags:
+      - Platform
+  /platform/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get platform
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
+      summary: get platform
       tags:
       - Platform
   /resource:

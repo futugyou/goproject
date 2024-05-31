@@ -46,6 +46,15 @@ func (s *PlatformService) CreatePlatform(name string, url string, rest string, p
 	return res, nil
 }
 
+func (s *PlatformService) GetPlatform(id string) (*platform.Platform, error) {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	return *res, nil
+}
+
 type CreatePlatformRequest struct {
 	Name     string            `json:"name"`
 	Url      string            `json:"url"`
