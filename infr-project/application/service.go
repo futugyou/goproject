@@ -75,6 +75,10 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id strin
 		return nil, err
 	}
 
+	if len(events) == 0 {
+		return nil, fmt.Errorf("no event found with id: %s", id)
+	}
+
 	agg := es.newAggregateFunc()
 	aggregate := &agg
 
@@ -87,15 +91,18 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id s
 	}
 
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
-	if err != nil || (*aggregate).AggregateVersion() < version {
+	if err != nil {
+		return nil, err
+	}
+
+	if (*aggregate).AggregateVersion() < version {
 		events, err := es.eventStore.LoadGreaterthanVersion(id, version)
 		if err != nil {
 			return nil, err
 		}
 
-		if aggregate == nil {
-			agg := es.newAggregateFunc()
-			aggregate = &agg
+		if len(events) == 0 {
+			return nil, fmt.Errorf("can not found events with id: %s and version: %d", id, version)
 		}
 
 		return es.domainService.RetrieveSpecificVersion(*aggregate, events, version)
@@ -107,10 +114,8 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id s
 func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id string) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
 	aggregate, err := es.RestoreFromSnapshot(id)
-	if err != nil || aggregate == nil {
-		// If an error occurs, we assume no snapshot is available and start from scratch
-		agg := es.newAggregateFunc()
-		aggregate = &agg
+	if err != nil {
+		return nil, err
 	}
 
 	// Load all events for the aggregate
