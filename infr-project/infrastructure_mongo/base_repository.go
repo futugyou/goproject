@@ -29,7 +29,6 @@ func (s *BaseRepository[Aggregate]) Get(ctx context.Context, id string) (*Aggreg
 
 	filter := bson.D{{Key: "aggregate.id", Value: id}}
 	opts := &options.FindOneOptions{}
-	opts.SetSort(bson.D{{Key: "version", Value: -1}})
 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
 		return nil, err
 	}
