@@ -6,7 +6,6 @@ import (
 
 	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyou/infr-project/domain"
-	"github.com/futugyou/infr-project/resource"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,16 +17,23 @@ type DBConfig struct {
 }
 
 type MongoEventStore[Event domain.IDomainEvent] struct {
-	DBName    string
-	Client    *mongo.Client
-	TableName string
+	DBName       string
+	Client       *mongo.Client
+	TableName    string
+	EventFactory func(eventType string) (Event, error)
 }
 
-func NewMongoEventStore[Event domain.IDomainEvent](client *mongo.Client, config DBConfig, tableName string) *MongoEventStore[Event] {
+func NewMongoEventStore[Event domain.IDomainEvent](
+	client *mongo.Client,
+	config DBConfig,
+	tableName string,
+	eventFactory func(eventType string) (Event, error),
+) *MongoEventStore[Event] {
 	return &MongoEventStore[Event]{
-		DBName:    config.DBName,
-		Client:    client,
-		TableName: tableName,
+		DBName:       config.DBName,
+		Client:       client,
+		TableName:    tableName,
+		EventFactory: eventFactory,
 	}
 }
 
@@ -68,7 +74,7 @@ func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
 			return nil, err
 		}
 
-		event, err := resource.CreateEvent(eventType.Type)
+		event, err := s.EventFactory(eventType.Type)
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +83,7 @@ func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
 			return nil, err
 		}
 
-		result = append(result, event.(Event))
+		result = append(result, event)
 	}
 
 	return result, nil
@@ -93,7 +99,7 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) (err 
 			err = fmt.Errorf("recovered from panic: %v", r)
 		}
 	}()
- 
+
 	c := s.Client.Database(s.DBName).Collection(s.TableName)
 	entities := make([]interface{}, len(events))
 	for i := 0; i < len(events); i++ {

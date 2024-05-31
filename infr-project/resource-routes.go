@@ -179,7 +179,7 @@ func createResourceService() (*application.ResourceService, error) {
 		return nil, err
 	}
 
-	eventStore := infra.NewMongoEventStore[resource.IResourceEvent](client, config, "resource_events")
+	eventStore := infra.NewMongoEventStore(client, config, "resource_events", resource.CreateEvent)
 	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
 	unitOfWork, err := infra.NewMongoUnitOfWork(client)
 	if err != nil {
