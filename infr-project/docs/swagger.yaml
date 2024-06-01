@@ -117,6 +117,31 @@ paths:
       summary: get platform
       tags:
       - Platform
+  /platform/{id}/hook:
+    put:
+      consumes:
+      - application/json
+      description: update platform webhook
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/platform.Webhook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update platform webhook
+      tags:
+      - Platform
   /resource:
     post:
       consumes:
