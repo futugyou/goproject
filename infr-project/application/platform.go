@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	domain "github.com/futugyou/infr-project/domain"
 	platform "github.com/futugyou/infr-project/platform"
@@ -27,11 +28,11 @@ func (s *PlatformService) CreatePlatform(name string, url string, rest string, p
 	var res *platform.Platform
 	ctx := context.Background()
 	res, err := s.repository.GetPlatformByName(ctx, name)
-	if err != nil {
+	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 		return nil, err
 	}
 
-	if res != nil {
+	if res != nil && res.Name == name {
 		return nil, fmt.Errorf("name: %s is existed", name)
 	}
 
