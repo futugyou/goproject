@@ -2,6 +2,7 @@ package infrastructure_mongo
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -30,7 +31,11 @@ func (s *BaseRepository[Aggregate]) Get(ctx context.Context, id string) (*Aggreg
 	filter := bson.D{{Key: "id", Value: id}}
 	opts := &options.FindOneOptions{}
 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
-		return nil, err
+		if err.Error() == "mongo: no documents in result" {
+			return nil, fmt.Errorf("data not found with id: %s", id)
+		} else {
+			return nil, err
+		}
 	}
 
 	return a, nil
@@ -51,17 +56,7 @@ func (s *BaseRepository[Aggregate]) Delete(ctx context.Context, id string) error
 
 func (s *BaseRepository[Aggregate]) Insert(ctx context.Context, aggregate Aggregate) error {
 	c := s.Client.Database(s.DBName).Collection(aggregate.AggregateName())
-	eventMap, err := flatbson.Flatten(aggregate)
-	if err != nil {
-		return err
-	}
-
-	if v, ok := eventMap["aggregate.id"]; ok {
-		delete(eventMap, "aggregate.id")
-		eventMap["id"] = v
-	}
-
-	_, err = c.InsertOne(ctx, eventMap)
+	_, err := c.InsertOne(ctx, aggregate)
 	return err
 }
 
