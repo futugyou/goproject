@@ -2,6 +2,7 @@ package infrastructure_mongo
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/futugyou/infr-project/platform"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,14 +21,18 @@ func NewPlatformRepository(client *mongo.Client, config DBConfig) *PlatformRepos
 }
 
 func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string) (*platform.Platform, error) {
-	a := new(platform.Platform)
-	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
+	var a platform.Platform
+	c := s.Client.Database(s.DBName).Collection(a.AggregateName())
 
 	filter := bson.D{{Key: "name", Value: name}}
 	opts := &options.FindOneOptions{}
 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
-		return nil, err
+		if err.Error() == "mongo: no documents in result" {
+			return nil, fmt.Errorf("data not found with name: %s", name)
+		} else {
+			return nil, err
+		}
 	}
 
-	return a, nil
+	return &a, nil
 }
