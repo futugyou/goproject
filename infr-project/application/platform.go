@@ -56,6 +56,21 @@ func (s *PlatformService) GetPlatform(id string) (*platform.Platform, error) {
 	return *res, nil
 }
 
+func (s *PlatformService) AddWebhook(id string, hook platform.Webhook) (*platform.Platform, error) {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	plat := *res
+	plat.UpdateWebhook(hook)
+	err = s.repository.Update(context.Background(), plat)
+	if err != nil {
+		return nil, err
+	}
+	return plat, nil
+}
+
 type CreatePlatformRequest struct {
 	Name     string            `json:"name"`
 	Url      string            `json:"url"`

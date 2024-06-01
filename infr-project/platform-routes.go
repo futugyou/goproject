@@ -6,6 +6,7 @@ import (
 
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	"github.com/futugyou/infr-project/platform"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -14,6 +15,40 @@ import (
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform", createPlatform)
 	v1.GET("/platform/:id", getPlatform)
+	v1.PUT("/platform/:id/hook", updatePlatformHook)
+}
+
+// @Summary update platform webhook
+// @Description update platform webhook
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param request body platform.Webhook true "Request body"
+// @Success 200
+// @Router /platform/{id}/hook [put]
+func updatePlatformHook(c *gin.Context) {
+	service, err := createPlatformService()
+
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	var aux platform.Webhook
+
+	if err := c.ShouldBindJSON(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	id := c.Param("id")
+	res, err := service.AddWebhook(id, aux)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	c.JSON(200, res)
 }
 
 // @Summary create platform
