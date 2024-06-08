@@ -5,6 +5,39 @@
     },
     "paths": {
         "/platform": {
+            "get": {
+                "description": "get all platform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "get all platform",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/platform.Platform"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "create platform",
                 "consumes": [

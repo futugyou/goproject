@@ -9,4 +9,5 @@ import (
 type IPlatformRepository interface {
 	domain.IRepository[*Platform]
 	GetPlatformByName(ctx context.Context, name string) (*Platform, error)
+	GetAllPlatform(ctx context.Context) ([]Platform, error)
 }

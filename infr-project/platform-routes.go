@@ -15,6 +15,7 @@ import (
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform", createPlatform)
 	v1.GET("/platform/:id", getPlatform)
+	v1.GET("/platform", getAllPlatform)
 	v1.PUT("/platform/:id/hook", updatePlatformHook)
 	v1.PUT("/platform/:id", updatePlatform)
 	v1.DELETE("/platform/:id", deletePlatform)
@@ -135,6 +136,31 @@ func createPlatform(c *gin.Context) {
 	}
 
 	res, err := service.CreatePlatform(aux.Name, aux.Url, aux.Rest, aux.Property)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	c.JSON(200, res)
+}
+
+// @Summary get all platform
+// @Description get all platform
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Success 200 {array}  platform.Platform
+// @Router /platform [get]
+func getAllPlatform(c *gin.Context) {
+	service, err := createPlatformService()
+
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	res, err := service.GetAllPlatform()
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

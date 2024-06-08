@@ -107,6 +107,28 @@ info:
   contact: {}
 paths:
   /platform:
+    get:
+      consumes:
+      - application/json
+      description: get all platform
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/platform.Platform'
+            type: array
+      summary: get all platform
+      tags:
+      - Platform
     post:
       consumes:
       - application/json

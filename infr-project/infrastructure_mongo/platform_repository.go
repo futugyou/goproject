@@ -36,3 +36,26 @@ func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 
 	return &a, nil
 }
+
+func (s *PlatformRepository) GetAllPlatform(ctx context.Context) ([]platform.Platform, error) {
+	var a platform.Platform
+	c := s.Client.Database(s.DBName).Collection(a.AggregateName())
+	result := make([]platform.Platform, 0)
+
+	filter := bson.D{}
+	cursor, err := c.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cursor.All(ctx, &result); err != nil {
+		return nil, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
+
+}
