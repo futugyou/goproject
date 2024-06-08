@@ -117,6 +117,30 @@ const docTemplate = `{
             }
         },
         "/resource": {
+            "get": {
+                "description": "get all resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "get all resources",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/resource.Resource"
+                            }
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "update resource",
                 "consumes": [

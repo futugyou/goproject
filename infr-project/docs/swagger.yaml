@@ -143,6 +143,22 @@ paths:
       tags:
       - Platform
   /resource:
+    get:
+      consumes:
+      - application/json
+      description: get all resources
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/resource.Resource'
+            type: array
+      summary: get all resources
+      tags:
+      - Resource
     post:
       consumes:
       - application/json

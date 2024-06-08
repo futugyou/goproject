@@ -13,6 +13,7 @@ import (
 )
 
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
+	v1.GET("/resource", getAllResource)
 	v1.GET("/resource/:id", getResource)
 	v1.POST("/resource", createResource)
 	v1.PUT("/resource", updateResource)
@@ -161,6 +162,31 @@ func getResource(c *gin.Context) {
 	}
 
 	if res == nil || res.Id == "" {
+		c.JSON(404, "resource not found")
+		return
+	}
+
+	c.JSON(200, res)
+}
+
+// @Summary get all resources
+// @Description get all resources
+// @Tags Resource
+// @Accept json
+// @Produce json
+// @Success 200 {array}  resource.Resource
+// @Router /resource [get]
+func getAllResource(c *gin.Context) {
+	r := application.NewResourceQueryService()
+
+	res, err := r.GetAllResourceSnapshots()
+
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	if len(res) == 0 {
 		c.JSON(404, "resource not found")
 		return
 	}
