@@ -71,9 +71,50 @@ func (s *PlatformService) AddWebhook(id string, hook platform.Webhook) (*platfor
 	return plat, nil
 }
 
+func (s *PlatformService) Updatelatform(id string, data UpdatelatformRequest) (*platform.Platform, error) {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	plat := *res
+	if len(data.Name) > 0 {
+		plat.UpdateName(data.Name)
+	}
+	if len(data.Url) > 0 {
+		plat.UpdateUrl(data.Url)
+	}
+	if len(data.Rest) > 0 {
+		plat.UpdateRestEndpoint(data.Rest)
+	}
+	if data.Activate != nil {
+		if *data.Activate {
+			plat.Enable()
+		} else {
+			plat.Disable()
+		}
+	}
+	if data.Property != nil {
+		plat.UpdateProperty(data.Property)
+	}
+	err = s.repository.Update(context.Background(), plat)
+	if err != nil {
+		return nil, err
+	}
+	return plat, nil
+}
+
 type CreatePlatformRequest struct {
 	Name     string            `json:"name"`
 	Url      string            `json:"url"`
 	Rest     string            `json:"rest"`
 	Property map[string]string `json:"property"`
+}
+
+type UpdatelatformRequest struct {
+	Name     string            `json:"name"`
+	Url      string            `json:"url"`
+	Rest     string            `json:"rest"`
+	Property map[string]string `json:"property,omitempty"`
+	Activate *bool             `json:"activate,omitempty"`
 }

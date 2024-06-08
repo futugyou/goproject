@@ -49,6 +49,11 @@ func (w *Platform) UpdateUrl(url string) *Platform {
 	return w
 }
 
+func (w *Platform) UpdateRestEndpoint(url string) *Platform {
+	w.RestEndpoint = url
+	return w
+}
+
 func (w *Platform) UpdateProperty(property map[string]string) *Platform {
 	w.Property = property
 	return w

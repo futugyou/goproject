@@ -43,6 +43,21 @@ definitions:
       id:
         type: string
     type: object
+  application.UpdatelatformRequest:
+    properties:
+      activate:
+        type: boolean
+      name:
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      rest:
+        type: string
+      url:
+        type: string
+    type: object
   platform.Platform:
     properties:
       activate:
@@ -130,6 +145,30 @@ paths:
           schema:
             $ref: '#/definitions/platform.Platform'
       summary: get platform
+      tags:
+      - Platform
+    put:
+      consumes:
+      - application/json
+      description: update platform
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/application.UpdatelatformRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update platform
       tags:
       - Platform
   /platform/{id}/hook:

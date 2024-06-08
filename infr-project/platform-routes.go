@@ -16,6 +16,40 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform", createPlatform)
 	v1.GET("/platform/:id", getPlatform)
 	v1.PUT("/platform/:id/hook", updatePlatformHook)
+	v1.PUT("/platform/:id", updatePlatform)
+}
+
+// @Summary update platform
+// @Description update platform
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param request body application.UpdatelatformRequest true "Request body"
+// @Success 200
+// @Router /platform/{id} [put]
+func updatePlatform(c *gin.Context) {
+	service, err := createPlatformService()
+
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	var aux application.UpdatelatformRequest
+
+	if err := c.ShouldBindJSON(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	id := c.Param("id")
+	res, err := service.Updatelatform(id, aux)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	c.JSON(200, res)
 }
 
 // @Summary update platform webhook
