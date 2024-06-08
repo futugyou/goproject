@@ -71,7 +71,11 @@ func (s *PlatformService) AddWebhook(id string, hook platform.Webhook) (*platfor
 	return plat, nil
 }
 
-func (s *PlatformService) Updatelatform(id string, data UpdatelatformRequest) (*platform.Platform, error) {
+func (s *PlatformService) DeletePlatform(id string) error {
+	return s.repository.Delete(context.Background(), id)
+}
+
+func (s *PlatformService) UpdatePlatform(id string, data UpdatePlatformRequest) (*platform.Platform, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
@@ -111,7 +115,7 @@ type CreatePlatformRequest struct {
 	Property map[string]string `json:"property"`
 }
 
-type UpdatelatformRequest struct {
+type UpdatePlatformRequest struct {
 	Name     string            `json:"name"`
 	Url      string            `json:"url"`
 	Rest     string            `json:"rest"`

@@ -103,13 +103,43 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/application.UpdatelatformRequest"
+                            "$ref": "#/definitions/application.UpdatePlatformRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete platform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "delete platform",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -392,18 +422,7 @@ const docTemplate = `{
                 }
             }
         },
-        "application.UpdateResourceRequest": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "application.UpdatelatformRequest": {
+        "application.UpdatePlatformRequest": {
             "type": "object",
             "properties": {
                 "activate": {
@@ -422,6 +441,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "application.UpdateResourceRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 }
             }

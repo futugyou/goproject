@@ -36,14 +36,7 @@ definitions:
       type:
         type: string
     type: object
-  application.UpdateResourceRequest:
-    properties:
-      data:
-        type: string
-      id:
-        type: string
-    type: object
-  application.UpdatelatformRequest:
+  application.UpdatePlatformRequest:
     properties:
       activate:
         type: boolean
@@ -56,6 +49,13 @@ definitions:
       rest:
         type: string
       url:
+        type: string
+    type: object
+  application.UpdateResourceRequest:
+    properties:
+      data:
+        type: string
+      id:
         type: string
     type: object
   platform.Platform:
@@ -127,6 +127,26 @@ paths:
       tags:
       - Platform
   /platform/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete platform
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: delete platform
+      tags:
+      - Platform
     get:
       consumes:
       - application/json
@@ -162,7 +182,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/application.UpdatelatformRequest'
+          $ref: '#/definitions/application.UpdatePlatformRequest'
       produces:
       - application/json
       responses:
