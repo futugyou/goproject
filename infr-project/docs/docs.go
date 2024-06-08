@@ -135,7 +135,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/resource.Resource"
+                                "$ref": "#/definitions/application.ResourceDetail"
                             }
                         }
                     }
@@ -324,6 +324,29 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "application.ResourceDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_delete": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

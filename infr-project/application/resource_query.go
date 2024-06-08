@@ -1,7 +1,7 @@
 package application
 
 import (
-	"github.com/futugyou/infr-project/resource"
+	"time"
 )
 
 type ResourceQueryService struct {
@@ -12,6 +12,15 @@ func NewResourceQueryService() *ResourceQueryService {
 }
 
 // TODO: This is temporary because CQRS is not ready yet
-func (s *ResourceQueryService) GetAllResourceSnapshots() ([]resource.Resource, error) {
-	return []resource.Resource{}, nil
+func (s *ResourceQueryService) GetAllResourceSnapshots() ([]ResourceDetail, error) {
+	return []ResourceDetail{}, nil
+}
+
+type ResourceDetail struct {
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	Type      string    `json:"type"`
+	Data      string    `json:"data"`
+	IsDelete  bool      `json:"is_delete"`
+	CreatedAt time.Time `json:"created_at"`
 }

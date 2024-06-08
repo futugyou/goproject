@@ -21,6 +21,21 @@ definitions:
       type:
         type: string
     type: object
+  application.ResourceDetail:
+    properties:
+      created_at:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      is_delete:
+        type: boolean
+      name:
+        type: string
+      type:
+        type: string
+    type: object
   application.UpdateResourceRequest:
     properties:
       data:
@@ -154,7 +169,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/resource.Resource'
+              $ref: '#/definitions/application.ResourceDetail'
             type: array
       summary: get all resources
       tags:

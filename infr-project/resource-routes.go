@@ -174,7 +174,7 @@ func getResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Success 200 {array}  resource.Resource
+// @Success 200 {array}  application.ResourceDetail
 // @Router /resource [get]
 func getAllResource(c *gin.Context) {
 	r := application.NewResourceQueryService()
