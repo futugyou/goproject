@@ -4,6 +4,9 @@ exports = async function (changeEvent) {
     const resourceChangeEventCollectionName = "resource_events";
     const resourceQueryCollectionName = "resources_query";
 
+    // Initialize the ResourceQuery collection if not already done
+    await initializeResourceQueryCollection();
+
     const resourceQueryCollection = context.services.get(serviceName).db(dbName).collection(resourceQueryCollectionName);
 
     // Check if the full document is available in the change event
@@ -30,7 +33,7 @@ exports = async function (changeEvent) {
                 await resourceQueryCollection.updateOne(
                     { id: resourceId },
                     {
-                        $set: { name: name, version: version, type: type, data: data, update_at: created_at }
+                        $set: { name: name, version: version, type: type, data: data, updated_at: created_at }
                     }
                 );
             } else {
@@ -51,3 +54,75 @@ exports = async function (changeEvent) {
         console.error("Error performing MongoDB write operation: ", err.message);
     }
 };
+
+async function initializeResourceQueryCollection() {
+    const serviceName = "Cluster0";
+    const dbName = "infr-project";
+    const resourceChangeEventCollectionName = "resource_events";
+    const resourceQueryCollectionName = "resources_query";
+    const initializationFlagCollectionName = "InitializationFlags";
+    const initializationFlagDocumentId = "resourceQueryInitialization";
+
+    const resourceChangeEventCollection = context.services.get(serviceName).db(dbName).collection(resourceChangeEventCollectionName);
+    const resourceQueryCollection = context.services.get(serviceName).db(dbName).collection(resourceQueryCollectionName);
+    const initializationFlagCollection = context.services.get(serviceName).db(dbName).collection(initializationFlagCollectionName);
+
+    // Check if the initialization has already been done
+    const initializationFlag = await initializationFlagCollection.findOne({ _id: initializationFlagDocumentId });
+
+    if (initializationFlag) {
+        console.log("ResourceQuery collection has already been initialized.");
+        return;
+    }
+
+    try {
+        // Fetch all unique resource IDs from ResourceChangeEvent collection
+        const resourceChangeEvents = await resourceChangeEventCollection.aggregate([
+            {
+                $group: {
+                    _id: "$id",
+                    events: { $push: "$$ROOT" }
+                }
+            },
+            {
+                $sort: { "events.version": 1 }
+            }
+        ]).toArray();
+
+        for (let resourceChangeEvent of resourceChangeEvents) {
+            const resourceId = resourceChangeEvent.id;
+            const events = resourceChangeEvent.events;
+
+            if (events.length > 0) {
+                const latestEvent = events[events.length - 1];
+                const firstEvent = events[0];
+                // Construct the resource query document
+                const resourceQuery = {
+                    id: latestEvent.id,
+                    name: latestEvent.name,
+                    version: latestEvent.version,
+                    type: latestEvent.type,
+                    data: latestEvent.data,
+                    created_at: firstEvent.created_at
+                };
+
+                if (events.length > 1) {
+                    resourceQuery.updated_at = latestEvent.created_at;
+                }
+                // Upsert the document in ResourceQuery collection
+                await resourceQueryCollection.updateOne(
+                    { id: resourceQuery.id },
+                    { $set: resourceQuery },
+                    { upsert: true }
+                );
+            }
+        }
+
+        // Set the initialization flag
+        await initializationFlagCollection.insertOne({ _id: initializationFlagDocumentId, initialized: true });
+
+        console.log("Initialization of ResourceQuery collection complete.");
+    } catch (err) {
+        console.error("Error initializing ResourceQuery collection: ", err.message);
+    }
+}
