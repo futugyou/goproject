@@ -21,6 +21,6 @@ type ResourceDetail struct {
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	Data      string    `json:"data"`
-	IsDelete  bool      `json:"is_delete"`
+	IsDelete  bool      `json:"is_deleted"`
 	CreatedAt time.Time `json:"created_at"`
 }

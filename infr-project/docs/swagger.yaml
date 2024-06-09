@@ -29,7 +29,7 @@ definitions:
         type: string
       id:
         type: string
-      is_delete:
+      is_deleted:
         type: boolean
       name:
         type: string
@@ -97,7 +97,7 @@ definitions:
         type: string
       data:
         type: string
-      is_delete:
+      is_deleted:
         type: boolean
       name:
         type: string

@@ -433,7 +433,7 @@
                 "id": {
                     "type": "string"
                 },
-                "is_delete": {
+                "is_deleted": {
                     "type": "boolean"
                 },
                 "name": {
@@ -537,7 +537,7 @@
                 "data": {
                     "type": "string"
                 },
-                "is_delete": {
+                "is_deleted": {
                     "type": "boolean"
                 },
                 "name": {

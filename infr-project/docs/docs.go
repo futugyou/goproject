@@ -444,7 +444,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "is_delete": {
+                "is_deleted": {
                     "type": "boolean"
                 },
                 "name": {
@@ -548,7 +548,7 @@ const docTemplate = `{
                 "data": {
                     "type": "string"
                 },
-                "is_delete": {
+                "is_deleted": {
                     "type": "boolean"
                 },
                 "name": {

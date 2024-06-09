@@ -14,7 +14,7 @@ type Resource struct {
 	Name                              string       `json:"name"`
 	Type                              ResourceType `json:"type"`
 	Data                              string       `json:"data"`
-	IsDelete                          bool         `json:"is_delete"`
+	IsDelete                          bool         `json:"is_deleted"`
 	CreatedAt                         time.Time    `json:"created_at"`
 }
 
@@ -176,6 +176,7 @@ func (r *Resource) createUpdatedEvent() {
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
 				ResourceVersion: r.Version,
+				CreatedAt:       time.Now().UTC(),
 			},
 		},
 		Name: r.Name,
