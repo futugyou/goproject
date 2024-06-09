@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/go-playground/validator/v10"
 )
 
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
@@ -95,6 +97,12 @@ func updateResource(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+	
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
 	err = service.UpdateResourceDate(aux.Id, aux.Data)
 	if err != nil {
@@ -124,6 +132,12 @@ func createResource(c *gin.Context) {
 	var aux application.CreateResourceRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}

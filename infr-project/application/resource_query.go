@@ -23,4 +23,5 @@ type ResourceDetail struct {
 	Data      string    `json:"data"`
 	IsDelete  bool      `json:"is_deleted"`
 	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
