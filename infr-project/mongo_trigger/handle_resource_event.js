@@ -22,6 +22,7 @@ exports = async function (changeEvent) {
     const data = resourceChangeEvent.data;
     const name = resourceChangeEvent.name;
     const created_at = resourceChangeEvent.created_at;
+    const is_deleted = resourceChangeEvent.is_deleted ?? false;
 
     try {
         if (changeEvent.ns.coll === resourceChangeEventCollectionName) {
@@ -33,7 +34,7 @@ exports = async function (changeEvent) {
                 await resourceQueryCollection.updateOne(
                     { id: resourceId },
                     {
-                        $set: { name: name, version: version, type: type, data: data, updated_at: created_at }
+                        $set: { name: name, version: version, type: type, data: data, updated_at: created_at, is_deleted: is_deleted }
                     }
                 );
             } else {
@@ -44,7 +45,8 @@ exports = async function (changeEvent) {
                     version: version,
                     type: type,
                     data: data,
-                    created_at: created_at
+                    created_at: created_at,
+                    is_deleted: is_deleted
                 };
 
                 await resourceQueryCollection.insertOne(newResourceQuery);
@@ -96,6 +98,7 @@ async function initializeResourceQueryCollection() {
             if (events.length > 0) {
                 const latestEvent = events[events.length - 1];
                 const firstEvent = events[0];
+                const is_deleted = events.some(item => item.is_deleted === true)
                 // Construct the resource query document
                 const resourceQuery = {
                     id: latestEvent.id,
@@ -103,7 +106,8 @@ async function initializeResourceQueryCollection() {
                     version: latestEvent.version,
                     type: latestEvent.type,
                     data: latestEvent.data,
-                    created_at: firstEvent.created_at
+                    created_at: firstEvent.created_at,
+                    is_deleted: is_deleted
                 };
 
                 if (events.length > 1) {
