@@ -12,7 +12,7 @@ import (
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/resource"
-	view_models "github.com/futugyou/infr-project/view_models"
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
@@ -81,7 +81,7 @@ func deleteResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Param request body view_models.UpdateResourceRequest true "Request body"
+// @Param request body models.UpdateResourceRequest true "Request body"
 // @Success 200
 // @Router /resource [put]
 func updateResource(c *gin.Context) {
@@ -92,7 +92,7 @@ func updateResource(c *gin.Context) {
 		return
 	}
 
-	var aux view_models.UpdateResourceRequest
+	var aux models.UpdateResourceRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -119,7 +119,7 @@ func updateResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Param request body view_models.CreateResourceRequest true "Request body"
+// @Param request body models.CreateResourceRequest true "Request body"
 // @Success 200
 // @Router /resource [post]
 func createResource(c *gin.Context) {
@@ -130,7 +130,7 @@ func createResource(c *gin.Context) {
 		return
 	}
 
-	var aux view_models.CreateResourceRequest
+	var aux models.CreateResourceRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -192,9 +192,13 @@ func getResource(c *gin.Context) {
 // @Success 200 {array}  application.ResourceDetail
 // @Router /resource [get]
 func getAllResource(c *gin.Context) {
-	r := application.NewResourceQueryService()
 
-	res, err := r.GetAllResourceSnapshots()
+	r, err := createResourceQueryService()
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	res, err := r.GetAllResources()
 
 	if err != nil {
 		c.JSON(500, err.Error())
@@ -228,4 +232,20 @@ func createResourceService() (*application.ResourceService, error) {
 	}
 
 	return application.NewResourceService(eventStore, snapshotStore, unitOfWork), nil
+}
+
+func createResourceQueryService() (*application.ResourceQueryService, error) {
+	config := infra.QueryDBConfig{
+		DBName:        os.Getenv("query_db_name"),
+		ConnectString: os.Getenv("query_mongodb_url"),
+	}
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	if err != nil {
+		return nil, err
+	}
+
+	repo := infra.NewResourceQueryRepository(client, config)
+
+	return application.NewResourceQueryService(repo), nil
 }

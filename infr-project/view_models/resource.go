@@ -14,11 +14,15 @@ type UpdateResourceRequest struct {
 }
 
 type ResourceDetail struct {
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	Type      string    `json:"type"`
-	Data      string    `json:"data"`
-	IsDelete  bool      `json:"is_deleted"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id        string    `json:"id" bson:"id"`
+	Name      string    `json:"name" bson:"name"`
+	Type      string    `json:"type" bson:"type"`
+	Data      string    `json:"data" bson:"data"`
+	IsDelete  bool      `json:"is_deleted" bson:"is_deleted"`
+	CreatedAt time.Time `json:"created_at" bson:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
+}
+
+func (r ResourceDetail) GetTable() string {
+	return "resources_query"
 }

@@ -1,17 +1,21 @@
 package application
 
 import (
-	view_models "github.com/futugyou/infr-project/view_models"
+	"context"
+
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 type ResourceQueryService struct {
+	repository IPlatformRepository
 }
 
-func NewResourceQueryService() *ResourceQueryService {
-	return &ResourceQueryService{}
+func NewResourceQueryService(repository IPlatformRepository) *ResourceQueryService {
+	return &ResourceQueryService{
+		repository: repository,
+	}
 }
 
-// TODO: This is temporary because CQRS is not ready yet
-func (s *ResourceQueryService) GetAllResourceSnapshots() ([]view_models.ResourceDetail, error) {
-	return []view_models.ResourceDetail{}, nil
+func (s *ResourceQueryService) GetAllResources() ([]models.ResourceDetail, error) {
+	return s.repository.GetAll(context.Background())
 }

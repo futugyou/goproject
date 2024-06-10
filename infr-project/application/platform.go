@@ -7,7 +7,7 @@ import (
 
 	domain "github.com/futugyou/infr-project/domain"
 	platform "github.com/futugyou/infr-project/platform"
-	view_models "github.com/futugyou/infr-project/view_models"
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 type PlatformService struct {
@@ -80,7 +80,7 @@ func (s *PlatformService) DeletePlatform(id string) error {
 	return s.repository.Delete(context.Background(), id)
 }
 
-func (s *PlatformService) UpdatePlatform(id string, data view_models.UpdatePlatformRequest) (*platform.Platform, error) {
+func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest) (*platform.Platform, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err

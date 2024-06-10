@@ -11,7 +11,7 @@ import (
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/platform"
-	view_models "github.com/futugyou/infr-project/view_models"
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
@@ -55,7 +55,7 @@ func deletePlatform(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
-// @Param request body view_models.UpdatePlatformRequest true "Request body"
+// @Param request body models.UpdatePlatformRequest true "Request body"
 // @Success 200
 // @Router /platform/{id} [put]
 func updatePlatform(c *gin.Context) {
@@ -65,7 +65,7 @@ func updatePlatform(c *gin.Context) {
 		c.JSON(500, err.Error())
 		return
 	}
-	var aux view_models.UpdatePlatformRequest
+	var aux models.UpdatePlatformRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -120,7 +120,7 @@ func updatePlatformHook(c *gin.Context) {
 // @Tags Platform
 // @Accept json
 // @Produce json
-// @Param request body view_models.CreatePlatformRequest true "Request body"
+// @Param request body models.CreatePlatformRequest true "Request body"
 // @Success 200
 // @Router /platform [post]
 func createPlatform(c *gin.Context) {
@@ -130,7 +130,7 @@ func createPlatform(c *gin.Context) {
 		c.JSON(500, err.Error())
 		return
 	}
-	var aux view_models.CreatePlatformRequest
+	var aux models.CreatePlatformRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
