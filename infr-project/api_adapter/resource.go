@@ -2,6 +2,7 @@ package apiadapter
 
 import (
 	"encoding/json"
+	"fmt"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -21,172 +22,145 @@ import (
 
 func GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	res, err := service.AllVersionResource(id)
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
-	body, _ := json.Marshal(res)
-	w.Write(body)
-	w.WriteHeader(200)
+	writeJSONResponse(w, res, 200)
 }
 
 func DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	err = service.DeleteResource(id)
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
-	w.Write([]byte("ok"))
-	w.WriteHeader(200)
+	writeJSONResponse(w, "ok", 200)
 }
 
 func UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	var aux models.UpdateResourceRequest
-
 	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(400)
+		handleError(w, err, 400)
 		return
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(&aux); err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(400)
+		handleError(w, err, 400)
 		return
 	}
 
 	err = service.UpdateResourceDate(id, aux.Data)
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
-	w.Write([]byte("ok"))
-	w.WriteHeader(200)
+	writeJSONResponse(w, "ok", 200)
 }
 
 func CreateResource(w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	var aux models.CreateResourceRequest
-
 	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(400)
+		handleError(w, err, 400)
 		return
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(&aux); err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(400)
+		handleError(w, err, 400)
 		return
 	}
 
 	resourceType := resource.GetResourceType(aux.Type)
 	res, err := service.CreateResource(aux.Name, resourceType, aux.Data)
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
-	body, _ := json.Marshal(res)
-	w.Write(body)
-	w.WriteHeader(200)
+	writeJSONResponse(w, res, 200)
 }
 
 func GetResource(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceQueryService()
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	res, err := service.CurrentResource(id)
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	if res == nil || res.Id == "" {
-		w.Write([]byte("resource not found"))
-		w.WriteHeader(400)
+		handleError(w, fmt.Errorf("resource not found"), 400)
 		return
 	}
 
-	body, _ := json.Marshal(res)
-	w.Write(body)
-	w.WriteHeader(200)
+	writeJSONResponse(w, res, 200)
 }
 
 func GetAllResource(w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceQueryService()
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	res, err := service.GetAllResources()
-
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		handleError(w, err, 500)
 		return
 	}
 
 	if len(res) == 0 {
-		w.Write([]byte("resource not found"))
-		w.WriteHeader(400)
+		handleError(w, fmt.Errorf("resource not found"), 400)
 		return
 	}
 
-	body, _ := json.Marshal(res)
-	w.Write(body)
-	w.WriteHeader(200)
+	writeJSONResponse(w, res, 200)
+}
+
+func handleError(w http.ResponseWriter, err error, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	w.Write([]byte(err.Error()))
+}
+
+func writeJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(data)
 }
 
 func createResourceService() (*application.ResourceService, error) {
@@ -222,6 +196,5 @@ func createResourceQueryService() (*application.ResourceQueryService, error) {
 	}
 
 	repo := infra.NewResourceQueryRepository(client, config)
-
 	return application.NewResourceQueryService(repo), nil
 }
