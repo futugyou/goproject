@@ -1,63 +1,4 @@
 definitions:
-  application.CreatePlatformRequest:
-    properties:
-      name:
-        type: string
-      property:
-        additionalProperties:
-          type: string
-        type: object
-      rest:
-        type: string
-      url:
-        type: string
-    type: object
-  application.CreateResourceRequest:
-    properties:
-      data:
-        type: string
-      name:
-        type: string
-      type:
-        type: string
-    type: object
-  application.ResourceDetail:
-    properties:
-      created_at:
-        type: string
-      data:
-        type: string
-      id:
-        type: string
-      is_deleted:
-        type: boolean
-      name:
-        type: string
-      type:
-        type: string
-    type: object
-  application.UpdatePlatformRequest:
-    properties:
-      activate:
-        type: boolean
-      name:
-        type: string
-      property:
-        additionalProperties:
-          type: string
-        type: object
-      rest:
-        type: string
-      url:
-        type: string
-    type: object
-  application.UpdateResourceRequest:
-    properties:
-      data:
-        type: string
-      id:
-        type: string
-    type: object
   platform.Platform:
     properties:
       activate:
@@ -103,6 +44,102 @@ definitions:
         type: string
       type: {}
     type: object
+  viewmodels.CreatePlatformRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      rest:
+        maxLength: 50
+        minLength: 3
+        type: string
+      url:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - rest
+    - url
+    type: object
+  viewmodels.CreateResourceRequest:
+    properties:
+      data:
+        minLength: 3
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      type:
+        enum:
+        - DrawIO
+        - Markdown
+        - Excalidraw
+        - Plate
+        type: string
+    required:
+    - data
+    - name
+    type: object
+  viewmodels.ResourceDetail:
+    properties:
+      created_at:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  viewmodels.UpdatePlatformRequest:
+    properties:
+      activate:
+        type: boolean
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      rest:
+        maxLength: 50
+        minLength: 3
+        type: string
+      url:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - rest
+    - url
+    type: object
+  viewmodels.UpdateResourceRequest:
+    properties:
+      data:
+        minLength: 3
+        type: string
+      id:
+        type: string
+    required:
+    - data
+    - id
+    type: object
 info:
   contact: {}
 paths:
@@ -139,7 +176,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/application.CreatePlatformRequest'
+          $ref: '#/definitions/viewmodels.CreatePlatformRequest'
       produces:
       - application/json
       responses:
@@ -204,7 +241,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/application.UpdatePlatformRequest'
+          $ref: '#/definitions/viewmodels.UpdatePlatformRequest'
       produces:
       - application/json
       responses:
@@ -250,7 +287,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/application.ResourceDetail'
+              $ref: '#/definitions/viewmodels.ResourceDetail'
             type: array
       summary: get all resources
       tags:
@@ -265,7 +302,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/application.CreateResourceRequest'
+          $ref: '#/definitions/viewmodels.CreateResourceRequest'
       produces:
       - application/json
       responses:
@@ -284,7 +321,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/application.UpdateResourceRequest'
+          $ref: '#/definitions/viewmodels.UpdateResourceRequest'
       produces:
       - application/json
       responses:
@@ -330,7 +367,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/resource.Resource'
+            $ref: '#/definitions/viewmodels.ResourceDetail'
       summary: get resource
       tags:
       - Resource

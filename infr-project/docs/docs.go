@@ -68,7 +68,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/application.CreatePlatformRequest"
+                            "$ref": "#/definitions/viewmodels.CreatePlatformRequest"
                         }
                     }
                 ],
@@ -136,7 +136,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/application.UpdatePlatformRequest"
+                            "$ref": "#/definitions/viewmodels.UpdatePlatformRequest"
                         }
                     }
                 ],
@@ -234,7 +234,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/application.ResourceDetail"
+                                "$ref": "#/definitions/viewmodels.ResourceDetail"
                             }
                         }
                     }
@@ -259,7 +259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/application.UpdateResourceRequest"
+                            "$ref": "#/definitions/viewmodels.UpdateResourceRequest"
                         }
                     }
                 ],
@@ -288,7 +288,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/application.CreateResourceRequest"
+                            "$ref": "#/definitions/viewmodels.CreateResourceRequest"
                         }
                     }
                 ],
@@ -325,7 +325,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resource.Resource"
+                            "$ref": "#/definitions/viewmodels.ResourceDetail"
                         }
                     }
                 }
@@ -398,97 +398,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "application.CreatePlatformRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "property": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "rest": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "application.CreateResourceRequest": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "application.ResourceDetail": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "application.UpdatePlatformRequest": {
-            "type": "object",
-            "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "property": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "rest": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "application.UpdateResourceRequest": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
         "platform.Platform": {
             "type": "object",
             "properties": {
@@ -555,6 +464,140 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {}
+            }
+        },
+        "viewmodels.CreatePlatformRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "rest",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "rest": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "url": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
+        "viewmodels.CreateResourceRequest": {
+            "type": "object",
+            "required": [
+                "data",
+                "name"
+            ],
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "minLength": 3
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "DrawIO",
+                        "Markdown",
+                        "Excalidraw",
+                        "Plate"
+                    ]
+                }
+            }
+        },
+        "viewmodels.ResourceDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "viewmodels.UpdatePlatformRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "rest",
+                "url"
+            ],
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "rest": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "url": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
+        "viewmodels.UpdateResourceRequest": {
+            "type": "object",
+            "required": [
+                "data",
+                "id"
+            ],
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "minLength": 3
+                },
+                "id": {
+                    "type": "string"
+                }
             }
         }
     }

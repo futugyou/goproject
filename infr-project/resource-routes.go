@@ -159,10 +159,10 @@ func createResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {object}  resource.Resource
+// @Success 200 {object}  models.ResourceDetail
 // @Router /resource/{id} [get]
 func getResource(c *gin.Context) {
-	r, err := createResourceService()
+	r, err := createResourceQueryService()
 
 	if err != nil {
 		c.JSON(500, err.Error())
@@ -189,7 +189,7 @@ func getResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Success 200 {array}  application.ResourceDetail
+// @Success 200 {array}  models.ResourceDetail
 // @Router /resource [get]
 func getAllResource(c *gin.Context) {
 

@@ -29,13 +29,13 @@ func NewResourceService(
 	}
 }
 
-func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error) {
-	res, err := s.service.RetrieveLatestVersion(id)
-	if err != nil {
-		return nil, err
-	}
-	return *res, nil
-}
+// func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error) {
+// 	res, err := s.service.RetrieveLatestVersion(id)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return *res, nil
+// }
 
 func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
 	var res *resource.Resource
