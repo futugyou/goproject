@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	domain "github.com/futugyou/infr-project/domain"
 	"github.com/google/uuid"
+
+	domain "github.com/futugyou/infr-project/domain"
 )
 
 type Resource struct {
@@ -62,11 +63,11 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 	r := &Resource{
 		AggregateWithEventSourcing: domain.AggregateWithEventSourcing{
 			Aggregate: domain.Aggregate{
-				Id:   uuid.New().String(),
+				Id: uuid.New().String(),
 			},
 			Version: 1,
 		},
-		Name: name,
+		Name:      name,
 		Type:      resourceType,
 		Data:      data,
 		CreatedAt: time.Now().UTC(),

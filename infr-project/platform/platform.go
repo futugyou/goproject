@@ -1,8 +1,9 @@
 package platform
 
 import (
-	"github.com/futugyou/infr-project/domain"
 	"github.com/google/uuid"
+
+	"github.com/futugyou/infr-project/domain"
 )
 
 type Platform struct {

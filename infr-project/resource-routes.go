@@ -4,14 +4,15 @@ import (
 	"context"
 	"os"
 
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	"github.com/futugyou/infr-project/resource"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/futugyou/infr-project/application"
+	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	"github.com/futugyou/infr-project/resource"
+	view_models "github.com/futugyou/infr-project/view_models"
 )
 
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
@@ -80,7 +81,7 @@ func deleteResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Param request body application.UpdateResourceRequest true "Request body"
+// @Param request body view_models.UpdateResourceRequest true "Request body"
 // @Success 200
 // @Router /resource [put]
 func updateResource(c *gin.Context) {
@@ -91,13 +92,13 @@ func updateResource(c *gin.Context) {
 		return
 	}
 
-	var aux application.UpdateResourceRequest
+	var aux view_models.UpdateResourceRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -118,7 +119,7 @@ func updateResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Param request body application.CreateResourceRequest true "Request body"
+// @Param request body view_models.CreateResourceRequest true "Request body"
 // @Success 200
 // @Router /resource [post]
 func createResource(c *gin.Context) {
@@ -129,7 +130,7 @@ func createResource(c *gin.Context) {
 		return
 	}
 
-	var aux application.CreateResourceRequest
+	var aux view_models.CreateResourceRequest
 
 	if err := c.ShouldBindJSON(&aux); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

@@ -7,6 +7,7 @@ import (
 
 	domain "github.com/futugyou/infr-project/domain"
 	platform "github.com/futugyou/infr-project/platform"
+	view_models "github.com/futugyou/infr-project/view_models"
 )
 
 type PlatformService struct {
@@ -79,7 +80,7 @@ func (s *PlatformService) DeletePlatform(id string) error {
 	return s.repository.Delete(context.Background(), id)
 }
 
-func (s *PlatformService) UpdatePlatform(id string, data UpdatePlatformRequest) (*platform.Platform, error) {
+func (s *PlatformService) UpdatePlatform(id string, data view_models.UpdatePlatformRequest) (*platform.Platform, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
@@ -110,19 +111,4 @@ func (s *PlatformService) UpdatePlatform(id string, data UpdatePlatformRequest) 
 		return nil, err
 	}
 	return plat, nil
-}
-
-type CreatePlatformRequest struct {
-	Name     string            `json:"name"`
-	Url      string            `json:"url"`
-	Rest     string            `json:"rest"`
-	Property map[string]string `json:"property"`
-}
-
-type UpdatePlatformRequest struct {
-	Name     string            `json:"name"`
-	Url      string            `json:"url"`
-	Rest     string            `json:"rest"`
-	Property map[string]string `json:"property,omitempty"`
-	Activate *bool             `json:"activate,omitempty"`
 }

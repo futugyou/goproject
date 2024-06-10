@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/chidiwilliams/flatbson"
 	"github.com/futugyou/infr-project/domain"
 )
 

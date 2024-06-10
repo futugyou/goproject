@@ -3,9 +3,10 @@ package infrastructure_mongo
 import (
 	"context"
 
-	"github.com/futugyou/infr-project/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/futugyou/infr-project/domain"
 )
 
 type MongoSnapshotStore[EventSourcing domain.IEventSourcing] struct {
