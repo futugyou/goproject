@@ -134,11 +134,8 @@ definitions:
       data:
         minLength: 3
         type: string
-      id:
-        type: string
     required:
     - data
-    - id
     type: object
 info:
   contact: {}
@@ -311,25 +308,6 @@ paths:
       summary: create resource
       tags:
       - Resource
-    put:
-      consumes:
-      - application/json
-      description: update resource
-      parameters:
-      - description: Request body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/viewmodels.UpdateResourceRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-      summary: update resource
-      tags:
-      - Resource
   /resource/{id}:
     delete:
       consumes:
@@ -369,6 +347,30 @@ paths:
           schema:
             $ref: '#/definitions/viewmodels.ResourceDetail'
       summary: get resource
+      tags:
+      - Resource
+    put:
+      consumes:
+      - application/json
+      description: update resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.UpdateResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update resource
       tags:
       - Resource
   /resource/{id}/history:

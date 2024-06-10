@@ -9,7 +9,6 @@ type CreateResourceRequest struct {
 }
 
 type UpdateResourceRequest struct {
-	Id   string `json:"id" validate:"required"`
 	Data string `json:"data" validate:"required,min=3"`
 }
 

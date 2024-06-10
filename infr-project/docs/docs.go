@@ -240,35 +240,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "description": "update resource",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Resource"
-                ],
-                "summary": "update resource",
-                "parameters": [
-                    {
-                        "description": "Request body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdateResourceRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            },
             "post": {
                 "description": "create resource",
                 "consumes": [
@@ -327,6 +298,42 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/viewmodels.ResourceDetail"
                         }
+                    }
+                }
+            },
+            "put": {
+                "description": "update resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resource"
+                ],
+                "summary": "update resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.UpdateResourceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             },
@@ -587,16 +594,12 @@ const docTemplate = `{
         "viewmodels.UpdateResourceRequest": {
             "type": "object",
             "required": [
-                "data",
-                "id"
+                "data"
             ],
             "properties": {
                 "data": {
                     "type": "string",
                     "minLength": 3
-                },
-                "id": {
-                    "type": "string"
                 }
             }
         }

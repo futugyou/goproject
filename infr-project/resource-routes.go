@@ -1,25 +1,19 @@
 package main
 
 import (
-	"context"
-	"os"
-
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	"github.com/futugyou/infr-project/resource"
-	models "github.com/futugyou/infr-project/view_models"
+	_ "github.com/futugyou/infr-project/resource"
+	_ "github.com/futugyou/infr-project/view_models"
+
+	apiadapter "github.com/futugyou/infr-project/api_adapter"
 )
 
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 	v1.GET("/resource", getAllResource)
 	v1.GET("/resource/:id", getResource)
 	v1.POST("/resource", createResource)
-	v1.PUT("/resource", updateResource)
+	v1.PUT("/resource/:id", updateResource)
 	v1.DELETE("/resource/:id", deleteResource)
 	v1.GET("/resource/:id/history", getResourceHistory)
 }
@@ -33,21 +27,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {array}  resource.Resource
 // @Router /resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
-	r, err := createResourceService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	res, err := r.AllVersionResource(c.Param("id"))
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.GetResourceHistory(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary delete resource
@@ -59,21 +39,7 @@ func getResourceHistory(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /resource/{id} [delete]
 func deleteResource(c *gin.Context) {
-	r, err := createResourceService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	err = r.DeleteResource(c.Param("id"))
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, "ok")
+	apiadapter.DeleteResource(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update resource
@@ -81,37 +47,12 @@ func deleteResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Param request body models.UpdateResourceRequest true "Request body"
+// @Param id path string true "Resource ID"
+// @Param request body viewmodels.UpdateResourceRequest true "Request body"
 // @Success 200
-// @Router /resource [put]
+// @Router /resource/{id} [put]
 func updateResource(c *gin.Context) {
-	service, err := createResourceService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	var aux models.UpdateResourceRequest
-
-	if err := c.ShouldBindJSON(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = service.UpdateResourceDate(aux.Id, aux.Data)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, "")
+	apiadapter.UpdateResource(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary create resource
@@ -119,38 +60,11 @@ func updateResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Param request body models.CreateResourceRequest true "Request body"
+// @Param request body viewmodels.CreateResourceRequest true "Request body"
 // @Success 200
 // @Router /resource [post]
 func createResource(c *gin.Context) {
-	service, err := createResourceService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	var aux models.CreateResourceRequest
-
-	if err := c.ShouldBindJSON(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	resourceType := resource.GetResourceType(aux.Type)
-	res, err := service.CreateResource(aux.Name, resourceType, aux.Data)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.CreateResource(c.Writer, c.Request)
 }
 
 // @Summary get resource
@@ -159,29 +73,10 @@ func createResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {object}  models.ResourceDetail
+// @Success 200 {object}  viewmodels.ResourceDetail
 // @Router /resource/{id} [get]
 func getResource(c *gin.Context) {
-	r, err := createResourceQueryService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	res, err := r.CurrentResource(c.Param("id"))
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	if res == nil || res.Id == "" {
-		c.JSON(404, "resource not found")
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.GetResource(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary get all resources
@@ -189,63 +84,8 @@ func getResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Success 200 {array}  models.ResourceDetail
+// @Success 200 {array}  viewmodels.ResourceDetail
 // @Router /resource [get]
 func getAllResource(c *gin.Context) {
-
-	r, err := createResourceQueryService()
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-	res, err := r.GetAllResources()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	if len(res) == 0 {
-		c.JSON(404, "resource not found")
-		return
-	}
-
-	c.JSON(200, res)
-}
-
-func createResourceService() (*application.ResourceService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	eventStore := infra.NewMongoEventStore(client, config, "resource_events", resource.CreateEvent)
-	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
-	unitOfWork, err := infra.NewMongoUnitOfWork(client)
-	if err != nil {
-		return nil, err
-	}
-
-	return application.NewResourceService(eventStore, snapshotStore, unitOfWork), nil
-}
-
-func createResourceQueryService() (*application.ResourceQueryService, error) {
-	config := infra.QueryDBConfig{
-		DBName:        os.Getenv("query_db_name"),
-		ConnectString: os.Getenv("query_mongodb_url"),
-	}
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	repo := infra.NewResourceQueryRepository(client, config)
-
-	return application.NewResourceQueryService(repo), nil
+	apiadapter.GetAllResource(c.Writer, c.Request)
 }
