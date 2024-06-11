@@ -25,10 +25,10 @@ const (
 )
 
 type Webhook struct {
-	Name     string            `json:"name"`
-	Url      string            `json:"url"`
-	Activate bool              `json:"activate"`
-	State    WebhookState      `json:"state"`
+	Name     string            `json:"name" validate:"required,min=3,max=50"`
+	Url      string            `json:"url" validate:"required,min=3,max=50"`
+	Activate bool              `json:"activate" validate:"required"`
+	State    WebhookState      `json:"state" validate:"oneof=Init Creating Ready"`
 	Property map[string]string `json:"property"`
 }
 

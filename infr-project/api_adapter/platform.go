@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -24,6 +25,12 @@ func CreatePlatform(w http.ResponseWriter, r *http.Request) {
 
 	var aux models.CreatePlatformRequest
 	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(&aux); err != nil {
 		handleError(w, err, 400)
 		return
 	}
@@ -84,6 +91,12 @@ func UpdatePlatformHook(id string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
 	res, err := service.AddWebhook(id, aux)
 	if err != nil {
 		handleError(w, err, 500)
@@ -105,7 +118,13 @@ func UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
 		handleError(w, err, 400)
 		return
 	}
- 
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
 	res, err := service.UpdatePlatform(id, aux)
 	if err != nil {
 		handleError(w, err, 500)
