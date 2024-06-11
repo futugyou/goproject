@@ -17,12 +17,14 @@ exports = async function (changeEvent) {
 
     const resourceChangeEvent = changeEvent.fullDocument;
     const resourceId = resourceChangeEvent.id;
-    const version = resourceChangeEvent.version;
-    const type = resourceChangeEvent.type;
-    const data = resourceChangeEvent.data;
-    const name = resourceChangeEvent.name;
-    const created_at = resourceChangeEvent.created_at;
-    const is_deleted = resourceChangeEvent.is_deleted ?? false;
+    const updateFields = {};
+
+    if ('version' in resourceChangeEvent) updateFields.version = resourceChangeEvent.version;
+    if ('type' in resourceChangeEvent) updateFields.type = resourceChangeEvent.type;
+    if ('data' in resourceChangeEvent) updateFields.data = resourceChangeEvent.data;
+    if ('name' in resourceChangeEvent) updateFields.name = resourceChangeEvent.name;
+    if ('created_at' in resourceChangeEvent) updateFields.updated_at = resourceChangeEvent.created_at;
+    updateFields.is_deleted = resourceChangeEvent.is_deleted ?? false;
 
     try {
         if (changeEvent.ns.coll === resourceChangeEventCollectionName) {
@@ -31,22 +33,24 @@ exports = async function (changeEvent) {
 
             if (currentResourceQuery) {
                 // If the existing ResourceQuery document exists, update it with the new change event
-                await resourceQueryCollection.updateOne(
-                    { id: resourceId },
-                    {
-                        $set: { name: name, version: version, type: type, data: data, updated_at: created_at, is_deleted: is_deleted }
-                    }
-                );
+                if (updateFields.is_deleted) {
+                    await resourceQueryCollection.updateOne(
+                        { id: resourceId },
+                        { $set: { is_deleted: updateFields.is_deleted, updated_at: updateFields.updated_at } }
+                    );
+                } else {
+                    await resourceQueryCollection.updateOne(
+                        { id: resourceId },
+                        { $set: updateFields }
+                    );
+                }
             } else {
                 // If the existing ResourceQuery document does not exist, create a new one
                 const newResourceQuery = {
                     id: resourceId,
-                    name: name,
-                    version: version,
-                    type: type,
-                    data: data,
-                    created_at: created_at,
-                    is_deleted: is_deleted
+                    ...updateFields,
+                    created_at: updateFields.updated_at,
+                    is_deleted: updateFields.is_deleted
                 };
 
                 await resourceQueryCollection.insertOne(newResourceQuery);
@@ -98,21 +102,20 @@ async function initializeResourceQueryCollection() {
             if (events.length > 0) {
                 const latestEvent = events[events.length - 1];
                 const firstEvent = events[0];
-                const is_deleted = events.some(item => item.is_deleted === true)
-                // Construct the resource query document
-                const resourceQuery = {
-                    id: latestEvent.id,
-                    name: latestEvent.name,
-                    version: latestEvent.version,
-                    type: latestEvent.type,
-                    data: latestEvent.data,
-                    created_at: firstEvent.created_at,
-                    is_deleted: is_deleted
-                };
+                const is_deleted = events.some(item => item.is_deleted === true);
 
-                if (events.length > 1) {
-                    resourceQuery.updated_at = latestEvent.created_at;
-                }
+                // Construct the resource query document
+                const resourceQuery = { id: latestEvent.id };
+
+                if ('name' in latestEvent) resourceQuery.name = latestEvent.name;
+                if ('version' in latestEvent) resourceQuery.version = latestEvent.version;
+                if ('type' in latestEvent) resourceQuery.type = latestEvent.type;
+                if ('data' in latestEvent) resourceQuery.data = latestEvent.data;
+                if ('created_at' in firstEvent) resourceQuery.created_at = firstEvent.created_at;
+                resourceQuery.is_deleted = is_deleted;
+
+                if ('created_at' in latestEvent) resourceQuery.updated_at = latestEvent.created_at;
+
                 // Upsert the document in ResourceQuery collection
                 await resourceQueryCollection.updateOne(
                     { id: resourceQuery.id },
