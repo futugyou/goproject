@@ -17,6 +17,21 @@
         },
         {
             "src": "/api/v1/resource",
+            "dest": "/api/resource.go?optype=all",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/resource",
             "dest": "/api/resource.go?optype=create",
             "methods": [
                 "POST",
@@ -65,6 +80,96 @@
             "dest": "/api/resource.go?id=$id&optype=history",
             "methods": [
                 "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/platform/(?<id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&optype=get",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/platform",
+            "dest": "/api/platform.go?id=$id&optype=all",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/platform",
+            "dest": "/api/platform.go?optype=create",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/platform/(?<id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&optype=update",
+            "methods": [
+                "PUT",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/platform/(?<id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&optype=delete",
+            "methods": [
+                "DELETE",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, account-id",
+                "Access-Control-Expose-Headers": "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type"
+            }
+        },
+        {
+            "src": "/api/v1/platform/(?<id>[^/]+)/hook",
+            "dest": "/api/platform.go?id=$id&optype=hook",
+            "methods": [
+                "PUT",
                 "OPTIONS"
             ],
             "headers": {
