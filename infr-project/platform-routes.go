@@ -1,17 +1,12 @@
 package main
 
 import (
-	"context"
-	"os"
-
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	"github.com/futugyou/infr-project/platform"
-	models "github.com/futugyou/infr-project/view_models"
+	_ "github.com/futugyou/infr-project/resource"
+	_ "github.com/futugyou/infr-project/view_models"
+
+	apiadapter "github.com/futugyou/infr-project/api_adapter"
 )
 
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
@@ -32,21 +27,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {string} string "ok"
 // @Router /platform/{id} [delete]
 func deletePlatform(c *gin.Context) {
-	r, err := createPlatformService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	err = r.DeletePlatform(c.Param("id"))
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, "ok")
+	apiadapter.DeletePlatform(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update platform
@@ -55,31 +36,11 @@ func deletePlatform(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
-// @Param request body models.UpdatePlatformRequest true "Request body"
+// @Param request body viewmodels.UpdatePlatformRequest true "Request body"
 // @Success 200
 // @Router /platform/{id} [put]
 func updatePlatform(c *gin.Context) {
-	service, err := createPlatformService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-	var aux models.UpdatePlatformRequest
-
-	if err := c.ShouldBindJSON(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	id := c.Param("id")
-	res, err := service.UpdatePlatform(id, aux)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.UpdatePlatform(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update platform webhook
@@ -92,27 +53,7 @@ func updatePlatform(c *gin.Context) {
 // @Success 200
 // @Router /platform/{id}/hook [put]
 func updatePlatformHook(c *gin.Context) {
-	service, err := createPlatformService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-	var aux platform.Webhook
-
-	if err := c.ShouldBindJSON(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	id := c.Param("id")
-	res, err := service.AddWebhook(id, aux)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.UpdatePlatformHook(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary create platform
@@ -120,30 +61,11 @@ func updatePlatformHook(c *gin.Context) {
 // @Tags Platform
 // @Accept json
 // @Produce json
-// @Param request body models.CreatePlatformRequest true "Request body"
+// @Param request body viewmodels.CreatePlatformRequest true "Request body"
 // @Success 200
 // @Router /platform [post]
 func createPlatform(c *gin.Context) {
-	service, err := createPlatformService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-	var aux models.CreatePlatformRequest
-
-	if err := c.ShouldBindJSON(&aux); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	res, err := service.CreatePlatform(aux.Name, aux.Url, aux.Rest, aux.Property)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.CreatePlatform(c.Writer, c.Request)
 }
 
 // @Summary get all platform
@@ -155,20 +77,7 @@ func createPlatform(c *gin.Context) {
 // @Success 200 {array}  platform.Platform
 // @Router /platform [get]
 func getAllPlatform(c *gin.Context) {
-	service, err := createPlatformService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	res, err := service.GetAllPlatform()
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
+	apiadapter.GetAllPlatform(c.Writer, c.Request)
 }
 
 // @Summary get platform
@@ -180,39 +89,5 @@ func getAllPlatform(c *gin.Context) {
 // @Success 200 {object}  platform.Platform
 // @Router /platform/{id} [get]
 func getPlatform(c *gin.Context) {
-	service, err := createPlatformService()
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	id := c.Param("id")
-	res, err := service.GetPlatform(id)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, res)
-}
-
-func createPlatformService() (*application.PlatformService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	repo := infra.NewPlatformRepository(client, config)
-	unitOfWork, err := infra.NewMongoUnitOfWork(client)
-	if err != nil {
-		return nil, err
-	}
-
-	return application.NewPlatformService(unitOfWork, repo), nil
+	apiadapter.GetPlatform(c.Param("id"), c.Writer, c.Request)
 }
