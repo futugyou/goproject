@@ -78,3 +78,44 @@ func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggreg
 
 	return nil
 }
+
+func (s *BaseRepository[Aggregate]) GetAggregateByName(ctx context.Context, name string) (*Aggregate, error) {
+	a := new(Aggregate)
+	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
+
+	filter := bson.D{{Key: "name", Value: name}}
+	opts := &options.FindOneOptions{}
+	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, fmt.Errorf("data not found with name: %s", name)
+		} else {
+			return nil, err
+		}
+	}
+
+	return a, nil
+}
+
+func (s *BaseRepository[Aggregate]) GetAllAggregate(ctx context.Context) ([]Aggregate, error) {
+	a := new(Aggregate)
+	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
+
+	result := make([]Aggregate, 0)
+
+	filter := bson.D{}
+	cursor, err := c.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cursor.All(ctx, &result); err != nil {
+		return nil, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
+
+}
