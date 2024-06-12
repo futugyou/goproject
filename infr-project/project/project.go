@@ -1,4 +1,4 @@
-package services
+package project
 
 import (
 	"time"
@@ -6,21 +6,33 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/futugyou/infr-project/core"
+	"github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/platform"
+	"github.com/futugyou/infr-project/resource"
 )
 
 type Project struct {
-	Id          string              `json:"id"`
-	Name        string              `json:"name"`
-	ProjectDate time.Time           `json:"project_date"`
-	Platforms   []platform.Platform `json:"platforms"`
+	domain.Aggregate `json:"-"`
+	Name             string              `json:"name"`
+	Description      string              `json:"description"`
+	StartDate        time.Time           `json:"start_date"`
+	EndDate          *time.Time          `json:"end_date"`
+	Platforms        []platform.Platform `json:"platforms"`
+	Resources        []resource.Resource `json:"resources"`
 }
 
-func NewProject(name string) *Project {
+func (r *Project) AggregateName() string {
+	return "projects"
+}
+
+func NewProject(name string, description string) *Project {
 	return &Project{
-		Id:          uuid.New().String(),
+		Aggregate: domain.Aggregate{
+			Id: uuid.New().String(),
+		},
 		Name:        name,
-		ProjectDate: time.Now().UTC(),
+		Description: description,
+		StartDate:   time.Now().UTC(),
 		Platforms:   []platform.Platform{},
 	}
 }
