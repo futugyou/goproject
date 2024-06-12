@@ -13,6 +13,7 @@ type Project struct {
 	domain.Aggregate `json:"-"`
 	Name             string            `json:"name"`
 	Description      string            `json:"description"`
+	State            ProjectState      `json:"state"`
 	StartDate        *time.Time        `json:"start_date"`
 	EndDate          *time.Time        `json:"end_date"`
 	Platforms        []ProjectPlatform `json:"platforms"`
@@ -22,6 +23,30 @@ type Project struct {
 func (r *Project) AggregateName() string {
 	return "projects"
 }
+
+// ProjectState is the interface for webhook states.
+type ProjectState interface {
+	privateProjectState() // Prevents external implementation
+	String() string
+}
+
+// projectState is the underlying implementation for ProjectState.
+type projectState string
+
+// privateWebhookState makes webhookState implement ProjectState.
+func (c projectState) privateProjectState() {}
+
+// String makes webhookState implement WebhookState.
+func (c projectState) String() string {
+	return string(c)
+}
+
+// Constants for the different webhook states.
+const (
+	ProjectPreparing  projectState = "preparing"
+	ProjectProcessing projectState = "processing"
+	ProjectFinish     projectState = "finish"
+)
 
 type ProjectPlatform struct {
 	Name        string `json:"name"`
@@ -37,13 +62,14 @@ type ProjectDesign struct {
 	Resources []string `json:"resources"`
 }
 
-func NewProject(name string, description string, start *time.Time, end *time.Time) *Project {
+func NewProject(name string, description string, state ProjectState, start *time.Time, end *time.Time) *Project {
 	return &Project{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
 		},
 		Name:        name,
 		Description: description,
+		State:       state,
 		StartDate:   start,
 		EndDate:     end,
 		Platforms:   []ProjectPlatform{},
@@ -58,6 +84,11 @@ func (s *Project) ChangeName(name string) *Project {
 
 func (s *Project) ChangeDescription(description string) *Project {
 	s.Description = description
+	return s
+}
+
+func (s *Project) ChangeProjectState(state ProjectState) *Project {
+	s.State = state
 	return s
 }
 
