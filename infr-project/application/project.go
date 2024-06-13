@@ -61,3 +61,38 @@ func (s *ProjectService) GetProject(id string) (*project.Project, error) {
 
 	return *res, nil
 }
+
+func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest) (*project.Project, error) {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	proj := *res
+	if len(*data.Name) > 0 {
+		proj.ChangeName(*data.Name)
+	}
+
+	if len(*data.Description) > 0 {
+		proj.ChangeDescription(*data.Description)
+	}
+
+	if len(*data.ProjectState) > 0 {
+		s := project.GetProjectState(*data.ProjectState)
+		proj.ChangeProjectState(s)
+	}
+
+	if data.StartTime != nil {
+		proj.ChangeStartDate(*data.StartTime)
+	}
+
+	if data.EndTime != nil {
+		proj.ChangeEndDate(data.EndTime)
+	}
+
+	err = s.repository.Update(context.Background(), proj)
+	if err != nil {
+		return nil, err
+	}
+	return proj, nil
+}
