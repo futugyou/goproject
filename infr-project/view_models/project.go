@@ -1,0 +1,11 @@
+package viewmodels
+
+import "time"
+
+type CreateProjectRequest struct {
+	Name         string     `json:"name" validate:"required,min=3,max=50"`
+	Description  string     `json:"description" validate:"required,min=3,max=500"`
+	ProjectState *string    `json:"state" validate:"oneof=preparing processing finished"`
+	StartTime    *time.Time `json:"start_time"`
+	EndTime      *time.Time `json:"end_time"`
+}
