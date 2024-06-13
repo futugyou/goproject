@@ -96,3 +96,26 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 	}
 	return proj, nil
 }
+
+func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest) (*project.Project, error) {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	proj := *res
+	platforms := make([]project.ProjectPlatform, 0)
+	for _, data := range datas {
+		platforms = append(platforms, project.ProjectPlatform{
+			Name:        data.Name,
+			Description: data.Description,
+			PlatformId:  data.PlatformId,
+		})
+	}
+	proj.UpdatePlatform(platforms)
+	err = s.repository.Update(context.Background(), proj)
+	if err != nil {
+		return nil, err
+	}
+	return proj, nil
+}

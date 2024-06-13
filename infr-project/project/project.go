@@ -115,44 +115,13 @@ func (s *Project) ChangeEndDate(end *time.Time) *Project {
 	return s
 }
 
-func (w *Project) UpdatePlatform(platform ProjectPlatform) *Project {
-	f := false
-	for i := 0; i < len(w.Platforms); i++ {
-		if w.Platforms[i].Name == platform.Name {
-			w.Platforms[i] = platform
-			f = true
-			break
-		}
-	}
-
-	if !f {
-		w.Platforms = append(w.Platforms, platform)
-	}
+func (w *Project) UpdatePlatform(platforms []ProjectPlatform) *Project {
+	w.Platforms = platforms
 	return w
 }
 
-func (w *Project) RemovePlatform(name string) *Project {
-	for i := len(w.Platforms) - 1; i >= 0; i-- {
-		if w.Platforms[i].Name == name {
-			w.Platforms = append(w.Platforms[:i], w.Platforms[i+1:]...)
-		}
-	}
-	return w
-}
-
-func (w *Project) UpdateDesign(design ProjectDesign) *Project {
-	f := false
-	for i := 0; i < len(w.Platforms); i++ {
-		if w.Designs[i].Name == design.Name {
-			w.Designs[i] = design
-			f = true
-			break
-		}
-	}
-
-	if !f {
-		w.Designs = append(w.Designs, design)
-	}
+func (w *Project) UpdateDesign(designs []ProjectDesign) *Project {
+	w.Designs = designs
 	return w
 }
 

@@ -10,6 +10,7 @@ type IRepository[Query models.IQuery] interface {
 	Get(ctx context.Context, id string) (*Query, error)
 	GetAll(ctx context.Context) ([]Query, error)
 }
+
 type IPlatformRepository interface {
 	IRepository[models.ResourceDetail]
 }
