@@ -93,18 +93,7 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 	}
 
 	if resourceType, ok := m["type"].(string); ok {
-		switch resourceType {
-		case string(DrawIO):
-			r.Type = DrawIO
-		case string(Markdown):
-			r.Type = Markdown
-		case string(Excalidraw):
-			r.Type = Excalidraw
-		case string(Plate):
-			r.Type = Plate
-		default:
-			r.Type = Plate
-		}
+		r.Type = GetResourceType(resourceType)
 	}
 
 	if data, ok := m["data"].(string); ok {

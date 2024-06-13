@@ -45,7 +45,7 @@ func (c projectState) String() string {
 const (
 	ProjectPreparing  projectState = "preparing"
 	ProjectProcessing projectState = "processing"
-	ProjectFinish     projectState = "finish"
+	ProjectFinished   projectState = "finished"
 )
 
 type ProjectPlatform struct {
@@ -74,6 +74,19 @@ func NewProject(name string, description string, state ProjectState, start *time
 		EndDate:     end,
 		Platforms:   []ProjectPlatform{},
 		Designs:     []ProjectDesign{},
+	}
+}
+
+func GetProjectState(rType string) ProjectState {
+	switch rType {
+	case "preparing":
+		return ProjectPreparing
+	case "processing":
+		return ProjectProcessing
+	case "finished":
+		return ProjectFinished
+	default:
+		return ProjectPreparing
 	}
 }
 

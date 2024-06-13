@@ -61,16 +61,7 @@ func makeEntity(r *Project, m map[string]interface{}, marshal func(interface{}) 
 	}
 
 	if state, ok := m["state"].(string); ok {
-		switch state {
-		case string(ProjectPreparing):
-			r.State = ProjectPreparing
-		case string(ProjectProcessing):
-			r.State = ProjectProcessing
-		case string(ProjectFinish):
-			r.State = ProjectFinish
-		default:
-			r.State = ProjectPreparing
-		}
+		r.State = GetProjectState(state)
 	}
 
 	if value, ok := m["platforms"].(primitive.A); ok {
