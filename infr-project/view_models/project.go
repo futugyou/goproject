@@ -24,7 +24,7 @@ type UpdateProjectPlatformRequest struct {
 	PlatformId  string `json:"platform_id" validate:"required,min=3,max=50"`
 }
 
-type UpdateProjectDesignformRequest struct {
+type UpdateProjectDesignRequest struct {
 	Name        string   `json:"name" validate:"required,min=3,max=50"`
 	Description string   `json:"description" validate:"min=3,max=500"`
 	Resources   []string `json:"resources" validate:"required"`

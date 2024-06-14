@@ -120,7 +120,7 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 	return proj, nil
 }
 
-func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignformRequest) (*project.Project, error) {
+func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest) (*project.Project, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
