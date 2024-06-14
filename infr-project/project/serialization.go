@@ -109,11 +109,14 @@ func makeMap(r *Project) map[string]interface{} {
 		"name":        r.Name,
 		"description": r.Description,
 		"state":       r.State.String(),
-		"start_date":  r.StartDate.Format(time.RFC3339),
-		"end_date":    r.EndDate.Format(time.RFC3339),
 		"platforms":   r.Platforms,
 		"designs":     r.Designs,
 	}
-
+	if r.StartDate != nil {
+		m["start_date"] = r.StartDate.Format(time.RFC3339)
+	}
+	if r.EndDate != nil {
+		m["end_date"] = r.EndDate.Format(time.RFC3339)
+	}
 	return m
 }

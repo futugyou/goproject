@@ -154,7 +154,7 @@ func GetAllResource(w http.ResponseWriter, r *http.Request) {
 func handleError(w http.ResponseWriter, err error, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	w.Write([]byte(err.Error()))
+	json.NewEncoder(w).Encode(err.Error())
 }
 
 func writeJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
