@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	
+
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
 
@@ -30,6 +30,8 @@ func NewGinRoute() *gin.Engine {
 		ConfigResourceRoutes(v1)
 		// platform routes
 		ConfigPlatformRoutes(v1)
+		// project routes
+		ConfigProjectRoutes(v1)
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return router

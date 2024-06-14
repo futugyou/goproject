@@ -73,7 +73,6 @@ func createPlatform(c *gin.Context) {
 // @Tags Platform
 // @Accept json
 // @Produce json
-// @Param id path string true "Platform ID"
 // @Success 200 {array}  platform.Platform
 // @Router /platform [get]
 func getAllPlatform(c *gin.Context) {
