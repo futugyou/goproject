@@ -23,6 +23,8 @@ definitions:
       activate:
         type: boolean
       name:
+        maxLength: 50
+        minLength: 3
         type: string
       property:
         additionalProperties:
@@ -30,6 +32,54 @@ definitions:
         type: object
       state: {}
       url:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - activate
+    - name
+    - url
+    type: object
+  project.Project:
+    properties:
+      description:
+        type: string
+      designs:
+        items:
+          $ref: '#/definitions/project.ProjectDesign'
+        type: array
+      end_date:
+        type: string
+      name:
+        type: string
+      platforms:
+        items:
+          $ref: '#/definitions/project.ProjectPlatform'
+        type: array
+      start_date:
+        type: string
+      state: {}
+    type: object
+  project.ProjectDesign:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      resources:
+        description: ref resource.Resource
+        items:
+          type: string
+        type: array
+    type: object
+  project.ProjectPlatform:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      platform_id:
+        description: ref platform.Platform
         type: string
     type: object
   resource.Resource:
@@ -66,6 +116,30 @@ definitions:
     - name
     - rest
     - url
+    type: object
+  viewmodels.CreateProjectRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      end_time:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      start_time:
+        type: string
+      state:
+        enum:
+        - preparing
+        - processing
+        - finished
+        type: string
+    required:
+    - description
+    - name
     type: object
   viewmodels.CreateResourceRequest:
     properties:
@@ -129,6 +203,63 @@ definitions:
     - rest
     - url
     type: object
+  viewmodels.UpdateProjectDesignRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      resources:
+        items:
+          type: string
+        type: array
+    required:
+    - name
+    - resources
+    type: object
+  viewmodels.UpdateProjectPlatformRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      platform_id:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - platform_id
+    type: object
+  viewmodels.UpdateProjectRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      end_time:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      start_time:
+        type: string
+      state:
+        enum:
+        - preparing
+        - processing
+        - finished
+        type: string
+    type: object
   viewmodels.UpdateResourceRequest:
     properties:
       data:
@@ -145,12 +276,6 @@ paths:
       consumes:
       - application/json
       description: get all platform
-      parameters:
-      - description: Platform ID
-        in: path
-        name: id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -272,6 +397,114 @@ paths:
       summary: update platform webhook
       tags:
       - Platform
+  /project:
+    get:
+      consumes:
+      - application/json
+      description: get all project
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/project.Project'
+            type: array
+      summary: get all project
+      tags:
+      - Project
+    post:
+      consumes:
+      - application/json
+      description: create project
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create project
+      tags:
+      - Project
+  /project/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/project.Project'
+      summary: get project
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      description: update project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update project
+      tags:
+      - Project
+  /project/{id}/platform:
+    put:
+      consumes:
+      - application/json
+      description: update project platform
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/viewmodels.UpdateProjectPlatformRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update project platform
+      tags:
+      - Project
   /resource:
     get:
       consumes:
