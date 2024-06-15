@@ -26,8 +26,8 @@ func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 	if err != nil {
 		return nil, err
 	}
-	if len(ent) != 1 {
-		return nil, fmt.Errorf("something wrong in 'GetPlatformByName' sreach with name %s", name)
+	if len(ent) == 0 {
+		return nil, fmt.Errorf("no data found with name %s", name)
 	}
 	return ent[0], nil
 }
