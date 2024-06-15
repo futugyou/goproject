@@ -5,10 +5,10 @@ type Search struct {
 	Sort   map[string]int
 	Page   int
 	Size   int
-	Filter map[string]string
+	Filter map[string]interface{}
 }
 
-func NewSearch(page *int, size *int, sort map[string]int, filter map[string]string) *Search {
+func NewSearch(page *int, size *int, sort map[string]int, filter map[string]interface{}) *Search {
 	s := &Search{
 		Sort:   sort,
 		Page:   1,
