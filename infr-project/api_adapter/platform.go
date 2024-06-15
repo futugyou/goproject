@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/futugyou/infr-project/application"
+	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/platform"
 	models "github.com/futugyou/infr-project/view_models"
@@ -29,8 +29,7 @@ func CreatePlatform(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(&aux); err != nil {
+	if err := extensions.Validate.Struct(&aux); err != nil {
 		handleError(w, err, 400)
 		return
 	}
@@ -91,8 +90,7 @@ func UpdatePlatformHook(id string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(&aux); err != nil {
+	if err := extensions.Validate.Struct(&aux); err != nil {
 		handleError(w, err, 400)
 		return
 	}
@@ -119,8 +117,7 @@ func UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(&aux); err != nil {
+	if err := extensions.Validate.Struct(&aux); err != nil {
 		handleError(w, err, 400)
 		return
 	}

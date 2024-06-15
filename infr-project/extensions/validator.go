@@ -10,7 +10,7 @@ import (
 var Validate *validator.Validate
 
 func init() {
-	Validate = validator.New()
+	Validate = validator.New(validator.WithRequiredStructEnabled())
 	Validate.RegisterValidation("lenRange", validateLengthRange)
 }
 
