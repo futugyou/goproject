@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/futugyou/infr-project/core"
 	"github.com/futugyou/infr-project/domain"
 )
 
@@ -132,16 +131,4 @@ func (w *Project) RemoveDesign(name string) *Project {
 		}
 	}
 	return w
-}
-
-type ProjectService struct {
-}
-
-func NewProjectService() *ProjectService {
-	return &ProjectService{}
-}
-
-func (s *ProjectService) Get(filter core.Search) []Project {
-	result := make([]Project, 0)
-	return result
 }
