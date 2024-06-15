@@ -2,8 +2,6 @@ package domain
 
 import (
 	"context"
-
-	"github.com/futugyou/infr-project/extensions"
 )
 
 // Deprecated: IEventSourcingRepository is deprecated, use ISnapshotStore and IEventStore.
@@ -18,5 +16,4 @@ type IRepository[Aggregate IAggregateRoot] interface {
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, aggregate Aggregate) error
 	Insert(ctx context.Context, aggregate Aggregate) error
-	GetWithCondition(ctx context.Context, condition *extensions.Search) ([]Aggregate, error)
 }
