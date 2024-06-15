@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/extensions"
 )
 
 type BaseRepository[Aggregate domain.IAggregateRoot] struct {
@@ -79,31 +80,32 @@ func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggreg
 	return nil
 }
 
-func (s *BaseRepository[Aggregate]) GetAggregateByName(ctx context.Context, name string) (*Aggregate, error) {
-	a := new(Aggregate)
-	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
-
-	filter := bson.D{{Key: "name", Value: name}}
-	opts := &options.FindOneOptions{}
-	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
-		if err.Error() == "mongo: no documents in result" {
-			return nil, fmt.Errorf("data not found with name: %s", name)
-		} else {
-			return nil, err
-		}
-	}
-
-	return a, nil
-}
-
-func (s *BaseRepository[Aggregate]) GetAllAggregate(ctx context.Context) ([]Aggregate, error) {
+func (s *BaseRepository[Aggregate]) GetWithCondition(ctx context.Context, condition *extensions.Search) ([]Aggregate, error) {
 	a := new(Aggregate)
 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
 
 	result := make([]Aggregate, 0)
 
 	filter := bson.D{}
-	cursor, err := c.Find(ctx, filter)
+	op := options.Find()
+	if condition != nil {
+		for key, val := range condition.Filter {
+			filter = append(filter, bson.E{Key: key, Value: val})
+		}
+
+		var skip int64 = (int64)((condition.Page - 1) * condition.Size)
+		op.SetLimit((int64)(condition.Size)).SetSkip(skip)
+
+		sorter := bson.D{}
+		for s, v := range condition.Sort {
+			sorter = append(sorter, bson.E{Key: s, Value: v})
+		}
+		if len(sorter) > 0 {
+			op.SetSort(sorter)
+		}
+	}
+
+	cursor, err := c.Find(ctx, filter, op)
 	if err != nil {
 		return nil, err
 	}

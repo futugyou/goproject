@@ -2,9 +2,11 @@ package infrastructure_mongo
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/futugyou/infr-project/extensions"
 	"github.com/futugyou/infr-project/project"
 )
 
@@ -19,15 +21,20 @@ func NewProjectRepository(client *mongo.Client, config DBConfig) *ProjectReposit
 }
 
 func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (*project.Project, error) {
-	ent, err := s.BaseRepository.GetAggregateByName(ctx, name)
+	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	ent, err := s.BaseRepository.GetWithCondition(ctx, condition)
 	if err != nil {
 		return nil, err
 	}
-	return *ent, nil
+	if len(ent) != 1 {
+		return nil, fmt.Errorf("something wrong in 'GetProjectByName' sreach with name %s", name)
+	}
+	return ent[0], nil
 }
 
 func (s *ProjectRepository) GetAllProject(ctx context.Context) ([]project.Project, error) {
-	ent, err := s.BaseRepository.GetAllAggregate(ctx)
+	condition := extensions.NewSearch(nil, nil, nil, nil)
+	ent, err := s.BaseRepository.GetWithCondition(ctx, condition)
 	if err != nil {
 		return nil, err
 	}

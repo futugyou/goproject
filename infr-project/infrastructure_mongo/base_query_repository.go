@@ -64,24 +64,27 @@ func (s *BaseQueryRepository[Query]) GetAll(ctx context.Context) ([]Query, error
 	return querys, nil
 }
 
-func (s *BaseQueryRepository[Query]) GetWithSearch(ctx context.Context, condition extensions.Search) ([]Query, error) {
+func (s *BaseQueryRepository[Query]) GetWithCondition(ctx context.Context, condition *extensions.Search) ([]Query, error) {
 	a := new(Query)
 	c := s.Client.Database(s.DBName).Collection((*a).GetTable())
 
 	filter := bson.D{}
-	for key, val := range condition.Filter {
-		filter = append(filter, bson.E{Key: key, Value: val})
-	}
+	op := options.Find()
+	if condition != nil {
+		for key, val := range condition.Filter {
+			filter = append(filter, bson.E{Key: key, Value: val})
+		}
 
-	var skip int64 = (int64)((condition.Page - 1) * condition.Size)
-	op := options.Find().SetLimit((int64)(condition.Size)).SetSkip(skip)
+		var skip int64 = (int64)((condition.Page - 1) * condition.Size)
+		op.SetLimit((int64)(condition.Size)).SetSkip(skip)
 
-	sorter := bson.D{}
-	for s, v := range condition.Sort {
-		sorter = append(sorter, bson.E{Key: s, Value: v})
-	}
-	if len(sorter) > 0 {
-		op.SetSort(sorter)
+		sorter := bson.D{}
+		for s, v := range condition.Sort {
+			sorter = append(sorter, bson.E{Key: s, Value: v})
+		}
+		if len(sorter) > 0 {
+			op.SetSort(sorter)
+		}
 	}
 
 	cursor, err := c.Find(ctx, filter, op)

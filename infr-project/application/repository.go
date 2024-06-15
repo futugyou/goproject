@@ -10,7 +10,7 @@ import (
 type IRepository[Query models.IQuery] interface {
 	Get(ctx context.Context, id string) (*Query, error)
 	GetAll(ctx context.Context) ([]Query, error)
-	GetWithSearch(ctx context.Context, condition extensions.Search) ([]Query, error)
+	GetWithCondition(ctx context.Context, condition *extensions.Search) ([]Query, error)
 }
 
 type IPlatformRepository interface {
