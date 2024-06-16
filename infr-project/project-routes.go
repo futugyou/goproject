@@ -18,15 +18,15 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 	v1.PUT("/project/:id/design", updateProjectDesign)
 }
 
-// @Summary update project platform
-// @Description update project platform
+// @Summary update project design
+// @Description update project design
 // @Tags Project
 // @Accept json
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodels.UpdateProjectDesignRequest true "Request body"
 // @Success 200
-// @Router /project/{id}/platform [put]
+// @Router /project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
 	apiadapter.UpdateProjectDesign(c.Param("id"), c.Writer, c.Request)
 }

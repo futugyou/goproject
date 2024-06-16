@@ -558,6 +558,12 @@
                 "name": {
                     "type": "string"
                 },
+                "projects": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/platform.PlatformProject"
+                    }
+                },
                 "property": {
                     "type": "object",
                     "additionalProperties": {
@@ -566,6 +572,26 @@
                 },
                 "rest_endpoint": {
                     "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "platform.PlatformProject": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "url": {
                     "type": "string"
@@ -665,8 +691,8 @@
                 "name": {
                     "type": "string"
                 },
-                "platform_id": {
-                    "description": "ref platform.Platform",
+                "project_id": {
+                    "description": "ref platform.PlatformProject",
                     "type": "string"
                 }
             }
@@ -869,7 +895,7 @@
             "type": "object",
             "required": [
                 "name",
-                "platform_id"
+                "project_id"
             ],
             "properties": {
                 "description": {
@@ -882,7 +908,7 @@
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "platform_id": {
+                "project_id": {
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3

@@ -5,12 +5,29 @@ definitions:
         type: boolean
       name:
         type: string
+      projects:
+        additionalProperties:
+          $ref: '#/definitions/platform.PlatformProject'
+        type: object
       property:
         additionalProperties:
           type: string
         type: object
       rest_endpoint:
         type: string
+      url:
+        type: string
+    type: object
+  platform.PlatformProject:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
       url:
         type: string
       webhooks:
@@ -78,8 +95,8 @@ definitions:
         type: string
       name:
         type: string
-      platform_id:
-        description: ref platform.Platform
+      project_id:
+        description: ref platform.PlatformProject
         type: string
     type: object
   resource.Resource:
@@ -231,13 +248,13 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
-      platform_id:
+      project_id:
         maxLength: 50
         minLength: 3
         type: string
     required:
     - name
-    - platform_id
+    - project_id
     type: object
   viewmodels.UpdateProjectRequest:
     properties:

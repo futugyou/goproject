@@ -569,6 +569,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "projects": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/platform.PlatformProject"
+                    }
+                },
                 "property": {
                     "type": "object",
                     "additionalProperties": {
@@ -577,6 +583,26 @@ const docTemplate = `{
                 },
                 "rest_endpoint": {
                     "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "platform.PlatformProject": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "url": {
                     "type": "string"
@@ -676,8 +702,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "platform_id": {
-                    "description": "ref platform.Platform",
+                "project_id": {
+                    "description": "ref platform.PlatformProject",
                     "type": "string"
                 }
             }
@@ -880,7 +906,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "platform_id"
+                "project_id"
             ],
             "properties": {
                 "description": {
@@ -893,7 +919,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "platform_id": {
+                "project_id": {
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3

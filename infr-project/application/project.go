@@ -109,7 +109,7 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 		platforms = append(platforms, project.ProjectPlatform{
 			Name:        data.Name,
 			Description: data.Description,
-			PlatformId:  data.PlatformId,
+			ProjectId:   data.ProjectId,
 		})
 	}
 	proj.UpdatePlatform(platforms)

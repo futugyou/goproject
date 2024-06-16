@@ -50,8 +50,8 @@ const (
 type ProjectPlatform struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	// ref platform.Platform
-	PlatformId string `json:"platform_id"`
+	// ref platform.PlatformProject
+	ProjectId string `json:"project_id"`
 }
 
 type ProjectDesign struct {
