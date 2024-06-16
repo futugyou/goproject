@@ -77,7 +77,7 @@ func GetAllPlatform(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func UpdatePlatformHook(id string, w http.ResponseWriter, r *http.Request) {
+func UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -95,7 +95,7 @@ func UpdatePlatformHook(id string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.AddWebhook(id, aux)
+	res, err := service.AddWebhook(id, projectId, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return

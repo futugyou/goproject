@@ -61,24 +61,13 @@ func (s *PlatformService) GetPlatform(id string) (*platform.Platform, error) {
 	return *res, nil
 }
 
-func (s *PlatformService) AddWebhook(projectId string, hook platform.Webhook) (*platform.Platform, error) {
-	res, err := s.repository.GetAllPlatform(context.Background())
+func (s *PlatformService) AddWebhook(id string, projectId string, hook platform.Webhook) (*platform.Platform, error) {
+	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	var plat *platform.Platform
-	for _, p := range res {
-		if _, exists := p.Projects[projectId]; exists {
-			plat = &p
-			break
-		}
-	}
-
-	if plat == nil {
-		return nil, fmt.Errorf("projectId: %s is no existed", projectId)
-	}
-
+	plat := *res
 	plat.UpdateWebhook(projectId, hook)
 	err = s.repository.Update(context.Background(), plat)
 	if err != nil {

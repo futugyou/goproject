@@ -400,6 +400,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Request body
         in: body
         name: request
@@ -493,6 +498,33 @@ paths:
         "200":
           description: OK
       summary: update project
+      tags:
+      - Project
+  /project/{id}/design:
+    put:
+      consumes:
+      - application/json
+      description: update project design
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/viewmodels.UpdateProjectDesignRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update project design
       tags:
       - Project
   /project/{id}/platform:

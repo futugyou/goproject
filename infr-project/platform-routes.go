@@ -49,11 +49,12 @@ func updatePlatform(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
+// @Param project_id path string true "Platform Project ID"
 // @Param request body platform.Webhook true "Request body"
 // @Success 200
 // @Router /platform/{id}/hook [put]
 func updatePlatformHook(c *gin.Context) {
-	apiadapter.UpdatePlatformHook(c.Param("id"), c.Writer, c.Request)
+	apiadapter.UpdatePlatformHook(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
 // @Summary create platform

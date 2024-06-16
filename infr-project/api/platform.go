@@ -38,7 +38,8 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 
 func hookPlatform(r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.UpdatePlatformHook(id, w, r)
+	projectId := r.URL.Query().Get("project_id")
+	apiadapter.UpdatePlatformHook(id, projectId, w, r)
 }
 
 func allPlatform(r *http.Request, w http.ResponseWriter) {

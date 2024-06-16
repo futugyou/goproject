@@ -62,19 +62,15 @@ func (w *Platform) UpdateProperty(property map[string]string) *Platform {
 }
 
 func (w *Platform) UpdateWebhook(projectId string, hook Webhook) *Platform {
-	for _, project := range w.Projects {
-		if project.Id == projectId {
-			(&project).UpdateWebhook(hook)
-		}
+	if project, exists := w.Projects[projectId]; exists {
+		(&project).UpdateWebhook(hook)
 	}
 	return w
 }
 
 func (w *Platform) RemoveWebhook(projectId string, hookName string) *Platform {
-	for _, project := range w.Projects {
-		if project.Id == projectId {
-			(&project).RemoveWebhook(hookName)
-		}
+	if project, exists := w.Projects[projectId]; exists {
+		(&project).RemoveWebhook(hookName)
 	}
 	return w
 }
