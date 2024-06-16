@@ -6,6 +6,7 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
+// aggregate root
 type Platform struct {
 	domain.Aggregate `json:"-"`
 	Name             string            `json:"name"`
