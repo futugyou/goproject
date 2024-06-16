@@ -141,28 +141,33 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.Property = property
 	}
 
-	if value, ok := m["webhooks"].(primitive.A); ok {
-		var webhooks []Webhook
+	if value, ok := m["projects"].(primitive.A); ok {
+		projects := make(map[string]PlatformProject)
 		for _, item := range value {
 			jsonBytes, err := marshal(item)
 			if err != nil {
 				return fmt.Errorf("failed to marshal item: %v", err)
 			}
 
-			var webhook Webhook
-			if err := unmarshal(jsonBytes, &webhook); err != nil {
-				return fmt.Errorf("failed to unmarshal item to Webhook: %v", err)
+			var project PlatformProject
+			if err := unmarshal(jsonBytes, &project); err != nil {
+				return fmt.Errorf("failed to unmarshal item to PlatformProject: %v", err)
 			}
 
-			webhooks = append(webhooks, webhook)
+			projects[project.Id] = project
 		}
-		r.Webhooks = webhooks
+		r.Projects = projects
 	}
 
 	return nil
 }
 
 func makeMap(r *Platform) map[string]interface{} {
+	projects := make([]PlatformProject, 0, len(r.Projects))
+	for _,k := range r.Projects {
+		projects = append(projects, k)
+	}
+	
 	m := map[string]interface{}{
 		"id":           r.Id,
 		"name":         r.Name,
@@ -170,7 +175,7 @@ func makeMap(r *Platform) map[string]interface{} {
 		"url":          r.Url,
 		"restendpoint": r.RestEndpoint,
 		"property":     r.Property,
-		"webhooks":     r.Webhooks,
+		"projects":    projects,
 	}
 
 	return m

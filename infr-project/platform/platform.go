@@ -9,12 +9,12 @@ import (
 // aggregate root
 type Platform struct {
 	domain.Aggregate `json:"-"`
-	Name             string            `json:"name"`
-	Activate         bool              `json:"activate"`
-	Url              string            `json:"url"`
-	RestEndpoint     string            `json:"rest_endpoint"`
-	Property         map[string]string `json:"property"`
-	Webhooks         []Webhook         `json:"webhooks"`
+	Name             string                     `json:"name"`
+	Activate         bool                       `json:"activate"`
+	Url              string                     `json:"url"`
+	RestEndpoint     string                     `json:"rest_endpoint"`
+	Property         map[string]string          `json:"property"`
+	Projects         map[string]PlatformProject `json:"projects"`
 }
 
 func NewPlatform(name string, url string, rest string, property map[string]string) *Platform {
@@ -27,7 +27,7 @@ func NewPlatform(name string, url string, rest string, property map[string]strin
 		Url:          url,
 		RestEndpoint: rest,
 		Property:     property,
-		Webhooks:     []Webhook{},
+		Projects:     map[string]PlatformProject{},
 	}
 }
 
@@ -61,26 +61,19 @@ func (w *Platform) UpdateProperty(property map[string]string) *Platform {
 	return w
 }
 
-func (w *Platform) UpdateWebhook(hook Webhook) *Platform {
-	f := false
-	for i := 0; i < len(w.Webhooks); i++ {
-		if w.Webhooks[i].Name == hook.Name {
-			w.Webhooks[i] = hook
-			f = true
-			break
+func (w *Platform) UpdateWebhook(projectId string, hook Webhook) *Platform {
+	for _, project := range w.Projects {
+		if project.Id == projectId {
+			(&project).UpdateWebhook(hook)
 		}
-	}
-
-	if !f {
-		w.Webhooks = append(w.Webhooks, hook)
 	}
 	return w
 }
 
-func (w *Platform) RemoveWebhook(hookName string) *Platform {
-	for i := len(w.Webhooks) - 1; i >= 0; i-- {
-		if w.Webhooks[i].Name == hookName {
-			w.Webhooks = append(w.Webhooks[:i], w.Webhooks[i+1:]...)
+func (w *Platform) RemoveWebhook(projectId string, hookName string) *Platform {
+	for _, project := range w.Projects {
+		if project.Id == projectId {
+			(&project).RemoveWebhook(hookName)
 		}
 	}
 	return w
