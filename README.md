@@ -23,6 +23,11 @@
 [![OpenAI Preview](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-preview.yaml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-preview.yaml)
 [![OpenAI Production](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/openAI-vercel-production.yaml)
 
+## Infr Project Service
+
+[![Infr Project Preview](https://github.com/futugyou/goproject/actions/workflows/project-vercel-preview.yaml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/project-vercel-preview.yaml)
+[![Infr Project Production](https://github.com/futugyou/goproject/actions/workflows/project-vercel-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/project-vercel-production.yaml)
+
 ## Alphavantage Data
 
 [![Alphavantage Data](https://github.com/futugyou/goproject/actions/workflows/alphavantage-data.yml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/alphavantage-data.yml)
