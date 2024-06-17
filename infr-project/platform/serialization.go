@@ -141,7 +141,7 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.Property = property
 	}
 
-	if value, ok := m["projects"].(primitive.A); ok {
+	if value, ok := m["projects"].(map[string]interface{}); ok {
 		projects := make(map[string]PlatformProject)
 		for _, item := range value {
 			jsonBytes, err := marshal(item)
@@ -164,10 +164,10 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 
 func makeMap(r *Platform) map[string]interface{} {
 	projects := make([]PlatformProject, 0, len(r.Projects))
-	for _,k := range r.Projects {
+	for _, k := range r.Projects {
 		projects = append(projects, k)
 	}
-	
+
 	m := map[string]interface{}{
 		"id":           r.Id,
 		"name":         r.Name,
@@ -175,7 +175,7 @@ func makeMap(r *Platform) map[string]interface{} {
 		"url":          r.Url,
 		"restendpoint": r.RestEndpoint,
 		"property":     r.Property,
-		"projects":    projects,
+		"projects":     projects,
 	}
 
 	return m
