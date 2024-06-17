@@ -22,6 +22,20 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.PUT("/platform/:id/project/:project_id/hook", updatePlatformHook)
 }
 
+// @Summary update platform webhook
+// @Description update platform webhook
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param project_id path string true "Platform Project ID"
+// @Param request body viewmodels.UpdatePlatformWebhookRequest true "Request body"
+// @Success 200
+// @Router /platform/{id}/project/{project_id}/hook [put]
+func updatePlatformHook(c *gin.Context) {
+	apiadapter.UpdatePlatformHook(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+}
+
 // @Summary delete platform project
 // @Description delete platform project
 // @Tags Platform
@@ -35,14 +49,14 @@ func deletePlatformProject(c *gin.Context) {
 	apiadapter.DeletePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
-// @Summary update platform webhook
-// @Description update platform webhook
+// @Summary update platform project
+// @Description update platform project
 // @Tags Platform
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
 // @Param project_id path string true "Platform Project ID"
-// @Param request body viewmodels.UpdatePlatformWebhookRequest true "Request body"
+// @Param request body viewmodels.UpdatePlatformProjectRequest true "Request body"
 // @Success 200
 // @Router /platform/{id}/project/{project_id} [put]
 func updatePlatformProject(c *gin.Context) {
@@ -85,20 +99,6 @@ func deletePlatform(c *gin.Context) {
 // @Router /platform/{id} [put]
 func updatePlatform(c *gin.Context) {
 	apiadapter.UpdatePlatform(c.Param("id"), c.Writer, c.Request)
-}
-
-// @Summary update platform webhook
-// @Description update platform webhook
-// @Tags Platform
-// @Accept json
-// @Produce json
-// @Param id path string true "Platform ID"
-// @Param project_id path string true "Platform Project ID"
-// @Param request body viewmodels.UpdatePlatformWebhookRequest true "Request body"
-// @Success 200
-// @Router /platform/{id}/hook [put]
-func updatePlatformHook(c *gin.Context) {
-	apiadapter.UpdatePlatformHook(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
 // @Summary create platform

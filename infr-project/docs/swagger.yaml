@@ -187,6 +187,24 @@ definitions:
       updated_at:
         type: string
     type: object
+  viewmodels.UpdatePlatformProjectRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      url:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - url
+    type: object
   viewmodels.UpdatePlatformRequest:
     properties:
       activate:
@@ -408,7 +426,87 @@ paths:
       summary: update platform
       tags:
       - Platform
-  /platform/{id}/hook:
+  /platform/{id}/project:
+    post:
+      consumes:
+      - application/json
+      description: create platform webhook
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.UpdatePlatformProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create platform webhook
+      tags:
+      - Platform
+  /platform/{id}/project/{project_id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete platform project
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: delete platform project
+      tags:
+      - Platform
+    put:
+      consumes:
+      - application/json
+      description: update platform project
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.UpdatePlatformProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: update platform project
+      tags:
+      - Platform
+  /platform/{id}/project/{project_id}/hook:
     put:
       consumes:
       - application/json
