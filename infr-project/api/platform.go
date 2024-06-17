@@ -25,15 +25,38 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 		updatePlatform(r, w)
 	case "delete":
 		deletePlatform(r, w)
-	case "hook":
-		hookPlatform(r, w)
 	case "all":
 		allPlatform(r, w)
+	case "hook":
+		hookPlatform(r, w)
+	case "project":
+		createPlatformProject(r, w)
+	case "prodel":
+		deletePlatformProject(r, w)
+	case "proup":
+		updatePlatformProject(r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
 		return
 	}
+}
+
+func updatePlatformProject(r *http.Request, w http.ResponseWriter) {
+	id := r.URL.Query().Get("id")
+	projectId := r.URL.Query().Get("project_id")
+	apiadapter.CreatePlatformProject(id, projectId, w, r)
+}
+
+func deletePlatformProject(r *http.Request, w http.ResponseWriter) {
+	id := r.URL.Query().Get("id")
+	projectId := r.URL.Query().Get("project_id")
+	apiadapter.DeletePlatformProject(id, projectId, w, r)
+}
+
+func createPlatformProject(r *http.Request, w http.ResponseWriter) {
+	id := r.URL.Query().Get("id")
+	apiadapter.CreatePlatformProject(id, "", w, r)
 }
 
 func hookPlatform(r *http.Request, w http.ResponseWriter) {
