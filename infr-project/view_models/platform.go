@@ -14,3 +14,9 @@ type UpdatePlatformRequest struct {
 	Property map[string]string `json:"property,omitempty"`
 	Activate *bool             `json:"activate,omitempty"`
 }
+
+type UpdatePlatformProjectRequest struct {
+	Name     string            `json:"name" validate:"required,min=3,max=50"`
+	Url      string            `json:"url" validate:"required,min=3,max=50"`
+	Property map[string]string `json:"property,omitempty"`
+}

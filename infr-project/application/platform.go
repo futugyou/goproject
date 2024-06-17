@@ -81,6 +81,34 @@ func (s *PlatformService) DeletePlatform(id string) error {
 	return s.repository.Delete(context.Background(), id)
 }
 
+func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest) (*platform.Platform, error) {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	plat := *res
+	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, project.Property)
+	plat.UpdateProject(*proj)
+	err = s.repository.Update(context.Background(), plat)
+	if err != nil {
+		return nil, err
+	}
+
+	return plat, nil
+}
+
+func (s *PlatformService) DeleteProject(id string, projectId string) error {
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return err
+	}
+
+	plat := *res
+	plat.RemoveProject(projectId)
+	return s.repository.Update(context.Background(), plat)
+}
+
 func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest) (*platform.Platform, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
