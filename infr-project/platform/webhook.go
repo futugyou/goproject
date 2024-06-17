@@ -25,10 +25,10 @@ const (
 )
 
 type Webhook struct {
-	Name     string            `json:"name" validate:"required,min=3,max=50"`
-	Url      string            `json:"url" validate:"required,min=3,max=50"`
-	Activate bool              `json:"activate" validate:"required"`
-	State    WebhookState      `json:"state" validate:"oneof=Init Creating Ready"`
+	Name     string            `json:"name"`
+	Url      string            `json:"url"`
+	Activate bool              `json:"activate"`
+	State    WebhookState      `json:"state"`
 	Property map[string]string `json:"property"`
 }
 
@@ -39,5 +39,18 @@ func NewWebhook(name string, url string, property map[string]string) *Webhook {
 		Activate: true,
 		State:    WebhookInit,
 		Property: property,
+	}
+}
+
+func GetWebhookState(rType string) WebhookState {
+	switch rType {
+	case "Init":
+		return WebhookInit
+	case "Creating":
+		return WebhookCreating
+	case "Ready":
+		return WebhookReady
+	default:
+		return WebhookInit
 	}
 }

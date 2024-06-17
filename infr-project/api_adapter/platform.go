@@ -12,7 +12,6 @@ import (
 	"github.com/futugyou/infr-project/application"
 	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	"github.com/futugyou/infr-project/platform"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -84,7 +83,7 @@ func UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *h
 		return
 	}
 
-	var aux platform.Webhook
+	var aux models.UpdatePlatformWebhookRequest
 	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
 		handleError(w, err, 400)
 		return

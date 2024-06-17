@@ -61,14 +61,17 @@ func (s *PlatformService) GetPlatform(id string) (*platform.Platform, error) {
 	return *res, nil
 }
 
-func (s *PlatformService) AddWebhook(id string, projectId string, hook platform.Webhook) (*platform.Platform, error) {
+func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest) (*platform.Platform, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
 	plat := *res
-	plat.UpdateWebhook(projectId, hook)
+	newhook := platform.NewWebhook(hook.Name, hook.Url, hook.Property)
+	newhook.Activate = hook.Activate
+	newhook.State = platform.GetWebhookState(hook.State)
+	plat.UpdateWebhook(projectId, *newhook)
 	err = s.repository.Update(context.Background(), plat)
 	if err != nil {
 		return nil, err
