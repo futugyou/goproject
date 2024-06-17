@@ -15,6 +15,50 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
+func DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+	service, err := createPlatformService()
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	err = service.DeleteProject(id, projectId)
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, "ok", 200)
+}
+
+func CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+	service, err := createPlatformService()
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	var aux models.UpdatePlatformProjectRequest
+	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	if err := extensions.Validate.Struct(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	res, err := service.AddProject(id, projectId, aux)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
+}
+
 func CreatePlatform(w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {

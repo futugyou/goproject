@@ -10,12 +10,56 @@ import (
 )
 
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
-	v1.POST("/platform", createPlatform)
-	v1.GET("/platform/:id", getPlatform)
 	v1.GET("/platform", getAllPlatform)
-	v1.PUT("/platform/:id/hook", updatePlatformHook)
+	v1.GET("/platform/:id", getPlatform)
+	v1.POST("/platform", createPlatform)
 	v1.PUT("/platform/:id", updatePlatform)
 	v1.DELETE("/platform/:id", deletePlatform)
+	// platform project
+	v1.POST("/platform/:id/project", createPlatformProject)
+	v1.PUT("/platform/:id/project/:project_id", updatePlatformProject)
+	v1.DELETE("/platform/:id/project/:project_id", deletePlatformProject)
+	v1.PUT("/platform/:id/project/:project_id/hook", updatePlatformHook)
+}
+
+// @Summary delete platform project
+// @Description delete platform project
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param project_id path string true "Platform Project ID"
+// @Success 200 {string} string "ok"
+// @Router /platform/{id}/project/{project_id} [delete]
+func deletePlatformProject(c *gin.Context) {
+	apiadapter.DeletePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+}
+
+// @Summary update platform webhook
+// @Description update platform webhook
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param project_id path string true "Platform Project ID"
+// @Param request body viewmodels.UpdatePlatformWebhookRequest true "Request body"
+// @Success 200
+// @Router /platform/{id}/project/{project_id} [put]
+func updatePlatformProject(c *gin.Context) {
+	apiadapter.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+}
+
+// @Summary create platform webhook
+// @Description create platform webhook
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param request body viewmodels.UpdatePlatformProjectRequest true "Request body"
+// @Success 200
+// @Router /platform/{id}/project [post]
+func createPlatformProject(c *gin.Context) {
+	apiadapter.CreatePlatformProject(c.Param("id"), "", c.Writer, c.Request)
 }
 
 // @Summary delete platform

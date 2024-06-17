@@ -68,6 +68,10 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	}
 
 	plat := *res
+	if _, exists := plat.Projects[projectId]; !exists {
+		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
+	}
+
 	newhook := platform.NewWebhook(hook.Name, hook.Url, hook.Property)
 	newhook.Activate = hook.Activate
 	newhook.State = platform.GetWebhookState(hook.State)
@@ -88,6 +92,10 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(projectId) == 0 {
+		projectId = project.Name
 	}
 
 	plat := *res
