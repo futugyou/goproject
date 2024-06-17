@@ -202,7 +202,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/platform.Webhook"
+                            "$ref": "#/definitions/viewmodels.UpdatePlatformWebhookRequest"
                         }
                     }
                 ],
@@ -665,19 +665,12 @@ const docTemplate = `{
         },
         "platform.Webhook": {
             "type": "object",
-            "required": [
-                "activate",
-                "name",
-                "url"
-            ],
             "properties": {
                 "activate": {
                     "type": "boolean"
                 },
                 "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
+                    "type": "string"
                 },
                 "property": {
                     "type": "object",
@@ -687,9 +680,7 @@ const docTemplate = `{
                 },
                 "state": {},
                 "url": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
+                    "type": "string"
                 }
             }
         },
@@ -917,6 +908,43 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "url": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
+        "viewmodels.UpdatePlatformWebhookRequest": {
+            "type": "object",
+            "required": [
+                "activate",
+                "name",
+                "url"
+            ],
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "Init",
+                        "Creating",
+                        "Ready"
+                    ]
                 },
                 "url": {
                     "type": "string",

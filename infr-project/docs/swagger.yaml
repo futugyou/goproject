@@ -40,8 +40,6 @@ definitions:
       activate:
         type: boolean
       name:
-        maxLength: 50
-        minLength: 3
         type: string
       property:
         additionalProperties:
@@ -49,13 +47,7 @@ definitions:
         type: object
       state: {}
       url:
-        maxLength: 50
-        minLength: 3
         type: string
-    required:
-    - activate
-    - name
-    - url
     type: object
   project.Project:
     properties:
@@ -218,6 +210,33 @@ definitions:
     required:
     - name
     - rest
+    - url
+    type: object
+  viewmodels.UpdatePlatformWebhookRequest:
+    properties:
+      activate:
+        type: boolean
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      state:
+        enum:
+        - Init
+        - Creating
+        - Ready
+        type: string
+      url:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - activate
+    - name
     - url
     type: object
   viewmodels.UpdateProjectDesignRequest:
@@ -410,7 +429,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/platform.Webhook'
+          $ref: '#/definitions/viewmodels.UpdatePlatformWebhookRequest'
       produces:
       - application/json
       responses:
