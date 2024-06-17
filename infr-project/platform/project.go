@@ -19,6 +19,21 @@ func NewPlatformProject(id string, name string, url string, property map[string]
 	}
 }
 
+func (w *PlatformProject) UpdateName(name string) *PlatformProject {
+	w.Name = name
+	return w
+}
+
+func (w *PlatformProject) UpdateUrl(url string) *PlatformProject {
+	w.Url = url
+	return w
+}
+
+func (w *PlatformProject) UpdateProperty(property map[string]string) *PlatformProject {
+	w.Property = property
+	return w
+}
+
 func (w *PlatformProject) UpdateWebhook(hook Webhook) {
 	f := false
 	for i := 0; i < len(w.Webhooks); i++ {
