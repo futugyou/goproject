@@ -25,20 +25,20 @@ func NewPlatformService(
 	}
 }
 
-func (s *PlatformService) CreatePlatform(name string, url string, rest string, property map[string]string) (*platform.Platform, error) {
+func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest) (*platform.Platform, error) {
 	var res *platform.Platform
 	ctx := context.Background()
-	res, err := s.repository.GetPlatformByName(ctx, name)
+	res, err := s.repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 		return nil, err
 	}
 
-	if res != nil && res.Name == name {
-		return nil, fmt.Errorf("name: %s is existed", name)
+	if res != nil && res.Name == aux.Name {
+		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	}
 
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(name, url, rest, property)
+		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, aux.Property, aux.Tags)
 		return s.repository.Insert(ctx, res)
 	})
 	if err != nil {
@@ -127,15 +127,10 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 	}
 
 	plat := *res
-	if len(data.Name) > 0 {
-		plat.UpdateName(data.Name)
-	}
-	if len(data.Url) > 0 {
-		plat.UpdateUrl(data.Url)
-	}
-	if len(data.Rest) > 0 {
-		plat.UpdateRestEndpoint(data.Rest)
-	}
+	plat.UpdateName(data.Name)
+	plat.UpdateUrl(data.Url)
+	plat.UpdateRestEndpoint(data.Rest)
+	plat.UpdateTags(data.Tags)
 	if data.Activate != nil {
 		if *data.Activate {
 			plat.Enable()

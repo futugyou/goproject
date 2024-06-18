@@ -127,6 +127,10 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.Url = value
 	}
 
+	if value, ok := m["tags"].([]string); ok {
+		r.Tags = value
+	}
+
 	if value, ok := m["restendpoint"].(string); ok {
 		r.RestEndpoint = value
 	}
@@ -176,6 +180,7 @@ func makeMap(r *Platform) map[string]interface{} {
 		"restendpoint": r.RestEndpoint,
 		"property":     r.Property,
 		"projects":     projects,
+		"tags":         r.Tags,
 	}
 
 	return m

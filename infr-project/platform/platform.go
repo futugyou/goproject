@@ -15,9 +15,10 @@ type Platform struct {
 	RestEndpoint     string                     `json:"rest_endpoint"`
 	Property         map[string]string          `json:"property"`
 	Projects         map[string]PlatformProject `json:"projects"`
+	Tags             []string                   `json:"tags"`
 }
 
-func NewPlatform(name string, url string, rest string, property map[string]string) *Platform {
+func NewPlatform(name string, url string, rest string, property map[string]string, tags []string) *Platform {
 	return &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
@@ -28,6 +29,7 @@ func NewPlatform(name string, url string, rest string, property map[string]strin
 		RestEndpoint: rest,
 		Property:     property,
 		Projects:     map[string]PlatformProject{},
+		Tags:         tags,
 	}
 }
 
@@ -53,6 +55,11 @@ func (w *Platform) UpdateUrl(url string) *Platform {
 
 func (w *Platform) UpdateRestEndpoint(url string) *Platform {
 	w.RestEndpoint = url
+	return w
+}
+
+func (w *Platform) UpdateTags(tags []string) *Platform {
+	w.Tags = tags
 	return w
 }
 

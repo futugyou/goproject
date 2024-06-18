@@ -77,7 +77,7 @@ func CreatePlatform(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.CreatePlatform(aux.Name, aux.Url, aux.Rest, aux.Property)
+	res, err := service.CreatePlatform(aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return
