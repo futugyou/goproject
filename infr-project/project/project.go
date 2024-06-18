@@ -17,6 +17,7 @@ type Project struct {
 	EndDate          *time.Time        `json:"end_date"`
 	Platforms        []ProjectPlatform `json:"platforms"`
 	Designs          []ProjectDesign   `json:"designs"`
+	Tags             []string          `json:"tags"`
 }
 
 func (r *Project) AggregateName() string {
@@ -61,7 +62,7 @@ type ProjectDesign struct {
 	Resources []string `json:"resources"`
 }
 
-func NewProject(name string, description string, state ProjectState, start *time.Time, end *time.Time) *Project {
+func NewProject(name string, description string, state ProjectState, start *time.Time, end *time.Time, tags []string) *Project {
 	return &Project{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
@@ -73,6 +74,7 @@ func NewProject(name string, description string, state ProjectState, start *time
 		EndDate:     end,
 		Platforms:   []ProjectPlatform{},
 		Designs:     []ProjectDesign{},
+		Tags:        tags,
 	}
 }
 

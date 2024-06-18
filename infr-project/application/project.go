@@ -39,7 +39,7 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest) (*pr
 
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = project.NewProject(request.Name, request.Description,
-			project.GetProjectState(*request.ProjectState), request.StartTime, request.EndTime)
+			project.GetProjectState(*request.ProjectState), request.StartTime, request.EndTime, request.Tags)
 		return s.repository.Insert(ctx, res)
 	})
 	if err != nil {

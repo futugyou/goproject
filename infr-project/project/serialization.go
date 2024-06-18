@@ -48,6 +48,10 @@ func makeEntity(r *Project, m map[string]interface{}, marshal func(interface{}) 
 		r.Description = value
 	}
 
+	if value, ok := m["tags"].([]string); ok {
+		r.Tags = value
+	}
+
 	if value, ok := m["start_date"].(string); ok {
 		if t, err := time.Parse(time.RFC3339, value); err == nil {
 			r.StartDate = &t
@@ -111,6 +115,7 @@ func makeMap(r *Project) map[string]interface{} {
 		"state":       r.State.String(),
 		"platforms":   r.Platforms,
 		"designs":     r.Designs,
+		"tags":        r.Tags,
 	}
 	if r.StartDate != nil {
 		m["start_date"] = r.StartDate.Format(time.RFC3339)
