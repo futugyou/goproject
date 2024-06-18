@@ -741,6 +741,12 @@
                 "rest_endpoint": {
                     "type": "string"
                 },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "url": {
                     "type": "string"
                 }
@@ -904,6 +910,12 @@
                     "maxLength": 50,
                     "minLength": 3
                 },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "url": {
                     "type": "string",
                     "maxLength": 50,
@@ -1054,6 +1066,12 @@
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "url": {
                     "type": "string",
