@@ -116,6 +116,11 @@ func (s *Project) ChangeEndDate(end *time.Time) *Project {
 	return s
 }
 
+func (s *Project) ChangeTags(tags []string) *Project {
+	s.Tags = tags
+	return s
+}
+
 func (w *Project) UpdatePlatform(platforms []ProjectPlatform) *Project {
 	w.Platforms = platforms
 	return w

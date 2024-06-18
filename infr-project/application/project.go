@@ -39,7 +39,7 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest) (*pr
 
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = project.NewProject(request.Name, request.Description,
-			project.GetProjectState(*request.ProjectState), request.StartTime, request.EndTime, request.Tags)
+			project.GetProjectState(request.ProjectState), request.StartTime, request.EndTime, request.Tags)
 		return s.repository.Insert(ctx, res)
 	})
 	if err != nil {
@@ -69,18 +69,10 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 	}
 
 	proj := *res
-	if len(*data.Name) > 0 {
-		proj.ChangeName(*data.Name)
-	}
-
-	if len(*data.Description) > 0 {
-		proj.ChangeDescription(*data.Description)
-	}
-
-	if len(*data.ProjectState) > 0 {
-		s := project.GetProjectState(*data.ProjectState)
-		proj.ChangeProjectState(s)
-	}
+	proj.ChangeName(data.Name)
+	proj.ChangeDescription(data.Description)
+	sta := project.GetProjectState(data.ProjectState)
+	proj.ChangeProjectState(sta)
 
 	if data.StartTime != nil {
 		proj.ChangeStartDate(*data.StartTime)
@@ -90,6 +82,7 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 		proj.ChangeEndDate(data.EndTime)
 	}
 
+	proj.ChangeTags(data.Tags)
 	err = s.repository.Update(context.Background(), proj)
 	if err != nil {
 		return nil, err
