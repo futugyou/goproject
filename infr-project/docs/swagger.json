@@ -820,7 +820,13 @@
                 "start_date": {
                     "type": "string"
                 },
-                "state": {}
+                "state": {},
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
             }
         },
         "project.ProjectDesign": {
@@ -935,6 +941,12 @@
                         "processing",
                         "finished"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1162,6 +1174,12 @@
                         "processing",
                         "finished"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

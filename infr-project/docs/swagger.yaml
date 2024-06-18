@@ -68,6 +68,10 @@ definitions:
       start_date:
         type: string
       state: {}
+      tags:
+        items:
+          type: string
+        type: array
     type: object
   project.ProjectDesign:
     properties:
@@ -146,6 +150,10 @@ definitions:
         - processing
         - finished
         type: string
+      tags:
+        items:
+          type: string
+        type: array
     required:
     - description
     - name
@@ -313,6 +321,10 @@ definitions:
         - processing
         - finished
         type: string
+      tags:
+        items:
+          type: string
+        type: array
     type: object
   viewmodels.UpdateResourceRequest:
     properties:

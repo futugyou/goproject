@@ -831,7 +831,13 @@ const docTemplate = `{
                 "start_date": {
                     "type": "string"
                 },
-                "state": {}
+                "state": {},
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
             }
         },
         "project.ProjectDesign": {
@@ -946,6 +952,12 @@ const docTemplate = `{
                         "processing",
                         "finished"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1173,6 +1185,12 @@ const docTemplate = `{
                         "processing",
                         "finished"
                     ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
