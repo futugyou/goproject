@@ -3,9 +3,10 @@ package viewmodels
 import "time"
 
 type CreateResourceRequest struct {
-	Name string `json:"name" validate:"required,min=3,max=50"`
-	Type string `json:"type" validate:"oneof=DrawIO Markdown Excalidraw Plate"`
-	Data string `json:"data" validate:"required,min=3"`
+	Name string   `json:"name" validate:"required,min=3,max=50"`
+	Type string   `json:"type" validate:"oneof=DrawIO Markdown Excalidraw Plate"`
+	Data string   `json:"data" validate:"required,min=3"`
+	Tags []string `json:"tags"`
 }
 
 type UpdateResourceRequest struct {

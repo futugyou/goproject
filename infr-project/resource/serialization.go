@@ -81,6 +81,10 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 		r.Name = name
 	}
 
+	if value, ok := m["tags"].([]string); ok {
+		r.Tags = value
+	}
+
 	if v, ok := m["version"]; ok {
 		switch version := v.(type) {
 		case int:
@@ -117,6 +121,7 @@ func makeMap(r *Resource) map[string]interface{} {
 		"name":       r.Name,
 		"version":    r.Version,
 		"data":       r.Data,
+		"tags":       r.Tags,
 		"created_at": r.CreatedAt.Format(time.RFC3339),
 	}
 	if r.Type != nil {

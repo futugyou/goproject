@@ -15,6 +15,7 @@ type Resource struct {
 	Name                              string       `json:"name"`
 	Type                              ResourceType `json:"type"`
 	Data                              string       `json:"data"`
+	Tags                              []string     `json:"tags"`
 	IsDelete                          bool         `json:"is_deleted"`
 	CreatedAt                         time.Time    `json:"created_at"`
 }
@@ -59,7 +60,7 @@ func GetResourceType(rType string) ResourceType {
 	}
 }
 
-func NewResource(name string, resourceType ResourceType, data string) *Resource {
+func NewResource(name string, resourceType ResourceType, data string, tags []string) *Resource {
 	r := &Resource{
 		AggregateWithEventSourcing: domain.AggregateWithEventSourcing{
 			Aggregate: domain.Aggregate{
@@ -70,6 +71,7 @@ func NewResource(name string, resourceType ResourceType, data string) *Resource 
 		Name:      name,
 		Type:      resourceType,
 		Data:      data,
+		Tags:      tags,
 		CreatedAt: time.Now().UTC(),
 	}
 	r.createCreatedEvent()
@@ -118,6 +120,17 @@ func (r *Resource) ChangeData(data string) (*Resource, error) {
 	return r, nil
 }
 
+func (r *Resource) ChangeTags(tags []string) (*Resource, error) {
+	if err := r.stateCheck(); err != nil {
+		return r, err
+	}
+	r.Version = r.Version + 1
+	r.CreatedAt = time.Now().UTC()
+	r.Tags = tags
+	r.createUpdatedEvent()
+	return r, nil
+}
+
 func (r *Resource) DeleteResource() (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err
@@ -141,12 +154,14 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 		r.Version = e.Version()
 		r.CreatedAt = e.CreatedAt
 		r.Data = e.Data
+		r.Tags = e.Tags
 	case *ResourceUpdatedEvent:
 		r.Id = e.Id
 		r.Name = e.Name
 		r.Type = GetResourceType(e.Type)
 		r.Version = e.Version()
 		r.Data = e.Data
+		r.Tags = e.Tags
 	case *ResourceDeletedEvent:
 		r.IsDelete = true
 	}
@@ -166,6 +181,7 @@ func (r *Resource) createCreatedEvent() {
 		Name: r.Name,
 		Type: r.Type.String(),
 		Data: r.Data,
+		Tags: r.Tags,
 	}
 
 	r.AddDomainEvent(event)
@@ -183,6 +199,7 @@ func (r *Resource) createUpdatedEvent() {
 		Name: r.Name,
 		Type: r.Type.String(),
 		Data: r.Data,
+		Tags: r.Tags,
 	}
 	r.AddDomainEvent(event)
 }

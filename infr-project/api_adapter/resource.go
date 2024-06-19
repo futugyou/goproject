@@ -97,8 +97,7 @@ func CreateResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resourceType := resource.GetResourceType(aux.Type)
-	res, err := service.CreateResource(aux.Name, resourceType, aux.Data)
+	res, err := service.CreateResource(aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return

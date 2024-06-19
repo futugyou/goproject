@@ -16,9 +16,10 @@ type ResourceEvent struct {
 
 type ResourceCreatedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string `bson:"name" json:"name"`
-	Type          string `bson:"type" json:"type"`
-	Data          string `bson:"data" json:"data"`
+	Name          string   `bson:"name" json:"name"`
+	Type          string   `bson:"type" json:"type"`
+	Data          string   `bson:"data" json:"data"`
+	Tags          []string `bson:"tags" json:"tags"`
 }
 
 func (e ResourceCreatedEvent) EventType() string {
@@ -27,9 +28,10 @@ func (e ResourceCreatedEvent) EventType() string {
 
 type ResourceUpdatedEvent struct {
 	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string `bson:"name" json:"name"`
-	Type          string `bson:"type" json:"type"`
-	Data          string `bson:"data" json:"data"`
+	Name          string   `bson:"name" json:"name"`
+	Type          string   `bson:"type" json:"type"`
+	Data          string   `bson:"data" json:"data"`
+	Tags          []string `bson:"tags" json:"tags"`
 }
 
 func (e ResourceUpdatedEvent) EventType() string {

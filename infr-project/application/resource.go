@@ -7,6 +7,7 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 type ResourceService struct {
@@ -37,10 +38,11 @@ func NewResourceService(
 // 	return *res, nil
 // }
 
-func (s *ResourceService) CreateResource(name string, resourceType resource.ResourceType, data string) (*resource.Resource, error) {
+func (s *ResourceService) CreateResource(aux models.CreateResourceRequest) (*resource.Resource, error) {
 	var res *resource.Resource
+	resourceType := resource.GetResourceType(aux.Type)
 	err := s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
-		res = resource.NewResource(name, resourceType, data)
+		res = resource.NewResource(aux.Name, resourceType, aux.Data, aux.Tags)
 		return s.service.SaveSnapshotAndEvent(ctx, res)
 	})
 	if err != nil {
