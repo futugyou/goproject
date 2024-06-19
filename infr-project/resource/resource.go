@@ -53,7 +53,7 @@ func (r *Resource) ChangeName(name string) (*Resource, error) {
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Name = name
-	r.createUpdatedEvent()
+	r.createNameChangedEvent()
 	return r, nil
 }
 
@@ -65,7 +65,7 @@ func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource
 	r.CreatedAt = time.Now().UTC()
 	r.Type = resourceType
 	r.Data = data
-	r.createUpdatedEvent()
+	r.createTypeChangedEvent()
 	return r, nil
 }
 
@@ -76,7 +76,7 @@ func (r *Resource) ChangeData(data string) (*Resource, error) {
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Data = data
-	r.createUpdatedEvent()
+	r.createDataChangedEvent()
 	return r, nil
 }
 
@@ -87,7 +87,7 @@ func (r *Resource) ChangeTags(tags []string) (*Resource, error) {
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Tags = tags
-	r.createUpdatedEvent()
+	r.createTagsChangedEvent()
 	return r, nil
 }
 
@@ -109,10 +109,10 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 	switch e := event.(type) {
 	case *ResourceCreatedEvent:
 		r.Id = e.Id
-		r.Name = e.Name
-		r.Type = GetResourceType(e.Type)
 		r.Version = e.Version()
 		r.CreatedAt = e.CreatedAt
+		r.Name = e.Name
+		r.Type = GetResourceType(e.Type)
 		r.Data = e.Data
 		r.Tags = e.Tags
 	case *ResourceUpdatedEvent:
@@ -122,7 +122,25 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 		r.Version = e.Version()
 		r.Data = e.Data
 		r.Tags = e.Tags
+	case *ResourceNameChangedEvent:
+		r.Id = e.Id
+		r.Version = e.Version()
+		r.Name = e.Name
+	case *ResourceDataChangedEvent:
+		r.Id = e.Id
+		r.Version = e.Version()
+		r.Data = e.Data
+	case *ResourceTagsChangedEvent:
+		r.Id = e.Id
+		r.Version = e.Version()
+		r.Tags = e.Tags
+	case *ResourceTypeChangedEvent:
+		r.Id = e.Id
+		r.Type = GetResourceType(e.Type)
+		r.Version = e.Version()
 	case *ResourceDeletedEvent:
+		r.Id = e.Id
+		r.Version = e.Version()
 		r.IsDelete = true
 	}
 
@@ -173,6 +191,62 @@ func (r *Resource) createDeletedEvent() {
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
+	}
+	r.AddDomainEvent(event)
+}
+
+func (r *Resource) createNameChangedEvent() {
+	event := ResourceNameChangedEvent{
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+				CreatedAt:       time.Now().UTC(),
+			},
+		},
+		Name: r.Name,
+	}
+	r.AddDomainEvent(event)
+}
+
+func (r *Resource) createDataChangedEvent() {
+	event := ResourceDataChangedEvent{
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+				CreatedAt:       time.Now().UTC(),
+			},
+		},
+		Data: r.Data,
+	}
+	r.AddDomainEvent(event)
+}
+
+func (r *Resource) createTagsChangedEvent() {
+	event := ResourceTagsChangedEvent{
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+				CreatedAt:       time.Now().UTC(),
+			},
+		},
+		Tags: r.Tags,
+	}
+	r.AddDomainEvent(event)
+}
+
+func (r *Resource) createTypeChangedEvent() {
+	event := ResourceTypeChangedEvent{
+		ResourceEvent: ResourceEvent{
+			DomainEvent: domain.DomainEvent{
+				Id:              r.Id,
+				ResourceVersion: r.Version,
+				CreatedAt:       time.Now().UTC(),
+			},
+		},
+		Type: r.Type.String(),
 	}
 	r.AddDomainEvent(event)
 }

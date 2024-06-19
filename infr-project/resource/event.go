@@ -46,6 +46,42 @@ func (e ResourceDeletedEvent) EventType() string {
 	return "ResourceDeleted"
 }
 
+type ResourceNameChangedEvent struct {
+	ResourceEvent `bson:",inline" json:",inline"`
+	Name          string `bson:"name" json:"name"`
+}
+
+func (e ResourceNameChangedEvent) EventType() string {
+	return "ResourceNameChanged"
+}
+
+type ResourceDataChangedEvent struct {
+	ResourceEvent `bson:",inline" json:",inline"`
+	Data          string `bson:"data" json:"data"`
+}
+
+func (e ResourceDataChangedEvent) EventType() string {
+	return "ResourceDataChanged"
+}
+
+type ResourceTagsChangedEvent struct {
+	ResourceEvent `bson:",inline" json:",inline"`
+	Tags          []string `bson:"tags" json:"tags"`
+}
+
+func (e ResourceTagsChangedEvent) EventType() string {
+	return "ResourceTagsChanged"
+}
+
+type ResourceTypeChangedEvent struct {
+	ResourceEvent `bson:",inline" json:",inline"`
+	Type          string `bson:"type" json:"type"`
+}
+
+func (e ResourceTypeChangedEvent) EventType() string {
+	return "ResourceTypeChanged"
+}
+
 func CreateEvent(eventType string) (IResourceEvent, error) {
 	switch eventType {
 	case "ResourceCreated":
@@ -54,6 +90,14 @@ func CreateEvent(eventType string) (IResourceEvent, error) {
 		return &ResourceUpdatedEvent{}, nil
 	case "ResourceDeleted":
 		return &ResourceDeletedEvent{}, nil
+	case "ResourceNameChanged":
+		return &ResourceNameChangedEvent{}, nil
+	case "ResourceDataChanged":
+		return &ResourceDataChangedEvent{}, nil
+	case "ResourceTagsChanged":
+		return &ResourceTagsChangedEvent{}, nil
+	case "ResourceTypeChanged":
+		return &ResourceTypeChangedEvent{}, nil
 	default:
 		return nil, fmt.Errorf("unknown event type: %s", eventType)
 	}
