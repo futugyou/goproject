@@ -34,7 +34,9 @@ func NewResource(name string, resourceType ResourceType, data string, tags []str
 		Tags:      tags,
 		CreatedAt: time.Now().UTC(),
 	}
-	r.createCreatedEvent()
+
+	event := NewResourceCreatedEvent(r)
+	r.AddDomainEvent(event)
 	return r
 }
 
@@ -50,10 +52,13 @@ func (r *Resource) ChangeName(name string) (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err
 	}
+
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Name = name
-	r.createNameChangedEvent()
+
+	event := NewResourceNameChangedEvent(r)
+	r.AddDomainEvent(event)
 	return r, nil
 }
 
@@ -61,11 +66,14 @@ func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource
 	if err := r.stateCheck(); err != nil {
 		return r, err
 	}
+
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Type = resourceType
 	r.Data = data
-	r.createTypeChangedEvent()
+
+	event := NewResourceTypeChangedEvent(r)
+	r.AddDomainEvent(event)
 	return r, nil
 }
 
@@ -73,10 +81,13 @@ func (r *Resource) ChangeData(data string) (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err
 	}
+
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Data = data
-	r.createDataChangedEvent()
+
+	event := NewResourceDataChangedEvent(r)
+	r.AddDomainEvent(event)
 	return r, nil
 }
 
@@ -84,10 +95,13 @@ func (r *Resource) ChangeTags(tags []string) (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err
 	}
+
 	r.Version = r.Version + 1
 	r.CreatedAt = time.Now().UTC()
 	r.Tags = tags
-	r.createTagsChangedEvent()
+
+	event := NewResourceTagsChangedEvent(r)
+	r.AddDomainEvent(event)
 	return r, nil
 }
 
@@ -95,9 +109,12 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err
 	}
+
 	r.Version = r.Version + 1
 	r.IsDelete = true
-	r.createDeletedEvent()
+
+	event := NewResourceDeletedEvent(r)
+	r.AddDomainEvent(event)
 	return r, nil
 }
 
@@ -145,108 +162,4 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 	}
 
 	return errors.New("event type not supported")
-}
-
-func (r *Resource) createCreatedEvent() {
-	event := ResourceCreatedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       r.CreatedAt,
-			},
-		},
-		Name: r.Name,
-		Type: r.Type.String(),
-		Data: r.Data,
-		Tags: r.Tags,
-	}
-
-	r.AddDomainEvent(event)
-}
-
-func (r *Resource) createUpdatedEvent() {
-	event := ResourceUpdatedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       time.Now().UTC(),
-			},
-		},
-		Name: r.Name,
-		Type: r.Type.String(),
-		Data: r.Data,
-		Tags: r.Tags,
-	}
-	r.AddDomainEvent(event)
-}
-
-func (r *Resource) createDeletedEvent() {
-	event := ResourceDeletedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       time.Now().UTC(),
-			},
-		},
-	}
-	r.AddDomainEvent(event)
-}
-
-func (r *Resource) createNameChangedEvent() {
-	event := ResourceNameChangedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       time.Now().UTC(),
-			},
-		},
-		Name: r.Name,
-	}
-	r.AddDomainEvent(event)
-}
-
-func (r *Resource) createDataChangedEvent() {
-	event := ResourceDataChangedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       time.Now().UTC(),
-			},
-		},
-		Data: r.Data,
-	}
-	r.AddDomainEvent(event)
-}
-
-func (r *Resource) createTagsChangedEvent() {
-	event := ResourceTagsChangedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       time.Now().UTC(),
-			},
-		},
-		Tags: r.Tags,
-	}
-	r.AddDomainEvent(event)
-}
-
-func (r *Resource) createTypeChangedEvent() {
-	event := ResourceTypeChangedEvent{
-		ResourceEvent: ResourceEvent{
-			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       time.Now().UTC(),
-			},
-		},
-		Type: r.Type.String(),
-	}
-	r.AddDomainEvent(event)
 }
