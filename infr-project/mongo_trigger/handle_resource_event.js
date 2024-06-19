@@ -24,6 +24,7 @@ exports = async function (changeEvent) {
     if ('data' in resourceChangeEvent) updateFields.data = resourceChangeEvent.data;
     if ('name' in resourceChangeEvent) updateFields.name = resourceChangeEvent.name;
     if ('created_at' in resourceChangeEvent) updateFields.updated_at = resourceChangeEvent.created_at;
+    if ('tags' in resourceChangeEvent) updateFields.tags = resourceChangeEvent.tags;
     updateFields.is_deleted = resourceChangeEvent.is_deleted ?? false;
 
     try {
@@ -111,10 +112,10 @@ async function initializeResourceQueryCollection() {
                 if ('version' in latestEvent) resourceQuery.version = latestEvent.version;
                 if ('type' in latestEvent) resourceQuery.type = latestEvent.type;
                 if ('data' in latestEvent) resourceQuery.data = latestEvent.data;
+                if ('tags' in latestEvent) resourceQuery.tags = latestEvent.tags;
                 if ('created_at' in firstEvent) resourceQuery.created_at = firstEvent.created_at;
-                resourceQuery.is_deleted = is_deleted;
-
                 if ('created_at' in latestEvent) resourceQuery.updated_at = latestEvent.created_at;
+                resourceQuery.is_deleted = is_deleted;
 
                 // Upsert the document in ResourceQuery collection
                 await resourceQueryCollection.updateOne(
