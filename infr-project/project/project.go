@@ -24,44 +24,6 @@ func (r *Project) AggregateName() string {
 	return "projects"
 }
 
-// ProjectState is the interface for webhook states.
-type ProjectState interface {
-	privateProjectState() // Prevents external implementation
-	String() string
-}
-
-// projectState is the underlying implementation for ProjectState.
-type projectState string
-
-// privateWebhookState makes webhookState implement ProjectState.
-func (c projectState) privateProjectState() {}
-
-// String makes webhookState implement WebhookState.
-func (c projectState) String() string {
-	return string(c)
-}
-
-// Constants for the different webhook states.
-const (
-	ProjectPreparing  projectState = "preparing"
-	ProjectProcessing projectState = "processing"
-	ProjectFinished   projectState = "finished"
-)
-
-type ProjectPlatform struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	// ref platform.PlatformProject
-	ProjectId string `json:"project_id"`
-}
-
-type ProjectDesign struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	// ref resource.Resource
-	Resources []string `json:"resources"`
-}
-
 func NewProject(name string, description string, state ProjectState, start *time.Time, end *time.Time, tags []string) *Project {
 	return &Project{
 		Aggregate: domain.Aggregate{
@@ -75,19 +37,6 @@ func NewProject(name string, description string, state ProjectState, start *time
 		Platforms:   []ProjectPlatform{},
 		Designs:     []ProjectDesign{},
 		Tags:        tags,
-	}
-}
-
-func GetProjectState(rType string) ProjectState {
-	switch rType {
-	case "preparing":
-		return ProjectPreparing
-	case "processing":
-		return ProjectProcessing
-	case "finished":
-		return ProjectFinished
-	default:
-		return ProjectPreparing
 	}
 }
 
