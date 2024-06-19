@@ -8,16 +8,17 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
+// json and bson tag is no necessary, we have custom serialization
 type Project struct {
 	domain.Aggregate `json:"-"`
-	Name             string            `json:"name"`
-	Description      string            `json:"description"`
-	State            ProjectState      `json:"state"`
-	StartDate        *time.Time        `json:"start_date"`
-	EndDate          *time.Time        `json:"end_date"`
-	Platforms        []ProjectPlatform `json:"platforms"`
-	Designs          []ProjectDesign   `json:"designs"`
-	Tags             []string          `json:"tags"`
+	Name             string            `json:"name" bson:"name"`
+	Description      string            `json:"description" bson:"description"`
+	State            ProjectState      `json:"state" bson:"state"`
+	StartDate        *time.Time        `json:"start_date" bson:"start_date"`
+	EndDate          *time.Time        `json:"end_date" bson:"end_date"`
+	Platforms        []ProjectPlatform `json:"platforms" bson:"platforms"`
+	Designs          []ProjectDesign   `json:"designs" bson:"designs"`
+	Tags             []string          `json:"tags" bson:"tags"`
 }
 
 func (r *Project) AggregateName() string {
