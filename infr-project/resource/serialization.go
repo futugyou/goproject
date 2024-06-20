@@ -112,6 +112,14 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 		}
 	}
 
+	if createdAt, ok := m["updated_at"].(string); ok {
+		if t, err := time.Parse(time.RFC3339, createdAt); err == nil {
+			r.UpdatedAt = t
+		} else {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -123,6 +131,7 @@ func makeMap(r *Resource) map[string]interface{} {
 		"data":       r.Data,
 		"tags":       r.Tags,
 		"created_at": r.CreatedAt.Format(time.RFC3339),
+		"updated_at": r.UpdatedAt.Format(time.RFC3339),
 	}
 	if r.Type != nil {
 		m["type"] = r.Type.String()

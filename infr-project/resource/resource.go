@@ -18,6 +18,7 @@ type Resource struct {
 	Tags                              []string     `json:"tags"`
 	IsDelete                          bool         `json:"is_deleted"`
 	CreatedAt                         time.Time    `json:"created_at"`
+	UpdatedAt                         time.Time    `json:"updated_at"`
 }
 
 func NewResource(name string, resourceType ResourceType, data string, tags []string) *Resource {
@@ -139,26 +140,32 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 		r.Version = e.Version()
 		r.Data = e.Data
 		r.Tags = e.Tags
+		r.UpdatedAt = e.CreatedAt
 	case *ResourceNameChangedEvent:
 		r.Id = e.Id
 		r.Version = e.Version()
 		r.Name = e.Name
+		r.UpdatedAt = e.CreatedAt
 	case *ResourceDataChangedEvent:
 		r.Id = e.Id
 		r.Version = e.Version()
 		r.Data = e.Data
+		r.UpdatedAt = e.CreatedAt
 	case *ResourceTagsChangedEvent:
 		r.Id = e.Id
 		r.Version = e.Version()
 		r.Tags = e.Tags
+		r.UpdatedAt = e.CreatedAt
 	case *ResourceTypeChangedEvent:
 		r.Id = e.Id
 		r.Type = GetResourceType(e.Type)
 		r.Version = e.Version()
+		r.UpdatedAt = e.CreatedAt
 	case *ResourceDeletedEvent:
 		r.Id = e.Id
 		r.Version = e.Version()
 		r.IsDelete = true
+		r.UpdatedAt = e.CreatedAt
 	}
 
 	return errors.New("event type not supported")
