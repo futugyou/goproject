@@ -894,7 +894,16 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "type": {}
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {},
+                "updated_at": {
+                    "type": "string"
+                }
             }
         },
         "viewmodels.CreatePlatformRequest": {
@@ -988,6 +997,12 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "type": {
                     "type": "string",
@@ -1215,12 +1230,24 @@ const docTemplate = `{
         "viewmodels.UpdateResourceRequest": {
             "type": "object",
             "required": [
-                "data"
+                "data",
+                "name"
             ],
             "properties": {
                 "data": {
                     "type": "string",
                     "minLength": 3
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

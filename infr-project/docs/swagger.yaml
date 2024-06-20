@@ -109,7 +109,13 @@ definitions:
         type: boolean
       name:
         type: string
+      tags:
+        items:
+          type: string
+        type: array
       type: {}
+      updated_at:
+        type: string
     type: object
   viewmodels.CreatePlatformRequest:
     properties:
@@ -175,6 +181,10 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
+      tags:
+        items:
+          type: string
+        type: array
       type:
         enum:
         - DrawIO
@@ -343,8 +353,17 @@ definitions:
       data:
         minLength: 3
         type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
     required:
     - data
+    - name
     type: object
 info:
   contact: {}
