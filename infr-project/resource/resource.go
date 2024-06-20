@@ -64,6 +64,7 @@ func (r *Resource) ChangeName(name string) (*Resource, error) {
 	return r, nil
 }
 
+// Discuss: type should not be changed after creation
 func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource, error) {
 	if err := r.stateCheck(); err != nil {
 		return r, err

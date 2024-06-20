@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	domain "github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
 	models "github.com/futugyou/infr-project/view_models"
@@ -52,15 +53,34 @@ func (s *ResourceService) CreateResource(aux models.CreateResourceRequest) (*res
 	return res, nil
 }
 
-func (s *ResourceService) UpdateResourceDate(id string, data string) error {
+func (s *ResourceService) UpdateResourceDate(id string, aux models.UpdateResourceRequest) error {
 	res, err := s.service.RetrieveLatestVersion(id)
 	if err != nil {
 		return err
 	}
 
-	aggregate, err := (*res).ChangeData(data)
+	source := *res
+	oldVersion := source.Version
+	var aggregate *resource.Resource
+	if source.Data != aux.Data {
+		aggregate, err = source.ChangeData(aux.Data)
+	}
+
+	if source.Name != aux.Name && err == nil {
+		// TODO: check name in db
+		aggregate, err = source.ChangeName(aux.Name)
+	}
+
+	if !extensions.StringArrayCompare(aux.Tags, source.Tags) && err == nil {
+		aggregate, err = source.ChangeData(aux.Data)
+	}
+
 	if err != nil {
 		return err
+	}
+
+	if oldVersion == aggregate.Version {
+		return fmt.Errorf("the data in the resource has not changed")
 	}
 
 	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {

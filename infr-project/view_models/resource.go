@@ -10,7 +10,9 @@ type CreateResourceRequest struct {
 }
 
 type UpdateResourceRequest struct {
-	Data string `json:"data" validate:"required,min=3"`
+	Name string   `json:"name" validate:"required,min=3,max=50"`
+	Data string   `json:"data" validate:"required,min=3"`
+	Tags []string `json:"tags"`
 }
 
 type ResourceDetail struct {
