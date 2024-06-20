@@ -3,6 +3,7 @@ package resource
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/google/uuid"
@@ -124,48 +125,9 @@ func (r *Resource) AggregateName() string {
 }
 
 func (r *Resource) Apply(event domain.IDomainEvent) error {
-	switch e := event.(type) {
-	case *ResourceCreatedEvent:
-		r.Id = e.Id
-		r.Version = e.Version()
-		r.CreatedAt = e.CreatedAt
-		r.Name = e.Name
-		r.Type = GetResourceType(e.Type)
-		r.Data = e.Data
-		r.Tags = e.Tags
-	case *ResourceUpdatedEvent:
-		r.Id = e.Id
-		r.Name = e.Name
-		r.Type = GetResourceType(e.Type)
-		r.Version = e.Version()
-		r.Data = e.Data
-		r.Tags = e.Tags
-		r.UpdatedAt = e.CreatedAt
-	case *ResourceNameChangedEvent:
-		r.Id = e.Id
-		r.Version = e.Version()
-		r.Name = e.Name
-		r.UpdatedAt = e.CreatedAt
-	case *ResourceDataChangedEvent:
-		r.Id = e.Id
-		r.Version = e.Version()
-		r.Data = e.Data
-		r.UpdatedAt = e.CreatedAt
-	case *ResourceTagsChangedEvent:
-		r.Id = e.Id
-		r.Version = e.Version()
-		r.Tags = e.Tags
-		r.UpdatedAt = e.CreatedAt
-	case *ResourceTypeChangedEvent:
-		r.Id = e.Id
-		r.Type = GetResourceType(e.Type)
-		r.Version = e.Version()
-		r.UpdatedAt = e.CreatedAt
-	case *ResourceDeletedEvent:
-		r.Id = e.Id
-		r.Version = e.Version()
-		r.IsDelete = true
-		r.UpdatedAt = e.CreatedAt
+	if processor, ok := ResourceEventProcessors[reflect.TypeOf(event)]; ok {
+		processor.EventApply(r, event)
+		return nil
 	}
 
 	return errors.New("event type not supported")
