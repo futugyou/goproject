@@ -27,8 +27,8 @@ func (e ResourceCreatedEvent) EventType() string {
 	return "ResourceCreated"
 }
 
-func NewResourceCreatedEvent(r *Resource) ResourceCreatedEvent {
-	return ResourceCreatedEvent{
+func NewResourceCreatedEvent(r *Resource) *ResourceCreatedEvent {
+	return &ResourceCreatedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
@@ -64,8 +64,8 @@ func (e ResourceDeletedEvent) EventType() string {
 	return "ResourceDeleted"
 }
 
-func NewResourceDeletedEvent(r *Resource) ResourceDeletedEvent {
-	return ResourceDeletedEvent{
+func NewResourceDeletedEvent(r *Resource) *ResourceDeletedEvent {
+	return &ResourceDeletedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
@@ -85,8 +85,8 @@ func (e ResourceNameChangedEvent) EventType() string {
 	return "ResourceNameChanged"
 }
 
-func NewResourceNameChangedEvent(r *Resource) ResourceNameChangedEvent {
-	return ResourceNameChangedEvent{
+func NewResourceNameChangedEvent(r *Resource) *ResourceNameChangedEvent {
+	return &ResourceNameChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
@@ -107,8 +107,8 @@ func (e ResourceDataChangedEvent) EventType() string {
 	return "ResourceDataChanged"
 }
 
-func NewResourceDataChangedEvent(r *Resource) ResourceDataChangedEvent {
-	return ResourceDataChangedEvent{
+func NewResourceDataChangedEvent(r *Resource) *ResourceDataChangedEvent {
+	return &ResourceDataChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
@@ -129,8 +129,8 @@ func (e ResourceTagsChangedEvent) EventType() string {
 	return "ResourceTagsChanged"
 }
 
-func NewResourceTagsChangedEvent(r *Resource) ResourceTagsChangedEvent {
-	return ResourceTagsChangedEvent{
+func NewResourceTagsChangedEvent(r *Resource) *ResourceTagsChangedEvent {
+	return &ResourceTagsChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
@@ -151,8 +151,8 @@ func (e ResourceTypeChangedEvent) EventType() string {
 	return "ResourceTypeChanged"
 }
 
-func NewResourceTypeChangedEvent(r *Resource) ResourceTypeChangedEvent {
-	return ResourceTypeChangedEvent{
+func NewResourceTypeChangedEvent(r *Resource) *ResourceTypeChangedEvent {
+	return &ResourceTypeChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
 				Id:              r.Id,
