@@ -14,6 +14,16 @@ type ResourceEventProcessor interface {
 	EventApply(r *Resource, event domain.IDomainEvent)
 }
 
+var eventNameMappingEventTypes = map[string]reflect.Type{
+	"ResourceCreated":     reflect.TypeOf(&ResourceCreatedEvent{}),
+	"ResourceUpdated":     reflect.TypeOf(&ResourceUpdatedEvent{}),
+	"ResourceDeleted":     reflect.TypeOf(&ResourceDeletedEvent{}),
+	"ResourceNameChanged": reflect.TypeOf(&ResourceNameChangedEvent{}),
+	"ResourceDataChanged": reflect.TypeOf(&ResourceDataChangedEvent{}),
+	"ResourceTagsChanged": reflect.TypeOf(&ResourceTagsChangedEvent{}),
+	"ResourceTypeChanged": reflect.TypeOf(&ResourceTypeChangedEvent{}),
+}
+
 var ResourceEventProcessors = map[reflect.Type]ResourceEventProcessor{
 	reflect.TypeOf(&ResourceCreatedEvent{}):     &ResourceCreatedProcessor{},
 	reflect.TypeOf(&ResourceUpdatedEvent{}):     &ResourceUpdatedProcessor{},

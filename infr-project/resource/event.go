@@ -2,6 +2,7 @@ package resource
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	domain "github.com/futugyou/infr-project/domain"
@@ -165,22 +166,11 @@ func NewResourceTypeChangedEvent(r *Resource) *ResourceTypeChangedEvent {
 }
 
 func CreateEvent(eventType string) (IResourceEvent, error) {
-	switch eventType {
-	case "ResourceCreated":
-		return &ResourceCreatedEvent{}, nil
-	case "ResourceUpdated":
-		return &ResourceUpdatedEvent{}, nil
-	case "ResourceDeleted":
-		return &ResourceDeletedEvent{}, nil
-	case "ResourceNameChanged":
-		return &ResourceNameChangedEvent{}, nil
-	case "ResourceDataChanged":
-		return &ResourceDataChangedEvent{}, nil
-	case "ResourceTagsChanged":
-		return &ResourceTagsChangedEvent{}, nil
-	case "ResourceTypeChanged":
-		return &ResourceTypeChangedEvent{}, nil
-	default:
+	eventTypeReflect, ok := eventNameMappingEventTypes[eventType]
+	if !ok {
 		return nil, fmt.Errorf("unknown event type: %s", eventType)
 	}
+
+	eventValue := reflect.New(eventTypeReflect.Elem()).Interface().(IResourceEvent)
+	return eventValue, nil
 }
