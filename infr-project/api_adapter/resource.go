@@ -70,7 +70,7 @@ func UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = service.UpdateResourceDate(id, aux)
+	err = service.UpdateResource(id, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return

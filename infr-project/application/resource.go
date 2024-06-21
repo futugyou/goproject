@@ -53,7 +53,7 @@ func (s *ResourceService) CreateResource(aux models.CreateResourceRequest) (*res
 	return res, nil
 }
 
-func (s *ResourceService) UpdateResourceDate(id string, aux models.UpdateResourceRequest) error {
+func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceRequest) error {
 	res, err := s.service.RetrieveLatestVersion(id)
 	if err != nil {
 		return err
@@ -72,14 +72,14 @@ func (s *ResourceService) UpdateResourceDate(id string, aux models.UpdateResourc
 	}
 
 	if !extensions.StringArrayCompare(aux.Tags, source.Tags) && err == nil {
-		aggregate, err = source.ChangeData(aux.Data)
+		aggregate, err = source.ChangeTags(aux.Tags)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	if oldVersion == aggregate.Version {
+	if aggregate == nil || oldVersion == aggregate.Version {
 		return fmt.Errorf("the data in the resource has not changed")
 	}
 
