@@ -16,6 +16,7 @@ exports = async function (changeEvent) {
     }
 
     const resourceChangeEvent = changeEvent.fullDocument;
+    console.log("resourceChangeEvent: ", JSON.stringify(resourceChangeEvent));
     const resourceId = resourceChangeEvent.id;
     const updateFields = {};
 
@@ -83,8 +84,8 @@ async function initializeResourceQueryCollection() {
     }
 
     try {
-        // Fetch all unique resource IDs from ResourceChangeEvent collection
-        const resourceChangeEvents = await resourceChangeEventCollection.aggregate([
+        // Aggregate all events by resource ID
+        const aggregationPipeline = [
             {
                 $group: {
                     _id: "$id",
@@ -94,37 +95,44 @@ async function initializeResourceQueryCollection() {
             {
                 $sort: { "events.version": 1 }
             }
-        ]).toArray();
+        ];
 
-        for (let resourceChangeEvent of resourceChangeEvents) {
-            const resourceId = resourceChangeEvent.id;
-            const events = resourceChangeEvent.events;
+        const cursor = await resourceChangeEventCollection.aggregate(aggregationPipeline).toArray();
 
-            if (events.length > 0) {
-                const latestEvent = events[events.length - 1];
-                const firstEvent = events[0];
-                const is_deleted = events.some(item => item.is_deleted === true);
+        await cursor.forEach(async (resource) => {
+            const resourceId = resource._id;
+            const events = resource.events;
 
-                // Construct the resource query document
-                const resourceQuery = { id: latestEvent.id };
+            // Determine the latest state of the resource from all events
+            let latestEvent = events[events.length - 1];
+            let firstEvent = events[0];
+            const is_deleted = events.some(item => item.is_deleted === true);
 
-                if ('name' in latestEvent) resourceQuery.name = latestEvent.name;
-                if ('version' in latestEvent) resourceQuery.version = latestEvent.version;
-                if ('type' in latestEvent) resourceQuery.type = latestEvent.type;
-                if ('data' in latestEvent) resourceQuery.data = latestEvent.data;
-                if ('tags' in latestEvent) resourceQuery.tags = latestEvent.tags;
-                if ('created_at' in firstEvent) resourceQuery.created_at = firstEvent.created_at;
-                if ('created_at' in latestEvent) resourceQuery.updated_at = latestEvent.created_at;
-                resourceQuery.is_deleted = is_deleted;
+            // Construct the resource query document dynamically based on available fields in latestEvent
+            const resourceQuery = {
+                id: resourceId,
+                is_deleted: is_deleted
+            };
+            if ('created_at' in firstEvent) resourceQuery.created_at = firstEvent.created_at;
+            if ('created_at' in latestEvent) resourceQuery.updated_at = latestEvent.created_at;
 
-                // Upsert the document in ResourceQuery collection
-                await resourceQueryCollection.updateOne(
-                    { id: resourceQuery.id },
-                    { $set: resourceQuery },
-                    { upsert: true }
-                );
-            }
-        }
+            // Loop through fields in latestEvent and add them to resourceQuery if present
+            const fieldsToCopy = ['name', 'version', 'type', 'data', 'tags'];
+            events.forEach(re => {
+                fieldsToCopy.forEach(field => {
+                    if (field in re) {
+                        resourceQuery[field] = re[field];
+                    }
+                });
+            });
+
+            // Upsert the document in ResourceQuery collection
+            await resourceQueryCollection.updateOne(
+                { id: resourceQuery.id },
+                { $set: resourceQuery },
+                { upsert: true }
+            );
+        });
 
         // Set the initialization flag
         await initializationFlagCollection.insertOne({ _id: initializationFlagDocumentId, initialized: true });
