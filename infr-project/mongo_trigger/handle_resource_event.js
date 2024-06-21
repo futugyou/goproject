@@ -18,14 +18,14 @@ exports = async function (changeEvent) {
     const resourceChangeEvent = changeEvent.fullDocument;
     console.log("resourceChangeEvent: ", JSON.stringify(resourceChangeEvent));
     const resourceId = resourceChangeEvent.id;
-    const updateFields = {};
-
-    if ('version' in resourceChangeEvent) updateFields.version = resourceChangeEvent.version;
-    if ('type' in resourceChangeEvent) updateFields.type = resourceChangeEvent.type;
-    if ('data' in resourceChangeEvent) updateFields.data = resourceChangeEvent.data;
-    if ('name' in resourceChangeEvent) updateFields.name = resourceChangeEvent.name;
+    const updateFields = { id: resourceId };
+    const fieldsToCopy = ['name', 'version', 'type', 'data', 'tags'];
+    fieldsToCopy.forEach(field => {
+        if (field in resourceChangeEvent) {
+            updateFields[field] = resourceChangeEvent[field];
+        }
+    });
     if ('created_at' in resourceChangeEvent) updateFields.updated_at = resourceChangeEvent.created_at;
-    if ('tags' in resourceChangeEvent) updateFields.tags = resourceChangeEvent.tags;
     updateFields.is_deleted = resourceChangeEvent.is_deleted ?? false;
 
     try {
@@ -34,25 +34,16 @@ exports = async function (changeEvent) {
             const currentResourceQuery = await resourceQueryCollection.findOne({ id: resourceId });
 
             if (currentResourceQuery) {
-                // If the existing ResourceQuery document exists, update it with the new change event
-                if (updateFields.is_deleted) {
-                    await resourceQueryCollection.updateOne(
-                        { id: resourceId },
-                        { $set: { is_deleted: updateFields.is_deleted, updated_at: updateFields.updated_at } }
-                    );
-                } else {
-                    await resourceQueryCollection.updateOne(
-                        { id: resourceId },
-                        { $set: updateFields }
-                    );
-                }
+                // If the ResourceQuery document exists, update it with the new change event 
+                await resourceQueryCollection.updateOne(
+                    { id: resourceId },
+                    { $set: updateFields }
+                );
             } else {
-                // If the existing ResourceQuery document does not exist, create a new one
+                // If the ResourceQuery document does not exist, create a new one
                 const newResourceQuery = {
-                    id: resourceId,
                     ...updateFields,
                     created_at: updateFields.updated_at,
-                    is_deleted: updateFields.is_deleted
                 };
 
                 await resourceQueryCollection.insertOne(newResourceQuery);
