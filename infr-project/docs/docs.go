@@ -725,9 +725,288 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/test/circleci": {
+            "get": {
+                "description": "circle CI",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "circle CI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/test/ping": {
+            "get": {
+                "description": "ping",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "ping",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/test/tf": {
+            "get": {
+                "description": "terraform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "terraform",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/test/vault": {
+            "get": {
+                "description": "vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "vault",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/secret_service.OpenAppSecretOK"
+                        }
+                    }
+                }
+            }
+        },
+        "/test/vercel": {
+            "get": {
+                "description": "vercel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "vercel",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/test/workflow": {
+            "get": {
+                "description": "workflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "workflow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "github owner",
+                        "name": "owner",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "github repository",
+                        "name": "repo",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.Secrets20230613OpenAppSecretResponse": {
+            "type": "object",
+            "properties": {
+                "secret": {
+                    "description": "secret",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Secrets20230613OpenSecret"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.Secrets20230613OpenSecret": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "created at\nFormat: date-time",
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "created by",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Secrets20230613Principal"
+                        }
+                    ]
+                },
+                "latest_version": {
+                    "description": "latest version",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "name",
+                    "type": "string"
+                },
+                "sync_status": {
+                    "description": "sync status",
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/models.Secrets20230613SyncStatus"
+                    }
+                },
+                "version": {
+                    "description": "version",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Secrets20230613OpenSecretVersion"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.Secrets20230613OpenSecretVersion": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "created at\nFormat: date-time",
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "created by",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Secrets20230613Principal"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "type",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "value",
+                    "type": "string"
+                },
+                "version": {
+                    "description": "version",
+                    "type": "string"
+                }
+            }
+        },
+        "models.Secrets20230613Principal": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "email",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "name",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "type",
+                    "type": "string"
+                }
+            }
+        },
+        "models.Secrets20230613SyncStatus": {
+            "type": "object",
+            "properties": {
+                "last_error_code": {
+                    "description": "last error code",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "status",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "updated at\nFormat: date-time",
+                    "type": "string"
+                }
+            }
+        },
         "platform.Platform": {
             "type": "object",
             "properties": {
@@ -903,6 +1182,14 @@ const docTemplate = `{
                 "type": {},
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "secret_service.OpenAppSecretOK": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "$ref": "#/definitions/models.Secrets20230613OpenAppSecretResponse"
                 }
             }
         },

@@ -1,4 +1,85 @@
 definitions:
+  models.Secrets20230613OpenAppSecretResponse:
+    properties:
+      secret:
+        allOf:
+        - $ref: '#/definitions/models.Secrets20230613OpenSecret'
+        description: secret
+    type: object
+  models.Secrets20230613OpenSecret:
+    properties:
+      created_at:
+        description: |-
+          created at
+          Format: date-time
+        type: string
+      created_by:
+        allOf:
+        - $ref: '#/definitions/models.Secrets20230613Principal'
+        description: created by
+      latest_version:
+        description: latest version
+        type: string
+      name:
+        description: name
+        type: string
+      sync_status:
+        additionalProperties:
+          $ref: '#/definitions/models.Secrets20230613SyncStatus'
+        description: sync status
+        type: object
+      version:
+        allOf:
+        - $ref: '#/definitions/models.Secrets20230613OpenSecretVersion'
+        description: version
+    type: object
+  models.Secrets20230613OpenSecretVersion:
+    properties:
+      created_at:
+        description: |-
+          created at
+          Format: date-time
+        type: string
+      created_by:
+        allOf:
+        - $ref: '#/definitions/models.Secrets20230613Principal'
+        description: created by
+      type:
+        description: type
+        type: string
+      value:
+        description: value
+        type: string
+      version:
+        description: version
+        type: string
+    type: object
+  models.Secrets20230613Principal:
+    properties:
+      email:
+        description: email
+        type: string
+      name:
+        description: name
+        type: string
+      type:
+        description: type
+        type: string
+    type: object
+  models.Secrets20230613SyncStatus:
+    properties:
+      last_error_code:
+        description: last error code
+        type: string
+      status:
+        description: status
+        type: string
+      updated_at:
+        description: |-
+          updated at
+          Format: date-time
+        type: string
+    type: object
   platform.Platform:
     properties:
       activate:
@@ -116,6 +197,11 @@ definitions:
       type: {}
       updated_at:
         type: string
+    type: object
+  secret_service.OpenAppSecretOK:
+    properties:
+      payload:
+        $ref: '#/definitions/models.Secrets20230613OpenAppSecretResponse'
     type: object
   viewmodels.CreatePlatformRequest:
     properties:
@@ -838,4 +924,111 @@ paths:
       summary: get resource history
       tags:
       - Resource
+  /test/circleci:
+    get:
+      consumes:
+      - application/json
+      description: circle CI
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: circle CI
+      tags:
+      - Test
+  /test/ping:
+    get:
+      consumes:
+      - application/json
+      description: ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: ping
+      tags:
+      - Test
+  /test/tf:
+    get:
+      consumes:
+      - application/json
+      description: terraform
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: terraform
+      tags:
+      - Test
+  /test/vault:
+    get:
+      consumes:
+      - application/json
+      description: vault
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/secret_service.OpenAppSecretOK'
+      summary: vault
+      tags:
+      - Test
+  /test/vercel:
+    get:
+      consumes:
+      - application/json
+      description: vercel
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: vercel
+      tags:
+      - Test
+  /test/workflow:
+    get:
+      consumes:
+      - application/json
+      description: workflow
+      parameters:
+      - description: github owner
+        in: query
+        name: owner
+        required: true
+        type: string
+      - description: github repository
+        in: query
+        name: repo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: workflow
+      tags:
+      - Test
 swagger: "2.0"
