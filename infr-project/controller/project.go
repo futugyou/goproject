@@ -1,4 +1,4 @@
-package apiadapter
+package controller
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func CreateProject(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CreateProject(w http.ResponseWriter, r *http.Request) {
 	service, err := createProjectService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -42,7 +42,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func GetProject(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createProjectService()
 
 	if err != nil {
@@ -59,7 +59,7 @@ func GetProject(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func GetAllProject(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request) {
 	service, err := createProjectService()
 
 	if err != nil {
@@ -76,7 +76,7 @@ func GetAllProject(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createProjectService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -103,7 +103,7 @@ func UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createProjectService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -130,7 +130,7 @@ func UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func UpdateProjectDesign(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdateProjectDesign(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createProjectService()
 	if err != nil {
 		handleError(w, err, 500)

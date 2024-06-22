@@ -3,10 +3,9 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/futugyou/infr-project/controller"
 	_ "github.com/futugyou/infr-project/resource"
 	_ "github.com/futugyou/infr-project/view_models"
-
-	apiadapter "github.com/futugyou/infr-project/api_adapter"
 )
 
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
@@ -27,7 +26,8 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {array}  resource.Resource
 // @Router /resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
-	apiadapter.GetResourceHistory(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetResourceHistory(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary delete resource
@@ -39,7 +39,8 @@ func getResourceHistory(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /resource/{id} [delete]
 func deleteResource(c *gin.Context) {
-	apiadapter.DeleteResource(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.DeleteResource(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update resource
@@ -52,7 +53,8 @@ func deleteResource(c *gin.Context) {
 // @Success 200
 // @Router /resource/{id} [put]
 func updateResource(c *gin.Context) {
-	apiadapter.UpdateResource(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.UpdateResource(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary create resource
@@ -64,7 +66,8 @@ func updateResource(c *gin.Context) {
 // @Success 200
 // @Router /resource [post]
 func createResource(c *gin.Context) {
-	apiadapter.CreateResource(c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.CreateResource(c.Writer, c.Request)
 }
 
 // @Summary get resource
@@ -76,7 +79,8 @@ func createResource(c *gin.Context) {
 // @Success 200 {object}  viewmodels.ResourceDetail
 // @Router /resource/{id} [get]
 func getResource(c *gin.Context) {
-	apiadapter.GetResource(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetResource(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary get all resources
@@ -87,5 +91,6 @@ func getResource(c *gin.Context) {
 // @Success 200 {array}  viewmodels.ResourceDetail
 // @Router /resource [get]
 func getAllResource(c *gin.Context) {
-	apiadapter.GetAllResource(c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetAllResource(c.Writer, c.Request)
 }

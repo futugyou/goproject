@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/futugyou/infr-project/api/internal"
-	apiadapter "github.com/futugyou/infr-project/api_adapter"
+	"github.com/futugyou/infr-project/controller"
 )
 
 func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
@@ -16,19 +16,20 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	ctrl := controller.NewController()
 	switch op {
 	case "create":
-		createResource(r, w)
+		createResource(ctrl, r, w)
 	case "get":
-		getResource(r, w)
+		getResource(ctrl, r, w)
 	case "update":
-		updateResource(r, w)
+		updateResource(ctrl, r, w)
 	case "delete":
-		deleteResource(r, w)
+		deleteResource(ctrl, r, w)
 	case "history":
-		historyResource(r, w)
+		historyResource(ctrl, r, w)
 	case "all":
-		allResource(r, w)
+		allResource(ctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
@@ -36,30 +37,30 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func historyResource(r *http.Request, w http.ResponseWriter) {
+func historyResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.GetResourceHistory(id, w, r)
+	ctrl.GetResourceHistory(id, w, r)
 }
 
-func allResource(r *http.Request, w http.ResponseWriter) {
-	apiadapter.GetAllResource(w, r)
+func allResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl.GetAllResource(w, r)
 }
 
-func deleteResource(r *http.Request, w http.ResponseWriter) {
+func deleteResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.DeleteResource(id, w, r)
+	ctrl.DeleteResource(id, w, r)
 }
 
-func updateResource(r *http.Request, w http.ResponseWriter) {
+func updateResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.UpdateResource(id, w, r)
+	ctrl.UpdateResource(id, w, r)
 }
 
-func getResource(r *http.Request, w http.ResponseWriter) {
+func getResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.GetResource(id, w, r)
+	ctrl.GetResource(id, w, r)
 }
 
-func createResource(r *http.Request, w http.ResponseWriter) {
-	apiadapter.CreateResource(w, r)
+func createResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl.CreateResource(w, r)
 }

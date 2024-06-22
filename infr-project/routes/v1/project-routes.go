@@ -3,10 +3,9 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/futugyou/infr-project/controller"
 	_ "github.com/futugyou/infr-project/resource"
 	_ "github.com/futugyou/infr-project/view_models"
-
-	apiadapter "github.com/futugyou/infr-project/api_adapter"
 )
 
 func ConfigProjectRoutes(v1 *gin.RouterGroup) {
@@ -28,7 +27,8 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 // @Success 200
 // @Router /project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
-	apiadapter.UpdateProjectDesign(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.UpdateProjectDesign(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update project platform
@@ -41,7 +41,8 @@ func updateProjectDesign(c *gin.Context) {
 // @Success 200
 // @Router /project/{id}/platform [put]
 func updateProjectPlatform(c *gin.Context) {
-	apiadapter.UpdateProjectPlatform(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.UpdateProjectPlatform(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update project
@@ -54,7 +55,8 @@ func updateProjectPlatform(c *gin.Context) {
 // @Success 200
 // @Router /project/{id} [put]
 func updateProject(c *gin.Context) {
-	apiadapter.UpdateProject(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.UpdateProject(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary create project
@@ -66,7 +68,8 @@ func updateProject(c *gin.Context) {
 // @Success 200
 // @Router /project [post]
 func createProject(c *gin.Context) {
-	apiadapter.CreateProject(c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.CreateProject(c.Writer, c.Request)
 }
 
 // @Summary get all project
@@ -77,7 +80,8 @@ func createProject(c *gin.Context) {
 // @Success 200 {array} project.Project
 // @Router /project [get]
 func getAllProject(c *gin.Context) {
-	apiadapter.GetAllProject(c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetAllProject(c.Writer, c.Request)
 }
 
 // @Summary get project
@@ -89,5 +93,6 @@ func getAllProject(c *gin.Context) {
 // @Success 200 {object} project.Project
 // @Router /project/{id} [get]
 func getProject(c *gin.Context) {
-	apiadapter.GetProject(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetProject(c.Param("id"), c.Writer, c.Request)
 }

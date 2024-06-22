@@ -1,4 +1,4 @@
-package apiadapter
+package controller
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -32,7 +32,7 @@ func DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r
 	writeJSONResponse(w, "ok", 200)
 }
 
-func CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -59,7 +59,7 @@ func CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r
 	writeJSONResponse(w, res, 200)
 }
 
-func CreatePlatform(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CreatePlatform(w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -86,7 +86,7 @@ func CreatePlatform(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 
 	if err != nil {
@@ -103,7 +103,7 @@ func GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func GetAllPlatform(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetAllPlatform(w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 
 	if err != nil {
@@ -120,7 +120,7 @@ func GetAllPlatform(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -147,7 +147,7 @@ func UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *h
 	writeJSONResponse(w, res, 200)
 }
 
-func UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -174,7 +174,7 @@ func UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func DeletePlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DeletePlatform(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createPlatformService()
 	if err != nil {
 		handleError(w, err, 500)

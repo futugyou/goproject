@@ -6,7 +6,7 @@ import (
 	_ "github.com/futugyou/infr-project/resource"
 	_ "github.com/futugyou/infr-project/view_models"
 
-	apiadapter "github.com/futugyou/infr-project/api_adapter"
+	"github.com/futugyou/infr-project/controller"
 )
 
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
@@ -33,7 +33,8 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Success 200
 // @Router /platform/{id}/project/{project_id}/hook [put]
 func updatePlatformHook(c *gin.Context) {
-	apiadapter.UpdatePlatformHook(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.UpdatePlatformHook(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
 // @Summary delete platform project
@@ -46,7 +47,8 @@ func updatePlatformHook(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /platform/{id}/project/{project_id} [delete]
 func deletePlatformProject(c *gin.Context) {
-	apiadapter.DeletePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.DeletePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
 // @Summary update platform project
@@ -60,7 +62,8 @@ func deletePlatformProject(c *gin.Context) {
 // @Success 200
 // @Router /platform/{id}/project/{project_id} [put]
 func updatePlatformProject(c *gin.Context) {
-	apiadapter.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
 // @Summary create platform webhook
@@ -73,7 +76,8 @@ func updatePlatformProject(c *gin.Context) {
 // @Success 200
 // @Router /platform/{id}/project [post]
 func createPlatformProject(c *gin.Context) {
-	apiadapter.CreatePlatformProject(c.Param("id"), "", c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.CreatePlatformProject(c.Param("id"), "", c.Writer, c.Request)
 }
 
 // @Summary delete platform
@@ -85,7 +89,8 @@ func createPlatformProject(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /platform/{id} [delete]
 func deletePlatform(c *gin.Context) {
-	apiadapter.DeletePlatform(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.DeletePlatform(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary update platform
@@ -98,7 +103,8 @@ func deletePlatform(c *gin.Context) {
 // @Success 200
 // @Router /platform/{id} [put]
 func updatePlatform(c *gin.Context) {
-	apiadapter.UpdatePlatform(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.UpdatePlatform(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary create platform
@@ -110,7 +116,8 @@ func updatePlatform(c *gin.Context) {
 // @Success 200
 // @Router /platform [post]
 func createPlatform(c *gin.Context) {
-	apiadapter.CreatePlatform(c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.CreatePlatform(c.Writer, c.Request)
 }
 
 // @Summary get all platform
@@ -121,7 +128,8 @@ func createPlatform(c *gin.Context) {
 // @Success 200 {array}  platform.Platform
 // @Router /platform [get]
 func getAllPlatform(c *gin.Context) {
-	apiadapter.GetAllPlatform(c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetAllPlatform(c.Writer, c.Request)
 }
 
 // @Summary get platform
@@ -133,5 +141,6 @@ func getAllPlatform(c *gin.Context) {
 // @Success 200 {object}  platform.Platform
 // @Router /platform/{id} [get]
 func getPlatform(c *gin.Context) {
-	apiadapter.GetPlatform(c.Param("id"), c.Writer, c.Request)
+	ctrl := controller.NewController()
+	ctrl.GetPlatform(c.Param("id"), c.Writer, c.Request)
 }

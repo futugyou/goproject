@@ -1,4 +1,4 @@
-package apiadapter
+package controller
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -36,7 +36,7 @@ func GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -52,7 +52,7 @@ func DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, "ok", 200)
 }
 
-func UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -79,7 +79,7 @@ func UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, "ok", 200)
 }
 
-func CreateResource(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CreateResource(w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -106,7 +106,7 @@ func CreateResource(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func GetResource(id string, w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetResource(id string, w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceQueryService()
 	if err != nil {
 		handleError(w, err, 500)
@@ -127,7 +127,7 @@ func GetResource(id string, w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func GetAllResource(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetAllResource(w http.ResponseWriter, r *http.Request) {
 	service, err := createResourceQueryService()
 	if err != nil {
 		handleError(w, err, 500)

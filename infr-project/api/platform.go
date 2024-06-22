@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/futugyou/infr-project/api/internal"
-	apiadapter "github.com/futugyou/infr-project/api_adapter"
+	"github.com/futugyou/infr-project/controller"
 )
 
 func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
@@ -16,25 +16,26 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	ctrl := controller.NewController()
 	switch op {
 	case "create":
-		createPlatform(r, w)
+		createPlatform(ctrl, r, w)
 	case "get":
-		getPlatform(r, w)
+		getPlatform(ctrl, r, w)
 	case "update":
-		updatePlatform(r, w)
+		updatePlatform(ctrl, r, w)
 	case "delete":
-		deletePlatform(r, w)
+		deletePlatform(ctrl, r, w)
 	case "all":
-		allPlatform(r, w)
+		allPlatform(ctrl, r, w)
 	case "hook":
-		hookPlatform(r, w)
+		hookPlatform(ctrl, r, w)
 	case "project":
-		createPlatformProject(r, w)
+		createPlatformProject(ctrl, r, w)
 	case "prodel":
-		deletePlatformProject(r, w)
+		deletePlatformProject(ctrl, r, w)
 	case "proup":
-		updatePlatformProject(r, w)
+		updatePlatformProject(ctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
@@ -42,48 +43,48 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updatePlatformProject(r *http.Request, w http.ResponseWriter) {
+func updatePlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
-	apiadapter.CreatePlatformProject(id, projectId, w, r)
+	ctrl.CreatePlatformProject(id, projectId, w, r)
 }
 
-func deletePlatformProject(r *http.Request, w http.ResponseWriter) {
+func deletePlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
-	apiadapter.DeletePlatformProject(id, projectId, w, r)
+	ctrl.DeletePlatformProject(id, projectId, w, r)
 }
 
-func createPlatformProject(r *http.Request, w http.ResponseWriter) {
+func createPlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.CreatePlatformProject(id, "", w, r)
+	ctrl.CreatePlatformProject(id, "", w, r)
 }
 
-func hookPlatform(r *http.Request, w http.ResponseWriter) {
+func hookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
-	apiadapter.UpdatePlatformHook(id, projectId, w, r)
+	ctrl.UpdatePlatformHook(id, projectId, w, r)
 }
 
-func allPlatform(r *http.Request, w http.ResponseWriter) {
-	apiadapter.GetAllPlatform(w, r)
+func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl.GetAllPlatform(w, r)
 }
 
-func deletePlatform(r *http.Request, w http.ResponseWriter) {
+func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.DeletePlatform(id, w, r)
+	ctrl.DeletePlatform(id, w, r)
 }
 
-func updatePlatform(r *http.Request, w http.ResponseWriter) {
+func updatePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.UpdatePlatform(id, w, r)
+	ctrl.UpdatePlatform(id, w, r)
 }
 
-func getPlatform(r *http.Request, w http.ResponseWriter) {
+func getPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.GetPlatform(id, w, r)
+	ctrl.GetPlatform(id, w, r)
 }
 
-func createPlatform(r *http.Request, w http.ResponseWriter) {
-	apiadapter.CreatePlatform(w, r)
+func createPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl.CreatePlatform(w, r)
 }

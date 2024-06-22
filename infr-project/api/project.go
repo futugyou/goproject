@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/futugyou/infr-project/api/internal"
-	apiadapter "github.com/futugyou/infr-project/api_adapter"
+	"github.com/futugyou/infr-project/controller"
 )
 
 func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
@@ -16,19 +16,20 @@ func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	ctrl := controller.NewController()
 	switch op {
 	case "create":
-		createProject(r, w)
+		createProject(ctrl, r, w)
 	case "get":
-		getProject(r, w)
+		getProject(ctrl, r, w)
 	case "update":
-		updateProject(r, w)
+		updateProject(ctrl, r, w)
 	case "all":
-		allProject(r, w)
+		allProject(ctrl, r, w)
 	case "platform":
-		updateProjectPlatform(r, w)
+		updateProjectPlatform(ctrl, r, w)
 	case "design":
-		updateProjectDesign(r, w)
+		updateProjectDesign(ctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
@@ -36,30 +37,30 @@ func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func allProject(r *http.Request, w http.ResponseWriter) {
-	apiadapter.GetAllProject(w, r)
+func allProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl.GetAllProject(w, r)
 }
 
-func updateProject(r *http.Request, w http.ResponseWriter) {
+func updateProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.UpdateProject(id, w, r)
+	ctrl.UpdateProject(id, w, r)
 }
 
-func getProject(r *http.Request, w http.ResponseWriter) {
+func getProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.GetProject(id, w, r)
+	ctrl.GetProject(id, w, r)
 }
 
-func createProject(r *http.Request, w http.ResponseWriter) {
-	apiadapter.CreateProject(w, r)
+func createProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl.CreateProject(w, r)
 }
 
-func updateProjectPlatform(r *http.Request, w http.ResponseWriter) {
+func updateProjectPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.UpdateProjectPlatform(id, w, r)
+	ctrl.UpdateProjectPlatform(id, w, r)
 }
 
-func updateProjectDesign(r *http.Request, w http.ResponseWriter) {
+func updateProjectDesign(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
-	apiadapter.UpdateProjectDesign(id, w, r)
+	ctrl.UpdateProjectDesign(id, w, r)
 }
