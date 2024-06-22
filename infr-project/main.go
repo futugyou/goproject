@@ -10,6 +10,8 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
+
+	"github.com/futugyou/infr-project/routes"
 )
 
 //go:generate go install github.com/joho/godotenv/cmd/godotenv@latest
@@ -26,7 +28,7 @@ func ginServerStart() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	router := NewGinRoute()
+	router := routes.NewGinRoute()
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: router,
