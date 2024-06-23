@@ -22,14 +22,14 @@ func (c *Controller) DeletePlatformProject(id string, projectId string, w http.R
 		return
 	}
 
-	err = service.DeleteProject(id, projectId)
+	res, err := service.DeleteProject(id, projectId)
 
 	if err != nil {
 		handleError(w, err, 500)
 		return
 	}
 
-	writeJSONResponse(w, "ok", 200)
+	writeJSONResponse(w, res, 200)
 }
 
 func (c *Controller) CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {

@@ -44,7 +44,7 @@ func updatePlatformHook(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Platform ID"
 // @Param project_id path string true "Platform Project ID"
-// @Success 200 {string} string "ok"
+// @Success 200 {object} platform.Platform
 // @Router /platform/{id}/project/{project_id} [delete]
 func deletePlatformProject(c *gin.Context) {
 	ctrl := controller.NewController()

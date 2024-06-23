@@ -109,15 +109,15 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 	return plat, nil
 }
 
-func (s *PlatformService) DeleteProject(id string, projectId string) error {
+func (s *PlatformService) DeleteProject(id string, projectId string) (*platform.Platform, error) {
 	res, err := s.repository.Get(context.Background(), id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	plat := *res
 	plat.RemoveProject(projectId)
-	return s.repository.Update(context.Background(), plat)
+	return plat, s.repository.Update(context.Background(), plat)
 }
 
 func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest) (*platform.Platform, error) {
