@@ -148,18 +148,6 @@ func (c *Controller) GetAllResource(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func handleError(w http.ResponseWriter, err error, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(err.Error())
-}
-
-func writeJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(data)
-}
-
 func createResourceService() (*application.ResourceService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
