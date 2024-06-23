@@ -84,6 +84,8 @@ definitions:
     properties:
       activate:
         type: boolean
+      is_deleted:
+        type: boolean
       name:
         type: string
       projects:
@@ -507,9 +509,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/platform.Platform'
       summary: delete platform
       tags:
       - Platform

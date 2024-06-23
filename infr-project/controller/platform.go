@@ -181,14 +181,14 @@ func (c *Controller) DeletePlatform(id string, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = service.DeletePlatform(id)
+	res, err := service.DeletePlatform(id)
 
 	if err != nil {
 		handleError(w, err, 500)
 		return
 	}
 
-	writeJSONResponse(w, "ok", 200)
+	writeJSONResponse(w, res, 200)
 }
 
 func createPlatformService() (*application.PlatformService, error) {

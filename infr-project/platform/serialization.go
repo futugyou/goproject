@@ -131,6 +131,10 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.Tags = value
 	}
 
+	if value, ok := m["is_deleted"].(bool); ok {
+		r.IsDeleted = value
+	}
+
 	if value, ok := m["restendpoint"].(string); ok {
 		r.RestEndpoint = value
 	}
@@ -181,6 +185,7 @@ func makeMap(r *Platform) map[string]interface{} {
 		"property":     r.Property,
 		"projects":     projects,
 		"tags":         r.Tags,
+		"is_deleted":   r.IsDeleted,
 	}
 
 	return m

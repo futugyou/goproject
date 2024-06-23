@@ -84,8 +84,16 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	return plat, nil
 }
 
-func (s *PlatformService) DeletePlatform(id string) error {
-	return s.repository.Delete(context.Background(), id)
+func (s *PlatformService) DeletePlatform(id string) (*platform.Platform, error) {
+	if err := s.repository.SoftDelete(context.Background(), id); err != nil {
+		return nil, err
+	}
+
+	res, err := s.repository.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+	return *res, err
 }
 
 func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest) (*platform.Platform, error) {

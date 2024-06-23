@@ -86,7 +86,7 @@ func createPlatformProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
-// @Success 200 {string} string "ok"
+// @Success 200 {object} platform.Platform
 // @Router /platform/{id} [delete]
 func deletePlatform(c *gin.Context) {
 	ctrl := controller.NewController()

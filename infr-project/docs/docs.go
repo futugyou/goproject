@@ -166,9 +166,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/platform.Platform"
                         }
                     }
                 }
@@ -1044,6 +1044,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "activate": {
+                    "type": "boolean"
+                },
+                "is_deleted": {
                     "type": "boolean"
                 },
                 "name": {

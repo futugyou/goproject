@@ -1,6 +1,8 @@
 package platform
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 
 	"github.com/futugyou/infr-project/domain"
@@ -16,6 +18,7 @@ type Platform struct {
 	Property         map[string]string          `json:"property"`
 	Projects         map[string]PlatformProject `json:"projects"`
 	Tags             []string                   `json:"tags"`
+	IsDeleted        bool                       `json:"is_deleted"`
 }
 
 func NewPlatform(name string, url string, rest string, property map[string]string, tags []string) *Platform {
@@ -30,46 +33,79 @@ func NewPlatform(name string, url string, rest string, property map[string]strin
 		Property:     property,
 		Projects:     map[string]PlatformProject{},
 		Tags:         tags,
+		IsDeleted:    false,
 	}
 }
 
-func (w *Platform) Enable() *Platform {
+func (r *Platform) stateCheck() error {
+	if r.IsDeleted {
+		return fmt.Errorf("id: %s is alrealdy deleted", r.Id)
+	}
+
+	return nil
+}
+
+func (w *Platform) Enable() (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.Activate = true
-	return w
+	return w, nil
 }
 
-func (w *Platform) Disable() *Platform {
+func (w *Platform) Disable() (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.Activate = false
-	return w
+	return w, nil
 }
 
-func (w *Platform) UpdateName(name string) *Platform {
+func (w *Platform) UpdateName(name string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.Name = name
-	return w
+	return w, nil
 }
 
-func (w *Platform) UpdateUrl(url string) *Platform {
+func (w *Platform) UpdateUrl(url string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.Url = url
-	return w
+	return w, nil
 }
 
-func (w *Platform) UpdateRestEndpoint(url string) *Platform {
+func (w *Platform) UpdateRestEndpoint(url string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.RestEndpoint = url
-	return w
+	return w, nil
 }
 
-func (w *Platform) UpdateTags(tags []string) *Platform {
+func (w *Platform) UpdateTags(tags []string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.Tags = tags
-	return w
+	return w, nil
 }
 
-func (w *Platform) UpdateProperty(property map[string]string) *Platform {
+func (w *Platform) UpdateProperty(property map[string]string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	w.Property = property
-	return w
+	return w, nil
 }
 
 // this update not include webhook
-func (w *Platform) UpdateProject(project PlatformProject) *Platform {
+func (w *Platform) UpdateProject(project PlatformProject) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	if w.Projects == nil {
 		w.Projects = map[string]PlatformProject{}
 	}
@@ -77,30 +113,39 @@ func (w *Platform) UpdateProject(project PlatformProject) *Platform {
 		project.Webhooks = pro.Webhooks
 	}
 	w.Projects[project.Id] = project
-	return w
+	return w, nil
 }
 
-func (w *Platform) RemoveProject(projectId string) *Platform {
+func (w *Platform) RemoveProject(projectId string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	delete(w.Projects, projectId)
-	return w
+	return w, nil
 }
 
-func (w *Platform) UpdateWebhook(projectId string, hook Webhook) *Platform {
+func (w *Platform) UpdateWebhook(projectId string, hook Webhook) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	if project, exists := w.Projects[projectId]; exists {
 		projectPointer := &project
 		projectPointer.UpdateWebhook(hook)
 		w.Projects[projectId] = *projectPointer
 	}
-	return w
+	return w, nil
 }
 
-func (w *Platform) RemoveWebhook(projectId string, hookName string) *Platform {
+func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
 	if project, exists := w.Projects[projectId]; exists {
 		projectPointer := &project
 		projectPointer.RemoveWebhook(hookName)
 		w.Projects[projectId] = *projectPointer
 	}
-	return w
+	return w, nil
 }
 
 func (r *Platform) AggregateName() string {
