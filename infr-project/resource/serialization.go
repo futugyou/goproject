@@ -81,6 +81,10 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 		r.Name = name
 	}
 
+	if value, ok := m["is_deleted"].(bool); ok {
+		r.IsDeleted = value
+	}
+
 	if value, ok := m["tags"].([]string); ok {
 		r.Tags = value
 	}
@@ -132,6 +136,7 @@ func makeMap(r *Resource) map[string]interface{} {
 		"tags":       r.Tags,
 		"created_at": r.CreatedAt.Format(time.RFC3339),
 		"updated_at": r.UpdatedAt.Format(time.RFC3339),
+		"is_deleted": r.IsDeleted,
 	}
 	if r.Type != nil {
 		m["type"] = r.Type.String()

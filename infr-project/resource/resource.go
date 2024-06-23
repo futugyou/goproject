@@ -17,7 +17,7 @@ type Resource struct {
 	Type                              ResourceType `json:"type"`
 	Data                              string       `json:"data"`
 	Tags                              []string     `json:"tags"`
-	IsDelete                          bool         `json:"is_deleted"`
+	IsDeleted                         bool         `json:"is_deleted"`
 	CreatedAt                         time.Time    `json:"created_at"`
 	UpdatedAt                         time.Time    `json:"updated_at"`
 }
@@ -43,7 +43,7 @@ func NewResource(name string, resourceType ResourceType, data string, tags []str
 }
 
 func (r *Resource) stateCheck() error {
-	if r.IsDelete {
+	if r.IsDeleted {
 		return fmt.Errorf("id: %s is alrealdy deleted", r.Id)
 	}
 
@@ -114,7 +114,7 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 	}
 
 	r.Version = r.Version + 1
-	r.IsDelete = true
+	r.IsDeleted = true
 
 	event := NewResourceDeletedEvent(r)
 	r.AddDomainEvent(event)

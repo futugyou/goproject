@@ -100,6 +100,6 @@ func (p *ResourceDeletedProcessor) EventApply(r *Resource, event domain.IDomainE
 	e := event.(*ResourceDeletedEvent)
 	r.Id = e.Id
 	r.Version = e.Version()
-	r.IsDelete = true
+	r.IsDeleted = true
 	r.UpdatedAt = e.CreatedAt
 }

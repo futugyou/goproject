@@ -31,14 +31,6 @@ func NewResourceService(
 	}
 }
 
-// func (s *ResourceService) CurrentResource(id string) (*resource.Resource, error) {
-// 	res, err := s.service.RetrieveLatestVersion(id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return *res, nil
-// }
-
 func (s *ResourceService) CreateResource(aux models.CreateResourceRequest) (*resource.Resource, error) {
 	var res *resource.Resource
 	resourceType := resource.GetResourceType(aux.Type)
