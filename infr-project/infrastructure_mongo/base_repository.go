@@ -55,6 +55,20 @@ func (s *BaseRepository[Aggregate]) Delete(ctx context.Context, id string) error
 	return nil
 }
 
+func (s *BaseRepository[Aggregate]) SoftDelete(ctx context.Context, id string) error {
+	a := new(Aggregate)
+	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
+
+	filter := bson.D{{Key: "id", Value: id}}
+	if _, err := c.UpdateOne(ctx, filter, bson.M{
+		"$set": bson.D{{Key: "is_deleted", Value: 1}},
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *BaseRepository[Aggregate]) Insert(ctx context.Context, aggregate Aggregate) error {
 	c := s.Client.Database(s.DBName).Collection(aggregate.AggregateName())
 	_, err := c.InsertOne(ctx, aggregate)
@@ -70,10 +84,9 @@ func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggreg
 	}
 
 	filter := bson.D{{Key: "id", Value: aggregate.AggregateId()}}
-	_, err = c.UpdateOne(ctx, filter, bson.M{
+	if _, err = c.UpdateOne(ctx, filter, bson.M{
 		"$set": doc,
-	}, opt)
-	if err != nil {
+	}, opt); err != nil {
 		return err
 	}
 
