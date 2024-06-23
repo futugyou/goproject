@@ -23,7 +23,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {array}  resource.Resource
+// @Success 200 {array} resource.Resource
 // @Router /resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -50,7 +50,7 @@ func deleteResource(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Resource ID"
 // @Param request body viewmodels.UpdateResourceRequest true "Request body"
-// @Success 200
+// @Success 200 {string} string "ok"
 // @Router /resource/{id} [put]
 func updateResource(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -63,7 +63,7 @@ func updateResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreateResourceRequest true "Request body"
-// @Success 200
+// @Success 200 {object} resource.Resource
 // @Router /resource [post]
 func createResource(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -76,7 +76,7 @@ func createResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {object}  viewmodels.ResourceDetail
+// @Success 200 {object} viewmodels.ResourceDetail
 // @Router /resource/{id} [get]
 func getResource(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -88,7 +88,7 @@ func getResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Success 200 {array}  viewmodels.ResourceDetail
+// @Success 200 {array} viewmodels.ResourceDetail
 // @Router /resource [get]
 func getAllResource(c *gin.Context) {
 	ctrl := controller.NewController()

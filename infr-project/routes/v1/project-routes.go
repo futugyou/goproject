@@ -24,7 +24,7 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodels.UpdateProjectDesignRequest true "Request body"
-// @Success 200
+// @Success 200 {object} project.Project
 // @Router /project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -38,7 +38,7 @@ func updateProjectDesign(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodels.UpdateProjectPlatformRequest true "Request body"
-// @Success 200
+// @Success 200 {object} project.Project
 // @Router /project/{id}/platform [put]
 func updateProjectPlatform(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -52,7 +52,7 @@ func updateProjectPlatform(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body viewmodels.UpdateProjectRequest true "Request body"
-// @Success 200
+// @Success 200 {object} project.Project
 // @Router /project/{id} [put]
 func updateProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -65,7 +65,7 @@ func updateProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreateProjectRequest true "Request body"
-// @Success 200
+// @Success 200 {object} project.Project
 // @Router /project [post]
 func createProject(c *gin.Context) {
 	ctrl := controller.NewController()

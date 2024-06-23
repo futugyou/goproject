@@ -487,6 +487,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
       summary: create platform
       tags:
       - Platform
@@ -552,6 +554,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
       summary: update platform
       tags:
       - Platform
@@ -577,6 +581,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
       summary: create platform webhook
       tags:
       - Platform
@@ -632,6 +638,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
       summary: update platform project
       tags:
       - Platform
@@ -662,6 +670,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
       summary: update platform webhook
       tags:
       - Platform
@@ -698,6 +708,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/project.Project'
       summary: create project
       tags:
       - Project
@@ -743,6 +755,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/project.Project'
       summary: update project
       tags:
       - Project
@@ -770,6 +784,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/project.Project'
       summary: update project design
       tags:
       - Project
@@ -797,6 +813,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/project.Project'
       summary: update project platform
       tags:
       - Project
@@ -833,6 +851,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/resource.Resource'
       summary: create resource
       tags:
       - Resource
@@ -897,7 +917,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: ok
+          schema:
+            type: string
       summary: update resource
       tags:
       - Resource
