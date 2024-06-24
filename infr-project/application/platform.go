@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	domain "github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -114,33 +115,75 @@ func (s *PlatformService) DeleteProject(id string, projectId string) (*platform.
 		return nil, err
 	}
 
-	plat.RemoveProject(projectId)
+	if _, err := plat.RemoveProject(projectId); err != nil {
+		return nil, err
+	}
+
 	return plat, s.repository.Update(context.Background(), *plat)
 }
 
 func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest) (*platform.Platform, error) {
-	plat, err := s.repository.Get(context.Background(), id)
+	ctx := context.Background()
+	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	plat.UpdateName(data.Name)
-	plat.UpdateUrl(data.Url)
-	plat.UpdateRestEndpoint(data.Rest)
-	plat.UpdateTags(data.Tags)
-	if data.Activate != nil {
-		if *data.Activate {
-			plat.Enable()
-		} else {
-			plat.Disable()
+	if plat.Name != data.Name {
+		res, err := s.repository.GetPlatformByName(ctx, data.Name)
+		if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
+			return nil, err
+		}
+
+		if res != nil && len(res.Id) > 0 && res.Id != id {
+			return nil, fmt.Errorf("name: %s is existed", data.Name)
+		}
+
+		if _, err := plat.UpdateName(data.Name); err != nil {
+			return nil, err
 		}
 	}
-	if data.Property != nil {
-		plat.UpdateProperty(data.Property)
+
+	if plat.Url != data.Url {
+		if _, err := plat.UpdateUrl(data.Url); err != nil {
+			return nil, err
+		}
 	}
+
+	if plat.RestEndpoint != data.Rest {
+		if _, err := plat.UpdateRestEndpoint(data.Rest); err != nil {
+			return nil, err
+		}
+	}
+
+	if !extensions.StringArrayCompare(plat.Tags, data.Tags) {
+		if _, err := plat.UpdateTags(data.Tags); err != nil {
+			return nil, err
+		}
+	}
+
+	if data.Activate != nil && plat.Activate != *data.Activate {
+		if *data.Activate {
+			if _, err := plat.Enable(); err != nil {
+				return nil, err
+			}
+		} else {
+			if _, err := plat.Disable(); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if !extensions.MapsCompare(data.Property, data.Property) {
+		if _, err := plat.UpdateProperty(data.Property); err != nil {
+			return nil, err
+		}
+	}
+
 	err = s.repository.Update(context.Background(), *plat)
 	if err != nil {
 		return nil, err
 	}
+
 	return plat, nil
 }
