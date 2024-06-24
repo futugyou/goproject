@@ -85,7 +85,7 @@ func (w *Webhook) commonUnmarshal(data []byte, unmarshal func([]byte, any) error
 	return nil
 }
 
-func (r *Platform) MarshalJSON() ([]byte, error) {
+func (r Platform) MarshalJSON() ([]byte, error) {
 	return json.Marshal(makeMap(r))
 }
 
@@ -98,7 +98,7 @@ func (r *Platform) UnmarshalJSON(data []byte) error {
 	return makeEntity(r, m, json.Marshal, json.Unmarshal)
 }
 
-func (r *Platform) MarshalBSON() ([]byte, error) {
+func (r Platform) MarshalBSON() ([]byte, error) {
 	return bson.Marshal(makeMap(r))
 }
 
@@ -170,7 +170,7 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 	return nil
 }
 
-func makeMap(r *Platform) map[string]interface{} {
+func makeMap(r Platform) map[string]interface{} {
 	projects := make([]PlatformProject, 0, len(r.Projects))
 	for _, k := range r.Projects {
 		projects = append(projects, k)

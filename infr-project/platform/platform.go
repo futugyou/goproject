@@ -148,6 +148,6 @@ func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, 
 	return w, nil
 }
 
-func (r *Platform) AggregateName() string {
+func (r Platform) AggregateName() string {
 	return "platforms"
 }

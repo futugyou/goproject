@@ -39,7 +39,7 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest) (*pla
 
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, aux.Property, aux.Tags)
-		return s.repository.Insert(ctx, res)
+		return s.repository.Insert(ctx, *res)
 	})
 	if err != nil {
 		return nil, err
@@ -53,21 +53,15 @@ func (s *PlatformService) GetAllPlatform() ([]platform.Platform, error) {
 }
 
 func (s *PlatformService) GetPlatform(id string) (*platform.Platform, error) {
-	res, err := s.repository.Get(context.Background(), id)
-	if err != nil {
-		return nil, err
-	}
-
-	return *res, nil
+	return s.repository.Get(context.Background(), id)
 }
 
 func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest) (*platform.Platform, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	plat, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	plat := *res
 	if _, exists := plat.Projects[projectId]; !exists {
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
 	}
@@ -76,7 +70,7 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	newhook.Activate = hook.Activate
 	newhook.State = platform.GetWebhookState(hook.State)
 	plat.UpdateWebhook(projectId, *newhook)
-	err = s.repository.Update(context.Background(), plat)
+	err = s.repository.Update(context.Background(), *plat)
 	if err != nil {
 		return nil, err
 	}
@@ -89,15 +83,11 @@ func (s *PlatformService) DeletePlatform(id string) (*platform.Platform, error) 
 		return nil, err
 	}
 
-	res, err := s.repository.Get(context.Background(), id)
-	if err != nil {
-		return nil, err
-	}
-	return *res, err
+	return s.repository.Get(context.Background(), id)
 }
 
 func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest) (*platform.Platform, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	plat, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
@@ -106,10 +96,11 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 		projectId = project.Name
 	}
 
-	plat := *res
 	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, project.Property)
-	plat.UpdateProject(*proj)
-	err = s.repository.Update(context.Background(), plat)
+	if _, err = plat.UpdateProject(*proj); err != nil {
+		return nil, err
+	}
+	err = s.repository.Update(context.Background(), *plat)
 	if err != nil {
 		return nil, err
 	}
@@ -118,23 +109,21 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 }
 
 func (s *PlatformService) DeleteProject(id string, projectId string) (*platform.Platform, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	plat, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	plat := *res
 	plat.RemoveProject(projectId)
-	return plat, s.repository.Update(context.Background(), plat)
+	return plat, s.repository.Update(context.Background(), *plat)
 }
 
 func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest) (*platform.Platform, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	plat, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	plat := *res
 	plat.UpdateName(data.Name)
 	plat.UpdateUrl(data.Url)
 	plat.UpdateRestEndpoint(data.Rest)
@@ -149,7 +138,7 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 	if data.Property != nil {
 		plat.UpdateProperty(data.Property)
 	}
-	err = s.repository.Update(context.Background(), plat)
+	err = s.repository.Update(context.Background(), *plat)
 	if err != nil {
 		return nil, err
 	}

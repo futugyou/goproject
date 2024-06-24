@@ -11,12 +11,12 @@ import (
 )
 
 type PlatformRepository struct {
-	BaseRepository[*platform.Platform]
+	BaseRepository[platform.Platform]
 }
 
 func NewPlatformRepository(client *mongo.Client, config DBConfig) *PlatformRepository {
 	return &PlatformRepository{
-		BaseRepository: *NewBaseRepository[*platform.Platform](client, config),
+		BaseRepository: *NewBaseRepository[platform.Platform](client, config),
 	}
 }
 
@@ -29,19 +29,10 @@ func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 	if len(ent) == 0 {
 		return nil, fmt.Errorf("no data found with name %s", name)
 	}
-	return ent[0], nil
+	return &ent[0], nil
 }
 
 func (s *PlatformRepository) GetAllPlatform(ctx context.Context) ([]platform.Platform, error) {
 	condition := extensions.NewSearch(nil, nil, nil, nil)
-	ent, err := s.BaseRepository.GetWithCondition(ctx, condition)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]platform.Platform, len(ent))
-	for i := 0; i < len(ent); i++ {
-		result[i] = *ent[i]
-	}
-	return result, nil
+	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
