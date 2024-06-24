@@ -9,7 +9,7 @@ import (
 
 // MarshalJSON is a custom marshaler for Resource that handles the serialization of ResourceType.
 // In this case, we can skip MarshalJSON, only implement UnmarshalJSON
-func (r *Resource) MarshalJSON() ([]byte, error) {
+func (r Resource) MarshalJSON() ([]byte, error) {
 	return json.Marshal(makeMap(r))
 }
 
@@ -23,7 +23,7 @@ func (r *Resource) UnmarshalJSON(data []byte) error {
 	return makeEntity(r, m)
 }
 
-func (r *Resource) MarshalBSON() ([]byte, error) {
+func (r Resource) MarshalBSON() ([]byte, error) {
 	return bson.Marshal(makeMap(r))
 
 	// type Alias Resource
@@ -127,7 +127,7 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 	return nil
 }
 
-func makeMap(r *Resource) map[string]interface{} {
+func makeMap(r Resource) map[string]interface{} {
 	m := map[string]interface{}{
 		"id":         r.Id,
 		"name":       r.Name,

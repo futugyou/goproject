@@ -20,6 +20,7 @@ type ResourceDetail struct {
 	Name      string    `json:"name" bson:"name"`
 	Type      string    `json:"type" bson:"type"`
 	Data      string    `json:"data" bson:"data"`
+	Version   int       `json:"version" bson:"version"`
 	IsDelete  bool      `json:"is_deleted" bson:"is_deleted"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
