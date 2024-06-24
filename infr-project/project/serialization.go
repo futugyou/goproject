@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func (r *Project) MarshalJSON() ([]byte, error) {
+func (r Project) MarshalJSON() ([]byte, error) {
 	return json.Marshal(makeMap(r))
 }
 
@@ -22,7 +22,7 @@ func (r *Project) UnmarshalJSON(data []byte) error {
 	return makeEntity(r, m, json.Marshal, json.Unmarshal)
 }
 
-func (r *Project) MarshalBSON() ([]byte, error) {
+func (r Project) MarshalBSON() ([]byte, error) {
 	return bson.Marshal(makeMap(r))
 }
 
@@ -107,7 +107,7 @@ func makeEntity(r *Project, m map[string]interface{}, marshal func(interface{}) 
 	return nil
 }
 
-func makeMap(r *Project) map[string]interface{} {
+func makeMap(r Project) map[string]interface{} {
 	m := map[string]interface{}{
 		"id":          r.Id,
 		"name":        r.Name,

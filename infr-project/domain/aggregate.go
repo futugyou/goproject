@@ -10,6 +10,6 @@ type Aggregate struct {
 	Id string `json:"id"`
 }
 
-func (a *Aggregate) AggregateId() string {
+func (a Aggregate) AggregateId() string {
 	return a.Id
 }

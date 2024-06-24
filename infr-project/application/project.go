@@ -29,7 +29,7 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest) (*pr
 	var res *project.Project
 	ctx := context.Background()
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
-	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
+	if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest) (*pr
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = project.NewProject(request.Name, request.Description,
 			project.GetProjectState(request.ProjectState), request.StartTime, request.EndTime, request.Tags)
-		return s.repository.Insert(ctx, res)
+		return s.repository.Insert(ctx, *res)
 	})
 	if err != nil {
 		return nil, err
@@ -54,21 +54,15 @@ func (s *ProjectService) GetAllProject() ([]project.Project, error) {
 }
 
 func (s *ProjectService) GetProject(id string) (*project.Project, error) {
-	res, err := s.repository.Get(context.Background(), id)
-	if err != nil {
-		return nil, err
-	}
-
-	return *res, nil
+	return s.repository.Get(context.Background(), id)
 }
 
 func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest) (*project.Project, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	proj, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	proj := *res
 	proj.ChangeName(data.Name)
 	proj.ChangeDescription(data.Description)
 	sta := project.GetProjectState(data.ProjectState)
@@ -83,7 +77,7 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 	}
 
 	proj.ChangeTags(data.Tags)
-	err = s.repository.Update(context.Background(), proj)
+	err = s.repository.Update(context.Background(), *proj)
 	if err != nil {
 		return nil, err
 	}
@@ -91,12 +85,11 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 }
 
 func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest) (*project.Project, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	proj, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	proj := *res
 	platforms := make([]project.ProjectPlatform, 0)
 	for _, data := range datas {
 		platforms = append(platforms, project.ProjectPlatform{
@@ -106,7 +99,7 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 		})
 	}
 	proj.UpdatePlatform(platforms)
-	err = s.repository.Update(context.Background(), proj)
+	err = s.repository.Update(context.Background(), *proj)
 	if err != nil {
 		return nil, err
 	}
@@ -114,12 +107,11 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 }
 
 func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest) (*project.Project, error) {
-	res, err := s.repository.Get(context.Background(), id)
+	proj, err := s.repository.Get(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	proj := *res
 	designes := make([]project.ProjectDesign, 0)
 	for _, data := range datas {
 		designes = append(designes, project.ProjectDesign{
@@ -129,7 +121,7 @@ func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdatePro
 		})
 	}
 	proj.UpdateDesign(designes)
-	err = s.repository.Update(context.Background(), proj)
+	err = s.repository.Update(context.Background(), *proj)
 	if err != nil {
 		return nil, err
 	}

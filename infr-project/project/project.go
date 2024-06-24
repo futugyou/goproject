@@ -21,7 +21,7 @@ type Project struct {
 	Tags             []string          `json:"tags" bson:"tags"`
 }
 
-func (r *Project) AggregateName() string {
+func (r Project) AggregateName() string {
 	return "projects"
 }
 

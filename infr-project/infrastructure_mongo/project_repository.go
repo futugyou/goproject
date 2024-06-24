@@ -11,12 +11,12 @@ import (
 )
 
 type ProjectRepository struct {
-	BaseRepository[*project.Project]
+	BaseRepository[project.Project]
 }
 
 func NewProjectRepository(client *mongo.Client, config DBConfig) *ProjectRepository {
 	return &ProjectRepository{
-		BaseRepository: *NewBaseRepository[*project.Project](client, config),
+		BaseRepository: *NewBaseRepository[project.Project](client, config),
 	}
 }
 
@@ -29,19 +29,10 @@ func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (
 	if len(ent) == 0 {
 		return nil, fmt.Errorf("no data found with name %s", name)
 	}
-	return ent[0], nil
+	return &ent[0], nil
 }
 
 func (s *ProjectRepository) GetAllProject(ctx context.Context) ([]project.Project, error) {
 	condition := extensions.NewSearch(nil, nil, nil, nil)
-	ent, err := s.BaseRepository.GetWithCondition(ctx, condition)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]project.Project, len(ent))
-	for i := 0; i < len(ent); i++ {
-		result[i] = *ent[i]
-	}
-	return result, nil
+	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
