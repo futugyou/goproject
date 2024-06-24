@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chidiwilliams/flatbson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -78,14 +77,10 @@ func (s *BaseRepository[Aggregate]) Insert(ctx context.Context, aggregate Aggreg
 func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggregate) error {
 	c := s.Client.Database(s.DBName).Collection(aggregate.AggregateName())
 	opt := options.Update().SetUpsert(true)
-	doc, err := flatbson.Flatten(aggregate)
-	if err != nil {
-		return err
-	}
 
 	filter := bson.D{{Key: "id", Value: aggregate.AggregateId()}}
-	if _, err = c.UpdateOne(ctx, filter, bson.M{
-		"$set": doc,
+	if _, err := c.UpdateOne(ctx, filter, bson.M{
+		"$set": aggregate,
 	}, opt); err != nil {
 		return err
 	}
