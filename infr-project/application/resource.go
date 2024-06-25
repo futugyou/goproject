@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
@@ -14,6 +15,7 @@ import (
 type ResourceService struct {
 	service    *ApplicationService[resource.IResourceEvent, *resource.Resource]
 	unitOfWork domain.IUnitOfWork
+	queryRepo  IPlatformRepository
 }
 
 func needStoreSnapshot(aggregate *resource.Resource) bool {
@@ -24,10 +26,12 @@ func NewResourceService(
 	eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
+	queryRepo IPlatformRepository,
 ) *ResourceService {
 	return &ResourceService{
 		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot),
 		unitOfWork: unitOfWork,
+		queryRepo:  queryRepo,
 	}
 }
 
@@ -51,6 +55,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 		return err
 	}
 
+	ctx := context.Background()
 	source := *res
 	oldVersion := source.Version
 	var aggregate *resource.Resource
@@ -63,7 +68,15 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 	}
 
 	if source.Name != aux.Name {
-		// TODO: check name in db
+		res, err := s.queryRepo.GetResourceByName(ctx, aux.Name)
+		if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
+			return err
+		}
+
+		if res != nil && len(res.Id) > 0 && res.Id != id {
+			return fmt.Errorf("name: %s is existed", aux.Name)
+		}
+
 		if aggregate, err = source.ChangeName(aux.Name); err != nil {
 			return err
 		}
@@ -86,7 +99,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 		aggs = append(aggs, &aggregates[i])
 	}
 
-	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+	return s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.service.SaveSnapshotAndEvent2(ctx, aggs)
 	})
 }
