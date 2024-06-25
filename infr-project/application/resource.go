@@ -54,17 +54,21 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 	source := *res
 	oldVersion := source.Version
 	var aggregate *resource.Resource
+	var aggregates = make([]resource.Resource, 0)
 	if source.Data != aux.Data {
 		aggregate, err = source.ChangeData(aux.Data)
+		aggregates = append(aggregates, *aggregate)
 	}
 
 	if source.Name != aux.Name && err == nil {
 		// TODO: check name in db
 		aggregate, err = source.ChangeName(aux.Name)
+		aggregates = append(aggregates, *aggregate)
 	}
 
 	if !extensions.StringArrayCompare(aux.Tags, source.Tags) && err == nil {
 		aggregate, err = source.ChangeTags(aux.Tags)
+		aggregates = append(aggregates, *aggregate)
 	}
 
 	if err != nil {
@@ -75,8 +79,12 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 		return fmt.Errorf("the data in the resource has not changed")
 	}
 
+	var aggs = make([]*resource.Resource, 0)
+	for i := 0; i < len(aggregates); i++ {
+		aggs = append(aggs, &aggregates[i])
+	}
 	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
-		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
+		return s.service.SaveSnapshotAndEvent2(ctx, aggs)
 	})
 }
 
