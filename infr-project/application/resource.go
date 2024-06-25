@@ -56,23 +56,25 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 	var aggregate *resource.Resource
 	var aggregates = make([]resource.Resource, 0)
 	if source.Data != aux.Data {
-		aggregate, err = source.ChangeData(aux.Data)
+		if aggregate, err = source.ChangeData(aux.Data); err != nil {
+			return err
+		}
 		aggregates = append(aggregates, *aggregate)
 	}
 
-	if source.Name != aux.Name && err == nil {
+	if source.Name != aux.Name {
 		// TODO: check name in db
-		aggregate, err = source.ChangeName(aux.Name)
+		if aggregate, err = source.ChangeName(aux.Name); err != nil {
+			return err
+		}
 		aggregates = append(aggregates, *aggregate)
 	}
 
-	if !extensions.StringArrayCompare(aux.Tags, source.Tags) && err == nil {
-		aggregate, err = source.ChangeTags(aux.Tags)
+	if !extensions.StringArrayCompare(aux.Tags, source.Tags) {
+		if aggregate, err = source.ChangeTags(aux.Tags); err != nil {
+			return err
+		}
 		aggregates = append(aggregates, *aggregate)
-	}
-
-	if err != nil {
-		return err
 	}
 
 	if aggregate == nil || oldVersion == aggregate.Version {
@@ -83,6 +85,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 	for i := 0; i < len(aggregates); i++ {
 		aggs = append(aggs, &aggregates[i])
 	}
+
 	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
 		return s.service.SaveSnapshotAndEvent2(ctx, aggs)
 	})
