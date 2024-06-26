@@ -57,3 +57,5 @@ updates:
     directory: "/infr-project"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "github.com/ThreeDotsLabs/watermill"
