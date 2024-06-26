@@ -8,6 +8,8 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
@@ -150,21 +152,41 @@ func cqrstest(c *gin.Context) {
 		})
 		return
 	}
-
+	router, err := message.NewRouter(message.RouterConfig{}, nil)
+	router.AddMiddleware(middleware.Recoverer)
+	commandProcessor, err := cqrs.NewCommandProcessorWithConfig(
+		router,
+		cqrs.CommandProcessorConfig{
+			GenerateSubscribeTopic: func(params cqrs.CommandProcessorGenerateSubscribeTopicParams) (string, error) {
+				return params.CommandName, nil
+			},
+			SubscriberConstructor: func(params cqrs.CommandProcessorSubscriberConstructorParams) (message.Subscriber, error) {
+				return pubSub, nil
+			},
+			Marshaler: cqrsMarshaler,
+		},
+	)
+	err = commandProcessor.AddHandlers(
+		command.BookRoomHandler{},
+	)
 	bookRoomCmd := &command.BookRoom{
 		RoomId:    "id-2000-01-01",
 		GuestName: "John",
 		StartDate: time.Now(),
 		EndDate:   time.Now(),
 	}
-	if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
+	go func() {
+		if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
+			c.JSON(500, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+	}()
 
 	c.JSON(200, gin.H{
 		"message": "ok",
 	})
 }
+
+func createCQRSComponent() {}

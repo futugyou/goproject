@@ -29,7 +29,7 @@ func (b BookRoomHandler) Handle(ctx context.Context, c interface{}) error {
 	// c is always the type returned by `NewCommand`, so casting is always safe
 	cmd := c.(*BookRoom)
 
-	fmt.Println(cmd)
+	fmt.Println("handle message: ", cmd)
 
 	return nil
 }
