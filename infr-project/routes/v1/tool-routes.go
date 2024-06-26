@@ -133,48 +133,21 @@ func terraformWS(c *gin.Context) {
 }
 
 func cqrstest(c *gin.Context) {
-	pubSub := gochannel.NewGoChannel(
-		gochannel.Config{},
-		watermill.NewStdLogger(false, false),
-	)
-
-	cqrsMarshaler := cqrs.JSONMarshaler{}
-	commandBus, err := cqrs.NewCommandBusWithConfig(pubSub, cqrs.CommandBusConfig{
-		GeneratePublishTopic: func(params cqrs.CommandBusGeneratePublishTopicParams) (string, error) {
-			return params.CommandName, nil
-		},
-		Marshaler: cqrsMarshaler,
-	})
-
+	commandBus, _, err := createCQRSComponent()
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	router, err := message.NewRouter(message.RouterConfig{}, nil)
-	router.AddMiddleware(middleware.Recoverer)
-	commandProcessor, err := cqrs.NewCommandProcessorWithConfig(
-		router,
-		cqrs.CommandProcessorConfig{
-			GenerateSubscribeTopic: func(params cqrs.CommandProcessorGenerateSubscribeTopicParams) (string, error) {
-				return params.CommandName, nil
-			},
-			SubscriberConstructor: func(params cqrs.CommandProcessorSubscriberConstructorParams) (message.Subscriber, error) {
-				return pubSub, nil
-			},
-			Marshaler: cqrsMarshaler,
-		},
-	)
-	err = commandProcessor.AddHandlers(
-		command.BookRoomHandler{},
-	)
+
 	bookRoomCmd := &command.BookRoom{
 		RoomId:    "id-2000-01-01",
 		GuestName: "John",
 		StartDate: time.Now(),
 		EndDate:   time.Now(),
 	}
+
 	go func() {
 		if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
 			c.JSON(500, gin.H{
@@ -189,4 +162,51 @@ func cqrstest(c *gin.Context) {
 	})
 }
 
-func createCQRSComponent() {}
+func createCQRSComponent() (*cqrs.CommandBus, *cqrs.CommandProcessor, error) {
+	pubSub := gochannel.NewGoChannel(
+		gochannel.Config{},
+		watermill.NewStdLogger(false, false),
+	)
+
+	cqrsMarshaler := cqrs.JSONMarshaler{}
+	commandBus, err := cqrs.NewCommandBusWithConfig(pubSub, cqrs.CommandBusConfig{
+		GeneratePublishTopic: func(params cqrs.CommandBusGeneratePublishTopicParams) (string, error) {
+			return params.CommandName, nil
+		},
+		Marshaler: cqrsMarshaler,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	router, err := message.NewRouter(message.RouterConfig{}, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	router.AddMiddleware(middleware.Recoverer)
+	commandProcessor, err := cqrs.NewCommandProcessorWithConfig(
+		router,
+		cqrs.CommandProcessorConfig{
+			GenerateSubscribeTopic: func(params cqrs.CommandProcessorGenerateSubscribeTopicParams) (string, error) {
+				return params.CommandName, nil
+			},
+			SubscriberConstructor: func(params cqrs.CommandProcessorSubscriberConstructorParams) (message.Subscriber, error) {
+				return pubSub, nil
+			},
+			Marshaler: cqrsMarshaler,
+		},
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = commandProcessor.AddHandlers(
+		command.BookRoomHandler{},
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return commandBus, commandProcessor, nil
+}
