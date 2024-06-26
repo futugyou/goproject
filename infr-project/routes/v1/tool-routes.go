@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/components/cqrs"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 
+	"github.com/futugyou/infr-project/command"
 	"github.com/futugyou/infr-project/sdk"
 	"github.com/futugyou/infr-project/services"
 )
@@ -19,6 +24,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup) {
 	v1.GET("/test/circleci", circleciPipeline)
 	v1.GET("/test/vault", vaultSecret)
 	v1.GET("/test/tf", terraformWS)
+	v1.GET("/test/cqrs", cqrstest)
 }
 
 // @Summary ping
@@ -119,6 +125,45 @@ func terraformWS(c *gin.Context) {
 	if err != nil {
 		fmt.Println("ar", err.Error())
 	}
+	c.JSON(200, gin.H{
+		"message": "ok",
+	})
+}
+
+func cqrstest(c *gin.Context) {
+	pubSub := gochannel.NewGoChannel(
+		gochannel.Config{},
+		watermill.NewStdLogger(false, false),
+	)
+
+	cqrsMarshaler := cqrs.JSONMarshaler{}
+	commandBus, err := cqrs.NewCommandBusWithConfig(pubSub, cqrs.CommandBusConfig{
+		GeneratePublishTopic: func(params cqrs.CommandBusGeneratePublishTopicParams) (string, error) {
+			return params.CommandName, nil
+		},
+		Marshaler: cqrsMarshaler,
+	})
+
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	bookRoomCmd := &command.BookRoom{
+		RoomId:    "id-2000-01-01",
+		GuestName: "John",
+		StartDate: time.Now(),
+		EndDate:   time.Now(),
+	}
+	if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(200, gin.H{
 		"message": "ok",
 	})
