@@ -38,14 +38,10 @@ func (s *CircleciClient) ListWebhook(projectId string) ListWebhookResponse {
 	return result
 }
 
-type WebhookScope struct {
-	Id   string `json:"id"`
-	Type string `json:"type"` //"project"
-}
-
 type ListWebhookResponse struct {
 	Items         []WebhookItem `json:"items"`
 	NextPageToken string        `json:"next_page_token"`
+	Message       *string       `json:"message,omitempty"`
 }
 
 type WebhookItem struct {
@@ -58,4 +54,10 @@ type WebhookItem struct {
 	UpdatedAt     string       `json:"updated-at,omitempty"`
 	Id            string       `json:"id,omitempty"`
 	CreatedAt     string       `json:"created-at,omitempty"`
+	Message       *string      `json:"message,omitempty"`
+}
+
+type WebhookScope struct {
+	Id   string `json:"id"`
+	Type string `json:"type"` //"project"
 }
