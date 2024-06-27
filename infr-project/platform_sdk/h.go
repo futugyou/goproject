@@ -30,7 +30,7 @@ func newHttpClient(token string, baseUrl string) *httpClient {
 	return c
 }
 
-func newHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
+func NewHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
 	c := &httpClient{
 		baseurl:       baseUrl,
 		http:          &http.Client{},

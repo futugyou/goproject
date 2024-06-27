@@ -15,7 +15,8 @@ import (
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 
 	"github.com/futugyou/infr-project/command"
-	"github.com/futugyou/infr-project/sdk"
+	sdk "github.com/futugyou/infr-project/platform_sdk"
+	circleci "github.com/futugyou/infr-project/platform_sdk/circleci"
 	"github.com/futugyou/infr-project/services"
 )
 
@@ -83,7 +84,7 @@ func vercelProjectEndpoint(c *gin.Context) {
 // @Success 200 {string}  string
 // @Router /test/circleci [get]
 func circleciPipeline(c *gin.Context) {
-	f := sdk.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
+	f := circleci.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
 	result := f.Pipelines(os.Getenv("CIRCLECI_ORG_SLUG"))
 	c.JSON(200, result)
 }
