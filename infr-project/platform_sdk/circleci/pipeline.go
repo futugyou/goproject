@@ -14,6 +14,18 @@ func (s *CircleciClient) Pipelines(org_slug string) CircleciPipelineResponse {
 	return result
 }
 
+func (s *CircleciClient) PipelineWorkflows(pipelineId string) PipelineWorkflowResponse {
+	path := "pipeline/" + pipelineId + "/workflow"
+	result := PipelineWorkflowResponse{}
+	err := s.http.Get(path, &result)
+
+	if err != nil {
+		log.Println(err.Error())
+		return result
+	}
+	return result
+}
+
 type CircleciPipelineResponse struct {
 	Items         []CircleciPipeline `json:"items"`
 	NextPageToken string             `json:"next_page_token"`
@@ -68,4 +80,25 @@ type Vcs struct {
 type Commit struct {
 	Subject string `json:"subject"`
 	Body    string `json:"body"`
+}
+
+type PipelineWorkflowResponse struct {
+	Items         []PipelineWorkflowItem `json:"items"`
+	NextPageToken string                 `json:"next_page_token"`
+	Message       string                 `json:"message"`
+}
+
+type PipelineWorkflowItem struct {
+	PipelineID     string `json:"pipeline_id"`
+	CanceledBy     string `json:"canceled_by"`
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	ProjectSlug    string `json:"project_slug"`
+	ErroredBy      string `json:"errored_by"`
+	Tag            string `json:"tag"`
+	Status         string `json:"status"`
+	StartedBy      string `json:"started_by"`
+	PipelineNumber string `json:"pipeline_number"`
+	CreatedAt      string `json:"created_at"`
+	StoppedAt      string `json:"stopped_at"`
 }
