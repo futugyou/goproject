@@ -12,6 +12,7 @@ import (
 	"github.com/futugyou/infr-project/command"
 	sdk "github.com/futugyou/infr-project/platform_sdk"
 	circleci "github.com/futugyou/infr-project/platform_sdk/circleci"
+	vercel "github.com/futugyou/infr-project/platform_sdk/vercel"
 	"github.com/futugyou/infr-project/services"
 )
 
@@ -69,7 +70,7 @@ func workflowEndpoint(c *gin.Context) {
 // @Success 200 {string}  string
 // @Router /test/vercel [get]
 func vercelProjectEndpoint(c *gin.Context) {
-	f := sdk.NewVercelClient(os.Getenv("VERCEL_TOKEN"))
+	f := vercel.NewVercelClient(os.Getenv("VERCEL_TOKEN"))
 	result := f.GetProjects()
 	c.JSON(200, result)
 }

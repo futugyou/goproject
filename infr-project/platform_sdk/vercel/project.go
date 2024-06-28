@@ -1,23 +1,6 @@
-package sdk
+package vercel
 
-import (
-	"log"
-)
-
-type VercelClient struct {
-	token string
-	http  IHttpClient
-}
-
-const vercle_url string = "https://api.vercel.com"
-
-func NewVercelClient(token string) *VercelClient {
-	c := &VercelClient{
-		http: newHttpClient(token, vercle_url),
-	}
-	c.token = token
-	return c
-}
+import "log"
 
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"

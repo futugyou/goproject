@@ -21,7 +21,7 @@ type httpClient struct {
 	customeHeader map[string]string
 }
 
-func newHttpClient(token string, baseUrl string) *httpClient {
+func NewHttpClient(token string, baseUrl string) *httpClient {
 	c := &httpClient{
 		token:   token,
 		baseurl: baseUrl,
