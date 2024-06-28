@@ -1,17 +1,11 @@
 package v1
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill"
-	"github.com/ThreeDotsLabs/watermill/components/cqrs"
-	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
-	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 
@@ -21,7 +15,10 @@ import (
 	"github.com/futugyou/infr-project/services"
 )
 
-func ConfigTestingRoutes(v1 *gin.RouterGroup) {
+var cqrsRoute *command.Router
+
+func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
+	cqrsRoute = route
 	v1.GET("/test/ping", pingEndpoint)
 	v1.GET("/test/workflow", workflowEndpoint)
 	v1.GET("/test/vercel", vercelProjectEndpoint)
@@ -135,13 +132,7 @@ func terraformWS(c *gin.Context) {
 }
 
 func cqrstest(c *gin.Context) {
-	commandBus, _, err := createCQRSComponent()
-	if err != nil {
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
+	commandBus := cqrsRoute.CommandBus
 
 	bookRoomCmd := &command.BookRoom{
 		RoomId:    "id-2000-01-01",
@@ -150,69 +141,14 @@ func cqrstest(c *gin.Context) {
 		EndDate:   time.Now(),
 	}
 
-	// go func() {
 	if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
 		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	// }()
 
 	c.JSON(200, gin.H{
 		"message": "ok",
 	})
-}
-
-func createCQRSComponent() (*cqrs.CommandBus, *cqrs.CommandProcessor, error) {
-	pubSub := gochannel.NewGoChannel(
-		gochannel.Config{},
-		watermill.NewStdLogger(false, false),
-	)
-
-	cqrsMarshaler := cqrs.JSONMarshaler{}
-	commandBus, err := cqrs.NewCommandBusWithConfig(pubSub, cqrs.CommandBusConfig{
-		GeneratePublishTopic: func(params cqrs.CommandBusGeneratePublishTopicParams) (string, error) {
-			return params.CommandName, nil
-		},
-		Marshaler: cqrsMarshaler,
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	router, err := message.NewRouter(message.RouterConfig{}, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	router.AddMiddleware(middleware.Recoverer)
-	commandProcessor, err := cqrs.NewCommandProcessorWithConfig(
-		router,
-		cqrs.CommandProcessorConfig{
-			GenerateSubscribeTopic: func(params cqrs.CommandProcessorGenerateSubscribeTopicParams) (string, error) {
-				return params.CommandName, nil
-			},
-			SubscriberConstructor: func(params cqrs.CommandProcessorSubscriberConstructorParams) (message.Subscriber, error) {
-				return pubSub, nil
-			},
-			Marshaler: cqrsMarshaler,
-		},
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	err = commandProcessor.AddHandlers(
-		command.BookRoomHandler{},
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	go func() {
-		router.Run(context.Background())
-	}()
-	<-router.Running()
-	return commandBus, commandProcessor, nil
 }

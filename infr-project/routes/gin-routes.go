@@ -6,12 +6,13 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	"github.com/futugyou/infr-project/command"
 	docs "github.com/futugyou/infr-project/docs"
 
 	v1 "github.com/futugyou/infr-project/routes/v1"
 )
 
-func NewGinRoute() *gin.Engine {
+func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
 	docs.SwaggerInfo.BasePath = "/api/v1"
@@ -24,7 +25,7 @@ func NewGinRoute() *gin.Engine {
 		// project routes
 		v1.ConfigProjectRoutes(v1api)
 		// sdk test routes
-		v1.ConfigTestingRoutes(v1api)
+		v1.ConfigTestingRoutes(v1api, cqrsRoute)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
