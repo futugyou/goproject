@@ -26,6 +26,18 @@ func (v *VercelClient) GetProjectEnv(project string) string {
 	return result
 }
 
+func (v *VercelClient) GetProject(project string, slug string, teamId string) string {
+	path := "/v9/projects/" + project + "?slug=" + slug + "&teamId=" + teamId
+	result := ""
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		log.Println(err.Error())
+		return result
+	}
+	return result
+}
+
 func (v *VercelClient) CreateProject(name string, slug string, teamId string) string {
 	path := "/v10/projects?slug=" + slug + "&teamId=" + teamId
 	// TODO: struct
