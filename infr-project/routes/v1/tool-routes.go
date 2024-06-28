@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -149,14 +150,14 @@ func cqrstest(c *gin.Context) {
 		EndDate:   time.Now(),
 	}
 
-	go func() {
-		if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
-			c.JSON(500, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
-	}()
+	// go func() {
+	if err := commandBus.Send(c.Request.Context(), bookRoomCmd); err != nil {
+		c.JSON(500, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	// }()
 
 	c.JSON(200, gin.H{
 		"message": "ok",
@@ -209,5 +210,9 @@ func createCQRSComponent() (*cqrs.CommandBus, *cqrs.CommandProcessor, error) {
 		return nil, nil, err
 	}
 
+	go func() {
+		router.Run(context.Background())
+	}()
+	<-router.Running()
 	return commandBus, commandProcessor, nil
 }
