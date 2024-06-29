@@ -83,6 +83,58 @@ func (s *CircleciClient) RemoveContextEnvironment(contextId string, name string)
 	return result, nil
 }
 
+func (s *CircleciClient) GetContextRestrictions(contextId string) (*ContextRestrictionsResponse, error) {
+	path := "/context/" + contextId + "/restrictions"
+
+	result := &ContextRestrictionsResponse{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) CreateContextRestriction(contextId string, restriction_type string, restriction_value string) (*ContextRestriction, error) {
+	path := "/context/" + contextId + "/restrictions"
+
+	result := &ContextRestriction{}
+	request := &struct {
+		RestrictionType  string `json:"restriction_type"`
+		RestrictionValue string `json:"restriction_value"`
+	}{
+		RestrictionType:  restriction_type,
+		RestrictionValue: restriction_value,
+	}
+	if err := s.http.Post(path, request, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) DeleteContextRestriction(contextId string, restriction_id string) (*BaseResponse, error) {
+	path := "/context/" + contextId + "/restrictions/" + restriction_id
+
+	result := &BaseResponse{}
+	if err := s.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ContextRestrictionsResponse struct {
+	Items         []ContextRestriction `json:"items"`
+	NextPageToken string               `json:"next_page_token"`
+	Message       *string              `json:"message,omitempty"`
+}
+
+type ContextRestriction struct {
+	ContextID        string  `json:"context_id"`
+	ID               string  `json:"id"`
+	Name             string  `json:"name"`
+	RestrictionType  string  `json:"restriction_type"` //"project" "expression"
+	RestrictionValue string  `json:"restriction_value"`
+	Message          *string `json:"message,omitempty"`
+}
+
 type UpsertContextEnv struct {
 	Value string `json:"value"`
 }
