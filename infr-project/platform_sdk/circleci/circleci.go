@@ -19,3 +19,7 @@ func NewCircleciClient(token string) *CircleciClient {
 	}
 	return c
 }
+
+type BaseResponse struct {
+	Message *string `json:"message,omitempty"`
+}
