@@ -1,11 +1,9 @@
 package circleci
 
-import "log"
-
-func (s *CircleciClient) CreateContext(name string, ownerId string, ownerType string) ContextInfo {
+func (s *CircleciClient) CreateContext(name string, ownerId string, ownerType string) (*ContextInfo, error) {
 	path := "/context/"
 
-	result := ContextInfo{}
+	result := &ContextInfo{}
 	request := CreateContextInfo{
 		Name: name,
 		Owner: ContextOwner{
@@ -13,93 +11,76 @@ func (s *CircleciClient) CreateContext(name string, ownerId string, ownerType st
 			OwnerType: ownerType,
 		},
 	}
-	err := s.http.Post(path, request, &result)
 
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	if err := s.http.Post(path, request, result); err != nil {
+		return nil, err
 	}
-	return result
+
+	return result, nil
 }
 
-func (s *CircleciClient) ListContext(ownerId string) ListContextResponse {
+func (s *CircleciClient) ListContext(ownerId string) (*ListContextResponse, error) {
 	path := "/context?owner-id=" + ownerId
 
-	result := ListContextResponse{}
-	err := s.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &ListContextResponse{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
 	}
-	return result
+
+	return result, nil
 }
 
-func (s *CircleciClient) DeleteContext(contextId string) BaseResponse {
+func (s *CircleciClient) DeleteContext(contextId string) (*BaseResponse, error) {
 	path := "/context/" + contextId
 
-	result := BaseResponse{}
-	err := s.http.Delete(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &BaseResponse{}
+	if err := s.http.Delete(path, result); err != nil {
+		return nil, err
 	}
-	return result
+
+	return result, nil
 }
 
-func (s *CircleciClient) GetContext(contextId string) ContextInfo {
+func (s *CircleciClient) GetContext(contextId string) (*ContextInfo, error) {
 	path := "/context/" + contextId
 
-	result := ContextInfo{}
-	err := s.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &ContextInfo{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
-func (s *CircleciClient) ListContextEnvironment(contextId string) ListContextEnvResponse {
+func (s *CircleciClient) ListContextEnvironment(contextId string) (*ListContextEnvResponse, error) {
 	path := "/context/" + contextId + "/environment-variable"
 
-	result := ListContextEnvResponse{}
-	err := s.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &ListContextEnvResponse{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
-func (s *CircleciClient) UpsertContextEnvironment(contextId string, name string, value string) ContextEnvInfo {
+func (s *CircleciClient) UpsertContextEnvironment(contextId string, name string, value string) (*ContextEnvInfo, error) {
 	path := "/context/" + contextId + "/environment-variable/" + name
 	request := UpsertContextEnv{
 		Value: value,
 	}
-	result := ContextEnvInfo{}
-	err := s.http.Put(path, request, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &ContextEnvInfo{}
+	if err := s.http.Put(path, request, result); err != nil {
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
-func (s *CircleciClient) RemoveContextEnvironment(contextId string, name string) BaseResponse {
+func (s *CircleciClient) RemoveContextEnvironment(contextId string, name string) (*BaseResponse, error) {
 	path := "/context/" + contextId + "/environment-variable/" + name
 
-	result := BaseResponse{}
-	err := s.http.Delete(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &BaseResponse{}
+	if err := s.http.Delete(path, result); err != nil {
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
 type UpsertContextEnv struct {
