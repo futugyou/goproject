@@ -11,6 +11,7 @@ import (
 type IHttpClient interface {
 	Get(path string, response interface{}) error
 	Post(path string, request, response interface{}) error
+	Put(path string, request, response interface{}) error
 	Delete(path string, response interface{}) error
 }
 
@@ -41,6 +42,10 @@ func NewHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *h
 
 func (c *httpClient) Post(path string, request, response interface{}) error {
 	return c.doRequest(path, "POST", request, response)
+}
+
+func (c *httpClient) Put(path string, request, response interface{}) error {
+	return c.doRequest(path, "PUT", request, response)
 }
 
 func (c *httpClient) Get(path string, response interface{}) error {

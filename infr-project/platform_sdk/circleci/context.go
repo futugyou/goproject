@@ -61,6 +61,65 @@ func (s *CircleciClient) GetContext(contextId string) ContextInfo {
 	return result
 }
 
+func (s *CircleciClient) ListContextEnvironment(contextId string) ListContextEnvResponse {
+	path := "/context/" + contextId + "/environment-variable"
+
+	result := ListContextEnvResponse{}
+	err := s.http.Get(path, &result)
+
+	if err != nil {
+		log.Println(err.Error())
+		return result
+	}
+	return result
+}
+
+func (s *CircleciClient) UpsertContextEnvironment(contextId string, name string, value string) ContextEnvInfo {
+	path := "/context/" + contextId + "/environment-variable/" + name
+	request := UpsertContextEnv{
+		Value: value,
+	}
+	result := ContextEnvInfo{}
+	err := s.http.Put(path, request, &result)
+
+	if err != nil {
+		log.Println(err.Error())
+		return result
+	}
+	return result
+}
+
+func (s *CircleciClient) RemoveContextEnvironment(contextId string, name string) BaseResponse {
+	path := "/context/" + contextId + "/environment-variable/" + name
+
+	result := BaseResponse{}
+	err := s.http.Delete(path, &result)
+
+	if err != nil {
+		log.Println(err.Error())
+		return result
+	}
+	return result
+}
+
+type UpsertContextEnv struct {
+	Value string `json:"value"`
+}
+
+type ListContextEnvResponse struct {
+	Items         []ContextEnvInfo `json:"items"`
+	NextPageToken string           `json:"next_page_token"`
+	Message       *string          `json:"message,omitempty"`
+}
+
+type ContextEnvInfo struct {
+	Variable  string  `json:"variable"`
+	CreatedAt string  `json:"created_at"`
+	UpdatedAt string  `json:"updated_at"`
+	ContextID string  `json:"context_id"`
+	Message   *string `json:"message,omitempty"`
+}
+
 type ListContextResponse struct {
 	Items         []ContextInfo `json:"items"`
 	NextPageToken string        `json:"next_page_token"`
