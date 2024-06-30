@@ -71,6 +71,58 @@ func (s *CircleciClient) GetPipelinesByProject(project_slug string) (*CircleciPi
 	return result, nil
 }
 
+func (s *CircleciClient) TriggerPipeline(project_slug string, branch string, tag string, parameters interface{}) (*TriggerPipelineResponse, error) {
+	path := "/rpoject/" + project_slug + "/pipeline"
+	request := TriggerPipelineRequest{
+		Branch:     branch,
+		Tag:        tag,
+		Parameters: parameters,
+	}
+	result := &TriggerPipelineResponse{}
+	err := s.http.Post(path, request, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) GetYourPipelines(project_slug string) (*CircleciPipelineResponse, error) {
+	path := "/rpoject/" + project_slug + "/pipeline/mine"
+	result := &CircleciPipelineResponse{}
+	err := s.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) GetPipelineByNumber(project_slug string, number string) (*CircleciPipeline, error) {
+	path := "/rpoject/" + project_slug + "/pipeline/" + number
+	result := &CircleciPipeline{}
+	err := s.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type TriggerPipelineRequest struct {
+	Branch     string      `json:"branch"`
+	Tag        string      `json:"tag"`
+	Parameters interface{} `json:"parameters"`
+}
+
+type TriggerPipelineResponse struct {
+	ID        string  `json:"id"`
+	State     string  `json:"state"`
+	Number    string  `json:"number"`
+	CreatedAt string  `json:"created_at"`
+	Message   *string `json:"message"`
+}
+
 type PipelineConfig struct {
 	Source              string  `json:"source"`
 	Compiled            string  `json:"compiled"`
