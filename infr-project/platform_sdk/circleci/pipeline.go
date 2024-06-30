@@ -11,8 +11,30 @@ func (s *CircleciClient) Pipelines(org_slug string) (*CircleciPipelineResponse, 
 	return result, nil
 }
 
+func (s *CircleciClient) GetPipelineById(pipelineid string) (*CircleciPipeline, error) {
+	path := "/pipeline/" + pipelineid + "/config"
+	result := &CircleciPipeline{}
+	err := s.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) GetPipelineConfiguration(pipelineid string) (*PipelineConfig, error) {
+	path := "/pipeline/" + pipelineid
+	result := &PipelineConfig{}
+	err := s.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (s *CircleciClient) PipelineWorkflows(pipelineId string) (*PipelineWorkflowResponse, error) {
-	path := "pipeline/" + pipelineId + "/workflow"
+	path := "/pipeline/" + pipelineId + "/workflow"
 	result := &PipelineWorkflowResponse{}
 	err := s.http.Get(path, result)
 
@@ -22,9 +44,51 @@ func (s *CircleciClient) PipelineWorkflows(pipelineId string) (*PipelineWorkflow
 	return result, nil
 }
 
+func (s *CircleciClient) ContinuePipeline(continuationKey string, configuration string, parameters interface{}) (*BaseResponse, error) {
+	path := "/pipeline/continue"
+	request := ContinuePipelineRequest{
+		ContinuationKey: continuationKey,
+		Configuration:   configuration,
+		Parameters:      parameters,
+	}
+	result := &BaseResponse{}
+	err := s.http.Post(path, request, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) GetPipelinesByProject(project_slug string) (*CircleciPipelineResponse, error) {
+	path := "/rpoject/" + project_slug + "/pipeline"
+	result := &CircleciPipelineResponse{}
+	err := s.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type PipelineConfig struct {
+	Source              string  `json:"source"`
+	Compiled            string  `json:"compiled"`
+	SetupConfig         string  `json:"setup-config"`
+	CompiledSetupConfig string  `json:"compiled-setup-config"`
+	Message             *string `json:"message"`
+}
+
+type ContinuePipelineRequest struct {
+	ContinuationKey string      `json:"continuation-key"`
+	Configuration   string      `json:"configuration"`
+	Parameters      interface{} `json:"parameters"`
+}
+
 type CircleciPipelineResponse struct {
 	Items         []CircleciPipeline `json:"items"`
 	NextPageToken string             `json:"next_page_token"`
+	Message       *string            `json:"message"`
 }
 
 type CircleciPipeline struct {
@@ -38,6 +102,7 @@ type CircleciPipeline struct {
 	CreatedAt         string            `json:"created_at"`
 	Trigger           Trigger           `json:"trigger"`
 	Vcs               Vcs               `json:"vcs"`
+	Message           *string           `json:"message"`
 }
 
 type CircleciError struct {
@@ -81,7 +146,7 @@ type Commit struct {
 type PipelineWorkflowResponse struct {
 	Items         []PipelineWorkflowItem `json:"items"`
 	NextPageToken string                 `json:"next_page_token"`
-	Message       string                 `json:"message"`
+	Message       *string                `json:"message"`
 }
 
 type PipelineWorkflowItem struct {
