@@ -1,29 +1,25 @@
 package circleci
 
-import "log"
-
-func (s *CircleciClient) Pipelines(org_slug string) CircleciPipelineResponse {
+func (s *CircleciClient) Pipelines(org_slug string) (*CircleciPipelineResponse, error) {
 	path := "/pipeline?org-slug=" + org_slug
-	result := CircleciPipelineResponse{}
-	err := s.http.Get(path, &result)
+	result := &CircleciPipelineResponse{}
+	err := s.http.Get(path, result)
 
 	if err != nil {
-		log.Println(err.Error())
-		return result
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
-func (s *CircleciClient) PipelineWorkflows(pipelineId string) PipelineWorkflowResponse {
+func (s *CircleciClient) PipelineWorkflows(pipelineId string) (*PipelineWorkflowResponse, error) {
 	path := "pipeline/" + pipelineId + "/workflow"
-	result := PipelineWorkflowResponse{}
-	err := s.http.Get(path, &result)
+	result := &PipelineWorkflowResponse{}
+	err := s.http.Get(path, result)
 
 	if err != nil {
-		log.Println(err.Error())
-		return result
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
 type CircleciPipelineResponse struct {
