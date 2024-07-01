@@ -11,6 +11,40 @@ func (s *CircleciClient) GetJobDetails(project_slug string, job_number string) (
 	return result, nil
 }
 
+func (s *CircleciClient) CancelJob(project_slug string, job_number string) (*BaseResponse, error) {
+	path := "/project/" + project_slug + "/job/" + job_number + "/artifacts"
+	result := &BaseResponse{}
+	err := s.http.Post(path, nil, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) GetJobArtifacts(project_slug string, job_number string) (*JobArtifactResponse, error) {
+	path := "/project/" + project_slug + "/job/" + job_number + "/artifacts"
+	result := &JobArtifactResponse{}
+	err := s.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type JobArtifactResponse struct {
+	Items         []JobArtifactInfo `json:"items"`
+	NextPageToken string            `json:"next_page_token"`
+	Message       *string           `json:"message"`
+}
+
+type JobArtifactInfo struct {
+	Path      string `json:"path"`
+	NodeIndex int64  `json:"node_index"`
+	URL       string `json:"url"`
+}
+
 type JobDetailInfo struct {
 	WebURL         string         `json:"web_url"`
 	Project        Project        `json:"project"`
