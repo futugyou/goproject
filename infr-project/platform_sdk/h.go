@@ -12,6 +12,7 @@ type IHttpClient interface {
 	Get(path string, response interface{}) error
 	Post(path string, request, response interface{}) error
 	Put(path string, request, response interface{}) error
+	Patch(path string, request, response interface{}) error
 	Delete(path string, response interface{}) error
 }
 
@@ -46,6 +47,10 @@ func (c *httpClient) Post(path string, request, response interface{}) error {
 
 func (c *httpClient) Put(path string, request, response interface{}) error {
 	return c.doRequest(path, "PUT", request, response)
+}
+
+func (c *httpClient) Patch(path string, request, response interface{}) error {
+	return c.doRequest(path, "PATCH", request, response)
 }
 
 func (c *httpClient) Get(path string, response interface{}) error {
