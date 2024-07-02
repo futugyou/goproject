@@ -10,6 +10,32 @@ func (s *CircleciClient) DecisionAuditLogs(ownerID string, context string) ([]Au
 	return result, nil
 }
 
+func (s *CircleciClient) MakeDecision(ownerID string, context string, input string, metadata interface{}) (*MakeDecisionResponse, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/decision"
+	request := &struct {
+		Input    string      `json:"input"`
+		Metadata interface{} `json:"metadata"`
+	}{
+		Input:    input,
+		Metadata: metadata,
+	}
+	result := &MakeDecisionResponse{}
+	if err := s.http.Post(path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type MakeDecisionResponse struct {
+	EnabledRules []string  `json:"enabled_rules"`
+	HardFailures []Failure `json:"hard_failures"`
+	Reason       string    `json:"reason"`
+	SoftFailures []Failure `json:"soft_failures"`
+	Status       string    `json:"status"`
+	Error        *string   `json:"error"`
+}
+
 type AuditLogInfo struct {
 	CreatedAt   string   `json:"created_at"`
 	Decision    Decision `json:"decision"`
