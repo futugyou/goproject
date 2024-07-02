@@ -62,6 +62,16 @@ func (s *CircleciClient) DecisionAuditLogById(ownerID string, context string, de
 	return result, nil
 }
 
+func (s *CircleciClient) PolicyBundleLogById(ownerID string, context string, decisionID string) (map[string]PolicyProperty, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/decision/" + decisionID + "/policy-bundle"
+	result := make(map[string]PolicyProperty)
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type DecisionSetting struct {
 	Enabled bool    `json:"enabled"`
 	Error   *string `json:"error"`
@@ -77,12 +87,12 @@ type MakeDecisionResponse struct {
 }
 
 type AuditLogInfo struct {
-	CreatedAt   string   `json:"created_at"`
-	Decision    Decision `json:"decision"`
-	ID          string   `json:"id"`
-	Metadata    Metadata `json:"metadata"`
-	Policies    Policies `json:"policies"`
-	TimeTakenMS int64    `json:"time_taken_ms"`
+	CreatedAt   string            `json:"created_at"`
+	Decision    Decision          `json:"decision"`
+	ID          string            `json:"id"`
+	Metadata    Metadata          `json:"metadata"`
+	Policies    map[string]string `json:"policies"`
+	TimeTakenMS int64             `json:"time_taken_ms"`
 }
 
 type Decision struct {
@@ -112,7 +122,9 @@ type AuditVcs struct {
 	TargetRepositoryURL string `json:"target_repository_url"`
 }
 
-type Policies struct {
-	PolicyName1 string `json:"policy_name1"`
-	PolicyName2 string `json:"policy_name2"`
+type PolicyProperty struct {
+	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
+	CreatedBy string `json:"created_by"`
+	Name      string `json:"name"`
 }
