@@ -52,6 +52,16 @@ func (s *CircleciClient) SetDecisionSettings(ownerID string, context string, ena
 	return result, nil
 }
 
+func (s *CircleciClient) DecisionAuditLogById(ownerID string, context string, decisionID string) (*AuditLogInfo, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/decision/" + decisionID
+	result := &AuditLogInfo{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type DecisionSetting struct {
 	Enabled bool    `json:"enabled"`
 	Error   *string `json:"error"`
