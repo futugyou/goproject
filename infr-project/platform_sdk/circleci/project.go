@@ -54,6 +54,28 @@ func (s *CircleciClient) DeleteCheckoutKey(org_slug string, fingerprint string) 
 	return result, nil
 }
 
+func (s *CircleciClient) GetEnvironmentVariables(org_slug string) (*EnvironmentVariableList, error) {
+	path := "/project/" + org_slug + "/envvar"
+
+	result := &EnvironmentVariableList{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type EnvironmentVariableList struct {
+	Items         []EnvironmentVariableInfo `json:"items"`
+	NextPageToken string                    `json:"next_page_token"`
+	Message       *string                   `json:"message,omitempty"`
+}
+
+type EnvironmentVariableInfo struct {
+	Name      string `json:"name"`
+	Value     string `json:"value"`
+	CreatedAt string `json:"created-at"`
+}
+
 type CheckoutKeyList struct {
 	Items         []CheckoutKey `json:"items"`
 	NextPageToken string        `json:"next_page_token"`
