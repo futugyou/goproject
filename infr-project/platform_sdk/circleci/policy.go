@@ -37,6 +37,21 @@ func (s *CircleciClient) GetDecisionSettings(ownerID string, context string) (*D
 	return result, nil
 }
 
+func (s *CircleciClient) SetDecisionSettings(ownerID string, context string, enabled bool) (*DecisionSetting, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/decision/settings"
+	request := &struct {
+		Enabled bool `json:"enabled"`
+	}{
+		Enabled: enabled,
+	}
+	result := &DecisionSetting{}
+	if err := s.http.Patch(path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type DecisionSetting struct {
 	Enabled bool    `json:"enabled"`
 	Error   *string `json:"error"`
