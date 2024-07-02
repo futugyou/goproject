@@ -28,6 +28,31 @@ func (s *CircleciClient) GetProject(org_slug string, name string) ProjectInfo {
 	return result
 }
 
+func (s *CircleciClient) CreateCheckoutKey(project_slug string, keyType string) (*CheckoutKey, error) {
+	path := "/project/" + project_slug + "/checkout-key"
+
+	request := &struct {
+		Type string `json:"type"`
+	}{
+		Type: keyType,
+	}
+	result := &CheckoutKey{}
+	err := s.http.Post(path, request, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type CheckoutKey struct {
+	PublicKey   string `json:"public-key"`
+	Type        string `json:"type"`
+	Fingerprint string `json:"fingerprint"`
+	Preferred   bool   `json:"preferred"`
+	CreatedAt   string `json:"created-at"`
+}
+
 type CreateProjectResponse struct {
 	Advanced Advanced `json:"advanced"`
 	Message  *string  `json:"message,omitempty"`
