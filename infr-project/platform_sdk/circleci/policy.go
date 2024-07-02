@@ -72,6 +72,16 @@ func (s *CircleciClient) PolicyBundleLogById(ownerID string, context string, dec
 	return result, nil
 }
 
+func (s *CircleciClient) PolicyBundles(ownerID string, context string) (map[string]PolicyProperty, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/policy-bundle"
+	result := make(map[string]PolicyProperty)
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type DecisionSetting struct {
 	Enabled bool    `json:"enabled"`
 	Error   *string `json:"error"`
