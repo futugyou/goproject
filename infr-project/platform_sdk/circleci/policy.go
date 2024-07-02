@@ -1,5 +1,7 @@
 package circleci
 
+import "fmt"
+
 func (s *CircleciClient) DecisionAuditLogs(ownerID string, context string) ([]AuditLogInfo, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision"
 	result := []AuditLogInfo{}
@@ -80,6 +82,28 @@ func (s *CircleciClient) PolicyBundles(ownerID string, context string) (map[stri
 	}
 
 	return result, nil
+}
+
+func (s *CircleciClient) CreatesPolicyBundle(ownerID string, context string, dry bool, policies map[string]string) (*CreatesPolicyBundleResponse, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/policy-bundle?dry=" + fmt.Sprintf("%t", dry)
+	request := &struct {
+		Policies map[string]string `json:"policies"`
+	}{
+		Policies: policies,
+	}
+	result := &CreatesPolicyBundleResponse{}
+	if err := s.http.Post(path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type CreatesPolicyBundleResponse struct {
+	Created  []string `json:"created"`
+	Deleted  []string `json:"deleted"`
+	Modified []string `json:"modified"`
+	Error    *string  `json:"error"`
 }
 
 type DecisionSetting struct {
