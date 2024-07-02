@@ -45,6 +45,15 @@ func (s *CircleciClient) GetCheckoutKey(org_slug string, digest string) (*Checko
 	return result, nil
 }
 
+func (s *CircleciClient) DeleteCheckoutKey(org_slug string, fingerprint string) (*BaseResponse, error) {
+	path := "/project/" + org_slug + "/checkout-key/" + fingerprint
+	result := &BaseResponse{}
+	if err := s.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CheckoutKeyList struct {
 	Items         []CheckoutKey `json:"items"`
 	NextPageToken string        `json:"next_page_token"`
