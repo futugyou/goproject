@@ -1,31 +1,23 @@
 package circleci
 
-import "log"
-
-func (s *CircleciClient) CreateProject(org_slug string, name string) CreateProjectResponse {
+func (s *CircleciClient) CreateProject(org_slug string, name string) (*CreateProjectResponse, error) {
 	path := "/project/" + org_slug + "/" + name
 
-	result := CreateProjectResponse{}
-	err := s.http.Post(path, nil, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &CreateProjectResponse{}
+	if err := s.http.Post(path, nil, result); err != nil {
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
-func (s *CircleciClient) GetProject(org_slug string, name string) ProjectInfo {
+func (s *CircleciClient) GetProject(org_slug string, name string) (*ProjectInfo, error) {
 	path := "/project/" + org_slug + "/" + name
 
-	result := ProjectInfo{}
-	err := s.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
+	result := &ProjectInfo{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
 func (s *CircleciClient) CreateCheckoutKey(project_slug string, keyType string) (*CheckoutKey, error) {
@@ -37,12 +29,26 @@ func (s *CircleciClient) CreateCheckoutKey(project_slug string, keyType string) 
 		Type: keyType,
 	}
 	result := &CheckoutKey{}
-	err := s.http.Post(path, request, result)
-
-	if err != nil {
+	if err := s.http.Post(path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (s *CircleciClient) GetCheckoutKey(org_slug string, digest string) (*CheckoutKeyList, error) {
+	path := "/project/" + org_slug + "/checkout-key?digest=" + digest
+
+	result := &CheckoutKeyList{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type CheckoutKeyList struct {
+	Items         []CheckoutKey `json:"items"`
+	NextPageToken string        `json:"next_page_token"`
+	Message       *string       `json:"message,omitempty"`
 }
 
 type CheckoutKey struct {
