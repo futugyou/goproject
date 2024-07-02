@@ -99,6 +99,16 @@ func (s *CircleciClient) CreatesPolicyBundle(ownerID string, context string, dry
 	return result, nil
 }
 
+func (s *CircleciClient) RetrievesPolicyDocument(ownerID string, context string, policyName string) (*PolicyProperty, error) {
+	path := "/owner/" + ownerID + "/context/" + context + "/policy-bundle/" + policyName
+	result := &PolicyProperty{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type CreatesPolicyBundleResponse struct {
 	Created  []string `json:"created"`
 	Deleted  []string `json:"deleted"`
@@ -157,8 +167,9 @@ type AuditVcs struct {
 }
 
 type PolicyProperty struct {
-	Content   string `json:"content"`
-	CreatedAt string `json:"created_at"`
-	CreatedBy string `json:"created_by"`
-	Name      string `json:"name"`
+	Content   string  `json:"content"`
+	CreatedAt string  `json:"created_at"`
+	CreatedBy string  `json:"created_by"`
+	Name      string  `json:"name"`
+	Error     *string `json:"error"`
 }
