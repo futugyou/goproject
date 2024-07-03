@@ -30,10 +30,19 @@ func (s *CircleciClient) GetSchedule(schedule_id string) (*ScheduleInfo, error) 
 	return result, nil
 }
 
+func (s *CircleciClient) UpdateSchedule(schedule_id string, request CreateScheduleRequest) (*ScheduleInfo, error) {
+	path := "/schedule/" + schedule_id
+	result := &ScheduleInfo{}
+	if err := s.http.Patch(path, request, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateScheduleRequest struct {
 	Name             string     `json:"name"`
 	Timetable        Timetable  `json:"timetable"`
-	AttributionActor string     `json:"attribution-actor"`
+	AttributionActor string     `json:"attribution-actor"` // "current" "system"
 	Parameters       Parameters `json:"parameters"`
 	Description      string     `json:"description"`
 }
