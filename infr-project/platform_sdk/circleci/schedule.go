@@ -21,6 +21,15 @@ func (s *CircleciClient) CreateSchedule(project_slug string, request CreateSched
 	return result, nil
 }
 
+func (s *CircleciClient) GetSchedule(schedule_id string) (*ScheduleInfo, error) {
+	path := "/schedule/" + schedule_id
+	result := &ScheduleInfo{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateScheduleRequest struct {
 	Name             string     `json:"name"`
 	Timetable        Timetable  `json:"timetable"`
