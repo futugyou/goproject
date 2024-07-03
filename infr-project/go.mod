@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.4
 	github.com/chidiwilliams/flatbson v0.3.0
+	github.com/futugyou/circleci v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.21.0
 	github.com/google/go-github/v61 v61.0.0
@@ -97,3 +98,5 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/futugyou/circleci v0.0.0-00010101000000-000000000000 => ../circleci_sdk
