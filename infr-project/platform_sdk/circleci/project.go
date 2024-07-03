@@ -80,6 +80,16 @@ func (s *CircleciClient) CreateEnvironmentVariables(project_slug string, name st
 	return result, nil
 }
 
+func (s *CircleciClient) DeleteEnvironmentVariables(project_slug string, name string) (*BaseResponse, error) {
+	path := "/project/" + project_slug + "/envvar/" + name
+
+	result := &BaseResponse{}
+	if err := s.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type EnvironmentVariableList struct {
 	Items         []EnvironmentVariableInfo `json:"items"`
 	NextPageToken string                    `json:"next_page_token"`
