@@ -90,6 +90,16 @@ func (s *CircleciClient) DeleteEnvironmentVariables(project_slug string, name st
 	return result, nil
 }
 
+func (s *CircleciClient) GetMaskedEnvironmentVariable(project_slug string, name string) (*EnvironmentVariableInfo, error) {
+	path := "/project/" + project_slug + "/envvar/" + name
+
+	result := &EnvironmentVariableInfo{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type EnvironmentVariableList struct {
 	Items         []EnvironmentVariableInfo `json:"items"`
 	NextPageToken string                    `json:"next_page_token"`
