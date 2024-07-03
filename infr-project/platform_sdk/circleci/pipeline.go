@@ -171,6 +171,8 @@ type Trigger struct {
 type Actor struct {
 	Login     string `json:"login"`
 	AvatarURL string `json:"avatar_url"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
 }
 
 type TriggerParameters struct {
