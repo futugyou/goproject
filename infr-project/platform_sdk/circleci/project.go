@@ -35,8 +35,8 @@ func (s *CircleciClient) CreateCheckoutKey(project_slug string, keyType string) 
 	return result, nil
 }
 
-func (s *CircleciClient) GetCheckoutKey(org_slug string, digest string) (*CheckoutKeyList, error) {
-	path := "/project/" + org_slug + "/checkout-key?digest=" + digest
+func (s *CircleciClient) GetCheckoutKey(project_slug string, digest string) (*CheckoutKeyList, error) {
+	path := "/project/" + project_slug + "/checkout-key?digest=" + digest
 
 	result := &CheckoutKeyList{}
 	if err := s.http.Get(path, result); err != nil {
@@ -45,8 +45,8 @@ func (s *CircleciClient) GetCheckoutKey(org_slug string, digest string) (*Checko
 	return result, nil
 }
 
-func (s *CircleciClient) DeleteCheckoutKey(org_slug string, fingerprint string) (*BaseResponse, error) {
-	path := "/project/" + org_slug + "/checkout-key/" + fingerprint
+func (s *CircleciClient) DeleteCheckoutKey(project_slug string, fingerprint string) (*BaseResponse, error) {
+	path := "/project/" + project_slug + "/checkout-key/" + fingerprint
 	result := &BaseResponse{}
 	if err := s.http.Delete(path, result); err != nil {
 		return nil, err
@@ -54,11 +54,27 @@ func (s *CircleciClient) DeleteCheckoutKey(org_slug string, fingerprint string) 
 	return result, nil
 }
 
-func (s *CircleciClient) GetEnvironmentVariables(org_slug string) (*EnvironmentVariableList, error) {
-	path := "/project/" + org_slug + "/envvar"
+func (s *CircleciClient) GetEnvironmentVariables(project_slug string) (*EnvironmentVariableList, error) {
+	path := "/project/" + project_slug + "/envvar"
 
 	result := &EnvironmentVariableList{}
 	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *CircleciClient) CreateEnvironmentVariables(project_slug string, name string, value string) (*EnvironmentVariableInfo, error) {
+	path := "/project/" + project_slug + "/envvar"
+	request := struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	}{
+		Name:  name,
+		Value: value,
+	}
+	result := &EnvironmentVariableInfo{}
+	if err := s.http.Post(path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -71,9 +87,10 @@ type EnvironmentVariableList struct {
 }
 
 type EnvironmentVariableInfo struct {
-	Name      string `json:"name"`
-	Value     string `json:"value"`
-	CreatedAt string `json:"created-at"`
+	Name      string  `json:"name"`
+	Value     string  `json:"value"`
+	CreatedAt string  `json:"created-at"`
+	Message   *string `json:"message,omitempty"`
 }
 
 type CheckoutKeyList struct {
