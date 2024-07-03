@@ -18,6 +18,16 @@ func (s *CircleciClient) CreateUsageExport(org_id string, start string, end stri
 	return result, nil
 }
 
+func (s *CircleciClient) GetUsageExport(org_id string, usage_export_job_id string) (*UsageExport, error) {
+	path := "/organizations/" + org_id + "/usage_export_job/" + usage_export_job_id
+
+	result := &UsageExport{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type UsageExport struct {
 	UsageExportJobID string   `json:"usage_export_job_id"`
 	State            string   `json:"state"`
