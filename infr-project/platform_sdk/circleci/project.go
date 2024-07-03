@@ -1,5 +1,9 @@
 package circleci
 
+// org_slug include provider and organization
+// project_slug include provider and organization and project
+// eg. org_slug gh/CircleCI-Public
+// eg. project_slug gh/CircleCI-Public/api-preview-docs
 func (s *CircleciClient) CreateProject(org_slug string, name string) (*CreateProjectResponse, error) {
 	path := "/project/" + org_slug + "/" + name
 
@@ -98,6 +102,21 @@ func (s *CircleciClient) GetMaskedEnvironmentVariable(project_slug string, name 
 		return nil, err
 	}
 	return result, nil
+}
+
+func (s *CircleciClient) GetProjectSettings(project_slug string) (*ProjectSettingList, error) {
+	path := "/project/" + project_slug + "/settings"
+
+	result := &ProjectSettingList{}
+	if err := s.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ProjectSettingList struct {
+	Advanced Advanced `json:"advanced"`
+	Message  *string  `json:"message,omitempty"`
 }
 
 type EnvironmentVariableList struct {
