@@ -39,6 +39,15 @@ func (s *CircleciClient) UpdateSchedule(schedule_id string, request CreateSchedu
 	return result, nil
 }
 
+func (s *CircleciClient) DeleteSchedule(schedule_id string) (*BaseResponse, error) {
+	path := "/schedule/" + schedule_id
+	result := &BaseResponse{}
+	if err := s.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateScheduleRequest struct {
 	Name             string     `json:"name"`
 	Timetable        Timetable  `json:"timetable"`
