@@ -114,6 +114,16 @@ func (s *CircleciClient) GetProjectSettings(project_slug string) (*ProjectSettin
 	return result, nil
 }
 
+func (s *CircleciClient) UpdateProjectSettings(project_slug string, advanced Advanced) (*ProjectSettingList, error) {
+	path := "/project/" + project_slug + "/settings"
+
+	result := &ProjectSettingList{}
+	if err := s.http.Patch(path, advanced, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type ProjectSettingList struct {
 	Advanced Advanced `json:"advanced"`
 	Message  *string  `json:"message,omitempty"`
