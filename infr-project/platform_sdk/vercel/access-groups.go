@@ -67,15 +67,39 @@ func (v *VercelClient) ListMembersOfAccessGroup(idOrName string, slug string, te
 	return result, nil
 }
 
-type AccessGroupInfo struct {
-	Name         string    `json:"name"`
-	MembersToAdd string    `json:"membersToAdd"`
-	Projects     []Project `json:"projects"`
+func (v *VercelClient) ListProjectsOfAccessGroup(idOrName string, slug string, teamId string) (*ListProjectsResponse, error) {
+	path := "/v1/access-groups/" + idOrName + "/projects"
+	if len(slug) > 0 {
+		path += ("?slug=" + slug)
+	}
+	if len(teamId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&teamId=" + teamId)
+		} else {
+			path += ("?teamId=" + teamId)
+		}
+	}
+	result := &ListProjectsResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
-type Project struct {
-	ProjectID string `json:"projectId"`
-	Role      string `json:"role"`
+type AccessGroupInfo struct {
+	Name         string               `json:"name"`
+	MembersToAdd string               `json:"membersToAdd"`
+	Projects     []AccessGroupProject `json:"projects"`
+}
+
+type AccessGroupProject struct {
+	ProjectID          string `json:"projectId"`
+	Role               string `json:"role"`
+	Framework          string `json:"framework"`
+	LatestDeploymentId string `json:"latestDeploymentId"`
+	Name               string `json:"name"`
 }
 
 type CreateAccessGroupResponse struct {
@@ -103,4 +127,18 @@ type MemberInfo struct {
 	TeamRole  string `json:"teamRole"`
 	Uid       string `json:"uid"`
 	Username  string `json:"username"`
+}
+
+type ListProjectsResponse struct {
+	Projects   []AccessGroupProjectInfo `json:"projects"`
+	Pagination Pagination               `json:"pagination"`
+	Error      *VercelError             `json:"error"`
+}
+
+type AccessGroupProjectInfo struct {
+	CreatedAt string             `json:"createdAt"`
+	Project   AccessGroupProject `json:"project"`
+	ProjectId string             `json:"projectId"`
+	Role      string             `json:"role"`
+	UpdatedAt string             `json:"updatedAt"`
 }
