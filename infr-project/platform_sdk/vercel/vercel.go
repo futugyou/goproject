@@ -23,3 +23,8 @@ type VercelError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
+
+type Pagination struct {
+	Count int    `json:"count"`
+	Next  string `json:"next"`
+}

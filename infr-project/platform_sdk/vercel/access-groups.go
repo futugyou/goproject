@@ -46,6 +46,27 @@ func (v *VercelClient) DeleteAccessGroup(idOrName string, slug string, teamId st
 	return &result, nil
 }
 
+func (v *VercelClient) ListMembersOfAccessGroup(idOrName string, slug string, teamId string) (*ListMembersResponse, error) {
+	path := "/v1/access-groups/" + idOrName + "/members"
+	if len(slug) > 0 {
+		path += ("?slug=" + slug)
+	}
+	if len(teamId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&teamId=" + teamId)
+		} else {
+			path += ("?teamId=" + teamId)
+		}
+	}
+	result := &ListMembersResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type AccessGroupInfo struct {
 	Name         string    `json:"name"`
 	MembersToAdd string    `json:"membersToAdd"`
@@ -66,4 +87,20 @@ type CreateAccessGroupResponse struct {
 	TeamId        string       `json:"teamId"`
 	UpdatedAt     string       `json:"updatedAt"`
 	Error         *VercelError `json:"error"`
+}
+
+type ListMembersResponse struct {
+	Members    []MemberInfo `json:"members"`
+	Pagination Pagination   `json:"pagination"`
+	Error      *VercelError `json:"error"`
+}
+
+type MemberInfo struct {
+	Avatar    string `json:"avatar"`
+	CreatedAt string `json:"createdAt"`
+	Email     int    `json:"email"`
+	Name      string `json:"Name"`
+	TeamRole  string `json:"teamRole"`
+	Uid       string `json:"uid"`
+	Username  string `json:"username"`
 }
