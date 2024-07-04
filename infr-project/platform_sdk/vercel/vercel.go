@@ -18,3 +18,8 @@ func NewVercelClient(token string) *VercelClient {
 	c.token = token
 	return c
 }
+
+type VercelError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
