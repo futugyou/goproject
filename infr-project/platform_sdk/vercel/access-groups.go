@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info AccessGroupInfo) (*CreateAccessGroupResponse, error) {
+func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
 	path := "/v1/access-groups"
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -16,7 +16,7 @@ func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info Access
 			path += ("?teamId=" + teamId)
 		}
 	}
-	result := &CreateAccessGroupResponse{}
+	result := &AccessGroupInfo{}
 	err := v.http.Post(path, info, result)
 
 	if err != nil {
@@ -88,7 +88,42 @@ func (v *VercelClient) ListProjectsOfAccessGroup(idOrName string, slug string, t
 	return result, nil
 }
 
-type AccessGroupInfo struct {
+func (v *VercelClient) ListAccessGroup(projectId string, search string, slug string, teamId string) ([]AccessGroupInfo, error) {
+	path := "/v1/access-groups/"
+	if len(slug) > 0 {
+		path += ("?slug=" + slug)
+	}
+	if len(teamId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&teamId=" + teamId)
+		} else {
+			path += ("?teamId=" + teamId)
+		}
+	}
+	if len(projectId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&projectId=" + projectId)
+		} else {
+			path += ("?projectId=" + projectId)
+		}
+	}
+	if len(search) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&search=" + search)
+		} else {
+			path += ("?search=" + search)
+		}
+	}
+	result := []AccessGroupInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type AccessGroupRequest struct {
 	Name         string               `json:"name"`
 	MembersToAdd string               `json:"membersToAdd"`
 	Projects     []AccessGroupProject `json:"projects"`
@@ -102,7 +137,7 @@ type AccessGroupProject struct {
 	Name               string `json:"name"`
 }
 
-type CreateAccessGroupResponse struct {
+type AccessGroupInfo struct {
 	AccessGroupId string       `json:"accessGroupId"`
 	CreatedAt     string       `json:"createdAt"`
 	MembersCount  int          `json:"membersCount"`
