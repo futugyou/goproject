@@ -25,6 +25,27 @@ func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info Access
 	return result, nil
 }
 
+func (v *VercelClient) DeleteAccessGroup(idOrName string, slug string, teamId string) (*string, error) {
+	path := "/v1/access-groups/" + idOrName
+	if len(slug) > 0 {
+		path += ("?slug=" + slug)
+	}
+	if len(teamId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&teamId=" + teamId)
+		} else {
+			path += ("?teamId=" + teamId)
+		}
+	}
+	result := ""
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type AccessGroupInfo struct {
 	Name         string    `json:"name"`
 	MembersToAdd string    `json:"membersToAdd"`
