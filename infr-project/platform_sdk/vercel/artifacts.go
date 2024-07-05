@@ -92,6 +92,27 @@ func (v *VercelClient) RecordArtifactEvent(teamId string, hash string, request A
 	return &result, nil
 }
 
+func (v *VercelClient) GetCachingStatus(slug string, teamId string) (*CachingStatus, error) {
+	path := "/v8/artifacts/status"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &CachingStatus{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type ArtifactEventRequest struct {
 	Event     string `json:"event"`
 	Hash      string `json:"hash"`
@@ -105,4 +126,9 @@ type QueryArtifactResponse struct {
 	Tag            string       `json:"tag"`
 	TaskDurationMs int          `json:"taskDurationMs"`
 	Error          *VercelError `json:"error"`
+}
+
+type CachingStatus struct {
+	Status string       `json:"status"`
+	Error  *VercelError `json:"error"`
 }
