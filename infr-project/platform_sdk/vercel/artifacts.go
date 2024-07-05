@@ -73,6 +73,33 @@ func (v *VercelClient) DownloadArtifact(slug string, teamId string, hash string)
 	return &result, nil
 }
 
+func (v *VercelClient) RecordArtifactEvent(teamId string, hash string, request ArtifactEventRequest) (*string, error) {
+	path := "/v8/artifacts/events"
+	queryParams := url.Values{}
+
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := ""
+	err := v.http.Post(path, request, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+type ArtifactEventRequest struct {
+	Event     string `json:"event"`
+	Hash      string `json:"hash"`
+	SessionId string `json:"sessionId"`
+	Source    string `json:"source"`
+	Duration  int    `json:"duration"`
+}
+
 type QueryArtifactResponse struct {
 	Size           int          `json:"size"`
 	Tag            string       `json:"tag"`
