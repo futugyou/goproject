@@ -113,6 +113,28 @@ func (v *VercelClient) GetCachingStatus(slug string, teamId string) (*CachingSta
 	return result, nil
 }
 
+func (v *VercelClient) UploadArtifact(hash string, slug string, teamId string) (*UploadArtifactResponse, error) {
+	path := "/v8/artifacts/status"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &UploadArtifactResponse{}
+	//TODO Header Params Content-Length Required
+	err := v.http.Put(path, nil, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type ArtifactEventRequest struct {
 	Event     string `json:"event"`
 	Hash      string `json:"hash"`
@@ -131,4 +153,9 @@ type QueryArtifactResponse struct {
 type CachingStatus struct {
 	Status string       `json:"status"`
 	Error  *VercelError `json:"error"`
+}
+
+type UploadArtifactResponse struct {
+	Urls  []string     `json:"urls"`
+	Error *VercelError `json:"error"`
 }
