@@ -26,6 +26,27 @@ func (v *VercelClient) AssignAlias(id string, slug string, teamId string, info A
 	return result, nil
 }
 
+func (v *VercelClient) DeleteAlias(id string, slug string, teamId string) (*DeleteAliasResponse, error) {
+	path := fmt.Sprintf("/v2/aliases/%s", id)
+	if len(slug) > 0 {
+		path += ("?slug=" + slug)
+	}
+	if len(teamId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&teamId=" + teamId)
+		} else {
+			path += ("?teamId=" + teamId)
+		}
+	}
+	result := &DeleteAliasResponse{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type AssignAliasRequest struct {
 	Alias    string       `json:"alias"`
 	Redirect string       `json:"redirect,omitempty"`
@@ -38,4 +59,9 @@ type AssignAliasResponse struct {
 	Uid             string       `json:"uid"`
 	OldDeploymentId string       `json:"oldDeploymentId"`
 	Error           *VercelError `json:"error"`
+}
+
+type DeleteAliasResponse struct {
+	Status string       `json:"status"`
+	Error  *VercelError `json:"error"`
 }
