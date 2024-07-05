@@ -49,7 +49,7 @@ func (v *VercelClient) DeleteAlias(id string, slug string, teamId string) (*Dele
 }
 
 func (v *VercelClient) GetAlias(id string, slug string, teamId string, projectId string, since string, until string) ([]AliasInfo, error) {
-	path := fmt.Sprintf("/v2/aliases/%s", id)
+	path := fmt.Sprintf("/v4/aliases/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
 		queryParams.Add("slug", slug)
@@ -76,6 +76,42 @@ func (v *VercelClient) GetAlias(id string, slug string, teamId string, projectId
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) ListAlias(slug string, teamId string, projectId string, since string, until string) (*ListAliasResponse, error) {
+	path := "/v4/aliases"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(projectId) > 0 {
+		queryParams.Add("projectId", projectId)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &ListAliasResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ListAliasResponse struct {
+	Aliases    []AliasInfo  `json:"aliases"`
+	Pagination Pagination   `json:"pagination"`
+	Error      *VercelError `json:"error"`
 }
 
 type AssignAliasRequest struct {
