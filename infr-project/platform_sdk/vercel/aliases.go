@@ -108,6 +108,24 @@ func (v *VercelClient) ListAlias(slug string, teamId string, projectId string, s
 	return result, nil
 }
 
+func (v *VercelClient) ListdeploymentsAlias(id string, slug string, teamId string) ([]AliasInfo, error) {
+	path := fmt.Sprintf("/v2/deployments/%s/aliases", id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	result := []AliasInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type ListAliasResponse struct {
 	Aliases    []AliasInfo  `json:"aliases"`
 	Pagination Pagination   `json:"pagination"`
