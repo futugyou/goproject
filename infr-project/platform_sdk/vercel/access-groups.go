@@ -124,7 +124,7 @@ func (v *VercelClient) ListAccessGroup(projectId string, search string, slug str
 }
 
 func (v *VercelClient) GetAccessGroup(idOrName string, slug string, teamId string) (*AccessGroupInfo, error) {
-	path := "/v1/access-groups/" + idOrName  
+	path := "/v1/access-groups/" + idOrName
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
 	}
@@ -144,11 +144,32 @@ func (v *VercelClient) GetAccessGroup(idOrName string, slug string, teamId strin
 	return result, nil
 }
 
+func (v *VercelClient) UpdateAccessGroup(idOrName string, slug string, teamId string,info AccessGroupRequest) (*AccessGroupInfo, error) {
+	path := "/v1/access-groups/" + idOrName
+	if len(slug) > 0 {
+		path += ("?slug=" + slug)
+	}
+	if len(teamId) > 0 {
+		if strings.Contains(path, "?") {
+			path += ("&teamId=" + teamId)
+		} else {
+			path += ("?teamId=" + teamId)
+		}
+	}
+	result := &AccessGroupInfo{}
+	err := v.http.Post(path,info, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
 
 type AccessGroupRequest struct {
-	Name         string               `json:"name"`
-	MembersToAdd string               `json:"membersToAdd"`
-	Projects     []AccessGroupProject `json:"projects"`
+	Name            string               `json:"name"`
+	MembersToAdd    []string             `json:"membersToAdd"`
+	MembersToRemove []string             `json:"membersToRemove,omitempty"`
+	Projects        []AccessGroupProject `json:"projects"`
 }
 
 type AccessGroupProject struct {
