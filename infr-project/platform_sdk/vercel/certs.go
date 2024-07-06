@@ -54,13 +54,34 @@ func (v *VercelClient) RemoveCert(slug string, teamId string, id string) (*strin
 	if len(queryParams) > 0 {
 		path += "?" + queryParams.Encode()
 	}
-	result :=""
+	result := ""
 	err := v.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
 	}
 	return &result, nil
+}
+
+func (v *VercelClient) UploadCert(slug string, teamId string, req UploadCertRequest) (*CertInfo, error) {
+	path := "/v7/certs"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &CertInfo{}
+	err := v.http.Put(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 type CertInfo struct {
@@ -70,4 +91,11 @@ type CertInfo struct {
 	CreatedAt int          `json:"createdAt"`
 	ExpiresAt int          `json:"expiresAt"`
 	Error     *VercelError `json:"error"`
+}
+
+type UploadCertRequest struct {
+	Ca             string `json:"ca"`
+	Cert           string `json:"cert"`
+	Key            string `json:"key"`
+	SkipValidation bool   `json:"skipValidation"`
 }
