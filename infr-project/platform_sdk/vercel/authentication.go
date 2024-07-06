@@ -75,6 +75,25 @@ func (v *VercelClient) GetAuthTokenMetadata(tokenId string) (*TokenInfo, error) 
 	return result, nil
 }
 
+func (v *VercelClient) ListAuthTokens() (*ListAuthTokensResponse, error) {
+	path := "/v5/user/tokens"
+	result := &ListAuthTokensResponse{}
+
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ListAuthTokensResponse struct {
+	Pagination   Pagination   `json:"pagination"`
+	TestingToken TokenInfo    `json:"testingToken"`
+	Tokens       []TokenInfo  `json:"tokens"`
+	Error        *VercelError `json:"error"`
+}
+
 type LoginWithEmailResponse struct {
 	SecurityCode string       `json:"securityCode"`
 	Token        string       `json:"token"`
