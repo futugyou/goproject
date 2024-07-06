@@ -2,10 +2,21 @@ package vercel
 
 import (
 	"fmt"
+	"net/url"
 )
 
 func (v *VercelClient) CreatesCheck(deploymentId string, slug string, teamId string, req CreateCheckRequest) (*CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks", deploymentId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
 	result := &CheckInfo{}
 	err := v.http.Post(path, req, result)
 
@@ -17,7 +28,38 @@ func (v *VercelClient) CreatesCheck(deploymentId string, slug string, teamId str
 
 func (v *VercelClient) ListAllChecks(deploymentId string, slug string, teamId string) ([]CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks", deploymentId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
 	result := []CheckInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (v *VercelClient) GetSingleCheck(deploymentId string, checkId string, slug string, teamId string) (*CheckInfo, error) {
+	path := fmt.Sprintf("/v1/deployments/%s/checks/%s", deploymentId, checkId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &CheckInfo{}
 	err := v.http.Get(path, result)
 
 	if err != nil {
