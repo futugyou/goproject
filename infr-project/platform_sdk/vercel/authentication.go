@@ -63,6 +63,18 @@ func (v *VercelClient) LoginWithEmail(email string, tokenName string) (*LoginWit
 	return result, nil
 }
 
+func (v *VercelClient) GetAuthTokenMetadata(tokenId string) (*TokenInfo, error) {
+	path := fmt.Sprintf("/v5/user/tokens/%s", tokenId)
+	result := &TokenInfo{}
+
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type LoginWithEmailResponse struct {
 	SecurityCode string       `json:"securityCode"`
 	Token        string       `json:"token"`
@@ -81,14 +93,15 @@ type CreateAuthTokenResponse struct {
 }
 
 type TokenInfo struct {
-	Id        string  `json:"id"`
-	Name      string  `json:"name"`
-	Type      string  `json:"type"`
-	Origin    string  `json:"origin"`
-	Scopes    []Scope `json:"scopes"`
-	ExpiresAt int     `json:"expiresAt"`
-	ActiveAt  int     `json:"activeAt"`
-	CreatedAt int     `json:"createdAt"`
+	Id        string       `json:"id"`
+	Name      string       `json:"name"`
+	Type      string       `json:"type"`
+	Origin    string       `json:"origin"`
+	Scopes    []Scope      `json:"scopes"`
+	ExpiresAt int          `json:"expiresAt"`
+	ActiveAt  int          `json:"activeAt"`
+	CreatedAt int          `json:"createdAt"`
+	Error     *VercelError `json:"error"`
 }
 
 type Scope struct {
