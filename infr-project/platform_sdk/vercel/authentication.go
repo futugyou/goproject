@@ -1,6 +1,7 @@
 package vercel
 
 import (
+	"fmt"
 	"net/url"
 )
 
@@ -30,6 +31,23 @@ func (v *VercelClient) CreateAuthToken(slug string, teamId string, name string) 
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) DeleteAuthToken(tokenId string) (*DeleteAuthTokenResponse, error) {
+	path := fmt.Sprintf("/v3/user/tokens/%s", tokenId)
+	result := &DeleteAuthTokenResponse{}
+
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type DeleteAuthTokenResponse struct {
+	TokenId string       `json:"tokenId"`
+	Error   *VercelError `json:"error"`
 }
 
 type CreateAuthTokenResponse struct {
