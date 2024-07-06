@@ -15,6 +15,17 @@ func (v *VercelClient) CreatesCheck(deploymentId string, slug string, teamId str
 	return result, nil
 }
 
+func (v *VercelClient) ListAllChecks(deploymentId string, slug string, teamId string) ([]CheckInfo, error) {
+	path := fmt.Sprintf("/v1/deployments/%s/checks", deploymentId)
+	result := []CheckInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateCheckRequest struct {
 	Blocking      bool   `json:"blocking"`
 	Name          string `json:"name"`
