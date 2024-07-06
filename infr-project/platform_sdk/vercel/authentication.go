@@ -87,6 +87,30 @@ func (v *VercelClient) ListAuthTokens() (*ListAuthTokensResponse, error) {
 	return result, nil
 }
 
+func (v *VercelClient) VerifyAuthToken(token string, email string) (*VerifyAuthTokenResponse, error) {
+	path := "/registration/verify"
+	queryParams := url.Values{}
+	queryParams.Add("token", token)
+	queryParams.Add("email", email)
+	path += "?" + queryParams.Encode()
+
+	result := &VerifyAuthTokenResponse{}
+
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type VerifyAuthTokenResponse struct {
+	Email  string       `json:"email"`
+	Token  string       `json:"token"`
+	TeamId string       `json:"teamId"`
+	Error  *VercelError `json:"error"`
+}
+
 type ListAuthTokensResponse struct {
 	Pagination   Pagination   `json:"pagination"`
 	TestingToken TokenInfo    `json:"testingToken"`
