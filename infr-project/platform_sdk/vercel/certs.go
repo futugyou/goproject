@@ -42,6 +42,27 @@ func (v *VercelClient) CreateCert(slug string, teamId string, cns []string) (*Ce
 	return result, nil
 }
 
+func (v *VercelClient) RemoveCert(slug string, teamId string, id string) (*string, error) {
+	path := fmt.Sprintf("/v7/certs/%s", id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result :=""
+	err := v.http.Delete(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CertInfo struct {
 	AutoRenew bool         `json:"autoRenew"`
 	Cns       []string     `json:"cns"`
