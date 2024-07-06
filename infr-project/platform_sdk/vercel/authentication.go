@@ -45,6 +45,30 @@ func (v *VercelClient) DeleteAuthToken(tokenId string) (*DeleteAuthTokenResponse
 	return result, nil
 }
 
+func (v *VercelClient) LoginWithEmail(email string, tokenName string) (*LoginWithEmailResponse, error) {
+	path := "/registration"
+	result := &LoginWithEmailResponse{}
+	request := struct {
+		Email     string `json:"email"`
+		TokenName string `json:"tokenName"`
+	}{
+		Email:     email,
+		TokenName: tokenName,
+	}
+	err := v.http.Post(path, request, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type LoginWithEmailResponse struct {
+	SecurityCode string       `json:"securityCode"`
+	Token        string       `json:"token"`
+	Error        *VercelError `json:"error"`
+}
+
 type DeleteAuthTokenResponse struct {
 	TokenId string       `json:"tokenId"`
 	Error   *VercelError `json:"error"`
