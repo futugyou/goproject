@@ -141,7 +141,7 @@ func (v *VercelClient) GetDomain(slug string, teamId string, domain string) (*Do
 }
 
 func (v *VercelClient) GetDomainConfiguration(slug string, teamId string, domain string, strict string) (*DomainConfiguration, error) {
-	path := fmt.Sprintf("/v5/domains/%s", domain)
+	path := fmt.Sprintf("/v6/domains/%s/config", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
 		queryParams.Add("slug", slug)
@@ -162,6 +162,35 @@ func (v *VercelClient) GetDomainConfiguration(slug string, teamId string, domain
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) GetDomainTransfer(slug string, teamId string, domain string) (*DomainTransfer, error) {
+	path := fmt.Sprintf("/v1/domains/%s/registry", domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &DomainTransfer{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type DomainTransfer struct {
+	Reason         string       `json:"reason"`
+	Status         string       `json:"status"`
+	TransferPolicy string       `json:"transferPolicy"`
+	Transferable   bool         `json:"transferable"`
+	Error          *VercelError `json:"error,omitempty"`
 }
 
 type DomainConfiguration struct {
