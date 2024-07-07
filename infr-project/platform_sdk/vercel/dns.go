@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CreateDNSRecord(domain string, slug string, teamId string, req CreateDNSRecordRequest) (*CreateDNSRecordResponse, error) {
+func (v *VercelClient) CreateDNSRecord(domain string, slug string, teamId string, req UpsertDNSRecordRequest) (*CreateDNSRecordResponse, error) {
 	path := fmt.Sprintf("/v2/domains/%s/records", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -77,6 +77,41 @@ func (v *VercelClient) DeleteDNSRecords(domain string, recordId string, slug str
 	return &result, nil
 }
 
+func (v *VercelClient) UpdatesDNSRecords(recordId string, slug string, teamId string, req UpsertDNSRecordRequest) (*UpdateDNSRecordResponse, error) {
+	path := fmt.Sprintf("/v1/domains/records/%s", recordId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &UpdateDNSRecordResponse{}
+	err := v.http.Patch(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type UpdateDNSRecordResponse struct {
+	Comment    string       `json:"comment"`
+	Created    int          `json:"created"`
+	CreatedAt  int          `json:"createdAt"`
+	Domain     string       `json:"domain"`
+	Name       string       `json:"name"`
+	Type       string       `json:"type"`
+	Ttl        int          `json:"ttl"`
+	Value      string       `json:"value,omitempty"`
+	Id         string       `json:"id"`
+	RecordType string       `json:"recordType"`
+	Error      *VercelError `json:"error,omitempty"`
+}
+
 type ListDNSRecordResponse struct {
 	Records    []DNSRecordInfo `json:"records"`
 	Pagination Pagination      `json:"pagination,omitempty"`
@@ -89,7 +124,7 @@ type CreateDNSRecordResponse struct {
 	Error   *VercelError `json:"error,omitempty"`
 }
 
-type CreateDNSRecordRequest struct {
+type UpsertDNSRecordRequest struct {
 	Name       string `json:"name"`
 	Type       string `json:"type"`
 	Ttl        int    `json:"ttl"`
