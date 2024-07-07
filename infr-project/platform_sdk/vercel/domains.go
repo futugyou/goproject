@@ -76,6 +76,27 @@ func (v *VercelClient) CheckDomainAvailability(slug string, teamId string, name 
 	return result, nil
 }
 
+func (v *VercelClient) RegisterDomain(slug string, teamId string, req RegisterDomainRequest) (*RegisterDomainResponse, error) {
+	path := "/v5/domains"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &RegisterDomainResponse{}
+	err := v.http.Post(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type PurchaseDomainRequest struct {
 	Address1      string `json:"address1"`
 	City          string `json:"city"`
@@ -110,4 +131,47 @@ type CheckDomainPriceResponse struct {
 type CheckDomainAvailabilityResponse struct {
 	Available bool         `json:"available"`
 	Error     *VercelError `json:"error,omitempty"`
+}
+
+type RegisterDomainRequest struct {
+	Name          string `json:"name"`
+	CdnEnabled    bool   `json:"cdnEnabled,omitempty"`
+	Zone          bool   `json:"zone,omitempty"`
+	Mthod         string `json:"method"`
+	Token         string `json:"token,omitempty"`
+	AuthCode      string `json:"authCode,omitempty"`
+	ExpectedPrice int    `json:"expectedPrice,omitempty"`
+}
+
+type RegisterDomainResponse struct {
+	Domain []RegisterDomainResponseItem `json:"domain"`
+	Error  *VercelError                 `json:"error,omitempty"`
+}
+
+type RegisterDomainResponseItem struct {
+	BoughtAt            int           `json:"boughtAt"`
+	CreatedAt           int           `json:"createdAt"`
+	Creator             DomainCreator `json:"creator"`
+	CustomNameservers   []string      `json:"customNameservers"`
+	ExpiresAt           int           `json:"expiresAt"`
+	Id                  string        `json:"id"`
+	IntendedNameservers []string      `json:"intendedNameservers"`
+	Name                string        `json:"name"`
+	Nameservers         []string      `json:"nameservers"`
+	OrderedAt           int           `json:"orderedAt"`
+	Renew               bool          `json:"renew"`
+	ServiceType         string        `json:"serviceType"`
+	TeamId              string        `json:"teamId"`
+	TransferStartedAt   int           `json:"transferStartedAt"`
+	TransferredAt       int           `json:"transferredAt"`
+	UserId              string        `json:"userId"`
+	Verified            bool          `json:"verified"`
+}
+
+type DomainCreator struct {
+	CustomerId       string `json:"CustomerId"`
+	Email            string `json:"email"`
+	Id               string `json:"id"`
+	IsDomainReseller bool   `json:"isDomainReseller"`
+	Username         string `json:"username"`
 }
