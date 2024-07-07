@@ -1,6 +1,7 @@
 package vercel
 
 import (
+	"fmt"
 	"net/url"
 )
 
@@ -95,6 +96,32 @@ func (v *VercelClient) RegisterDomain(slug string, teamId string, req RegisterDo
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) RemoveDomain(slug string, teamId string, domain string) (*RemoveDomainResponse, error) {
+	path := fmt.Sprintf("/v6/domains/%s", domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &RemoveDomainResponse{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type RemoveDomainResponse struct {
+	Uid   string       `json:"uid"`
+	Error *VercelError `json:"error,omitempty"`
 }
 
 type PurchaseDomainRequest struct {
