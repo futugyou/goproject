@@ -215,6 +215,44 @@ func (v *VercelClient) ListDomains(slug string, teamId string, limit string, sin
 	return result, nil
 }
 
+func (v *VercelClient) UpdateDomain(domain string, slug string, teamId string, req UpdateDomainRequest) (*UpdateDomainResponse, error) {
+	path := fmt.Sprintf("/v3/domains/%s", domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &UpdateDomainResponse{}
+	err := v.http.Patch(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type UpdateDomainRequest struct {
+	Op                string   `json:"op"`
+	CustomNameservers []string `json:"customNameservers,omitempty"`
+	Renew             bool     `json:"renew,omitempty"`
+	Zone              bool     `json:"zone,omitempty"`
+	Destination       string   `json:"destination,omitempty"`
+}
+
+type UpdateDomainResponse struct {
+	Moved             bool         `json:"moved"`
+	Token             string       `json:"token,omitempty"`
+	CustomNameservers []string     `json:"customNameservers,omitempty"`
+	Renew             bool         `json:"renew,omitempty"`
+	Zone              bool         `json:"zone,omitempty"`
+	Error             *VercelError `json:"error,omitempty"`
+}
+
 type ListDomainsResponse struct {
 	Domains    []DomainInfo `json:"domains"`
 	Pagination Pagination   `json:"pagination,omitempty"`
