@@ -185,6 +185,42 @@ func (v *VercelClient) GetDomainTransfer(slug string, teamId string, domain stri
 	return result, nil
 }
 
+func (v *VercelClient) ListDomains(slug string, teamId string, limit string, since string, until string) (*ListDomainsResponse, error) {
+	path := "/v5/domains"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(limit) > 0 {
+		queryParams.Add("limit", limit)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &ListDomainsResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ListDomainsResponse struct {
+	Domains    []DomainInfo `json:"domains"`
+	Pagination Pagination   `json:"pagination,omitempty"`
+	Error      *VercelError `json:"error,omitempty"`
+}
+
 type DomainTransfer struct {
 	Reason         string       `json:"reason"`
 	Status         string       `json:"status"`
