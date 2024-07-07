@@ -140,6 +140,37 @@ func (v *VercelClient) GetDomain(slug string, teamId string, domain string) (*Do
 	return result, nil
 }
 
+func (v *VercelClient) GetDomainConfiguration(slug string, teamId string, domain string, strict string) (*DomainConfiguration, error) {
+	path := fmt.Sprintf("/v5/domains/%s", domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(strict) > 0 {
+		queryParams.Add("strict", strict)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &DomainConfiguration{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type DomainConfiguration struct {
+	AcceptedChallenges []string     `json:"acceptedChallenges"`
+	ConfiguredBy       string       `json:"configuredBy"`
+	Misconfigured      bool         `json:"misconfigured"`
+	Error              *VercelError `json:"error,omitempty"`
+}
+
 type RemoveDomainResponse struct {
 	Uid   string       `json:"uid"`
 	Error *VercelError `json:"error,omitempty"`
