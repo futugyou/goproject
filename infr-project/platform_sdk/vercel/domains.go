@@ -119,6 +119,27 @@ func (v *VercelClient) RemoveDomain(slug string, teamId string, domain string) (
 	return result, nil
 }
 
+func (v *VercelClient) GetDomain(slug string, teamId string, domain string) (*DomainInfo, error) {
+	path := fmt.Sprintf("/v5/domains/%s", domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &DomainInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type RemoveDomainResponse struct {
 	Uid   string       `json:"uid"`
 	Error *VercelError `json:"error,omitempty"`
@@ -171,11 +192,11 @@ type RegisterDomainRequest struct {
 }
 
 type RegisterDomainResponse struct {
-	Domain []RegisterDomainResponseItem `json:"domain"`
-	Error  *VercelError                 `json:"error,omitempty"`
+	Domain []DomainInfo `json:"domain"`
+	Error  *VercelError `json:"error,omitempty"`
 }
 
-type RegisterDomainResponseItem struct {
+type DomainInfo struct {
 	BoughtAt            int           `json:"boughtAt"`
 	CreatedAt           int           `json:"createdAt"`
 	Creator             DomainCreator `json:"creator"`
@@ -193,6 +214,7 @@ type RegisterDomainResponseItem struct {
 	TransferredAt       int           `json:"transferredAt"`
 	UserId              string        `json:"userId"`
 	Verified            bool          `json:"verified"`
+	Error               *VercelError  `json:"error,omitempty"`
 }
 
 type DomainCreator struct {
