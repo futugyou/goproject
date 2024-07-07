@@ -52,6 +52,30 @@ func (v *VercelClient) CheckDomainPrice(slug string, teamId string, name string,
 	return result, nil
 }
 
+func (v *VercelClient) CheckDomainAvailability(slug string, teamId string, name string) (*CheckDomainAvailabilityResponse, error) {
+	path := "/v4/domains/status"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(name) > 0 {
+		queryParams.Add("name", name)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &CheckDomainAvailabilityResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type PurchaseDomainRequest struct {
 	Address1      string `json:"address1"`
 	City          string `json:"city"`
@@ -81,4 +105,9 @@ type CheckDomainPriceResponse struct {
 	Period int          `json:"period"`
 	Price  int          `json:"price"`
 	Error  *VercelError `json:"error,omitempty"`
+}
+
+type CheckDomainAvailabilityResponse struct {
+	Available bool         `json:"available"`
+	Error     *VercelError `json:"error,omitempty"`
 }
