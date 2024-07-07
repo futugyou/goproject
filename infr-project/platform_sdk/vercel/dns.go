@@ -27,7 +27,7 @@ func (v *VercelClient) CreateDNSRecord(domain string, slug string, teamId string
 }
 
 func (v *VercelClient) ListDNSRecords(domain string, slug string, teamId string, limit string, since string, until string) (*ListDNSRecordResponse, error) {
-	path := fmt.Sprintf("/v2/domains/%s/records", domain)
+	path := fmt.Sprintf("/v4/domains/%s/records", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
 		queryParams.Add("slug", slug)
@@ -54,6 +54,27 @@ func (v *VercelClient) ListDNSRecords(domain string, slug string, teamId string,
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) DeleteDNSRecords(domain string, recordId string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v2/domains/%s/records/%s", domain, recordId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := ""
+	err := v.http.Delete(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 type ListDNSRecordResponse struct {
