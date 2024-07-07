@@ -12,26 +12,12 @@ updates:
     groups:
       aws:
         patterns:
-        - "github.com/aws/aws-sdk-go-v2*" 
+          - "github.com/aws/aws-sdk-go-v2*"
 
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/identity-center" # Location of package manifests
     schedule:
       interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/container"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/k8sbuilder"
-    schedule:
-      interval: "daily"
-    groups:
-      aws:
-        patterns:
-        - "k8s.io*" 
 
   - package-ecosystem: "gomod"
     directory: "/openai-web"
@@ -49,13 +35,27 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
-    directory: "/bolg-service"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
     directory: "/infr-project"
     schedule:
       interval: "daily"
     ignore:
       - dependency-name: "github.com/ThreeDotsLabs/watermill"
+
+  - package-ecosystem: "gomod"
+    directory: "/container"
+    schedule:
+      interval: "daily"
+
+  # - package-ecosystem: "gomod"
+  #   directory: "/k8sbuilder"
+  #   schedule:
+  #     interval: "daily"
+  #   groups:
+  #     aws:
+  #       patterns:
+  #         - "k8s.io*"
+
+  - package-ecosystem: "gomod"
+    directory: "/bolg-service"
+    schedule:
+      interval: "daily"
