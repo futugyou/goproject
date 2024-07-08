@@ -144,6 +144,27 @@ func (v *VercelClient) GetEdgeConfig(edgeConfigId string, slug string, teamId st
 	return result, nil
 }
 
+func (v *VercelClient) GetEdgeConfigItems(edgeConfigId string, slug string, teamId string) ([]EdgeConfigItemInfo, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s/items", edgeConfigId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []EdgeConfigItemInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
 	Items interface{} `json:"items"`
@@ -161,6 +182,16 @@ type EdgeConfigInfo struct {
 	UpdatedAt   int          `json:"updatedAt"`
 	Transfer    EdgeTransfer `json:"transfer"`
 	Error       *VercelError `json:"error,omitempty"`
+}
+
+type EdgeConfigItemInfo struct {
+	CreatedAt    int          `json:"createdAt"`
+	UpdatedAt    int          `json:"updatedAt"`
+	Key          string       `json:"key"`
+	Description  string       `json:"description"`
+	EdgeConfigId string       `json:"edgeConfigId"`
+	Value        interface{}  `json:"value"`
+	Error        *VercelError `json:"error,omitempty"`
 }
 
 type EdgeTransfer struct {
