@@ -56,6 +56,9 @@ func (v *VercelClient) GetConfiguration(view string, slug string, teamId string)
 	if len(teamId) > 0 {
 		queryParams.Add("teamId", teamId)
 	}
+	if len(view) > 0 {
+		queryParams.Add("view", view)
+	}
 	if len(queryParams) > 0 {
 		path += "?" + queryParams.Encode()
 	}
@@ -66,6 +69,45 @@ func (v *VercelClient) GetConfiguration(view string, slug string, teamId string)
 		return nil, err
 	}
 	return &result, nil
+}
+
+func (v *VercelClient) ListGitByProvider(host string, provider string, slug string, teamId string) ([]ListGitByProviderResponse, error) {
+	path := "/v1/integrations/git-namespaces"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(host) > 0 {
+		queryParams.Add("host", host)
+	}
+	if len(provider) > 0 {
+		queryParams.Add("provider", provider)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []ListGitByProviderResponse{}
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ListGitByProviderResponse struct {
+	Id                 string       `json:"id"`
+	IsAccessRestricted bool         `json:"isAccessRestricted"`
+	InstallationId     int          `json:"installationId"`
+	Name               string       `json:"name"`
+	OwnerType          string       `json:"ownerType"`
+	Provider           string       `json:"provider"`
+	RequireReauth      bool         `json:"requireReauth"`
+	Slug               string       `json:"slug"`
+	Error              *VercelError `json:"error,omitempty"`
 }
 
 type IntegrationConfigurationInfo struct {
