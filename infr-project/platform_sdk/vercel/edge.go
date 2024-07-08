@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CreateEdgeConfig(slug string, teamId string, req CreateEdgeConfigRequest) (*EdgeConfigInfo, error) {
+func (v *VercelClient) CreateEdgeConfig(slug string, teamId string, req UpsertEdgeConfigRequest) (*EdgeConfigInfo, error) {
 	path := "/v1/edge-config"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -291,6 +291,27 @@ func (v *VercelClient) UpdateEdgeConfigSchema(edgeConfigId string, slug string, 
 	return &result, nil
 }
 
+func (v *VercelClient) UpdateEdgeConfig(edgeConfigId string, slug string, teamId string, req UpsertEdgeConfigRequest) (*EdgeConfigTokennfo, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s", edgeConfigId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &EdgeConfigTokennfo{}
+	err := v.http.Put(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type UpdateEdgeConfigItemResponse struct {
 	Status string       `json:"status"`
 	Error  *VercelError `json:"error,omitempty"`
@@ -303,9 +324,9 @@ type UpdateEdgeConfigItemRequest struct {
 	Value       interface{} `json:"value"`
 }
 
-type CreateEdgeConfigRequest struct {
+type UpsertEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
-	Items interface{} `json:"items"`
+	Items interface{} `json:"items,omitempty"`
 }
 
 type EdgeConfigTokennfo struct {
