@@ -47,6 +47,27 @@ func (v *VercelClient) RetrieveIntegrationConfiguration(id string, slug string, 
 	return result, nil
 }
 
+func (v *VercelClient) GetConfiguration(view string, slug string, teamId string) (*string, error) {
+	path := "/v1/integrations/configurations"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := ""
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type IntegrationConfigurationInfo struct {
 	BillingTotal              string                     `json:"billingTotal,omitempty"`
 	CompletedAt               int                        `json:"completedAt"`
