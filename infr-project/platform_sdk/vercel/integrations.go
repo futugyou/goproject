@@ -98,6 +98,73 @@ func (v *VercelClient) ListGitByProvider(host string, provider string, slug stri
 	return result, nil
 }
 
+func (v *VercelClient) ListGitLinkedByProvider(host string, installationId string, namespaceId string, query string,
+	provider string, slug string, teamId string) (*ListGitLinkedByProviderResponse, error) {
+	path := "/v1/integrations/search-repo"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(host) > 0 {
+		queryParams.Add("host", host)
+	}
+	if len(provider) > 0 {
+		queryParams.Add("provider", provider)
+	}
+	if len(installationId) > 0 {
+		queryParams.Add("installationId", installationId)
+	}
+	if len(namespaceId) > 0 {
+		queryParams.Add("namespaceId", namespaceId)
+	}
+	if len(query) > 0 {
+		queryParams.Add("query", query)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &ListGitLinkedByProviderResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ListGitLinkedByProviderResponse struct {
+	GitAccount GitAccount   `json:"gitAccount"`
+	Repos      []Repos      `json:"repos"`
+	Error      *VercelError `json:"error,omitempty"`
+}
+
+type GitAccount struct {
+	NamespaceId string `json:"namespaceId"`
+	Provider    string `json:"provider"`
+}
+
+type Repos struct {
+	Id            string `json:"id"`
+	DefaultBranch string `json:"defaultBranch"`
+	Name          string `json:"name"`
+	Namespace     string `json:"namespace"`
+	OwnerType     string `json:"ownerType"`
+	Provider      string `json:"provider"`
+	Slug          string `json:"slug"`
+	Private       bool   `json:"private"`
+	UpdatedAt     int    `json:"updatedAt"`
+	Url           string `json:"url"`
+	Owner         Owner  `json:"owner"`
+}
+
+type Owner struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type ListGitByProviderResponse struct {
 	Id                 string       `json:"id"`
 	IsAccessRestricted bool         `json:"isAccessRestricted"`
