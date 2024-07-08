@@ -270,6 +270,27 @@ func (v *VercelClient) UpdateEdgeConfigItems(edgeConfigId string, slug string, t
 	return result, nil
 }
 
+func (v *VercelClient) UpdateEdgeConfigSchema(edgeConfigId string, slug string, teamId string, req interface{}) (*string, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s/schema", edgeConfigId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := ""
+	err := v.http.Post(path, req, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type UpdateEdgeConfigItemResponse struct {
 	Status string       `json:"status"`
 	Error  *VercelError `json:"error,omitempty"`
