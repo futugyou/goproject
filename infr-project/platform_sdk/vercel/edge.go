@@ -228,6 +228,27 @@ func (v *VercelClient) GetEdgeConfigTokens(edgeConfigId string, slug string, tea
 	return result, nil
 }
 
+func (v *VercelClient) GetEdgeConfigs(slug string, teamId string) ([]EdgeConfigInfo, error) {
+	path := "/v1/edge-config"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []EdgeConfigInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
 	Items interface{} `json:"items"`
