@@ -53,6 +53,28 @@ func (v *VercelClient) CreateEdgeConfigToken(edgeConfigId string, slug string, t
 	return result, nil
 }
 
+func (v *VercelClient) DeleteEdgeConfig(edgeConfigId string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s", edgeConfigId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+
+	result := ""
+	err := v.http.Delete(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
 	Items interface{} `json:"items"`
