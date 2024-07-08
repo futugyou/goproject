@@ -14,6 +14,7 @@ type IHttpClient interface {
 	Put(path string, request, response interface{}) error
 	Patch(path string, request, response interface{}) error
 	Delete(path string, response interface{}) error
+	DeleteWithBody(path string, request, response interface{}) error
 }
 
 type httpClient struct {
@@ -59,6 +60,10 @@ func (c *httpClient) Get(path string, response interface{}) error {
 
 func (c *httpClient) Delete(path string, response interface{}) error {
 	return c.doRequest(path, "DELETE", nil, response)
+}
+
+func (c *httpClient) DeleteWithBody(path string, request, response interface{}) error {
+	return c.doRequest(path, "DELETE", request, response)
 }
 
 func (c *httpClient) doRequest(path, method string, request, response interface{}) error {
