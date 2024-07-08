@@ -186,9 +186,39 @@ func (v *VercelClient) GetEdgeConfigSchema(edgeConfigId string, slug string, tea
 	return &result, nil
 }
 
+func (v *VercelClient) GetEdgeConfigToken(edgeConfigId string, token string, slug string, teamId string) (*EdgeConfigTokennfo, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s/token/%s", edgeConfigId, token)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &EdgeConfigTokennfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
 	Items interface{} `json:"items"`
+}
+
+type EdgeConfigTokennfo struct {
+	Token        string       `json:"token"`
+	Id           string       `json:"id"`
+	Label        string       `json:"label"`
+	CreatedAt    int          `json:"createdAt"`
+	EdgeConfigId string       `json:"edgeConfigId"`
+	Error        *VercelError `json:"error,omitempty"`
 }
 
 type EdgeConfigInfo struct {
