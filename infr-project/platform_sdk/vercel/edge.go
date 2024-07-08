@@ -249,6 +249,39 @@ func (v *VercelClient) GetEdgeConfigs(slug string, teamId string) ([]EdgeConfigI
 	return result, nil
 }
 
+func (v *VercelClient) UpdateEdgeConfigItems(edgeConfigId string, slug string, teamId string, items []UpdateEdgeConfigItemRequest) ([]UpdateEdgeConfigItemResponse, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s/items", edgeConfigId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []UpdateEdgeConfigItemResponse{}
+	err := v.http.Patch(path, items, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type UpdateEdgeConfigItemResponse struct {
+	Status string       `json:"status"`
+	Error  *VercelError `json:"error,omitempty"`
+}
+
+type UpdateEdgeConfigItemRequest struct {
+	Description string      `json:"description"`
+	Key         string      `json:"key"`
+	Operation   string      `json:"operation"`
+	Value       interface{} `json:"value"`
+}
+
 type CreateEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
 	Items interface{} `json:"items"`
