@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CreateEdgeConfig(slug string, teamId string, req CreateEdgeConfigRequest) (*CreateEdgeConfigResponse, error) {
+func (v *VercelClient) CreateEdgeConfig(slug string, teamId string, req CreateEdgeConfigRequest) (*EdgeConfigInfo, error) {
 	path := "/v1/edge-config"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -17,7 +17,7 @@ func (v *VercelClient) CreateEdgeConfig(slug string, teamId string, req CreateEd
 	if len(queryParams) > 0 {
 		path += "?" + queryParams.Encode()
 	}
-	result := &CreateEdgeConfigResponse{}
+	result := &EdgeConfigInfo{}
 	err := v.http.Post(path, req, result)
 
 	if err != nil {
@@ -123,12 +123,33 @@ func (v *VercelClient) DeleteEdgeConfigTokens(edgeConfigId string, slug string, 
 	return &result, nil
 }
 
+func (v *VercelClient) GetEdgeConfig(edgeConfigId string, slug string, teamId string) (*EdgeConfigInfo, error) {
+	path := fmt.Sprintf("/v1/edge-config/%s", edgeConfigId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &EdgeConfigInfo{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateEdgeConfigRequest struct {
 	Slug  string      `json:"slug"`
 	Items interface{} `json:"items"`
 }
 
-type CreateEdgeConfigResponse struct {
+type EdgeConfigInfo struct {
 	CreatedAt   int          `json:"createdAt"`
 	Digest      string       `json:"digest"`
 	Id          string       `json:"id"`
