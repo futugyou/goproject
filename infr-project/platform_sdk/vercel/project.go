@@ -435,6 +435,25 @@ func (v *VercelClient) UpdateProtectionBypass(idOrName string, slug string, team
 	return &result, nil
 }
 
+func (v *VercelClient) VerifyProjectDomain(idOrName string, domain string,
+	slug string, teamId string) (*ProjectDomainInfo, error) {
+	path := fmt.Sprintf("/v9/projects/%s/domains/%s/verify", idOrName, domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	result := &ProjectDomainInfo{}
+	err := v.http.Post(path, nil, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
