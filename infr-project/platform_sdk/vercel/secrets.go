@@ -26,6 +26,34 @@ func (v *VercelClient) CreateSecret(slug string, teamId string, req CreateSecret
 	return result, nil
 }
 
+func (v *VercelClient) DeleteSecret(idOrName string, slug string, teamId string) (*DeleteSecretResponse, error) {
+	path := fmt.Sprintf("/v2/secrets/%s", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &DeleteSecretResponse{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type DeleteSecretResponse struct {
+	Created string       `json:"created,omitempty"`
+	Name    string       `json:"name,omitempty"`
+	Uid     string       `json:"uid,omitempty"`
+	Error   *VercelError `json:"error,omitempty"`
+}
+
 type CreateSecretRequest struct {
 	Name        string `json:"name,omitempty"`
 	Value       string `json:"value,omitempty"`
