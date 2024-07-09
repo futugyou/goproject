@@ -336,6 +336,25 @@ func (v *VercelClient) PointsProductionDomains(projectId string, deploymentId st
 	return &result, nil
 }
 
+func (v *VercelClient) UnpauseProject(projectId string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v1/projects/%s/unpause", projectId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := ""
+	err := v.http.Post(path, nil, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
