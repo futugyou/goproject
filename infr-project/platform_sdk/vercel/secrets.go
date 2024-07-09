@@ -92,6 +92,27 @@ func (v *VercelClient) ListSecret(slug string, teamId string) (*ListSecretRespon
 	return result, nil
 }
 
+func (v *VercelClient) ChangeSecretName(name string, slug string, teamId string, req CreateSecretRequest) (*string, error) {
+	path := fmt.Sprintf("/v2/secrets/%s", name)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := ""
+	err := v.http.Patch(path, req, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type ListSecretResponse struct {
 	Secrets    []SecretInfo `json:"secrets,omitempty"`
 	Pagination Pagination   `json:"pagination,omitempty"`
