@@ -47,6 +47,30 @@ func (v *VercelClient) DeleteSecret(idOrName string, slug string, teamId string)
 	return result, nil
 }
 
+func (v *VercelClient) GetSecret(idOrName string, slug string, teamId string, decrypt string) (*GetSecretInfo, error) {
+	path := fmt.Sprintf("/v3/secrets/%s", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(decrypt) > 0 {
+		queryParams.Add("decrypt", decrypt)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &GetSecretInfo{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type DeleteSecretResponse struct {
 	Created string       `json:"created,omitempty"`
 	Name    string       `json:"name,omitempty"`
@@ -70,6 +94,19 @@ type SecretInfo struct {
 	Uid         string       `json:"uid,omitempty"`
 	UserId      string       `json:"userId,omitempty"`
 	Value       SecretValue  `json:"value,omitempty"`
+	Error       *VercelError `json:"error,omitempty"`
+}
+
+type GetSecretInfo struct {
+	Created     string       `json:"created,omitempty"`
+	CreatedAt   int          `json:"createdAt,omitempty"`
+	Decryptable bool         `json:"decryptable,omitempty"`
+	Name        string       `json:"name,omitempty"`
+	ProjectId   string       `json:"projectId,omitempty"`
+	TeamId      string       `json:"teamId,omitempty"`
+	Uid         string       `json:"uid,omitempty"`
+	UserId      string       `json:"userId,omitempty"`
+	Value       string       `json:"value,omitempty"`
 	Error       *VercelError `json:"error,omitempty"`
 }
 
