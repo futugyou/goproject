@@ -115,7 +115,7 @@ func (v *VercelClient) EditEnvironmentVariable(idOrName string, id string, slug 
 	return result, nil
 }
 
-func (v *VercelClient) RetrieveEnvironmentVariable(idOrName string, slug string, teamId string, decrypt string,
+func (v *VercelClient) ListEnvironmentVariable(idOrName string, slug string, teamId string, decrypt string,
 	gitBranch string, source string) ([]ProjectEnv, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env", idOrName)
 	queryParams := url.Values{}
@@ -196,6 +196,25 @@ func (v *VercelClient) ListProjectDomain(idOrName string, slug string, teamId st
 	}
 
 	result := &ListProjectDomainResponse{}
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (v *VercelClient) GetEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
+	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ProjectEnv{}
 	err := v.http.Get(path, &result)
 
 	if err != nil {
