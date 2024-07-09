@@ -152,19 +152,21 @@ type DeleteAliasResponse struct {
 }
 
 type AliasInfo struct {
-	Alias              string         `json:"alias"`
-	Created            string         `json:"created"`
-	CreatedAt          int            `json:"createdAt"`
-	Creator            CreatorInfo    `json:"creator"`
-	DeploymentId       string         `json:"deploymentId"`
-	ProjectId          string         `json:"projectId"`
-	Redirect           string         `json:"redirect"`
-	RedirectStatusCode int            `json:"redirectStatusCode"`
-	Uid                string         `json:"uid"`
-	UpdatedAt          int            `json:"updatedAt"`
-	Deployment         DeploymentInfo `json:"deployment"`
-	ProtectionBypass   interface{}    `json:"protectionBypass"`
-	Error              *VercelError   `json:"error"`
+	Alias              string         `json:"alias,omitempty"`
+	Id                 string         `json:"id,omitempty"`
+	Status             string         `json:"status,omitempty"`
+	Created            string         `json:"created,omitempty"`
+	CreatedAt          int            `json:"createdAt,omitempty"`
+	Creator            CreatorInfo    `json:"creator,omitempty"`
+	DeploymentId       string         `json:"deploymentId,omitempty"`
+	ProjectId          string         `json:"projectId,omitempty"`
+	Redirect           string         `json:"redirect,omitempty"`
+	RedirectStatusCode int            `json:"redirectStatusCode,omitempty"`
+	Uid                string         `json:"uid,omitempty"`
+	UpdatedAt          int            `json:"updatedAt,omitempty"`
+	Deployment         DeploymentInfo `json:"deployment,omitempty"`
+	ProtectionBypass   interface{}    `json:"protectionBypass,omitempty"`
+	Error              *VercelError   `json:"error,omitempty"`
 }
 
 type DeploymentInfo struct {

@@ -241,6 +241,25 @@ func (v *VercelClient) ListProject(slug string, teamId string) (*ListProjectResp
 	return result, nil
 }
 
+func (v *VercelClient) ListProjectAlias(projectId string, slug string, teamId string) (*ListProjectAliasResponse, error) {
+	path := fmt.Sprintf("/v1/projects/%s/promote/aliases", projectId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ListProjectAliasResponse{}
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
@@ -360,4 +379,10 @@ type ListProjectResponse struct {
 	Projects   []ProjectInfo `json:"projects,omitempty"`
 	Pagination Pagination    `json:"pagination,omitempty"`
 	Error      *VercelError  `json:"error,omitempty"`
+}
+
+type ListProjectAliasResponse struct {
+	Aliases    []AliasInfo  `json:"aliases,omitempty"`
+	Pagination Pagination   `json:"pagination,omitempty"`
+	Error      *VercelError `json:"error,omitempty"`
 }
