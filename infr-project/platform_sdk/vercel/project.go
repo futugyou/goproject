@@ -317,6 +317,25 @@ func (v *VercelClient) RemoveEnvironmentVariable(idOrName string, id string, slu
 	return &result, nil
 }
 
+func (v *VercelClient) PointsProductionDomains(projectId string, deploymentId string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v10/projects/%s/promote/%s", projectId, deploymentId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := ""
+	err := v.http.Post(path, nil, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
