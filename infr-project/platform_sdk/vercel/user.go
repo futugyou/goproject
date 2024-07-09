@@ -1,8 +1,52 @@
 package vercel
 
+import (
+	"net/url"
+)
+
 func (v *VercelClient) GetUser() (*AuthUser, error) {
 	path := "/v2/user"
 	result := &AuthUser{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (v *VercelClient) ListUserEvent(slug string, teamId string, limit string, since string, until string,
+	types string, userId string, withPayload string) ([]UserEvent, error) {
+	path := "/v3/events"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(limit) > 0 {
+		queryParams.Add("limit", limit)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(types) > 0 {
+		queryParams.Add("types", types)
+	}
+	if len(userId) > 0 {
+		queryParams.Add("userId", userId)
+	}
+	if len(withPayload) > 0 {
+		queryParams.Add("withPayload", withPayload)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []UserEvent{}
 	err := v.http.Get(path, result)
 
 	if err != nil {
@@ -27,4 +71,18 @@ type AuthUser struct {
 	StagingPrefix     string       `json:"stagingPrefix,omitempty"`
 	HasTrialAvailable bool         `json:"hasTrialAvailable,omitempty"`
 	Error             *VercelError `json:"error,omitempty"`
+}
+
+type UserEvent struct {
+	Id       string            `json:"id,omitempty"`
+	Text     string            `json:"text,omitempty"`
+	Entities []UserEventEntity `json:"entities,omitempty"`
+	UserId   string            `json:"userId,omitempty"`
+	Error    *VercelError      `json:"error,omitempty"`
+}
+
+type UserEventEntity struct {
+	Type  string `json:"type,omitempty"`
+	Start int    `json:"start,omitempty"`
+	End   int    `json:"end,omitempty"`
 }
