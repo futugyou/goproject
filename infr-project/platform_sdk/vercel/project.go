@@ -27,6 +27,28 @@ func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId s
 	return result, nil
 }
 
+func (v *VercelClient) CreateProject(name string, slug string, teamId string, req ProjectInfo) (*CreateProjectResponse, error) {
+	path := "/v10/projects"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+
+	result := &CreateProjectResponse{}
+	err := v.http.Post(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"
 	result := "[]"
@@ -55,22 +77,6 @@ func (v *VercelClient) GetProject(project string, slug string, teamId string) st
 	path := "/v9/projects/" + project + "?slug=" + slug + "&teamId=" + teamId
 	result := ""
 	err := v.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
-	}
-	return result
-}
-
-func (v *VercelClient) CreateProject(name string, slug string, teamId string) string {
-	path := "/v10/projects?slug=" + slug + "&teamId=" + teamId
-	// TODO: struct
-	result := ""
-	info := ProjectInfo{
-		Name: name,
-	}
-	err := v.http.Post(path, info, &result)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -136,4 +142,36 @@ type Verification struct {
 	Reason string `json:"reason,omitempty"`
 	Type   string `json:"type,omitempty"`
 	Value  string `json:"value,omitempty"`
+}
+
+type CreateProjectResponse struct {
+	AccountId                         string      `json:"accountId,omitempty"`
+	AutoAssignCustomDomains           bool        `json:"autoAssignCustomDomains,omitempty"`
+	AutoAssignCustomDomainsUpdatedBy  string      `json:"autoAssignCustomDomainsUpdatedBy,omitempty"`
+	AutoExposeSystemEnvs              bool        `json:"autoExposeSystemEnvs,omitempty"`
+	BuildCommand                      string      `json:"buildCommand,omitempty"`
+	CommandForIgnoringBuildStep       string      `json:"commandForIgnoringBuildStep,omitempty"`
+	ConcurrencyBucketName             string      `json:"concurrencyBucketName,omitempty"`
+	ConnectBuildsEnabled              bool        `json:"connectBuildsEnabled,omitempty"`
+	ConnectConfigurationId            string      `json:"connectConfigurationId,omitempty"`
+	CreatedAt                         int         `json:"createdAt,omitempty"`
+	CustomerSupportCodeVisibility     bool        `json:"customerSupportCodeVisibility,omitempty"`
+	DevCommand                        string      `json:"devCommand,omitempty"`
+	DirectoryListing                  bool        `json:"directoryListing,omitempty"`
+	EnableAffectedProjectsDeployments bool        `json:"enableAffectedProjectsDeployments,omitempty"`
+	EnablePreviewFeedback             bool        `json:"enablePreviewFeedback,omitempty"`
+	Crons                             interface{} `json:"crons,omitempty"`
+	DataCache                         interface{} `json:"dataCache,omitempty"`
+	DeploymentExpiration              interface{} `json:"deploymentExpiration,omitempty"`
+	Env                               interface{} `json:"env,omitempty"`
+	Framework                         string      `json:"framework,omitempty"`
+	GitComments                       interface{} `json:"gitComments,omitempty"`
+	GitForkProtection                 bool        `json:"gitForkProtection,omitempty"`
+	GitLFS                            bool        `json:"gitLFS,omitempty"`
+	HasActiveBranches                 bool        `json:"hasActiveBranches,omitempty"`
+	HasFloatingAliases                bool        `json:"hasFloatingAliases,omitempty"`
+	Id                                string      `json:"id,omitempty"`
+	Name                              string      `json:"name,omitempty"`
+	NodeVersion                       string      `json:"nodeVersion,omitempty"`
+	OutputDirectory                   string      `json:"outputDirectory,omitempty"`
 }
