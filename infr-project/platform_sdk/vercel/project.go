@@ -27,7 +27,7 @@ func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId s
 	return result, nil
 }
 
-func (v *VercelClient) CreateProject(name string, slug string, teamId string, req ProjectInfo) (*CreateProjectResponse, error) {
+func (v *VercelClient) CreateProject(name string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
 	path := "/v10/projects"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -40,7 +40,7 @@ func (v *VercelClient) CreateProject(name string, slug string, teamId string, re
 		path += "?" + queryParams.Encode()
 	}
 
-	result := &CreateProjectResponse{}
+	result := &ProjectInfo{}
 	err := v.http.Post(path, req, result)
 
 	if err != nil {
@@ -147,6 +147,25 @@ func (v *VercelClient) RetrieveEnvironmentVariable(idOrName string, slug string,
 	return result, nil
 }
 
+func (v *VercelClient) GetProject(idOrName string, slug string, teamId string) (*ProjectInfo, error) {
+	path := fmt.Sprintf("/v9/projects/%s", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ProjectInfo{}
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"
 	result := "[]"
@@ -159,31 +178,7 @@ func (v *VercelClient) GetProjects() string {
 	return result
 }
 
-func (v *VercelClient) GetProjectEnv(project string) string {
-	path := "/v9/projects/" + project + "/env"
-	result := "[]"
-	err := v.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
-	}
-	return result
-}
-
-func (v *VercelClient) GetProject(project string, slug string, teamId string) string {
-	path := "/v9/projects/" + project + "?slug=" + slug + "&teamId=" + teamId
-	result := ""
-	err := v.http.Get(path, &result)
-
-	if err != nil {
-		log.Println(err.Error())
-		return result
-	}
-	return result
-}
-
-type ProjectInfo struct {
+type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
 	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep,omitempty"`
@@ -242,7 +237,7 @@ type Verification struct {
 	Value  string `json:"value,omitempty"`
 }
 
-type CreateProjectResponse struct {
+type ProjectInfo struct {
 	AccountId                         string       `json:"accountId,omitempty"`
 	AutoAssignCustomDomains           bool         `json:"autoAssignCustomDomains,omitempty"`
 	AutoAssignCustomDomainsUpdatedBy  string       `json:"autoAssignCustomDomainsUpdatedBy,omitempty"`
