@@ -49,7 +49,7 @@ func (v *VercelClient) CreateProject(name string, slug string, teamId string, re
 	return result, nil
 }
 
-func (v *VercelClient) CreateEnvironmentVariables(idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectResponse, error) {
+func (v *VercelClient) CreateEnvironmentVariables(idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectEnvResponse, error) {
 	path := fmt.Sprintf("/v10/projects/%s/env", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -62,13 +62,35 @@ func (v *VercelClient) CreateEnvironmentVariables(idOrName string, slug string, 
 		path += "?" + queryParams.Encode()
 	}
 
-	result := &CreateProjectResponse{}
+	result := &CreateProjectEnvResponse{}
 	err := v.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) DeleteProject(idOrName string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v9/projects/%s", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+
+	result := ""
+	err := v.http.Delete(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (v *VercelClient) GetProjects() string {
