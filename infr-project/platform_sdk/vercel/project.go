@@ -260,6 +260,25 @@ func (v *VercelClient) ListProjectAlias(projectId string, slug string, teamId st
 	return result, nil
 }
 
+func (v *VercelClient) PauseProject(projectId string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v1/projects/%s/pause", projectId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := ""
+	err := v.http.Post(path, nil, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
