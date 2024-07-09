@@ -397,6 +397,25 @@ func (v *VercelClient) UpdateProjectDataCache(idOrName string, slug string, team
 	return result, nil
 }
 
+func (v *VercelClient) UpdateProjectDomain(idOrName string, domain string,
+	slug string, teamId string, req UpdateProjectDomainRequest) (*ProjectDomainInfo, error) {
+	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	result := &ProjectDomainInfo{}
+	err := v.http.Patch(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
@@ -522,4 +541,11 @@ type ListProjectAliasResponse struct {
 	Aliases    []AliasInfo  `json:"aliases,omitempty"`
 	Pagination Pagination   `json:"pagination,omitempty"`
 	Error      *VercelError `json:"error,omitempty"`
+}
+
+type UpdateProjectDomainRequest struct {
+	GitBranch           string `json:"gitBranch,omitempty"`
+	Redirect            string `json:"redirect,omitempty"`
+	RedirectStatusCode  int    `json:"redirectStatusCode,omitempty"`
+	CustomEnvironmentId string `json:"customEnvironmentId,omitempty"`
 }
