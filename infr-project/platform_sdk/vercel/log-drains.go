@@ -110,6 +110,27 @@ func (v *VercelClient) RetrievesListLogDrain(projectId string, slug string, team
 	return result, nil
 }
 
+func (v *VercelClient) RetrievesConfigurableLogDrain(id string, slug string, teamId string) (*LogDrainInfo, error) {
+	path := fmt.Sprintf("/v1/log-drains/%s", id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &LogDrainInfo{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateLogDrainRequest struct {
 	DeliveryFormat string      `json:"deliveryFormat,omitempty"`
 	Sources        []string    `json:"sources,omitempty"`
