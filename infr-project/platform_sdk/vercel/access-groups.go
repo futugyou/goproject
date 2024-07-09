@@ -144,7 +144,7 @@ func (v *VercelClient) GetAccessGroup(idOrName string, slug string, teamId strin
 	return result, nil
 }
 
-func (v *VercelClient) UpdateAccessGroup(idOrName string, slug string, teamId string,info AccessGroupRequest) (*AccessGroupInfo, error) {
+func (v *VercelClient) UpdateAccessGroup(idOrName string, slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
 	path := "/v1/access-groups/" + idOrName
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -157,7 +157,7 @@ func (v *VercelClient) UpdateAccessGroup(idOrName string, slug string, teamId st
 		}
 	}
 	result := &AccessGroupInfo{}
-	err := v.http.Post(path,info, result)
+	err := v.http.Post(path, info, result)
 
 	if err != nil {
 		return nil, err
@@ -195,16 +195,6 @@ type ListMembersResponse struct {
 	Members    []MemberInfo `json:"members"`
 	Pagination Pagination   `json:"pagination"`
 	Error      *VercelError `json:"error"`
-}
-
-type MemberInfo struct {
-	Avatar    string `json:"avatar"`
-	CreatedAt string `json:"createdAt"`
-	Email     int    `json:"email"`
-	Name      string `json:"Name"`
-	TeamRole  string `json:"teamRole"`
-	Uid       string `json:"uid"`
-	Username  string `json:"username"`
 }
 
 type ListProjectsResponse struct {
