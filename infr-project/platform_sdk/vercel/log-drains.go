@@ -25,41 +25,64 @@ func (v *VercelClient) CreateLogDrain(slug string, teamId string, req CreateLogD
 	return result, nil
 }
 
+func (v *VercelClient) CreateIntegrationLogDrain(slug string, teamId string, req CreateLogDrainRequest) (*LogDrainInfo, error) {
+	path := "/v2/integrations/log-drains"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &LogDrainInfo{}
+	err := v.http.Post(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateLogDrainRequest struct {
-	DeliveryFormat string      `json:"deliveryFormat"`
-	Sources        []string    `json:"sources"`
-	Url            string      `json:"url"`
-	Environments   []string    `json:"environments"`
-	Headers        interface{} `json:"headers"`
-	ProjectIds     []string    `json:"projectIds"`
-	SamplingRate   int         `json:"samplingRate"`
-	Secret         string      `json:"secret"`
+	DeliveryFormat string      `json:"deliveryFormat,omitempty"`
+	Sources        []string    `json:"sources,omitempty"`
+	Url            string      `json:"url,omitempty"`
+	Environments   []string    `json:"environments,omitempty"`
+	Headers        interface{} `json:"headers,omitempty"`
+	ProjectIds     []string    `json:"projectIds,omitempty"`
+	SamplingRate   int         `json:"samplingRate,omitempty"`
+	Secret         string      `json:"secret,omitempty"`
+	Name           string      `json:"name,omitempty"`
 }
 
 type LogDrainInfo struct {
-	ClientId            string       `json:"clientId"`
-	Compression         string       `json:"compression"`
-	ConfigurationId     string       `json:"configurationId"`
-	CreatedFrom         string       `json:"createdFrom"`
-	DeliveryFormat      string       `json:"deliveryFormat"`
-	DisabledBy          string       `json:"disabledBy"`
-	CreatedAt           int          `json:"createdAt"`
-	DeletedAt           int          `json:"deletedAt"`
-	DisabledAt          int          `json:"disabledAt"`
-	DisabledReason      string       `json:"disabledReason"`
-	Environments        []string     `json:"environments"`
-	FirstErrorTimestamp int          `json:"firstErrorTimestamp"`
-	Headers             interface{}  `json:"headers"`
-	Id                  string       `json:"id"`
-	Name                string       `json:"name"`
-	OwnerId             string       `json:"ownerId"`
-	ProjectIds          []string     `json:"projectIds"`
-	SamplingRate        int          `json:"samplingRate"`
-	Secret              string       `json:"secret"`
-	Sources             []string     `json:"sources"`
-	Status              string       `json:"status"`
-	TeamId              string       `json:"teamId"`
-	Url                 string       `json:"url"`
-	UpdatedAt           int          `json:"updatedAt"`
+	Branch              string       `json:"branch,omitempty"`
+	ClientId            string       `json:"clientId,omitempty"`
+	Compression         string       `json:"compression,omitempty"`
+	ConfigurationId     string       `json:"configurationId,omitempty"`
+	CreatedFrom         string       `json:"createdFrom,omitempty"`
+	DeliveryFormat      string       `json:"deliveryFormat,omitempty"`
+	DisabledBy          string       `json:"disabledBy,omitempty"`
+	CreatedAt           int          `json:"createdAt,omitempty"`
+	DeletedAt           int          `json:"deletedAt,omitempty"`
+	DisabledAt          int          `json:"disabledAt,omitempty"`
+	DisabledReason      string       `json:"disabledReason,omitempty"`
+	Environments        []string     `json:"environments,omitempty"`
+	FirstErrorTimestamp int          `json:"firstErrorTimestamp,omitempty"`
+	Headers             interface{}  `json:"headers,omitempty"`
+	Id                  string       `json:"id,omitempty"`
+	Name                string       `json:"name,omitempty"`
+	OwnerId             string       `json:"ownerId,omitempty"`
+	ProjectIds          []string     `json:"projectIds,omitempty"`
+	SamplingRate        int          `json:"samplingRate,omitempty"`
+	Secret              string       `json:"secret,omitempty"`
+	Sources             []string     `json:"sources,omitempty"`
+	Status              string       `json:"status,omitempty"`
+	TeamId              string       `json:"teamId,omitempty"`
+	Url                 string       `json:"url,omitempty"`
+	UpdatedAt           int          `json:"updatedAt,omitempty"`
 	Error               *VercelError `json:"error,omitempty"`
 }
