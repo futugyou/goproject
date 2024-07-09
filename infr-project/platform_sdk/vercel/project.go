@@ -355,6 +355,48 @@ func (v *VercelClient) UnpauseProject(projectId string, slug string, teamId stri
 	return &result, nil
 }
 
+func (v *VercelClient) UpdateProject(idOrName string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
+	path := fmt.Sprintf("/v9/projects/%s", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ProjectInfo{}
+	err := v.http.Patch(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (v *VercelClient) UpdateProjectDataCache(idOrName string, slug string, teamId string, disabled bool) (*ProjectInfo, error) {
+	path := fmt.Sprintf("/v1/data-cache/projects/%s", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	req := struct {
+		Disabled bool `json:"disabled"`
+	}{
+		Disabled: disabled,
+	}
+	result := &ProjectInfo{}
+	err := v.http.Patch(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
