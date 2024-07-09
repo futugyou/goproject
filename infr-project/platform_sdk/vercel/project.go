@@ -185,6 +185,25 @@ func (v *VercelClient) GetProjectDomain(idOrName string, domain string, slug str
 	return result, nil
 }
 
+func (v *VercelClient) ListProjectDomain(idOrName string, slug string, teamId string) (*ListProjectDomainResponse, error) {
+	path := fmt.Sprintf("/v9/projects/%s/domains", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ListProjectDomainResponse{}
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"
 	result := "[]"
@@ -304,4 +323,10 @@ type CreateProjectEnvResponse struct {
 	Created interface{}   `json:"created,omitempty"`
 	Failed  []interface{} `json:"failed,omitempty"`
 	Error   *VercelError  `json:"error,omitempty"`
+}
+
+type ListProjectDomainResponse struct {
+	Domains    []ProjectDomainInfo `json:"domains,omitempty"`
+	Pagination Pagination          `json:"pagination,omitempty"`
+	Error      *VercelError        `json:"error,omitempty"`
 }
