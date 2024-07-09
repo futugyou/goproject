@@ -47,6 +47,27 @@ func (v *VercelClient) DeleteWebhook(id string, slug string, teamId string) (*st
 	return &result, nil
 }
 
+func (v *VercelClient) GetWebhook(id string, slug string, teamId string) (*WebhookInfo, error) {
+	path := fmt.Sprintf("/v1/webhooks%s", id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &WebhookInfo{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type CreateWebhookRequest struct {
 	Events     []string `json:"events,omitempty"`
 	Url        string   `json:"url,omitempty"`
