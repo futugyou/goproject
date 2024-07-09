@@ -93,6 +93,28 @@ func (v *VercelClient) DeleteProject(idOrName string, slug string, teamId string
 	return &result, nil
 }
 
+func (v *VercelClient) EditEnvironmentVariable(idOrName string, id string, slug string, teamId string, req ProjectEnv) (*ProjectEnv, error) {
+	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+
+	result := &ProjectEnv{}
+	err := v.http.Patch(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"
 	result := "[]"
@@ -222,12 +244,14 @@ type CreateProjectResponse struct {
 }
 
 type ProjectEnv struct {
-	Key       string `json:"key,omitempty"`
-	Target    string `json:"target,omitempty"`
-	Type      string `json:"type,omitempty"`
-	Value     string `json:"value,omitempty"`
-	GitBranch string `json:"gitBranch,omitempty"`
-	Comment   string `json:"comment,omitempty"`
+	Key                  string       `json:"key,omitempty"`
+	Target               string       `json:"target,omitempty"`
+	Type                 string       `json:"type,omitempty"`
+	Value                string       `json:"value,omitempty"`
+	GitBranch            string       `json:"gitBranch,omitempty"`
+	Comment              string       `json:"comment,omitempty"`
+	CustomEnvironmentIds []string     `json:"customEnvironmentIds,omitempty"`
+	Error                *VercelError `json:"error,omitempty"`
 }
 
 type CreateProjectEnvResponse struct {
