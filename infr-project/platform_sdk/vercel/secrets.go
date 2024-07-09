@@ -1,0 +1,51 @@
+package vercel
+
+import (
+	"fmt"
+	"net/url"
+)
+
+func (v *VercelClient) CreateSecret(slug string, teamId string, req CreateSecretRequest) (*SecretInfo, error) {
+	path := fmt.Sprintf("/v2/secrets/%s", req.Name)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &SecretInfo{}
+	err := v.http.Post(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type CreateSecretRequest struct {
+	Name        string `json:"name,omitempty"`
+	Value       string `json:"value,omitempty"`
+	Decryptable bool   `json:"decryptable,omitempty"`
+}
+
+type SecretInfo struct {
+	Created     string       `json:"created,omitempty"`
+	CreatedAt   int          `json:"createdAt,omitempty"`
+	Decryptable bool         `json:"decryptable,omitempty"`
+	Name        string       `json:"name,omitempty"`
+	ProjectId   string       `json:"projectId,omitempty"`
+	TeamId      string       `json:"teamId,omitempty"`
+	Uid         string       `json:"uid,omitempty"`
+	UserId      string       `json:"userId,omitempty"`
+	Value       SecretValue  `json:"value,omitempty"`
+	Error       *VercelError `json:"error,omitempty"`
+}
+
+type SecretValue struct {
+	Data []string `json:"data,omitempty"`
+	Type string   `json:"type,omitempty"`
+}
