@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) AddMember(idOrName string, slug string, teamId string, req AddMemberRequest) (*AddMemberResponse, error) {
+func (v *VercelClient) AddMember(idOrName string, slug string, teamId string, req AddMemberRequest) (*OperateMemberResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -17,7 +17,7 @@ func (v *VercelClient) AddMember(idOrName string, slug string, teamId string, re
 	if len(queryParams) > 0 {
 		path += "?" + queryParams.Encode()
 	}
-	result := &AddMemberResponse{}
+	result := &OperateMemberResponse{}
 	err := v.http.Post(path, req, result)
 
 	if err != nil {
@@ -59,6 +59,27 @@ func (v *VercelClient) ListProjectMember(idOrName string, slug string, teamId st
 	return result, nil
 }
 
+func (v *VercelClient) RemoveProjectMember(idOrName string, uid string, slug string, teamId string) (*OperateMemberResponse, error) {
+	path := fmt.Sprintf("/v1/projects/%s/members/%s", idOrName, uid)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &OperateMemberResponse{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type AddMemberRequest struct {
 	Role     string `json:"role,omitempty"`
 	Email    string `json:"email,omitempty"`
@@ -66,7 +87,7 @@ type AddMemberRequest struct {
 	Username string `json:"username,omitempty"`
 }
 
-type AddMemberResponse struct {
+type OperateMemberResponse struct {
 	Id    string       `json:"id,omitempty"`
 	Error *VercelError `json:"error,omitempty"`
 }
