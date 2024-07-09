@@ -416,6 +416,25 @@ func (v *VercelClient) UpdateProjectDomain(idOrName string, domain string,
 	return result, nil
 }
 
+func (v *VercelClient) UpdateProtectionBypass(idOrName string, slug string, teamId string, req UpdateProtectionBypassRequest,
+) (*string, error) {
+	path := fmt.Sprintf("/v1/projects/%s/protection-bypass", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	result := ""
+	err := v.http.Patch(path, req, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
@@ -548,4 +567,13 @@ type UpdateProjectDomainRequest struct {
 	Redirect            string `json:"redirect,omitempty"`
 	RedirectStatusCode  int    `json:"redirectStatusCode,omitempty"`
 	CustomEnvironmentId string `json:"customEnvironmentId,omitempty"`
+}
+
+type UpdateProtectionBypassRequest struct {
+	Revoke ProtectionBypass `json:"revoke,omitempty"`
+}
+
+type ProtectionBypass struct {
+	Regenerate bool   `json:"regenerate,omitempty"`
+	Ssecret    string `json:"secret,omitempty"`
 }
