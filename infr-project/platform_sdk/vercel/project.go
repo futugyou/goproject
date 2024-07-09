@@ -298,6 +298,25 @@ func (v *VercelClient) RemoveDomainFromProject(idOrName string, domain string, s
 	return &result, nil
 }
 
+func (v *VercelClient) RemoveEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := ""
+	err := v.http.Delete(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
