@@ -55,6 +55,33 @@ func (v *VercelClient) ListUserEvent(slug string, teamId string, limit string, s
 	return result, nil
 }
 
+func (v *VercelClient) DeleteUserAccount(req DeleteUserRequest) (*DeleteUserResponse, error) {
+	path := "/v1/user"
+	result := &DeleteUserResponse{}
+	err := v.http.DeleteWithBody(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type DeleteUserResponse struct {
+	Email   string       `json:"email,omitempty"`
+	Id      string       `json:"id,omitempty"`
+	Message string       `json:"message,omitempty"`
+	Error   *VercelError `json:"error,omitempty"`
+}
+
+type DeleteUserRequest struct {
+	Reasons []DeleteUserReason `json:"reasons,omitempty"`
+}
+
+type DeleteUserReason struct {
+	Description string `json:"description,omitempty"`
+	Slug        string `json:"slug,omitempty"`
+}
+
 type AuthUser struct {
 	Id                string       `json:"id,omitempty"`
 	Email             string       `json:"email,omitempty"`
