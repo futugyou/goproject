@@ -1,6 +1,31 @@
 package vercel
 
-import "log"
+import (
+	"fmt"
+	"log"
+	"net/url"
+)
+
+func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*AddDomainToProjectResponse, error) {
+	path := fmt.Sprintf("/v10/projects/%s/domains", idOrName)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &AddDomainToProjectResponse{}
+	err := v.http.Post(path, req, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
 
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"
@@ -82,4 +107,33 @@ type EnvironmentVariable struct {
 type GitRepository struct {
 	Repo string `json:"repo,omitempty"`
 	Type string `json:"type,omitempty"`
+}
+
+type AddDomainToProjectRequest struct {
+	Name               string `json:"name,omitempty"`
+	GitBranch          string `json:"gitBranch,omitempty"`
+	Redirect           string `json:"redirect,omitempty"`
+	RedirectStatusCode int    `json:"redirectStatusCode,omitempty"`
+}
+
+type AddDomainToProjectResponse struct {
+	Name                string         `json:"name,omitempty"`
+	GitBranch           string         `json:"gitBranch,omitempty"`
+	Redirect            string         `json:"redirect,omitempty"`
+	RedirectStatusCode  int            `json:"redirectStatusCode,omitempty"`
+	ApexName            string         `json:"apexName,omitempty"`
+	CreatedAt           int            `json:"createdAt,omitempty"`
+	CustomEnvironmentId string         `json:"customEnvironmentId,omitempty"`
+	ProjectId           string         `json:"projectId,omitempty"`
+	UpdatedAt           int            `json:"updatedAt,omitempty"`
+	Verified            bool           `json:"verified,omitempty"`
+	Verification        []Verification `json:"verification,omitempty"`
+	Error               *VercelError   `json:"error,omitempty"`
+}
+
+type Verification struct {
+	Domain string `json:"domain,omitempty"`
+	Reason string `json:"reason,omitempty"`
+	Type   string `json:"type,omitempty"`
+	Value  string `json:"value,omitempty"`
 }
