@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*AddDomainToProjectResponse, error) {
+func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v10/projects/%s/domains", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +18,7 @@ func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId s
 	if len(queryParams) > 0 {
 		path += "?" + queryParams.Encode()
 	}
-	result := &AddDomainToProjectResponse{}
+	result := &ProjectDomainInfo{}
 	err := v.http.Post(path, req, result)
 
 	if err != nil {
@@ -166,6 +166,25 @@ func (v *VercelClient) GetProject(idOrName string, slug string, teamId string) (
 	return result, nil
 }
 
+func (v *VercelClient) GetProjectDomain(idOrName string, domain string, slug string, teamId string) (*ProjectDomainInfo, error) {
+	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ProjectDomainInfo{}
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (v *VercelClient) GetProjects() string {
 	path := "/v9/projects"
 	result := "[]"
@@ -215,7 +234,7 @@ type AddDomainToProjectRequest struct {
 	RedirectStatusCode int    `json:"redirectStatusCode,omitempty"`
 }
 
-type AddDomainToProjectResponse struct {
+type ProjectDomainInfo struct {
 	Name                string         `json:"name,omitempty"`
 	GitBranch           string         `json:"gitBranch,omitempty"`
 	Redirect            string         `json:"redirect,omitempty"`
