@@ -2,7 +2,6 @@ package vercel
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 )
 
@@ -205,7 +204,7 @@ func (v *VercelClient) ListProjectDomain(idOrName string, slug string, teamId st
 }
 
 func (v *VercelClient) GetEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
-	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
+	path := fmt.Sprintf("/v1/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
 		queryParams.Add("slug", slug)
@@ -223,16 +222,23 @@ func (v *VercelClient) GetEnvironmentVariable(idOrName string, id string, slug s
 	return result, nil
 }
 
-func (v *VercelClient) GetProjects() string {
+func (v *VercelClient) ListProject(slug string, teamId string) (*ListProjectResponse, error) {
 	path := "/v9/projects"
-	result := "[]"
-	err := v.http.Get(path, &result)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := &ListProjectResponse{}
+	err := v.http.Get(path, result)
 
 	if err != nil {
-		log.Println(err.Error())
-		return result
+		return nil, err
 	}
-	return result
+	return result, nil
 }
 
 type CreateProjectRequest struct {
@@ -348,4 +354,10 @@ type ListProjectDomainResponse struct {
 	Domains    []ProjectDomainInfo `json:"domains,omitempty"`
 	Pagination Pagination          `json:"pagination,omitempty"`
 	Error      *VercelError        `json:"error,omitempty"`
+}
+
+type ListProjectResponse struct {
+	Projects   []ProjectInfo `json:"projects,omitempty"`
+	Pagination Pagination    `json:"pagination,omitempty"`
+	Error      *VercelError  `json:"error,omitempty"`
 }
