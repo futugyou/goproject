@@ -279,6 +279,25 @@ func (v *VercelClient) PauseProject(projectId string, slug string, teamId string
 	return &result, nil
 }
 
+func (v *VercelClient) RemoveDomainFromProject(idOrName string, domain string, slug string, teamId string) (*string, error) {
+	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+
+	result := ""
+	err := v.http.Delete(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 type CreateProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
