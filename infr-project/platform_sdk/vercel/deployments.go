@@ -176,6 +176,61 @@ func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, 
 	return &result, nil
 }
 
+func (v *VercelClient) ListDeployment(app string, until string, slug string, teamId string, limit string,
+	projectId string, rollbackCandidate string, since string, state string, target string, users string) (*ListDeploymentResponse, error) {
+	path := "/v6/deployments"
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(app) > 0 {
+		queryParams.Add("app", app)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(limit) > 0 {
+		queryParams.Add("limit", limit)
+	}
+	if len(projectId) > 0 {
+		queryParams.Add("projectId", projectId)
+	}
+	if len(rollbackCandidate) > 0 {
+		queryParams.Add("rollbackCandidate", rollbackCandidate)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(state) > 0 {
+		queryParams.Add("state", state)
+	}
+	if len(target) > 0 {
+		queryParams.Add("target", target)
+	}
+	if len(users) > 0 {
+		queryParams.Add("users", users)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &ListDeploymentResponse{}
+	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type ListDeploymentResponse struct {
+	Deployments []DeploymentInfo `json:"deployments,omitempty"`
+	Pagination  Pagination       `json:"pagination,omitempty"`
+	Error       *VercelError     `json:"error,omitempty"`
+}
+
 type DeleteDeploymentResponse struct {
 	State string       `json:"state,omitempty"`
 	Uid   string       `json:"uid,omitempty"`
