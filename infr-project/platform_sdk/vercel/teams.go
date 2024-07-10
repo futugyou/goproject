@@ -132,6 +132,36 @@ func (v *VercelClient) ListTeam(limit string, since string, until string) (*List
 	return result, nil
 }
 
+func (v *VercelClient) InviteUser(teamId string, req InviteUserRequest) (*InviteUserResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members", teamId)
+	result := &InviteUserResponse{}
+	if err := v.http.Post(path, req, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type InviteUserRequest struct {
+	Email    string          `json:"email,omitempty"`
+	Role     string          `json:"role,omitempty"`
+	Uid      string          `json:"uid,omitempty"`
+	Projects []InviteProject `json:"projects,omitempty"`
+}
+
+type InviteProject struct {
+	ProjectId string `json:"projectId,omitempty"`
+	Role      string `json:"role,omitempty"`
+}
+
+type InviteUserResponse struct {
+	Email    string       `json:"email,omitempty"`
+	Role     string       `json:"role,omitempty"`
+	Uid      string       `json:"uid,omitempty"`
+	Username string       `json:"username,omitempty"`
+	Error    *VercelError `json:"error,omitempty"`
+}
+
 type ListTeamResponse struct {
 	Teams      []TeamInfo   `json:"teams,omitempty"`
 	Pagination Pagination   `json:"pagination,omitempty"`
