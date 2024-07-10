@@ -201,6 +201,28 @@ func (v *VercelClient) RequestAccessToTeam(teamId string, req JoinedFrom) (*Acce
 	return result, nil
 }
 
+func (v *VercelClient) UpdateTeamMember(teamId string, uid string, req UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members/%s", teamId, uid)
+	result := &UpdateTeamMemberResponse{}
+	if err := v.http.Patch(path, req, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type UpdateTeamMemberResponse struct {
+	Id    string       `json:"id,omitempty"`
+	Error *VercelError `json:"error,omitempty"`
+}
+
+type UpdateTeamMemberRequest struct {
+	Confirmed  bool            `json:"confirmed,omitempty"`
+	JoinedFrom JoinedFrom      `json:"joinedFrom,omitempty"`
+	Role       string          `json:"role,omitempty"`
+	Projects   []InviteProject `json:"projects,omitempty"`
+}
+
 type RemoveTeamMemberResponse struct {
 	Id    string       `json:"id,omitempty"`
 	Error *VercelError `json:"error,omitempty"`
