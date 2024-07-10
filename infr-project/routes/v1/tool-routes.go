@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 
-	"github.com/futugyou/circleci"
+	"github.com/futugyou/circleci"	
+	"github.com/futugyou/vercel"
 
 	"github.com/futugyou/infr-project/command"
 	sdk "github.com/futugyou/infr-project/platform_sdk"
-	vercel "github.com/futugyou/infr-project/platform_sdk/vercel"
 	"github.com/futugyou/infr-project/services"
 )
 
