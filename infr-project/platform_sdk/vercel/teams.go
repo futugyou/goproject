@@ -72,6 +72,50 @@ func (v *VercelClient) GetAccessRequestStatus(teamId string, userId string) (*Ac
 	return result, nil
 }
 
+func (v *VercelClient) ListTeamMembers(teamId string, eligibleMembersForProjectId string, excludeProject string,
+	limit string, role string, search string, since string, until string) (*ListTeamMembersResponse, error) {
+	path := fmt.Sprintf("/v2/teams/%s/members", teamId)
+	queryParams := url.Values{}
+	if len(eligibleMembersForProjectId) > 0 {
+		queryParams.Add("eligibleMembersForProjectId", eligibleMembersForProjectId)
+	}
+	if len(excludeProject) > 0 {
+		queryParams.Add("excludeProject", excludeProject)
+	}
+	if len(limit) > 0 {
+		queryParams.Add("limit", limit)
+	}
+	if len(role) > 0 {
+		queryParams.Add("role", role)
+	}
+	if len(search) > 0 {
+		queryParams.Add("search", search)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+
+	result := &ListTeamMembersResponse{}
+	if err := v.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type ListTeamMembersResponse struct {
+	EmailInviteCodes []EmailInviteCode `json:"emailInviteCodes,omitempty"`
+	Members          []MemberInfo      `json:"members,omitempty"`
+	Pagination       Pagination        `json:"pagination,omitempty"`
+	Error            *VercelError      `json:"error,omitempty"`
+}
+
 type AccessRequestStatusResponse struct {
 	AccessRequestedAt int          `json:"accessRequestedAt,omitempty"`
 	Bitbucket         RepoState    `json:"bitbucket,omitempty"`
@@ -138,4 +182,15 @@ type JoinedFrom struct {
 	RepoPath         string `json:"repoPath,omitempty"`
 	SsoConnectedAt   int    `json:"ssoConnectedAt,omitempty"`
 	SsoUserId        string `json:"ssoUserId,omitempty"`
+}
+
+type EmailInviteCode struct {
+	AccessGroups []string    `json:"accessGroups,omitempty"`
+	CreatedAt    int         `json:"createdAt,omitempty"`
+	Email        string      `json:"email,omitempty"`
+	Expired      bool        `json:"expired,omitempty"`
+	Id           string      `json:"id,omitempty"`
+	IsDSyncUser  bool        `json:"isDSyncUser,omitempty"`
+	Role         string      `json:"role,omitempty"`
+	Projects     interface{} `json:"projects,omitempty"`
 }
