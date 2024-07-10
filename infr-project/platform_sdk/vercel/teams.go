@@ -157,6 +157,47 @@ func (v *VercelClient) JoinTeam(teamId string, inviteCode string) (*JoinTeamResp
 	return result, nil
 }
 
+func (v *VercelClient) UpdateTeam(teamId string, slug string, req UpdateTeamInfo) (*TeamInfo, error) {
+	path := fmt.Sprintf("/v2/teams/%s", teamId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &TeamInfo{}
+	if err := v.http.Post(path, req, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type UpdateTeamInfo struct {
+	Avatar                             string        `json:"avatar,omitempty"`
+	Description                        string        `json:"description,omitempty"`
+	EmailDomain                        string        `json:"emailDomain,omitempty"`
+	EnablePreviewFeedback              string        `json:"enablePreviewFeedback,omitempty"`
+	HideIPAddresses                    bool          `json:"hideIpAddresses,omitempty"`
+	Name                               string        `json:"name,omitempty"`
+	PreviewDeploymentSuffix            string        `json:"previewDeploymentSuffix,omitempty"`
+	RegenerateInviteCode               bool          `json:"regenerateInviteCode,omitempty"`
+	RemoteCaching                      RemoteCaching `json:"remoteCaching,omitempty"`
+	Saml                               Saml          `json:"saml,omitempty"`
+	SensitiveEnvironmentVariablePolicy string        `json:"sensitiveEnvironmentVariablePolicy,omitempty"`
+	Slug                               string        `json:"slug,omitempty"`
+}
+
+type RemoteCaching struct {
+	Enabled bool `json:"enabled,omitempty"`
+}
+
+type Saml struct {
+	Enforced bool   `json:"enforced,omitempty"`
+	Roles    string `json:"roles,omitempty"`
+}
+
 type JoinTeamResponse struct {
 	From   string       `json:"from,omitempty"`
 	Name   string       `json:"name,omitempty"`
