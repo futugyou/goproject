@@ -94,7 +94,7 @@ func (v *VercelClient) GetDeployment(idOrUrl string, slug string, teamId string,
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeploymentInfo{}
-	err := v.http.Delete(path, result)
+	err := v.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -144,12 +144,36 @@ func (v *VercelClient) GetDeploymentEvent(idOrUrl string, slug string, teamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := []DeploymentEvent{}
-	err := v.http.Delete(path, result)
+	err := v.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, teamId string, filePath string) (*string, error) {
+	path := fmt.Sprintf("/v7/deployments/%s/files/%s", id, fileId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(filePath) > 0 {
+		queryParams.Add("path", filePath)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := ""
+	err := v.http.Get(path, &result)
+
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 type DeleteDeploymentResponse struct {
