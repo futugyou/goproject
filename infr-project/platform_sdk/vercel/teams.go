@@ -7,11 +7,8 @@ import (
 
 func (v *VercelClient) CreateTeam(req CreateTeamRequest) (*TeamInfo, error) {
 	path := "/v1/teams"
-
 	result := &TeamInfo{}
-	err := v.http.Post(path, req, result)
-
-	if err != nil {
+	if err := v.http.Post(path, req, result); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -30,12 +27,27 @@ func (v *VercelClient) DeleteTeam(teamId string, slug string, newDefaultTeamId s
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeleteTeamResponse{}
-	err := v.http.Delete(path, result)
-
-	if err != nil {
+	if err := v.http.Delete(path, result); err != nil {
 		return nil, err
 	}
+
 	return result, nil
+}
+
+func (v *VercelClient) DeleteTeamInviteCode(teamId string, inviteId string) (*DeleteTeamInviteCodeResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/invites/%s", teamId, inviteId)
+
+	result := &DeleteTeamInviteCodeResponse{}
+	if err := v.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type DeleteTeamInviteCodeResponse struct {
+	Id    string       `json:"id,omitempty"`
+	Error *VercelError `json:"error,omitempty"`
 }
 
 type DeleteTeamResponse struct {
