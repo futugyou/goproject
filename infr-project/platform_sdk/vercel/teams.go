@@ -142,6 +142,29 @@ func (v *VercelClient) InviteUser(teamId string, req InviteUserRequest) (*Invite
 	return result, nil
 }
 
+func (v *VercelClient) JoinTeam(teamId string, inviteCode string) (*JoinTeamResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members/teams/join", teamId)
+	req := struct {
+		InviteCode string `json:"inviteCode,omitempty"`
+	}{
+		InviteCode: inviteCode,
+	}
+	result := &JoinTeamResponse{}
+	if err := v.http.Post(path, req, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type JoinTeamResponse struct {
+	From   string       `json:"from,omitempty"`
+	Name   string       `json:"name,omitempty"`
+	Slug   string       `json:"slug,omitempty"`
+	TeamId string       `json:"teamId,omitempty"`
+	Error  *VercelError `json:"error,omitempty"`
+}
+
 type InviteUserRequest struct {
 	Email    string          `json:"email,omitempty"`
 	Role     string          `json:"role,omitempty"`
