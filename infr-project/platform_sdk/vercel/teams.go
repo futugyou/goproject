@@ -55,11 +55,33 @@ func (v *VercelClient) GetTeam(teamId string, slug string) (*TeamInfo, error) {
 		path += "?" + queryParams.Encode()
 	}
 	result := &TeamInfo{}
-	if err := v.http.Delete(path, result); err != nil {
+	if err := v.http.Get(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
+}
+
+func (v *VercelClient) GetAccessRequestStatus(teamId string, userId string) (*AccessRequestStatusResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/request/%s", teamId, userId)
+	result := &AccessRequestStatusResponse{}
+	if err := v.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type AccessRequestStatusResponse struct {
+	AccessRequestedAt int          `json:"accessRequestedAt,omitempty"`
+	Bitbucket         RepoState    `json:"bitbucket,omitempty"`
+	Confirmed         bool         `json:"confirmed,omitempty"`
+	Github            RepoState    `json:"github,omitempty"`
+	Gitlab            RepoState    `json:"gitlab,omitempty"`
+	TeamName          string       `json:"teamName,omitempty"`
+	TeamSlug          string       `json:"teamSlug,omitempty"`
+	JoinedFrom        JoinedFrom   `json:"joinedFrom,omitempty"`
+	Error             *VercelError `json:"error,omitempty"`
 }
 
 type DeleteTeamInviteCodeResponse struct {
@@ -98,4 +120,22 @@ type Utm struct {
 	UtmMedium   string `json:"utmMedium,omitempty"`
 	UtmSource   string `json:"utmSource,omitempty"`
 	UtmTerm     string `json:"utmTerm,omitempty"`
+}
+
+type RepoState struct {
+	Login string `json:"login,omitempty"`
+}
+
+type JoinedFrom struct {
+	CommitId         string `json:"commitId,omitempty"`
+	DsyncConnectedAt int    `json:"dsyncConnectedAt,omitempty"`
+	DsyncUserId      string `json:"dsyncUserId,omitempty"`
+	GitUserId        string `json:"gitUserId,omitempty"`
+	GitUserLogin     string `json:"gitUserLogin,omitempty"`
+	IdpUserId        string `json:"idpUserId,omitempty"`
+	Origin           string `json:"origin,omitempty"`
+	RepoId           string `json:"repoId,omitempty"`
+	RepoPath         string `json:"repoPath,omitempty"`
+	SsoConnectedAt   int    `json:"ssoConnectedAt,omitempty"`
+	SsoUserId        string `json:"ssoUserId,omitempty"`
 }
