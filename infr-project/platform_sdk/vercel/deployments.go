@@ -152,7 +152,7 @@ func (v *VercelClient) GetDeploymentEvent(idOrUrl string, slug string, teamId st
 	return result, nil
 }
 
-func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, teamId string, filePath string) (*string, error) {
+func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, teamId string, filePath string) (*FileTree, error) {
 	path := fmt.Sprintf("/v7/deployments/%s/files/%s", id, fileId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -167,13 +167,13 @@ func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, 
 	if len(queryParams) > 0 {
 		path += "?" + queryParams.Encode()
 	}
-	result := ""
-	err := v.http.Get(path, &result)
+	result := &FileTree{}
+	err := v.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return result, nil
 }
 
 func (v *VercelClient) ListDeployment(app string, until string, slug string, teamId string, limit string,
@@ -218,6 +218,27 @@ func (v *VercelClient) ListDeployment(app string, until string, slug string, tea
 	}
 	result := &ListDeploymentResponse{}
 	err := v.http.Get(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (v *VercelClient) ListDeploymentFile(id string, slug string, teamId string) ([]FileTree, error) {
+	path := fmt.Sprintf("/v6/deployments/%s/files", id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []FileTree{}
+	err := v.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -394,4 +415,15 @@ type DeploymentEvent struct {
 	Serial       string      `json:"serial,omitempty"`
 	Text         string      `json:"text,omitempty"`
 	StatusCode   int         `json:"statusCode,omitempty"`
+}
+
+type FileTree struct {
+	Name        string       `json:"name,omitempty"`
+	Type        string       `json:"type,omitempty"`
+	Mode        string       `json:"mode,omitempty"`
+	Uid         string       `json:"uid,omitempty"`
+	ContentType string       `json:"contentType,omitempty"`
+	Children    []FileTree   `json:"children,omitempty"`
+	Symlink     string       `json:"symlink,omitempty"`
+	Error       *VercelError `json:"error,omitempty"`
 }
