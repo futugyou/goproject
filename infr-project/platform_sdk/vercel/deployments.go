@@ -102,6 +102,56 @@ func (v *VercelClient) GetDeployment(idOrUrl string, slug string, teamId string,
 	return result, nil
 }
 
+func (v *VercelClient) GetDeploymentEvent(idOrUrl string, slug string, teamId string,
+	builds string, delimiter string, direction string, follow string, limit string, name string,
+	since string, statusCode string, until string) ([]DeploymentEvent, error) {
+	path := fmt.Sprintf("/v3/deployments/%s/events", idOrUrl)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(builds) > 0 {
+		queryParams.Add("builds", builds)
+	}
+	if len(delimiter) > 0 {
+		queryParams.Add("delimiter", delimiter)
+	}
+	if len(direction) > 0 {
+		queryParams.Add("direction", direction)
+	}
+	if len(follow) > 0 {
+		queryParams.Add("follow", follow)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(limit) > 0 {
+		queryParams.Add("limit", limit)
+	}
+	if len(name) > 0 {
+		queryParams.Add("name", name)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(statusCode) > 0 {
+		queryParams.Add("statusCode", statusCode)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := []DeploymentEvent{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type DeleteDeploymentResponse struct {
 	State string       `json:"state,omitempty"`
 	Uid   string       `json:"uid,omitempty"`
@@ -250,4 +300,19 @@ type ProjectSettings struct {
 	ServerlessFunctionRegion        string `json:"serverlessFunctionRegion,omitempty"`
 	SkipGitConnectDuringLink        bool   `json:"skipGitConnectDuringLink,omitempty"`
 	SourceFilesOutsideRootDirectory bool   `json:"sourceFilesOutsideRootDirectory,omitempty"`
+}
+
+type DeploymentEvent struct {
+	Created      int         `json:"created,omitempty"`
+	Payload      interface{} `json:"payload,omitempty"`
+	Type         string      `json:"type,omitempty"`
+	Date         int         `json:"date,omitempty"`
+	DeploymentId string      `json:"deploymentId,omitempty"`
+	Id           string      `json:"id,omitempty"`
+	Info         interface{} `json:"info,omitempty"`
+	Proxy        interface{} `json:"proxy,omitempty"`
+	RequestId    string      `json:"requestId,omitempty"`
+	Serial       string      `json:"serial,omitempty"`
+	Text         string      `json:"text,omitempty"`
+	StatusCode   int         `json:"statusCode,omitempty"`
 }
