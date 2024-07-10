@@ -127,28 +127,28 @@ func (v *VercelClient) ListdeploymentsAlias(id string, slug string, teamId strin
 }
 
 type ListAliasResponse struct {
-	Aliases    []AliasInfo  `json:"aliases"`
-	Pagination Pagination   `json:"pagination"`
-	Error      *VercelError `json:"error"`
+	Aliases    []AliasInfo  `json:"aliases,omitempty"`
+	Pagination Pagination   `json:"pagination,omitempty"`
+	Error      *VercelError `json:"error,omitempty"`
 }
 
 type AssignAliasRequest struct {
-	Alias    string       `json:"alias"`
+	Alias    string       `json:"alias,omitempty"`
 	Redirect string       `json:"redirect,omitempty"`
-	Error    *VercelError `json:"error"`
+	Error    *VercelError `json:"error,omitempty"`
 }
 
 type AssignAliasResponse struct {
-	Alias           string       `json:"alias"`
-	Created         string       `json:"created"`
-	Uid             string       `json:"uid"`
+	Alias           string       `json:"alias,omitempty"`
+	Created         string       `json:"created,omitempty"`
+	Uid             string       `json:"uid,omitempty"`
 	OldDeploymentId string       `json:"oldDeploymentId"`
-	Error           *VercelError `json:"error"`
+	Error           *VercelError `json:"error,omitempty"`
 }
 
 type DeleteAliasResponse struct {
-	Status string       `json:"status"`
-	Error  *VercelError `json:"error"`
+	Status string       `json:"status,omitempty"`
+	Error  *VercelError `json:"error,omitempty"`
 }
 
 type AliasInfo struct {
@@ -169,14 +169,16 @@ type AliasInfo struct {
 	Error              *VercelError   `json:"error,omitempty"`
 }
 
-type DeploymentInfo struct {
-	Id   string `json:"id"`
-	Meta string `json:"meta"`
-	Url  string `json:"url"`
+type CreatorInfo struct {
+	Email    string `json:"email,omitempty"`
+	Creator  string `json:"creator,omitempty"`
+	Uid      string `json:"uid,omitempty"`
+	Username string `json:"username,omitempty"`
 }
 
-type CreatorInfo struct {
-	Email    string `json:"email"`
-	Uid      string `json:"uid"`
-	Username string `json:"username"`
+type AliasWarning struct {
+	Action  string `json:"action,omitempty"`
+	Code    string `json:"code,omitempty"`
+	Link    string `json:"link,omitempty"`
+	Message string `json:"message,omitempty"`
 }
