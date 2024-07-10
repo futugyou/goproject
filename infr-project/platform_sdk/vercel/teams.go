@@ -109,6 +109,35 @@ func (v *VercelClient) ListTeamMembers(teamId string, eligibleMembersForProjectI
 	return result, nil
 }
 
+func (v *VercelClient) ListTeam(limit string, since string, until string) (*ListTeamResponse, error) {
+	path := "/v2/teams"
+	queryParams := url.Values{}
+	if len(limit) > 0 {
+		queryParams.Add("limit", limit)
+	}
+	if len(since) > 0 {
+		queryParams.Add("since", since)
+	}
+	if len(until) > 0 {
+		queryParams.Add("until", until)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &ListTeamResponse{}
+	if err := v.http.Get(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type ListTeamResponse struct {
+	Teams      []TeamInfo   `json:"teams,omitempty"`
+	Pagination Pagination   `json:"pagination,omitempty"`
+	Error      *VercelError `json:"error,omitempty"`
+}
+
 type ListTeamMembersResponse struct {
 	EmailInviteCodes []EmailInviteCode `json:"emailInviteCodes,omitempty"`
 	Members          []MemberInfo      `json:"members,omitempty"`
@@ -149,6 +178,8 @@ type TeamInfo struct {
 	Billing interface{}  `json:"billing,omitempty"`
 	Id      string       `json:"id,omitempty"`
 	Slug    string       `json:"slug,omitempty"`
+	Name    string       `json:"name,omitempty"`
+	Avatar  string       `json:"avatar,omitempty"`
 	Error   *VercelError `json:"error,omitempty"`
 }
 
