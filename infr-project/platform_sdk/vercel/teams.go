@@ -45,6 +45,23 @@ func (v *VercelClient) DeleteTeamInviteCode(teamId string, inviteId string) (*De
 	return result, nil
 }
 
+func (v *VercelClient) GetTeam(teamId string, slug string) (*TeamInfo, error) {
+	path := fmt.Sprintf("/v2/teams/%s", teamId)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &TeamInfo{}
+	if err := v.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type DeleteTeamInviteCodeResponse struct {
 	Id    string       `json:"id,omitempty"`
 	Error *VercelError `json:"error,omitempty"`
