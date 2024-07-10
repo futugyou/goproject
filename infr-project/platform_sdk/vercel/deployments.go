@@ -78,6 +78,30 @@ func (v *VercelClient) DeleteDeployment(id string, deploymentUrl string, slug st
 	return result, nil
 }
 
+func (v *VercelClient) GetDeployment(idOrUrl string, slug string, teamId string, withGitRepoInfo string) (*DeploymentInfo, error) {
+	path := fmt.Sprintf("/v13/deployments/%s", idOrUrl)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(withGitRepoInfo) > 0 {
+		queryParams.Add("withGitRepoInfo", withGitRepoInfo)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &DeploymentInfo{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 type DeleteDeploymentResponse struct {
 	State string       `json:"state,omitempty"`
 	Uid   string       `json:"uid,omitempty"`
