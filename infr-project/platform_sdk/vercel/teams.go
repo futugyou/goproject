@@ -62,9 +62,9 @@ func (v *VercelClient) GetTeam(teamId string, slug string) (*TeamInfo, error) {
 	return result, nil
 }
 
-func (v *VercelClient) GetAccessRequestStatus(teamId string, userId string) (*AccessRequestStatusResponse, error) {
+func (v *VercelClient) GetAccessRequestStatus(teamId string, userId string) (*AccessRequestStatus, error) {
 	path := fmt.Sprintf("/v1/teams/%s/request/%s", teamId, userId)
-	result := &AccessRequestStatusResponse{}
+	result := &AccessRequestStatus{}
 	if err := v.http.Get(path, result); err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (v *VercelClient) UpdateTeam(teamId string, slug string, req UpdateTeamInfo
 		path += "?" + queryParams.Encode()
 	}
 	result := &TeamInfo{}
-	if err := v.http.Post(path, req, result); err != nil {
+	if err := v.http.Patch(path, req, result); err != nil {
 		return nil, err
 	}
 
@@ -185,6 +185,16 @@ func (v *VercelClient) RemoveTeamMember(teamId string, uid string, newDefaultTea
 	}
 	result := &RemoveTeamMemberResponse{}
 	if err := v.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (v *VercelClient) RequestAccessToTeam(teamId string, req JoinedFrom) (*AccessRequestStatus, error) {
+	path := fmt.Sprintf("/v1/teams/%s/request", teamId)
+	result := &AccessRequestStatus{}
+	if err := v.http.Post(path, req, result); err != nil {
 		return nil, err
 	}
 
@@ -261,7 +271,7 @@ type ListTeamMembersResponse struct {
 	Error            *VercelError      `json:"error,omitempty"`
 }
 
-type AccessRequestStatusResponse struct {
+type AccessRequestStatus struct {
 	AccessRequestedAt int          `json:"accessRequestedAt,omitempty"`
 	Bitbucket         RepoState    `json:"bitbucket,omitempty"`
 	Confirmed         bool         `json:"confirmed,omitempty"`
