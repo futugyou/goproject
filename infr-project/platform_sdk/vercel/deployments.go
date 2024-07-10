@@ -54,6 +54,36 @@ func (v *VercelClient) CreateDeployment(forceNew string, skipAutoDetectionConfir
 	return result, nil
 }
 
+func (v *VercelClient) DeleteDeployment(id string, deploymentUrl string, slug string, teamId string) (*DeleteDeploymentResponse, error) {
+	path := fmt.Sprintf("/v13/deployments/%s", id)
+	queryParams := url.Values{}
+	if len(slug) > 0 {
+		queryParams.Add("slug", slug)
+	}
+	if len(teamId) > 0 {
+		queryParams.Add("teamId", teamId)
+	}
+	if len(deploymentUrl) > 0 {
+		queryParams.Add("url", deploymentUrl)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &DeleteDeploymentResponse{}
+	err := v.http.Delete(path, result)
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+type DeleteDeploymentResponse struct {
+	State string       `json:"state,omitempty"`
+	Uid   string       `json:"uid,omitempty"`
+	Error *VercelError `json:"error,omitempty"`
+}
+
 type DeploymentInfo struct {
 	Id                            string          `json:"id,omitempty"`
 	Meta                          interface{}     `json:"meta,omitempty"`
