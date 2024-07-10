@@ -174,6 +174,28 @@ func (v *VercelClient) UpdateTeam(teamId string, slug string, req UpdateTeamInfo
 	return result, nil
 }
 
+func (v *VercelClient) RemoveTeamMember(teamId string, uid string, newDefaultTeamId string) (*RemoveTeamMemberResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members/%s", teamId, uid)
+	queryParams := url.Values{}
+	if len(newDefaultTeamId) > 0 {
+		queryParams.Add("newDefaultTeamId", newDefaultTeamId)
+	}
+	if len(queryParams) > 0 {
+		path += "?" + queryParams.Encode()
+	}
+	result := &RemoveTeamMemberResponse{}
+	if err := v.http.Delete(path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type RemoveTeamMemberResponse struct {
+	Id    string       `json:"id,omitempty"`
+	Error *VercelError `json:"error,omitempty"`
+}
+
 type UpdateTeamInfo struct {
 	Avatar                             string        `json:"avatar,omitempty"`
 	Description                        string        `json:"description,omitempty"`
