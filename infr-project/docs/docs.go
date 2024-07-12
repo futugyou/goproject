@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/platform": {
+        "/v1/platform": {
             "get": {
                 "description": "get all platform",
                 "consumes": [
@@ -73,7 +73,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/platform/{id}": {
+        "/v1/platform/{id}": {
             "get": {
                 "description": "get platform",
                 "consumes": [
@@ -174,7 +174,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/platform/{id}/project": {
+        "/v1/platform/{id}/project": {
             "post": {
                 "description": "create platform webhook",
                 "consumes": [
@@ -215,7 +215,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/platform/{id}/project/{project_id}": {
+        "/v1/platform/{id}/project/{project_id}": {
             "put": {
                 "description": "update platform project",
                 "consumes": [
@@ -300,7 +300,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/platform/{id}/project/{project_id}/hook": {
+        "/v1/platform/{id}/project/{project_id}/hook": {
             "put": {
                 "description": "update platform webhook",
                 "consumes": [
@@ -348,7 +348,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/project": {
+        "/v1/project": {
             "get": {
                 "description": "get all project",
                 "consumes": [
@@ -406,7 +406,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/project/{id}": {
+        "/v1/project/{id}": {
             "get": {
                 "description": "get project",
                 "consumes": [
@@ -477,7 +477,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/project/{id}/design": {
+        "/v1/project/{id}/design": {
             "put": {
                 "description": "update project design",
                 "consumes": [
@@ -521,7 +521,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/project/{id}/platform": {
+        "/v1/project/{id}/platform": {
             "put": {
                 "description": "update project platform",
                 "consumes": [
@@ -565,7 +565,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/resource": {
+        "/v1/resource": {
             "get": {
                 "description": "get all resources",
                 "consumes": [
@@ -623,7 +623,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/resource/{id}": {
+        "/v1/resource/{id}": {
             "get": {
                 "description": "get resource",
                 "consumes": [
@@ -724,7 +724,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/resource/{id}/history": {
+        "/v1/resource/{id}/history": {
             "get": {
                 "description": "get resource history",
                 "consumes": [
@@ -759,7 +759,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/circleci": {
+        "/v1/test/circleci": {
             "get": {
                 "description": "circle CI",
                 "consumes": [
@@ -782,7 +782,33 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/ping": {
+        "/v1/test/cqrstest": {
+            "get": {
+                "description": "cqrstest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "cqrstest",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/test/ping": {
             "get": {
                 "description": "ping",
                 "consumes": [
@@ -808,7 +834,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/tf": {
+        "/v1/test/tf": {
             "get": {
                 "description": "terraform",
                 "consumes": [
@@ -834,7 +860,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/vault": {
+        "/v1/test/vault": {
             "get": {
                 "description": "vault",
                 "consumes": [
@@ -857,7 +883,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/vercel": {
+        "/v1/test/vercel": {
             "get": {
                 "description": "vercel",
                 "consumes": [
@@ -880,7 +906,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/test/workflow": {
+        "/v1/test/workflow": {
             "get": {
                 "description": "workflow",
                 "consumes": [
@@ -917,6 +943,40 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/platform": {
+            "post": {
+                "description": "create platform v2",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform v2"
+                ],
+                "summary": "create platform v2",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.CreatePlatformRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/platform.Platform"
                         }
                     }
                 }

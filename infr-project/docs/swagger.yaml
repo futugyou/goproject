@@ -458,7 +458,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /platform:
+  /v1/platform:
     get:
       consumes:
       - application/json
@@ -496,7 +496,7 @@ paths:
       summary: create platform
       tags:
       - Platform
-  /platform/{id}:
+  /v1/platform/{id}:
     delete:
       consumes:
       - application/json
@@ -563,7 +563,7 @@ paths:
       summary: update platform
       tags:
       - Platform
-  /platform/{id}/project:
+  /v1/platform/{id}/project:
     post:
       consumes:
       - application/json
@@ -590,7 +590,7 @@ paths:
       summary: create platform webhook
       tags:
       - Platform
-  /platform/{id}/project/{project_id}:
+  /v1/platform/{id}/project/{project_id}:
     delete:
       consumes:
       - application/json
@@ -647,7 +647,7 @@ paths:
       summary: update platform project
       tags:
       - Platform
-  /platform/{id}/project/{project_id}/hook:
+  /v1/platform/{id}/project/{project_id}/hook:
     put:
       consumes:
       - application/json
@@ -679,7 +679,7 @@ paths:
       summary: update platform webhook
       tags:
       - Platform
-  /project:
+  /v1/project:
     get:
       consumes:
       - application/json
@@ -717,7 +717,7 @@ paths:
       summary: create project
       tags:
       - Project
-  /project/{id}:
+  /v1/project/{id}:
     get:
       consumes:
       - application/json
@@ -764,7 +764,7 @@ paths:
       summary: update project
       tags:
       - Project
-  /project/{id}/design:
+  /v1/project/{id}/design:
     put:
       consumes:
       - application/json
@@ -793,7 +793,7 @@ paths:
       summary: update project design
       tags:
       - Project
-  /project/{id}/platform:
+  /v1/project/{id}/platform:
     put:
       consumes:
       - application/json
@@ -822,7 +822,7 @@ paths:
       summary: update project platform
       tags:
       - Project
-  /resource:
+  /v1/resource:
     get:
       consumes:
       - application/json
@@ -860,7 +860,7 @@ paths:
       summary: create resource
       tags:
       - Resource
-  /resource/{id}:
+  /v1/resource/{id}:
     delete:
       consumes:
       - application/json
@@ -927,7 +927,7 @@ paths:
       summary: update resource
       tags:
       - Resource
-  /resource/{id}/history:
+  /v1/resource/{id}/history:
     get:
       consumes:
       - application/json
@@ -950,7 +950,7 @@ paths:
       summary: get resource history
       tags:
       - Resource
-  /test/circleci:
+  /v1/test/circleci:
     get:
       consumes:
       - application/json
@@ -965,7 +965,24 @@ paths:
       summary: circle CI
       tags:
       - Test
-  /test/ping:
+  /v1/test/cqrstest:
+    get:
+      consumes:
+      - application/json
+      description: cqrstest
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: cqrstest
+      tags:
+      - Test
+  /v1/test/ping:
     get:
       consumes:
       - application/json
@@ -982,7 +999,7 @@ paths:
       summary: ping
       tags:
       - Test
-  /test/tf:
+  /v1/test/tf:
     get:
       consumes:
       - application/json
@@ -999,7 +1016,7 @@ paths:
       summary: terraform
       tags:
       - Test
-  /test/vault:
+  /v1/test/vault:
     get:
       consumes:
       - application/json
@@ -1014,7 +1031,7 @@ paths:
       summary: vault
       tags:
       - Test
-  /test/vercel:
+  /v1/test/vercel:
     get:
       consumes:
       - application/json
@@ -1029,7 +1046,7 @@ paths:
       summary: vercel
       tags:
       - Test
-  /test/workflow:
+  /v1/test/workflow:
     get:
       consumes:
       - application/json
@@ -1057,4 +1074,26 @@ paths:
       summary: workflow
       tags:
       - Test
+  /v2/platform:
+    post:
+      consumes:
+      - application/json
+      description: create platform v2
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.CreatePlatformRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/platform.Platform'
+      summary: create platform v2
+      tags:
+      - Platform v2
 swagger: "2.0"
