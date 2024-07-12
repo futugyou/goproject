@@ -957,22 +957,56 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreatePlatformRequest"
+                            "$ref": "#/definitions/command.CreatePlatformCommand"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/platform.Platform"
-                        }
+                        "description": "OK"
                     }
                 }
             }
         }
     },
     "definitions": {
+        "command.CreatePlatformCommand": {
+            "type": "object",
+            "required": [
+                "name",
+                "rest",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "property": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "rest": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
         "models.Secrets20230613OpenAppSecretResponse": {
             "type": "object",
             "properties": {

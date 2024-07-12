@@ -3,9 +3,6 @@ package v2
 import (
 	"github.com/gin-gonic/gin"
 
-	_ "github.com/futugyou/infr-project/resource"
-	_ "github.com/futugyou/infr-project/view_models"
-
 	"github.com/futugyou/infr-project/command"
 	"github.com/futugyou/infr-project/controller"
 )
@@ -22,10 +19,10 @@ func ConfigPlatformRoutes(v2 *gin.RouterGroup, route *command.Router) {
 // @Tags Platform v2
 // @Accept json
 // @Produce json
-// @Param request body viewmodels.CreatePlatformRequest true "Request body"
-// @Success 200 {object} platform.Platform
+// @Param request body command.CreatePlatformCommand true "Request body"
+// @Success 200
 // @Router /v2/platform [post]
 func createPlatform(c *gin.Context) {
 	ctrl := controller.NewController()
-	ctrl.CreatePlatform(c.Writer, c.Request)
+	ctrl.CreatePlatformV2(cqrsRoute, c.Writer, c.Request)
 }

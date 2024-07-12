@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/futugyou/infr-project/application"
+	"github.com/futugyou/infr-project/command"
 	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	models "github.com/futugyou/infr-project/view_models"
@@ -209,4 +210,26 @@ func createPlatformService() (*application.PlatformService, error) {
 	}
 
 	return application.NewPlatformService(unitOfWork, repo), nil
+}
+
+func (c *Controller) CreatePlatformV2(cqrsRoute *command.Router, w http.ResponseWriter, r *http.Request) {
+	var aux command.CreatePlatformCommand
+	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	if err := extensions.Validate.Struct(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	commandBus := cqrsRoute.CommandBus
+	//TODO: this code will not wait for command handling
+	if err := commandBus.Send(r.Context(), aux); err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, nil, 200)
 }

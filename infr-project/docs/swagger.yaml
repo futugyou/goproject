@@ -1,4 +1,31 @@
 definitions:
+  command.CreatePlatformCommand:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      property:
+        additionalProperties:
+          type: string
+        type: object
+      rest:
+        maxLength: 50
+        minLength: 3
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - rest
+    - url
+    type: object
   models.Secrets20230613OpenAppSecretResponse:
     properties:
       secret:
@@ -1085,14 +1112,12 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreatePlatformRequest'
+          $ref: '#/definitions/command.CreatePlatformCommand'
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/platform.Platform'
       summary: create platform v2
       tags:
       - Platform v2
