@@ -8,6 +8,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
+	"github.com/futugyou/infr-project/domain"
 )
 
 type Router struct {
@@ -73,4 +74,30 @@ func CreateCommandRouter() (*Router, error) {
 	return &Router{
 		CommandBus: commandBus,
 	}, nil
+}
+
+type CommonHandler struct {
+	unitOfWork domain.IUnitOfWork
+}
+
+func (s *CommonHandler) withUnitOfWork(ctx context.Context, fn func(ctx context.Context) error) error {
+	ctx, err := s.unitOfWork.Start(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			s.unitOfWork.Rollback(ctx)
+		} else {
+			commitErr := s.unitOfWork.Commit(ctx)
+			if commitErr != nil {
+				err = commitErr
+			}
+		}
+		s.unitOfWork.End(ctx)
+	}()
+
+	err = fn(ctx)
+	return err
 }
