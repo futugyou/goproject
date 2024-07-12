@@ -16,6 +16,11 @@ type BookRoom struct {
 type BookRoomHandler struct {
 }
 
+func NewBookRoomHandler() BookRoomHandler {
+	fmt.Println("NewBookRoomHandler called by system")
+	return BookRoomHandler{}
+}
+
 func (b BookRoomHandler) HandlerName() string {
 	return "BookRoomHandler"
 }

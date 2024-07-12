@@ -22,25 +22,6 @@ type CreatePlatformCommand struct {
 }
 
 type CreatePlatformHandler struct {
-	repository    platform.IPlatformRepository
-	commonHandler CommonHandler
-}
-
-func NewCreatePlatformHandler() CreatePlatformHandler {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
-	repo := infra.NewPlatformRepository(client, config)
-	unitOfWork, _ := infra.NewMongoUnitOfWork(client)
-	return CreatePlatformHandler{
-		repository: repo,
-		commonHandler: CommonHandler{
-			unitOfWork: unitOfWork,
-		},
-	}
 }
 
 func (b CreatePlatformHandler) HandlerName() string {
@@ -54,8 +35,12 @@ func (b CreatePlatformHandler) NewCommand() interface{} {
 func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error {
 	aux := c.(*CreatePlatformCommand)
 
-	var res *platform.Platform
-	res, err := b.repository.GetPlatformByName(ctx, aux.Name)
+	repository, commonHandler, err := createCommonInfra()
+	if err != nil {
+		return err
+	}
+
+	res, err := repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 		return err
 	}
@@ -64,13 +49,33 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		return fmt.Errorf("name: %s is existed", aux.Name)
 	}
 
-	err = b.commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
+	err = commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, aux.Property, aux.Tags)
-		return b.repository.Insert(ctx, *res)
+		return repository.Insert(ctx, *res)
 	})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func createCommonInfra() (platform.IPlatformRepository, *CommonHandler, error) {
+	config := infra.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	if err != nil {
+		return nil, nil, err
+	}
+	repository := infra.NewPlatformRepository(client, config)
+
+	unitOfWork, err := infra.NewMongoUnitOfWork(client)
+	if err != nil {
+		return nil, nil, err
+	}
+	return repository, &CommonHandler{
+		unitOfWork: unitOfWork,
+	}, nil
 }
