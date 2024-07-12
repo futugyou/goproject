@@ -18,6 +18,7 @@ type Router struct {
 func GetCommandHandler() []cqrs.CommandHandler {
 	return []cqrs.CommandHandler{
 		BookRoomHandler{},
+		CreatePlatformHandler{},
 	}
 }
 

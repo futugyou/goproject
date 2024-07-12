@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 
-	"github.com/futugyou/circleci"	
+	"github.com/futugyou/circleci"
 	"github.com/futugyou/vercel"
 
 	"github.com/futugyou/infr-project/command"
@@ -36,7 +36,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
 // @Accept json
 // @Produce json
 // @Success 200 {object}  map[string]string
-// @Router /test/ping [get]
+// @Router /v1/test/ping [get]
 func pingEndpoint(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "pong",
@@ -51,7 +51,7 @@ func pingEndpoint(c *gin.Context) {
 // @Param owner query string  true  "github owner"
 // @Param repo query string  true  "github repository"
 // @Success 200 {object}  map[string]string
-// @Router /test/workflow [get]
+// @Router /v1/test/workflow [get]
 func workflowEndpoint(c *gin.Context) {
 	owner := c.Query("owner")
 	repo := c.Query("repo")
@@ -69,7 +69,7 @@ func workflowEndpoint(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string}  string
-// @Router /test/vercel [get]
+// @Router /v1/test/vercel [get]
 func vercelProjectEndpoint(c *gin.Context) {
 	f := vercel.NewVercelClient(os.Getenv("VERCEL_TOKEN"))
 	result, _ := f.ListProject("", "")
@@ -82,7 +82,7 @@ func vercelProjectEndpoint(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string}  string
-// @Router /test/circleci [get]
+// @Router /v1/test/circleci [get]
 func circleciPipeline(c *gin.Context) {
 	f := circleci.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
 	result, _ := f.Pipelines(os.Getenv("CIRCLECI_ORG_SLUG"))
@@ -95,7 +95,7 @@ func circleciPipeline(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object}  secret_service.OpenAppSecretOK
-// @Router /test/vault [get]
+// @Router /v1/test/vault [get]
 func vaultSecret(c *gin.Context) {
 	f := sdk.NewVaultClient()
 	result, err := f.GetAppSecret("VERCEL_TOKEN")
@@ -112,7 +112,7 @@ func vaultSecret(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object}  map[string]string
-// @Router /test/tf [get]
+// @Router /v1/test/tf [get]
 func terraformWS(c *gin.Context) {
 	tfclient, _ := sdk.NewTerraformClient(os.Getenv("TFC_TOKEN"))
 	ws, _ := tfclient.CheckWorkspace("test")
@@ -133,6 +133,13 @@ func terraformWS(c *gin.Context) {
 	})
 }
 
+// @Summary cqrstest
+// @Description cqrstest
+// @Tags Test
+// @Accept json
+// @Produce json
+// @Success 200 {object}  map[string]string
+// @Router /v1/test/cqrstest [get]
 func cqrstest(c *gin.Context) {
 	commandBus := cqrsRoute.CommandBus
 

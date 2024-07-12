@@ -24,7 +24,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Produce json
 // @Param id path string true "Resource ID"
 // @Success 200 {array} resource.Resource
-// @Router /resource/{id}/history [get]
+// @Router /v1/resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.GetResourceHistory(c.Param("id"), c.Writer, c.Request)
@@ -37,7 +37,7 @@ func getResourceHistory(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Resource ID"
 // @Success 200 {string} string "ok"
-// @Router /resource/{id} [delete]
+// @Router /v1/resource/{id} [delete]
 func deleteResource(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.DeleteResource(c.Param("id"), c.Writer, c.Request)
@@ -51,7 +51,7 @@ func deleteResource(c *gin.Context) {
 // @Param id path string true "Resource ID"
 // @Param request body viewmodels.UpdateResourceRequest true "Request body"
 // @Success 200 {string} string "ok"
-// @Router /resource/{id} [put]
+// @Router /v1/resource/{id} [put]
 func updateResource(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.UpdateResource(c.Param("id"), c.Writer, c.Request)
@@ -64,7 +64,7 @@ func updateResource(c *gin.Context) {
 // @Produce json
 // @Param request body viewmodels.CreateResourceRequest true "Request body"
 // @Success 200 {object} resource.Resource
-// @Router /resource [post]
+// @Router /v1/resource [post]
 func createResource(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.CreateResource(c.Writer, c.Request)
@@ -77,7 +77,7 @@ func createResource(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Resource ID"
 // @Success 200 {object} viewmodels.ResourceDetail
-// @Router /resource/{id} [get]
+// @Router /v1/resource/{id} [get]
 func getResource(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.GetResource(c.Param("id"), c.Writer, c.Request)
@@ -89,7 +89,7 @@ func getResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {array} viewmodels.ResourceDetail
-// @Router /resource [get]
+// @Router /v1/resource [get]
 func getAllResource(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.GetAllResource(c.Writer, c.Request)

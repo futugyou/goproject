@@ -10,12 +10,19 @@ import (
 	docs "github.com/futugyou/infr-project/docs"
 
 	v1 "github.com/futugyou/infr-project/routes/v1"
+	v2 "github.com/futugyou/infr-project/routes/v2"
 )
 
 func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/api"
+
+	v2api := router.Group("/api/v2")
+	{
+		v2.ConfigPlatformRoutes(v2api, cqrsRoute)
+	}
+
 	v1api := router.Group("/api/v1")
 	{
 		// resource routes
