@@ -35,10 +35,10 @@ func NewResourceService(
 	}
 }
 
-func (s *ResourceService) CreateResource(aux models.CreateResourceRequest) (*resource.Resource, error) {
+func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx context.Context) (*resource.Resource, error) {
 	var res *resource.Resource
 	resourceType := resource.GetResourceType(aux.Type)
-	err := s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+	err := s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = resource.NewResource(aux.Name, resourceType, aux.Data, aux.Tags)
 		return s.service.SaveSnapshotAndEvent(ctx, res)
 	})
@@ -49,13 +49,12 @@ func (s *ResourceService) CreateResource(aux models.CreateResourceRequest) (*res
 	return res, nil
 }
 
-func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceRequest) error {
+func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceRequest, ctx context.Context) error {
 	res, err := s.service.RetrieveLatestVersion(id)
 	if err != nil {
 		return err
 	}
 
-	ctx := context.Background()
 	source := *res
 	oldVersion := source.Version
 	var aggregate *resource.Resource
@@ -105,7 +104,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 }
 
 // show all versions
-func (s *ResourceService) AllVersionResource(id string) ([]resource.Resource, error) {
+func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]resource.Resource, error) {
 	re, err := s.service.RetrieveAllVersions(id)
 	if err != nil {
 		return nil, err
@@ -118,7 +117,7 @@ func (s *ResourceService) AllVersionResource(id string) ([]resource.Resource, er
 	return result, nil
 }
 
-func (s *ResourceService) DeleteResource(id string) error {
+func (s *ResourceService) DeleteResource(id string, ctx context.Context) error {
 	res, err := s.service.RetrieveLatestVersion(id)
 	if err != nil {
 		return err
@@ -133,7 +132,7 @@ func (s *ResourceService) DeleteResource(id string) error {
 		return err
 	}
 
-	return s.service.withUnitOfWork(context.Background(), func(ctx context.Context) error {
+	return s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
 	})
 }

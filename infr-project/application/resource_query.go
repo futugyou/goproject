@@ -16,10 +16,10 @@ func NewResourceQueryService(repository IPlatformRepository) *ResourceQueryServi
 	}
 }
 
-func (s *ResourceQueryService) GetAllResources() ([]models.ResourceDetail, error) {
-	return s.repository.GetAll(context.Background())
+func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.ResourceDetail, error) {
+	return s.repository.GetAll(ctx)
 }
 
-func (s *ResourceQueryService) CurrentResource(id string) (*models.ResourceDetail, error) {
-	return s.repository.Get(context.Background(), id)
+func (s *ResourceQueryService) CurrentResource(id string, ctx context.Context) (*models.ResourceDetail, error) {
+	return s.repository.Get(ctx, id)
 }

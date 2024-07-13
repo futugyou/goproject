@@ -27,7 +27,7 @@ func (c *Controller) GetResourceHistory(id string, w http.ResponseWriter, r *htt
 		return
 	}
 
-	res, err := service.AllVersionResource(id)
+	res, err := service.AllVersionResource(id, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -43,7 +43,7 @@ func (c *Controller) DeleteResource(id string, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = service.DeleteResource(id)
+	err = service.DeleteResource(id, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -70,7 +70,7 @@ func (c *Controller) UpdateResource(id string, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = service.UpdateResource(id, aux)
+	err = service.UpdateResource(id, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -97,7 +97,7 @@ func (c *Controller) CreateResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.CreateResource(aux)
+	res, err := service.CreateResource(aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -113,7 +113,7 @@ func (c *Controller) GetResource(id string, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	res, err := service.CurrentResource(id)
+	res, err := service.CurrentResource(id, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -134,7 +134,7 @@ func (c *Controller) GetAllResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.GetAllResources()
+	res, err := service.GetAllResources(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
