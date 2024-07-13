@@ -25,9 +25,8 @@ func NewProjectService(
 	}
 }
 
-func (s *ProjectService) CreateProject(request models.CreateProjectRequest) (*project.Project, error) {
+func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx context.Context) (*project.Project, error) {
 	var res *project.Project
-	ctx := context.Background()
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
 		return nil, err
@@ -49,16 +48,16 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest) (*pr
 	return res, nil
 }
 
-func (s *ProjectService) GetAllProject() ([]project.Project, error) {
-	return s.repository.GetAllProject(context.Background())
+func (s *ProjectService) GetAllProject(ctx context.Context) ([]project.Project, error) {
+	return s.repository.GetAllProject(ctx)
 }
 
-func (s *ProjectService) GetProject(id string) (*project.Project, error) {
-	return s.repository.Get(context.Background(), id)
+func (s *ProjectService) GetProject(id string, ctx context.Context) (*project.Project, error) {
+	return s.repository.Get(ctx, id)
 }
 
-func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest) (*project.Project, error) {
-	proj, err := s.repository.Get(context.Background(), id)
+func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest, ctx context.Context) (*project.Project, error) {
+	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -77,15 +76,15 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 	}
 
 	proj.ChangeTags(data.Tags)
-	err = s.repository.Update(context.Background(), *proj)
+	err = s.repository.Update(ctx, *proj)
 	if err != nil {
 		return nil, err
 	}
 	return proj, nil
 }
 
-func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest) (*project.Project, error) {
-	proj, err := s.repository.Get(context.Background(), id)
+func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest, ctx context.Context) (*project.Project, error) {
+	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -99,15 +98,15 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 		})
 	}
 	proj.UpdatePlatform(platforms)
-	err = s.repository.Update(context.Background(), *proj)
+	err = s.repository.Update(ctx, *proj)
 	if err != nil {
 		return nil, err
 	}
 	return proj, nil
 }
 
-func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest) (*project.Project, error) {
-	proj, err := s.repository.Get(context.Background(), id)
+func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest, ctx context.Context) (*project.Project, error) {
+	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +120,7 @@ func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdatePro
 		})
 	}
 	proj.UpdateDesign(designes)
-	err = s.repository.Update(context.Background(), *proj)
+	err = s.repository.Update(ctx, *proj)
 	if err != nil {
 		return nil, err
 	}

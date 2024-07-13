@@ -33,7 +33,7 @@ func (c *Controller) CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.CreateProject(aux)
+	res, err := service.CreateProject(aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -50,7 +50,7 @@ func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	res, err := service.GetProject(id)
+	res, err := service.GetProject(id, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -67,7 +67,7 @@ func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.GetAllProject()
+	res, err := service.GetAllProject(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -94,7 +94,7 @@ func (c *Controller) UpdateProject(id string, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	res, err := service.UpdateProject(id, aux)
+	res, err := service.UpdateProject(id, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -121,7 +121,7 @@ func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *
 		return
 	}
 
-	res, err := service.UpdateProjectPlatform(id, aux)
+	res, err := service.UpdateProjectPlatform(id, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -148,7 +148,7 @@ func (c *Controller) UpdateProjectDesign(id string, w http.ResponseWriter, r *ht
 		return
 	}
 
-	res, err := service.UpdateProjectDesign(id, aux)
+	res, err := service.UpdateProjectDesign(id, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
