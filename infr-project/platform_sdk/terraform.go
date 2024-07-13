@@ -8,17 +8,14 @@ import (
 	tfe "github.com/hashicorp/go-tfe"
 )
 
-const (
-	tfcAPIBaseURL = "https://app.terraform.io/api/v2"
-	organization  = "futugyousuzu"
-	workspace     = "infr-project"
-)
-
 type TerraformClient struct {
-	client *tfe.Client
+	client        *tfe.Client
+	tfcAPIBaseURL string
+	organization  string
+	workspace     string
 }
 
-func NewTerraformClient(token string) (*TerraformClient, error) {
+func NewTerraformClient(token string, tfcAPIBaseURL string, organization string, workspace string) (*TerraformClient, error) {
 	config := &tfe.Config{
 		Token:             token,
 		RetryServerErrors: true,
@@ -29,14 +26,17 @@ func NewTerraformClient(token string) (*TerraformClient, error) {
 		return nil, err
 	}
 	return &TerraformClient{
-		client: client,
+		client:        client,
+		tfcAPIBaseURL: tfcAPIBaseURL,
+		organization:  organization,
+		workspace:     workspace,
 	}, nil
 }
 
 func (s *TerraformClient) CheckWorkspace(name string) (*tfe.Workspace, error) {
 	ctx := context.Background()
 
-	w, err := s.client.Workspaces.Read(ctx, organization, name)
+	w, err := s.client.Workspaces.Read(ctx, s.organization, name)
 	if err != nil && err.Error() != "resource not found" {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (s *TerraformClient) CheckWorkspace(name string) (*tfe.Workspace, error) {
 		return w, nil
 	}
 
-	w, err = s.client.Workspaces.Create(ctx, organization, tfe.WorkspaceCreateOptions{
+	w, err = s.client.Workspaces.Create(ctx, s.organization, tfe.WorkspaceCreateOptions{
 		Name: tfe.String(name),
 	})
 	if err != nil {

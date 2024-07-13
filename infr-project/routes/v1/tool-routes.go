@@ -114,7 +114,7 @@ func vaultSecret(c *gin.Context) {
 // @Success 200 {object}  map[string]string
 // @Router /v1/test/tf [get]
 func terraformWS(c *gin.Context) {
-	tfclient, _ := sdk.NewTerraformClient(os.Getenv("TFC_TOKEN"))
+	tfclient, _ := sdk.NewTerraformClient(os.Getenv("TFC_TOKEN"), os.Getenv("TFC_APIBASEURL"), os.Getenv("TFC_ORG"), os.Getenv("TFC_WORKSPACE"))
 	ws, _ := tfclient.CheckWorkspace("test")
 	_, err := tfclient.CreateConfigurationVersions(ws.ID, "./tmp")
 	if err != nil {
