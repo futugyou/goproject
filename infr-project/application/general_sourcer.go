@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"errors"
 
 	domain "github.com/futugyou/infr-project/domain"
@@ -27,8 +28,8 @@ func NewEventSourcer[Event domain.IDomainEvent, EventSourcing domain.IEventSourc
 	}
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id string) ([]EventSourcing, error) {
-	events, err := es.Load(id)
+func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id string, ctx context.Context) ([]EventSourcing, error) {
+	events, err := es.Load(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -42,14 +43,14 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveAllVersions(id stri
 	return aggregates, nil
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id string, version int) (*EventSourcing, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id string, version int, ctx context.Context) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
 
 	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
 	if err != nil || (*aggregate).AggregateVersion() < version {
-		events, eventsErr := es.Load(id)
+		events, eventsErr := es.Load(ctx, id)
 		if eventsErr != nil {
 			return nil, eventsErr
 		}
@@ -81,7 +82,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveSpecificVersion(id 
 	return aggregate, nil
 }
 
-func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id string) (*EventSourcing, error) {
+func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id string, ctx context.Context) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
 	aggregate, err := es.RestoreFromSnapshot(id)
 	if err != nil || aggregate == nil {
@@ -90,7 +91,7 @@ func (es *GeneralEventSourcer[Event, EventSourcing]) RetrieveLatestVersion(id st
 	}
 
 	// Load all events for the aggregate
-	events, eventsErr := es.Load(id)
+	events, eventsErr := es.Load(ctx, id)
 	if eventsErr != nil {
 		return nil, eventsErr
 	}

@@ -17,7 +17,7 @@ func NewMemoryEventStore[Event domain.IDomainEvent]() *MemoryEventStore[Event] {
 	}
 }
 
-func (s *MemoryEventStore[Event]) LoadGreaterthanVersion(id string, version int) ([]Event, error) {
+func (s *MemoryEventStore[Event]) LoadGreaterthanVersion(ctx context.Context, id string, version int) ([]Event, error) {
 	events, ok := s.storage[id]
 	if !ok {
 		return nil, fmt.Errorf("no data for %s", id)
@@ -33,7 +33,7 @@ func (s *MemoryEventStore[Event]) LoadGreaterthanVersion(id string, version int)
 	return result, nil
 }
 
-func (s *MemoryEventStore[Event]) Load(id string) ([]Event, error) {
+func (s *MemoryEventStore[Event]) Load(ctx context.Context, id string) ([]Event, error) {
 	events, ok := s.storage[id]
 	if !ok {
 		return nil, fmt.Errorf("no data for %s", id)

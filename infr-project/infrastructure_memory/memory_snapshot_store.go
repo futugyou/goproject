@@ -17,7 +17,7 @@ func NewMemorySnapshotStore[EventSourcing domain.IEventSourcing]() *MemorySnapsh
 	}
 }
 
-func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSourcing, error) {
+func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(ctx context.Context, id string) ([]EventSourcing, error) {
 	datas, ok := s.storage[id]
 	if !ok || len(datas) == 0 {
 		return nil, fmt.Errorf("no data for %s", id)

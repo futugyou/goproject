@@ -38,25 +38,24 @@ func NewMongoEventStore[Event domain.IDomainEvent](
 	}
 }
 
-func (s *MongoEventStore[Event]) Load(id string) ([]Event, error) {
+func (s *MongoEventStore[Event]) Load(ctx context.Context, id string) ([]Event, error) {
 	filter := bson.D{{Key: "id", Value: id}}
-	return s.load(filter)
+	return s.load(ctx, filter)
 }
 
-func (s *MongoEventStore[Event]) LoadGreaterthanVersion(id string, version int) ([]Event, error) {
+func (s *MongoEventStore[Event]) LoadGreaterthanVersion(ctx context.Context, id string, version int) ([]Event, error) {
 	filter := bson.D{
 		{Key: "id", Value: id},
 		{Key: "version", Value: bson.D{
 			{Key: "$gt", Value: version},
 		}},
 	}
-	return s.load(filter)
+	return s.load(ctx, filter)
 }
 
-func (s *MongoEventStore[Event]) load(filter primitive.D) ([]Event, error) {
+func (s *MongoEventStore[Event]) load(ctx context.Context, filter primitive.D) ([]Event, error) {
 	c := s.Client.Database(s.DBName).Collection(s.TableName)
 	result := make([]Event, 0)
-	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		return nil, err

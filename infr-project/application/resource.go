@@ -50,7 +50,7 @@ func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx c
 }
 
 func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceRequest, ctx context.Context) error {
-	res, err := s.service.RetrieveLatestVersion(id)
+	res, err := s.service.RetrieveLatestVersion(id, ctx)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 
 // show all versions
 func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]resource.Resource, error) {
-	re, err := s.service.RetrieveAllVersions(id)
+	re, err := s.service.RetrieveAllVersions(id, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]
 }
 
 func (s *ResourceService) DeleteResource(id string, ctx context.Context) error {
-	res, err := s.service.RetrieveLatestVersion(id)
+	res, err := s.service.RetrieveLatestVersion(id, ctx)
 	if err != nil {
 		return err
 	}

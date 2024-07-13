@@ -69,8 +69,8 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 	}
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id string) ([]EventSourcing, error) {
-	events, err := es.eventStore.Load(id)
+func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id string, ctx context.Context) ([]EventSourcing, error) {
+	events, err := es.eventStore.Load(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -85,18 +85,18 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id strin
 	return es.domainService.RetrieveAllVersions(*aggregate, events)
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id string, version int) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id string, version int, ctx context.Context) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
 
-	aggregate, err := es.RestoreFromSnapshotByVersion(id, version)
+	aggregate, err := es.RestoreFromSnapshotByVersion(id, version, ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if (*aggregate).AggregateVersion() < version {
-		events, err := es.eventStore.LoadGreaterthanVersion(id, version)
+		events, err := es.eventStore.LoadGreaterthanVersion(ctx, id, version)
 		if err != nil {
 			return nil, err
 		}
@@ -111,15 +111,15 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id s
 	return aggregate, nil
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id string) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id string, ctx context.Context) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
-	aggregate, err := es.RestoreFromSnapshot(id)
+	aggregate, err := es.RestoreFromSnapshot(id, ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Load all events for the aggregate
-	events, err := es.eventStore.LoadGreaterthanVersion(id, (*aggregate).AggregateVersion())
+	events, err := es.eventStore.LoadGreaterthanVersion(ctx, id, (*aggregate).AggregateVersion())
 	if err != nil {
 		return nil, err
 	}
@@ -174,17 +174,17 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx con
 }
 
 // Deprecated: TakeSnapshot is deprecated. it is not necessary to use it alone, may be use SaveSnapshotAndEvent is a good idea.
-func (es *ApplicationService[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing) error {
+func (es *ApplicationService[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing, ctx context.Context) error {
 	// aggregate is created with version 1
 	// The current storage snapshot logic starts from the first version and is saved every 5 versions.
 	if aggregate.AggregateVersion()%5 != 1 {
 		return nil
 	}
-	return es.snapshotStore.SaveSnapshot(context.Background(), aggregate)
+	return es.snapshotStore.SaveSnapshot(ctx, aggregate)
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string) (*EventSourcing, error) {
-	datas, err := es.snapshotStore.LoadSnapshot(id)
+func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string, ctx context.Context) (*EventSourcing, error) {
+	datas, err := es.snapshotStore.LoadSnapshot(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -196,12 +196,12 @@ func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id strin
 	return &datas[len(datas)-1], nil
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int, ctx context.Context) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
 
-	datas, err := es.snapshotStore.LoadSnapshot(id)
+	datas, err := es.snapshotStore.LoadSnapshot(ctx, id)
 	if err != nil {
 		return nil, err
 	}

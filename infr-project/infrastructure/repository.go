@@ -29,9 +29,9 @@ func NewEventSourcingRepository[Aggregate domain.IEventSourcing](
 	}
 }
 
-func (r *EventSourcingRepository[Aggregate]) Load(id string) (*Aggregate, error) {
+func (r *EventSourcingRepository[Aggregate]) Load(ctx context.Context, id string) (*Aggregate, error) {
 	// Attempt to restore from the latest snapshot
-	datas, err := r.snapshotStore.LoadSnapshot(id)
+	datas, err := r.snapshotStore.LoadSnapshot(ctx, id)
 	// we save snapshot from fisrt version(1), so it contains at least one piece of data
 	if err != nil || len(datas) == 0 {
 		return nil, err
@@ -40,7 +40,7 @@ func (r *EventSourcingRepository[Aggregate]) Load(id string) (*Aggregate, error)
 	aggregate := datas[len(datas)-1]
 
 	// Load all events for the aggregate
-	events, err := r.eventStore.Load(id)
+	events, err := r.eventStore.Load(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +56,8 @@ func (r *EventSourcingRepository[Aggregate]) Load(id string) (*Aggregate, error)
 	return &aggregate, nil
 }
 
-func (r *EventSourcingRepository[Aggregate]) LoadAll(id string) ([]Aggregate, error) {
-	events, err := r.eventStore.Load(id)
+func (r *EventSourcingRepository[Aggregate]) LoadAll(ctx context.Context, id string) ([]Aggregate, error) {
+	events, err := r.eventStore.Load(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -73,15 +73,15 @@ func (r *EventSourcingRepository[Aggregate]) LoadAll(id string) ([]Aggregate, er
 	return result, nil
 }
 
-func (r *EventSourcingRepository[Aggregate]) Save(aggregate Aggregate) error {
+func (r *EventSourcingRepository[Aggregate]) Save(ctx context.Context, aggregate Aggregate) error {
 	// Save the events
-	if err := r.eventStore.Save(context.Background(), aggregate.DomainEvents()); err != nil {
+	if err := r.eventStore.Save(ctx, aggregate.DomainEvents()); err != nil {
 		return err
 	}
 
 	// Take a snapshot if necessary
 	if r.needStoreSnapshot(aggregate) {
-		if err := r.snapshotStore.SaveSnapshot(context.Background(), aggregate); err != nil {
+		if err := r.snapshotStore.SaveSnapshot(ctx, aggregate); err != nil {
 			return err
 		}
 	}

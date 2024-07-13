@@ -22,7 +22,7 @@ func GetCommandHandler() []cqrs.CommandHandler {
 	}
 }
 
-func CreateCommandRouter() (*Router, error) {
+func CreateCommandRouter(ctx context.Context) (*Router, error) {
 	pubSub := gochannel.NewGoChannel(
 		gochannel.Config{
 			BlockPublishUntilSubscriberAck: true,
@@ -69,7 +69,7 @@ func CreateCommandRouter() (*Router, error) {
 	}
 
 	go func() {
-		router.Run(context.Background())
+		router.Run(ctx)
 	}()
 
 	<-router.Running()

@@ -6,9 +6,9 @@ import (
 
 // Deprecated: IEventSourcingRepository is deprecated, use ISnapshotStore and IEventStore.
 type IEventSourcingRepository[EventSourcing IEventSourcing] interface {
-	Load(id string) (*EventSourcing, error)
-	LoadAll(id string) ([]EventSourcing, error)
-	Save(aggregate EventSourcing) error
+	Load(ctx context.Context, id string) (*EventSourcing, error)
+	LoadAll(ctx context.Context, id string) ([]EventSourcing, error)
+	Save(ctx context.Context, aggregate EventSourcing) error
 }
 
 type IRepository[Aggregate IAggregateRoot] interface {

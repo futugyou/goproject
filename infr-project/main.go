@@ -29,7 +29,7 @@ func ginServerStart() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	cqrsRoute, err := command.CreateCommandRouter()
+	cqrsRoute, err := command.CreateCommandRouter(ctx)
 	if err != nil {
 		log.Println(err.Error())
 	}

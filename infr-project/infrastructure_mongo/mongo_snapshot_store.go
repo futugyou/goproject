@@ -21,13 +21,12 @@ func NewMongoSnapshotStore[EventSourcing domain.IEventSourcing](client *mongo.Cl
 	}
 }
 
-func (s *MongoSnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSourcing, error) {
+func (s *MongoSnapshotStore[EventSourcing]) LoadSnapshot(ctx context.Context, id string) ([]EventSourcing, error) {
 	a := new(EventSourcing)
 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
 	result := make([]EventSourcing, 0)
 
 	filter := bson.D{{Key: "id", Value: id}}
-	ctx := context.Background()
 	cursor, err := c.Find(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -44,14 +43,13 @@ func (s *MongoSnapshotStore[EventSourcing]) LoadSnapshot(id string) ([]EventSour
 	return result, nil
 }
 
-// func (s *MongoSnapshotStore[EventSourcing]) LoadLatestSnapshot(id string) (*EventSourcing, error) {
+// func (s *MongoSnapshotStore[EventSourcing]) LoadLatestSnapshot(ctx context.Context, id string) (*EventSourcing, error) {
 // 	a := new(EventSourcing)
 // 	c := s.Client.Database(s.DBName).Collection((*a).AggregateName())
 
 // 	filter := bson.D{{Key: "id", Value: id}}
 // 	opts := &options.FindOneOptions{}
 // 	opts.SetSort(bson.D{{Key: "version", Value: -1}})
-// 	ctx := context.Background()
 // 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
 // 		return nil, err
 // 	}
