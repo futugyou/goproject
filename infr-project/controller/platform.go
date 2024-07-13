@@ -23,7 +23,7 @@ func (c *Controller) DeletePlatformProject(id string, projectId string, w http.R
 		return
 	}
 
-	res, err := service.DeleteProject(id, projectId)
+	res, err := service.DeleteProject(id, projectId, r.Context())
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -51,7 +51,7 @@ func (c *Controller) CreatePlatformProject(id string, projectId string, w http.R
 		return
 	}
 
-	res, err := service.AddProject(id, projectId, aux)
+	res, err := service.AddProject(id, projectId, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -78,7 +78,7 @@ func (c *Controller) CreatePlatform(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.CreatePlatform(aux)
+	res, err := service.CreatePlatform(aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -95,7 +95,7 @@ func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	res, err := service.GetPlatform(id)
+	res, err := service.GetPlatform(id, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -112,7 +112,7 @@ func (c *Controller) GetAllPlatform(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.GetAllPlatform()
+	res, err := service.GetAllPlatform(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -139,7 +139,7 @@ func (c *Controller) UpdatePlatformHook(id string, projectId string, w http.Resp
 		return
 	}
 
-	res, err := service.AddWebhook(id, projectId, aux)
+	res, err := service.AddWebhook(id, projectId, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -166,7 +166,7 @@ func (c *Controller) UpdatePlatform(id string, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	res, err := service.UpdatePlatform(id, aux)
+	res, err := service.UpdatePlatform(id, aux, r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -182,7 +182,7 @@ func (c *Controller) DeletePlatform(id string, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	res, err := service.DeletePlatform(id)
+	res, err := service.DeletePlatform(id, r.Context())
 
 	if err != nil {
 		handleError(w, err, 500)

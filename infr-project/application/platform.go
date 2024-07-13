@@ -26,9 +26,8 @@ func NewPlatformService(
 	}
 }
 
-func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest) (*platform.Platform, error) {
+func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx context.Context) (*platform.Platform, error) {
 	var res *platform.Platform
-	ctx := context.Background()
 	res, err := s.repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 		return nil, err
@@ -49,16 +48,16 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest) (*pla
 	return res, nil
 }
 
-func (s *PlatformService) GetAllPlatform() ([]platform.Platform, error) {
-	return s.repository.GetAllPlatform(context.Background())
+func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]platform.Platform, error) {
+	return s.repository.GetAllPlatform(ctx)
 }
 
-func (s *PlatformService) GetPlatform(id string) (*platform.Platform, error) {
-	return s.repository.Get(context.Background(), id)
+func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*platform.Platform, error) {
+	return s.repository.Get(ctx, id)
 }
 
-func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest) (*platform.Platform, error) {
-	plat, err := s.repository.Get(context.Background(), id)
+func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*platform.Platform, error) {
+	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,7 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	newhook.Activate = hook.Activate
 	newhook.State = platform.GetWebhookState(hook.State)
 	plat.UpdateWebhook(projectId, *newhook)
-	err = s.repository.Update(context.Background(), *plat)
+	err = s.repository.Update(ctx, *plat)
 	if err != nil {
 		return nil, err
 	}
@@ -79,16 +78,16 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	return plat, nil
 }
 
-func (s *PlatformService) DeletePlatform(id string) (*platform.Platform, error) {
-	if err := s.repository.SoftDelete(context.Background(), id); err != nil {
+func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*platform.Platform, error) {
+	if err := s.repository.SoftDelete(ctx, id); err != nil {
 		return nil, err
 	}
 
-	return s.repository.Get(context.Background(), id)
+	return s.repository.Get(ctx, id)
 }
 
-func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest) (*platform.Platform, error) {
-	plat, err := s.repository.Get(context.Background(), id)
+func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest, ctx context.Context) (*platform.Platform, error) {
+	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +100,7 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}
-	err = s.repository.Update(context.Background(), *plat)
+	err = s.repository.Update(ctx, *plat)
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +108,8 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 	return plat, nil
 }
 
-func (s *PlatformService) DeleteProject(id string, projectId string) (*platform.Platform, error) {
-	plat, err := s.repository.Get(context.Background(), id)
+func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*platform.Platform, error) {
+	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -119,11 +118,10 @@ func (s *PlatformService) DeleteProject(id string, projectId string) (*platform.
 		return nil, err
 	}
 
-	return plat, s.repository.Update(context.Background(), *plat)
+	return plat, s.repository.Update(ctx, *plat)
 }
 
-func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest) (*platform.Platform, error) {
-	ctx := context.Background()
+func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*platform.Platform, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -180,7 +178,7 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	err = s.repository.Update(context.Background(), *plat)
+	err = s.repository.Update(ctx, *plat)
 	if err != nil {
 		return nil, err
 	}
