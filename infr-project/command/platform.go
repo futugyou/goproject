@@ -11,6 +11,7 @@ import (
 
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/platform"
+	"github.com/opentracing/opentracing-go/log"
 )
 
 type CreatePlatformCommand struct {
@@ -33,20 +34,25 @@ func (b CreatePlatformHandler) NewCommand() interface{} {
 }
 
 func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error {
+	// if return error, it will loop and not ack
+	// TODO: how to handle error, and get response?
 	aux := c.(*CreatePlatformCommand)
 
 	repository, commonHandler, err := createCommonInfra()
 	if err != nil {
-		return err
+		log.Error(err)
+		return nil
 	}
 
 	res, err := repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
-		return err
+		log.Error(err)
+		return nil
 	}
 
 	if res != nil && res.Name == aux.Name {
-		return fmt.Errorf("name: %s is existed", aux.Name)
+		log.Error(fmt.Errorf("name: %s is existed", aux.Name))
+		return nil
 	}
 
 	err = commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -54,7 +60,8 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		return repository.Insert(ctx, *res)
 	})
 	if err != nil {
-		return err
+		log.Error(err)
+		return nil
 	}
 
 	return nil

@@ -225,7 +225,7 @@ func (c *Controller) CreatePlatformV2(cqrsRoute *command.Router, w http.Response
 	}
 
 	commandBus := cqrsRoute.CommandBus
-	//TODO: this code will not wait for command handling
+	//TODO: this err is not Handle's response, i dot know what it is
 	if err := commandBus.Send(r.Context(), aux); err != nil {
 		handleError(w, err, 500)
 		return

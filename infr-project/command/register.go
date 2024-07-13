@@ -24,7 +24,9 @@ func GetCommandHandler() []cqrs.CommandHandler {
 
 func CreateCommandRouter() (*Router, error) {
 	pubSub := gochannel.NewGoChannel(
-		gochannel.Config{},
+		gochannel.Config{
+			BlockPublishUntilSubscriberAck: true,
+		},
 		watermill.NewStdLogger(false, false),
 	)
 
