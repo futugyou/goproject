@@ -37,8 +37,12 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	}
 
+	property := make(map[string]platform.PropertyInfo)
+	for _, v := range aux.Property {
+		property[v.Key] = platform.PropertyInfo(v)
+	}
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, aux.Property, aux.Tags)
+		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, property, aux.Tags)
 		return s.repository.Insert(ctx, *res)
 	})
 	if err != nil {
@@ -172,11 +176,12 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	if !extensions.MapsCompare(data.Property, data.Property) {
-		if _, err := plat.UpdateProperty(data.Property); err != nil {
-			return nil, err
-		}
-	}
+	//TODO: update Property
+	// if !extensions.MapsCompare(plat.Property, data.Property) {
+	// if _, err := plat.UpdateProperty(data.Property); err != nil {
+	// 	return nil, err
+	// }
+	// }
 
 	err = s.repository.Update(ctx, *plat)
 	if err != nil {

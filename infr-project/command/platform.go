@@ -15,11 +15,17 @@ import (
 )
 
 type CreatePlatformCommand struct {
-	Name     string            `json:"name" validate:"required,min=3,max=50"`
-	Url      string            `json:"url" validate:"required,min=3,max=50"`
-	Rest     string            `json:"rest" validate:"required,min=3,max=50"`
-	Tags     []string          `json:"tags"`
-	Property map[string]string `json:"property"`
+	Name     string                  `json:"name" validate:"required,min=3,max=50"`
+	Url      string                  `json:"url" validate:"required,min=3,max=50"`
+	Rest     string                  `json:"rest" validate:"required,min=3,max=50"`
+	Tags     []string                `json:"tags"`
+	Property map[string]PropertyInfo `json:"property"`
+}
+
+type PropertyInfo struct {
+	Key      string `json:"key"`
+	Value    string `json:"value"`
+	NeedMask bool   `json:"needMask"`
 }
 
 type CreatePlatformHandler struct {
@@ -55,8 +61,17 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		return nil
 	}
 
+	property := make(map[string]platform.PropertyInfo)
+	for _, v := range aux.Property {
+		property[v.Key] = platform.PropertyInfo(v)
+		// {
+		// 	Key:      v.Key,
+		// 	Value:    v.Value,
+		// 	NeedMask: v.NeedMask,
+		// }
+	}
 	err = commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, aux.Property, aux.Tags)
+		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, property, aux.Tags)
 		return repository.Insert(ctx, *res)
 	})
 	if err != nil {

@@ -15,13 +15,19 @@ type Platform struct {
 	Activate         bool                       `json:"activate"`
 	Url              string                     `json:"url"`
 	RestEndpoint     string                     `json:"rest_endpoint"`
-	Property         map[string]string          `json:"property"`
+	Property         map[string]PropertyInfo    `json:"property"`
 	Projects         map[string]PlatformProject `json:"projects"`
 	Tags             []string                   `json:"tags"`
 	IsDeleted        bool                       `json:"is_deleted"`
 }
 
-func NewPlatform(name string, url string, rest string, property map[string]string, tags []string) *Platform {
+type PropertyInfo struct {
+	Key      string `json:"key"`
+	Value    string `json:"value"`
+	NeedMask bool   `json:"needMask"`
+}
+
+func NewPlatform(name string, url string, rest string, property map[string]PropertyInfo, tags []string) *Platform {
 	return &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
@@ -93,7 +99,7 @@ func (w *Platform) UpdateTags(tags []string) (*Platform, error) {
 	return w, nil
 }
 
-func (w *Platform) UpdateProperty(property map[string]string) (*Platform, error) {
+func (w *Platform) UpdateProperty(property map[string]PropertyInfo) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}

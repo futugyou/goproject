@@ -140,9 +140,9 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 	}
 
 	if value, ok := m["property"].(map[string]interface{}); ok {
-		property := make(map[string]string, len(value))
+		property := make(map[string]PropertyInfo, len(value))
 		for key, v := range value {
-			if d, ok := v.(string); ok {
+			if d, ok := v.(PropertyInfo); ok {
 				property[key] = d
 			}
 		}
