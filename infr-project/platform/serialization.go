@@ -139,22 +139,30 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.RestEndpoint = value
 	}
 
-	if value, ok := m["property"].(map[string]interface{}); ok {
-		property := make(map[string]PropertyInfo, len(value))
-		for key, v := range value {
-			if d, ok := v.(PropertyInfo); ok {
-				property[key] = d
+	if value, ok := m["property"].(primitive.A); ok {
+		propertys := make(map[string]PropertyInfo)
+		for _, item := range value {
+			jsonBytes, err := marshal(item)
+			if err != nil {
+				return fmt.Errorf("failed to marshal PropertyInfo item: %v", err)
 			}
+
+			var proinfo PropertyInfo
+			if err := unmarshal(jsonBytes, &proinfo); err != nil {
+				return fmt.Errorf("failed to unmarshal item to PropertyInfo: %v", err)
+			}
+
+			propertys[proinfo.Key] = proinfo
 		}
-		r.Property = property
+		r.Property = propertys
 	}
 
-	if value, ok := m["projects"].(map[string]interface{}); ok {
+	if value, ok := m["projects"].(primitive.A); ok {
 		projects := make(map[string]PlatformProject)
 		for _, item := range value {
 			jsonBytes, err := marshal(item)
 			if err != nil {
-				return fmt.Errorf("failed to marshal item: %v", err)
+				return fmt.Errorf("failed to marshal PlatformProject item: %v", err)
 			}
 
 			var project PlatformProject
@@ -176,13 +184,18 @@ func makeMap(r Platform) map[string]interface{} {
 		projects = append(projects, k)
 	}
 
+	properties := make([]PropertyInfo, 0, len(r.Property))
+	for _, k := range r.Property {
+		properties = append(properties, k)
+	}
+
 	m := map[string]interface{}{
 		"id":           r.Id,
 		"name":         r.Name,
 		"activate":     r.Activate,
 		"url":          r.Url,
 		"restendpoint": r.RestEndpoint,
-		"property":     r.Property,
+		"property":     properties,
 		"projects":     projects,
 		"tags":         r.Tags,
 		"is_deleted":   r.IsDeleted,
