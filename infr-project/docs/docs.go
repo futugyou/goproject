@@ -997,7 +997,7 @@ const docTemplate = `{
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/command.PropertyInfo"
                     }
                 },
                 "rest": {
@@ -1015,6 +1015,20 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                }
+            }
+        },
+        "command.PropertyInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "needMask": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -1155,7 +1169,7 @@ const docTemplate = `{
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/platform.PropertyInfo"
                     }
                 },
                 "rest_endpoint": {
@@ -1195,6 +1209,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/platform.Webhook"
                     }
+                }
+            }
+        },
+        "platform.PropertyInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "needMask": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -1339,7 +1367,7 @@ const docTemplate = `{
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
                 "rest": {
@@ -1355,7 +1383,7 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
@@ -1432,6 +1460,20 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.PropertyInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "needMask": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.ResourceDetail": {
             "type": "object",
             "properties": {
@@ -1481,7 +1523,7 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
@@ -1505,7 +1547,7 @@ const docTemplate = `{
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
                 "rest": {
@@ -1521,7 +1563,7 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
@@ -1558,7 +1600,7 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }

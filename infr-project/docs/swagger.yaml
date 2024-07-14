@@ -7,7 +7,7 @@ definitions:
         type: string
       property:
         additionalProperties:
-          type: string
+          $ref: '#/definitions/command.PropertyInfo'
         type: object
       rest:
         maxLength: 50
@@ -25,6 +25,15 @@ definitions:
     - name
     - rest
     - url
+    type: object
+  command.PropertyInfo:
+    properties:
+      key:
+        type: string
+      needMask:
+        type: boolean
+      value:
+        type: string
     type: object
   models.Secrets20230613OpenAppSecretResponse:
     properties:
@@ -121,7 +130,7 @@ definitions:
         type: object
       property:
         additionalProperties:
-          type: string
+          $ref: '#/definitions/platform.PropertyInfo'
         type: object
       rest_endpoint:
         type: string
@@ -148,6 +157,15 @@ definitions:
         items:
           $ref: '#/definitions/platform.Webhook'
         type: array
+    type: object
+  platform.PropertyInfo:
+    properties:
+      key:
+        type: string
+      needMask:
+        type: boolean
+      value:
+        type: string
     type: object
   platform.Webhook:
     properties:
@@ -240,7 +258,7 @@ definitions:
         type: string
       property:
         additionalProperties:
-          type: string
+          $ref: '#/definitions/viewmodels.PropertyInfo'
         type: object
       rest:
         maxLength: 50
@@ -251,7 +269,7 @@ definitions:
           type: string
         type: array
       url:
-        maxLength: 50
+        maxLength: 150
         minLength: 3
         type: string
     required:
@@ -311,6 +329,15 @@ definitions:
     - data
     - name
     type: object
+  viewmodels.PropertyInfo:
+    properties:
+      key:
+        type: string
+      needMask:
+        type: boolean
+      value:
+        type: string
+    type: object
   viewmodels.ResourceDetail:
     properties:
       created_at:
@@ -341,7 +368,7 @@ definitions:
           type: string
         type: object
       url:
-        maxLength: 50
+        maxLength: 150
         minLength: 3
         type: string
     required:
@@ -358,7 +385,7 @@ definitions:
         type: string
       property:
         additionalProperties:
-          type: string
+          $ref: '#/definitions/viewmodels.PropertyInfo'
         type: object
       rest:
         maxLength: 50
@@ -369,7 +396,7 @@ definitions:
           type: string
         type: array
       url:
-        maxLength: 50
+        maxLength: 150
         minLength: 3
         type: string
     required:
@@ -396,7 +423,7 @@ definitions:
         - Ready
         type: string
       url:
-        maxLength: 50
+        maxLength: 150
         minLength: 3
         type: string
     required:

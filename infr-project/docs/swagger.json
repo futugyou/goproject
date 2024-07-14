@@ -986,7 +986,7 @@
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/command.PropertyInfo"
                     }
                 },
                 "rest": {
@@ -1004,6 +1004,20 @@
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                }
+            }
+        },
+        "command.PropertyInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "needMask": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -1144,7 +1158,7 @@
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/platform.PropertyInfo"
                     }
                 },
                 "rest_endpoint": {
@@ -1184,6 +1198,20 @@
                     "items": {
                         "$ref": "#/definitions/platform.Webhook"
                     }
+                }
+            }
+        },
+        "platform.PropertyInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "needMask": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -1328,7 +1356,7 @@
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
                 "rest": {
@@ -1344,7 +1372,7 @@
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
@@ -1421,6 +1449,20 @@
                 }
             }
         },
+        "viewmodels.PropertyInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "needMask": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.ResourceDetail": {
             "type": "object",
             "properties": {
@@ -1470,7 +1512,7 @@
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
@@ -1494,7 +1536,7 @@
                 "property": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
                 "rest": {
@@ -1510,7 +1552,7 @@
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
@@ -1547,7 +1589,7 @@
                 },
                 "url": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 3
                 }
             }
