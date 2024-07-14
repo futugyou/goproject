@@ -32,7 +32,7 @@ func (s *BaseRepository[Aggregate]) Get(ctx context.Context, id string) (*Aggreg
 	opts := &options.FindOneOptions{}
 	if err := c.FindOne(ctx, filter, opts).Decode(&a); err != nil {
 		if err.Error() == "mongo: no documents in result" {
-			return nil, fmt.Errorf("data not found with id: %s", id)
+			return nil, fmt.Errorf("%s with id: %s", extensions.Data_Not_Found_Message, id)
 		} else {
 			return nil, err
 		}

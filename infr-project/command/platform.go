@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/platform"
 	"github.com/opentracing/opentracing-go/log"
@@ -51,7 +52,7 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 	}
 
 	res, err := repository.GetPlatformByName(ctx, aux.Name)
-	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
+	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		log.Error(err)
 		return nil
 	}

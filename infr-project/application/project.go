@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	domain "github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/extensions"
 	"github.com/futugyou/infr-project/project"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -28,7 +29,7 @@ func NewProjectService(
 func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx context.Context) (*project.Project, error) {
 	var res *project.Project
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
-	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
+	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		return nil, err
 	}
 

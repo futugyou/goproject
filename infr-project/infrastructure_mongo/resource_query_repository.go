@@ -27,7 +27,7 @@ func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name st
 		return nil, err
 	}
 	if len(ent) == 0 {
-		return nil, fmt.Errorf("data not found with name %s", name)
+		return nil, fmt.Errorf("%s with name %s", extensions.Data_Not_Found_Message, name)
 	}
 	return &ent[0], nil
 }

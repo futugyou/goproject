@@ -29,7 +29,7 @@ func NewPlatformService(
 func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx context.Context) (*platform.Platform, error) {
 	var res *platform.Platform
 	res, err := s.repository.GetPlatformByName(ctx, aux.Name)
-	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
+	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		return nil, err
 	}
 
@@ -133,7 +133,7 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 
 	if plat.Name != data.Name {
 		res, err := s.repository.GetPlatformByName(ctx, data.Name)
-		if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
+		if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 			return nil, err
 		}
 
