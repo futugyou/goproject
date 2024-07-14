@@ -27,7 +27,7 @@ func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (
 		return nil, err
 	}
 	if len(ent) == 0 {
-		return nil, fmt.Errorf("no data found with name %s", name)
+		return nil, fmt.Errorf("data not found with name %s", name)
 	}
 	return &ent[0], nil
 }

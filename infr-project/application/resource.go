@@ -68,7 +68,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 
 	if source.Name != aux.Name {
 		res, err := s.queryRepo.GetResourceByName(ctx, aux.Name)
-		if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
+		if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 			return err
 		}
 

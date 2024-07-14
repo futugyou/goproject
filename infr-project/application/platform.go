@@ -133,7 +133,7 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 
 	if plat.Name != data.Name {
 		res, err := s.repository.GetPlatformByName(ctx, data.Name)
-		if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
+		if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 			return nil, err
 		}
 

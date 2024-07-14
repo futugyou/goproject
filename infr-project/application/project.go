@@ -28,7 +28,7 @@ func NewProjectService(
 func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx context.Context) (*project.Project, error) {
 	var res *project.Project
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
-	if err != nil && !strings.HasPrefix(err.Error(), "no data found") {
+	if err != nil && !strings.HasPrefix(err.Error(), "data not found") {
 		return nil, err
 	}
 
