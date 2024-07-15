@@ -3,23 +3,30 @@ package extensions
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
+	"math/big"
 
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/sha3"
 )
 
-// AesCTRCrypto encrypts plaintext using AES in CTR mode
+// AesCTREncrypt encrypts plaintext using AES in CTR mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesCTRCrypto(plaintext, key string) (string, error) {
+func AesCTREncrypt(plaintext, key string) (string, error) {
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
@@ -40,8 +47,8 @@ func AesCTRCrypto(plaintext, key string) (string, error) {
 
 // AesCTRDecrypt decrypts a base64 encoded ciphertext using AES in CTR mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesCTRDecrypt(cryptoText, key string) (string, error) {
-	ciphertext, err := base64.StdEncoding.DecodeString(cryptoText)
+func AesCTRDecrypt(EncryptText, key string) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(EncryptText)
 	if err != nil {
 		return "", err
 	}
@@ -64,9 +71,9 @@ func AesCTRDecrypt(cryptoText, key string) (string, error) {
 	return string(ciphertext), nil
 }
 
-// AesCFBCrypto encrypts plaintext using AES in CFB mode
+// AesCFBEncrypt encrypts plaintext using AES in CFB mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesCFBCrypto(plaintext, key string) (string, error) {
+func AesCFBEncrypt(plaintext, key string) (string, error) {
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
@@ -87,8 +94,8 @@ func AesCFBCrypto(plaintext, key string) (string, error) {
 
 // AesCFBDecrypt decrypts a base64 encoded ciphertext using AES in CFB mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesCFBDecrypt(cryptoText, key string) (string, error) {
-	ciphertext, err := base64.StdEncoding.DecodeString(cryptoText)
+func AesCFBDecrypt(EncryptText, key string) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(EncryptText)
 	if err != nil {
 		return "", err
 	}
@@ -111,9 +118,9 @@ func AesCFBDecrypt(cryptoText, key string) (string, error) {
 	return string(ciphertext), nil
 }
 
-// AesGCMCrypto encrypts plaintext using AES in GCM mode
+// AesGCMEncrypt encrypts plaintext using AES in GCM mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesGCMCrypto(plaintext, key string) (string, error) {
+func AesGCMEncrypt(plaintext, key string) (string, error) {
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
@@ -167,6 +174,54 @@ func AesGCMDecrypt(encodedCiphertext, key string) (string, error) {
 	}
 
 	return string(plaintext), nil
+}
+
+func RsaEncryptMessage(message string, publicKeyStr string) (string, error) {
+	block, _ := pem.Decode([]byte(publicKeyStr))
+	if block == nil {
+		return "", errors.New("failed to decode PEM block containing public key")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+
+	publicKey, ok := pub.(*rsa.PublicKey)
+	if !ok {
+		return "", errors.New("not a valid RSA public key")
+	}
+
+	cipherText, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, []byte(message), nil)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(cipherText), nil
+}
+
+func RsaDecrypt(cipherText string, privateKeyStr string) (string, error) {
+	block, _ := pem.Decode([]byte(privateKeyStr))
+	if block == nil {
+		return "", errors.New("failed to decode PEM block containing private key")
+	}
+
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return "", err
+	}
+
+	cipherTextBytes, err := base64.StdEncoding.DecodeString(cipherText)
+	if err != nil {
+		return "", err
+	}
+
+	plainText, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, cipherTextBytes, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plainText), nil
 }
 
 // Deprecated: Sha256 is deprecated.
@@ -232,4 +287,134 @@ func GenerateRandomKey(n int) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(key), nil
+}
+
+func GenerateKeys() (*rsa.PrivateKey, *rsa.PublicKey, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, nil, err
+	}
+	return privateKey, &privateKey.PublicKey, nil
+}
+
+// bits = 2048
+func GenerateKeyPair(bits int) (string, string, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return "", "", err
+	}
+
+	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	})
+
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	if err != nil {
+		return "", "", err
+	}
+	publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	})
+
+	return string(privateKeyPEM), string(publicKeyPEM), nil
+}
+
+// Generate an ECDSA key pair and convert it to a PEM formatted string
+func GenerateECDSAKeyPair() (string, string, error) {
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return "", "", err
+	}
+
+	privateKeyBytes, err := x509.MarshalECPrivateKey(privateKey)
+	if err != nil {
+		return "", "", err
+	}
+	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "EC PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	})
+
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	if err != nil {
+		return "", "", err
+	}
+	publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "EC PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	})
+
+	return string(privateKeyPEM), string(publicKeyPEM), nil
+}
+
+// Signing a message using an ECDSA private key
+func SignMessage(privateKeyStr, message string) (string, string, error) {
+	block, _ := pem.Decode([]byte(privateKeyStr))
+	if block == nil {
+		return "", "", fmt.Errorf("failed to decode PEM block containing private key")
+	}
+
+	privateKey, err := x509.ParseECPrivateKey(block.Bytes)
+	if err != nil {
+		return "", "", err
+	}
+
+	hash := sha256.Sum256([]byte(message))
+	r, s, err := ecdsa.Sign(rand.Reader, privateKey, hash[:])
+	if err != nil {
+		return "", "", err
+	}
+
+	rBytes, err := r.MarshalText()
+	if err != nil {
+		return "", "", err
+	}
+	sBytes, err := s.MarshalText()
+	if err != nil {
+		return "", "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(rBytes), base64.StdEncoding.EncodeToString(sBytes), nil
+}
+
+// Verify signature using ECDSA public key
+func VerifySignature(publicKeyStr, message, rStr, sStr string) (bool, error) {
+	block, _ := pem.Decode([]byte(publicKeyStr))
+	if block == nil {
+		return false, fmt.Errorf("failed to decode PEM block containing public key")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return false, err
+	}
+
+	publicKey, ok := pub.(*ecdsa.PublicKey)
+	if !ok {
+		return false, fmt.Errorf("not a valid ECDSA public key")
+	}
+
+	hash := sha256.Sum256([]byte(message))
+
+	rBytes, err := base64.StdEncoding.DecodeString(rStr)
+	if err != nil {
+		return false, err
+	}
+	sBytes, err := base64.StdEncoding.DecodeString(sStr)
+	if err != nil {
+		return false, err
+	}
+
+	var r, s big.Int
+	if err := r.UnmarshalText(rBytes); err != nil {
+		return false, err
+	}
+	if err := s.UnmarshalText(sBytes); err != nil {
+		return false, err
+	}
+
+	return ecdsa.Verify(publicKey, hash[:], &r, &s), nil
 }
