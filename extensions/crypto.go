@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha1"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -16,48 +17,154 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+// AesCTRCrypto encrypts plaintext using AES in CTR mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesCTRCrypto(key string, plaintext string) (string, string, error) {
-	keyString := []byte(key)
-	plaintextString := []byte(plaintext)
-
-	block, err := aes.NewCipher(keyString)
+func AesCTRCrypto(plaintext, key string) (string, error) {
+	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	ciphertext := make([]byte, aes.BlockSize+len(plaintextString))
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
 	iv := ciphertext[:aes.BlockSize]
+
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintextString)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], []byte(plaintext))
 
-	return hex.EncodeToString(ciphertext), hex.EncodeToString(iv), nil
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
+// AesCTRDecrypt decrypts a base64 encoded ciphertext using AES in CTR mode
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
-func AesCTRDecrypt(key string, ciphertext string, iv string) (string, error) {
-	keyString := []byte(key)
-	ivString, err := hex.DecodeString(iv)
-	if err != nil {
-		return "", err
-	}
-	ciphertextString, err := hex.DecodeString(ciphertext)
+func AesCTRDecrypt(cryptoText, key string) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(cryptoText)
 	if err != nil {
 		return "", err
 	}
 
-	block, err := aes.NewCipher(keyString)
+	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
 	}
 
-	plaintext := make([]byte, len(ciphertextString))
-	stream := cipher.NewCTR(block, ivString)
-	stream.XORKeyStream(plaintext, ciphertextString)
+	if len(ciphertext) < aes.BlockSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(ciphertext, ciphertext)
+
+	return string(ciphertext), nil
+}
+
+// AesCFBCrypto encrypts plaintext using AES in CFB mode
+// key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
+func AesCFBCrypto(plaintext, key string) (string, error) {
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		return "", err
+	}
+
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+	iv := ciphertext[:aes.BlockSize]
+
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return "", err
+	}
+
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], []byte(plaintext))
+
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+// AesCFBDecrypt decrypts a base64 encoded ciphertext using AES in CFB mode
+// key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
+func AesCFBDecrypt(cryptoText, key string) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(cryptoText)
+	if err != nil {
+		return "", err
+	}
+
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		return "", err
+	}
+
+	if len(ciphertext) < aes.BlockSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(ciphertext, ciphertext)
+
+	return string(ciphertext), nil
+}
+
+// AesGCMCrypto encrypts plaintext using AES in GCM mode
+// key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
+func AesGCMCrypto(plaintext, key string) (string, error) {
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		return "", err
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonce := make([]byte, aesGCM.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+
+	ciphertext := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+// AesGCMDecrypt decrypts a base64 encoded ciphertext using AES in GCM mode
+// key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
+func AesGCMDecrypt(encodedCiphertext, key string) (string, error) {
+	enc, err := base64.StdEncoding.DecodeString(encodedCiphertext)
+	if err != nil {
+		return "", err
+	}
+
+	keyBytes, err := base64.StdEncoding.DecodeString(key)
+	if err != nil {
+		return "", err
+	}
+
+	block, err := aes.NewCipher(keyBytes)
+	if err != nil {
+		return "", err
+	}
+
+	aesGCM, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	if len(enc) < aesGCM.NonceSize() {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	nonce, ciphertext := enc[:aesGCM.NonceSize()], enc[aesGCM.NonceSize():]
+	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
 
 	return string(plaintext), nil
 }
@@ -116,4 +223,13 @@ func String(n int64) string {
 			return string(buf[pos:])
 		}
 	}
+}
+
+// set n = 32
+func GenerateRandomKey(n int) (string, error) {
+	key := make([]byte, n)
+	if _, err := io.ReadFull(rand.Reader, key); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(key), nil
 }
