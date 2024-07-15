@@ -3,12 +3,17 @@ package extensions
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
+
+	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/sha3"
 )
 
 // key 16, 24 or 32 bytes for AES-128, AES-192, or AES-256
@@ -57,16 +62,39 @@ func AesCTRDecrypt(key string, ciphertext string, iv string) (string, error) {
 	return string(plaintext), nil
 }
 
+// Deprecated: Sha256 is deprecated.
 func Sha1(text string) string {
 	h := sha1.New()
 	h.Write([]byte(text))
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
+// Deprecated: Sha256 is deprecated.
 func EncodeMD5(value string) string {
 	m := md5.New()
 	m.Write([]byte(value))
 	return hex.EncodeToString(m.Sum(nil))
+}
+
+func Sha256(text string) string {
+	hash := sha256.Sum256([]byte(text))
+	return hex.EncodeToString(hash[:])
+}
+
+func Sha3(text string) string {
+	hash := sha3.Sum256([]byte(text))
+	return hex.EncodeToString(hash[:])
+}
+
+func Hmac(text string, key string) string {
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write([]byte(text))
+	return hex.EncodeToString(mac.Sum(nil))
+}
+
+func Blake2b(text string) string {
+	hash := blake2b.Sum256([]byte(text))
+	return hex.EncodeToString(hash[:])
 }
 
 func String(n int64) string {
