@@ -16,7 +16,7 @@ import (
 )
 
 func (c *Controller) CreateProject(w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService()
+	service, err := createProjectService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -43,7 +43,7 @@ func (c *Controller) CreateProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService()
+	service, err := createProjectService(r.Context())
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -60,7 +60,7 @@ func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Reques
 }
 
 func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService()
+	service, err := createProjectService(r.Context())
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -77,7 +77,7 @@ func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService()
+	service, err := createProjectService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -104,7 +104,7 @@ func (c *Controller) UpdateProject(id string, w http.ResponseWriter, r *http.Req
 }
 
 func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService()
+	service, err := createProjectService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -131,7 +131,7 @@ func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *
 }
 
 func (c *Controller) UpdateProjectDesign(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService()
+	service, err := createProjectService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -157,13 +157,13 @@ func (c *Controller) UpdateProjectDesign(id string, w http.ResponseWriter, r *ht
 	writeJSONResponse(w, res, 200)
 }
 
-func createProjectService() (*application.ProjectService, error) {
+func createProjectService(ctx context.Context) (*application.ProjectService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}

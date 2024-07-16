@@ -17,7 +17,7 @@ import (
 )
 
 func (c *Controller) DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -34,7 +34,7 @@ func (c *Controller) DeletePlatformProject(id string, projectId string, w http.R
 }
 
 func (c *Controller) CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -61,7 +61,7 @@ func (c *Controller) CreatePlatformProject(id string, projectId string, w http.R
 }
 
 func (c *Controller) CreatePlatform(w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -88,7 +88,7 @@ func (c *Controller) CreatePlatform(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -105,7 +105,7 @@ func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Reque
 }
 
 func (c *Controller) GetAllPlatform(w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -122,7 +122,7 @@ func (c *Controller) GetAllPlatform(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -149,7 +149,7 @@ func (c *Controller) UpdatePlatformHook(id string, projectId string, w http.Resp
 }
 
 func (c *Controller) UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -176,7 +176,7 @@ func (c *Controller) UpdatePlatform(id string, w http.ResponseWriter, r *http.Re
 }
 
 func (c *Controller) DeletePlatform(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createPlatformService()
+	service, err := createPlatformService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -192,13 +192,13 @@ func (c *Controller) DeletePlatform(id string, w http.ResponseWriter, r *http.Re
 	writeJSONResponse(w, res, 200)
 }
 
-func createPlatformService() (*application.PlatformService, error) {
+func createPlatformService(ctx context.Context) (*application.PlatformService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}

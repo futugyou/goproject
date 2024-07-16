@@ -21,7 +21,7 @@ import (
 )
 
 func (c *Controller) GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createResourceService()
+	service, err := createResourceService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -37,7 +37,7 @@ func (c *Controller) GetResourceHistory(id string, w http.ResponseWriter, r *htt
 }
 
 func (c *Controller) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createResourceService()
+	service, err := createResourceService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -53,7 +53,7 @@ func (c *Controller) DeleteResource(id string, w http.ResponseWriter, r *http.Re
 }
 
 func (c *Controller) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createResourceService()
+	service, err := createResourceService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -80,7 +80,7 @@ func (c *Controller) UpdateResource(id string, w http.ResponseWriter, r *http.Re
 }
 
 func (c *Controller) CreateResource(w http.ResponseWriter, r *http.Request) {
-	service, err := createResourceService()
+	service, err := createResourceService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -107,7 +107,7 @@ func (c *Controller) CreateResource(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) GetResource(id string, w http.ResponseWriter, r *http.Request) {
-	service, err := createResourceQueryService()
+	service, err := createResourceQueryService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -128,7 +128,7 @@ func (c *Controller) GetResource(id string, w http.ResponseWriter, r *http.Reque
 }
 
 func (c *Controller) GetAllResource(w http.ResponseWriter, r *http.Request) {
-	service, err := createResourceQueryService()
+	service, err := createResourceQueryService(r.Context())
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -148,13 +148,13 @@ func (c *Controller) GetAllResource(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func createResourceService() (*application.ResourceService, error) {
+func createResourceService(ctx context.Context) (*application.ResourceService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func createResourceService() (*application.ResourceService, error) {
 		return nil, err
 	}
 
-	queryRepo, err := createResourceQueryRepository()
+	queryRepo, err := createResourceQueryRepository(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -174,21 +174,21 @@ func createResourceService() (*application.ResourceService, error) {
 	return application.NewResourceService(eventStore, snapshotStore, unitOfWork, queryRepo), nil
 }
 
-func createResourceQueryService() (*application.ResourceQueryService, error) {
-	queryRepo, err := createResourceQueryRepository()
+func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
+	queryRepo, err := createResourceQueryRepository(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return application.NewResourceQueryService(queryRepo), nil
 }
 
-func createResourceQueryRepository() (*infra.ResourceQueryRepository, error) {
+func createResourceQueryRepository(ctx context.Context) (*infra.ResourceQueryRepository, error) {
 	config := infra.QueryDBConfig{
 		DBName:        os.Getenv("query_db_name"),
 		ConnectString: os.Getenv("query_mongodb_url"),
 	}
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}

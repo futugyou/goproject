@@ -45,7 +45,7 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 	// TODO: how to handle error, and get response?
 	aux := c.(*CreatePlatformCommand)
 
-	repository, commonHandler, err := createCommonInfra()
+	repository, commonHandler, err := createCommonInfra(ctx)
 	if err != nil {
 		log.Error(err)
 		return nil
@@ -83,12 +83,12 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 	return nil
 }
 
-func createCommonInfra() (platform.IPlatformRepository, *CommonHandler, error) {
+func createCommonInfra(ctx context.Context) (platform.IPlatformRepository, *CommonHandler, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, nil, err
 	}
