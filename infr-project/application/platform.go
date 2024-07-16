@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	tool "github.com/futugyou/extensions"
@@ -41,7 +42,15 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 
 	property := make(map[string]platform.PropertyInfo)
 	for _, v := range aux.Property {
-		property[v.Key] = platform.PropertyInfo(v)
+		value, err := tool.AesCTREncrypt(v.Value, os.Getenv("Encrypt_Key"))
+		if err != nil {
+			return nil, err
+		}
+		property[v.Key] = platform.PropertyInfo{
+			Key:      v.Key,
+			Value:    value,
+			NeedMask: v.NeedMask,
+		}
 	}
 	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, property, aux.Tags)
@@ -50,7 +59,11 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 	if err != nil {
 		return nil, err
 	}
-
+	property = make(map[string]platform.PropertyInfo)
+	for _, v := range aux.Property {
+		property[v.Key] = platform.PropertyInfo(v)
+	}
+	res.UpdateProperty(property)
 	return res, nil
 }
 
