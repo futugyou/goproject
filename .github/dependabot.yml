@@ -9,6 +9,7 @@ updates:
     directory: "/aws-web"
     schedule:
       interval: "daily"
+      time: "00:00"
     groups:
       aws:
         patterns:
@@ -17,29 +18,36 @@ updates:
     directory: "/identity-center"
     schedule:
       interval: "daily"
+      time: "00:30"
   - package-ecosystem: "gomod"
     directory: "/openai-web"
     schedule:
       interval: "daily"
+      time: "01:00"
   - package-ecosystem: "gomod"
     directory: "/tour"
     schedule:
       interval: "daily"
+      time: "01:30"
   - package-ecosystem: "gomod"
     directory: "/alphavantage-server"
     schedule:
       interval: "daily"
+      time: "02:00"
   - package-ecosystem: "gomod"
     directory: "/infr-project"
     schedule:
       interval: "daily"
+      time: "02:30"
     ignore:
       - dependency-name: "github.com/ThreeDotsLabs/watermill"
   - package-ecosystem: "gomod"
     directory: "/container"
     schedule:
-      interval: "daily"      
+      interval: "daily"
+      time: "3:00"
   - package-ecosystem: "gomod"
     directory: "/bolg-service"
     schedule:
       interval: "daily"
+      time: "03:30"
