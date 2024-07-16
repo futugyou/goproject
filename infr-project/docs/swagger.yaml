@@ -257,9 +257,9 @@ definitions:
         minLength: 3
         type: string
       property:
-        additionalProperties:
+        items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
-        type: object
+        type: array
       rest:
         maxLength: 50
         minLength: 3
@@ -384,9 +384,9 @@ definitions:
         minLength: 3
         type: string
       property:
-        additionalProperties:
+        items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
-        type: object
+        type: array
       rest:
         maxLength: 50
         minLength: 3

@@ -1354,8 +1354,8 @@
                     "minLength": 3
                 },
                 "property": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
@@ -1534,8 +1534,8 @@
                     "minLength": 3
                 },
                 "property": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },

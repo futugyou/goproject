@@ -1365,8 +1365,8 @@ const docTemplate = `{
                     "minLength": 3
                 },
                 "property": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
@@ -1545,8 +1545,8 @@ const docTemplate = `{
                     "minLength": 3
                 },
                 "property": {
-                    "type": "object",
-                    "additionalProperties": {
+                    "type": "array",
+                    "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
                 },
