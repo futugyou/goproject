@@ -45,7 +45,7 @@ updates:
     directory: "/container"
     schedule:
       interval: "daily"
-      time: "3:00"
+      time: "03:00"
   - package-ecosystem: "gomod"
     directory: "/bolg-service"
     schedule:
