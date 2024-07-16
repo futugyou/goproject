@@ -7,20 +7,20 @@ type PropertyInfo struct {
 }
 
 type CreatePlatformRequest struct {
-	Name     string                  `json:"name" validate:"required,min=3,max=50"`
-	Url      string                  `json:"url" validate:"required,min=3,max=150"`
-	Rest     string                  `json:"rest" validate:"required,min=3,max=50"`
-	Tags     []string                `json:"tags"`
-	Property map[string]PropertyInfo `json:"property"`
+	Name     string         `json:"name" validate:"required,min=3,max=50"`
+	Url      string         `json:"url" validate:"required,min=3,max=150"`
+	Rest     string         `json:"rest" validate:"required,min=3,max=50"`
+	Tags     []string       `json:"tags"`
+	Property []PropertyInfo `json:"property"`
 }
 
 type UpdatePlatformRequest struct {
-	Name     string                  `json:"name" validate:"required,min=3,max=50"`
-	Url      string                  `json:"url" validate:"required,min=3,max=150"`
-	Rest     string                  `json:"rest" validate:"required,min=3,max=50"`
-	Property map[string]PropertyInfo `json:"property,omitempty"`
-	Tags     []string                `json:"tags"`
-	Activate *bool                   `json:"activate,omitempty"`
+	Name     string         `json:"name" validate:"required,min=3,max=50"`
+	Url      string         `json:"url" validate:"required,min=3,max=150"`
+	Rest     string         `json:"rest" validate:"required,min=3,max=50"`
+	Property []PropertyInfo `json:"property,omitempty"`
+	Tags     []string       `json:"tags"`
+	Activate *bool          `json:"activate,omitempty"`
 }
 
 type UpdatePlatformProjectRequest struct {

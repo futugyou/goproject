@@ -191,10 +191,9 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	//TODO: update Property
 	newProperty := make(map[string]platform.PropertyInfo)
-	for key, v := range data.Property {
-		newProperty[key] = platform.PropertyInfo(v)
+	for _, v := range data.Property {
+		newProperty[v.Key] = platform.PropertyInfo(v)
 	}
 	if !tool.MapsCompareCommon(plat.Property, newProperty) {
 		if _, err := plat.UpdateProperty(newProperty); err != nil {
