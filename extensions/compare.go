@@ -1,5 +1,7 @@
 package extensions
 
+import "reflect"
+
 func StringArrayCompare(arr1, arr2 []string) bool {
 	if len(arr1) != len(arr2) {
 		return false
@@ -35,6 +37,25 @@ func MapsCompare(map1, map2 map[string]string) bool {
 	for key, value1 := range map1 {
 		value2, ok := map2[key]
 		if !ok || value1 != value2 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func MapsCompareCommon[K comparable, V any](map1, map2 map[K]V) bool {
+	if len(map1) != len(map2) {
+		return false
+	}
+
+	for key, value1 := range map1 {
+		value2, exists := map2[key]
+		if !exists {
+			return false
+		}
+
+		if !reflect.DeepEqual(value1, value2) {
 			return false
 		}
 	}

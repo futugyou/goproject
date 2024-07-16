@@ -5,13 +5,14 @@ import (
 
 	"net/http"
 
+	"github.com/futugyou/extensions"
+
 	"github.com/futugyou/infr-project/controller"
-	"github.com/futugyou/infr-project/extensions"
 )
 
 func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	// cors
-	if extensions.CorsForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 

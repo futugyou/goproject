@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	tool "github.com/futugyou/extensions"
+
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
@@ -158,7 +160,7 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	if !extensions.StringArrayCompare(plat.Tags, data.Tags) {
+	if !tool.StringArrayCompare(plat.Tags, data.Tags) {
 		if _, err := plat.UpdateTags(data.Tags); err != nil {
 			return nil, err
 		}
@@ -177,11 +179,15 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 	}
 
 	//TODO: update Property
-	// if !extensions.MapsCompare(plat.Property, data.Property) {
-	// if _, err := plat.UpdateProperty(data.Property); err != nil {
-	// 	return nil, err
-	// }
-	// }
+	newProperty := make(map[string]platform.PropertyInfo)
+	for key, v := range data.Property {
+		newProperty[key] = platform.PropertyInfo(v)
+	}
+	if !tool.MapsCompareCommon(plat.Property, newProperty) {
+		if _, err := plat.UpdateProperty(newProperty); err != nil {
+			return nil, err
+		}
+	}
 
 	err = s.repository.Update(ctx, *plat)
 	if err != nil {

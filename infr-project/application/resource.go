@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	tool "github.com/futugyou/extensions"
+
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure"
@@ -82,7 +84,7 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 		aggregates = append(aggregates, *aggregate)
 	}
 
-	if !extensions.StringArrayCompare(aux.Tags, source.Tags) {
+	if !tool.StringArrayCompare(aux.Tags, source.Tags) {
 		if aggregate, err = source.ChangeTags(aux.Tags); err != nil {
 			return err
 		}
