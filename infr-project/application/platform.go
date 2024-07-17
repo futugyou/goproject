@@ -208,3 +208,45 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 
 	return plat, nil
 }
+
+func convertPlatformEntityToViewModel(src platform.Platform) models.PlatformView {
+	propertyInfos := make([]models.PropertyInfo, len(src.Property))
+	for _, v := range src.Property {
+		propertyInfos = append(propertyInfos, models.PropertyInfo{
+			Key:      v.Key,
+			Value:    v.Value,
+			NeedMask: v.NeedMask,
+		})
+	}
+	platformProjects := make([]models.PlatformProject, len(src.Projects))
+	for _, v := range src.Projects {
+		webhooks := make([]models.Webhook, len(v.Webhooks))
+		for _, vv := range v.Webhooks {
+			webhooks = append(webhooks, models.Webhook{
+				Name:     vv.Name,
+				Url:      vv.Url,
+				Activate: vv.Activate,
+				State:    vv.State.String(),
+				Property: vv.Property,
+			})
+		}
+		platformProjects = append(platformProjects, models.PlatformProject{
+			Id:       v.Id,
+			Name:     v.Name,
+			Url:      v.Url,
+			Property: v.Property,
+			Webhooks: webhooks,
+		})
+	}
+	return models.PlatformView{
+		Id:           src.Id,
+		Name:         src.Name,
+		Activate:     src.Activate,
+		Url:          src.Url,
+		RestEndpoint: src.RestEndpoint,
+		Property:     propertyInfos,
+		Projects:     platformProjects,
+		Tags:         src.Tags,
+		IsDeleted:    src.IsDeleted,
+	}
+}
