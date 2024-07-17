@@ -36,3 +36,31 @@ type UpdatePlatformWebhookRequest struct {
 	State    string            `json:"state" validate:"oneof=Init Creating Ready"`
 	Property map[string]string `json:"property"`
 }
+
+type PlatformView struct {
+	Id           string            `json:"id"`
+	Name         string            `json:"name"`
+	Activate     bool              `json:"activate"`
+	Url          string            `json:"url"`
+	RestEndpoint string            `json:"rest_endpoint"`
+	Property     []PropertyInfo    `json:"property"`
+	Projects     []PlatformProject `json:"projects"`
+	Tags         []string          `json:"tags"`
+	IsDeleted    bool              `json:"is_deleted"`
+}
+
+type PlatformProject struct {
+	Id       string            `json:"id" bson:"id"`
+	Name     string            `json:"name" bson:"name"`
+	Url      string            `json:"url" bson:"url"`
+	Property map[string]string `json:"property" bson:"property"`
+	Webhooks []Webhook         `json:"webhooks" bson:"webhooks"`
+}
+
+type Webhook struct {
+	Name     string            `json:"name"`
+	Url      string            `json:"url"`
+	Activate bool              `json:"activate"`
+	State    string            `json:"state"`
+	Property map[string]string `json:"property"`
+}
