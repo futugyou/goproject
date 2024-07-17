@@ -52,18 +52,14 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 			NeedMask: v.NeedMask,
 		}
 	}
-	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+
+	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, property, aux.Tags)
 		return s.repository.Insert(ctx, *res)
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
-	property = make(map[string]platform.PropertyInfo)
-	for _, v := range aux.Property {
-		property[v.Key] = platform.PropertyInfo(v)
-	}
-	res.UpdateProperty(property)
+
 	return convertPlatformEntityToViewModel(res), nil
 }
 
@@ -75,7 +71,7 @@ func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]models.Platform
 
 	result := make([]models.PlatformView, len(src))
 	for i := 0; i < len(src); i++ {
-		result = append(result, *convertPlatformEntityToViewModel(&src[i]))
+		result[i] = *convertPlatformEntityToViewModel(&src[i])
 	}
 	return result, nil
 }
@@ -235,9 +231,13 @@ func convertPlatformEntityToViewModel(src *platform.Platform) *models.PlatformVi
 	}
 	propertyInfos := make([]models.PropertyInfo, 0)
 	for _, v := range src.Property {
+		value, err := tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
+		if err != nil {
+			value = v.Value
+		}
 		propertyInfos = append(propertyInfos, models.PropertyInfo{
 			Key:      v.Key,
-			Value:    v.Value,
+			Value:    value,
 			NeedMask: v.NeedMask,
 		})
 	}
