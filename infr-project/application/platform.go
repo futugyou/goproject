@@ -29,7 +29,7 @@ func NewPlatformService(
 	}
 }
 
-func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx context.Context) (*platform.Platform, error) {
+func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx context.Context) (*models.PlatformView, error) {
 	var res *platform.Platform
 	res, err := s.repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
@@ -64,18 +64,31 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 		property[v.Key] = platform.PropertyInfo(v)
 	}
 	res.UpdateProperty(property)
-	return res, nil
+	return convertPlatformEntityToViewModel(res), nil
 }
 
-func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]platform.Platform, error) {
-	return s.repository.GetAllPlatform(ctx)
+func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]models.PlatformView, error) {
+	src, err := s.repository.GetAllPlatform(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.PlatformView, len(src))
+	for i := 0; i < len(src); i++ {
+		result = append(result, *convertPlatformEntityToViewModel(&src[i]))
+	}
+	return result, nil
 }
 
-func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*platform.Platform, error) {
-	return s.repository.Get(ctx, id)
+func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.PlatformView, error) {
+	src, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return convertPlatformEntityToViewModel(src), nil
 }
 
-func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*platform.Platform, error) {
+func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*models.PlatformView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -88,24 +101,28 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	newhook := platform.NewWebhook(hook.Name, hook.Url, hook.Property)
 	newhook.Activate = hook.Activate
 	newhook.State = platform.GetWebhookState(hook.State)
-	plat.UpdateWebhook(projectId, *newhook)
-	err = s.repository.Update(ctx, *plat)
-	if err != nil {
+	if plat, err = plat.UpdateWebhook(projectId, *newhook); err != nil {
+		return nil, err
+	}
+	if err = s.repository.Update(ctx, *plat); err != nil {
 		return nil, err
 	}
 
-	return plat, nil
+	return convertPlatformEntityToViewModel(plat), nil
 }
 
-func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*platform.Platform, error) {
+func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*models.PlatformView, error) {
 	if err := s.repository.SoftDelete(ctx, id); err != nil {
 		return nil, err
 	}
-
-	return s.repository.Get(ctx, id)
+	plat, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return convertPlatformEntityToViewModel(plat), nil
 }
 
-func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest, ctx context.Context) (*platform.Platform, error) {
+func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest, ctx context.Context) (*models.PlatformView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -119,15 +136,15 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}
-	err = s.repository.Update(ctx, *plat)
-	if err != nil {
+
+	if err = s.repository.Update(ctx, *plat); err != nil {
 		return nil, err
 	}
 
-	return plat, nil
+	return convertPlatformEntityToViewModel(plat), nil
 }
 
-func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*platform.Platform, error) {
+func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*models.PlatformView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -136,11 +153,13 @@ func (s *PlatformService) DeleteProject(id string, projectId string, ctx context
 	if _, err := plat.RemoveProject(projectId); err != nil {
 		return nil, err
 	}
-
-	return plat, s.repository.Update(ctx, *plat)
+	if err = s.repository.Update(ctx, *plat); err != nil {
+		return nil, err
+	}
+	return convertPlatformEntityToViewModel(plat), nil
 }
 
-func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*platform.Platform, error) {
+func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*models.PlatformView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -201,16 +220,18 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	err = s.repository.Update(ctx, *plat)
-	if err != nil {
+	if err = s.repository.Update(ctx, *plat); err != nil {
 		return nil, err
 	}
 
-	return plat, nil
+	return convertPlatformEntityToViewModel(plat), nil
 }
 
-func convertPlatformEntityToViewModel(src platform.Platform) models.PlatformView {
-	propertyInfos := make([]models.PropertyInfo, len(src.Property))
+func convertPlatformEntityToViewModel(src *platform.Platform) *models.PlatformView {
+	if src == nil {
+		return nil
+	}
+	propertyInfos := make([]models.PropertyInfo, 0)
 	for _, v := range src.Property {
 		propertyInfos = append(propertyInfos, models.PropertyInfo{
 			Key:      v.Key,
@@ -218,16 +239,16 @@ func convertPlatformEntityToViewModel(src platform.Platform) models.PlatformView
 			NeedMask: v.NeedMask,
 		})
 	}
-	platformProjects := make([]models.PlatformProject, len(src.Projects))
+	platformProjects := make([]models.PlatformProject, 0)
 	for _, v := range src.Projects {
 		webhooks := make([]models.Webhook, len(v.Webhooks))
-		for _, vv := range v.Webhooks {
+		for i := 0; i < len(v.Webhooks); i++ {
 			webhooks = append(webhooks, models.Webhook{
-				Name:     vv.Name,
-				Url:      vv.Url,
-				Activate: vv.Activate,
-				State:    vv.State.String(),
-				Property: vv.Property,
+				Name:     v.Webhooks[i].Name,
+				Url:      v.Webhooks[i].Url,
+				Activate: v.Webhooks[i].Activate,
+				State:    v.Webhooks[i].State.String(),
+				Property: v.Webhooks[i].Property,
 			})
 		}
 		platformProjects = append(platformProjects, models.PlatformProject{
@@ -238,7 +259,7 @@ func convertPlatformEntityToViewModel(src platform.Platform) models.PlatformView
 			Webhooks: webhooks,
 		})
 	}
-	return models.PlatformView{
+	return &models.PlatformView{
 		Id:           src.Id,
 		Name:         src.Name,
 		Activate:     src.Activate,
