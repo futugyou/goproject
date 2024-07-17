@@ -98,9 +98,11 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
 	}
 
-	newhook := platform.NewWebhook(hook.Name, hook.Url, hook.Property)
-	newhook.Activate = hook.Activate
-	newhook.State = platform.GetWebhookState(hook.State)
+	newhook := platform.NewWebhook(hook.Name, hook.Url,
+		platform.WithWebhookProperty(hook.Property),
+		platform.WithWebhookActivate(hook.Activate),
+		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
+	)
 	if plat, err = plat.UpdateWebhook(projectId, *newhook); err != nil {
 		return nil, err
 	}

@@ -8,12 +8,36 @@ type Webhook struct {
 	Property map[string]string `json:"property"`
 }
 
-func NewWebhook(name string, url string, property map[string]string) *Webhook {
-	return &Webhook{
+type WebhookOption func(*Webhook)
+
+func WithWebhookActivate(activate bool) WebhookOption {
+	return func(w *Webhook) {
+		w.Activate = activate
+	}
+}
+
+func WithWebhookState(state WebhookState) WebhookOption {
+	return func(w *Webhook) {
+		w.State = state
+	}
+}
+
+func WithWebhookProperty(property map[string]string) WebhookOption {
+	return func(w *Webhook) {
+		w.Property = property
+	}
+}
+func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
+	webhook := &Webhook{
 		Name:     name,
-		Url:      url,
 		Activate: true,
 		State:    WebhookInit,
-		Property: property,
+		Property: make(map[string]string),
 	}
+
+	for _, opt := range opts {
+		opt(webhook)
+	}
+
+	return webhook
 }
