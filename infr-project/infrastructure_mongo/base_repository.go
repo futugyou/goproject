@@ -60,7 +60,7 @@ func (s *BaseRepository[Aggregate]) SoftDelete(ctx context.Context, id string) e
 
 	filter := bson.D{{Key: "id", Value: id}}
 	if _, err := c.UpdateOne(ctx, filter, bson.M{
-		"$set": bson.D{{Key: "is_deleted", Value: 1}},
+		"$set": bson.D{{Key: "is_deleted", Value: true}},
 	}); err != nil {
 		return err
 	}
