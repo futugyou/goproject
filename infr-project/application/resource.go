@@ -37,7 +37,7 @@ func NewResourceService(
 	}
 }
 
-func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx context.Context) (*resource.Resource, error) {
+func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx context.Context) (*models.CreateResourceResponse, error) {
 	var res *resource.Resource
 	resourceType := resource.GetResourceType(aux.Type)
 	err := s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -48,7 +48,7 @@ func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx c
 		return nil, err
 	}
 
-	return res, nil
+	return &models.CreateResourceResponse{Id: res.Id}, nil
 }
 
 func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceRequest, ctx context.Context) error {
@@ -106,15 +106,15 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 }
 
 // show all versions
-func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]resource.Resource, error) {
+func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]models.ResourceView, error) {
 	re, err := s.service.RetrieveAllVersions(id, ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]resource.Resource, 0)
+	result := make([]models.ResourceView, len(re))
 	for i := 0; i < len(re); i++ {
-		result = append(result, *re[i])
+		result[i] = *convertResourceEntityToViewModel(re[i])
 	}
 	return result, nil
 }
@@ -137,4 +137,20 @@ func (s *ResourceService) DeleteResource(id string, ctx context.Context) error {
 	return s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
 	})
+}
+
+func convertResourceEntityToViewModel(src *resource.Resource) *models.ResourceView {
+	if src == nil {
+		return nil
+	}
+	return &models.ResourceView{
+		Id:        src.Id,
+		Name:      src.Name,
+		Type:      src.Type.String(),
+		Data:      src.Data,
+		Version:   src.Version,
+		IsDelete:  src.IsDeleted,
+		CreatedAt: src.CreatedAt,
+		UpdatedAt: src.UpdatedAt,
+	}
 }

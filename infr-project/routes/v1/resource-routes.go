@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/futugyou/infr-project/controller"
-	_ "github.com/futugyou/infr-project/resource"
 	_ "github.com/futugyou/infr-project/view_models"
 )
 
@@ -23,7 +22,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {array} resource.Resource
+// @Success 200 {array} viewmodels.ResourceView
 // @Router /v1/resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -63,7 +62,7 @@ func updateResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreateResourceRequest true "Request body"
-// @Success 200 {object} resource.Resource
+// @Success 200 {object} viewmodels.CreateResourceResponse
 // @Router /v1/resource [post]
 func createResource(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -76,7 +75,7 @@ func createResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {object} viewmodels.ResourceDetail
+// @Success 200 {object} viewmodels.ResourceView
 // @Router /v1/resource/{id} [get]
 func getResource(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -88,7 +87,7 @@ func getResource(c *gin.Context) {
 // @Tags Resource
 // @Accept json
 // @Produce json
-// @Success 200 {array} viewmodels.ResourceDetail
+// @Success 200 {array} viewmodels.ResourceView
 // @Router /v1/resource [get]
 func getAllResource(c *gin.Context) {
 	ctrl := controller.NewController()

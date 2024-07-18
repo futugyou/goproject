@@ -26,8 +26,7 @@ func NewProjectService(
 	}
 }
 
-func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx context.Context) (*project.Project, error) {
-	var res *project.Project
+func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx context.Context) (*models.ProjectView, error) {
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		return nil, err
@@ -37,27 +36,38 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx 
 		return nil, fmt.Errorf("name: %s is existed", request.Name)
 	}
 
-	err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = project.NewProject(request.Name, request.Description,
 			project.GetProjectState(request.ProjectState), request.StartTime, request.EndTime, request.Tags)
 		return s.repository.Insert(ctx, *res)
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return convertProjectEntityToViewModel(res), nil
 }
 
-func (s *ProjectService) GetAllProject(ctx context.Context) ([]project.Project, error) {
-	return s.repository.GetAllProject(ctx)
+func (s *ProjectService) GetAllProject(ctx context.Context) ([]models.ProjectView, error) {
+	res, err := s.repository.GetAllProject(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]models.ProjectView, len(res))
+	for i := 0; i < len(res); i++ {
+		result[i] = *convertProjectEntityToViewModel(&res[i])
+	}
+	return result, nil
 }
 
-func (s *ProjectService) GetProject(id string, ctx context.Context) (*project.Project, error) {
-	return s.repository.Get(ctx, id)
+func (s *ProjectService) GetProject(id string, ctx context.Context) (*models.ProjectView, error) {
+	res, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return convertProjectEntityToViewModel(res), nil
 }
 
-func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest, ctx context.Context) (*project.Project, error) {
+func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest, ctx context.Context) (*models.ProjectView, error) {
 	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -81,10 +91,10 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 	if err != nil {
 		return nil, err
 	}
-	return proj, nil
+	return convertProjectEntityToViewModel(proj), nil
 }
 
-func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest, ctx context.Context) (*project.Project, error) {
+func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest, ctx context.Context) (*models.ProjectView, error) {
 	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -103,10 +113,10 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 	if err != nil {
 		return nil, err
 	}
-	return proj, nil
+	return convertProjectEntityToViewModel(proj), nil
 }
 
-func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest, ctx context.Context) (*project.Project, error) {
+func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest, ctx context.Context) (*models.ProjectView, error) {
 	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -125,5 +135,32 @@ func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdatePro
 	if err != nil {
 		return nil, err
 	}
-	return proj, nil
+	return convertProjectEntityToViewModel(proj), nil
+}
+
+func convertProjectEntityToViewModel(src *project.Project) *models.ProjectView {
+	if src == nil {
+		return nil
+	}
+
+	platforms := make([]models.ProjectPlatform, len(src.Platforms))
+	for i := 0; i < len(src.Platforms); i++ {
+		platforms[i] = models.ProjectPlatform(src.Platforms[i])
+	}
+
+	design := make([]models.ProjectDesign, len(src.Designs))
+	for i := 0; i < len(src.Designs); i++ {
+		design[i] = models.ProjectDesign(src.Designs[i])
+	}
+	return &models.ProjectView{
+		Id:          src.Id,
+		Name:        src.Name,
+		Description: src.Description,
+		State:       src.State.String(),
+		StartDate:   src.StartDate,
+		EndDate:     src.EndDate,
+		Platforms:   platforms,
+		Designs:     design,
+		Tags:        src.Tags,
+	}
 }

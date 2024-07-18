@@ -50,11 +50,11 @@ type PlatformView struct {
 }
 
 type PlatformProject struct {
-	Id       string            `json:"id" bson:"id"`
-	Name     string            `json:"name" bson:"name"`
-	Url      string            `json:"url" bson:"url"`
-	Property map[string]string `json:"property" bson:"property"`
-	Webhooks []Webhook         `json:"webhooks" bson:"webhooks"`
+	Id       string            `json:"id"`
+	Name     string            `json:"name"`
+	Url      string            `json:"url"`
+	Property map[string]string `json:"property"`
+	Webhooks []Webhook         `json:"webhooks"`
 }
 
 type Webhook struct {

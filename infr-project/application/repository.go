@@ -12,6 +12,6 @@ type IRepository[Query models.IQuery] interface {
 }
 
 type IPlatformRepository interface {
-	IRepository[models.ResourceDetail]
-	GetResourceByName(ctx context.Context, name string) (*models.ResourceDetail, error)
+	IRepository[models.ResourceView]
+	GetResourceByName(ctx context.Context, name string) (*models.ResourceView, error)
 }

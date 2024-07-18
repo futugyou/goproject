@@ -367,7 +367,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/project.Project"
+                                "$ref": "#/definitions/viewmodels.ProjectView"
                             }
                         }
                     }
@@ -400,7 +400,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/project.Project"
+                            "$ref": "#/definitions/viewmodels.ProjectView"
                         }
                     }
                 }
@@ -432,7 +432,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/project.Project"
+                            "$ref": "#/definitions/viewmodels.ProjectView"
                         }
                     }
                 }
@@ -471,7 +471,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/project.Project"
+                            "$ref": "#/definitions/viewmodels.ProjectView"
                         }
                     }
                 }
@@ -515,7 +515,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/project.Project"
+                            "$ref": "#/definitions/viewmodels.ProjectView"
                         }
                     }
                 }
@@ -559,7 +559,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/project.Project"
+                            "$ref": "#/definitions/viewmodels.ProjectView"
                         }
                     }
                 }
@@ -584,7 +584,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.ResourceDetail"
+                                "$ref": "#/definitions/viewmodels.ResourceView"
                             }
                         }
                     }
@@ -617,7 +617,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resource.Resource"
+                            "$ref": "#/definitions/viewmodels.CreateResourceResponse"
                         }
                     }
                 }
@@ -649,7 +649,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ResourceDetail"
+                            "$ref": "#/definitions/viewmodels.ResourceView"
                         }
                     }
                 }
@@ -752,7 +752,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/resource.Resource"
+                                "$ref": "#/definitions/viewmodels.ResourceView"
                             }
                         }
                     }
@@ -1148,102 +1148,6 @@ const docTemplate = `{
                 }
             }
         },
-        "project.Project": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "designs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/project.ProjectDesign"
-                    }
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "platforms": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/project.ProjectPlatform"
-                    }
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "state": {},
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "project.ProjectDesign": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "resources": {
-                    "description": "ref resource.Resource",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "project.ProjectPlatform": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "project_id": {
-                    "description": "ref platform.PlatformProject",
-                    "type": "string"
-                }
-            }
-        },
-        "resource.Resource": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "string"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type": {},
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
         "secret_service.OpenAppSecretOK": {
             "type": "object",
             "properties": {
@@ -1361,6 +1265,14 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.CreateResourceResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.PlatformProject": {
             "type": "object",
             "properties": {
@@ -1428,6 +1340,78 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.ProjectDesign": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "resources": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "viewmodels.ProjectPlatform": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "viewmodels.ProjectView": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "designs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.ProjectDesign"
+                    }
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "platforms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.ProjectPlatform"
+                    }
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "viewmodels.PropertyInfo": {
             "type": "object",
             "properties": {
@@ -1442,7 +1426,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.ResourceDetail": {
+        "viewmodels.ResourceView": {
             "type": "object",
             "properties": {
                 "created_at": {
