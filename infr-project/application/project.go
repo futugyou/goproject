@@ -127,3 +127,30 @@ func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdatePro
 	}
 	return proj, nil
 }
+
+func convertProjectEntityToViewModel(src *project.Project) *models.ProjectView {
+	if src == nil {
+		return nil
+	}
+
+	platforms := make([]models.ProjectPlatform, len(src.Platforms))
+	for i := 0; i < len(src.Platforms); i++ {
+		platforms[i] = models.ProjectPlatform(src.Platforms[i])
+	}
+
+	design := make([]models.ProjectDesign, len(src.Designs))
+	for i := 0; i < len(src.Designs); i++ {
+		design[i] = models.ProjectDesign(src.Designs[i])
+	}
+	return &models.ProjectView{
+		Id:          src.Id,
+		Name:        src.Name,
+		Description: src.Description,
+		State:       src.State.String(),
+		StartDate:   src.StartDate,
+		EndDate:     src.EndDate,
+		Platforms:   platforms,
+		Designs:     design,
+		Tags:        src.Tags,
+	}
+}
