@@ -11,16 +11,16 @@ import (
 )
 
 type ResourceQueryRepository struct {
-	BaseQueryRepository[models.ResourceDetail]
+	BaseQueryRepository[models.ResourceView]
 }
 
 func NewResourceQueryRepository(client *mongo.Client, config QueryDBConfig) *ResourceQueryRepository {
 	return &ResourceQueryRepository{
-		BaseQueryRepository: *NewBaseQueryRepository[models.ResourceDetail](client, config),
+		BaseQueryRepository: *NewBaseQueryRepository[models.ResourceView](client, config),
 	}
 }
 
-func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*models.ResourceDetail, error) {
+func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*models.ResourceView, error) {
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
 	ent, err := r.BaseQueryRepository.GetWithCondition(ctx, condition)
 	if err != nil {
