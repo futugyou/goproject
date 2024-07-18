@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/futugyou/infr-project/controller"
-	_ "github.com/futugyou/infr-project/resource"
 	_ "github.com/futugyou/infr-project/view_models"
 )
 
@@ -24,7 +23,7 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodels.UpdateProjectDesignRequest true "Request body"
-// @Success 200 {object} project.Project
+// @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -38,7 +37,7 @@ func updateProjectDesign(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodels.UpdateProjectPlatformRequest true "Request body"
-// @Success 200 {object} project.Project
+// @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id}/platform [put]
 func updateProjectPlatform(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -52,7 +51,7 @@ func updateProjectPlatform(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body viewmodels.UpdateProjectRequest true "Request body"
-// @Success 200 {object} project.Project
+// @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id} [put]
 func updateProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -65,7 +64,7 @@ func updateProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreateProjectRequest true "Request body"
-// @Success 200 {object} project.Project
+// @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project [post]
 func createProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -77,7 +76,7 @@ func createProject(c *gin.Context) {
 // @Tags Project
 // @Accept json
 // @Produce json
-// @Success 200 {array} project.Project
+// @Success 200 {array} viewmodels.ProjectView
 // @Router /v1/project [get]
 func getAllProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -90,7 +89,7 @@ func getAllProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Project ID"
-// @Success 200 {object} project.Project
+// @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id} [get]
 func getProject(c *gin.Context) {
 	ctrl := controller.NewController()

@@ -116,52 +116,6 @@ definitions:
           Format: date-time
         type: string
     type: object
-  project.Project:
-    properties:
-      description:
-        type: string
-      designs:
-        items:
-          $ref: '#/definitions/project.ProjectDesign'
-        type: array
-      end_date:
-        type: string
-      name:
-        type: string
-      platforms:
-        items:
-          $ref: '#/definitions/project.ProjectPlatform'
-        type: array
-      start_date:
-        type: string
-      state: {}
-      tags:
-        items:
-          type: string
-        type: array
-    type: object
-  project.ProjectDesign:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      resources:
-        description: ref resource.Resource
-        items:
-          type: string
-        type: array
-    type: object
-  project.ProjectPlatform:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      project_id:
-        description: ref platform.PlatformProject
-        type: string
-    type: object
   resource.Resource:
     properties:
       created_at:
@@ -307,6 +261,53 @@ definitions:
         type: array
       url:
         type: string
+    type: object
+  viewmodels.ProjectDesign:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      resources:
+        items:
+          type: string
+        type: array
+    type: object
+  viewmodels.ProjectPlatform:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      project_id:
+        type: string
+    type: object
+  viewmodels.ProjectView:
+    properties:
+      description:
+        type: string
+      designs:
+        items:
+          $ref: '#/definitions/viewmodels.ProjectDesign'
+        type: array
+      end_date:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      platforms:
+        items:
+          $ref: '#/definitions/viewmodels.ProjectPlatform'
+        type: array
+      start_date:
+        type: string
+      state:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
     type: object
   viewmodels.PropertyInfo:
     properties:
@@ -739,7 +740,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/project.Project'
+              $ref: '#/definitions/viewmodels.ProjectView'
             type: array
       summary: get all project
       tags:
@@ -761,7 +762,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/project.Project'
+            $ref: '#/definitions/viewmodels.ProjectView'
       summary: create project
       tags:
       - Project
@@ -782,7 +783,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/project.Project'
+            $ref: '#/definitions/viewmodels.ProjectView'
       summary: get project
       tags:
       - Project
@@ -808,7 +809,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/project.Project'
+            $ref: '#/definitions/viewmodels.ProjectView'
       summary: update project
       tags:
       - Project
@@ -837,7 +838,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/project.Project'
+            $ref: '#/definitions/viewmodels.ProjectView'
       summary: update project design
       tags:
       - Project
@@ -866,7 +867,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/project.Project'
+            $ref: '#/definitions/viewmodels.ProjectView'
       summary: update project platform
       tags:
       - Project
