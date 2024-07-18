@@ -116,24 +116,6 @@ definitions:
           Format: date-time
         type: string
     type: object
-  resource.Resource:
-    properties:
-      created_at:
-        type: string
-      data:
-        type: string
-      is_deleted:
-        type: boolean
-      name:
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      type: {}
-      updated_at:
-        type: string
-    type: object
   secret_service.OpenAppSecretOK:
     properties:
       payload:
@@ -217,6 +199,11 @@ definitions:
     required:
     - data
     - name
+    type: object
+  viewmodels.CreateResourceResponse:
+    properties:
+      id:
+        type: string
     type: object
   viewmodels.PlatformProject:
     properties:
@@ -318,7 +305,7 @@ definitions:
       value:
         type: string
     type: object
-  viewmodels.ResourceDetail:
+  viewmodels.ResourceView:
     properties:
       created_at:
         type: string
@@ -883,7 +870,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/viewmodels.ResourceDetail'
+              $ref: '#/definitions/viewmodels.ResourceView'
             type: array
       summary: get all resources
       tags:
@@ -905,7 +892,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/resource.Resource'
+            $ref: '#/definitions/viewmodels.CreateResourceResponse'
       summary: create resource
       tags:
       - Resource
@@ -946,7 +933,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.ResourceDetail'
+            $ref: '#/definitions/viewmodels.ResourceView'
       summary: get resource
       tags:
       - Resource
@@ -994,7 +981,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/resource.Resource'
+              $ref: '#/definitions/viewmodels.ResourceView'
             type: array
       summary: get resource history
       tags:

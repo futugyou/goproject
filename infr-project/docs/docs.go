@@ -584,7 +584,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.ResourceDetail"
+                                "$ref": "#/definitions/viewmodels.ResourceView"
                             }
                         }
                     }
@@ -617,7 +617,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resource.Resource"
+                            "$ref": "#/definitions/viewmodels.CreateResourceResponse"
                         }
                     }
                 }
@@ -649,7 +649,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ResourceDetail"
+                            "$ref": "#/definitions/viewmodels.ResourceView"
                         }
                     }
                 }
@@ -752,7 +752,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/resource.Resource"
+                                "$ref": "#/definitions/viewmodels.ResourceView"
                             }
                         }
                     }
@@ -1148,33 +1148,6 @@ const docTemplate = `{
                 }
             }
         },
-        "resource.Resource": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "string"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type": {},
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
         "secret_service.OpenAppSecretOK": {
             "type": "object",
             "properties": {
@@ -1289,6 +1262,14 @@ const docTemplate = `{
                         "Excalidraw",
                         "Plate"
                     ]
+                }
+            }
+        },
+        "viewmodels.CreateResourceResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
                 }
             }
         },
@@ -1445,7 +1426,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.ResourceDetail": {
+        "viewmodels.ResourceView": {
             "type": "object",
             "properties": {
                 "created_at": {
