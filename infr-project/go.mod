@@ -12,7 +12,6 @@ require (
 	github.com/go-playground/validator/v10 v10.21.0
 	github.com/google/go-github/v61 v61.0.0
 	github.com/google/uuid v1.6.0
-	github.com/google/wire v0.6.0
 	github.com/hashicorp/go-slug v0.15.0
 	github.com/hashicorp/go-tfe v1.53.0
 	github.com/hashicorp/hcp-sdk-go v0.94.0

@@ -173,16 +173,6 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx con
 	return s.eventStore.Save(ctx, events)
 }
 
-// Deprecated: TakeSnapshot is deprecated. it is not necessary to use it alone, may be use SaveSnapshotAndEvent is a good idea.
-func (es *ApplicationService[Event, EventSourcing]) TakeSnapshot(aggregate EventSourcing, ctx context.Context) error {
-	// aggregate is created with version 1
-	// The current storage snapshot logic starts from the first version and is saved every 5 versions.
-	if aggregate.AggregateVersion()%5 != 1 {
-		return nil
-	}
-	return es.snapshotStore.SaveSnapshot(ctx, aggregate)
-}
-
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string, ctx context.Context) (*EventSourcing, error) {
 	// datas, err := es.snapshotStore.LoadSnapshot(ctx, id)
 	// if err != nil {
