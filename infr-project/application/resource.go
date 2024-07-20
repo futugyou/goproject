@@ -17,7 +17,7 @@ import (
 type ResourceService struct {
 	service    *ApplicationService[resource.IResourceEvent, *resource.Resource]
 	unitOfWork domain.IUnitOfWork
-	queryRepo  IPlatformRepository
+	queryRepo  IResourceViewRepository
 }
 
 func needStoreSnapshot(aggregate *resource.Resource) bool {
@@ -28,7 +28,7 @@ func NewResourceService(
 	eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
-	queryRepo IPlatformRepository,
+	queryRepo IResourceViewRepository,
 ) *ResourceService {
 	return &ResourceService{
 		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot),

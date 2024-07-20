@@ -7,10 +7,10 @@ import (
 )
 
 type ResourceQueryService struct {
-	repository IPlatformRepository
+	repository IResourceViewRepository
 }
 
-func NewResourceQueryService(repository IPlatformRepository) *ResourceQueryService {
+func NewResourceQueryService(repository IResourceViewRepository) *ResourceQueryService {
 	return &ResourceQueryService{
 		repository: repository,
 	}

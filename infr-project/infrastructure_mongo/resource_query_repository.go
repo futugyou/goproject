@@ -31,3 +31,28 @@ func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name st
 	}
 	return &ent[0], nil
 }
+
+func (r *ResourceQueryRepository) GetResourceByNameAsync(ctx context.Context, name string) (<-chan *models.ResourceView, <-chan error) {
+	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+
+	resultChan := make(chan *models.ResourceView, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := r.BaseQueryRepository.GetWithCondition(ctx, condition)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		if len(result) == 0 {
+			errorChan <- fmt.Errorf("%s with name %s", extensions.Data_Not_Found_Message, name)
+			return
+		}
+		resultChan <- (&result[0])
+	}()
+
+	return resultChan, errorChan
+}

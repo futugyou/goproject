@@ -99,3 +99,60 @@ func (s *BaseQueryRepository[Query]) GetWithCondition(ctx context.Context, condi
 
 	return querys, nil
 }
+
+func (s *BaseQueryRepository[Query]) GetAsync(ctx context.Context, id string) (<-chan *Query, <-chan error) {
+	resultChan := make(chan *Query, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.Get(ctx, id)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *BaseQueryRepository[Query]) GetAllAsync(ctx context.Context) (<-chan []Query, <-chan error) {
+	resultChan := make(chan []Query, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.GetAll(ctx)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *BaseQueryRepository[Query]) GetWithConditionAsync(ctx context.Context, condition *extensions.Search) (<-chan []Query, <-chan error) {
+	resultChan := make(chan []Query, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.GetWithCondition(ctx, condition)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
