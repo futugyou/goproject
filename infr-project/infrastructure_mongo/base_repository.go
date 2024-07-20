@@ -127,5 +127,94 @@ func (s *BaseRepository[Aggregate]) GetWithCondition(ctx context.Context, condit
 	}
 
 	return result, nil
+}
 
+func (s *BaseRepository[Aggregate]) GetAsync(ctx context.Context, id string) (<-chan *Aggregate, <-chan error) {
+	resultChan := make(chan *Aggregate, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.Get(ctx, id)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *BaseRepository[Aggregate]) DeleteAsync(ctx context.Context, id string) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := s.Delete(ctx, id)
+		errorChan <- err
+	}()
+
+	return errorChan
+}
+
+func (s *BaseRepository[Aggregate]) SoftDeleteAsync(ctx context.Context, id string) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := s.SoftDelete(ctx, id)
+		errorChan <- err
+	}()
+
+	return errorChan
+}
+
+func (s *BaseRepository[Aggregate]) InsertAsync(ctx context.Context, aggregate Aggregate) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := s.Insert(ctx, aggregate)
+		errorChan <- err
+	}()
+
+	return errorChan
+}
+
+func (s *BaseRepository[Aggregate]) UpdateAsync(ctx context.Context, aggregate Aggregate) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := s.Update(ctx, aggregate)
+		errorChan <- err
+	}()
+
+	return errorChan
+}
+
+func (s *BaseRepository[Aggregate]) GetWithConditionAsync(ctx context.Context, condition *extensions.Search) (<-chan []Aggregate, <-chan error) {
+	resultChan := make(chan []Aggregate, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.GetWithCondition(ctx, condition)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
 }

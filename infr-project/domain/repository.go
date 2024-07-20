@@ -11,3 +11,11 @@ type IRepository[Aggregate IAggregateRoot] interface {
 	Update(ctx context.Context, aggregate Aggregate) error
 	Insert(ctx context.Context, aggregate Aggregate) error
 }
+
+type IRepositoryAsync[Aggregate IAggregateRoot] interface {
+	GetAsync(ctx context.Context, id string) (<-chan *Aggregate, <-chan error)
+	DeleteAsync(ctx context.Context, id string) <-chan error
+	SoftDeleteAsync(ctx context.Context, id string) <-chan error
+	UpdateAsync(ctx context.Context, aggregate Aggregate) <-chan error
+	InsertAsync(ctx context.Context, aggregate Aggregate) <-chan error
+}
