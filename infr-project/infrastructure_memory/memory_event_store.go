@@ -49,3 +49,54 @@ func (s *MemoryEventStore[Event]) Save(ctx context.Context, events []Event) erro
 	}
 	return nil
 }
+
+func (s *MemoryEventStore[Event]) LoadGreaterthanVersionAsync(ctx context.Context, id string, version int) (<-chan []Event, <-chan error) {
+	resultChan := make(chan []Event, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.LoadGreaterthanVersion(ctx, id, version)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *MemoryEventStore[Event]) LoadAsync(ctx context.Context, id string) (<-chan []Event, <-chan error) {
+	resultChan := make(chan []Event, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.Load(ctx, id)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *MemoryEventStore[Event]) SaveAsync(ctx context.Context, events []Event) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := s.Save(ctx, events)
+		errorChan <- err
+	}()
+
+	return errorChan
+}

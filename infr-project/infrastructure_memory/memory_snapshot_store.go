@@ -26,15 +26,6 @@ func (s *MemorySnapshotStore[EventSourcing]) LoadSnapshot(ctx context.Context, i
 	return datas, nil
 }
 
-// func (s *MemorySnapshotStore[EventSourcing]) LoadLatestSnapshot(id string) (*EventSourcing, error) {
-// 	datas, ok := s.storage[id]
-// 	if !ok || len(datas) == 0 {
-// 		return nil, fmt.Errorf("no data for %s", id)
-// 	}
-
-// 	return &datas[len(datas)-1], nil
-// }
-
 func (s *MemorySnapshotStore[EventSourcing]) SaveSnapshot(ctx context.Context, aggregate EventSourcing) error {
 	s.storage[aggregate.AggregateId()] = append(s.storage[aggregate.AggregateId()], aggregate)
 	return nil
