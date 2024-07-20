@@ -42,16 +42,19 @@ func (r *ResourceQueryRepository) GetResourceByNameAsync(ctx context.Context, na
 		defer close(resultChan)
 		defer close(errorChan)
 
-		result, err := r.BaseQueryRepository.GetWithCondition(ctx, condition)
-		if err != nil {
-			errorChan <- err
-			return
+		result, err := r.BaseQueryRepository.GetWithConditionAsync(ctx, condition)
+		select {
+		case datas := <-result:
+			if len(datas) == 0 {
+				errorChan <- fmt.Errorf("%s with name %s", extensions.Data_Not_Found_Message, name)
+			} else {
+				resultChan <- (&datas[0])
+			}
+		case errM := <-err:
+			errorChan <- errM
+		case <-ctx.Done():
+			errorChan <- fmt.Errorf("GetResourceByNameAsync timeout, name %s", name)
 		}
-		if len(result) == 0 {
-			errorChan <- fmt.Errorf("%s with name %s", extensions.Data_Not_Found_Message, name)
-			return
-		}
-		resultChan <- (&result[0])
 	}()
 
 	return resultChan, errorChan
