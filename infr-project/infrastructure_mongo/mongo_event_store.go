@@ -118,3 +118,60 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) (err 
 
 	return err
 }
+
+func (s *MongoEventStore[Event]) LoadAsync(ctx context.Context, id string) (<-chan []Event, <-chan error) {
+	filter := bson.D{{Key: "id", Value: id}}
+	resultChan := make(chan []Event, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.load(ctx, filter)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *MongoEventStore[Event]) LoadGreaterthanVersionAsync(ctx context.Context, id string, version int) (<-chan []Event, <-chan error) {
+	filter := bson.D{
+		{Key: "id", Value: id},
+		{Key: "version", Value: bson.D{
+			{Key: "$gt", Value: version},
+		}},
+	}
+	resultChan := make(chan []Event, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.load(ctx, filter)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (s *MongoEventStore[Event]) SaveAsync(ctx context.Context, events []Event) (err <-chan error) {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		errorChan <- s.Save(ctx, events)
+	}()
+
+	return errorChan
+}
