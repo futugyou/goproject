@@ -11,3 +11,9 @@ type IProjectRepository interface {
 	GetProjectByName(ctx context.Context, name string) (*Project, error)
 	GetAllProject(ctx context.Context) ([]Project, error)
 }
+
+type IProjectRepositoryAsync interface {
+	domain.IRepositoryAsync[Project]
+	GetProjectByNameAsync(ctx context.Context, name string) (<-chan *Project, <-chan error)
+	GetAllProjectAsync(ctx context.Context) (<-chan []Project, <-chan error)
+}
