@@ -3,6 +3,7 @@ package infrastructure_mongo
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -46,4 +47,71 @@ func (u *MongoUnitOfWork) End(ctx context.Context) {
 	if u.ClientSession != nil {
 		u.ClientSession.EndSession(ctx)
 	}
+}
+
+func (u *MongoUnitOfWork) StartAsync(ctx context.Context) (<-chan context.Context, <-chan error) {
+	resultChan := make(chan context.Context, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := u.Start(ctx)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
+}
+
+func (u *MongoUnitOfWork) CommitAsync(ctx context.Context) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := u.Commit(ctx)
+		errorChan <- err
+	}()
+
+	return errorChan
+}
+
+func (u *MongoUnitOfWork) RollbackAsync(ctx context.Context) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+
+		err := u.Rollback(ctx)
+		errorChan <- err
+	}()
+
+	return errorChan
+}
+
+func (u *MongoUnitOfWork) EndAsync(ctx context.Context) <-chan error {
+	errChan := make(chan error, 1)
+
+	go func() {
+		defer close(errChan)
+
+		if u.ClientSession != nil {
+			// Handle any unexpected panics during EndSession call
+			defer func() {
+				if r := recover(); r != nil {
+					errChan <- fmt.Errorf("panic: %v", r)
+				}
+			}()
+
+			// Call EndSession asynchronously
+			u.ClientSession.EndSession(ctx)
+		}
+	}()
+
+	return errChan
 }

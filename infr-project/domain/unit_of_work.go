@@ -8,3 +8,10 @@ type IUnitOfWork interface {
 	Rollback(ctx context.Context) error
 	End(ctx context.Context)
 }
+
+type IUnitOfWorkAsync interface {
+	StartAsync(ctx context.Context) (<-chan context.Context, <-chan error)
+	CommitAsync(ctx context.Context) <-chan error
+	RollbackAsync(ctx context.Context) <-chan error
+	EndAsync(ctx context.Context) <-chan error
+}

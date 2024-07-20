@@ -22,3 +22,34 @@ func (u *MemoryUnitOfWork) Rollback(ctx context.Context) error {
 }
 
 func (u *MemoryUnitOfWork) End(ctx context.Context) {}
+
+func (u *MemoryUnitOfWork) StartAsync(ctx context.Context) (<-chan context.Context, <-chan error) {
+	ctxChan := make(chan context.Context, 1)
+	errChan := make(chan error, 1)
+	ctxChan <- ctx
+	close(ctxChan)
+	errChan <- nil
+	close(errChan)
+	return ctxChan, errChan
+}
+
+func (u *MemoryUnitOfWork) CommitAsync(ctx context.Context) <-chan error {
+	errChan := make(chan error, 1)
+	errChan <- nil
+	close(errChan)
+	return errChan
+}
+
+func (u *MemoryUnitOfWork) RollbackAsync(ctx context.Context) <-chan error {
+	errChan := make(chan error, 1)
+	errChan <- nil
+	close(errChan)
+	return errChan
+}
+
+func (u *MemoryUnitOfWork) EndAsync(ctx context.Context) <-chan error {
+	errChan := make(chan error, 1)
+	errChan <- nil
+	close(errChan)
+	return errChan
+}
