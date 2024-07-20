@@ -174,31 +174,16 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx con
 }
 
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string, ctx context.Context) (*EventSourcing, error) {
-	// datas, err := es.snapshotStore.LoadSnapshot(ctx, id)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// if len(datas) == 0 {
-	// 	return nil, fmt.Errorf("can not found snapshot with id: %s", id)
-	// }
-
-	// return &datas[len(datas)-1], nil
-
-	// try to use async
-	resultChan, errorChan := es.snapshotStore.LoadSnapshotAsync(ctx, id)
-	select {
-	case datas := <-resultChan:
-		if len(datas) == 0 {
-			return nil, fmt.Errorf("can not found snapshot with id: %s", id)
-		}
-
-		return &datas[len(datas)-1], nil
-	case err := <-errorChan:
+	datas, err := es.snapshotStore.LoadSnapshot(ctx, id)
+	if err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("LoadSnapshotAsync timeout with id: %s", id)
 	}
+
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("can not found snapshot with id: %s", id)
+	}
+
+	return &datas[len(datas)-1], nil
 }
 
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int, ctx context.Context) (*EventSourcing, error) {
