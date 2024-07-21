@@ -85,7 +85,7 @@ var swaggerToOpenapiSubCmd = &cobra.Command{
 	Short: "convert swagger spec to openapi spec",
 	Long:  "convert swagger spec to openapi spec",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := openapi.ConvertSwaggerToOpenapi(swaggerSpecPath); err != nil {
+		if err := openapi.ConvertSwaggerToOpenapi(swaggerSpecPath, openapiSpecOutPath); err != nil {
 			log.Println(err)
 		}
 	},
@@ -93,11 +93,14 @@ var swaggerToOpenapiSubCmd = &cobra.Command{
 
 var openapiConfigPath string
 var swaggerSpecPath string
+var openapiSpecOutPath string
 
 func init() {
 	// Priority: flags > .env
 	openapiCmd.AddCommand(openapiSubCmd)
-	openapiCmd.AddCommand(swaggerToOpenapiSubCmd)
 	openapiSubCmd.Flags().StringVarP(&openapiConfigPath, "config", "c", "./apiconfig.json", "openapi config file")
-	swaggerToOpenapiSubCmd.Flags().StringVarP(&swaggerSpecPath, "file", "f", "", "swagger")
+
+	openapiCmd.AddCommand(swaggerToOpenapiSubCmd)
+	swaggerToOpenapiSubCmd.Flags().StringVarP(&swaggerSpecPath, "file", "f", "./swagger.yaml", "swagger spec file path")
+	swaggerToOpenapiSubCmd.Flags().StringVarP(&openapiSpecOutPath, "output", "o", "./openapi.yaml", "openapi spec file output path")
 }

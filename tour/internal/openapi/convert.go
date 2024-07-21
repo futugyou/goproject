@@ -1,15 +1,17 @@
 package openapi
 
 import (
-	"fmt"
+	"encoding/json"
 	"os"
+	"strings"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 	"github.com/swaggest/openapi-go/openapi31"
+	"gopkg.in/yaml.v3"
 )
 
-func ConvertSwaggerToOpenapi(path string) error {
+func ConvertSwaggerToOpenapi(path string, outpath string) error {
 	swaggerData, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -22,7 +24,16 @@ func ConvertSwaggerToOpenapi(path string) error {
 
 	swagger := doc.Spec()
 	openAPISpec := convertSwaggerToOpenAPI(swagger)
-	fmt.Printf("%+v\n", openAPISpec)
+
+	if strings.HasSuffix(outpath, ".yaml") {
+		err = saveAsYAML(openAPISpec, outpath)
+	}
+	if strings.HasSuffix(outpath, ".json") {
+		err = saveAsJSON(openAPISpec, outpath)
+	}
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -64,4 +75,20 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 		Deprecated:  &op.Deprecated,
 		// TODO: fill all
 	}
+}
+
+func saveAsJSON(openAPISpec *openapi31.Spec, filename string) error {
+	data, err := json.MarshalIndent(openAPISpec, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filename, data, 0644)
+}
+
+func saveAsYAML(openAPISpec *openapi31.Spec, filename string) error {
+	data, err := yaml.Marshal(openAPISpec)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filename, data, 0644)
 }
