@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"github/go-project/tour/internal/openapi"
 	"github/go-project/tour/util"
 	"log"
@@ -80,10 +81,27 @@ var openapiSubCmd = &cobra.Command{
 	},
 }
 
+var swaggerToOpenapiSubCmd = &cobra.Command{
+	Use:   "swag2openapi",
+	Short: "convert swagger spec to openapi spec",
+	Long:  "convert swagger spec to openapi spec",
+	Run: func(cmd *cobra.Command, args []string) {
+		datas, err := os.ReadFile(swaggerSpecPath)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Println(string(datas))
+	},
+}
+
 var openapiConfigPath string
+var swaggerSpecPath string
 
 func init() {
 	// Priority: flags > .env
 	openapiCmd.AddCommand(openapiSubCmd)
+	openapiCmd.AddCommand(swaggerToOpenapiSubCmd)
 	openapiSubCmd.Flags().StringVarP(&openapiConfigPath, "config", "c", "./apiconfig.json", "openapi config file")
+	swaggerToOpenapiSubCmd.Flags().StringVarP(&swaggerSpecPath, "file", "f", "", "swagger")
 }
