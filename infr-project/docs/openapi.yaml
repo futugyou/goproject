@@ -1,0 +1,1124 @@
+openapi: 3.0.1
+info:
+  title: s
+  contact: {}
+  version: "1.0"
+servers:
+- url: /
+paths:
+  /v1/platform:
+    get:
+      tags:
+      - Platform
+      summary: get all platform
+      description: get all platform
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/viewmodels.PlatformView'
+    post:
+      tags:
+      - Platform
+      summary: create platform
+      description: create platform
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.CreatePlatformRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+      x-codegen-request-body-name: request
+  /v1/platform/{id}:
+    get:
+      tags:
+      - Platform
+      summary: get platform
+      description: get platform
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+    put:
+      tags:
+      - Platform
+      summary: update platform
+      description: update platform
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.UpdatePlatformRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+      x-codegen-request-body-name: request
+    delete:
+      tags:
+      - Platform
+      summary: delete platform
+      description: delete platform
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+  /v1/platform/{id}/project:
+    post:
+      tags:
+      - Platform
+      summary: create platform webhook
+      description: create platform webhook
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.UpdatePlatformProjectRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+      x-codegen-request-body-name: request
+  /v1/platform/{id}/project/{project_id}:
+    put:
+      tags:
+      - Platform
+      summary: update platform project
+      description: update platform project
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      - name: project_id
+        in: path
+        description: Platform Project ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.UpdatePlatformProjectRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+      x-codegen-request-body-name: request
+    delete:
+      tags:
+      - Platform
+      summary: delete platform project
+      description: delete platform project
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      - name: project_id
+        in: path
+        description: Platform Project ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+  /v1/platform/{id}/project/{project_id}/hook:
+    put:
+      tags:
+      - Platform
+      summary: update platform webhook
+      description: update platform webhook
+      parameters:
+      - name: id
+        in: path
+        description: Platform ID
+        required: true
+        schema:
+          type: string
+      - name: project_id
+        in: path
+        description: Platform Project ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.UpdatePlatformWebhookRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.PlatformView'
+      x-codegen-request-body-name: request
+  /v1/project:
+    get:
+      tags:
+      - Project
+      summary: get all project
+      description: get all project
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/viewmodels.ProjectView'
+    post:
+      tags:
+      - Project
+      summary: create project
+      description: create project
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.CreateProjectRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.ProjectView'
+      x-codegen-request-body-name: request
+  /v1/project/{id}:
+    get:
+      tags:
+      - Project
+      summary: get project
+      description: get project
+      parameters:
+      - name: id
+        in: path
+        description: Project ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.ProjectView'
+    put:
+      tags:
+      - Project
+      summary: update project
+      description: update project
+      parameters:
+      - name: id
+        in: path
+        description: Project ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.UpdateProjectRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.ProjectView'
+      x-codegen-request-body-name: request
+  /v1/project/{id}/design:
+    put:
+      tags:
+      - Project
+      summary: update project design
+      description: update project design
+      parameters:
+      - name: id
+        in: path
+        description: Project ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/viewmodels.UpdateProjectDesignRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.ProjectView'
+      x-codegen-request-body-name: request
+  /v1/project/{id}/platform:
+    put:
+      tags:
+      - Project
+      summary: update project platform
+      description: update project platform
+      parameters:
+      - name: id
+        in: path
+        description: Project ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/viewmodels.UpdateProjectPlatformRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.ProjectView'
+      x-codegen-request-body-name: request
+  /v1/resource:
+    get:
+      tags:
+      - Resource
+      summary: get all resources
+      description: get all resources
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/viewmodels.ResourceView'
+    post:
+      tags:
+      - Resource
+      summary: create resource
+      description: create resource
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.CreateResourceRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.CreateResourceResponse'
+      x-codegen-request-body-name: request
+  /v1/resource/{id}:
+    get:
+      tags:
+      - Resource
+      summary: get resource
+      description: get resource
+      parameters:
+      - name: id
+        in: path
+        description: Resource ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/viewmodels.ResourceView'
+    put:
+      tags:
+      - Resource
+      summary: update resource
+      description: update resource
+      parameters:
+      - name: id
+        in: path
+        description: Resource ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/viewmodels.UpdateResourceRequest'
+        required: true
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: string
+      x-codegen-request-body-name: request
+    delete:
+      tags:
+      - Resource
+      summary: delete resource
+      description: delete resource
+      parameters:
+      - name: id
+        in: path
+        description: Resource ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: string
+  /v1/resource/{id}/history:
+    get:
+      tags:
+      - Resource
+      summary: get resource history
+      description: get resource history
+      parameters:
+      - name: id
+        in: path
+        description: Resource ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/viewmodels.ResourceView'
+  /v1/test/circleci:
+    get:
+      tags:
+      - Test
+      summary: circle CI
+      description: circle CI
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /v1/test/cqrstest:
+    get:
+      tags:
+      - Test
+      summary: cqrstest
+      description: cqrstest
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /v1/test/ping:
+    get:
+      tags:
+      - Test
+      summary: ping
+      description: ping
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /v1/test/tf:
+    get:
+      tags:
+      - Test
+      summary: terraform
+      description: terraform
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /v1/test/vault:
+    get:
+      tags:
+      - Test
+      summary: vault
+      description: vault
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/secret_service.OpenAppSecretOK'
+  /v1/test/vercel:
+    get:
+      tags:
+      - Test
+      summary: vercel
+      description: vercel
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /v1/test/workflow:
+    get:
+      tags:
+      - Test
+      summary: workflow
+      description: workflow
+      parameters:
+      - name: owner
+        in: query
+        description: github owner
+        required: true
+        schema:
+          type: string
+      - name: repo
+        in: query
+        description: github repository
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /v2/platform:
+    post:
+      tags:
+      - Platform v2
+      summary: create platform v2
+      description: create platform v2
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/command.CreatePlatformCommand'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content: {}
+      x-codegen-request-body-name: request
+components:
+  schemas:
+    command.CreatePlatformCommand:
+      required:
+      - name
+      - rest
+      - url
+      type: object
+      properties:
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        property:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/command.PropertyInfo'
+        rest:
+          maxLength: 50
+          minLength: 3
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        url:
+          maxLength: 50
+          minLength: 3
+          type: string
+    command.PropertyInfo:
+      type: object
+      properties:
+        key:
+          type: string
+        needMask:
+          type: boolean
+        value:
+          type: string
+    models.Secrets20230613OpenAppSecretResponse:
+      type: object
+      properties:
+        secret:
+          type: object
+          description: secret
+          allOf:
+          - $ref: '#/components/schemas/models.Secrets20230613OpenSecret'
+    models.Secrets20230613OpenSecret:
+      type: object
+      properties:
+        created_at:
+          type: string
+          description: |-
+            created at
+            Format: date-time
+        created_by:
+          type: object
+          description: created by
+          allOf:
+          - $ref: '#/components/schemas/models.Secrets20230613Principal'
+        latest_version:
+          type: string
+          description: latest version
+        name:
+          type: string
+          description: name
+        sync_status:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/models.Secrets20230613SyncStatus'
+          description: sync status
+        version:
+          type: object
+          description: version
+          allOf:
+          - $ref: '#/components/schemas/models.Secrets20230613OpenSecretVersion'
+    models.Secrets20230613OpenSecretVersion:
+      type: object
+      properties:
+        created_at:
+          type: string
+          description: |-
+            created at
+            Format: date-time
+        created_by:
+          type: object
+          description: created by
+          allOf:
+          - $ref: '#/components/schemas/models.Secrets20230613Principal'
+        type:
+          type: string
+          description: type
+        value:
+          type: string
+          description: value
+        version:
+          type: string
+          description: version
+    models.Secrets20230613Principal:
+      type: object
+      properties:
+        email:
+          type: string
+          description: email
+        name:
+          type: string
+          description: name
+        type:
+          type: string
+          description: type
+    models.Secrets20230613SyncStatus:
+      type: object
+      properties:
+        last_error_code:
+          type: string
+          description: last error code
+        status:
+          type: string
+          description: status
+        updated_at:
+          type: string
+          description: |-
+            updated at
+            Format: date-time
+    secret_service.OpenAppSecretOK:
+      type: object
+      properties:
+        payload:
+          $ref: '#/components/schemas/models.Secrets20230613OpenAppSecretResponse'
+    viewmodels.CreatePlatformRequest:
+      required:
+      - name
+      - rest
+      - url
+      type: object
+      properties:
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        property:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.PropertyInfo'
+        rest:
+          maxLength: 50
+          minLength: 3
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        url:
+          maxLength: 150
+          minLength: 3
+          type: string
+    viewmodels.CreateProjectRequest:
+      required:
+      - description
+      - name
+      type: object
+      properties:
+        description:
+          maxLength: 500
+          minLength: 3
+          type: string
+        end_time:
+          type: string
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        start_time:
+          type: string
+        state:
+          type: string
+          enum:
+          - preparing
+          - processing
+          - finished
+        tags:
+          type: array
+          items:
+            type: string
+    viewmodels.CreateResourceRequest:
+      required:
+      - data
+      - name
+      type: object
+      properties:
+        data:
+          minLength: 3
+          type: string
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          enum:
+          - DrawIO
+          - Markdown
+          - Excalidraw
+          - Plate
+    viewmodels.CreateResourceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+    viewmodels.PlatformProject:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        property:
+          type: object
+          additionalProperties:
+            type: string
+        url:
+          type: string
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.Webhook'
+    viewmodels.PlatformView:
+      type: object
+      properties:
+        activate:
+          type: boolean
+        id:
+          type: string
+        is_deleted:
+          type: boolean
+        name:
+          type: string
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.PlatformProject'
+        property:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.PropertyInfo'
+        rest_endpoint:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        url:
+          type: string
+    viewmodels.ProjectDesign:
+      type: object
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        resources:
+          type: array
+          items:
+            type: string
+    viewmodels.ProjectPlatform:
+      type: object
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        project_id:
+          type: string
+    viewmodels.ProjectView:
+      type: object
+      properties:
+        description:
+          type: string
+        designs:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.ProjectDesign'
+        end_date:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        platforms:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.ProjectPlatform'
+        start_date:
+          type: string
+        state:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    viewmodels.PropertyInfo:
+      type: object
+      properties:
+        key:
+          type: string
+        needMask:
+          type: boolean
+        value:
+          type: string
+    viewmodels.ResourceView:
+      type: object
+      properties:
+        created_at:
+          type: string
+        data:
+          type: string
+        id:
+          type: string
+        is_deleted:
+          type: boolean
+        name:
+          type: string
+        type:
+          type: string
+        updated_at:
+          type: string
+        version:
+          type: integer
+    viewmodels.UpdatePlatformProjectRequest:
+      required:
+      - name
+      - url
+      type: object
+      properties:
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        property:
+          type: object
+          additionalProperties:
+            type: string
+        url:
+          maxLength: 150
+          minLength: 3
+          type: string
+    viewmodels.UpdatePlatformRequest:
+      required:
+      - name
+      - rest
+      - url
+      type: object
+      properties:
+        activate:
+          type: boolean
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        property:
+          type: array
+          items:
+            $ref: '#/components/schemas/viewmodels.PropertyInfo'
+        rest:
+          maxLength: 50
+          minLength: 3
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        url:
+          maxLength: 150
+          minLength: 3
+          type: string
+    viewmodels.UpdatePlatformWebhookRequest:
+      required:
+      - activate
+      - name
+      - url
+      type: object
+      properties:
+        activate:
+          type: boolean
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        property:
+          type: object
+          additionalProperties:
+            type: string
+        state:
+          type: string
+          enum:
+          - Init
+          - Creating
+          - Ready
+        url:
+          maxLength: 150
+          minLength: 3
+          type: string
+    viewmodels.UpdateProjectDesignRequest:
+      required:
+      - name
+      - resources
+      type: object
+      properties:
+        description:
+          maxLength: 500
+          minLength: 3
+          type: string
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        resources:
+          type: array
+          items:
+            type: string
+    viewmodels.UpdateProjectPlatformRequest:
+      required:
+      - name
+      - project_id
+      type: object
+      properties:
+        description:
+          maxLength: 500
+          minLength: 3
+          type: string
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        project_id:
+          maxLength: 50
+          minLength: 3
+          type: string
+    viewmodels.UpdateProjectRequest:
+      type: object
+      properties:
+        description:
+          maxLength: 500
+          minLength: 3
+          type: string
+        end_time:
+          type: string
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        start_time:
+          type: string
+        state:
+          type: string
+          enum:
+          - preparing
+          - processing
+          - finished
+        tags:
+          type: array
+          items:
+            type: string
+    viewmodels.UpdateResourceRequest:
+      required:
+      - data
+      - name
+      type: object
+      properties:
+        data:
+          minLength: 3
+          type: string
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    viewmodels.Webhook:
+      type: object
+      properties:
+        activate:
+          type: boolean
+        name:
+          type: string
+        property:
+          type: object
+          additionalProperties:
+            type: string
+        state:
+          type: string
+        url:
+          type: string
+x-original-swagger-version: "2.0"
