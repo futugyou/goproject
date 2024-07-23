@@ -1,6 +1,9 @@
 package api
 
 import (
+	"fmt"
+	"html"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"context"
@@ -38,7 +41,7 @@ func Fundamentals(w http.ResponseWriter, r *http.Request) {
 	case "income":
 		incomeData(config, w)
 	default:
-		w.Write([]byte("datatype " + datatype + " is not support"))
+		fmt.Fprintf(w, "datatype %q is not support", html.EscapeString(datatype))
 		w.WriteHeader(500)
 		return
 	}
