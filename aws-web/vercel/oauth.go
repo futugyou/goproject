@@ -2,6 +2,7 @@ package verceltool
 
 import (
 	"fmt"
+	"html"
 	"strings"
 
 	"net/http"
@@ -57,7 +58,7 @@ func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
 
 	err := awsenv.CfgWithProfile(account.AccessKeyId, account.SecretAccessKey)
 	if err != nil {
-		w.Write([]byte(fmt.Sprintf("The AWS SECRET associated with the account {%s} is incorrect.", accountId)))
+		fmt.Fprintf(w, "The AWS SECRET associated with the account {%q} is incorrect.", html.EscapeString(accountId))
 		w.WriteHeader(400)
 		return false
 	}
