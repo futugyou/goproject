@@ -29,7 +29,7 @@ type ConfigDeploymentSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of ConfigDeployment. Edit configdeployment_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	ConfigMap string `json:"configMap,omitempty"`
 }
 
 // ConfigDeploymentStatus defines the observed state of ConfigDeployment
