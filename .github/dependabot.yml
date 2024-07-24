@@ -5,6 +5,18 @@
 
 version: 2
 updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "04:00"
+  - package-ecosystem: "gomod"
+    directory: "/infr-project"
+    schedule:
+      interval: "daily"
+      time: "02:30"
+    ignore:
+      - dependency-name: "github.com/ThreeDotsLabs/watermill"
   - package-ecosystem: "gomod"
     directory: "/aws-web"
     schedule:
@@ -35,13 +47,6 @@ updates:
       interval: "daily"
       time: "02:00"
   - package-ecosystem: "gomod"
-    directory: "/infr-project"
-    schedule:
-      interval: "daily"
-      time: "02:30"
-    ignore:
-      - dependency-name: "github.com/ThreeDotsLabs/watermill"
-  - package-ecosystem: "gomod"
     directory: "/container"
     schedule:
       interval: "daily"
@@ -51,8 +56,8 @@ updates:
     schedule:
       interval: "daily"
       time: "03:30"
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: "gomod"
+    directory: "/k8sbuilder"
     schedule:
-      interval: "weekly"
-      time: "04:00"
+      interval: "daily"
+      time: "03:15"
