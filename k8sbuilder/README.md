@@ -79,21 +79,25 @@ make uninstall
 make undeploy
 ```
 
-# k8sbuilder
+## k8sbuilder
+
 // TODO(user): Add simple overview of use/purpose
 
 ## Description
+
 // TODO(user): An in-depth paragraph about your project and overview of use
 
 ## Getting Started
 
 ### Prerequisites
+
 - go version v1.22.0+
 - docker version 17.03+.
 - kubectl version v1.11.3+.
 - Access to a Kubernetes v1.11.3+ cluster.
 
 ### To Deploy on the cluster
+
 **Build and push your image to the location specified by `IMG`:**
 
 ```sh
@@ -129,6 +133,7 @@ kubectl apply -k config/samples/
 >**NOTE**: Ensure that the samples has default values to test it out.
 
 ### To Uninstall
+
 **Delete the instances (CRs) from the cluster:**
 
 ```sh
@@ -153,24 +158,25 @@ Following are the steps to build the installer and distribute this project to us
 
 1. Build the installer for the image built and published in the registry:
 
-```sh
-make build-installer IMG=<some-registry>/k8sbuilder:tag
-```
+    ```sh
+    make build-installer IMG=<some-registry>/k8sbuilder:tag
+    ```
 
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
+    NOTE: The makefile target mentioned above generates an 'install.yaml'
+    file in the dist directory. This file contains all the resources built
+    with Kustomize, which are necessary to install this project without
+    its dependencies.
 
 2. Using the installer
 
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
+    Users can just run kubectl apply -f 'URL for YAML BUNDLE' to install the project, i.e.:
 
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/k8sbuilder/<tag or branch>/dist/install.yaml
-```
+    ```sh
+    kubectl apply -f https://raw.githubusercontent.com/<org>/k8sbuilder/<tag or branch>/dist/install.yaml
+    ```
 
 ## Contributing
+
 // TODO(user): Add detailed information on how you would like others to contribute to this project
 
 **NOTE:** Run `make help` for more information on all potential `make` targets
@@ -185,11 +191,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ [LICENSE](http://www.apache.org/licenses/LICENSE-2.0)
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
