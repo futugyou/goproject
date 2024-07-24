@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ type WelcomeSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Name is an example field of Welcome. Edit welcome_types.go to remove/update
-	Name string `json:"name,omitempty"`
+	// Foo is an example field of Welcome. Edit welcome_types.go to remove/update
+	Foo string `json:"foo,omitempty"`
 }
 
 // WelcomeStatus defines the observed state of Welcome
@@ -38,8 +38,8 @@ type WelcomeStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // Welcome is the Schema for the welcomes API
 type Welcome struct {
@@ -50,7 +50,7 @@ type Welcome struct {
 	Status WelcomeStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // WelcomeList contains a list of Welcome
 type WelcomeList struct {

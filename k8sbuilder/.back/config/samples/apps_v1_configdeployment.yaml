@@ -1,0 +1,12 @@
+apiVersion: apps.vishel.io/v1
+kind: ConfigDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: configdeployment
+    app.kubernetes.io/instance: configdeployment-sample
+    app.kubernetes.io/part-of: k8sbuilder
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: k8sbuilder
+  name: configdeployment-sample
+spec:
+  # TODO(user): Add fields here

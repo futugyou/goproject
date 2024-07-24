@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,12 +21,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
-
-	kapps "k8s.io/api/apps/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	appsv1 "github.com/futugyousuzu/k8sbuilder/api/apps/v1"
@@ -38,12 +33,9 @@ type SimpleDeploymentReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=apps.vishel.io,resources=simpledeployments,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=apps.vishel.io,resources=simpledeployments/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=apps.vishel.io,resources=simpledeployments/finalizers,verbs=update
-
-//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get
+// +kubebuilder:rbac:groups=apps.vishel.io,resources=simpledeployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apps.vishel.io,resources=simpledeployments/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=apps.vishel.io,resources=simpledeployments/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -53,50 +45,18 @@ type SimpleDeploymentReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.18.4/pkg/reconcile
 func (r *SimpleDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
-	log.WithValues("simpleDeployment", req.NamespacedName)
+	_ = log.FromContext(ctx)
 
-	var simpleDeployment appsv1.SimpleDeployment
-	if err := r.Get(ctx, req.NamespacedName, &simpleDeployment); err != nil {
-		log.Error(err, "unable to fetch SimpleDeployment")
-		// we'll ignore not-found errors, since they can't be fixed by an immediate
-		// requeue (we'll need to wait for a new notification), and we can get them
-		// on deleted requests.
-		return ctrl.Result{}, client.IgnoreNotFound(err)
-	}
+	// TODO(user): your logic here
 
-	deployment := &kapps.Deployment{}
-
-	// Set the information you care about
-	var rep int32 = int32(*simpleDeployment.Spec.Replicas)
-	deployment.Spec.Replicas = &rep
-
-	if err := controllerutil.SetControllerReference(&simpleDeployment, deployment, r.Scheme); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	foundDeployment := &kapps.Deployment{}
-	err := r.Get(ctx, types.NamespacedName{Name: deployment.Name, Namespace: deployment.Namespace}, foundDeployment)
-	if err != nil && errors.IsNotFound(err) {
-		log.V(1).Info("Creating Deployment", "deployment", deployment.Name)
-		err = r.Create(ctx, deployment)
-	} else if err == nil {
-		if foundDeployment.Spec.Replicas != deployment.Spec.Replicas {
-			foundDeployment.Spec.Replicas = deployment.Spec.Replicas
-			log.V(1).Info("Updating Deployment", "deployment", deployment.Name)
-			err = r.Update(ctx, foundDeployment)
-		}
-	}
-
-	return ctrl.Result{}, err
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *SimpleDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&appsv1.SimpleDeployment{}).
-		Owns(&kapps.Deployment{}).
 		Complete(r)
 }

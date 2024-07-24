@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,38 +28,19 @@ type GuestbookSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Quantity of instances
-	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=10
-	Size int32 `json:"size"`
-
-	// Name of the ConfigMap for GuestbookSpec's configuration
-	// +kubebuilder:validation:MaxLength=15
-	// +kubebuilder:validation:MinLength=1
-	ConfigMapName string `json:"configMapName"`
-
-	// +kubebuilder:validation:Enum=Phone;Address;Name
-	Type string `json:"alias,omitempty"`
+	// Foo is an example field of Guestbook. Edit guestbook_types.go to remove/update
+	Foo string `json:"foo,omitempty"`
 }
 
 // GuestbookStatus defines the observed state of Guestbook
 type GuestbookStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	// PodName of the active Guestbook node.
-	Active string `json:"active"`
-
-	// PodNames of the standby Guestbook nodes.
-	Standby []string `json:"standby"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:scope=Cluster
-// +kubebuilder:printcolumn:name="size",type=integer,JSONPath=`.spec.size`,description="Quantity of instances"
-// +kubebuilder:printcolumn:name="configMapName",type=string,JSONPath=`.spec.configMapName`,description="Name of the ConfigMap for GuestbookSpec's configuration"
-// +kubebuilder:printcolumn:name="alias",type=string,JSONPath=`.spec.alias`
+
 // Guestbook is the Schema for the guestbooks API
 type Guestbook struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -69,7 +50,7 @@ type Guestbook struct {
 	Status GuestbookStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // GuestbookList contains a list of Guestbook
 type GuestbookList struct {

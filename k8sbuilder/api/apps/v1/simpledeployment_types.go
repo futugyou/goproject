@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,9 +28,8 @@ type SimpleDeploymentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// The number of replicas that the deployment should have
-	// +optional
-	Replicas *int32 `json:"replicas,omitempty"`
+	// Foo is an example field of SimpleDeployment. Edit simpledeployment_types.go to remove/update
+	Foo string `json:"foo,omitempty"`
 }
 
 // SimpleDeploymentStatus defines the observed state of SimpleDeployment
@@ -39,8 +38,8 @@ type SimpleDeploymentStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // SimpleDeployment is the Schema for the simpledeployments API
 type SimpleDeployment struct {
@@ -51,7 +50,7 @@ type SimpleDeployment struct {
 	Status SimpleDeploymentStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // SimpleDeploymentList contains a list of SimpleDeployment
 type SimpleDeploymentList struct {

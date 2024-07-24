@@ -2,11 +2,8 @@ apiVersion: webapp.vishel.io/v1
 kind: Welcome
 metadata:
   labels:
-    app.kubernetes.io/name: welcome
-    app.kubernetes.io/instance: welcome-sample
-    app.kubernetes.io/part-of: k8sbuilder
+    app.kubernetes.io/name: k8sbuilder
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: k8sbuilder
   name: welcome-sample
 spec:
   # TODO(user): Add fields here

@@ -2,14 +2,8 @@ apiVersion: webapp.vishel.io/v1
 kind: Guestbook
 metadata:
   labels:
-    app.kubernetes.io/name: guestbook
-    app.kubernetes.io/instance: guestbook-sample
-    app.kubernetes.io/part-of: k8sbuilder
+    app.kubernetes.io/name: k8sbuilder
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: k8sbuilder
   name: guestbook-sample
 spec:
   # TODO(user): Add fields here
-  size: 5
-  configMapName: check 
-  alias: Name

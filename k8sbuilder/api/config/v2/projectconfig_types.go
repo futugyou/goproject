@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,24 +18,47 @@ package v2
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	cfg "sigs.k8s.io/controller-runtime/pkg/config/v1alpha1"
 )
 
-// +kubebuilder:object:root=true
-// ProjectConfig is the Schema for the projectconfigs API
-type ProjectConfig struct {
-	metav1.TypeMeta `json:",inline"`
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-	// ControllerManagerConfigurationSpec returns the configurations for controllers
-	cfg.ControllerManagerConfigurationSpec `json:",inline"`
+// ProjectConfigSpec defines the desired state of ProjectConfig
+type ProjectConfigSpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
 
-	ClusterName string `json:"clusterName,omitempty"`
+	// Foo is an example field of ProjectConfig. Edit projectconfig_types.go to remove/update
+	Foo string `json:"foo,omitempty"`
 }
 
-/*
-If you haven't, you'll also need to remove the `ProjectConfigList` from the
-`SchemeBuilder.Register`.
-*/
+// ProjectConfigStatus defines the observed state of ProjectConfig
+type ProjectConfigStatus struct {
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+}
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+
+// ProjectConfig is the Schema for the projectconfigs API
+type ProjectConfig struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   ProjectConfigSpec   `json:"spec,omitempty"`
+	Status ProjectConfigStatus `json:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+
+// ProjectConfigList contains a list of ProjectConfig
+type ProjectConfigList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []ProjectConfig `json:"items"`
+}
+
 func init() {
-	SchemeBuilder.Register(&ProjectConfig{})
+	SchemeBuilder.Register(&ProjectConfig{}, &ProjectConfigList{})
 }

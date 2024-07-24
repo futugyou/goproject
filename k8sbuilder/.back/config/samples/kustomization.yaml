@@ -1,0 +1,10 @@
+## Append samples of your project ##
+resources:
+- webapp_v1_guestbook.yaml
+- batch_v1_cronjob.yaml
+- batch_v2_cronjob.yaml
+- config_v2_projectconfig.yaml
+- webapp_v1_welcome.yaml
+- apps_v1_simpledeployment.yaml
+- apps_v1_configdeployment.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,9 +28,8 @@ type ConfigDeploymentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Name of an existing ConfigMap in the same namespace, to add to the deployment
-	// +optional
-	ConfigMap string `json:"configMap,omitempty"`
+	// Foo is an example field of ConfigDeployment. Edit configdeployment_types.go to remove/update
+	Foo string `json:"foo,omitempty"`
 }
 
 // ConfigDeploymentStatus defines the observed state of ConfigDeployment
@@ -39,8 +38,8 @@ type ConfigDeploymentStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // ConfigDeployment is the Schema for the configdeployments API
 type ConfigDeployment struct {
@@ -51,7 +50,7 @@ type ConfigDeployment struct {
 	Status ConfigDeploymentStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // ConfigDeploymentList contains a list of ConfigDeployment
 type ConfigDeploymentList struct {
