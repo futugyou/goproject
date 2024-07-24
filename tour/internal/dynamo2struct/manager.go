@@ -1,6 +1,7 @@
 package dynamo2struct
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"sync"
@@ -8,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 
 	"github/go-project/tour/internal/common"
 )
@@ -82,7 +82,7 @@ func (m *Manager) concurrentGetTableColum(tables []string) []TableInfo {
 func (m *Manager) getAllTable() ([]string, error) {
 	input := dynamodb.ListTablesInput{}
 
-	output, err := m.DB.ListTables(awsenv.EmptyContext, &input)
+	output, err := m.DB.ListTables(context.Background(), &input)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -113,7 +113,7 @@ func (m *Manager) getTableColum(tableName string) (map[string]string, error) {
 		Limit:     aws.Int32(10),
 	}
 
-	output, err := m.DB.Scan(awsenv.EmptyContext, &input)
+	output, err := m.DB.Scan(context.Background(), &input)
 	if err != nil {
 		fmt.Println(err)
 		return result, err
