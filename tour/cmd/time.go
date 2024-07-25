@@ -11,9 +11,11 @@ import (
 )
 
 var timeCmd = &cobra.Command{
-	Use:   "time",
-	Short: "time format",
-	Long:  "time format",
+	Use:       "time",
+	Short:     "time format",
+	Long:      "time format",
+	ValidArgs: []string{"now", "calc"},
+	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {
 		// nowTime := timer.GetNowTime()
 		// log.Printf("output  %s,   %d", nowTime.Format("2006-01-02 15:04:05"), nowTime.Unix())

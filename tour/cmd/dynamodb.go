@@ -16,9 +16,11 @@ var dynamoLongDesc = strings.Join([]string{
 }, "\n")
 
 var dynamoCmd = &cobra.Command{
-	Use:   "dynamo",
-	Short: "dynamodb to golang struct and base repository",
-	Long:  dynamoLongDesc,
+	Use:       "dynamo",
+	Short:     "dynamodb to golang struct and base repository",
+	Long:      dynamoLongDesc,
+	ValidArgs: []string{"generate"},
+	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
 			log.Printf("dynamo have no commands named %s, plaese use dynamo --help to see detail", strings.Join(args, ","))

@@ -16,9 +16,11 @@ var mongoLongDesc = strings.Join([]string{
 }, "\n")
 
 var mongoCmd = &cobra.Command{
-	Use:   "mongo",
-	Short: "mongodb to golang struct and base repository",
-	Long:  mongoLongDesc,
+	Use:       "mongo",
+	Short:     "mongodb to golang struct and base repository",
+	Long:      mongoLongDesc,
+	ValidArgs: []string{"generate"},
+	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
 			log.Printf("mongo have no commands named %s, plaese use mongo --help to see detail", strings.Join(args, ","))

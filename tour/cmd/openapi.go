@@ -12,13 +12,12 @@ import (
 )
 
 var openapiCmd = &cobra.Command{
-	Use:   "openapi",
-	Short: "openapi generate",
-	Long:  "openapi generate",
+	Use:       "openapi",
+	Short:     "openapi generate",
+	Long:      "openapi generate",
+	ValidArgs: []string{"generate", "swag2openapi"},
+	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 0 {
-			log.Printf("openapi have no commands named %s, plaese use openapi --help to see detail", strings.Join(args, ","))
-		}
 	},
 }
 

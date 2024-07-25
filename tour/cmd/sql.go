@@ -8,10 +8,12 @@ import (
 )
 
 var sqlCmd = &cobra.Command{
-	Use:   "sql",
-	Short: "sql",
-	Long:  "sql",
-	Run:   func(cmd *cobra.Command, Args []string) {},
+	Use:       "sql",
+	Short:     "sql",
+	Long:      "sql",
+	ValidArgs: []string{"struct"},
+	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+	Run:       func(cmd *cobra.Command, Args []string) {},
 }
 
 var sql2structCmd = &cobra.Command{
