@@ -9,6 +9,8 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/swaggest/openapi-go/openapi31"
 	"gopkg.in/yaml.v3"
+
+	util "github.com/futugyou/extensions"
 )
 
 func ConvertSwaggerToOpenapi(path string, outpath string) error {
@@ -41,13 +43,19 @@ func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {
 	openAPI := &openapi31.Spec{
 		Openapi: "3.0.0",
 		Info: openapi31.Info{
-			Title:       swagger.Info.Title,
-			Description: &swagger.Info.Description,
-			Version:     swagger.Info.Version,
-		},
-		Paths: &openapi31.Paths{
-			MapOfPathItemValues: map[string]openapi31.PathItem{},
-			MapOfAnything:       map[string]interface{}{},
+			Title:          swagger.Info.Title,
+			Description:    &swagger.Info.Description,
+			TermsOfService: &swagger.Info.TermsOfService,
+			Contact: &openapi31.Contact{
+				Name:  util.GetStringFieldPointer(swagger, "Info", "Contact", "Name"),
+				URL:   util.GetStringFieldPointer(swagger, "Info", "Contact", "URL"),
+				Email: util.GetStringFieldPointer(swagger, "Info", "Contact", "Email"),
+			},
+			License: &openapi31.License{
+				Name: util.GetStringFieldStruct(swagger, "Info", "License", "Name"),
+				URL:  util.GetStringFieldPointer(swagger, "Info", "License", "URL"),
+			},
+			Version: swagger.Info.Version,
 		},
 	}
 
