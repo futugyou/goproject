@@ -1,13 +1,15 @@
 package cmd
 
 import (
-	"github/go-project/tour/internal/dynamo2struct"
-	"github/go-project/tour/util"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	util "github.com/futugyou/extensions"
+
+	"github/go-project/tour/internal/dynamo2struct"
 )
 
 var dynamoLongDesc = strings.Join([]string{
