@@ -23,8 +23,8 @@ github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.37.3 h1:pnvujeesw3tP0iDLK
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.37.3/go.mod h1:eJZGfJNuTmvBgiy2O5XIPlHMBi4GUYoJoKZ6U6wCVVk=
 github.com/aws/aws-sdk-go-v2/service/configservice v1.48.3 h1:Ir1tfXyCY3XE/ENEb0mRUBn6VoWb1w9SDKYFwO+otJI=
 github.com/aws/aws-sdk-go-v2/service/configservice v1.48.3/go.mod h1:Z4sA07QNZ7IWEix3oW3QeiIe21jaCTTOW8ftLgeWI3s=
-github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.3 h1:nEhZKd1JQ4EB1tekcqW1oIVpDC1ZFrjrp/cLC5MXjFQ=
-github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.3/go.mod h1:q9vzW3Xr1KEXa8n4waHiFt1PrppNDlMymlYP+xpsFbY=
+github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.4 h1:utG3S4T+X7nONPIpRoi1tVcQdAdJxntiVS2yolPJyXc=
+github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.4/go.mod h1:q9vzW3Xr1KEXa8n4waHiFt1PrppNDlMymlYP+xpsFbY=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.172.0 h1:lJjLKG92RyKIIYujVvulR3JpVjr3yxaU34nwXCq8K2o=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.172.0/go.mod h1:o6QDjdVKpP5EF0dp/VlvqckzuSDATr1rLdHt3A5m0YY=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.30.3 h1:+v2hv29pWaVDASIScHuUhDC93nqJGVlGf6cujrJMHZE=
