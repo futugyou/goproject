@@ -84,24 +84,30 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 	if op == nil {
 		return nil
 	}
+	description := util.GetStringFieldPointer(op, "ExternalDocs", "Description")
+	url := util.GetStringFieldStruct(op, "ExternalDocs", "URL")
+	var externalDocs *openapi31.ExternalDocumentation = nil
+	if (description != nil && len(*description) > 0) || (len(url) > 0) {
+		externalDocs = &openapi31.ExternalDocumentation{
+			Description: description,
+			URL:         url,
+		}
+	}
 	return &openapi31.Operation{
-		Tags:        op.Tags,
-		Summary:     &op.Summary,
-		Description: &op.Description,
-		ExternalDocs: &openapi31.ExternalDocumentation{
-			Description: util.GetStringFieldPointer(op, "ExternalDocs", "Description"),
-			URL:         util.GetStringFieldStruct(op, "ExternalDocs", "URL"),
-		},
-		ID:          &op.ID,
-		Parameters:  []openapi31.ParameterOrReference{},
-		RequestBody: &openapi31.RequestBodyOrReference{},
-		Responses:   convertResponses(op.Responses),
-		Deprecated:  &op.Deprecated,
-		Security:    op.Security,
+		Tags:         op.Tags,
+		Summary:      &op.Summary,
+		Description:  &op.Description,
+		ExternalDocs: externalDocs,
+		ID:           &op.ID,
+		Parameters:   []openapi31.ParameterOrReference{},
+		RequestBody:  &openapi31.RequestBodyOrReference{},
+		Responses:    convertResponses(op.Responses, op.Produces),
+		Deprecated:   &op.Deprecated,
+		Security:     op.Security,
 	}
 }
 
-func convertResponses(responses *spec.Responses) *openapi31.Responses {
+func convertResponses(responses *spec.Responses, produces []string) *openapi31.Responses {
 	if responses == nil {
 		return nil
 	}
@@ -112,7 +118,7 @@ func convertResponses(responses *spec.Responses) *openapi31.Responses {
 			Response: &openapi31.Response{
 				Description: v.Description,
 				Headers:     convertHeaders(v.Headers),
-				Content:     map[string]openapi31.MediaType{},
+				Content:     convertContent(produces, v.ResponseProps),
 				Links:       map[string]openapi31.LinkOrReference{},
 			},
 		}
@@ -121,6 +127,17 @@ func convertResponses(responses *spec.Responses) *openapi31.Responses {
 		MapOfResponseOrReferenceValues: maps,
 		MapOfAnything:                  responses.Extensions,
 	}
+}
+
+func convertContent(produces []string, responseProps spec.ResponseProps) map[string]openapi31.MediaType {
+	mediaTypes := make(map[string]openapi31.MediaType)
+	for _, v := range produces {
+		mediaTypes[v] = openapi31.MediaType{
+			Schema: map[string]interface{}{},
+		}
+	}
+
+	return mediaTypes
 }
 
 func convertHeaders(header map[string]spec.Header) map[string]openapi31.HeaderOrReference {
