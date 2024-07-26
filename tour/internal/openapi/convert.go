@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/go-openapi/loads"
@@ -60,6 +61,7 @@ func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {
 				URL: "/",
 			},
 		},
+		Security: swagger.Security,
 		Paths: &openapi31.Paths{
 			MapOfPathItemValues: map[string]openapi31.PathItem{},
 		},
@@ -86,9 +88,57 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 		Tags:        op.Tags,
 		Summary:     &op.Summary,
 		Description: &op.Description,
+		ExternalDocs: &openapi31.ExternalDocumentation{
+			Description: util.GetStringFieldPointer(op, "ExternalDocs", "Description"),
+			URL:         util.GetStringFieldStruct(op, "ExternalDocs", "URL"),
+		},
+		ID:          &op.ID,
+		Parameters:  []openapi31.ParameterOrReference{},
+		RequestBody: &openapi31.RequestBodyOrReference{},
+		Responses:   convertResponses(op.Responses),
 		Deprecated:  &op.Deprecated,
-		// TODO: fill all
+		Security:    op.Security,
 	}
+}
+
+func convertResponses(responses *spec.Responses) *openapi31.Responses {
+	if responses == nil {
+		return nil
+	}
+	maps := make(map[string]openapi31.ResponseOrReference)
+	for k, v := range responses.StatusCodeResponses {
+		key := strconv.Itoa(k)
+		maps[key] = openapi31.ResponseOrReference{
+			Response: &openapi31.Response{
+				Description: v.Description,
+				Headers:     convertHeaders(v.Headers),
+				Content:     map[string]openapi31.MediaType{},
+				Links:       map[string]openapi31.LinkOrReference{},
+			},
+		}
+	}
+	return &openapi31.Responses{
+		MapOfResponseOrReferenceValues: maps,
+		MapOfAnything:                  responses.Extensions,
+	}
+}
+
+func convertHeaders(header map[string]spec.Header) map[string]openapi31.HeaderOrReference {
+	headers := make(map[string]openapi31.HeaderOrReference)
+	for kk, vv := range header {
+		headers[kk] = openapi31.HeaderOrReference{
+			Reference: &openapi31.Reference{},
+			Header: &openapi31.Header{
+				Description:   &vv.Description,
+				Example:       &vv.Example,
+				MapOfAnything: vv.Extensions,
+				Schema: map[string]interface{}{
+					vv.SimpleSchema.CollectionFormat: vv.SimpleSchema,
+				},
+			},
+		}
+	}
+	return headers
 }
 
 func saveAsJSON(openAPISpec *openapi31.Spec, filename string) error {
