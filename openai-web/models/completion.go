@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/beego/beego/v2/adapter/validation"
+	"github.com/beego/beego/v2/core/validation"
 )
 
 type CompletionModel struct {
