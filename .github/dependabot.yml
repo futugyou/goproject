@@ -37,15 +37,15 @@ updates:
       interval: "daily"
       time: "02:00"
   - package-ecosystem: "gomod"
-    directory: "/openai-web"
-    schedule:
-      interval: "daily"
-      time: "01:00"
-  - package-ecosystem: "gomod"
     directory: "/tour"
     schedule:
       interval: "daily"
       time: "01:30"
+  - package-ecosystem: "gomod"
+    directory: "/openai-web"
+    schedule:
+      interval: "daily"
+      time: "01:00"
   - package-ecosystem: "gomod"
     directory: "/container"
     schedule:

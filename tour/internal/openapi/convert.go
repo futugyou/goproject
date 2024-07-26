@@ -1,14 +1,12 @@
 package openapi
 
 import (
-	"encoding/json"
 	"os"
 	"strings"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 	"github.com/swaggest/openapi-go/openapi31"
-	"gopkg.in/yaml.v3"
 
 	util "github.com/futugyou/extensions"
 )
@@ -57,6 +55,14 @@ func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {
 			},
 			Version: swagger.Info.Version,
 		},
+		Servers: []openapi31.Server{
+			{
+				URL: "/",
+			},
+		},
+		Paths: &openapi31.Paths{
+			MapOfPathItemValues: map[string]openapi31.PathItem{},
+		},
 	}
 
 	for path, pathItem := range swagger.Paths.Paths {
@@ -86,7 +92,7 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 }
 
 func saveAsJSON(openAPISpec *openapi31.Spec, filename string) error {
-	data, err := json.MarshalIndent(openAPISpec, "", "  ")
+	data, err := openAPISpec.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -94,7 +100,7 @@ func saveAsJSON(openAPISpec *openapi31.Spec, filename string) error {
 }
 
 func saveAsYAML(openAPISpec *openapi31.Spec, filename string) error {
-	data, err := yaml.Marshal(openAPISpec)
+	data, err := openAPISpec.MarshalYAML()
 	if err != nil {
 		return err
 	}
