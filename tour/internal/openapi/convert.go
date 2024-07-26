@@ -77,7 +77,33 @@ func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {
 		}
 	}
 
+	openAPI.Components = convertComponents(swagger.Definitions)
+
 	return openAPI
+}
+
+func convertComponents(defs spec.Definitions) *openapi31.Components {
+	coms := &openapi31.Components{
+		Schemas:         map[string]map[string]interface{}{},
+		Responses:       map[string]openapi31.ResponseOrReference{},
+		Parameters:      map[string]openapi31.ParameterOrReference{},
+		Examples:        map[string]openapi31.ExampleOrReference{},
+		RequestBodies:   map[string]openapi31.RequestBodyOrReference{},
+		Headers:         map[string]openapi31.HeaderOrReference{},
+		SecuritySchemes: map[string]openapi31.SecuritySchemeOrReference{},
+		Links:           map[string]openapi31.LinkOrReference{},
+		Callbacks:       map[string]openapi31.CallbacksOrReference{},
+		PathItems:       map[string]openapi31.PathItemOrReference{},
+	}
+
+	for k, v := range defs {
+		coms.Schemas[k] = make(map[string]interface{})
+		coms.Schemas[k]["required"] = v.Required
+		coms.Schemas[k]["type"] = v.Type
+		coms.Schemas[k]["properties"] = v.Properties
+	}
+
+	return coms
 }
 
 func convertOperation(op *spec.Operation) *openapi31.Operation {
@@ -139,7 +165,7 @@ func convertContent(produces []string, responseProps spec.ResponseProps) map[str
 		schema := make(map[string]interface{})
 		ref := responseProps.Schema.Ref.Ref.String()
 		if len(ref) > 0 {
-			schema["$ref"] = ref
+			schema["$ref"] = strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
 		} else {
 			schema["type"] = responseProps.Schema.Type
 			schema["items"] = responseProps.Schema.Items
