@@ -132,8 +132,21 @@ func convertResponses(responses *spec.Responses, produces []string) *openapi31.R
 func convertContent(produces []string, responseProps spec.ResponseProps) map[string]openapi31.MediaType {
 	mediaTypes := make(map[string]openapi31.MediaType)
 	for _, v := range produces {
+		if responseProps.Schema == nil {
+			continue
+		}
+
+		schema := make(map[string]interface{})
+		ref := responseProps.Schema.Ref.Ref.String()
+		if len(ref) > 0 {
+			schema["$ref"] = ref
+		} else {
+			schema["type"] = responseProps.Schema.Type
+			schema["items"] = responseProps.Schema.Items
+		}
+
 		mediaTypes[v] = openapi31.MediaType{
-			Schema: map[string]interface{}{},
+			Schema: schema,
 		}
 	}
 
