@@ -128,12 +128,36 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 		Description:  &op.Description,
 		ExternalDocs: externalDocs,
 		ID:           nil,
-		Parameters:   []openapi31.ParameterOrReference{},
+		Parameters:   convertParameter(op.Parameters),
 		RequestBody:  nil,
 		Responses:    convertResponses(op.Responses, op.Produces),
 		Deprecated:   &op.Deprecated,
 		Security:     op.Security,
 	}
+}
+
+func convertParameter(parameters []spec.Parameter) []openapi31.ParameterOrReference {
+	if len(parameters) == 0 {
+		return nil
+	}
+	result := make([]openapi31.ParameterOrReference, 0)
+	for _, parameter := range parameters {
+		if parameter.In == "body" {
+			continue
+		}
+		p := openapi31.ParameterOrReference{
+			Parameter: &openapi31.Parameter{
+				Name:        parameter.Name,
+				In:          openapi31.ParameterIn(parameter.In),
+				Description: &parameter.Description,
+				Required:    &parameter.Required,
+				Schema:      convertSchema(parameter.Schema),
+				Example:     &parameter.Example,
+			},
+		}
+		result = append(result, p)
+	}
+	return result
 }
 
 func convertResponses(responses *spec.Responses, produces []string) *openapi31.Responses {
@@ -165,21 +189,28 @@ func convertContent(produces []string, responseProps spec.ResponseProps) map[str
 			continue
 		}
 
-		schema := make(map[string]interface{})
-		ref := responseProps.Schema.Ref.Ref.String()
-		if len(ref) > 0 {
-			schema["$ref"] = strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
-		} else {
-			schema["type"] = responseProps.Schema.Type
-			schema["items"] = responseProps.Schema.Items
-		}
-
 		mediaTypes[v] = openapi31.MediaType{
-			Schema: schema,
+			Schema: convertSchema(responseProps.Schema),
 		}
 	}
 
 	return mediaTypes
+}
+
+func convertSchema(swaggerSchema *spec.Schema) map[string]interface{} {
+	if swaggerSchema == nil {
+		return nil
+	}
+	schema := make(map[string]interface{})
+	ref := swaggerSchema.Ref.Ref.String()
+	if len(ref) > 0 {
+		schema["$ref"] = strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
+	} else {
+		schema["type"] = swaggerSchema.Type
+		schema["items"] = swaggerSchema.Items
+	}
+
+	return schema
 }
 
 func convertHeaders(header map[string]spec.Header) map[string]openapi31.HeaderOrReference {
