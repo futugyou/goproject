@@ -36,3 +36,11 @@
 
 [![Alphavantage Preview](https://github.com/futugyou/goproject/actions/workflows/alphavantage-preview.yaml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/alphavantage-preview.yaml)
 [![Alphavantage Production](https://github.com/futugyou/goproject/actions/workflows/alphavantage-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/alphavantage-production.yaml)
+
+## pin go version when go mod tidy
+
+```golang
+// set GOTOOLCHAIN except auto, eg. local path go1.20
+go env -w  GOTOOLCHAIN=local
+go mod tidy -go=1.20 -compat=1.20
+```
