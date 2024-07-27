@@ -98,7 +98,9 @@ func convertComponents(defs spec.Definitions) *openapi31.Components {
 
 	for k, v := range defs {
 		coms.Schemas[k] = make(map[string]interface{})
-		coms.Schemas[k]["required"] = v.Required
+		if len(v.Required) > 0 {
+			coms.Schemas[k]["required"] = v.Required
+		}
 		coms.Schemas[k]["type"] = v.Type
 		coms.Schemas[k]["properties"] = v.Properties
 	}
@@ -119,14 +121,15 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 			URL:         url,
 		}
 	}
+
 	return &openapi31.Operation{
 		Tags:         op.Tags,
 		Summary:      &op.Summary,
 		Description:  &op.Description,
 		ExternalDocs: externalDocs,
-		ID:           &op.ID,
+		ID:           nil,
 		Parameters:   []openapi31.ParameterOrReference{},
-		RequestBody:  &openapi31.RequestBodyOrReference{},
+		RequestBody:  nil,
 		Responses:    convertResponses(op.Responses, op.Produces),
 		Deprecated:   &op.Deprecated,
 		Security:     op.Security,
