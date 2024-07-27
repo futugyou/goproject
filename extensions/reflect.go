@@ -1,7 +1,6 @@
 package extensions
 
 import (
-	"fmt"
 	"reflect"
 )
 
@@ -20,13 +19,19 @@ func GetStringFieldPointer(obj interface{}, fields ...string) *string {
 	}
 	if v.Kind() == reflect.Ptr && !v.IsNil() {
 		val := v.Interface().(*string)
+		if val == nil {
+			return nil
+		}
 		return val
 	}
 	if v.Kind() == reflect.String {
 		val := v.String()
+		if len(val) == 0 {
+			return nil
+		}
 		return &val
 	}
-	fmt.Println(v.Kind() == reflect.String)
+
 	return nil
 }
 

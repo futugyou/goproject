@@ -42,9 +42,9 @@ func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {
 	openAPI := &openapi31.Spec{
 		Openapi: "3.0.0",
 		Info: openapi31.Info{
-			Title:          swagger.Info.Title,
-			Description:    &swagger.Info.Description,
-			TermsOfService: &swagger.Info.TermsOfService,
+			Title:          util.GetStringFieldStruct(swagger, "Info", "Title"),
+			Description:    util.GetStringFieldPointer(swagger, "Info", "Description"),
+			TermsOfService: util.GetStringFieldPointer(swagger, "Info", "TermsOfService"),
 			Contact: &openapi31.Contact{
 				Name:  util.GetStringFieldPointer(swagger, "Info", "Contact", "Name"),
 				URL:   util.GetStringFieldPointer(swagger, "Info", "Contact", "URL"),
@@ -54,7 +54,7 @@ func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {
 				Name: util.GetStringFieldStruct(swagger, "Info", "License", "Name"),
 				URL:  util.GetStringFieldPointer(swagger, "Info", "License", "URL"),
 			},
-			Version: swagger.Info.Version,
+			Version: util.GetStringFieldStruct(swagger, "Info", "Version"),
 		},
 		Servers: []openapi31.Server{
 			{
@@ -234,7 +234,7 @@ func convertSchema(swaggerSchema *spec.Schema, simpleSchema spec.SimpleSchema) m
 	if swaggerSchema != nil {
 		ref := swaggerSchema.Ref.String()
 		if len(ref) > 0 {
-			schema["$ref"] = convertRef(ref)
+			schema["$ref"] = ref
 		} else {
 			schema["type"] = swaggerSchema.Type
 			if swaggerSchema.Items == nil || swaggerSchema.Items.Schema == nil {
@@ -247,7 +247,7 @@ func convertSchema(swaggerSchema *spec.Schema, simpleSchema spec.SimpleSchema) m
 			}
 
 			schema["items"] = map[string]interface{}{
-				"$ref": convertRef(ref),
+				"$ref": ref,
 			}
 		}
 	} else {
@@ -287,6 +287,7 @@ func saveAsJSON(openAPISpec *openapi31.Spec, filename string) error {
 	if err != nil {
 		return err
 	}
+	data = []byte(convertRef(string(data)))
 	return os.WriteFile(filename, data, 0644)
 }
 
@@ -295,5 +296,6 @@ func saveAsYAML(openAPISpec *openapi31.Spec, filename string) error {
 	if err != nil {
 		return err
 	}
+	data = []byte(convertRef(string(data)))
 	return os.WriteFile(filename, data, 0644)
 }
