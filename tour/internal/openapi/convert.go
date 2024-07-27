@@ -129,11 +129,27 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 		ExternalDocs: externalDocs,
 		ID:           nil,
 		Parameters:   convertParameter(op.Parameters),
-		RequestBody:  nil,
+		RequestBody:  convertRequestBody(op.Parameters, op.Produces),
 		Responses:    convertResponses(op.Responses, op.Produces),
 		Deprecated:   &op.Deprecated,
 		Security:     op.Security,
 	}
+}
+
+func convertRequestBody(parameters []spec.Parameter, produces []string) *openapi31.RequestBodyOrReference {
+	if len(parameters) == 0 || parameters[0].In != "body" {
+		return nil
+	}
+
+	result := &openapi31.RequestBodyOrReference{
+		RequestBody: &openapi31.RequestBody{
+			Description: &parameters[0].Description,
+			Content:     convertContent(produces, parameters[0].Schema, parameters[0].SimpleSchema),
+			Required:    &parameters[0].Required,
+		},
+	}
+
+	return result
 }
 
 func convertParameter(parameters []spec.Parameter) []openapi31.ParameterOrReference {
@@ -145,19 +161,27 @@ func convertParameter(parameters []spec.Parameter) []openapi31.ParameterOrRefere
 		if parameter.In == "body" {
 			continue
 		}
+
 		p := openapi31.ParameterOrReference{
 			Parameter: &openapi31.Parameter{
 				Name:        parameter.Name,
 				In:          openapi31.ParameterIn(parameter.In),
 				Description: &parameter.Description,
 				Required:    &parameter.Required,
-				Schema:      convertSchema(parameter.Schema),
-				Example:     &parameter.Example,
+				Schema:      convertSchema(parameter.Schema, parameter.SimpleSchema),
+				Example:     convertExample(parameter.Example),
 			},
 		}
 		result = append(result, p)
 	}
 	return result
+}
+
+func convertExample(example interface{}) *interface{} {
+	if example == nil {
+		return nil
+	}
+	return &example
 }
 
 func convertResponses(responses *spec.Responses, produces []string) *openapi31.Responses {
@@ -171,7 +195,7 @@ func convertResponses(responses *spec.Responses, produces []string) *openapi31.R
 			Response: &openapi31.Response{
 				Description: v.Description,
 				Headers:     convertHeaders(v.Headers),
-				Content:     convertContent(produces, v.ResponseProps),
+				Content:     convertContent(produces, v.ResponseProps.Schema, spec.SimpleSchema{}),
 				Links:       map[string]openapi31.LinkOrReference{},
 			},
 		}
@@ -182,32 +206,45 @@ func convertResponses(responses *spec.Responses, produces []string) *openapi31.R
 	}
 }
 
-func convertContent(produces []string, responseProps spec.ResponseProps) map[string]openapi31.MediaType {
+func convertContent(produces []string, schema *spec.Schema, simpleSchema spec.SimpleSchema) map[string]openapi31.MediaType {
+	if schema == nil {
+		if len(simpleSchema.Type) == 0 {
+			return nil
+		}
+	}
+
 	mediaTypes := make(map[string]openapi31.MediaType)
 	for _, v := range produces {
-		if responseProps.Schema == nil {
-			continue
-		}
-
 		mediaTypes[v] = openapi31.MediaType{
-			Schema: convertSchema(responseProps.Schema),
+			Schema: convertSchema(schema, simpleSchema),
 		}
 	}
 
 	return mediaTypes
 }
 
-func convertSchema(swaggerSchema *spec.Schema) map[string]interface{} {
+func convertSchema(swaggerSchema *spec.Schema, simpleSchema spec.SimpleSchema) map[string]interface{} {
 	if swaggerSchema == nil {
-		return nil
+		if len(simpleSchema.Type) == 0 {
+			return nil
+		}
 	}
 	schema := make(map[string]interface{})
-	ref := swaggerSchema.Ref.Ref.String()
-	if len(ref) > 0 {
-		schema["$ref"] = strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
+	if swaggerSchema != nil {
+		ref := swaggerSchema.Ref.Ref.String()
+		if len(ref) > 0 {
+			schema["$ref"] = strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
+		} else {
+			schema["type"] = swaggerSchema.Type
+			if swaggerSchema.Items != nil {
+				schema["items"] = swaggerSchema.Items
+			}
+		}
 	} else {
-		schema["type"] = swaggerSchema.Type
-		schema["items"] = swaggerSchema.Items
+		schema["type"] = simpleSchema.Type
+		if simpleSchema.Items != nil {
+			schema["items"] = simpleSchema.Items
+		}
 	}
 
 	return schema
