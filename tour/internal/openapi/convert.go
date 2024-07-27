@@ -137,15 +137,25 @@ func convertOperation(op *spec.Operation) *openapi31.Operation {
 }
 
 func convertRequestBody(parameters []spec.Parameter, produces []string) *openapi31.RequestBodyOrReference {
-	if len(parameters) == 0 || parameters[0].In != "body" {
+	if len(parameters) == 0 {
 		return nil
 	}
 
+	var parameter *spec.Parameter = nil
+	for _, p := range parameters {
+		if p.In == "body" {
+			parameter = &p
+			break
+		}
+	}
+	if parameter == nil {
+		return nil
+	}
 	result := &openapi31.RequestBodyOrReference{
 		RequestBody: &openapi31.RequestBody{
-			Description: &parameters[0].Description,
-			Content:     convertContent(produces, parameters[0].Schema, parameters[0].SimpleSchema),
-			Required:    &parameters[0].Required,
+			Description: &parameter.Description,
+			Content:     convertContent(produces, parameter.Schema, parameter.SimpleSchema),
+			Required:    &parameter.Required,
 		},
 	}
 
