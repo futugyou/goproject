@@ -229,15 +229,25 @@ func convertSchema(swaggerSchema *spec.Schema, simpleSchema spec.SimpleSchema) m
 			return nil
 		}
 	}
+
 	schema := make(map[string]interface{})
 	if swaggerSchema != nil {
-		ref := swaggerSchema.Ref.Ref.String()
+		ref := swaggerSchema.Ref.String()
 		if len(ref) > 0 {
-			schema["$ref"] = strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
+			schema["$ref"] = convertRef(ref)
 		} else {
 			schema["type"] = swaggerSchema.Type
-			if swaggerSchema.Items != nil {
-				schema["items"] = swaggerSchema.Items
+			if swaggerSchema.Items == nil || swaggerSchema.Items.Schema == nil {
+				return schema
+			}
+
+			ref = swaggerSchema.Items.Schema.Ref.String()
+			if len(ref) == 0 {
+				return schema
+			}
+
+			schema["items"] = map[string]interface{}{
+				"$ref": convertRef(ref),
 			}
 		}
 	} else {
@@ -248,6 +258,10 @@ func convertSchema(swaggerSchema *spec.Schema, simpleSchema spec.SimpleSchema) m
 	}
 
 	return schema
+}
+
+func convertRef(ref string) string {
+	return strings.ReplaceAll(ref, "#/definitions/", "#/components/schemas/")
 }
 
 func convertHeaders(header map[string]spec.Header) map[string]openapi31.HeaderOrReference {
