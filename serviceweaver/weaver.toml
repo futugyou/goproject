@@ -1,5 +1,0 @@
-[serviceweaver]
-binary = "./serviceweaver"
-
-["github.com/futugyousuzu/serviceweaver/IModel"]
-openai_key = "Bonjour"
