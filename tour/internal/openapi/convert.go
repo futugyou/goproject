@@ -12,7 +12,7 @@ import (
 	util "github.com/futugyou/extensions"
 )
 
-func ConvertSwaggerToOpenapi(path string, outpath string) error {
+func ConvertSwaggerToOpenapi(path string, outpath string, fileType string) error {
 	swaggerData, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -26,12 +26,19 @@ func ConvertSwaggerToOpenapi(path string, outpath string) error {
 	swagger := doc.Spec()
 	openAPISpec := convertSwaggerToOpenAPI(swagger)
 
-	if strings.HasSuffix(outpath, ".yaml") {
+	if fileType == "yaml" {
 		err = saveAsYAML(openAPISpec, outpath)
-	}
-	if strings.HasSuffix(outpath, ".json") {
+	} else if fileType == "json" {
 		err = saveAsJSON(openAPISpec, outpath)
+	} else {
+		if strings.HasSuffix(outpath, ".yaml") {
+			err = saveAsYAML(openAPISpec, outpath)
+		}
+		if strings.HasSuffix(outpath, ".json") {
+			err = saveAsJSON(openAPISpec, outpath)
+		}
 	}
+
 	if err != nil {
 		return err
 	}

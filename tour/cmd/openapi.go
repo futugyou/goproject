@@ -84,7 +84,11 @@ var swaggerToOpenapiSubCmd = &cobra.Command{
 	Short: "convert swagger spec to openapi spec",
 	Long:  "convert swagger spec to openapi spec",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := openapi.ConvertSwaggerToOpenapi(swaggerSpecPath, openapiSpecOutPath); err != nil {
+		fileType := ""
+		if len(args) == 1 {
+			fileType = args[0]
+		}
+		if err := openapi.ConvertSwaggerToOpenapi(swaggerSpecPath, openapiSpecOutPath, fileType); err != nil {
 			log.Println(err)
 		}
 	},
