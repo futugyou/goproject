@@ -1,9 +1,9 @@
 name: alphavantage data
 
 on:
- workflow_dispatch:
- schedule:
- - cron: '30 23 * * *'
+  workflow_dispatch:
+  schedule:
+  - cron: '30 23 * * *'
 jobs: 
   alphavantage-action:
     runs-on: ubuntu-latest 

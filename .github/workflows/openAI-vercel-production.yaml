@@ -4,6 +4,8 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_OPENAI_WEB_ID }}
 on:
   workflow_dispatch:
+  schedule:
+  - cron: '10 22 * * *'
   push:
     branches:
       - master
