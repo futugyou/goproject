@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -27,9 +28,11 @@ func ConvertSwaggerToOpenapi(path string, outpath string, fileType string) error
 	openAPISpec := convertSwaggerToOpenAPI(swagger)
 
 	if fileType == "yaml" {
-		err = saveAsYAML(openAPISpec, outpath)
+		path := adjustFileType(outpath, fileType)
+		err = saveAsYAML(openAPISpec, path)
 	} else if fileType == "json" {
-		err = saveAsJSON(openAPISpec, outpath)
+		path := adjustFileType(outpath, fileType)
+		err = saveAsJSON(openAPISpec, path)
 	} else {
 		if strings.HasSuffix(outpath, ".yaml") {
 			err = saveAsYAML(openAPISpec, outpath)
@@ -43,6 +46,11 @@ func ConvertSwaggerToOpenapi(path string, outpath string, fileType string) error
 		return err
 	}
 	return nil
+}
+
+func adjustFileType(outpath, fileType string) string {
+	ext := filepath.Ext(outpath)
+	return strings.TrimSuffix(outpath, ext) + "." + fileType
 }
 
 func convertSwaggerToOpenAPI(swagger *spec.Swagger) *openapi31.Spec {

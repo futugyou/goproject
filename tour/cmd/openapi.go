@@ -13,8 +13,8 @@ import (
 
 var openapiCmd = &cobra.Command{
 	Use:       "openapi",
-	Short:     "openapi generate",
-	Long:      "openapi generate",
+	Short:     "openapi operate",
+	Long:      "openapi operate",
 	ValidArgs: []string{"generate", "swag2openapi"},
 	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -80,9 +80,11 @@ var openapiSubCmd = &cobra.Command{
 }
 
 var swaggerToOpenapiSubCmd = &cobra.Command{
-	Use:   "swag2openapi",
-	Short: "convert swagger spec to openapi spec",
-	Long:  "convert swagger spec to openapi spec",
+	Use:       "swag2openapi",
+	Short:     "convert swagger spec to openapi spec",
+	Long:      "convert swagger spec to openapi spec",
+	ValidArgs: []string{"yaml", "json"},
+	Args:      cobra.MatchAll(cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {
 		fileType := ""
 		if len(args) == 1 {
