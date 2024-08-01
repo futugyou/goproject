@@ -8,6 +8,7 @@ import (
 	"github.com/futugyou/extensions"
 
 	"github.com/futugyou/infr-project/controller"
+	tool "github.com/futugyou/infr-project/extensions"
 )
 
 func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
@@ -51,17 +52,29 @@ func updatePlatformProject(ctrl *controller.Controller, r *http.Request, w http.
 }
 
 func deletePlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
 	ctrl.DeletePlatformProject(id, projectId, w, r)
 }
 
 func createPlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.CreatePlatformProject(id, "", w, r)
 }
 
 func hookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
 	ctrl.UpdatePlatformHook(id, projectId, w, r)
@@ -72,11 +85,19 @@ func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 }
 
 func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.DeletePlatform(id, w, r)
 }
 
 func updatePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.UpdatePlatform(id, w, r)
 }
@@ -87,5 +108,9 @@ func getPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 }
 
 func createPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	ctrl.CreatePlatform(w, r)
 }

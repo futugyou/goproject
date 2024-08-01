@@ -8,6 +8,7 @@ import (
 	"github.com/futugyou/extensions"
 
 	"github.com/futugyou/infr-project/controller"
+	tool "github.com/futugyou/infr-project/extensions"
 )
 
 func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +44,10 @@ func allProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWri
 }
 
 func updateProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.UpdateProject(id, w, r)
 }
@@ -53,15 +58,27 @@ func getProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWri
 }
 
 func createProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	ctrl.CreateProject(w, r)
 }
 
 func updateProjectPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.UpdateProjectPlatform(id, w, r)
 }
 
 func updateProjectDesign(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.UpdateProjectDesign(id, w, r)
 }

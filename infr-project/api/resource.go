@@ -8,6 +8,7 @@ import (
 	"github.com/futugyou/extensions"
 
 	"github.com/futugyou/infr-project/controller"
+	tool "github.com/futugyou/infr-project/extensions"
 )
 
 func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
@@ -48,11 +49,19 @@ func allResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 }
 
 func deleteResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.DeleteResource(id, w, r)
 }
 
 func updateResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	ctrl.UpdateResource(id, w, r)
 }
@@ -63,5 +72,9 @@ func getResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 }
 
 func createResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
 	ctrl.CreateResource(w, r)
 }
