@@ -131,8 +131,8 @@ github.com/hashicorp/go-tfe v1.61.0/go.mod h1:XnTtBj3tVQ4uFkcFsv8Grn+O1CVcIcceL1
 github.com/hashicorp/go-uuid v1.0.3 h1:2gKiV6YVmrJ1i2CKKa9obLvRieoRGviZFL26PcT/Co8=
 github.com/hashicorp/go-version v1.6.0 h1:feTTfFNnjP967rlCxM/I9g701jU+RN74YKx2mOkIeek=
 github.com/hashicorp/go-version v1.6.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
-github.com/hashicorp/hcp-sdk-go v0.105.0 h1:KKqOBi13+wMEvMEG65brBJIXzvZcxjehVzk6vipaaSE=
-github.com/hashicorp/hcp-sdk-go v0.105.0/go.mod h1:vQ4fzdL1AmhIAbCw+4zmFe5Hbpajj3NvRWkJoVuxmAk=
+github.com/hashicorp/hcp-sdk-go v0.106.0 h1:6irIN4XGXtdHGgcu7LAVo2tk6l1jfRGi4/cTmNo9XC0=
+github.com/hashicorp/hcp-sdk-go v0.106.0/go.mod h1:vQ4fzdL1AmhIAbCw+4zmFe5Hbpajj3NvRWkJoVuxmAk=
 github.com/hashicorp/jsonapi v1.3.1 h1:GtPvnmcWgYwCuDGvYT5VZBHcUyFdq9lSyCzDjn1DdPo=
 github.com/hashicorp/jsonapi v1.3.1/go.mod h1:kWfdn49yCjQvbpnvY1dxxAuAFzISwrrMDQOcu6NsFoM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
