@@ -13,10 +13,12 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/tools"
 	verceltool "github.com/futugyousuzu/goproject/awsgolang/vercel"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
+
+	"github.com/futugyou/extensions"
 )
 
 func S3bucket(w http.ResponseWriter, r *http.Request) {
-	if verceltool.CrosForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 

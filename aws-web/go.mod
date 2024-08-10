@@ -18,6 +18,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.31.3
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.3
 	github.com/chidiwilliams/flatbson v0.3.0
+	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
@@ -36,6 +37,11 @@ require github.com/aws/aws-sdk-go-v2/service/iot v1.55.3
 require (
 	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.24.3
 	go.mongodb.org/mongo-driver v1.16.1
+)
+
+require (
+	github.com/dlclark/regexp2 v1.11.2 // indirect
+	golang.org/x/mod v0.19.0 // indirect
 )
 
 require (
@@ -72,15 +78,17 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
+
+replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
