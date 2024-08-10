@@ -6,6 +6,7 @@ require github.com/beego/beego/v2 v2.3.0
 
 require (
 	github.com/devfeel/mapper v0.7.13
+	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/go-openai v0.0.0
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
@@ -26,6 +27,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
+	golang.org/x/mod v0.20.0 // indirect
 )
 
 replace github.com/futugyousuzu/go-openai v0.0.0 => github.com/futugyou/goproject/openai v0.0.0-20230504105143-00ca81260dbf
@@ -33,6 +35,8 @@ replace github.com/futugyousuzu/go-openai v0.0.0 => github.com/futugyou/goprojec
 replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => github.com/futugyou/goproject/openai-tokenizer v0.0.0-20230504105143-00ca81260dbf
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
+
+replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

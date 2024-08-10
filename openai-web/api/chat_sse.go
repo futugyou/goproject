@@ -9,10 +9,12 @@ import (
 
 	"github.com/futugyousuzu/go-openai-web/services"
 	verceltool "github.com/futugyousuzu/go-openai-web/vercel"
+
+	"github.com/futugyou/extensions"
 )
 
 func Chatsse(w http.ResponseWriter, r *http.Request) {
-	if verceltool.CrosForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 
