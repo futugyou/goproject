@@ -3,6 +3,7 @@ module github.com/futugyousuzu/identity
 go 1.20
 
 require (
+	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/mongo v0.0.0
 	github.com/go-oauth2/oauth2/v4 v4.5.2
 	github.com/go-session/session/v3 v3.2.1
@@ -18,6 +19,7 @@ require (
 require (
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
+	github.com/dlclark/regexp2 v1.11.2 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -39,9 +41,12 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 )
 
 replace github.com/futugyousuzu/identity/mongo v0.0.0 => github.com/futugyou/goproject/identity-mongo v0.0.0-20230605025133-670abd240497
+
+replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
