@@ -17,10 +17,12 @@ import (
 	"github.com/futugyou/alphavantage-server/earnings"
 	"github.com/futugyou/alphavantage-server/expected"
 	"github.com/futugyou/alphavantage-server/income"
+
+	"github.com/futugyou/extensions"
 )
 
 func Fundamentals(w http.ResponseWriter, r *http.Request) {
-	if crosForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 

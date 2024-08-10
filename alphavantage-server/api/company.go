@@ -4,32 +4,18 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"context"
+	"encoding/json"
+	"net/http"
 	"os"
 
 	"github.com/futugyou/alphavantage-server/core"
 	"github.com/futugyou/alphavantage-server/stock"
 
-	"encoding/json"
-	"net/http"
+	"github.com/futugyou/extensions"
 )
 
-func crosForVercel(w http.ResponseWriter, r *http.Request) bool {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS, HEAD")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Origin, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, x-requested-with, account-id")
-	w.Header().Set("Access-Control-Expose-Headers", "Access-Control-Allow-Origin, Token, Content-Length, Access-Control-Allow-Headers, Content-Type, Authorization")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return true
-	}
-
-	return false
-}
-
 func Company(w http.ResponseWriter, r *http.Request) {
-	if crosForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 

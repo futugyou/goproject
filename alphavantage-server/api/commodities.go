@@ -10,10 +10,12 @@ import (
 
 	"github.com/futugyou/alphavantage-server/commodities"
 	"github.com/futugyou/alphavantage-server/core"
+
+	"github.com/futugyou/extensions"
 )
 
 func Commodities(w http.ResponseWriter, r *http.Request) {
-	if crosForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 

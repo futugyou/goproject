@@ -7,10 +7,12 @@ import (
 	"net/http"
 
 	stockSeries "github.com/futugyou/alphavantage-server/stock-series"
+
+	"github.com/futugyou/extensions"
 )
 
 func Stock(w http.ResponseWriter, r *http.Request) {
-	if crosForVercel(w, r) {
+	if extensions.Cros(w, r) {
 		return
 	}
 
