@@ -13,7 +13,7 @@ import (
 
 func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	// cors
-	if extensions.Cros(w, r) {
+	if extensions.Cors(w, r) {
 		return
 	}
 

@@ -19,7 +19,7 @@ import (
 )
 
 func Completions_Sse(w http.ResponseWriter, r *http.Request) {
-	if extensions.Cros(w, r) {
+	if extensions.Cors(w, r) {
 		return
 	}
 

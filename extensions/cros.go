@@ -2,7 +2,7 @@ package extensions
 
 import "net/http"
 
-func Cros(w http.ResponseWriter, r *http.Request) bool {
+func Cors(w http.ResponseWriter, r *http.Request) bool {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS, HEAD")
 	w.Header().Set("Access-Control-Allow-Headers", "traceparent, Accept, Origin, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, x-requested-with, account-id")
@@ -16,7 +16,7 @@ func Cros(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-func CrosWithOrigin(w http.ResponseWriter, r *http.Request, origin string) bool {
+func CorsWithOrigin(w http.ResponseWriter, r *http.Request, origin string) bool {
 	w.Header().Set("Access-Control-Allow-Origin", origin)
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS, HEAD")
 	w.Header().Set("Access-Control-Allow-Headers", "traceparent, Accept, Origin, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, x-requested-with, account-id")
@@ -30,7 +30,7 @@ func CrosWithOrigin(w http.ResponseWriter, r *http.Request, origin string) bool 
 	return false
 }
 
-func CrosWithMultipleOrigin(w http.ResponseWriter, r *http.Request, origins []string) bool {
+func CorsWithMultipleOrigin(w http.ResponseWriter, r *http.Request, origins []string) bool {
 	allowedOrigins := make(map[string]bool)
 	for _, org := range origins {
 		allowedOrigins[org] = true
@@ -54,7 +54,7 @@ func CrosWithMultipleOrigin(w http.ResponseWriter, r *http.Request, origins []st
 	return false
 }
 
-func CrosAll(w http.ResponseWriter, r *http.Request) bool {
+func CorsAll(w http.ResponseWriter, r *http.Request) bool {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")

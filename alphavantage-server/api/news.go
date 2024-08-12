@@ -15,7 +15,7 @@ import (
 )
 
 func News(w http.ResponseWriter, r *http.Request) {
-	if extensions.Cros(w, r) {
+	if extensions.Cors(w, r) {
 		return
 	}
 
