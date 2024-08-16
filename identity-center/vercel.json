@@ -12,7 +12,7 @@
 		"api/token.go": {
 			"includeFiles": "static/**"
 		},
-		"/api/**/*": {
+		"api/**/*": {
 			"maxDuration": 30
 		}
 	},
