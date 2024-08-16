@@ -11,6 +11,9 @@
 		},
 		"api/token.go": {
 			"includeFiles": "static/**"
+		},
+		"/api/**/*": {
+			"maxDuration": 30
 		}
 	},
 	"rewrites": [

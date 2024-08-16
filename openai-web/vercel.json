@@ -1,4 +1,9 @@
 {
+	"functions": {
+		"/api/**/*": {
+			"maxDuration": 30
+		}
+	},
   "routes": [
     {
       "src": "/api/v1/examples",
