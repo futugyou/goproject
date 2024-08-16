@@ -41,6 +41,13 @@ updates:
     schedule:
       interval: "daily"
       time: "01:30"
+    groups:
+      aws:
+        patterns:
+          - "github.com/aws/*"
+      openapi:
+        patterns:
+          - "github.com/go-openapi/*"
   - package-ecosystem: "gomod"
     directory: "/k8sbuilder"
     schedule:
