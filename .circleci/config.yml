@@ -1,31 +1,45 @@
 version: 2.1
 
-# this allows you to use CircleCI's dynamic configuration feature
 setup: true
 
-# the path-filtering orb is required to continue a pipeline based on
-# the path of an updated fileset
 orbs:
   path-filtering: circleci/path-filtering@1.0.0
 
 workflows:
-  # the always-run workflow is always triggered, regardless of the pipeline parameters.
   dispatch:
     jobs:
-      # the path-filtering/filter job determines which pipeline
-      # parameters to update.
       - path-filtering/filter:
           name: workflow-dispatch
-          # 3-column, whitespace-delimited mapping. One mapping per
-          # line:
-          # <regex path-to-test> <parameter-to-set> <value-of-pipeline-parameter>
           mapping: |
             aws-web/.* aws-web true
             identity-center/.* identity-center true
             openai-web/.* openai-web true
           base-revision: master
-          # this is the path of the configuration we should trigger once
-          # path filtering and pipeline parameter value updates are
-          # complete. In this case, we are using the parent dynamic
-          # configuration itself.
           config-path: .circleci/next.yml
+          config-yml-out: .circleci/generated_config.yml
+
+# Workflows to trigger the builds based on the dynamic configuration
+workflows:
+  aws-web:
+    when: << pipeline.parameters.aws-web >>
+    jobs:
+      - setup:
+          name: "Setup AWS Web"
+          command: circleci config process .circleci/generated_config.yml > processed.yml
+      - aws-web-build
+
+  identity-center:
+    when: << pipeline.parameters.identity-center >>
+    jobs:
+      - setup:
+          name: "Setup Identity Center"
+          command: circleci config process .circleci/generated_config.yml > processed.yml
+      - identity-center-build
+
+  openai-web:
+    when: << pipeline.parameters.openai-web >>
+    jobs:
+      - setup:
+          name: "Setup OpenAI Web"
+          command: circleci config process .circleci/generated_config.yml > processed.yml
+      - openai-web-build
