@@ -5,17 +5,6 @@ setup: true
 orbs:
   path-filtering: circleci/path-filtering@1.0.0
 
-parameters:
-  aws-web:
-    type: boolean
-    default: false
-  identity-center:
-    type: boolean
-    default: false
-  openai-web:
-    type: boolean
-    default: false
-
 workflows:
   dispatch:
     jobs:
@@ -27,28 +16,3 @@ workflows:
             openai-web/.* openai-web true
           base-revision: master
           config-path: .circleci/next.yml
-
-  aws-web:
-    when: << pipeline.parameters.aws-web >>
-    jobs:
-      - go-build:
-          name: aws-web-build
-          project-name: aws-web
-          project-path: aws-web
-          go-image: cimg/go:1.21.5
-
-  identity-center:
-    when: << pipeline.parameters.identity-center >>
-    jobs:
-      - go-build:
-          name: identity-center-build
-          project-name: identity-center
-          project-path: identity-center
-
-  openai-web:
-    when: << pipeline.parameters.openai-web >>
-    jobs:
-      - go-build:
-          name: openai-web-build
-          project-name: openai-web
-          project-path: openai-web
