@@ -16,30 +16,27 @@ workflows:
             openai-web/.* openai-web true
           base-revision: master
           config-path: .circleci/next.yml
-          config-yml-out: .circleci/generated_config.yml
 
-# Workflows to trigger the builds based on the dynamic configuration
-workflows:
   aws-web:
     when: << pipeline.parameters.aws-web >>
     jobs:
-      - setup:
-          name: "Setup AWS Web"
-          command: circleci config process .circleci/generated_config.yml > processed.yml
-      - aws-web-build
+      - go-build:
+          name: aws-web-build
+          project-name: aws-web
+          project-path: aws-web
 
   identity-center:
     when: << pipeline.parameters.identity-center >>
     jobs:
-      - setup:
-          name: "Setup Identity Center"
-          command: circleci config process .circleci/generated_config.yml > processed.yml
-      - identity-center-build
+      - go-build:
+          name: identity-center-build
+          project-name: identity-center
+          project-path: identity-center
 
   openai-web:
     when: << pipeline.parameters.openai-web >>
     jobs:
-      - setup:
-          name: "Setup OpenAI Web"
-          command: circleci config process .circleci/generated_config.yml > processed.yml
-      - openai-web-build
+      - go-build:
+          name: openai-web-build
+          project-name: openai-web
+          project-path: openai-web
