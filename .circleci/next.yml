@@ -21,6 +21,11 @@ jobs:
   build:
     docker:
       - image: cimg/go:1.21.5
+    parameters:
+      path:
+        type: string
+      name:
+        type: string
     steps:
       - checkout
       - restore_cache:
