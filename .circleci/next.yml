@@ -10,6 +10,12 @@ parameters:
   openai-web:
     type: boolean
     default: false
+  infr-project:
+    type: boolean
+    default: false
+  alphavantage-server:
+    type: boolean
+    default: false
 
 jobs:
   build:
@@ -59,3 +65,15 @@ workflows:
       - build:
           name: openai-web-build
           path: openai-web
+  infr-project:
+    when: << pipeline.parameters.infr-project >>
+    jobs:
+      - build:
+          name: infr-project-build
+          path: infr-project
+  alphavantage-server:
+    when: << pipeline.parameters.alphavantage-server >>
+    jobs:
+      - build:
+          name: alphavantage-server-build
+          path: alphavantage-server

@@ -23,6 +23,8 @@ workflows:
             aws-web/.* aws-web true
             identity-center/.* identity-center true
             openai-web/.* openai-web true
+            infr-project/.* infr-project true
+            alphavantage-server/.* alphavantage-server true
           base-revision: master
           # this is the path of the configuration we should trigger once
           # path filtering and pipeline parameter value updates are
