@@ -1,40 +1,115 @@
-version: 2.1
-
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/configuration-reference
+version: 2.1 
 parameters:
-  project-name:
-    type: string
-  project-path:
-    type: string
-  go-image:
-    type: string
-    default: "cimg/go:1.21.5"
+  aws-web:
+    type: boolean
+    default: false
+  identity-center:
+    type: boolean
+    default: false
+  openai-web:
+    type: boolean
+    default: false
 
 jobs:
-  go-build:
+  aws-web-build:
     working_directory: ~/goproject
     docker:
-      - image: << parameters.go-image >>
+      - image: cimg/go:1.21.5
     steps:
-      - checkout
+      - checkout 
       - restore_cache:
           keys:
-            - go-mod-v4-{{ checksum "<< parameters.project-path >>/go.sum" }}
+            - go-mod-v4-{{ checksum "aws-web/go.sum" }}
       - run:
           name: Install Dependencies
           command: go mod download
-          working_directory: ~/goproject/<< parameters.project-path >>
+          working_directory: ~/goproject/aws-web
       - save_cache:
-          key: go-mod-v4-{{ checksum "<< parameters.project-path >>/go.sum" }}
+          key: go-mod-v4-{{ checksum "aws-web/go.sum" }}
           paths:
             - "/go/pkg/mod"
       - run:
           name: Run tests
           command: |
-            mkdir -p /tmp/<< parameters.project-name >>/test-reports
-            gotestsum --junitfile /tmp/<< parameters.project-name >>/test-reports/unit-tests.xml
-          working_directory: ~/goproject/<< parameters.project-path >>
+            mkdir -p /tmp/aws-web/test-reports
+            gotestsum --junitfile /tmp/aws-web/test-reports/unit-tests.xml
+          working_directory: ~/goproject/aws-web
       - store_test_results:
-          path: /tmp/<< parameters.project-name >>/test-reports
+          path: /tmp/aws-web/test-reports
       - run:
-          name: Finish
-          command: echo "<< parameters.project-name >> job finish"
+          name: Aws-web finish
+          command: echo "aws-web job finish"
+
+  identity-center-build:
+    working_directory: ~/goproject
+    docker:
+      - image: cimg/go:1.21.5
+    steps:
+      - checkout 
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "identity-center/go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go mod download
+          working_directory: ~/goproject/identity-center
+      - save_cache:
+          key: go-mod-v4-{{ checksum "identity-center/go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p /tmp/identity-center/test-reports
+            gotestsum --junitfile /tmp/identity-center/test-reports/unit-tests.xml
+          working_directory: ~/goproject/identity-center
+      - store_test_results:
+          path: /tmp/identity-center/test-reports
+      - run:
+          name: identity-center finish
+          command: echo "identity-center job finish"
+
+  openai-web-build:
+    working_directory: ~/goproject
+    docker:
+      - image: cimg/go:1.21.5
+    steps:
+      - checkout 
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "openai-web/go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go mod download
+          working_directory: ~/goproject/openai-web
+      - save_cache:
+          key: go-mod-v4-{{ checksum "openai-web/go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p /tmp/openai-web/test-reports
+            gotestsum --junitfile /tmp/openai-web/test-reports/unit-tests.xml
+          working_directory: ~/goproject/openai-web
+      - store_test_results:
+          path: /tmp/openai-web/test-reports
+      - run:
+          name: openai-web finish
+          command: echo "openai-web finish"
+
+workflows:
+  aws-web:
+    when: << pipeline.parameters.aws-web >>
+    jobs:
+      - aws-web-build
+  identity-center: 
+    when: << pipeline.parameters.identity-center >>
+    jobs:
+      - identity-center-build
+  openai-web:
+    when: << pipeline.parameters.openai-web >>
+    jobs:
+      - openai-web-build
