@@ -24,8 +24,6 @@ jobs:
     parameters:
       path:
         type: string
-      name:
-        type: string
     steps:
       - checkout
       - restore_cache:
