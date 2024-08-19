@@ -29,7 +29,7 @@ workflows:
           config-path: .circleci/next.yml
 
   aws-web:
-    when: << parameters.aws-web >>
+    when: << pipeline.parameters.aws-web >>
     jobs:
       - go-build:
           name: aws-web-build
@@ -38,7 +38,7 @@ workflows:
           go-image: cimg/go:1.21.5
 
   identity-center:
-    when: << parameters.identity-center >>
+    when: << pipeline.parameters.identity-center >>
     jobs:
       - go-build:
           name: identity-center-build
@@ -46,7 +46,7 @@ workflows:
           project-path: identity-center
 
   openai-web:
-    when: << parameters.openai-web >>
+    when: << pipeline.parameters.openai-web >>
     jobs:
       - go-build:
           name: openai-web-build
