@@ -20,7 +20,7 @@ parameters:
 jobs:
   build:
     docker:
-      - image: cimg/go:1.21.5
+      - image: cimg/go:1.21.6
     parameters:
       path:
         type: string
@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: go mod download
-          working_directory: ~/goproject/<< parameters.path >>
+          working_directory: /home/circleci/goproject/<< parameters.path >>
       - save_cache:
           key: go-mod-v4-{{ checksum "<< parameters.path >>/go.sum" }}
           paths:
@@ -42,7 +42,7 @@ jobs:
           command: |
             mkdir -p /tmp/<< parameters.path >>/test-reports
             gotestsum --junitfile /tmp/<< parameters.path >>/test-reports/unit-tests.xml
-          working_directory: ~/goproject/<< parameters.path >>
+          working_directory: /home/circleci/goproject/<< parameters.path >>
       - store_test_results:
           path: /tmp/<< parameters.path >>/test-reports
       - run:
