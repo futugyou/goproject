@@ -53,6 +53,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.Secrets20230613Principal'
         description: created by
+      created_by_id:
+        description: created by id
+        type: string
       latest_version:
         description: latest version
         type: string
@@ -80,6 +83,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.Secrets20230613Principal'
         description: created by
+      created_by_id:
+        description: created by id
+        type: string
       type:
         description: type
         type: string
@@ -317,6 +323,10 @@ definitions:
         type: boolean
       name:
         type: string
+      tags:
+        items:
+          type: string
+        type: array
       type:
         type: string
       updated_at:

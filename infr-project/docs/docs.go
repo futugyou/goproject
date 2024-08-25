@@ -1060,6 +1060,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "created_by_id": {
+                    "description": "created by id",
+                    "type": "string"
+                },
                 "latest_version": {
                     "description": "latest version",
                     "type": "string"
@@ -1099,6 +1103,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Secrets20230613Principal"
                         }
                     ]
+                },
+                "created_by_id": {
+                    "description": "created by id",
+                    "type": "string"
                 },
                 "type": {
                     "description": "type",
@@ -1443,6 +1451,12 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "type": {
                     "type": "string"
