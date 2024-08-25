@@ -28,6 +28,7 @@ type ResourceView struct {
 	IsDelete  bool      `json:"is_deleted" bson:"is_deleted"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
+	Tags      []string  `json:"tags" bson:"tags"`
 }
 
 func (r ResourceView) GetTable() string {

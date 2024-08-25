@@ -152,5 +152,6 @@ func convertResourceEntityToViewModel(src *resource.Resource) *models.ResourceVi
 		IsDelete:  src.IsDeleted,
 		CreatedAt: src.CreatedAt,
 		UpdatedAt: src.UpdatedAt,
+		Tags:      src.Tags,
 	}
 }
