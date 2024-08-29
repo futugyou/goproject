@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/onsi/ginkgo/v2 v2.20.2
-	github.com/onsi/gomega v1.34.1
+	github.com/onsi/gomega v1.34.2
 	github.com/robfig/cron v1.2.0
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
