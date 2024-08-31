@@ -222,7 +222,9 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	if err = s.repository.Update(ctx, *plat); err != nil {
+	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		return s.repository.Update(ctx, *plat)
+	}); err != nil {
 		return nil, err
 	}
 
@@ -233,26 +235,12 @@ func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformV
 	if src == nil {
 		return nil, nil
 	}
-	propertyInfos := make([]models.PropertyInfo, 0)
-	for _, v := range src.Property {
-		var value string = v.Value
-		var err error
-		if value != "" {
-			value, err = tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
-			if err != nil {
-				return nil, err
-			}
-			if v.NeedMask {
-				value = tool.MaskString(value, 5, 0.5)
-			}
-		}
 
-		propertyInfos = append(propertyInfos, models.PropertyInfo{
-			Key:      v.Key,
-			Value:    value,
-			NeedMask: v.NeedMask,
-		})
+	propertyInfos, err := convertProperty(src.Property)
+	if err != nil {
+		return nil, nil
 	}
+
 	platformProjects := make([]models.PlatformProject, 0)
 	for _, v := range src.Projects {
 		webhooks := make([]models.Webhook, len(v.Webhooks))
@@ -284,4 +272,28 @@ func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformV
 		Tags:         src.Tags,
 		IsDeleted:    src.IsDeleted,
 	}, nil
+}
+
+func convertProperty(properties map[string]platform.PropertyInfo) ([]models.PropertyInfo, error) {
+	propertyInfos := make([]models.PropertyInfo, 0)
+	for _, v := range properties {
+		var value string = v.Value
+		var err error
+		if value != "" {
+			value, err = tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
+			if err != nil {
+				return nil, err
+			}
+			if v.NeedMask {
+				value = tool.MaskString(value, 5, 0.5)
+			}
+		}
+
+		propertyInfos = append(propertyInfos, models.PropertyInfo{
+			Key:      v.Key,
+			Value:    value,
+			NeedMask: v.NeedMask,
+		})
+	}
+	return propertyInfos, nil
 }
