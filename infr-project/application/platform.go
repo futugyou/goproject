@@ -235,10 +235,18 @@ func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformV
 	}
 	propertyInfos := make([]models.PropertyInfo, 0)
 	for _, v := range src.Property {
-		value, err := tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
-		if err != nil {
-			return nil, err
+		var value string = v.Value
+		var err error
+		if value != "" {
+			value, err = tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
+			if err != nil {
+				return nil, err
+			}
+			if v.NeedMask {
+				value = tool.MaskString(value, 5, 0.5)
+			}
 		}
+
 		propertyInfos = append(propertyInfos, models.PropertyInfo{
 			Key:      v.Key,
 			Value:    value,
