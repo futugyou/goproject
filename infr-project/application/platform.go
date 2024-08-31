@@ -60,7 +60,7 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(res), nil
+	return convertPlatformEntityToViewModel(res)
 }
 
 func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]models.PlatformView, error) {
@@ -71,7 +71,11 @@ func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]models.Platform
 
 	result := make([]models.PlatformView, len(src))
 	for i := 0; i < len(src); i++ {
-		result[i] = *convertPlatformEntityToViewModel(&src[i])
+		m, err := convertPlatformEntityToViewModel(&src[i])
+		if err != nil {
+			return nil, err
+		}
+		result[i] = *m
 	}
 	return result, nil
 }
@@ -81,7 +85,7 @@ func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.P
 	if err != nil {
 		return nil, err
 	}
-	return convertPlatformEntityToViewModel(src), nil
+	return convertPlatformEntityToViewModel(src)
 }
 
 func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*models.PlatformView, error) {
@@ -106,7 +110,7 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat), nil
+	return convertPlatformEntityToViewModel(plat)
 }
 
 func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*models.PlatformView, error) {
@@ -117,7 +121,7 @@ func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*model
 	if err != nil {
 		return nil, err
 	}
-	return convertPlatformEntityToViewModel(plat), nil
+	return convertPlatformEntityToViewModel(plat)
 }
 
 func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest, ctx context.Context) (*models.PlatformView, error) {
@@ -139,7 +143,7 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat), nil
+	return convertPlatformEntityToViewModel(plat)
 }
 
 func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*models.PlatformView, error) {
@@ -154,7 +158,7 @@ func (s *PlatformService) DeleteProject(id string, projectId string, ctx context
 	if err = s.repository.Update(ctx, *plat); err != nil {
 		return nil, err
 	}
-	return convertPlatformEntityToViewModel(plat), nil
+	return convertPlatformEntityToViewModel(plat)
 }
 
 func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*models.PlatformView, error) {
@@ -222,18 +226,18 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat), nil
+	return convertPlatformEntityToViewModel(plat)
 }
 
-func convertPlatformEntityToViewModel(src *platform.Platform) *models.PlatformView {
+func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformView, error) {
 	if src == nil {
-		return nil
+		return nil, nil
 	}
 	propertyInfos := make([]models.PropertyInfo, 0)
 	for _, v := range src.Property {
 		value, err := tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
 		if err != nil {
-			value = v.Value
+			return nil, err
 		}
 		propertyInfos = append(propertyInfos, models.PropertyInfo{
 			Key:      v.Key,
@@ -271,5 +275,5 @@ func convertPlatformEntityToViewModel(src *platform.Platform) *models.PlatformVi
 		Projects:     platformProjects,
 		Tags:         src.Tags,
 		IsDeleted:    src.IsDeleted,
-	}
+	}, nil
 }
