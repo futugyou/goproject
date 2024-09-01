@@ -29,7 +29,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Param id path string true "Platform ID"
 // @Param project_id path string true "Platform Project ID"
 // @Param request body viewmodels.UpdatePlatformWebhookRequest true "Request body"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id}/hook [put]
 func updatePlatformHook(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -43,7 +43,7 @@ func updatePlatformHook(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Platform ID"
 // @Param project_id path string true "Platform Project ID"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id} [delete]
 func deletePlatformProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -58,7 +58,7 @@ func deletePlatformProject(c *gin.Context) {
 // @Param id path string true "Platform ID"
 // @Param project_id path string true "Platform Project ID"
 // @Param request body viewmodels.UpdatePlatformProjectRequest true "Request body"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id} [put]
 func updatePlatformProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -72,7 +72,7 @@ func updatePlatformProject(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Platform ID"
 // @Param request body viewmodels.UpdatePlatformProjectRequest true "Request body"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project [post]
 func createPlatformProject(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -85,7 +85,7 @@ func createPlatformProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id} [delete]
 func deletePlatform(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -99,7 +99,7 @@ func deletePlatform(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Platform ID"
 // @Param request body viewmodels.UpdatePlatformRequest true "Request body"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id} [put]
 func updatePlatform(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -112,7 +112,7 @@ func updatePlatform(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreatePlatformRequest true "Request body"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform [post]
 func createPlatform(c *gin.Context) {
 	ctrl := controller.NewController()
@@ -137,7 +137,7 @@ func getAllPlatform(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Platform ID"
-// @Success 200 {object} viewmodels.PlatformView
+// @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id} [get]
 func getPlatform(c *gin.Context) {
 	ctrl := controller.NewController()

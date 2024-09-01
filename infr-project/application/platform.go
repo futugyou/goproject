@@ -29,7 +29,7 @@ func NewPlatformService(
 	}
 }
 
-func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx context.Context) (*models.PlatformDetailView, error) {
 	var res *platform.Platform
 	res, err := s.repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
@@ -71,16 +71,20 @@ func (s *PlatformService) GetAllPlatform(ctx context.Context) ([]models.Platform
 
 	result := make([]models.PlatformView, len(src))
 	for i := 0; i < len(src); i++ {
-		m, err := convertPlatformEntityToViewModel(&src[i])
-		if err != nil {
-			return nil, err
+		result[i] = models.PlatformView{
+			Id:           src[i].Id,
+			Name:         src[i].Name,
+			Activate:     src[i].Activate,
+			Url:          src[i].Url,
+			RestEndpoint: src[i].RestEndpoint,
+			Tags:         src[i].Tags,
+			IsDeleted:    src[i].IsDeleted,
 		}
-		result[i] = *m
 	}
 	return result, nil
 }
 
-func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.PlatformDetailView, error) {
 	src, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -88,7 +92,7 @@ func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.P
 	return convertPlatformEntityToViewModel(src)
 }
 
-func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*models.PlatformDetailView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -113,7 +117,7 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	return convertPlatformEntityToViewModel(plat)
 }
 
-func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*models.PlatformDetailView, error) {
 	if err := s.repository.SoftDelete(ctx, id); err != nil {
 		return nil, err
 	}
@@ -124,7 +128,7 @@ func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*model
 	return convertPlatformEntityToViewModel(plat)
 }
 
-func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) AddProject(id string, projectId string, project models.UpdatePlatformProjectRequest, ctx context.Context) (*models.PlatformDetailView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -146,7 +150,7 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 	return convertPlatformEntityToViewModel(plat)
 }
 
-func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*models.PlatformDetailView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -161,7 +165,7 @@ func (s *PlatformService) DeleteProject(id string, projectId string, ctx context
 	return convertPlatformEntityToViewModel(plat)
 }
 
-func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*models.PlatformView, error) {
+func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*models.PlatformDetailView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -264,7 +268,7 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 	return convertPlatformEntityToViewModel(plat)
 }
 
-func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformView, error) {
+func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformDetailView, error) {
 	if src == nil {
 		return nil, nil
 	}
@@ -294,7 +298,7 @@ func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformV
 			Webhooks: webhooks,
 		})
 	}
-	return &models.PlatformView{
+	return &models.PlatformDetailView{
 		Id:           src.Id,
 		Name:         src.Name,
 		Activate:     src.Activate,

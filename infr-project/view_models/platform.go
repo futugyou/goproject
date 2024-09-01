@@ -38,6 +38,16 @@ type UpdatePlatformWebhookRequest struct {
 }
 
 type PlatformView struct {
+	Id           string   `json:"id"`
+	Name         string   `json:"name"`
+	Activate     bool     `json:"activate"`
+	Url          string   `json:"url"`
+	RestEndpoint string   `json:"rest_endpoint"`
+	Tags         []string `json:"tags"`
+	IsDeleted    bool     `json:"is_deleted"`
+}
+
+type PlatformDetailView struct {
 	Id           string            `json:"id"`
 	Name         string            `json:"name"`
 	Activate     bool              `json:"activate"`
