@@ -212,9 +212,42 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
+	ordProperty := make(map[string]platform.PropertyInfo)
+	for _, v := range plat.Property {
+		var value string = v.Value
+		var err error
+		if value != "" {
+			value, err = tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
+			if err != nil {
+				return nil, err
+			}
+		}
+		ordProperty[v.Key] = platform.PropertyInfo{
+			Key:      v.Key,
+			Value:    value,
+			NeedMask: v.NeedMask,
+		}
+	}
+
 	newProperty := make(map[string]platform.PropertyInfo)
 	for _, v := range data.Property {
-		newProperty[v.Key] = platform.PropertyInfo(v)
+		value := v.Value
+		if raw, ok := ordProperty[v.Key]; ok {
+			rawValueMask := tool.MaskString(raw.Value, 5, 0.5)
+			if rawValueMask == v.Value {
+				value = raw.Value
+			}
+		}
+
+		encrypValue, err := tool.AesCTREncrypt(value, os.Getenv("Encrypt_Key"))
+		if err != nil {
+			return nil, err
+		}
+		newProperty[v.Key] = platform.PropertyInfo{
+			Key:      v.Key,
+			Value:    encrypValue,
+			NeedMask: v.NeedMask,
+		}
 	}
 	if !tool.MapsCompareCommon(plat.Property, newProperty) {
 		if _, err := plat.UpdateProperty(newProperty); err != nil {
