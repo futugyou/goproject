@@ -211,6 +211,33 @@ definitions:
       id:
         type: string
     type: object
+  viewmodels.PlatformDetailView:
+    properties:
+      activate:
+        type: boolean
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/viewmodels.PlatformProject'
+        type: array
+      property:
+        items:
+          $ref: '#/definitions/viewmodels.PropertyInfo'
+        type: array
+      rest_endpoint:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+    type: object
   viewmodels.PlatformProject:
     properties:
       id:
@@ -238,14 +265,6 @@ definitions:
         type: boolean
       name:
         type: string
-      projects:
-        items:
-          $ref: '#/definitions/viewmodels.PlatformProject'
-        type: array
-      property:
-        items:
-          $ref: '#/definitions/viewmodels.PropertyInfo'
-        type: array
       rest_endpoint:
         type: string
       tags:
@@ -538,7 +557,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: create platform
       tags:
       - Platform
@@ -559,7 +578,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: delete platform
       tags:
       - Platform
@@ -579,7 +598,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: get platform
       tags:
       - Platform
@@ -605,7 +624,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: update platform
       tags:
       - Platform
@@ -632,7 +651,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: create platform webhook
       tags:
       - Platform
@@ -658,7 +677,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: delete platform project
       tags:
       - Platform
@@ -689,7 +708,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: update platform project
       tags:
       - Platform
@@ -721,7 +740,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformView'
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: update platform webhook
       tags:
       - Platform

@@ -67,7 +67,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -99,7 +99,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -138,7 +138,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -168,7 +168,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -209,7 +209,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -257,7 +257,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -294,7 +294,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -342,7 +342,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformView"
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
                         }
                     }
                 }
@@ -1281,6 +1281,47 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.PlatformDetailView": {
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.PlatformProject"
+                    }
+                },
+                "property": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                    }
+                },
+                "rest_endpoint": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.PlatformProject": {
             "type": "object",
             "properties": {
@@ -1321,18 +1362,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "projects": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.PlatformProject"
-                    }
-                },
-                "property": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
-                    }
                 },
                 "rest_endpoint": {
                     "type": "string"
