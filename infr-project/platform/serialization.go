@@ -129,6 +129,14 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 
 	if value, ok := m["tags"].([]string); ok {
 		r.Tags = value
+	} else if value, ok := m["tags"].(primitive.A); ok {
+		tags := make([]string, 0)
+		for _, item := range value {
+			if tag, ok := item.(string); ok {
+				tags = append(tags, tag)
+			}
+		}
+		r.Tags = tags
 	}
 
 	if value, ok := m["is_deleted"].(bool); ok {

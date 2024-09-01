@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // MarshalJSON is a custom marshaler for Resource that handles the serialization of ResourceType.
@@ -87,6 +88,14 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 
 	if value, ok := m["tags"].([]string); ok {
 		r.Tags = value
+	} else if value, ok := m["tags"].(primitive.A); ok {
+		tags := make([]string, 0)
+		for _, item := range value {
+			if tag, ok := item.(string); ok {
+				tags = append(tags, tag)
+			}
+		}
+		r.Tags = tags
 	}
 
 	if v, ok := m["version"]; ok {
