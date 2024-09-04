@@ -3,20 +3,20 @@ module github.com/futugyousuzu/goproject/awsgolang
 go 1.20
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.30.4
-	github.com/aws/aws-sdk-go-v2/config v1.27.31
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.30
-	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.40.5
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.38.0
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.6
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.177.0
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.32.2
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.45.2
-	github.com/aws/aws-sdk-go-v2/service/efs v1.31.4
-	github.com/aws/aws-sdk-go-v2/service/iam v1.35.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.61.0
-	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.31.5
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.6
+	github.com/aws/aws-sdk-go-v2 v1.30.5
+	github.com/aws/aws-sdk-go-v2/config v1.27.32
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.31
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.40.6
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.38.1
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.7
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.177.1
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.32.3
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.45.3
+	github.com/aws/aws-sdk-go-v2/service/efs v1.31.5
+	github.com/aws/aws-sdk-go-v2/service/iam v1.35.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.61.1
+	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.31.6
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.7
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
@@ -24,18 +24,18 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.48.5
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.48.6
 
-require github.com/aws/aws-sdk-go-v2/service/route53 v1.43.0
+require github.com/aws/aws-sdk-go-v2/service/route53 v1.43.1
 
-require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.32.6
+require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.32.7
 
-require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.34.2
+require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.35.0
 
-require github.com/aws/aws-sdk-go-v2/service/iot v1.55.4
+require github.com/aws/aws-sdk-go-v2/service/iot v1.55.5
 
 require (
-	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.24.4
+	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.24.5
 	go.mongodb.org/mongo-driver v1.16.1
 )
 
@@ -46,19 +46,19 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.4 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.12 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.16 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.16 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.13 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.17 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.17 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.1 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.16 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.17 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.3.18 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.9.17 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.18 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.17.16 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.22.5 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.5 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.30.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.3.19 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.9.18 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.19 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.17.17 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.22.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.30.6 // indirect
 	github.com/aws/smithy-go v1.20.4 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
