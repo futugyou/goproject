@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.32
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.40.7
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.39.0
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.8
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.9
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.177.2
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.32.4
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.45.4
@@ -30,7 +30,7 @@ require github.com/aws/aws-sdk-go-v2/service/route53 v1.43.2
 
 require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.32.8
 
-require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.35.1
+require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.36.0
 
 require github.com/aws/aws-sdk-go-v2/service/iot v1.55.6
 
