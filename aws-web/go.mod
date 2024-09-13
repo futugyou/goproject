@@ -30,7 +30,7 @@ require github.com/aws/aws-sdk-go-v2/service/route53 v1.43.2
 
 require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.32.8
 
-require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.36.0
+require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.37.0
 
 require github.com/aws/aws-sdk-go-v2/service/iot v1.55.6
 
