@@ -53,6 +53,10 @@ updates:
     schedule:
       interval: "daily"
       time: "03:15"
+    groups:
+      k8s:
+        patterns:
+          - "k8s.io/*"
   - package-ecosystem: "gomod"
     directory: "/container"
     schedule:
