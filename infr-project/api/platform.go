@@ -32,6 +32,8 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 		allPlatform(ctrl, r, w)
 	case "hook":
 		hookPlatform(ctrl, r, w)
+	case "hook_del":
+		deleteHookPlatform(ctrl, r, w)
 	case "project":
 		createPlatformProject(ctrl, r, w)
 	case "prodel":
@@ -78,6 +80,17 @@ func hookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseW
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
 	ctrl.UpdatePlatformHook(id, projectId, w, r)
+}
+
+func deleteHookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	projectId := r.URL.Query().Get("project_id")
+	hookName := r.URL.Query().Get("hook_name")
+	ctrl.DeletePlatformHook(id, projectId, hookName, w, r)
 }
 
 func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
