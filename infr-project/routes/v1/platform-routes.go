@@ -18,7 +18,24 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform/:id/project", createPlatformProject)
 	v1.PUT("/platform/:id/project/:project_id", updatePlatformProject)
 	v1.DELETE("/platform/:id/project/:project_id", deletePlatformProject)
+	// platform project webhook
 	v1.PUT("/platform/:id/project/:project_id/hook", updatePlatformHook)
+	v1.DELETE("/platform/:id/project/:project_id/hook/:hook_name", deletePlatformHook)
+}
+
+// @Summary delete platform webhook
+// @Description delete platform webhook
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param project_id path string true "Platform Project ID"
+// @Param hook_name path string true "Webhook Name"
+// @Success 200 {object} viewmodels.PlatformDetailView
+// @Router /v1/platform/{id}/project/{project_id}/hook/{hook_name} [delete]
+func deletePlatformHook(c *gin.Context) {
+	ctrl := controller.NewController()
+	ctrl.DeletePlatformHook(c.Param("id"), c.Param("project_id"), c.Param("hook_name"), c.Writer, c.Request)
 }
 
 // @Summary update platform webhook
@@ -65,8 +82,8 @@ func updatePlatformProject(c *gin.Context) {
 	ctrl.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
-// @Summary create platform webhook
-// @Description create platform webhook
+// @Summary create platform
+// @Description create platform
 // @Tags Platform
 // @Accept json
 // @Produce json
