@@ -280,7 +280,7 @@ func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformD
 
 	platformProjects := make([]models.PlatformProject, 0)
 	for _, v := range src.Projects {
-		webhooks := make([]models.Webhook, len(v.Webhooks))
+		webhooks := make([]models.Webhook, 0)
 		for i := 0; i < len(v.Webhooks); i++ {
 			webhooks = append(webhooks, models.Webhook{
 				Name:     v.Webhooks[i].Name,
