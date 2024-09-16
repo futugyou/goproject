@@ -92,7 +92,7 @@ func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.P
 	return convertPlatformEntityToViewModel(src)
 }
 
-func (s *PlatformService) AddWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*models.PlatformDetailView, error) {
+func (s *PlatformService) UpsertWebhook(id string, projectId string, hook models.UpdatePlatformWebhookRequest, ctx context.Context) (*models.PlatformDetailView, error) {
 	plat, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -110,6 +110,27 @@ func (s *PlatformService) AddWebhook(id string, projectId string, hook models.Up
 	if plat, err = plat.UpdateWebhook(projectId, *newhook); err != nil {
 		return nil, err
 	}
+	if err = s.repository.Update(ctx, *plat); err != nil {
+		return nil, err
+	}
+
+	return convertPlatformEntityToViewModel(plat)
+}
+
+func (s *PlatformService) RemoveWebhook(id string, projectId string, hookName string, ctx context.Context) (*models.PlatformDetailView, error) {
+	plat, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, exists := plat.Projects[projectId]; !exists {
+		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
+	}
+
+	if plat, err = plat.RemoveWebhook(projectId, hookName); err != nil {
+		return nil, err
+	}
+
 	if err = s.repository.Update(ctx, *plat); err != nil {
 		return nil, err
 	}
