@@ -632,7 +632,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create platform webhook
+      description: create platform
       parameters:
       - description: Platform ID
         in: path
@@ -652,7 +652,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/viewmodels.PlatformDetailView'
-      summary: create platform webhook
+      summary: create platform
       tags:
       - Platform
   /v1/platform/{id}/project/{project_id}:
@@ -742,6 +742,37 @@ paths:
           schema:
             $ref: '#/definitions/viewmodels.PlatformDetailView'
       summary: update platform webhook
+      tags:
+      - Platform
+  /v1/platform/{id}/project/{project_id}/hook/{hook_name}:
+    delete:
+      consumes:
+      - application/json
+      description: delete platform webhook
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Webhook Name
+        in: path
+        name: hook_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodels.PlatformDetailView'
+      summary: delete platform webhook
       tags:
       - Platform
   /v1/project:

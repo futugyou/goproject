@@ -176,7 +176,7 @@ const docTemplate = `{
         },
         "/v1/platform/{id}/project": {
             "post": {
-                "description": "create platform webhook",
+                "description": "create platform",
                 "consumes": [
                     "application/json"
                 ],
@@ -186,7 +186,7 @@ const docTemplate = `{
                 "tags": [
                     "Platform"
                 ],
-                "summary": "create platform webhook",
+                "summary": "create platform",
                 "parameters": [
                     {
                         "type": "string",
@@ -336,6 +336,52 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/viewmodels.UpdatePlatformWebhookRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/platform/{id}/project/{project_id}/hook/{hook_name}": {
+            "delete": {
+                "description": "delete platform webhook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "delete platform webhook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Platform Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Webhook Name",
+                        "name": "hook_name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
