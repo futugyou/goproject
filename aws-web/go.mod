@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.30.5
-	github.com/aws/aws-sdk-go-v2/config v1.27.33
+	github.com/aws/aws-sdk-go-v2/config v1.27.34
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.32
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.40.7
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.39.0
@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.177.3
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.33.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.45.4
-	github.com/aws/aws-sdk-go-v2/service/efs v1.31.6
+	github.com/aws/aws-sdk-go-v2/service/efs v1.31.7
 	github.com/aws/aws-sdk-go-v2/service/iam v1.35.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.61.2
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.31.7
@@ -32,7 +32,7 @@ require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.32.8
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.37.0
 
-require github.com/aws/aws-sdk-go-v2/service/iot v1.55.6
+require github.com/aws/aws-sdk-go-v2/service/iot v1.56.0
 
 require (
 	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.24.6
