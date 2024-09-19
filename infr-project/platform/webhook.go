@@ -27,10 +27,12 @@ func WithWebhookProperty(property map[string]string) WebhookOption {
 		w.Property = property
 	}
 }
+
 func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
 	webhook := &Webhook{
 		Name:     name,
 		Activate: true,
+		Url:      url,
 		State:    WebhookInit,
 		Property: make(map[string]string),
 	}
