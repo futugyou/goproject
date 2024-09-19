@@ -23,8 +23,17 @@ func WithStorageMedia(media StorageMedia) VaultOption {
 	}
 }
 
-func WithVaultType(vType VaultType, type_identity string) VaultOption {
+func WithVaultType(vType VaultType, identities ...string) VaultOption {
 	return func(w *Vault) {
+		type_identity := ""
+		if vType == VaultTypeSystem {
+			type_identity = "system"
+		} else if vType == VaultTypeCommon {
+			type_identity = "common"
+		} else if len(identities) > 0 {
+			type_identity = identities[0]
+		}
+
 		w.VaultType = vType
 		w.TypeIdentity = type_identity
 	}
