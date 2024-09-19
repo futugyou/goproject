@@ -1,8 +1,9 @@
 package vault
 
 import (
+	"fmt"
+
 	"github.com/futugyou/infr-project/domain"
-	"github.com/google/uuid"
 )
 
 type Vault struct {
@@ -47,8 +48,7 @@ func WithTags(tags []string) VaultOption {
 
 func NewVault(key string, value string, opts ...VaultOption) *Vault {
 	vault := &Vault{
-		Aggregate: domain.Aggregate{
-			Id: uuid.New().String()},
+		Aggregate:    domain.Aggregate{},
 		Key:          key,
 		Value:        value,
 		StorageMedia: StorageMediaLocal,
@@ -60,6 +60,8 @@ func NewVault(key string, value string, opts ...VaultOption) *Vault {
 	for _, opt := range opts {
 		opt(vault)
 	}
+
+	vault.Id = fmt.Sprintf("%s-%s-%s", vault.VaultType.String(), vault.TypeIdentity, vault.Key)
 
 	return vault
 }
