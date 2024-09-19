@@ -1,5 +1,7 @@
 package platform
 
+import "fmt"
+
 // entity
 type PlatformProject struct {
 	Id       string            `json:"id" bson:"id"`
@@ -15,7 +17,6 @@ func NewPlatformProject(id string, name string, url string, property map[string]
 		Name:     name,
 		Url:      url,
 		Property: property,
-		Webhooks: []Webhook{},
 	}
 }
 
@@ -34,25 +35,24 @@ func (w *PlatformProject) UpdateProperty(property map[string]string) *PlatformPr
 	return w
 }
 
-func (w *PlatformProject) UpdateWebhook(hook Webhook) {
-	f := false
+func (w *PlatformProject) UpsertWebhook(hook Webhook) {
 	for i := 0; i < len(w.Webhooks); i++ {
 		if w.Webhooks[i].Name == hook.Name {
 			w.Webhooks[i] = hook
-			f = true
-			break
+			return
 		}
 	}
 
-	if !f {
-		w.Webhooks = append(w.Webhooks, hook)
-	}
+	w.Webhooks = append(w.Webhooks, hook)
 }
 
-func (w *PlatformProject) RemoveWebhook(hookName string) {
+func (w *PlatformProject) RemoveWebhook(hookName string) error {
 	for i := len(w.Webhooks) - 1; i >= 0; i-- {
 		if w.Webhooks[i].Name == hookName {
 			w.Webhooks = append(w.Webhooks[:i], w.Webhooks[i+1:]...)
+			return nil
 		}
 	}
+
+	return fmt.Errorf("webhook name: %s does not exist", hookName)
 }

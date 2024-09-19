@@ -126,32 +126,44 @@ func (w *Platform) RemoveProject(projectId string) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
-	delete(w.Projects, projectId)
-	return w, nil
+	if _, ok := w.Projects[projectId]; ok {
+		delete(w.Projects, projectId)
+		return w, nil
+	} else {
+		return nil, fmt.Errorf("project id: %s does not exist", projectId)
+	}
 }
 
 func (w *Platform) UpdateWebhook(projectId string, hook Webhook) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
+
 	if project, exists := w.Projects[projectId]; exists {
 		projectPointer := &project
-		projectPointer.UpdateWebhook(hook)
+		projectPointer.UpsertWebhook(hook)
 		w.Projects[projectId] = *projectPointer
+		return w, nil
+	} else {
+		return nil, fmt.Errorf("project id: %s does not exist", projectId)
 	}
-	return w, nil
 }
 
 func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
+
 	if project, exists := w.Projects[projectId]; exists {
 		projectPointer := &project
-		projectPointer.RemoveWebhook(hookName)
+		if err := projectPointer.RemoveWebhook(hookName); err != nil {
+			return nil, err
+		}
 		w.Projects[projectId] = *projectPointer
+		return w, nil
+	} else {
+		return nil, fmt.Errorf("project id: %s does not exist", projectId)
 	}
-	return w, nil
 }
 
 func (r Platform) AggregateName() string {
