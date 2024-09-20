@@ -69,3 +69,36 @@ func NewVault(key string, value string, opts ...VaultOption) *Vault {
 func (r Vault) AggregateName() string {
 	return "vaults"
 }
+
+func (v *Vault) UpdateValue(value string) error {
+	v.Value = value
+	return nil
+}
+
+func (v *Vault) UpdateStorageMedia(media StorageMedia) error {
+	v.StorageMedia = media
+	return nil
+}
+
+func (v *Vault) UpdateVaultType(vType VaultType, identities ...string) error {
+	var type_identity string
+
+	if vType == VaultTypeSystem {
+		type_identity = "system"
+	} else if vType == VaultTypeCommon {
+		type_identity = "common"
+	} else if len(identities) == 0 {
+		return fmt.Errorf("type identity can not be empty when VaultType is not 'system' or 'common'")
+	} else {
+		type_identity = identities[0]
+	}
+
+	v.VaultType = vType
+	v.TypeIdentity = type_identity
+	return nil
+}
+
+func (v *Vault) UpdateTags(tags []string) error {
+	v.Tags = tags
+	return nil
+}
