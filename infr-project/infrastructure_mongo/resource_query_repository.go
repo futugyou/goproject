@@ -21,7 +21,8 @@ func NewResourceQueryRepository(client *mongo.Client, config QueryDBConfig) *Res
 }
 
 func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*models.ResourceView, error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	var page, size int = 1, 1
+	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 	ent, err := r.BaseQueryRepository.GetWithCondition(ctx, condition)
 	if err != nil {
 		return nil, err
@@ -33,7 +34,8 @@ func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name st
 }
 
 func (r *ResourceQueryRepository) GetResourceByNameAsync(ctx context.Context, name string) (<-chan *models.ResourceView, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	var page, size int = 1, 1
+	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 
 	resultChan := make(chan *models.ResourceView, 1)
 	errorChan := make(chan error, 1)

@@ -21,7 +21,8 @@ func NewProjectRepository(client *mongo.Client, config DBConfig) *ProjectReposit
 }
 
 func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (*project.Project, error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	var page, size int = 1, 1
+	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 	ent, err := s.BaseRepository.GetWithCondition(ctx, condition)
 	if err != nil {
 		return nil, err
@@ -32,13 +33,14 @@ func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (
 	return &ent[0], nil
 }
 
-func (s *ProjectRepository) GetAllProject(ctx context.Context) ([]project.Project, error) {
-	condition := extensions.NewSearch(nil, nil, nil, nil)
+func (s *ProjectRepository) GetAllProject(ctx context.Context, page *int, size *int) ([]project.Project, error) {
+	condition := extensions.NewSearch(page, size, nil, nil)
 	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
 
 func (s *ProjectRepository) GetProjectByNameAsync(ctx context.Context, name string) (<-chan *project.Project, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	var page, size int = 1, 1
+	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 
 	resultChan := make(chan *project.Project, 1)
 	errorChan := make(chan error, 1)
@@ -65,7 +67,7 @@ func (s *ProjectRepository) GetProjectByNameAsync(ctx context.Context, name stri
 	return resultChan, errorChan
 }
 
-func (s *ProjectRepository) GetAllProjectAsync(ctx context.Context) (<-chan []project.Project, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, nil)
+func (s *ProjectRepository) GetAllProjectAsync(ctx context.Context, page *int, size *int) (<-chan []project.Project, <-chan error) {
+	condition := extensions.NewSearch(page, size, nil, nil)
 	return s.BaseRepository.GetWithConditionAsync(ctx, condition)
 }

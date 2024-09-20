@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/futugyou/infr-project/controller"
@@ -80,7 +82,17 @@ func createProject(c *gin.Context) {
 // @Router /v1/project [get]
 func getAllProject(c *gin.Context) {
 	ctrl := controller.NewController()
-	ctrl.GetAllProject(c.Writer, c.Request)
+	pageStr := c.Query("page")
+	sizeStr := c.Query("size")
+	var page *int
+	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
+		page = &p
+	}
+	var size *int
+	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
+		size = &p
+	}
+	ctrl.GetAllProject(c.Writer, c.Request, page, size)
 }
 
 // @Summary get project

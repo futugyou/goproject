@@ -47,8 +47,8 @@ func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx 
 	return convertProjectEntityToViewModel(res), nil
 }
 
-func (s *ProjectService) GetAllProject(ctx context.Context) ([]models.ProjectView, error) {
-	res, err := s.repository.GetAllProject(ctx)
+func (s *ProjectService) GetAllProject(ctx context.Context, page *int, size *int) ([]models.ProjectView, error) {
+	res, err := s.repository.GetAllProject(ctx, page, size)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strconv"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"net/http"
@@ -94,7 +96,17 @@ func deleteHookPlatform(ctrl *controller.Controller, r *http.Request, w http.Res
 }
 
 func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	ctrl.GetAllPlatform(w, r)
+	pageStr := r.URL.Query().Get("page")
+	sizeStr := r.URL.Query().Get("size")
+	var page *int
+	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
+		page = &p
+	}
+	var size *int
+	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
+		size = &p
+	}
+	ctrl.GetAllPlatform(w, r, page, size)
 }
 
 func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {

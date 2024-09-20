@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strconv"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"net/http"
@@ -40,7 +42,17 @@ func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func allProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	ctrl.GetAllProject(w, r)
+	pageStr := r.URL.Query().Get("page")
+	sizeStr := r.URL.Query().Get("size")
+	var page *int
+	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
+		page = &p
+	}
+	var size *int
+	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
+		size = &p
+	}
+	ctrl.GetAllProject(w, r, page, size)
 }
 
 func updateProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {

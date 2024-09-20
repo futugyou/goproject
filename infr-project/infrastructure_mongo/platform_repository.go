@@ -21,7 +21,8 @@ func NewPlatformRepository(client *mongo.Client, config DBConfig) *PlatformRepos
 }
 
 func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string) (*platform.Platform, error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	var page, size int = 1, 1
+	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 	ent, err := s.BaseRepository.GetWithCondition(ctx, condition)
 	if err != nil {
 		return nil, err
@@ -32,13 +33,14 @@ func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 	return &ent[0], nil
 }
 
-func (s *PlatformRepository) GetAllPlatform(ctx context.Context) ([]platform.Platform, error) {
-	condition := extensions.NewSearch(nil, nil, nil, nil)
+func (s *PlatformRepository) GetAllPlatform(ctx context.Context, page *int, size *int) ([]platform.Platform, error) {
+	condition := extensions.NewSearch(page, size, nil, nil)
 	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
 
 func (s *PlatformRepository) GetPlatformByNameAsync(ctx context.Context, name string) (<-chan *platform.Platform, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"name": name})
+	var page, size int = 1, 1
+	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 	resultChan := make(chan *platform.Platform, 1)
 	errorChan := make(chan error, 1)
 
@@ -64,7 +66,7 @@ func (s *PlatformRepository) GetPlatformByNameAsync(ctx context.Context, name st
 	return resultChan, errorChan
 }
 
-func (s *PlatformRepository) GetAllPlatformAsync(ctx context.Context) (<-chan []platform.Platform, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, nil)
+func (s *PlatformRepository) GetAllPlatformAsync(ctx context.Context, page *int, size *int) (<-chan []platform.Platform, <-chan error) {
+	condition := extensions.NewSearch(page, size, nil, nil)
 	return s.BaseRepository.GetWithConditionAsync(ctx, condition)
 }

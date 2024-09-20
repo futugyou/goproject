@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	_ "github.com/futugyou/infr-project/view_models"
@@ -145,7 +147,17 @@ func createPlatform(c *gin.Context) {
 // @Router /v1/platform [get]
 func getAllPlatform(c *gin.Context) {
 	ctrl := controller.NewController()
-	ctrl.GetAllPlatform(c.Writer, c.Request)
+	pageStr := c.Query("page")
+	sizeStr := c.Query("size")
+	var page *int
+	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
+		page = &p
+	}
+	var size *int
+	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
+		size = &p
+	}
+	ctrl.GetAllPlatform(c.Writer, c.Request, page, size)
 }
 
 // @Summary get platform

@@ -59,15 +59,16 @@ func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Reques
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request) {
-	service, err := createProjectService(r.Context())
+func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request, page *int, size *int) {
+	ctx := r.Context()
+	service, err := createProjectService(ctx)
 
 	if err != nil {
 		handleError(w, err, 500)
 		return
 	}
 
-	res, err := service.GetAllProject(r.Context())
+	res, err := service.GetAllProject(ctx, page, size)
 	if err != nil {
 		handleError(w, err, 500)
 		return
