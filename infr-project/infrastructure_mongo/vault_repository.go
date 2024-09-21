@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/futugyou/infr-project/vault"
@@ -64,6 +65,11 @@ func (r *VaultRepository) GetAllVaultByVaultTypeAsync(ctx context.Context, vType
 }
 
 func (r *VaultRepository) GetAllVaultByTagsAsync(ctx context.Context, tags []string) (<-chan []vault.Vault, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"tags": tags})
+	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"tags": bson.M{"$in": tags}})
+	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
+}
+
+func (r *VaultRepository) GetAllVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []vault.Vault, <-chan error) {
+	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"id": bson.M{"$in": ids}})
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
