@@ -49,3 +49,18 @@ func (s *VaultService) GetAllVault(ctx context.Context, page *int, size *int) ([
 		return nil, fmt.Errorf("GetAllVault timeout")
 	}
 }
+
+func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (string, error) {
+	src, err := s.repository.GetAsync(ctx, vaultId)
+	select {
+	case data := <-src:
+		if data == nil {
+			return "", fmt.Errorf("vault with id: %s is not exist", vaultId)
+		}
+		return data.Value, nil
+	case errM := <-err:
+		return "", errM
+	case <-ctx.Done():
+		return "", fmt.Errorf("ShowVaultRawValue timeout")
+	}
+}
