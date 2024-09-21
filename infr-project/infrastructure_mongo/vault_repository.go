@@ -22,7 +22,7 @@ func NewVaultRepository(client *mongo.Client, config DBConfig) *VaultRepository 
 	}
 }
 
-func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []vault.Vault) <-chan error {
+func (r *VaultRepository) InsertMultipleVaultAsync(ctx context.Context, vaults []vault.Vault) <-chan error {
 	errorChan := make(chan error, 1)
 	if len(vaults) == 0 {
 		errorChan <- fmt.Errorf("not data need insert")
@@ -50,12 +50,12 @@ func (r *VaultRepository) GetAllVaultAsync(ctx context.Context, page *int, size 
 
 }
 
-func (r *VaultRepository) GetAllVaultByStorageMediaAsync(ctx context.Context, media vault.StorageMedia) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) GetVaultByStorageMediaAsync(ctx context.Context, media vault.StorageMedia) (<-chan []vault.Vault, <-chan error) {
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"storage_media": media.String()})
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
 
-func (r *VaultRepository) GetAllVaultByVaultTypeAsync(ctx context.Context, vType vault.VaultType, identities ...string) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) GetVaultByVaultTypeAsync(ctx context.Context, vType vault.VaultType, identities ...string) (<-chan []vault.Vault, <-chan error) {
 	var filter map[string]interface{} = map[string]interface{}{"vault_type": vType.String()}
 	if len(identities) > 0 {
 		filter["type_identity"] = identities[0]
@@ -64,12 +64,12 @@ func (r *VaultRepository) GetAllVaultByVaultTypeAsync(ctx context.Context, vType
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
 
-func (r *VaultRepository) GetAllVaultByTagsAsync(ctx context.Context, tags []string) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) GetVaultByTagsAsync(ctx context.Context, tags []string) (<-chan []vault.Vault, <-chan error) {
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"tags": bson.M{"$in": tags}})
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
 
-func (r *VaultRepository) GetAllVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) GetVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []vault.Vault, <-chan error) {
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"id": bson.M{"$in": ids}})
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }

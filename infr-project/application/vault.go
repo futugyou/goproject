@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	tool "github.com/futugyou/extensions"
 
@@ -71,8 +72,29 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 			))
 	}
 
+	ids := []string{}
+	for _, vault := range entities {
+		ids = append(ids, vault.Id)
+	}
+
+	checksCh, errCh := s.repository.GetVaultByIdsAsync(ctx, ids)
+	select {
+	case datas := <-checksCh:
+		if len(datas) > 0 {
+			ids = []string{}
+			for _, vault := range datas {
+				ids = append(ids, vault.Id)
+			}
+			return nil, fmt.Errorf("id %s are already existed", strings.Join(ids, ","))
+		}
+	case errM := <-errCh:
+		return nil, errM
+	case <-ctx.Done():
+		return nil, fmt.Errorf("CreateVaults timeout")
+	}
+
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		return <-s.repository.InsertMultipleVault(ctx, entities)
+		return <-s.repository.InsertMultipleVaultAsync(ctx, entities)
 	}); err != nil {
 		return nil, err
 	}
