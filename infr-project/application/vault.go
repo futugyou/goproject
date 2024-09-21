@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	tool "github.com/futugyou/extensions"
+
 	domain "github.com/futugyou/infr-project/domain"
 	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
@@ -33,7 +35,7 @@ func (s *VaultService) GetAllVault(ctx context.Context, page *int, size *int) ([
 			result[i] = models.VaultView{
 				Id:           datas[i].Id,
 				Key:          datas[i].Key,
-				Value:        datas[i].Value,
+				MaskValue:    tool.MaskString(datas[i].Value, 5, 0.5),
 				StorageMedia: datas[i].StorageMedia.String(),
 				VaultType:    datas[i].VaultType.String(),
 				TypeIdentity: datas[i].TypeIdentity,
