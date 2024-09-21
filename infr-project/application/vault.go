@@ -32,15 +32,7 @@ func (s *VaultService) GetAllVault(ctx context.Context, page *int, size *int) ([
 	case datas := <-src:
 		result := make([]models.VaultView, len(datas))
 		for i := 0; i < len(datas); i++ {
-			result[i] = models.VaultView{
-				Id:           datas[i].Id,
-				Key:          datas[i].Key,
-				MaskValue:    tool.MaskString(datas[i].Value, 5, 0.5),
-				StorageMedia: datas[i].StorageMedia.String(),
-				VaultType:    datas[i].VaultType.String(),
-				TypeIdentity: datas[i].TypeIdentity,
-				Tags:         datas[i].Tags,
-			}
+			result[i] = convertVaultToVaultView(datas[i])
 		}
 		return result, nil
 	case errM := <-err:
@@ -62,5 +54,46 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 		return "", errM
 	case <-ctx.Done():
 		return "", fmt.Errorf("ShowVaultRawValue timeout")
+	}
+}
+
+func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.Context) (*models.CreateVaultsResponse, error) {
+	entities := make([]vault.Vault, 0)
+	for i := 0; i < len(aux.Vaults); i++ {
+		va := aux.Vaults[i]
+		entities = append(entities,
+			*vault.NewVault(
+				va.Key,
+				va.Value,
+				vault.WithStorageMedia(vault.GetStorageMedia(va.StorageMedia)),
+				vault.WithTags(va.Tags),
+				vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
+			))
+	}
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		return <-s.repository.InsertMultipleVault(ctx, entities)
+	}); err != nil {
+		return nil, err
+	}
+
+	response := models.CreateVaultsResponse{
+		Vaults: []models.VaultView{},
+	}
+	for _, va := range entities {
+		response.Vaults = append(response.Vaults, convertVaultToVaultView(va))
+	}
+	return &response, nil
+}
+
+func convertVaultToVaultView(entity vault.Vault) models.VaultView {
+	return models.VaultView{
+		Id:           entity.Id,
+		Key:          entity.Key,
+		MaskValue:    tool.MaskString(entity.Value, 5, 0.5),
+		StorageMedia: entity.StorageMedia.String(),
+		VaultType:    entity.VaultType.String(),
+		TypeIdentity: entity.TypeIdentity,
+		Tags:         entity.Tags,
 	}
 }

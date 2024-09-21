@@ -117,7 +117,7 @@ func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *
 		return
 	}
 
-	if err := extensions.Validate.Var(aux, "gt=0,dive"); err != nil {
+	if err := extensions.Validate.Var(aux, "required,gt=0,dive"); err != nil {
 		handleError(w, err, 400)
 		return
 	}
