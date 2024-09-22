@@ -73,3 +73,38 @@ func (r *VaultRepository) GetVaultByIdsAsync(ctx context.Context, ids []string) 
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"id": bson.M{"$in": ids}})
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
+
+func (r *VaultRepository) SearchVaults(ctx context.Context, req *vault.VaultSearch, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
+	filter := buildSearchFilter(req)
+	condition := extensions.NewSearch(page, size, nil, filter)
+	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
+}
+
+func buildSearchFilter(req *vault.VaultSearch) map[string]interface{} {
+	filter := map[string]interface{}{}
+	if req == nil {
+		return filter
+	}
+
+	if req.Key != "" {
+		filter["key"] = bson.D{{Key: "$regex", Value: req.Key}, {Key: "$options", Value: "i"}}
+	}
+
+	if req.StorageMedia != "" {
+		filter["storage_media"] = req.StorageMedia
+	}
+
+	if req.VaultType != "" {
+		filter["vault_type"] = req.VaultType
+	}
+
+	if req.TypeIdentity != "" {
+		filter["type_identity"] = req.TypeIdentity
+	}
+
+	if len(req.Tags) > 0 {
+		filter["tags"] = bson.D{{Key: "$in", Value: req.Tags}}
+	}
+
+	return filter
+}

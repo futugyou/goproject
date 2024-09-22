@@ -6,6 +6,14 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
+type VaultSearch struct {
+	Key          string
+	StorageMedia string
+	VaultType    string
+	TypeIdentity string
+	Tags         []string
+}
+
 type IVaultRepositoryAsync interface {
 	domain.IRepositoryAsync[Vault]
 	InsertMultipleVaultAsync(ctx context.Context, vaults []Vault) <-chan error
@@ -14,4 +22,5 @@ type IVaultRepositoryAsync interface {
 	GetVaultByVaultTypeAsync(ctx context.Context, vType VaultType, identities ...string) (<-chan []Vault, <-chan error)
 	GetVaultByTagsAsync(ctx context.Context, tags []string) (<-chan []Vault, <-chan error)
 	GetVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []Vault, <-chan error)
+	SearchVaults(ctx context.Context, filter *VaultSearch, page *int, size *int) (<-chan []Vault, <-chan error)
 }
