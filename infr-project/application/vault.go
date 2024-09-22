@@ -27,8 +27,9 @@ func NewVaultService(
 	}
 }
 
-func (s *VaultService) GetAllVault(ctx context.Context, page *int, size *int) ([]models.VaultView, error) {
-	src, err := s.repository.SearchVaults(ctx, nil, page, size)
+func (s *VaultService) SearchVaults(ctx context.Context, request models.SearchVaultsRequest, page *int, size *int) ([]models.VaultView, error) {
+	filter := vault.VaultSearch(request)
+	src, err := s.repository.SearchVaults(ctx, &filter, page, size)
 	select {
 	case datas := <-src:
 		result := make([]models.VaultView, len(datas))
@@ -39,7 +40,7 @@ func (s *VaultService) GetAllVault(ctx context.Context, page *int, size *int) ([
 	case errM := <-err:
 		return nil, errM
 	case <-ctx.Done():
-		return nil, fmt.Errorf("GetAllVault timeout")
+		return nil, fmt.Errorf("SearchVaults timeout")
 	}
 }
 

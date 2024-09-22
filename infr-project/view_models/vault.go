@@ -26,3 +26,11 @@ type CreateVaultsRequest struct {
 type CreateVaultsResponse struct {
 	Vaults []VaultView `json:"vaults"`
 }
+
+type SearchVaultsRequest struct {
+	Key          string   `json:"key"`
+	StorageMedia string   `json:"storage_media"`
+	VaultType    string   `json:"vault_type"`
+	TypeIdentity string   `json:"type_identity"`
+	Tags         []string `json:"tags"`
+}
