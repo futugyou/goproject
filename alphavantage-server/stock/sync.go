@@ -67,6 +67,17 @@ func SyncStockSymbolData(symbol string) {
 		return
 	}
 
+	if stock == nil || len(stock.Symbol) == 0 {
+		log.Printf("something wrong when got CompanyOverview, Symbol is %s\n", symbol)
+		return
+	}
+
+	if result.Symbol != stock.Symbol {
+		log.Printf("SymbolSearch Symbol is %s, CompanyOverview Symbol is %s\n", stock.Symbol, result.Symbol)
+		return
+	}
+
+	stock.Id = result.Symbol
 	stock.Symbol = result.Symbol
 	stock.AssetType = result.AssetType
 	stock.Name = result.Name
