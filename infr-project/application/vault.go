@@ -28,7 +28,7 @@ func NewVaultService(
 }
 
 func (s *VaultService) GetAllVault(ctx context.Context, page *int, size *int) ([]models.VaultView, error) {
-	src, err := s.repository.GetAllVaultAsync(ctx, page, size)
+	src, err := s.repository.SearchVaults(ctx, nil, page, size)
 	select {
 	case datas := <-src:
 		result := make([]models.VaultView, len(datas))

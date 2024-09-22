@@ -44,31 +44,6 @@ func (r *VaultRepository) InsertMultipleVaultAsync(ctx context.Context, vaults [
 	return errorChan
 }
 
-func (r *VaultRepository) GetAllVaultAsync(ctx context.Context, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
-	condition := extensions.NewSearch(page, size, nil, nil)
-	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
-
-}
-
-func (r *VaultRepository) GetVaultByStorageMediaAsync(ctx context.Context, media vault.StorageMedia) (<-chan []vault.Vault, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"storage_media": media.String()})
-	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
-}
-
-func (r *VaultRepository) GetVaultByVaultTypeAsync(ctx context.Context, vType vault.VaultType, identities ...string) (<-chan []vault.Vault, <-chan error) {
-	var filter map[string]interface{} = map[string]interface{}{"vault_type": vType.String()}
-	if len(identities) > 0 {
-		filter["type_identity"] = identities[0]
-	}
-	condition := extensions.NewSearch(nil, nil, nil, filter)
-	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
-}
-
-func (r *VaultRepository) GetVaultByTagsAsync(ctx context.Context, tags []string) (<-chan []vault.Vault, <-chan error) {
-	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"tags": bson.M{"$in": tags}})
-	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
-}
-
 func (r *VaultRepository) GetVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []vault.Vault, <-chan error) {
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"id": bson.M{"$in": ids}})
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
