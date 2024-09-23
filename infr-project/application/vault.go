@@ -118,6 +118,57 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 	return &response, nil
 }
 
+func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx context.Context) (*models.VaultView, error) {
+	var data *vault.Vault
+
+	vaultCh, errCh := s.repository.GetAsync(ctx, id)
+	select {
+	case data = <-vaultCh:
+	case errM := <-errCh:
+		return nil, errM
+	case <-ctx.Done():
+		return nil, fmt.Errorf("CreateVaults timeout")
+	}
+
+	if data == nil {
+		return nil, fmt.Errorf("id %s are not existed", id)
+	}
+
+	if aux.Key != nil {
+		data.UpdateKey(data.Key)
+	}
+
+	if aux.Value != nil {
+		data.UpdateValue(data.Value)
+	}
+
+	if aux.StorageMedia != nil {
+		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
+		data.UpdateStorageMedia(storageMedia)
+
+	}
+
+	if aux.VaultType != nil || aux.TypeIdentity != nil {
+		vaultType := vault.GetVaultType(*aux.VaultType)
+		data.UpdateVaultType(vaultType, *aux.TypeIdentity)
+	}
+
+	if aux.Tags != nil {
+		data.UpdateTags(data.Tags)
+	}
+
+	if data.HasChange() {
+		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+			return <-s.repository.UpdateAsync(ctx, *data)
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	model := convertVaultToVaultView(*data)
+	return &model, nil
+}
+
 func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 	return models.VaultView{
 		Id:           entity.Id,
