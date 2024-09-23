@@ -28,8 +28,17 @@ func NewVaultService(
 }
 
 func (s *VaultService) SearchVaults(ctx context.Context, request models.SearchVaultsRequest, page *int, size *int) ([]models.VaultView, error) {
-	filter := vault.VaultSearch(request)
-	src, err := s.repository.SearchVaults(ctx, &filter, page, size)
+	filter := []vault.VaultSearch{
+		{
+			Key:          request.Key,
+			KeyFuzzy:     true,
+			StorageMedia: request.StorageMedia,
+			VaultType:    request.VaultType,
+			TypeIdentity: request.TypeIdentity,
+			Tags:         request.Tags,
+		},
+	}
+	src, err := s.repository.SearchVaults(ctx, filter, page, size)
 	select {
 	case datas := <-src:
 		result := make([]models.VaultView, len(datas))

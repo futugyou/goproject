@@ -49,36 +49,53 @@ func (r *VaultRepository) GetVaultByIdsAsync(ctx context.Context, ids []string) 
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
 
-func (r *VaultRepository) SearchVaults(ctx context.Context, req *vault.VaultSearch, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) SearchVaults(ctx context.Context, req []vault.VaultSearch, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
 	filter := buildSearchFilter(req)
 	condition := extensions.NewSearch(page, size, nil, filter)
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
 
-func buildSearchFilter(req *vault.VaultSearch) map[string]interface{} {
+func buildSearchFilter(reqs []vault.VaultSearch) map[string]interface{} {
 	filter := map[string]interface{}{}
-	if req == nil {
+	if len(reqs) == 0 {
 		return filter
 	}
 
-	if req.Key != "" {
-		filter["key"] = bson.D{{Key: "$regex", Value: req.Key}, {Key: "$options", Value: "i"}}
+	orConditions := bson.A{}
+	for _, req := range reqs {
+		andConditions := bson.D{}
+
+		if req.Key != "" {
+			if req.KeyFuzzy {
+				andConditions = append(andConditions, bson.E{Key: "key", Value: bson.D{{Key: "$regex", Value: req.Key}, {Key: "$options", Value: "i"}}})
+			} else {
+				andConditions = append(andConditions, bson.E{Key: "key", Value: req.Key})
+			}
+		}
+
+		if req.StorageMedia != "" {
+			andConditions = append(andConditions, bson.E{Key: "storage_media", Value: req.StorageMedia})
+		}
+
+		if req.VaultType != "" {
+			andConditions = append(andConditions, bson.E{Key: "vault_type", Value: req.VaultType})
+		}
+
+		if req.TypeIdentity != "" {
+			andConditions = append(andConditions, bson.E{Key: "type_identity", Value: req.TypeIdentity})
+		}
+
+		if len(req.Tags) > 0 {
+			andConditions = append(andConditions, bson.E{Key: "tags", Value: bson.D{{Key: "$in", Value: req.Tags}}})
+		}
+
+		if len(andConditions) > 0 {
+			orConditions = append(orConditions, andConditions)
+		}
 	}
 
-	if req.StorageMedia != "" {
-		filter["storage_media"] = req.StorageMedia
-	}
-
-	if req.VaultType != "" {
-		filter["vault_type"] = req.VaultType
-	}
-
-	if req.TypeIdentity != "" {
-		filter["type_identity"] = req.TypeIdentity
-	}
-
-	if len(req.Tags) > 0 {
-		filter["tags"] = bson.D{{Key: "$in", Value: req.Tags}}
+	if len(orConditions) > 0 {
+		filter["$or"] = orConditions
 	}
 
 	return filter
