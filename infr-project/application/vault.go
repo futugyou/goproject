@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	tool "github.com/futugyou/extensions"
 
@@ -70,6 +69,8 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 
 func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.Context) (*models.CreateVaultsResponse, error) {
 	entities := make([]vault.Vault, 0)
+	filter := []vault.VaultSearch{}
+
 	for i := 0; i < len(aux.Vaults); i++ {
 		va := aux.Vaults[i]
 		entities = append(entities,
@@ -80,22 +81,21 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 				vault.WithTags(va.Tags),
 				vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
 			))
+
+		filter = append(filter, vault.VaultSearch{
+			Key:          va.Key,
+			KeyFuzzy:     false,
+			StorageMedia: va.StorageMedia,
+			VaultType:    va.VaultType,
+			TypeIdentity: va.TypeIdentity,
+		})
 	}
 
-	ids := []string{}
-	for _, vault := range entities {
-		ids = append(ids, vault.Id)
-	}
-
-	checksCh, errCh := s.repository.GetVaultByIdsAsync(ctx, ids)
+	checksCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
 	select {
 	case datas := <-checksCh:
 		if len(datas) > 0 {
-			ids = []string{}
-			for _, vault := range datas {
-				ids = append(ids, vault.Id)
-			}
-			return nil, fmt.Errorf("id %s are already existed", strings.Join(ids, ","))
+			return nil, fmt.Errorf("some vaults are already existed, check again")
 		}
 	case errM := <-errCh:
 		return nil, errM
