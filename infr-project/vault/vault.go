@@ -3,6 +3,8 @@ package vault
 import (
 	"fmt"
 
+	tool "github.com/futugyou/extensions"
+
 	"github.com/futugyou/infr-project/domain"
 	"github.com/google/uuid"
 )
@@ -15,6 +17,7 @@ type Vault struct {
 	VaultType        VaultType    `json:"vault_type"`    // system,common,project,resource,platform
 	TypeIdentity     string       `json:"type_identity"` // system,common,projectId,...
 	Tags             []string     `json:"tags"`
+	hasChange        bool         `json:"-"`
 }
 
 type VaultOption func(*Vault)
@@ -72,17 +75,26 @@ func (r Vault) AggregateName() string {
 }
 
 func (v *Vault) UpdateKey(key string) error {
-	v.Key = key
+	if v.Key != key {
+		v.Key = key
+		v.hasChange = true
+	}
 	return nil
 }
 
 func (v *Vault) UpdateValue(value string) error {
-	v.Value = value
+	if v.Value != value {
+		v.Value = value
+		v.hasChange = true
+	}
 	return nil
 }
 
 func (v *Vault) UpdateStorageMedia(media StorageMedia) error {
-	v.StorageMedia = media
+	if v.StorageMedia != media {
+		v.StorageMedia = media
+		v.hasChange = true
+	}
 	return nil
 }
 
@@ -99,12 +111,22 @@ func (v *Vault) UpdateVaultType(vType VaultType, identities ...string) error {
 		type_identity = identities[0]
 	}
 
-	v.VaultType = vType
-	v.TypeIdentity = type_identity
+	if v.VaultType != vType || v.TypeIdentity != type_identity {
+		v.VaultType = vType
+		v.TypeIdentity = type_identity
+		v.hasChange = true
+	}
 	return nil
 }
 
 func (v *Vault) UpdateTags(tags []string) error {
-	v.Tags = tags
+	if !tool.StringArrayCompare(v.Tags, tags) {
+		v.Tags = tags
+		v.hasChange = true
+	}
 	return nil
+}
+
+func (v *Vault) HasChange() bool {
+	return v.hasChange
 }
