@@ -191,15 +191,26 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
 		data.UpdateKey(*aux.Key)
 	}
 
-	if aux.Value != nil {
+	if aux.Value != nil && aux.StorageMedia != nil {
 		data.UpdateValue(*aux.Value)
-		EncryptVaultValue(data)
-	}
-
-	if aux.StorageMedia != nil {
 		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
 		data.UpdateStorageMedia(storageMedia)
-
+		EncryptVaultValue(data)
+	} else if aux.Value != nil {
+		data.UpdateValue(*aux.Value)
+		EncryptVaultValue(data)
+	} else if aux.StorageMedia != nil {
+		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
+		// that means value need decrypt
+		if data.StorageMedia == vault.StorageMediaLocal && storageMedia != vault.StorageMediaLocal {
+			DecryptVaultValue(data)
+			data.UpdateStorageMedia(storageMedia)
+		}
+		// that means value need encrypt
+		if data.StorageMedia != vault.StorageMediaLocal && storageMedia == vault.StorageMediaLocal {
+			data.UpdateStorageMedia(storageMedia)
+			EncryptVaultValue(data)
+		}
 	}
 
 	if aux.VaultType != nil || aux.TypeIdentity != nil {
@@ -226,24 +237,30 @@ func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 	}
 }
 
-func EncryptVaultValue(entity *vault.Vault) {
+func EncryptVaultValue(entity *vault.Vault) error {
 	if entity == nil {
-		return
+		return fmt.Errorf("vault can not be nil")
 	}
 	value := entity.Value
+	var err error
 	if entity.StorageMedia == vault.StorageMediaLocal {
-		value, _ = tool.AesCTREncrypt(entity.Value, os.Getenv("Encrypt_Key"))
+		if value, err = tool.AesCTREncrypt(entity.Value, os.Getenv("Encrypt_Key")); err != nil {
+			return err
+		}
 	}
-	entity.Value = value
+	return entity.UpdateValue(value)
 }
 
-func DecryptVaultValue(entity *vault.Vault) {
+func DecryptVaultValue(entity *vault.Vault) error {
 	if entity == nil {
-		return
+		return fmt.Errorf("vault can not be nil")
 	}
 	value := entity.Value
+	var err error
 	if entity.StorageMedia == vault.StorageMediaLocal {
-		value, _ = tool.AesCTRDecrypt(entity.Value, os.Getenv("Encrypt_Key"))
+		if value, err = tool.AesCTRDecrypt(entity.Value, os.Getenv("Encrypt_Key")); err != nil {
+			return err
+		}
 	}
-	entity.Value = value
+	return entity.UpdateValue(value)
 }
