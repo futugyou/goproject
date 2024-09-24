@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"os"
 
 	tool "github.com/futugyou/extensions"
 
@@ -59,6 +60,7 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 		if data == nil {
 			return "", fmt.Errorf("vault with id: %s is not exist", vaultId)
 		}
+		DecryptVaultValue(data)
 		return data.Value, nil
 	case errM := <-err:
 		return "", errM
@@ -73,14 +75,15 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 
 	for i := 0; i < len(aux.Vaults); i++ {
 		va := aux.Vaults[i]
-		entities = append(entities,
-			*vault.NewVault(
-				va.Key,
-				va.Value,
-				vault.WithStorageMedia(vault.GetStorageMedia(va.StorageMedia)),
-				vault.WithTags(va.Tags),
-				vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
-			))
+		entity := vault.NewVault(
+			va.Key,
+			va.Value,
+			vault.WithStorageMedia(vault.GetStorageMedia(va.StorageMedia)),
+			vault.WithTags(va.Tags),
+			vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
+		)
+		EncryptVaultValue(entity)
+		entities = append(entities, *entity)
 
 		filter = append(filter, vault.VaultSearch{
 			Key:          va.Key,
@@ -190,6 +193,7 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
 
 	if aux.Value != nil {
 		data.UpdateValue(*aux.Value)
+		EncryptVaultValue(data)
 	}
 
 	if aux.StorageMedia != nil {
@@ -209,6 +213,8 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
 }
 
 func convertVaultToVaultView(entity vault.Vault) models.VaultView {
+	DecryptVaultValue(&entity)
+
 	return models.VaultView{
 		Id:           entity.Id,
 		Key:          entity.Key,
@@ -218,4 +224,26 @@ func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 		TypeIdentity: entity.TypeIdentity,
 		Tags:         entity.Tags,
 	}
+}
+
+func EncryptVaultValue(entity *vault.Vault) {
+	if entity == nil {
+		return
+	}
+	value := entity.Value
+	if entity.StorageMedia == vault.StorageMediaLocal {
+		value, _ = tool.AesCTREncrypt(entity.Value, os.Getenv("Encrypt_Key"))
+	}
+	entity.Value = value
+}
+
+func DecryptVaultValue(entity *vault.Vault) {
+	if entity == nil {
+		return
+	}
+	value := entity.Value
+	if entity.StorageMedia == vault.StorageMediaLocal {
+		value, _ = tool.AesCTRDecrypt(entity.Value, os.Getenv("Encrypt_Key"))
+	}
+	entity.Value = value
 }
