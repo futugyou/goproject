@@ -65,6 +65,10 @@ func buildSearchFilter(reqs []vault.VaultSearch) map[string]interface{} {
 	for _, req := range reqs {
 		andConditions := bson.D{}
 
+		if req.ID != "" {
+			andConditions = append(andConditions, bson.E{Key: "id", Value: req.ID})
+		}
+
 		if req.Key != "" {
 			if req.KeyFuzzy {
 				andConditions = append(andConditions, bson.E{Key: "key", Value: bson.D{{Key: "$regex", Value: req.Key}, {Key: "$options", Value: "i"}}})

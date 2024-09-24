@@ -7,6 +7,7 @@ import (
 )
 
 type VaultSearch struct {
+	ID           string
 	Key          string
 	KeyFuzzy     bool
 	StorageMedia string
