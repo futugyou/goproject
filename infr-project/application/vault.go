@@ -119,11 +119,22 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 }
 
 func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx context.Context) (*models.VaultView, error) {
-	var data *vault.Vault
+	if tool.IsAllFieldsNil(aux) {
+		return nil, fmt.Errorf("no data need change")
+	}
 
-	vaultCh, errCh := s.repository.GetAsync(ctx, id)
+	var data *vault.Vault
+	filter := generateChangeVaultSearchFilter(aux, id)
+	vaultCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
 	select {
-	case data = <-vaultCh:
+	case datas := <-vaultCh:
+		if len(datas) == 0 || (len(datas) == 1 && id != datas[0].Id) {
+			return nil, fmt.Errorf("id %s are not existed", id)
+		}
+		if len(datas) > 1 {
+			return nil, fmt.Errorf("vaults with 'key+storage_media+vault_type+type_identity' was already existed, check again")
+		}
+		data = &datas[0]
 	case errM := <-errCh:
 		return nil, errM
 	case <-ctx.Done():
@@ -134,12 +145,51 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 		return nil, fmt.Errorf("id %s are not existed", id)
 	}
 
+	doVaultChange(data, aux)
+
+	if data.HasChange() {
+		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+			return <-s.repository.UpdateAsync(ctx, *data)
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	model := convertVaultToVaultView(*data)
+	return &model, nil
+}
+
+func generateChangeVaultSearchFilter(aux models.ChangeVaultRequest, id string) []vault.VaultSearch {
+	filter := []vault.VaultSearch{{
+		ID: id,
+	}}
+
+	subFilter := vault.VaultSearch{}
 	if aux.Key != nil {
-		data.UpdateKey(data.Key)
+		subFilter.Key = *aux.Key
+	}
+	if aux.StorageMedia != nil {
+		subFilter.StorageMedia = *aux.StorageMedia
+	}
+	if aux.VaultType != nil {
+		subFilter.VaultType = *aux.VaultType
+	}
+	if aux.TypeIdentity != nil {
+		subFilter.TypeIdentity = *aux.TypeIdentity
+	}
+	if !tool.IsAllFieldsNil(aux) {
+		filter = append(filter, subFilter)
+	}
+	return filter
+}
+
+func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
+	if aux.Key != nil {
+		data.UpdateKey(*aux.Key)
 	}
 
 	if aux.Value != nil {
-		data.UpdateValue(data.Value)
+		data.UpdateValue(*aux.Value)
 	}
 
 	if aux.StorageMedia != nil {
@@ -154,19 +204,8 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 	}
 
 	if aux.Tags != nil {
-		data.UpdateTags(data.Tags)
+		data.UpdateTags(*aux.Tags)
 	}
-
-	if data.HasChange() {
-		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-			return <-s.repository.UpdateAsync(ctx, *data)
-		}); err != nil {
-			return nil, err
-		}
-	}
-
-	model := convertVaultToVaultView(*data)
-	return &model, nil
 }
 
 func convertVaultToVaultView(entity vault.Vault) models.VaultView {
