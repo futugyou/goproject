@@ -31,6 +31,8 @@ func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 		v1.ConfigPlatformRoutes(v1api)
 		// project routes
 		v1.ConfigProjectRoutes(v1api)
+		// vault routes
+		v1.ConfigVaultRoutes(v1api)
 		// sdk test routes
 		v1.ConfigTestingRoutes(v1api, cqrsRoute)
 	}
