@@ -994,6 +994,178 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/vault": {
+            "get": {
+                "description": "get vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "get vault",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.SearchVaultsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/viewmodels.VaultView"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "create vault",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.CreateVaultsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.CreateVaultsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/vault/{id}": {
+            "put": {
+                "description": "update vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "update vault",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "vault ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.ChangeVaultRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.VaultView"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "delete vault",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "vault ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/vault/{id}/show": {
+            "post": {
+                "description": "show vault value",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "show vault value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "vault ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/platform": {
             "post": {
                 "description": "create platform v2",
@@ -1210,6 +1382,61 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.ChangeVaultItem": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "local",
+                        "aws",
+                        "HCP"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform"
+                    ]
+                }
+            }
+        },
+        "viewmodels.ChangeVaultRequest": {
+            "type": "object",
+            "properties": {
+                "force_insert": {
+                    "type": "boolean"
+                },
+                "vault_data": {
+                    "$ref": "#/definitions/viewmodels.ChangeVaultItem"
+                }
+            }
+        },
         "viewmodels.CreatePlatformRequest": {
             "type": "object",
             "required": [
@@ -1324,6 +1551,82 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string"
+                }
+            }
+        },
+        "viewmodels.CreateVaultModel": {
+            "type": "object",
+            "required": [
+                "key",
+                "value"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "local",
+                        "aws",
+                        "HCP"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform"
+                    ]
+                }
+            }
+        },
+        "viewmodels.CreateVaultsRequest": {
+            "type": "object",
+            "required": [
+                "vaults"
+            ],
+            "properties": {
+                "force_insert": {
+                    "type": "boolean"
+                },
+                "vaults": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.CreateVaultModel"
+                    }
+                }
+            }
+        },
+        "viewmodels.CreateVaultsResponse": {
+            "type": "object",
+            "properties": {
+                "vaults": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.VaultView"
+                    }
                 }
             }
         },
@@ -1544,6 +1847,29 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.SearchVaultsRequest": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "storage_media": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string"
+                },
+                "vault_type": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.UpdatePlatformProjectRequest": {
             "type": "object",
             "required": [
@@ -1751,6 +2077,35 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "viewmodels.VaultView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "mask_value": {
+                    "type": "string"
+                },
+                "storage_media": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string"
+                },
+                "vault_type": {
+                    "type": "string"
                 }
             }
         },
