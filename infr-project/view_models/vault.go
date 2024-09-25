@@ -20,7 +20,8 @@ type CreateVaultModel struct {
 }
 
 type CreateVaultsRequest struct {
-	Vaults []CreateVaultModel `json:"vaults" validate:"required,gt=0,dive"`
+	Vaults      []CreateVaultModel `json:"vaults" validate:"required,gt=0,dive"`
+	ForceInsert bool               `json:"force_insert"`
 }
 
 type CreateVaultsResponse struct {

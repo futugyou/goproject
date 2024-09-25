@@ -60,7 +60,7 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 		if data == nil {
 			return "", fmt.Errorf("vault with id: %s is not exist", vaultId)
 		}
-		DecryptVaultValue(data)
+		decryptVaultValue(data)
 		return data.Value, nil
 	case errM := <-err:
 		return "", errM
@@ -71,7 +71,6 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 
 func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.Context) (*models.CreateVaultsResponse, error) {
 	entities := make([]vault.Vault, 0)
-	filter := []vault.VaultSearch{}
 
 	for i := 0; i < len(aux.Vaults); i++ {
 		va := aux.Vaults[i]
@@ -82,28 +81,34 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 			vault.WithTags(va.Tags),
 			vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
 		)
-		EncryptVaultValue(entity)
+		encryptVaultValue(entity)
 		entities = append(entities, *entity)
-
-		filter = append(filter, vault.VaultSearch{
-			Key:          va.Key,
-			KeyFuzzy:     false,
-			StorageMedia: va.StorageMedia,
-			VaultType:    va.VaultType,
-			TypeIdentity: va.TypeIdentity,
-		})
 	}
 
-	checksCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
-	select {
-	case datas := <-checksCh:
-		if len(datas) > 0 {
-			return nil, fmt.Errorf("some vaults are already existed, check again")
+	if !aux.ForceInsert {
+		filter := []vault.VaultSearch{}
+		for i := 0; i < len(aux.Vaults); i++ {
+			va := aux.Vaults[i]
+			filter = append(filter, vault.VaultSearch{
+				Key:          va.Key,
+				KeyFuzzy:     false,
+				StorageMedia: va.StorageMedia,
+				VaultType:    va.VaultType,
+				TypeIdentity: va.TypeIdentity,
+			})
 		}
-	case errM := <-errCh:
-		return nil, errM
-	case <-ctx.Done():
-		return nil, fmt.Errorf("CreateVaults timeout")
+
+		checksCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
+		select {
+		case datas := <-checksCh:
+			if len(datas) > 0 {
+				return nil, fmt.Errorf("some vaults are already existed, check again")
+			}
+		case errM := <-errCh:
+			return nil, errM
+		case <-ctx.Done():
+			return nil, fmt.Errorf("CreateVaults timeout")
+		}
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -195,21 +200,21 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
 		data.UpdateValue(*aux.Value)
 		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
 		data.UpdateStorageMedia(storageMedia)
-		EncryptVaultValue(data)
+		encryptVaultValue(data)
 	} else if aux.Value != nil {
 		data.UpdateValue(*aux.Value)
-		EncryptVaultValue(data)
+		encryptVaultValue(data)
 	} else if aux.StorageMedia != nil {
 		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
 		// that means value need decrypt
 		if data.StorageMedia == vault.StorageMediaLocal && storageMedia != vault.StorageMediaLocal {
-			DecryptVaultValue(data)
+			decryptVaultValue(data)
 			data.UpdateStorageMedia(storageMedia)
 		}
 		// that means value need encrypt
 		if data.StorageMedia != vault.StorageMediaLocal && storageMedia == vault.StorageMediaLocal {
 			data.UpdateStorageMedia(storageMedia)
-			EncryptVaultValue(data)
+			encryptVaultValue(data)
 		}
 	}
 
@@ -224,7 +229,7 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
 }
 
 func convertVaultToVaultView(entity vault.Vault) models.VaultView {
-	DecryptVaultValue(&entity)
+	decryptVaultValue(&entity)
 
 	return models.VaultView{
 		Id:           entity.Id,
@@ -237,7 +242,7 @@ func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 	}
 }
 
-func EncryptVaultValue(entity *vault.Vault) error {
+func encryptVaultValue(entity *vault.Vault) error {
 	if entity == nil {
 		return fmt.Errorf("vault can not be nil")
 	}
@@ -251,7 +256,7 @@ func EncryptVaultValue(entity *vault.Vault) error {
 	return entity.UpdateValue(value)
 }
 
-func DecryptVaultValue(entity *vault.Vault) error {
+func decryptVaultValue(entity *vault.Vault) error {
 	if entity == nil {
 		return fmt.Errorf("vault can not be nil")
 	}
