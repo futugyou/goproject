@@ -83,6 +83,47 @@ func (c *Controller) ShowVaultRawValue(w http.ResponseWriter, r *http.Request, v
 	writeJSONResponse(w, res, 200)
 }
 
+func (c *Controller) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId string) {
+	ctx := r.Context()
+	service, err := createVaultService(ctx)
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+	var aux models.ChangeVaultRequest
+	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	res, err := service.ChangeVault(vaultId, aux, ctx)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
+}
+
+func (c *Controller) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId string) {
+	ctx := r.Context()
+	service, err := createVaultService(ctx)
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	res, err := service.DeleteVault(ctx, vaultId)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
+}
+
 func createVaultService(ctx context.Context) (*application.VaultService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
