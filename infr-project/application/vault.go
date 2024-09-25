@@ -172,6 +172,20 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 	return &model, nil
 }
 
+func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, error) {
+	err := s.repository.DeleteAsync(ctx, vaultId)
+	select {
+	case errM := <-err:
+		if errM == nil {
+			return true, nil
+		} else {
+			return false, errM
+		}
+	case <-ctx.Done():
+		return false, fmt.Errorf("ShowVaultRawValue timeout")
+	}
+}
+
 func generateChangeVaultSearchFilter(aux models.ChangeVaultItem, id string) []vault.VaultSearch {
 	filter := []vault.VaultSearch{{
 		ID: id,
