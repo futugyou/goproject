@@ -37,6 +37,11 @@ type SearchVaultsRequest struct {
 }
 
 type ChangeVaultRequest struct {
+	Data        ChangeVaultItem `json:"vault_data"`
+	ForceInsert bool            `json:"force_insert"`
+}
+
+type ChangeVaultItem struct {
 	Key          *string   `json:"key" validate:"min=3,max=150"`
 	Value        *string   `json:"value" validate:"min=3,max=150"`
 	StorageMedia *string   `json:"storage_media" validate:"oneof=local aws HCP"`

@@ -127,22 +127,27 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 }
 
 func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx context.Context) (*models.VaultView, error) {
-	if tool.IsAllFieldsNil(aux) {
+	if tool.IsAllFieldsNil(aux.Data) {
 		return nil, fmt.Errorf("no data need change")
 	}
 
 	var data *vault.Vault
-	filter := generateChangeVaultSearchFilter(aux, id)
+	filter := generateChangeVaultSearchFilter(aux.Data, id)
 	vaultCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
 	select {
 	case datas := <-vaultCh:
 		if len(datas) == 0 || (len(datas) == 1 && id != datas[0].Id) {
 			return nil, fmt.Errorf("id %s are not existed", id)
 		}
-		if len(datas) > 1 {
+		if len(datas) > 1 && !aux.ForceInsert {
 			return nil, fmt.Errorf("vaults with 'key+storage_media+vault_type+type_identity' was already existed, check again")
 		}
-		data = &datas[0]
+		for _, da := range datas {
+			if da.Id == id {
+				data = &da
+				break
+			}
+		}
 	case errM := <-errCh:
 		return nil, errM
 	case <-ctx.Done():
@@ -153,7 +158,7 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 		return nil, fmt.Errorf("id %s are not existed", id)
 	}
 
-	doVaultChange(data, aux)
+	doVaultChange(data, aux.Data)
 
 	if data.HasChange() {
 		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -167,7 +172,7 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 	return &model, nil
 }
 
-func generateChangeVaultSearchFilter(aux models.ChangeVaultRequest, id string) []vault.VaultSearch {
+func generateChangeVaultSearchFilter(aux models.ChangeVaultItem, id string) []vault.VaultSearch {
 	filter := []vault.VaultSearch{{
 		ID: id,
 	}}
@@ -191,7 +196,7 @@ func generateChangeVaultSearchFilter(aux models.ChangeVaultRequest, id string) [
 	return filter
 }
 
-func doVaultChange(data *vault.Vault, aux models.ChangeVaultRequest) {
+func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 	if aux.Key != nil {
 		data.UpdateKey(*aux.Key)
 	}
