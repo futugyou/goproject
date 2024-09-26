@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/futugyou/infr-project/controller"
@@ -51,6 +53,8 @@ func showVaultRawValue(c *gin.Context) {
 // @Param tags query []string false "Tags" collectionFormat(csv)
 // @Param type_identity query string false "Type Identity"
 // @Param vault_type query string false "Vault Type"
+// @Param page query int false "Page number" default(1)
+// @Param size query int false "Page size" default(100)
 // @Success 200 {array} viewmodels.VaultView
 // @Router /v1/vault [get]
 func getVault(c *gin.Context) {
@@ -60,15 +64,29 @@ func getVault(c *gin.Context) {
 	typeIdentity := c.Query("type_identity")
 	vaultType := c.Query("vault_type")
 
+	page := c.DefaultQuery("page", "1")
+	size := c.DefaultQuery("size", "100")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		pageInt = 1
+	}
+
+	sizeInt, err := strconv.Atoi(size)
+	if err != nil {
+		sizeInt = 100
+	}
 	request := viewmodels.SearchVaultsRequest{
 		Key:          key,
 		StorageMedia: storageMedia,
-		Tags:         tags,
-		TypeIdentity: typeIdentity,
 		VaultType:    vaultType,
+		TypeIdentity: typeIdentity,
+		Tags:         tags,
+		Page:         pageInt,
+		Size:         sizeInt,
 	}
 	ctrl := controller.NewController()
-	ctrl.SearchVaults(c.Writer, c.Request, request, nil, nil)
+	ctrl.SearchVaults(c.Writer, c.Request, request)
 }
 
 // @Summary update vault

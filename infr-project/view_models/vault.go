@@ -34,6 +34,8 @@ type SearchVaultsRequest struct {
 	VaultType    string   `json:"vault_type"`
 	TypeIdentity string   `json:"type_identity"`
 	Tags         []string `json:"tags"`
+	Page         int      `json:"page"`
+	Size         int      `json:"size"`
 }
 
 type ChangeVaultRequest struct {

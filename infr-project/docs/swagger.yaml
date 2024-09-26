@@ -1312,6 +1312,16 @@ paths:
         in: query
         name: vault_type
         type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 100
+        description: Page size
+        in: query
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
