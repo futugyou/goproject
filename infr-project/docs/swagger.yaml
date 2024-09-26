@@ -447,21 +447,6 @@ definitions:
       version:
         type: integer
     type: object
-  viewmodels.SearchVaultsRequest:
-    properties:
-      key:
-        type: string
-      storage_media:
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      type_identity:
-        type: string
-      vault_type:
-        type: string
-    type: object
   viewmodels.UpdatePlatformProjectRequest:
     properties:
       name:
@@ -1304,12 +1289,29 @@ paths:
       - application/json
       description: get vault
       parameters:
-      - description: Request body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/viewmodels.SearchVaultsRequest'
+      - description: Key
+        in: query
+        name: key
+        type: string
+      - description: Storage Media
+        in: query
+        name: storage_media
+        type: string
+      - collectionFormat: csv
+        description: Tags
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - description: Type Identity
+        in: query
+        name: type_identity
+        type: string
+      - description: Vault Type
+        in: query
+        name: vault_type
+        type: string
       produces:
       - application/json
       responses:

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/futugyou/infr-project/controller"
-	_ "github.com/futugyou/infr-project/view_models"
+	viewmodels "github.com/futugyou/infr-project/view_models"
 )
 
 func ConfigVaultRoutes(v1 *gin.RouterGroup) {
@@ -46,12 +46,29 @@ func showVaultRawValue(c *gin.Context) {
 // @Tags Vault
 // @Accept json
 // @Produce json
-// @Param request body viewmodels.SearchVaultsRequest true "Request body"
+// @Param key query string false "Key"
+// @Param storage_media query string false "Storage Media"
+// @Param tags query []string false "Tags" collectionFormat(csv)
+// @Param type_identity query string false "Type Identity"
+// @Param vault_type query string false "Vault Type"
 // @Success 200 {array} viewmodels.VaultView
 // @Router /v1/vault [get]
 func getVault(c *gin.Context) {
+	key := c.Query("key")
+	storageMedia := c.Query("storage_media")
+	tags := c.QueryArray("tags")
+	typeIdentity := c.Query("type_identity")
+	vaultType := c.Query("vault_type")
+
+	request := viewmodels.SearchVaultsRequest{
+		Key:          key,
+		StorageMedia: storageMedia,
+		Tags:         tags,
+		TypeIdentity: typeIdentity,
+		VaultType:    vaultType,
+	}
 	ctrl := controller.NewController()
-	ctrl.SearchVaults(c.Writer, c.Request, nil, nil)
+	ctrl.SearchVaults(c.Writer, c.Request, request, nil, nil)
 }
 
 // @Summary update vault

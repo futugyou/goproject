@@ -1009,13 +1009,38 @@ const docTemplate = `{
                 "summary": "get vault",
                 "parameters": [
                     {
-                        "description": "Request body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/viewmodels.SearchVaultsRequest"
-                        }
+                        "type": "string",
+                        "description": "Key",
+                        "name": "key",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Storage Media",
+                        "name": "storage_media",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Tags",
+                        "name": "tags",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Type Identity",
+                        "name": "type_identity",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Vault Type",
+                        "name": "vault_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1844,29 +1869,6 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
-                }
-            }
-        },
-        "viewmodels.SearchVaultsRequest": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "storage_media": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type_identity": {
-                    "type": "string"
-                },
-                "vault_type": {
-                    "type": "string"
                 }
             }
         },

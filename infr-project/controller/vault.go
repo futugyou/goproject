@@ -42,7 +42,7 @@ func (c *Controller) CreateVaults(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) SearchVaults(w http.ResponseWriter, r *http.Request, page *int, size *int) {
+func (c *Controller) SearchVaults(w http.ResponseWriter, r *http.Request, aux models.SearchVaultsRequest, page *int, size *int) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 
@@ -50,12 +50,10 @@ func (c *Controller) SearchVaults(w http.ResponseWriter, r *http.Request, page *
 		handleError(w, err, 500)
 		return
 	}
-	var aux models.SearchVaultsRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+	if err := extensions.Validate.Struct(&aux); err != nil {
 		handleError(w, err, 400)
 		return
 	}
-
 	res, err := service.SearchVaults(ctx, aux, page, size)
 	if err != nil {
 		handleError(w, err, 500)
