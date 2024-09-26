@@ -44,7 +44,7 @@ type ChangeVaultRequest struct {
 type ChangeVaultItem struct {
 	Key          *string   `json:"key" validate:"min=3,max=150"`
 	Value        *string   `json:"value" validate:"min=3,max=150"`
-	StorageMedia *string   `json:"storage_media" validate:"oneof=local aws HCP"`
+	StorageMedia *string   `json:"storage_media" validate:"oneof=Local AWS HCP"`
 	VaultType    *string   `json:"vault_type" validate:"oneof=system common project resource platform"`
 	TypeIdentity *string   `json:"type_identity" validate:"min=3,max=150"`
 	Tags         *[]string `json:"tags"`

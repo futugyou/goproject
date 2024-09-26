@@ -135,8 +135,8 @@ definitions:
         type: string
       storage_media:
         enum:
-        - local
-        - aws
+        - Local
+        - AWS
         - HCP
         type: string
       tags:

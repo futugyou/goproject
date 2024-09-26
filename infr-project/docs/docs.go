@@ -1393,8 +1393,8 @@ const docTemplate = `{
                 "storage_media": {
                     "type": "string",
                     "enum": [
-                        "local",
-                        "aws",
+                        "Local",
+                        "AWS",
                         "HCP"
                     ]
                 },
