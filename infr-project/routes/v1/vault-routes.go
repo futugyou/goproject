@@ -2,6 +2,7 @@ package v1
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -60,7 +61,9 @@ func showVaultRawValue(c *gin.Context) {
 func getVault(c *gin.Context) {
 	key := c.Query("key")
 	storageMedia := c.Query("storage_media")
-	tags := c.QueryArray("tags")
+	tags := strings.FieldsFunc(c.Query("tags"), func(r rune) bool {
+		return r == ','
+	})
 	if len(tags) == 1 && tags[0] == "" {
 		tags = nil
 	}
