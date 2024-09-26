@@ -1289,7 +1289,7 @@ paths:
       - application/json
       description: get vault
       parameters:
-      - description: Key
+      - description: Key - Fuzzy Search
         in: query
         name: key
         type: string

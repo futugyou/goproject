@@ -48,7 +48,7 @@ func showVaultRawValue(c *gin.Context) {
 // @Tags Vault
 // @Accept json
 // @Produce json
-// @Param key query string false "Key"
+// @Param key query string false "Key - Fuzzy Search"
 // @Param storage_media query string false "Storage Media"
 // @Param tags query []string false "Tags" collectionFormat(csv)
 // @Param type_identity query string false "Type Identity"
@@ -61,6 +61,9 @@ func getVault(c *gin.Context) {
 	key := c.Query("key")
 	storageMedia := c.Query("storage_media")
 	tags := c.QueryArray("tags")
+	if len(tags) == 1 && tags[0] == "" {
+		tags = nil
+	}
 	typeIdentity := c.Query("type_identity")
 	vaultType := c.Query("vault_type")
 

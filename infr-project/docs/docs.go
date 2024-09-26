@@ -1010,7 +1010,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Key",
+                        "description": "Key - Fuzzy Search",
                         "name": "key",
                         "in": "query"
                     },
