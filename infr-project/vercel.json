@@ -326,6 +326,76 @@
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Expose-Headers": "*"
             }
+        },
+        {
+            "src": "/api/v1/vault",
+            "dest": "/api/vault.go?optype=create",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
+            "src": "/api/v1/vault/(?<id>[^/]+)/show",
+            "dest": "/api/vault.go?id=$id&optype=show",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
+            "src": "/api/v1/vault",
+            "dest": "/api/vault.go?optype=get",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
+            "src": "/api/v1/vault/(?<id>[^/]+)",
+            "dest": "/api/vault.go?id=$id&optype=update",
+            "methods": [
+                "PUT",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
+            "src": "/api/v1/vault/(?<id>[^/]+)",
+            "dest": "/api/vault.go?id=$id&optype=delete",
+            "methods": [
+                "DELETE",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
         }
     ],
     "build": {
