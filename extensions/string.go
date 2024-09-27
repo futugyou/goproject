@@ -26,3 +26,11 @@ func MaskString(s string, minLength int, maskRatio float64) string {
 	maskedPart := strings.Repeat("*", maskLength)
 	return s[:startIndex] + maskedPart + s[startIndex+maskLength:]
 }
+
+func StringToBoolPtr(s string) *bool {
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+		return nil
+	}
+	return &b
+}
