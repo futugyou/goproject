@@ -146,6 +146,11 @@ func createPlatform(c *gin.Context) {
 // @Tags Platform
 // @Accept json
 // @Produce json
+// @Param name query string false "name - Fuzzy Search"
+// @Param activate query boolean false "activate"
+// @Param tags query []string false "Tags" collectionFormat(csv)
+// @Param page query int false "Page number" default(1)
+// @Param size query int false "Page size" default(100)
 // @Success 200 {array} viewmodels.PlatformView
 // @Router /v1/platform [get]
 func getAllPlatform(c *gin.Context) {

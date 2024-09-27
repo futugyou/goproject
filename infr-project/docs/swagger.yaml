@@ -641,6 +641,32 @@ paths:
       consumes:
       - application/json
       description: get all platform
+      parameters:
+      - description: name - Fuzzy Search
+        in: query
+        name: name
+        type: string
+      - description: activate
+        in: query
+        name: activate
+        type: boolean
+      - collectionFormat: csv
+        description: Tags
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 100
+        description: Page size
+        in: query
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
