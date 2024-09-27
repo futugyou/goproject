@@ -2,6 +2,7 @@ package api
 
 import (
 	"strconv"
+	"strings"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -11,6 +12,7 @@ import (
 
 	"github.com/futugyou/infr-project/controller"
 	tool "github.com/futugyou/infr-project/extensions"
+	viewmodels "github.com/futugyou/infr-project/view_models"
 )
 
 func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
@@ -96,17 +98,32 @@ func deleteHookPlatform(ctrl *controller.Controller, r *http.Request, w http.Res
 }
 
 func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	pageStr := r.URL.Query().Get("page")
-	sizeStr := r.URL.Query().Get("size")
-	var page *int
-	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
-		page = &p
+	name := r.URL.Query().Get("name")
+	tags := strings.FieldsFunc(r.URL.Query().Get("tags"), func(r rune) bool {
+		return r == ','
+	})
+	if len(tags) == 1 && tags[0] == "" {
+		tags = nil
 	}
-	var size *int
-	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
-		size = &p
+
+	pageInt, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil {
+		pageInt = 1
 	}
-	ctrl.GetAllPlatform(w, r, page, size)
+
+	sizeInt, err := strconv.Atoi(r.URL.Query().Get("size"))
+	if err != nil {
+		sizeInt = 100
+	}
+
+	request := viewmodels.SearchPlatformsRequest{
+		Name:     name,
+		Activate: extensions.StringToBoolPtr(r.URL.Query().Get("activate")),
+		Tags:     tags,
+		Page:     pageInt,
+		Size:     sizeInt,
+	}
+	ctrl.GetAllPlatform(w, r, request)
 }
 
 func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {

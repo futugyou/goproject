@@ -74,3 +74,11 @@ type Webhook struct {
 	State    string            `json:"state"`
 	Property map[string]string `json:"property"`
 }
+
+type SearchPlatformsRequest struct {
+	Name     string   `json:"name"`
+	Activate *bool    `json:"activate"`
+	Tags     []string `json:"tags"`
+	Page     int      `json:"page"`
+	Size     int      `json:"size"`
+}

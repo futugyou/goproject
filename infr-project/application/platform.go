@@ -63,8 +63,9 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 	return convertPlatformEntityToViewModel(res)
 }
 
-func (s *PlatformService) GetAllPlatform(ctx context.Context, page *int, size *int) ([]models.PlatformView, error) {
-	src, err := s.repository.GetAllPlatform(ctx, page, size)
+func (s *PlatformService) GetAllPlatform(ctx context.Context, request models.SearchPlatformsRequest) ([]models.PlatformView, error) {
+	//TODO: update platform repository search method
+	src, err := s.repository.GetAllPlatform(ctx, &request.Page, &request.Size)
 	if err != nil {
 		return nil, err
 	}

@@ -2,10 +2,13 @@ package v1
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
-	_ "github.com/futugyou/infr-project/view_models"
+	"github.com/futugyou/extensions"
+
+	viewmodels "github.com/futugyou/infr-project/view_models"
 
 	"github.com/futugyou/infr-project/controller"
 )
@@ -147,17 +150,33 @@ func createPlatform(c *gin.Context) {
 // @Router /v1/platform [get]
 func getAllPlatform(c *gin.Context) {
 	ctrl := controller.NewController()
-	pageStr := c.Query("page")
-	sizeStr := c.Query("size")
-	var page *int
-	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
-		page = &p
+
+	name := c.Query("name")
+	tags := strings.FieldsFunc(c.Query("tags"), func(r rune) bool {
+		return r == ','
+	})
+	if len(tags) == 1 && tags[0] == "" {
+		tags = nil
 	}
-	var size *int
-	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
-		size = &p
+
+	pageInt, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		pageInt = 1
 	}
-	ctrl.GetAllPlatform(c.Writer, c.Request, page, size)
+
+	sizeInt, err := strconv.Atoi(c.DefaultQuery("size", "100"))
+	if err != nil {
+		sizeInt = 100
+	}
+
+	request := viewmodels.SearchPlatformsRequest{
+		Name:     name,
+		Activate: extensions.StringToBoolPtr(c.Query("activate")),
+		Tags:     tags,
+		Page:     pageInt,
+		Size:     sizeInt,
+	}
+	ctrl.GetAllPlatform(c.Writer, c.Request, request)
 }
 
 // @Summary get platform
