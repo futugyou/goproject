@@ -123,7 +123,7 @@ func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 		Page:     pageInt,
 		Size:     sizeInt,
 	}
-	ctrl.GetAllPlatform(w, r, request)
+	ctrl.SearchPlatforms(w, r, request)
 }
 
 func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {

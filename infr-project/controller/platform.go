@@ -104,7 +104,7 @@ func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Reque
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) GetAllPlatform(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
+func (c *Controller) SearchPlatforms(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 
@@ -113,7 +113,7 @@ func (c *Controller) GetAllPlatform(w http.ResponseWriter, r *http.Request, requ
 		return
 	}
 
-	res, err := service.GetAllPlatform(ctx, request)
+	res, err := service.SearchPlatforms(ctx, request)
 	if err != nil {
 		handleError(w, err, 500)
 		return

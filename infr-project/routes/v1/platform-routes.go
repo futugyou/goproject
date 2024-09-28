@@ -14,7 +14,7 @@ import (
 )
 
 func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
-	v1.GET("/platform", getAllPlatform)
+	v1.GET("/platform", searchPlatforms)
 	v1.GET("/platform/:id", getPlatform)
 	v1.POST("/platform", createPlatform)
 	v1.PUT("/platform/:id", updatePlatform)
@@ -153,7 +153,7 @@ func createPlatform(c *gin.Context) {
 // @Param size query int false "Page size" default(100)
 // @Success 200 {array} viewmodels.PlatformView
 // @Router /v1/platform [get]
-func getAllPlatform(c *gin.Context) {
+func searchPlatforms(c *gin.Context) {
 	ctrl := controller.NewController()
 
 	name := c.Query("name")
@@ -181,7 +181,7 @@ func getAllPlatform(c *gin.Context) {
 		Page:     pageInt,
 		Size:     sizeInt,
 	}
-	ctrl.GetAllPlatform(c.Writer, c.Request, request)
+	ctrl.SearchPlatforms(c.Writer, c.Request, request)
 }
 
 // @Summary get platform

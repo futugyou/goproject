@@ -63,7 +63,7 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 	return convertPlatformEntityToViewModel(res)
 }
 
-func (s *PlatformService) GetAllPlatform(ctx context.Context, request models.SearchPlatformsRequest) ([]models.PlatformView, error) {
+func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.SearchPlatformsRequest) ([]models.PlatformView, error) {
 	filter := platform.PlatformSearch{
 		Name:      request.Name,
 		NameFuzzy: false,
