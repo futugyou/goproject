@@ -33,8 +33,9 @@ func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 	return &ent[0], nil
 }
 
-func (s *PlatformRepository) GetAllPlatform(ctx context.Context, page *int, size *int) ([]platform.Platform, error) {
-	condition := extensions.NewSearch(page, size, nil, nil)
+func (s *PlatformRepository) SearchPlatforms(ctx context.Context, filter platform.PlatformSearch) ([]platform.Platform, error) {
+	//TODO: generate filter
+	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, nil)
 	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
 
@@ -66,7 +67,8 @@ func (s *PlatformRepository) GetPlatformByNameAsync(ctx context.Context, name st
 	return resultChan, errorChan
 }
 
-func (s *PlatformRepository) GetAllPlatformAsync(ctx context.Context, page *int, size *int) (<-chan []platform.Platform, <-chan error) {
-	condition := extensions.NewSearch(page, size, nil, nil)
+func (s *PlatformRepository) SearchPlatformsAsync(ctx context.Context, filter platform.PlatformSearch) (<-chan []platform.Platform, <-chan error) {
+	//TODO: generate filter
+	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, nil)
 	return s.BaseRepository.GetWithConditionAsync(ctx, condition)
 }

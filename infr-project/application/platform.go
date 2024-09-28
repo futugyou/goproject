@@ -64,8 +64,15 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 }
 
 func (s *PlatformService) GetAllPlatform(ctx context.Context, request models.SearchPlatformsRequest) ([]models.PlatformView, error) {
-	//TODO: update platform repository search method
-	src, err := s.repository.GetAllPlatform(ctx, &request.Page, &request.Size)
+	filter := platform.PlatformSearch{
+		Name:      request.Name,
+		NameFuzzy: false,
+		Activate:  request.Activate,
+		Tags:      request.Tags,
+		Page:      request.Page,
+		Size:      request.Size,
+	}
+	src, err := s.repository.SearchPlatforms(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
