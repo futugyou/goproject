@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/futugyou/infr-project/extensions"
@@ -34,8 +35,8 @@ func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 }
 
 func (s *PlatformRepository) SearchPlatforms(ctx context.Context, filter platform.PlatformSearch) ([]platform.Platform, error) {
-	//TODO: generate filter
-	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, nil)
+	f := s.buildSearchFilter(filter)
+	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, f)
 	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
 
@@ -68,7 +69,29 @@ func (s *PlatformRepository) GetPlatformByNameAsync(ctx context.Context, name st
 }
 
 func (s *PlatformRepository) SearchPlatformsAsync(ctx context.Context, filter platform.PlatformSearch) (<-chan []platform.Platform, <-chan error) {
-	//TODO: generate filter
-	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, nil)
+	f := s.buildSearchFilter(filter)
+	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, f)
 	return s.BaseRepository.GetWithConditionAsync(ctx, condition)
+}
+
+func (s *PlatformRepository) buildSearchFilter(search platform.PlatformSearch) map[string]interface{} {
+	filter := map[string]interface{}{}
+
+	if search.Name != "" {
+		if search.NameFuzzy {
+			filter["key"] = bson.D{{Key: "$regex", Value: search.Name}, {Key: "$options", Value: "i"}}
+		} else {
+			filter["key"] = search.Name
+		}
+	}
+
+	if search.Activate != nil {
+		filter["activate"] = &search.Activate
+	}
+
+	if len(search.Tags) > 0 {
+		filter["tags"] = bson.D{{Key: "$in", Value: search.Tags}}
+	}
+
+	return filter
 }
