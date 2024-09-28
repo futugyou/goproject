@@ -1,6 +1,9 @@
 package extensions
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 func IndexWithOffset(s, substr string, offset int) int {
 	if len(s) < offset {
