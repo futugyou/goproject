@@ -20,5 +20,5 @@ type IVaultRepositoryAsync interface {
 	domain.IRepositoryAsync[Vault]
 	InsertMultipleVaultAsync(ctx context.Context, vaults []Vault) <-chan error
 	GetVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []Vault, <-chan error)
-	SearchVaults(ctx context.Context, filter []VaultSearch, page *int, size *int) (<-chan []Vault, <-chan error)
+	SearchVaultsAsync(ctx context.Context, filter []VaultSearch, page *int, size *int) (<-chan []Vault, <-chan error)
 }

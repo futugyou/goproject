@@ -38,7 +38,7 @@ func (s *VaultService) SearchVaults(ctx context.Context, request models.SearchVa
 			Tags:         request.Tags,
 		},
 	}
-	src, err := s.repository.SearchVaults(ctx, filter, &request.Page, &request.Size)
+	src, err := s.repository.SearchVaultsAsync(ctx, filter, &request.Page, &request.Size)
 	select {
 	case datas := <-src:
 		result := make([]models.VaultView, len(datas))
@@ -98,7 +98,7 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 			})
 		}
 
-		checksCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
+		checksCh, errCh := s.repository.SearchVaultsAsync(ctx, filter, nil, nil)
 		select {
 		case datas := <-checksCh:
 			if len(datas) > 0 {
@@ -133,7 +133,7 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 
 	var data *vault.Vault
 	filter := generateChangeVaultSearchFilter(aux.Data, id)
-	vaultCh, errCh := s.repository.SearchVaults(ctx, filter, nil, nil)
+	vaultCh, errCh := s.repository.SearchVaultsAsync(ctx, filter, nil, nil)
 	select {
 	case datas := <-vaultCh:
 		if len(datas) == 0 || (len(datas) == 1 && id != datas[0].Id) {

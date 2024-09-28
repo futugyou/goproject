@@ -49,7 +49,7 @@ func (r *VaultRepository) GetVaultByIdsAsync(ctx context.Context, ids []string) 
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
 }
 
-func (r *VaultRepository) SearchVaults(ctx context.Context, req []vault.VaultSearch, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) SearchVaultsAsync(ctx context.Context, req []vault.VaultSearch, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
 	filter := buildSearchFilter(req)
 	condition := extensions.NewSearch(page, size, nil, filter)
 	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
