@@ -140,6 +140,17 @@ func (s *VaultClient) Upsert(ctx context.Context, key string, value string) (*Pr
 }
 
 func (s *VaultClient) Delete(ctx context.Context, key string) error {
+	params := &vault.DeleteAppSecretParams{
+		AppName:                os.Getenv("HCP_APP_NAME"),
+		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
+		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		Context:                ctx,
+		SecretName:             key,
+	}
+
+	if _, err := s.http.DeleteAppSecret(params, nil); err != nil {
+		return err
+	}
 
 	return nil
 }
