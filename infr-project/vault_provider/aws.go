@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 )
 
 type AWSClient struct {
@@ -68,7 +70,21 @@ func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault,
 }
 
 func (s *AWSClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
-	return nil, nil
+	putInput := &ssm.PutParameterInput{
+		Name:      aws.String(key),
+		Value:     aws.String(value),
+		Overwrite: aws.Bool(true),
+		Type:      types.ParameterTypeString,
+	}
+	_, err := s.svc.PutParameter(ctx, putInput)
+	if err != nil {
+		return nil, err
+	}
+	return &ProviderVault{
+		Key:       key,
+		Value:     value,
+		CreatedAt: time.Now().UTC(),
+	}, nil
 }
 
 func (s *AWSClient) Delete(ctx context.Context, key string) error {
