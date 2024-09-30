@@ -2,8 +2,10 @@ package vault_provider
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
@@ -23,7 +25,22 @@ func NewAWSClient() *AWSClient {
 }
 
 func (s *AWSClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
-	return nil, nil
+	input := &ssm.GetParameterInput{
+		Name:           aws.String(key),
+		WithDecryption: aws.Bool(true),
+	}
+	output, err := s.svc.GetParameter(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	if output.Parameter != nil {
+		return &ProviderVault{
+			Key:       key,
+			Value:     *output.Parameter.Value,
+			CreatedAt: *output.Parameter.LastModifiedDate,
+		}, nil
+	}
+	return nil, fmt.Errorf("can not found secret with name %s in aws", key)
 }
 
 func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault, error) {
