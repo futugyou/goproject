@@ -21,3 +21,19 @@ func NewAWSClient() *AWSClient {
 		svc: ssm.NewFromConfig(cfg),
 	}
 }
+
+func (s *AWSClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
+	return nil, nil
+}
+
+func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault, error) {
+	return nil, nil
+}
+
+func (s *AWSClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
+	return nil, nil
+}
+
+func (s *AWSClient) Delete(ctx context.Context, key string) error {
+	return nil
+}
