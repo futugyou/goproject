@@ -88,5 +88,9 @@ func (s *AWSClient) Upsert(ctx context.Context, key string, value string) (*Prov
 }
 
 func (s *AWSClient) Delete(ctx context.Context, key string) error {
-	return nil
+	input := ssm.DeleteParameterInput{
+		Name: aws.String(key),
+	}
+	_, err := s.svc.DeleteParameter(ctx, &input)
+	return err
 }
