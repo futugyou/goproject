@@ -311,7 +311,7 @@ func DescribeTasks() {
 	}
 }
 
-func GetEcsTasksByCluster(clusters []string) []types.Task {
+func GetEcsTasksByCluster(ctx context.Context, clusters []string) []types.Task {
 	svc = ecs.NewFromConfig(awsenv.Cfg)
 	result := make([]types.Task, 0)
 
@@ -319,7 +319,7 @@ func GetEcsTasksByCluster(clusters []string) []types.Task {
 		taskInput := &ecs.ListTasksInput{
 			Cluster: aws.String(cluster),
 		}
-		taskOutput, err := svc.ListTasks(context.Background(), taskInput)
+		taskOutput, err := svc.ListTasks(ctx, taskInput)
 		if err != nil {
 			log.Println("list ecs task error")
 			continue
@@ -329,7 +329,7 @@ func GetEcsTasksByCluster(clusters []string) []types.Task {
 			Cluster: aws.String(cluster),
 			Tasks:   taskOutput.TaskArns,
 		}
-		output, err := svc.DescribeTasks(context.Background(), input)
+		output, err := svc.DescribeTasks(ctx, input)
 		if err != nil {
 			log.Println("describe ecs task error")
 			continue

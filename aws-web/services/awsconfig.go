@@ -26,9 +26,9 @@ func NewAwsConfigService() *AwsConfigService {
 	}
 }
 
-func (a *AwsConfigService) GetResourceGraph() model.ResourceGraph {
-	configs, _ := a.repository.GetAll(context.Background())
-	ships, _ := a.relRepository.GetAll(context.Background())
+func (a *AwsConfigService) GetResourceGraph(ctx context.Context) model.ResourceGraph {
+	configs, _ := a.repository.GetAll(ctx)
+	ships, _ := a.relRepository.GetAll(ctx)
 	nodes := make([]model.Node, 0)
 	edges := make([]model.Edge, 0)
 

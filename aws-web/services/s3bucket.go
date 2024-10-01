@@ -32,8 +32,7 @@ func NewS3bucketService() *S3bucketService {
 	}
 }
 
-func (s *S3bucketService) GetS3Buckets(paging core.Paging, filter model.S3BucketFilter) []model.S3BucketViewModel {
-	ctx := context.Background()
+func (s *S3bucketService) GetS3Buckets(ctx context.Context, paging core.Paging, filter model.S3BucketFilter) []model.S3BucketViewModel {
 	result := make([]model.S3BucketViewModel, 0)
 
 	f := entity.S3bucketSearchFilter{
@@ -46,7 +45,7 @@ func (s *S3bucketService) GetS3Buckets(paging core.Paging, filter model.S3Bucket
 	}
 
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts()
+	accounts := accountService.GetAllAccounts(ctx)
 
 	for _, entity := range entities {
 		idx := slices.IndexFunc(accounts, func(c model.UserAccount) bool { return c.Id == entity.AccountId })
@@ -67,12 +66,12 @@ func (s *S3bucketService) GetS3Buckets(paging core.Paging, filter model.S3Bucket
 	return result
 }
 
-func (s *S3bucketService) GetS3BucketItems(filter model.S3BucketItemFilter) []model.S3BucketItemViewModel {
+func (s *S3bucketService) GetS3BucketItems(ctx context.Context, filter model.S3BucketItemFilter) []model.S3BucketItemViewModel {
 	result := make([]model.S3BucketItemViewModel, 0)
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId)
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-	output, err := s.ListItems(filter.BucketName, filter.Perfix, filter.Del)
+	output, err := s.ListItems(ctx, filter.BucketName, filter.Perfix, filter.Del)
 	if err != nil {
 		return nil
 	}
@@ -103,19 +102,19 @@ func (s *S3bucketService) GetS3BucketItems(filter model.S3BucketItemFilter) []mo
 	return result
 }
 
-func (s *S3bucketService) GetS3BucketFile(filter model.S3BucketFileFilter) (*s3.GetObjectOutput, error) {
+func (s *S3bucketService) GetS3BucketFile(ctx context.Context, filter model.S3BucketFileFilter) (*s3.GetObjectOutput, error) {
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId)
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 
-	return s.GetS3Object(filter.BucketName, filter.FileName)
+	return s.GetS3Object(ctx, filter.BucketName, filter.FileName)
 }
 
-func (s *S3bucketService) GetS3FileUrl(filter model.S3BucketFileFilter) model.S3BucketUrlViewModel {
+func (s *S3bucketService) GetS3FileUrl(ctx context.Context, filter model.S3BucketFileFilter) model.S3BucketUrlViewModel {
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId)
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-	url := s.PresignGetObject(filter.BucketName, filter.FileName)
+	url := s.PresignGetObject(ctx, filter.BucketName, filter.FileName)
 
 	return model.S3BucketUrlViewModel{Url: url}
 }

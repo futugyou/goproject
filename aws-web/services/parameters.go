@@ -33,12 +33,12 @@ func NewParameterService() *ParameterService {
 	}
 }
 
-func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
+func (a *ParameterService) GetAllParameters(ctx context.Context) []model.ParameterViewModel {
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts()
+	accounts := accountService.GetAllAccounts(ctx)
 
 	parameters := make([]model.ParameterViewModel, 0)
-	entities, err := a.repository.GetAll(context.Background())
+	entities, err := a.repository.GetAll(ctx)
 	if err != nil {
 		return parameters
 	}
@@ -60,14 +60,14 @@ func (a *ParameterService) GetAllParameters() []model.ParameterViewModel {
 	return parameters
 }
 
-func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter model.ParameterFilter) []model.ParameterViewModel {
+func (a *ParameterService) GetParametersByCondition(ctx context.Context, paging core.Paging, filter model.ParameterFilter) []model.ParameterViewModel {
 	accountService := NewAccountService()
 	var account *model.UserAccount
 	var accounts = make([]model.UserAccount, 0)
 	if len(filter.AccountAlias) > 0 {
-		account = accountService.GetAccountByAlias(filter.AccountAlias)
+		account = accountService.GetAccountByAlias(ctx, filter.AccountAlias)
 	} else {
-		accounts = accountService.GetAllAccounts()
+		accounts = accountService.GetAllAccounts(ctx)
 	}
 
 	parameters := make([]model.ParameterViewModel, 0)
@@ -81,7 +81,7 @@ func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter m
 		accounts = append(accounts, *account)
 	}
 
-	entities, err := a.repository.FilterPaging(context.Background(), paging, searchFilter)
+	entities, err := a.repository.FilterPaging(ctx, paging, searchFilter)
 	if err != nil {
 		return parameters
 	}
@@ -107,9 +107,8 @@ func (a *ParameterService) GetParametersByCondition(paging core.Paging, filter m
 	return parameters
 }
 
-func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailViewModel {
+func (a *ParameterService) GetParameterByID(ctx context.Context, id string) *model.ParameterDetailViewModel {
 	// get parameter from db
-	ctx := context.Background()
 	entity, err := a.repository.GetByObjectId(ctx, id)
 	if err != nil {
 		return nil
@@ -127,7 +126,7 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailVie
 
 	// fill account alias
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(entity.AccountId)
+	account := accountService.GetAccountByID(ctx, entity.AccountId)
 	if account == nil {
 		return parameter
 	}
@@ -156,7 +155,7 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailVie
 
 	// get parameter from aws
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-	details, err := a.getParametersDatail([]string{entity.Key})
+	details, err := a.getParametersDatail(ctx, []string{entity.Key})
 	if err != nil || len(details) == 0 {
 		return parameter
 	}
@@ -173,8 +172,7 @@ func (a *ParameterService) GetParameterByID(id string) *model.ParameterDetailVie
 	return parameter
 }
 
-func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string) []model.CompareViewModel {
-	ctx := context.Background()
+func (a *ParameterService) CompareParameterByIDs(ctx context.Context, sourceid string, destid string) []model.CompareViewModel {
 	source, err := a.repository.GetByObjectId(ctx, sourceid)
 	if err != nil {
 		return nil
@@ -198,9 +196,8 @@ func (a *ParameterService) CompareParameterByIDs(sourceid string, destid string)
 	return result
 }
 
-func (a *ParameterService) SyncParameterByID(id string) error {
+func (a *ParameterService) SyncParameterByID(ctx context.Context, id string) error {
 	// get parameter from db
-	ctx := context.Background()
 	parameter, err := a.repository.GetByObjectId(ctx, id)
 	if err != nil {
 		return err
@@ -208,14 +205,14 @@ func (a *ParameterService) SyncParameterByID(id string) error {
 
 	// account
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(parameter.AccountId)
+	account := accountService.GetAccountByID(ctx, parameter.AccountId)
 	if account == nil {
 		return errors.New("account not found")
 	}
 
 	// get parameter from aws
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-	details, err := a.getParametersDatail([]string{parameter.Key})
+	details, err := a.getParametersDatail(ctx, []string{parameter.Key})
 	if err != nil || len(details) == 0 {
 		return errors.New("ssm not found")
 	}

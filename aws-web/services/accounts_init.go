@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a *AccountService) AccountInit() {
+func (a *AccountService) AccountInit(ctx context.Context) {
 	result := make([]entity.AccountEntity, 0)
 	var accounts []byte
 	var err error
@@ -27,7 +27,7 @@ func (a *AccountService) AccountInit() {
 		return
 	}
 
-	if err = a.repository.DeleteAll(context.Background()); err != nil {
+	if err = a.repository.DeleteAll(ctx); err != nil {
 		log.Println(err)
 		return
 	}
@@ -37,7 +37,7 @@ func (a *AccountService) AccountInit() {
 		result[i].CreatedAt = time.Now().Unix()
 	}
 
-	if err = a.repository.InsertMany(context.Background(), result); err != nil {
+	if err = a.repository.InsertMany(ctx, result); err != nil {
 		log.Println(err)
 	}
 }

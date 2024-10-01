@@ -58,7 +58,7 @@ func getallFuntion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paging := core.Paging{Page: page, Limit: limit}
-	services, err := ecsService.GetAllServices(paging, filer)
+	services, err := ecsService.GetAllServices(r.Context(), paging, filer)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -74,7 +74,7 @@ func getFuntion(w http.ResponseWriter, r *http.Request) {
 	ecsService := services.NewEcsClusterService()
 
 	id := r.URL.Query().Get("id")
-	service, err := ecsService.GetServiceDetailById(id)
+	service, err := ecsService.GetServiceDetailById(r.Context(), id)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -96,7 +96,7 @@ func compareFuntion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := ecsService.CompareTaskDefinitions(compare)
+	result, err := ecsService.CompareTaskDefinitions(r.Context(), compare)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

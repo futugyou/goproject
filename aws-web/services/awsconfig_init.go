@@ -18,7 +18,7 @@ import (
 )
 
 // path for aws config snapshot data (download from s3)
-func (a *AwsConfigService) SyncFileResources(path string) {
+func (a *AwsConfigService) SyncFileResources(ctx context.Context, path string) {
 	// 1. read data from file
 	jsonFile, err := os.Open(path)
 	if err != nil {
@@ -36,17 +36,17 @@ func (a *AwsConfigService) SyncFileResources(path string) {
 		return
 	}
 
-	a.commonDataExec(rawDatas)
+	a.commonDataExec(ctx, rawDatas)
 }
 
-func (a *AwsConfigService) SyncResourcesByConfig() {
+func (a *AwsConfigService) SyncResourcesByConfig(ctx context.Context) {
 	// 1. init account
-	if !initAwsEnv() {
+	if !initAwsEnv(ctx) {
 		return
 	}
 
 	// 2. get data from aws config
-	rawdataStringList := getAwsConfigData()
+	rawdataStringList := getAwsConfigData(ctx)
 	if len(rawdataStringList) == 0 {
 		return
 	}
@@ -56,7 +56,7 @@ func (a *AwsConfigService) SyncResourcesByConfig() {
 	if len(rawData) == 0 {
 		return
 	}
-	a.commonDataExec(rawData)
+	a.commonDataExec(ctx, rawData)
 }
 
 func convertToRawData(rawdata []string) []model.AwsConfigRawData {
@@ -71,7 +71,7 @@ func convertToRawData(rawdata []string) []model.AwsConfigRawData {
 	return rawDatas
 }
 
-func initAwsEnv() bool {
+func initAwsEnv(ctx context.Context) bool {
 	accountService := NewAccountService()
 	accountid := os.Getenv("accountid")
 	if len(accountid) == 0 {
@@ -79,7 +79,7 @@ func initAwsEnv() bool {
 		return false
 	}
 
-	account := accountService.GetAccountByID(accountid)
+	account := accountService.GetAccountByID(ctx, accountid)
 	if account == nil {
 		log.Printf("can not find accountid:%s from db.", accountid)
 		return false
@@ -89,7 +89,7 @@ func initAwsEnv() bool {
 	return true
 }
 
-func getAwsConfigData() []string {
+func getAwsConfigData(ctx context.Context) []string {
 	svc := configservice.NewFromConfig(awsenv.Cfg)
 	var nextToken *string = nil
 	results := make([]string, 0)
@@ -124,7 +124,7 @@ func getAwsConfigData() []string {
 			NextToken: nextToken,
 		}
 		log.Println(1)
-		output, err := svc.SelectResourceConfig(context.Background(), input)
+		output, err := svc.SelectResourceConfig(ctx, input)
 		if err != nil {
 			log.Println("select aws config resource error")
 			return []string{}
@@ -141,7 +141,7 @@ func getAwsConfigData() []string {
 	return results
 }
 
-func (a *AwsConfigService) commonDataExec(rawDatas []model.AwsConfigRawData) {
+func (a *AwsConfigService) commonDataExec(ctx context.Context, rawDatas []model.AwsConfigRawData) {
 	// 2. filter data
 	rawDatas = FilterResource(rawDatas)
 
@@ -158,7 +158,7 @@ func (a *AwsConfigService) commonDataExec(rawDatas []model.AwsConfigRawData) {
 	}
 
 	// 4.1 add individual resource
-	resources = AddIndividualResource(resources, vpcinfos)
+	resources = AddIndividualResource(ctx, resources, vpcinfos)
 
 	// 5. create AwsConfigRelationshipEntity list
 	for _, data := range rawDatas {
@@ -180,24 +180,24 @@ func (a *AwsConfigService) commonDataExec(rawDatas []model.AwsConfigRawData) {
 	}
 
 	// 6. delete all
-	err := a.repository.DeleteAll(context.Background())
+	err := a.repository.DeleteAll(ctx)
 	if err != nil {
 		log.Println("delete awsconfig error: ", err.Error())
 		return
 	}
-	err = a.relRepository.DeleteAll(context.Background())
+	err = a.relRepository.DeleteAll(ctx)
 	if err != nil {
 		log.Println("delete awsconfigrelationship error: ", err.Error())
 		return
 	}
 
 	// 7. Insert all
-	err = a.repository.InsertMany(context.Background(), resources)
+	err = a.repository.InsertMany(ctx, resources)
 	if err != nil {
 		log.Println("Insert awsconfig error: ", err.Error())
 		return
 	}
-	err = a.relRepository.InsertMany(context.Background(), ships)
+	err = a.relRepository.InsertMany(ctx, ships)
 	if err != nil {
 		log.Println("Insert awsconfigrelationship error: ", err.Error())
 	}

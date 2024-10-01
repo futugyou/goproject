@@ -51,7 +51,7 @@ func createAccount(w http.ResponseWriter, r *http.Request) {
 
 	accountService := services.NewAccountService()
 
-	err = accountService.CreateAccount(account)
+	err = accountService.CreateAccount(r.Context(), account)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -66,7 +66,7 @@ func deleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	accountService := services.NewAccountService()
 
-	err := accountService.DeleteAccount(id)
+	err := accountService.DeleteAccount(r.Context(), id)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -80,7 +80,7 @@ func getAccount(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
 
-	account := accountService.GetAccountByID(id)
+	account := accountService.GetAccountByID(r.Context(), id)
 
 	body, _ := json.Marshal(account)
 	w.Write(body)
@@ -98,9 +98,9 @@ func getAllAccount(w http.ResponseWriter, r *http.Request) {
 
 	if page != 0 && limit != 0 {
 		paging := core.Paging{Page: page, Limit: limit}
-		accounts = accountService.GetAccountsByPaging(paging)
+		accounts = accountService.GetAccountsByPaging(r.Context(), paging)
 	} else {
-		accounts = accountService.GetAllAccounts()
+		accounts = accountService.GetAllAccounts(r.Context())
 	}
 
 	body, _ := json.Marshal(accounts)
@@ -119,7 +119,7 @@ func updateAccount(w http.ResponseWriter, r *http.Request) {
 
 	accountService := services.NewAccountService()
 
-	err = accountService.UpdateAccount(account)
+	err = accountService.UpdateAccount(r.Context(), account)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

@@ -44,7 +44,7 @@ func getS3bucket(w http.ResponseWriter, r *http.Request) {
 	paging := tools.GetPaging(r.URL.Query())
 	bucketName := r.URL.Query().Get("bucketName")
 	filter := model.S3BucketFilter{BucketName: bucketName}
-	buckets := service.GetS3Buckets(paging, filter)
+	buckets := service.GetS3Buckets(r.Context(), paging, filter)
 	body, _ := json.Marshal(buckets)
 	w.Write(body)
 	w.WriteHeader(200)
@@ -63,7 +63,7 @@ func getS3bucketItem(w http.ResponseWriter, r *http.Request) {
 		Del:        del,
 	}
 
-	items := service.GetS3BucketItems(filter)
+	items := service.GetS3BucketItems(r.Context(), filter)
 	body, _ := json.Marshal(items)
 	w.Write(body)
 	w.WriteHeader(200)
@@ -80,7 +80,7 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 		FileName:   fileName,
 	}
 
-	file, err := service.GetS3BucketFile(filter)
+	file, err := service.GetS3BucketFile(r.Context(), filter)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
@@ -114,7 +114,7 @@ func getgetS3bucketItemUrl(w http.ResponseWriter, r *http.Request) {
 		FileName:   fileName,
 	}
 
-	url := service.GetS3FileUrl(filter)
+	url := service.GetS3FileUrl(r.Context(), filter)
 	body, _ := json.Marshal(url)
 	w.Write(body)
 	w.WriteHeader(200)

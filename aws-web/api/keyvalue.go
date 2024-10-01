@@ -45,14 +45,14 @@ func createKeyValue(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyValueService := services.NewKeyValueService()
-	keyValueService.CreateKeyValue(keyValue.Key, keyValue.Value)
+	keyValueService.CreateKeyValue(r.Context(), keyValue.Key, keyValue.Value)
 	w.WriteHeader(200)
 }
 
 func getKeyValue(w http.ResponseWriter, r *http.Request) {
 	keyValueService := services.NewKeyValueService()
 	key := r.URL.Query().Get("key")
-	keyValue := keyValueService.GetValueByKey(key)
+	keyValue := keyValueService.GetValueByKey(r.Context(), key)
 	body, _ := json.Marshal(keyValue)
 	w.Write(body)
 	w.WriteHeader(200)
@@ -60,7 +60,7 @@ func getKeyValue(w http.ResponseWriter, r *http.Request) {
 
 func getAllKeyValue(w http.ResponseWriter, r *http.Request) {
 	keyValueService := services.NewKeyValueService()
-	keyValues := keyValueService.GetAllKeyValues()
+	keyValues := keyValueService.GetAllKeyValues(r.Context())
 	body, _ := json.Marshal(keyValues)
 	w.Write(body)
 	w.WriteHeader(200)
@@ -68,7 +68,7 @@ func getAllKeyValue(w http.ResponseWriter, r *http.Request) {
 
 func getResourceGraph(w http.ResponseWriter, r *http.Request) {
 	config := services.NewAwsConfigService()
-	res := config.GetResourceGraph()
+	res := config.GetResourceGraph(r.Context())
 	body, _ := json.Marshal(res)
 	w.Write(body)
 	w.WriteHeader(200)

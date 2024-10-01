@@ -13,18 +13,17 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 )
 
-func (s *S3bucketService) InitData() {
+func (s *S3bucketService) InitData(ctx context.Context) {
 	log.Println("s3 sync start..")
-	ctx := context.Background()
 
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts()
+	accounts := accountService.GetAllAccounts(ctx)
 
 	entities := make([]entity.S3bucketEntity, 0)
 	items := make([]entity.S3bucketItemEntity, 0)
 	for _, account := range accounts {
 		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-		buckets, err := s.GetAllS3Bucket()
+		buckets, err := s.GetAllS3Bucket(ctx)
 		if err != nil {
 			continue
 		}
@@ -34,15 +33,15 @@ func (s *S3bucketService) InitData() {
 				Id:           account.Id + *bucket.Name,
 				AccountId:    account.Id,
 				Name:         *bucket.Name,
-				Region:       s.GetBucketRegion(bucket.Name, account.Region),
-				IsPublic:     s.GetBucketPolicyStatus(bucket.Name),
-				Policy:       s.GetBucketPolicy(bucket.Name),
-				Permissions:  s.GetBucketPermissions(bucket.Name),
+				Region:       s.GetBucketRegion(ctx, bucket.Name, account.Region),
+				IsPublic:     s.GetBucketPolicyStatus(ctx, bucket.Name),
+				Policy:       s.GetBucketPolicy(ctx, bucket.Name),
+				Permissions:  s.GetBucketPermissions(ctx, bucket.Name),
 				CreationDate: *bucket.CreationDate,
 			}
 			entities = append(entities, b)
 
-			objs, err := s.ListItemsByBucketName(bucket.Name)
+			objs, err := s.ListItemsByBucketName(ctx, bucket.Name)
 			if err != nil {
 				continue
 			}
@@ -92,13 +91,13 @@ func FilterS3bucketItemEntity(items []entity.S3bucketItemEntity, name string) []
 	return sub
 }
 
-func (s *S3bucketService) GetBucketRegion(name *string, region string) string {
+func (s *S3bucketService) GetBucketRegion(ctx context.Context, name *string, region string) string {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	input := s3.GetBucketLocationInput{
 		Bucket: name,
 	}
-	output, err := svc.GetBucketLocation(awsenv.EmptyContext, &input)
+	output, err := svc.GetBucketLocation(ctx, &input)
 	if err != nil {
 		log.Println("GetBucketLocation error.")
 		return region
@@ -107,13 +106,13 @@ func (s *S3bucketService) GetBucketRegion(name *string, region string) string {
 	return string(output.LocationConstraint)
 }
 
-func (s *S3bucketService) GetBucketPolicyStatus(name *string) bool {
+func (s *S3bucketService) GetBucketPolicyStatus(ctx context.Context, name *string) bool {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	input := s3.GetBucketPolicyStatusInput{
 		Bucket: name,
 	}
-	output, err := svc.GetBucketPolicyStatus(awsenv.EmptyContext, &input)
+	output, err := svc.GetBucketPolicyStatus(ctx, &input)
 	if err != nil {
 		log.Println("GetBucketPolicyStatus error.")
 		return false
@@ -126,13 +125,13 @@ func (s *S3bucketService) GetBucketPolicyStatus(name *string) bool {
 	return false
 }
 
-func (s *S3bucketService) GetBucketPolicy(name *string) string {
+func (s *S3bucketService) GetBucketPolicy(ctx context.Context, name *string) string {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	input := s3.GetBucketPolicyInput{
 		Bucket: name,
 	}
-	output, err := svc.GetBucketPolicy(awsenv.EmptyContext, &input)
+	output, err := svc.GetBucketPolicy(ctx, &input)
 	if err != nil {
 		log.Println("GetBucketPolicy error.")
 		return ""
@@ -145,12 +144,12 @@ func (s *S3bucketService) GetBucketPolicy(name *string) string {
 	return ""
 }
 
-func (s *S3bucketService) GetBucketPermissions(name *string) []string {
+func (s *S3bucketService) GetBucketPermissions(ctx context.Context, name *string) []string {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 	input := s3.GetBucketAclInput{
 		Bucket: name,
 	}
-	output, err := svc.GetBucketAcl(awsenv.EmptyContext, &input)
+	output, err := svc.GetBucketAcl(ctx, &input)
 	if err != nil {
 		log.Println("GetBucketAcl error.")
 		return []string{}
@@ -164,11 +163,11 @@ func (s *S3bucketService) GetBucketPermissions(name *string) []string {
 	return result
 }
 
-func (s *S3bucketService) GetAllS3Bucket() ([]types.Bucket, error) {
+func (s *S3bucketService) GetAllS3Bucket(ctx context.Context) ([]types.Bucket, error) {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 	input := s3.ListBucketsInput{}
 
-	output, err := svc.ListBuckets(awsenv.EmptyContext, &input)
+	output, err := svc.ListBuckets(ctx, &input)
 	if err != nil {
 		log.Println("get ListBuckets error.")
 		return nil, err
@@ -177,14 +176,14 @@ func (s *S3bucketService) GetAllS3Bucket() ([]types.Bucket, error) {
 	return output.Buckets, nil
 }
 
-func (s *S3bucketService) ListItemsByBucketName(name *string) ([]types.Object, error) {
+func (s *S3bucketService) ListItemsByBucketName(ctx context.Context, name *string) ([]types.Object, error) {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	objInput := s3.ListObjectsV2Input{
 		Bucket: name,
 	}
 
-	output, err := svc.ListObjectsV2(awsenv.EmptyContext, &objInput)
+	output, err := svc.ListObjectsV2(ctx, &objInput)
 	if err != nil {
 		log.Println("get ListObjectsV2 error.")
 		return nil, err
@@ -193,7 +192,7 @@ func (s *S3bucketService) ListItemsByBucketName(name *string) ([]types.Object, e
 	return output.Contents, nil
 }
 
-func (s *S3bucketService) ListItems(name string, perfix string, del string) (*s3.ListObjectsV2Output, error) {
+func (s *S3bucketService) ListItems(ctx context.Context, name string, perfix string, del string) (*s3.ListObjectsV2Output, error) {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	objInput := s3.ListObjectsV2Input{
@@ -209,7 +208,7 @@ func (s *S3bucketService) ListItems(name string, perfix string, del string) (*s3
 		objInput.Prefix = aws.String(perfix)
 	}
 
-	output, err := svc.ListObjectsV2(awsenv.EmptyContext, &objInput)
+	output, err := svc.ListObjectsV2(ctx, &objInput)
 	if err != nil {
 		log.Println("get ListObjectsV2 error.")
 		return nil, err
@@ -218,7 +217,7 @@ func (s *S3bucketService) ListItems(name string, perfix string, del string) (*s3
 	return output, nil
 }
 
-func (s *S3bucketService) GetS3Object(bucket string, key string) (*s3.GetObjectOutput, error) {
+func (s *S3bucketService) GetS3Object(ctx context.Context, bucket string, key string) (*s3.GetObjectOutput, error) {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 
 	input := s3.GetObjectInput{
@@ -226,13 +225,13 @@ func (s *S3bucketService) GetS3Object(bucket string, key string) (*s3.GetObjectO
 		Key:    aws.String(key),
 	}
 
-	return svc.GetObject(awsenv.EmptyContext, &input)
+	return svc.GetObject(ctx, &input)
 }
 
-func (s *S3bucketService) PresignGetObject(bucket string, key string) string {
+func (s *S3bucketService) PresignGetObject(ctx context.Context, bucket string, key string) string {
 	svc := s3.NewFromConfig(awsenv.Cfg)
 	presignClient := s3.NewPresignClient(svc)
-	request, err := presignClient.PresignGetObject(awsenv.EmptyContext, &s3.GetObjectInput{
+	request, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	}, func(opts *s3.PresignOptions) {

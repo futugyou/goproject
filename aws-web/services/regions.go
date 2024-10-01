@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
@@ -13,10 +15,10 @@ func NewRegionService() *RegionService {
 	return &RegionService{}
 }
 
-func (s *RegionService) GetRegions() ([]model.AwsRegion, error) {
+func (s *RegionService) GetRegions(ctx context.Context) ([]model.AwsRegion, error) {
 	input := &ec2.DescribeRegionsInput{}
 	svc := ec2.NewFromConfig(awsenv.Cfg)
-	output, err := svc.DescribeRegions(awsenv.EmptyContext, input)
+	output, err := svc.DescribeRegions(ctx, input)
 	if err != nil {
 		return nil, err
 	}

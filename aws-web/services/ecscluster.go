@@ -35,25 +35,25 @@ func NewEcsClusterService() *EcsClusterService {
 	}
 }
 
-func (e *EcsClusterService) GetAllServices(paging core.Paging, filter model.EcsClusterFilter) ([]model.EcsClusterViewModel, error) {
+func (e *EcsClusterService) GetAllServices(ctx context.Context, paging core.Paging, filter model.EcsClusterFilter) ([]model.EcsClusterViewModel, error) {
 	accounts := make([]model.UserAccount, 0)
 	entityfilter := entity.EcsServiceSearchFilter{}
 	accountService := NewAccountService()
 	if len(filter.AccountId) > 0 {
 		entityfilter.AccountId = filter.AccountId
-		account := accountService.GetAccountByID(filter.AccountId)
+		account := accountService.GetAccountByID(ctx, filter.AccountId)
 		if account == nil {
 			return nil, errors.New("account not found")
 		}
 		accounts = append(accounts, *account)
 	} else {
-		accounts = accountService.GetAllAccounts()
+		accounts = accountService.GetAllAccounts(ctx)
 		if len(accounts) == 0 {
 			return nil, errors.New("account not found")
 		}
 	}
 
-	entities, err := e.repository.FilterPaging(context.Background(), paging, entityfilter)
+	entities, err := e.repository.FilterPaging(ctx, paging, entityfilter)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -82,16 +82,16 @@ func (e *EcsClusterService) GetAllServices(paging core.Paging, filter model.EcsC
 	return result, nil
 }
 
-func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDetailViewModel, error) {
+func (e *EcsClusterService) GetServiceDetailById(ctx context.Context, id string) (*model.EcsClusterDetailViewModel, error) {
 	// 1 data from mongo db
-	entity, err := e.repository.GetByObjectId(context.Background(), id)
+	entity, err := e.repository.GetByObjectId(ctx, id)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(entity.AccountId)
+	account := accountService.GetAccountByID(ctx, entity.AccountId)
 
 	result := &model.EcsClusterDetailViewModel{}
 	result.AccountAlias = account.Alias
@@ -112,7 +112,7 @@ func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDe
 		Services: []string{entity.ServiceName},
 	}
 
-	describeOutput, err := svc.DescribeServices(awsenv.EmptyContext, describeInput)
+	describeOutput, err := svc.DescribeServices(ctx, describeInput)
 	if err != nil || len(describeOutput.Services) == 0 {
 		return result, nil
 	}
@@ -146,7 +146,7 @@ func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDe
 		Sort:         types.SortOrderDesc,
 	}
 
-	listTaskOutput, err := svc.ListTaskDefinitions(awsenv.EmptyContext, listTaskInput)
+	listTaskOutput, err := svc.ListTaskDefinitions(ctx, listTaskInput)
 	if err != nil {
 		log.Println(err)
 		return result, nil
@@ -157,30 +157,30 @@ func (e *EcsClusterService) GetServiceDetailById(id string) (*model.EcsClusterDe
 	return result, nil
 }
 
-func (e *EcsClusterService) CompareTaskDefinitions(compare model.EcsTaskCompare) ([]string, error) {
+func (e *EcsClusterService) CompareTaskDefinitions(ctx context.Context, compare model.EcsTaskCompare) ([]string, error) {
 	result := make([]string, 0)
-	entity, err := e.repository.GetByObjectId(context.Background(), compare.Id)
+	entity, err := e.repository.GetByObjectId(ctx, compare.Id)
 	if err != nil {
 		log.Println(err)
 		return result, err
 	}
 
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(entity.AccountId)
+	account := accountService.GetAccountByID(ctx, entity.AccountId)
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-	data1 := describeTaskDefinition(compare.SourceTaskArn)
-	data2 := describeTaskDefinition(compare.DestTaskArn)
+	data1 := describeTaskDefinition(ctx, compare.SourceTaskArn)
+	data2 := describeTaskDefinition(ctx, compare.DestTaskArn)
 	result = append(result, data1, data2)
 	return result, nil
 }
 
-func describeTaskDefinition(taskArn string) string {
+func describeTaskDefinition(ctx context.Context, taskArn string) string {
 	svc := ecs.NewFromConfig(awsenv.Cfg)
 	input := &ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String(taskArn),
 	}
 
-	output, err := svc.DescribeTaskDefinition(awsenv.EmptyContext, input)
+	output, err := svc.DescribeTaskDefinition(ctx, input)
 	if err != nil {
 		log.Println(err)
 		return ""

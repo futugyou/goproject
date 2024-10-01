@@ -12,16 +12,16 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 )
 
-func (e *EcsClusterService) SyncAllEcsServices() {
+func (e *EcsClusterService) SyncAllEcsServices(ctx context.Context) {
 	log.Println("start..")
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts()
+	accounts := accountService.GetAllAccounts(ctx)
 	services := make([]entity.EcsServiceEntity, 0)
 	for _, account := range accounts {
 		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		svc := ecs.NewFromConfig(awsenv.Cfg)
 		clusterinput := &ecs.ListClustersInput{}
-		clusteroutput, err := svc.ListClusters(awsenv.EmptyContext, clusterinput)
+		clusteroutput, err := svc.ListClusters(ctx, clusterinput)
 		if err != nil {
 			log.Println("list ecs clusters error")
 			continue
@@ -33,7 +33,7 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 				MaxResults: aws.Int32(100),
 			}
 
-			serviceoutput, err := svc.ListServices(awsenv.EmptyContext, serviceinput)
+			serviceoutput, err := svc.ListServices(ctx, serviceinput)
 			if err != nil {
 				log.Println("list ecs service error")
 				continue
@@ -55,7 +55,7 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 					Services: t,
 				}
 
-				describeoutput, err := svc.DescribeServices(awsenv.EmptyContext, describeinput)
+				describeoutput, err := svc.DescribeServices(ctx, describeinput)
 				if len(serviceArns) > 10 {
 					serviceArns = serviceArns[10:]
 				} else {
@@ -91,6 +91,6 @@ func (e *EcsClusterService) SyncAllEcsServices() {
 	}
 
 	log.Println("get finish, count: ", len(services))
-	err := e.repository.BulkWrite(context.Background(), services)
+	err := e.repository.BulkWrite(ctx, services)
 	log.Println("ecs write finish: ", err)
 }

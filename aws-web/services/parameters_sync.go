@@ -13,16 +13,16 @@ import (
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 )
 
-func (a *ParameterService) SyncAllParameter() {
+func (a *ParameterService) SyncAllParameter(ctx context.Context) {
 	log.Println("start..")
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts()
+	accounts := accountService.GetAllAccounts(ctx)
 
 	entities := make([]entity.ParameterEntity, 0)
 	logs := make([]entity.ParameterLogEntity, 0)
 	for _, account := range accounts {
 		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
-		parameters, err := a.getAllParametersFromAWS()
+		parameters, err := a.getAllParametersFromAWS(ctx)
 		if err != nil {
 			continue
 		}
@@ -32,7 +32,7 @@ func (a *ParameterService) SyncAllParameter() {
 			names[i] = *parameters[i].Name
 		}
 
-		details, err := a.getParametersDatail(names)
+		details, err := a.getParametersDatail(ctx, names)
 		if err != nil {
 			continue
 		}
@@ -69,13 +69,13 @@ func (a *ParameterService) SyncAllParameter() {
 	}
 
 	log.Println("get finish, count: ", len(entities))
-	err := a.repository.BulkWrite(context.Background(), entities)
+	err := a.repository.BulkWrite(ctx, entities)
 	log.Println("parameter write finish: ", err)
-	err = a.logRepository.BulkWrite(context.Background(), logs)
+	err = a.logRepository.BulkWrite(ctx, logs)
 	log.Println("log write finish: ", err)
 }
 
-func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata, error) {
+func (a *ParameterService) getAllParametersFromAWS(ctx context.Context) ([]types.ParameterMetadata, error) {
 	svc := ssm.NewFromConfig(awsenv.Cfg)
 	totals := make([]types.ParameterMetadata, 0)
 
@@ -93,7 +93,7 @@ func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata,
 			}
 		}
 
-		output, err := svc.DescribeParameters(awsenv.EmptyContext, input)
+		output, err := svc.DescribeParameters(ctx, input)
 		if err != nil {
 			log.Println("describe parameters error")
 			break
@@ -115,7 +115,7 @@ func (a *ParameterService) getAllParametersFromAWS() ([]types.ParameterMetadata,
 	return totals, nil
 }
 
-func (a *ParameterService) getParametersDatail(names []string) ([]types.Parameter, error) {
+func (a *ParameterService) getParametersDatail(ctx context.Context, names []string) ([]types.Parameter, error) {
 	svc := ssm.NewFromConfig(awsenv.Cfg)
 
 	totals := make([]types.Parameter, 0)
@@ -135,7 +135,7 @@ func (a *ParameterService) getParametersDatail(names []string) ([]types.Paramete
 			WithDecryption: aws.Bool(true),
 		}
 
-		output, err := svc.GetParameters(awsenv.EmptyContext, input)
+		output, err := svc.GetParameters(ctx, input)
 		if len(names) > 10 {
 			names = names[10:]
 		} else {

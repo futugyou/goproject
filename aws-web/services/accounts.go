@@ -31,9 +31,9 @@ func NewAccountService() *AccountService {
 	}
 }
 
-func (a *AccountService) GetAllAccounts() []model.UserAccount {
+func (a *AccountService) GetAllAccounts(ctx context.Context) []model.UserAccount {
 	accounts := make([]model.UserAccount, 0)
-	entities, err := a.repository.GetAll(context.Background())
+	entities, err := a.repository.GetAll(ctx)
 	if err != nil {
 		return accounts
 	}
@@ -52,9 +52,9 @@ func (a *AccountService) GetAllAccounts() []model.UserAccount {
 	return accounts
 }
 
-func (a *AccountService) GetAccountsByPaging(paging core.Paging) []model.UserAccount {
+func (a *AccountService) GetAccountsByPaging(ctx context.Context, paging core.Paging) []model.UserAccount {
 	accounts := make([]model.UserAccount, 0)
-	entities, err := a.repository.Paging(context.Background(), paging)
+	entities, err := a.repository.Paging(ctx, paging)
 	if err != nil {
 		return accounts
 	}
@@ -73,14 +73,14 @@ func (a *AccountService) GetAccountsByPaging(paging core.Paging) []model.UserAcc
 	return accounts
 }
 
-func (a *AccountService) CreateAccount(account model.UserAccount) error {
+func (a *AccountService) CreateAccount(ctx context.Context, account model.UserAccount) error {
 	alias := account.Alias
 	if len(alias) == 0 {
 		log.Println("alias MUST have")
 		return errors.New("alias MUST have")
 	}
 
-	accountEntity, _ := a.repository.GetAccountByAlias(context.Background(), alias)
+	accountEntity, _ := a.repository.GetAccountByAlias(ctx, alias)
 	if accountEntity != nil && accountEntity.Alias == alias {
 		log.Println("data already exist")
 		return errors.New("data already exist")
@@ -95,7 +95,7 @@ func (a *AccountService) CreateAccount(account model.UserAccount) error {
 		CreatedAt:       time.Now().Unix(),
 	}
 
-	err := a.repository.Insert(context.Background(), entity)
+	err := a.repository.Insert(ctx, entity)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -104,7 +104,7 @@ func (a *AccountService) CreateAccount(account model.UserAccount) error {
 	return nil
 }
 
-func (a *AccountService) UpdateAccount(account model.UserAccount) error {
+func (a *AccountService) UpdateAccount(ctx context.Context, account model.UserAccount) error {
 	entity := entity.AccountEntity{
 		Id:              account.Id,
 		Alias:           account.Alias,
@@ -114,7 +114,7 @@ func (a *AccountService) UpdateAccount(account model.UserAccount) error {
 		CreatedAt:       time.Now().Unix(),
 	}
 
-	err := a.repository.Update(context.Background(), entity, account.Id)
+	err := a.repository.Update(ctx, entity, account.Id)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -123,8 +123,8 @@ func (a *AccountService) UpdateAccount(account model.UserAccount) error {
 	return nil
 }
 
-func (a *AccountService) DeleteAccount(id string) error {
-	err := a.repository.Delete(context.Background(), id)
+func (a *AccountService) DeleteAccount(ctx context.Context, id string) error {
+	err := a.repository.Delete(ctx, id)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -133,8 +133,8 @@ func (a *AccountService) DeleteAccount(id string) error {
 	return nil
 }
 
-func (a *AccountService) GetAccountByID(id string) *model.UserAccount {
-	entity, err := a.repository.Get(context.Background(), id)
+func (a *AccountService) GetAccountByID(ctx context.Context, id string) *model.UserAccount {
+	entity, err := a.repository.Get(ctx, id)
 	if err != nil {
 		return nil
 	}
@@ -151,8 +151,8 @@ func (a *AccountService) GetAccountByID(id string) *model.UserAccount {
 	return account
 }
 
-func (a *AccountService) GetAccountByAlias(alias string) *model.UserAccount {
-	entity, err := a.repository.GetAccountByAlias(context.Background(), alias)
+func (a *AccountService) GetAccountByAlias(ctx context.Context, alias string) *model.UserAccount {
+	entity, err := a.repository.GetAccountByAlias(ctx, alias)
 	if err != nil {
 		return nil
 	}

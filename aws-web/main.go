@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -46,18 +47,19 @@ func main() {
 }
 
 func SyncData() {
+	ctx := context.Background()
 	parameterService := services.NewParameterService()
-	parameterService.SyncAllParameter()
+	parameterService.SyncAllParameter(ctx)
 
 	secService := services.NewEcsClusterService()
-	secService.SyncAllEcsServices()
+	secService.SyncAllEcsServices(ctx)
 
 	// current data is useful, no need to update
 	// config := services.NewAwsConfigService()
 	// config.SyncResourcesByConfig()
 
 	s3Service := services.NewS3bucketService()
-	s3Service.InitData()
+	s3Service.InitData(ctx)
 }
 
 func awsServiceDemo() {
@@ -108,18 +110,18 @@ func awsServiceDemo() {
 	// S3Test()
 }
 
-func S3Test() {
+func S3Test(ctx context.Context) {
 	s3Service := services.NewS3bucketService()
-	s3Service.InitData()
+	s3Service.InitData(ctx)
 	paging := core.Paging{Page: 1, Limit: 5}
 	filter := viewmodel.S3BucketFilter{BucketName: ""}
-	s3s := s3Service.GetS3Buckets(paging, filter)
+	s3s := s3Service.GetS3Buckets(ctx, paging, filter)
 	for _, s := range s3s {
 		fmt.Println(s.Name)
 	}
 
 	f := viewmodel.S3BucketItemFilter{}
-	s3items := s3Service.GetS3BucketItems(f)
+	s3items := s3Service.GetS3BucketItems(ctx, f)
 	for _, s := range s3items {
 		fmt.Println(s.Key)
 	}

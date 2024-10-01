@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -58,7 +59,7 @@ func CreateAwsConfigEntity(data model.AwsConfigRawData, vpcinfos []c.VpcInfo) en
 	return resource
 }
 
-func AddIndividualResource(resources []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
+func AddIndividualResource(ctx context.Context, resources []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
 	discoverys := make([]entity.AwsConfigEntity, 0)
 	ecscluster := make([]entity.AwsConfigEntity, 0)
 
@@ -75,7 +76,7 @@ func AddIndividualResource(resources []entity.AwsConfigEntity, vpcinfos []c.VpcI
 	namespaces := createServiceDiscoveryNamespaces(discoverys)
 	resources = append(resources, namespaces...)
 	// 2. ecs task
-	ecsTasks := createEcsTaskResources(ecscluster, vpcinfos)
+	ecsTasks := createEcsTaskResources(ctx, ecscluster, vpcinfos)
 	resources = append(resources, ecsTasks...)
 	// 3. aws managed polices
 	polices := createAwsManagedPolices()
@@ -204,14 +205,14 @@ func createAwsManagedPolices() []entity.AwsConfigEntity {
 	return result
 }
 
-func createEcsTaskResources(ecscluster []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
+func createEcsTaskResources(ctx context.Context, ecscluster []entity.AwsConfigEntity, vpcinfos []c.VpcInfo) []entity.AwsConfigEntity {
 	result := make([]entity.AwsConfigEntity, 0)
 	clusterNames := make([]string, 0)
 	for _, cluster := range ecscluster {
 		clusterNames = append(clusterNames, cluster.ResourceName)
 	}
 
-	tasks := ecs.GetEcsTasksByCluster(clusterNames)
+	tasks := ecs.GetEcsTasksByCluster(ctx, clusterNames)
 	for _, task := range tasks {
 		i := slices.IndexFunc(ecscluster, func(cluster entity.AwsConfigEntity) bool {
 			return cluster.Arn == *task.ClusterArn
@@ -310,7 +311,6 @@ func createServiceDiscoveryNamespaces(discoverys []entity.AwsConfigEntity) []ent
 			namespace.Properties.DnsProperties.HostedZoneId != nil {
 			vpcid := route53.GetHostedZoneVpcId(*namespace.Properties.DnsProperties.HostedZoneId)
 			namespaceEntity.VpcID = vpcid
-			discovery.VpcID = vpcid
 		}
 
 		namespaceEntityList = append(namespaceEntityList, namespaceEntity)

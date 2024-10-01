@@ -50,7 +50,7 @@ func compareParameter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parameters := parameterService.CompareParameterByIDs(sourceid, destid)
+	parameters := parameterService.CompareParameterByIDs(r.Context(), sourceid, destid)
 
 	body, _ := json.Marshal(parameters)
 	w.Write(body)
@@ -60,7 +60,7 @@ func compareParameter(w http.ResponseWriter, r *http.Request) {
 func getParameter(w http.ResponseWriter, r *http.Request) {
 	parameterService := services.NewParameterService()
 	id := r.URL.Query().Get("id")
-	parameter := parameterService.GetParameterByID(id)
+	parameter := parameterService.GetParameterByID(r.Context(), id)
 
 	body, _ := json.Marshal(parameter)
 	w.Write(body)
@@ -94,7 +94,7 @@ func getallParameter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paging := core.Paging{Page: page, Limit: limit}
-	parameters = parameterService.GetParametersByCondition(paging, filer)
+	parameters = parameterService.GetParametersByCondition(r.Context(), paging, filer)
 
 	body, _ := json.Marshal(parameters)
 	w.Write(body)
@@ -112,7 +112,7 @@ func syncParameter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = parameterService.SyncParameterByID(sync.Id)
+	err = parameterService.SyncParameterByID(r.Context(), sync.Id)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

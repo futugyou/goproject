@@ -25,9 +25,9 @@ func NewKeyValueService() *KeyValueService {
 	}
 }
 
-func (a *KeyValueService) GetAllKeyValues() []model.KeyValue {
+func (a *KeyValueService) GetAllKeyValues(ctx context.Context) []model.KeyValue {
 	KeyValues := make([]model.KeyValue, 0)
-	entities, err := a.repository.GetAll(context.Background())
+	entities, err := a.repository.GetAll(ctx)
 	if err != nil {
 		return KeyValues
 	}
@@ -42,8 +42,8 @@ func (a *KeyValueService) GetAllKeyValues() []model.KeyValue {
 	return KeyValues
 }
 
-func (a *KeyValueService) GetValueByKey(key string) *model.KeyValue {
-	keyvalue, err := a.repository.Get(context.Background(), key)
+func (a *KeyValueService) GetValueByKey(ctx context.Context, key string) *model.KeyValue {
+	keyvalue, err := a.repository.Get(ctx, key)
 	if err != nil {
 		return nil
 	}
@@ -54,17 +54,17 @@ func (a *KeyValueService) GetValueByKey(key string) *model.KeyValue {
 	}
 }
 
-func (a *KeyValueService) CreateKeyValue(key string, value string) {
-	keyvalue, err := a.repository.Get(context.Background(), key)
+func (a *KeyValueService) CreateKeyValue(ctx context.Context, key string, value string) {
+	keyvalue, err := a.repository.Get(ctx, key)
 	if err != nil {
 		keyvalue = &entity.KeyValueEntity{
 			Id:    key,
 			Value: value,
 		}
-		a.repository.Insert(context.Background(), *keyvalue)
+		a.repository.Insert(ctx, *keyvalue)
 		return
 	} else {
 		keyvalue.Value = value
-		a.repository.Update(context.Background(), *keyvalue, keyvalue.Id)
+		a.repository.Update(ctx, *keyvalue, keyvalue.Id)
 	}
 }
