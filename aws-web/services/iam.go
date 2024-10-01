@@ -17,7 +17,7 @@ func NewIAMService() *IAMService {
 	return &IAMService{}
 }
 
-func (s *IAMService) GetIAMData(ctx context.Context, filter model.IAMDataFilter) ([]model.IAMData, error) {
+func (s *IAMService) SearchIAMData(ctx context.Context, filter model.IAMDataFilter) ([]model.IAMData, error) {
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(filter.AccountId)
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)

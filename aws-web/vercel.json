@@ -284,6 +284,20 @@
 				"Access-Control-Allow-Headers": "*",
 				"Access-Control-Expose-Headers": "*, Content-Description, Content-Disposition, Content-Transfer-Encoding, Content-Encoding"
 			}
+		},
+		{
+			"src": "/api/v1/iam",
+			"dest": "/api/iam.go?type=search",
+			"methods": [
+				"GET",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "*",
+				"Access-Control-Allow-Headers": "*",
+				"Access-Control-Expose-Headers": "*"
+			}
 		}
 	],
 	"build": {
