@@ -13,7 +13,7 @@ import (
 	"github.com/futugyou/extensions"
 )
 
-func IAM(w http.ResponseWriter, r *http.Request) {
+func SSM(w http.ResponseWriter, r *http.Request) {
 	if extensions.Cors(w, r) {
 		return
 	}
@@ -25,15 +25,16 @@ func IAM(w http.ResponseWriter, r *http.Request) {
 	operatetype := r.URL.Query().Get("type")
 	switch operatetype {
 	case "search":
-		searchIAMData(w, r)
+		searchSSMData(w, r)
 	}
 }
-func searchIAMData(w http.ResponseWriter, r *http.Request) {
-	service := services.NewIAMService()
+func searchSSMData(w http.ResponseWriter, r *http.Request) {
+	service := services.NewSSMService()
 
 	accountId := r.URL.Query().Get("accountId")
-	filter := model.IAMDataFilter{AccountId: accountId}
-	datas, err := service.SearchIAMData(r.Context(), filter)
+	name := r.URL.Query().Get("name")
+	filter := model.SSMDataFilter{AccountId: accountId, Name: name}
+	datas, err := service.SearchSSMData(r.Context(), filter)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
