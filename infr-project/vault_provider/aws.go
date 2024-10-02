@@ -47,23 +47,30 @@ func (s *AWSClient) Get(ctx context.Context, key string) (*ProviderVault, error)
 }
 
 func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault, error) {
-	input := &ssm.GetParametersByPathInput{
-		Path:           aws.String(prefix),
-		WithDecryption: aws.Bool(true),
-	}
-	//TODO: handle NextToken
-	output, err := s.svc.GetParametersByPath(ctx, input)
-	if err != nil {
-		return nil, err
-	}
 	var providerVaults = []ProviderVault{}
-	for _, v := range output.Parameters {
-		if v.Value != nil {
-			providerVaults = append(providerVaults, ProviderVault{
-				Key:       *v.Name,
-				Value:     *v.Value,
-				CreatedAt: *v.LastModifiedDate,
-			})
+	var nextToken *string = nil
+	for {
+		input := &ssm.GetParametersByPathInput{
+			Path:           aws.String(prefix),
+			WithDecryption: aws.Bool(true),
+			NextToken:      nextToken,
+		}
+		output, err := s.svc.GetParametersByPath(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range output.Parameters {
+			if v.Value != nil {
+				providerVaults = append(providerVaults, ProviderVault{
+					Key:       *v.Name,
+					Value:     *v.Value,
+					CreatedAt: *v.LastModifiedDate,
+				})
+			}
+		}
+		nextToken = output.NextToken
+		if nextToken == nil {
+			break
 		}
 	}
 	return providerVaults, nil
