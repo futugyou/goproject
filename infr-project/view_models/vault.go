@@ -13,7 +13,7 @@ type VaultView struct {
 type CreateVaultModel struct {
 	Key          string   `json:"key" validate:"required,min=3,max=150"`
 	Value        string   `json:"value" validate:"required,min=3,max=150"`
-	StorageMedia string   `json:"storage_media" validate:"oneof=local aws HCP"`
+	StorageMedia string   `json:"storage_media" validate:"oneof=Local AWS HCP AzureVault"`
 	VaultType    string   `json:"vault_type" validate:"oneof=system common project resource platform"`
 	TypeIdentity string   `json:"type_identity" validate:"min=3,max=150"`
 	Tags         []string `json:"tags"`
@@ -46,7 +46,7 @@ type ChangeVaultRequest struct {
 type ChangeVaultItem struct {
 	Key          *string   `json:"key" validate:"min=3,max=150"`
 	Value        *string   `json:"value" validate:"min=3,max=150"`
-	StorageMedia *string   `json:"storage_media" validate:"oneof=Local AWS HCP"`
+	StorageMedia *string   `json:"storage_media" validate:"oneof=Local AWS HCP AzureVault"`
 	VaultType    *string   `json:"vault_type" validate:"oneof=system common project resource platform"`
 	TypeIdentity *string   `json:"type_identity" validate:"min=3,max=150"`
 	Tags         *[]string `json:"tags"`

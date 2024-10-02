@@ -14,9 +14,10 @@ func (c storageMedia) String() string {
 }
 
 const (
-	StorageMediaLocal storageMedia = "Local"
-	StorageMediaAws   storageMedia = "AWS"
-	StorageMediaHCP   storageMedia = "HCP"
+	StorageMediaLocal      storageMedia = "Local"
+	StorageMediaAws        storageMedia = "AWS"
+	StorageMediaHCP        storageMedia = "HCP"
+	StorageMediaAzureVault storageMedia = "AzureVault"
 )
 
 func GetStorageMedia(rType string) StorageMedia {
@@ -27,6 +28,8 @@ func GetStorageMedia(rType string) StorageMedia {
 		return StorageMediaAws
 	case "HCP":
 		return StorageMediaHCP
+	case "AzureVault":
+		return StorageMediaAzureVault
 	default:
 		return StorageMediaLocal
 	}
