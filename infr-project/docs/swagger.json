@@ -1461,7 +1461,8 @@
                     "enum": [
                         "Local",
                         "AWS",
-                        "HCP"
+                        "HCP",
+                        "AzureVault"
                     ]
                 },
                 "tags": {
@@ -1635,9 +1636,10 @@
                 "storage_media": {
                     "type": "string",
                     "enum": [
-                        "local",
-                        "aws",
-                        "HCP"
+                        "Local",
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
                     ]
                 },
                 "tags": {

@@ -1472,7 +1472,8 @@ const docTemplate = `{
                     "enum": [
                         "Local",
                         "AWS",
-                        "HCP"
+                        "HCP",
+                        "AzureVault"
                     ]
                 },
                 "tags": {
@@ -1646,9 +1647,10 @@ const docTemplate = `{
                 "storage_media": {
                     "type": "string",
                     "enum": [
-                        "local",
-                        "aws",
-                        "HCP"
+                        "Local",
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
                     ]
                 },
                 "tags": {

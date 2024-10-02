@@ -138,6 +138,7 @@ definitions:
         - Local
         - AWS
         - HCP
+        - AzureVault
         type: string
       tags:
         items:
@@ -259,9 +260,10 @@ definitions:
         type: string
       storage_media:
         enum:
-        - local
-        - aws
+        - Local
+        - AWS
         - HCP
+        - AzureVault
         type: string
       tags:
         items:
