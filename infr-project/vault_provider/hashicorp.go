@@ -42,7 +42,7 @@ func NewVaultClient() (*VaultClient, error) {
 	}, err
 }
 
-func (s *VaultClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
+func (s *VaultClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	params := &vault.OpenAppSecretParams{
 		AppName:                os.Getenv("HCP_APP_NAME"),
 		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
@@ -69,7 +69,7 @@ func (s *VaultClient) Get(ctx context.Context, key string) (*ProviderVault, erro
 	return nil, fmt.Errorf("can not found secret with name %s in hashicorp", key)
 }
 
-func (s *VaultClient) Search(ctx context.Context, key string) ([]ProviderVault, error) {
+func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
 	params := &vault.OpenAppSecretsParams{
 		AppName:                os.Getenv("HCP_APP_NAME"),
 		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
@@ -82,31 +82,36 @@ func (s *VaultClient) Search(ctx context.Context, key string) ([]ProviderVault, 
 		return nil, err
 	}
 
-	var providerVaults = []ProviderVault{}
+	var providerVaults = map[string]ProviderVault{}
 	if result.Payload != nil || len(result.Payload.Secrets) == 0 {
 		for _, v := range result.Payload.Secrets {
 			if v != nil && v.Version != nil {
-				if len(key) > 0 {
-					if strings.HasPrefix(v.Version.Value, key) {
-						providerVaults = append(providerVaults, ProviderVault{
-							Key:       key,
+				if len(prefix) > 0 {
+					if strings.HasPrefix(v.Version.Value, prefix) {
+						providerVaults[v.Name] = ProviderVault{
+							Key:       v.Name,
 							Value:     v.Version.Value,
 							CreatedAt: time.Time(v.Version.CreatedAt),
-						})
+						}
 					}
 				} else {
-					providerVaults = append(providerVaults, ProviderVault{
-						Key:       key,
+					providerVaults[v.Name] = ProviderVault{
+						Key:       v.Name,
 						Value:     v.Version.Value,
 						CreatedAt: time.Time(v.Version.CreatedAt),
-					})
+					}
 				}
 			}
 		}
 		return providerVaults, nil
 	}
 
-	return nil, fmt.Errorf("can not found secret with name %s in hashicorp", key)
+	return nil, fmt.Errorf("can not found secret with prefix %s in hashicorp", prefix)
+}
+
+func (s *VaultClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+	var providerVaults = map[string]ProviderVault{}
+	return providerVaults, nil
 }
 
 func (s *VaultClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {

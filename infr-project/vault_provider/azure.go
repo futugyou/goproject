@@ -31,7 +31,7 @@ func NewAzureClient() (*AzureClient, error) {
 	}, nil
 }
 
-func (s *AzureClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
+func (s *AzureClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	resp, err := s.client.GetSecret(ctx, key, "", nil)
 	if err != nil {
 		return nil, err
@@ -46,8 +46,8 @@ func (s *AzureClient) Get(ctx context.Context, key string) (*ProviderVault, erro
 	return nil, fmt.Errorf("can not found secret with name %s in Azure", key)
 }
 
-func (s *AzureClient) Search(ctx context.Context, prefix string) ([]ProviderVault, error) {
-	var providerVaults = []ProviderVault{}
+func (s *AzureClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
+	var providerVaults = map[string]ProviderVault{}
 	var keys = []string{}
 	pager := s.client.NewListSecretPropertiesPager(nil)
 	for pager.More() {
@@ -62,12 +62,15 @@ func (s *AzureClient) Search(ctx context.Context, prefix string) ([]ProviderVaul
 		}
 	}
 	for _, key := range keys {
-		v, err := s.Get(ctx, key)
-		if err != nil {
-			return providerVaults, err
+		if v, err := s.Search(ctx, key); err != nil {
+			providerVaults[v.Key] = *v
 		}
-		providerVaults = append(providerVaults, *v)
 	}
+	return providerVaults, nil
+}
+
+func (s *AzureClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+	var providerVaults = map[string]ProviderVault{}
 	return providerVaults, nil
 }
 

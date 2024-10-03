@@ -26,7 +26,7 @@ func NewAWSClient() (*AWSClient, error) {
 	}, nil
 }
 
-func (s *AWSClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
+func (s *AWSClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	input := &ssm.GetParameterInput{
 		Name:           aws.String(key),
 		WithDecryption: aws.Bool(true),
@@ -45,8 +45,8 @@ func (s *AWSClient) Get(ctx context.Context, key string) (*ProviderVault, error)
 	return nil, fmt.Errorf("can not found secret with name %s in aws", key)
 }
 
-func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault, error) {
-	var providerVaults = []ProviderVault{}
+func (s *AWSClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
+	var providerVaults = map[string]ProviderVault{}
 	var nextToken *string = nil
 	for {
 		input := &ssm.GetParametersByPathInput{
@@ -60,11 +60,11 @@ func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault,
 		}
 		for _, v := range output.Parameters {
 			if v.Value != nil {
-				providerVaults = append(providerVaults, ProviderVault{
+				providerVaults[*v.Name] = ProviderVault{
 					Key:       *v.Name,
 					Value:     *v.Value,
 					CreatedAt: *v.LastModifiedDate,
-				})
+				}
 			}
 		}
 		nextToken = output.NextToken
@@ -72,6 +72,11 @@ func (s *AWSClient) Search(ctx context.Context, prefix string) ([]ProviderVault,
 			break
 		}
 	}
+	return providerVaults, nil
+}
+
+func (s *AWSClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+	var providerVaults = map[string]ProviderVault{}
 	return providerVaults, nil
 }
 
