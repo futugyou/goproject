@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets"
@@ -47,7 +48,26 @@ func (s *AzureClient) Get(ctx context.Context, key string) (*ProviderVault, erro
 
 func (s *AzureClient) Search(ctx context.Context, prefix string) ([]ProviderVault, error) {
 	var providerVaults = []ProviderVault{}
-	// TODO: azure vault donot support range search, we need a loop
+	var keys = []string{}
+	pager := s.client.NewListSecretPropertiesPager(nil)
+	for pager.More() {
+		page, err := pager.NextPage(ctx)
+		if err != nil {
+			return providerVaults, err
+		}
+		for _, secret := range page.Value {
+			if strings.HasPrefix(secret.ID.Name(), prefix) {
+				keys = append(keys, secret.ID.Name())
+			}
+		}
+	}
+	for _, key := range keys {
+		v, err := s.Get(ctx, key)
+		if err != nil {
+			return providerVaults, err
+		}
+		providerVaults = append(providerVaults, *v)
+	}
 	return providerVaults, nil
 }
 
@@ -64,7 +84,6 @@ func (s *AzureClient) Upsert(ctx context.Context, key string, value string) (*Pr
 }
 
 func (s *AzureClient) Delete(ctx context.Context, key string) error {
-	//TODO: it may be a  soft-delete
 	_, err := s.client.DeleteSecret(ctx, key, nil)
 	return err
 }
