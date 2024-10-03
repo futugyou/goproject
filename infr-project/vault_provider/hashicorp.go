@@ -58,7 +58,7 @@ func (s *VaultClient) Search(ctx context.Context, key string) (*ProviderVault, e
 		return nil, err
 	}
 
-	if result.Payload != nil || result.Payload.Secret != nil && result.Payload.Secret.Version != nil {
+	if result.Payload != nil && result.Payload.Secret != nil && result.Payload.Secret.Version != nil {
 		return &ProviderVault{
 			Key:       key,
 			Value:     result.Payload.Secret.Version.Value,
@@ -83,7 +83,7 @@ func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 	}
 
 	var providerVaults = map[string]ProviderVault{}
-	if result.Payload != nil || len(result.Payload.Secrets) == 0 {
+	if result.Payload != nil && len(result.Payload.Secrets) > 0 {
 		for _, v := range result.Payload.Secrets {
 			if v != nil && v.Version != nil {
 				if len(prefix) > 0 {
@@ -110,7 +110,35 @@ func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 }
 
 func (s *VaultClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+	params := &vault.OpenAppSecretsParams{
+		AppName:                os.Getenv("HCP_APP_NAME"),
+		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
+		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		Context:                ctx,
+	}
+	var result *vault.OpenAppSecretsOK
+	var err error
+	if result, err = s.http.OpenAppSecrets(params, nil); err != nil {
+		return nil, err
+	}
+
 	var providerVaults = map[string]ProviderVault{}
+	if result.Payload != nil && len(result.Payload.Secrets) > 0 {
+		for _, v := range result.Payload.Secrets {
+			if v != nil && v.Version != nil {
+				for i := range keys {
+					if keys[i] == v.Name {
+						providerVaults[v.Name] = ProviderVault{
+							Key:       v.Name,
+							Value:     v.Version.Value,
+							CreatedAt: time.Time(v.Version.CreatedAt),
+						}
+					}
+				}
+			}
+		}
+	}
+
 	return providerVaults, nil
 }
 
