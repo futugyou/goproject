@@ -71,6 +71,26 @@ func (s *AzureClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 
 func (s *AzureClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
 	var providerVaults = map[string]ProviderVault{}
+	var awskeys = []string{}
+	pager := s.client.NewListSecretPropertiesPager(nil)
+	for pager.More() {
+		page, err := pager.NextPage(ctx)
+		if err != nil {
+			return providerVaults, err
+		}
+		for _, secret := range page.Value {
+			for i := range keys {
+				if secret.ID.Name() == keys[i] {
+					awskeys = append(awskeys, secret.ID.Name())
+				}
+			}
+		}
+	}
+	for _, key := range awskeys {
+		if v, err := s.Search(ctx, key); err != nil {
+			providerVaults[v.Key] = *v
+		}
+	}
 	return providerVaults, nil
 }
 
