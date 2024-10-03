@@ -3,7 +3,6 @@ package vault_provider
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -17,12 +16,12 @@ type VaultClient struct {
 	http vault.ClientService
 }
 
-func NewVaultClient() *VaultClient {
+func NewVaultClient() (*VaultClient, error) {
 	hcpConfig, err := config.NewHCPConfig(
 		config.FromEnv(),
 	)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Construct HTTP client config
@@ -33,14 +32,14 @@ func NewVaultClient() *VaultClient {
 	// Initialize SDK http client
 	cl, err := httpclient.New(httpclientConfig)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Import versioned client for each service.
 	vaultClient := vault.New(cl, nil)
 	return &VaultClient{
 		http: vaultClient,
-	}
+	}, err
 }
 
 func (s *VaultClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
@@ -148,9 +147,6 @@ func (s *VaultClient) Delete(ctx context.Context, key string) error {
 		SecretName:             key,
 	}
 
-	if _, err := s.http.DeleteAppSecret(params, nil); err != nil {
-		return err
-	}
-
-	return nil
+	_, err := s.http.DeleteAppSecret(params, nil)
+	return err
 }

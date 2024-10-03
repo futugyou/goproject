@@ -3,7 +3,6 @@ package vault_provider
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -17,14 +16,14 @@ type AWSClient struct {
 }
 
 // aws ssm path like '/Finance/Prod/IAD/WinServ2016/license33'
-func NewAWSClient() *AWSClient {
+func NewAWSClient() (*AWSClient, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	return &AWSClient{
 		svc: ssm.NewFromConfig(cfg),
-	}
+	}, nil
 }
 
 func (s *AWSClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
@@ -83,10 +82,11 @@ func (s *AWSClient) Upsert(ctx context.Context, key string, value string) (*Prov
 		Overwrite: aws.Bool(true),
 		Type:      types.ParameterTypeString,
 	}
-	_, err := s.svc.PutParameter(ctx, putInput)
-	if err != nil {
+
+	if _, err := s.svc.PutParameter(ctx, putInput); err != nil {
 		return nil, err
 	}
+
 	return &ProviderVault{
 		Key:       key,
 		Value:     value,

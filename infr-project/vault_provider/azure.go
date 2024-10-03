@@ -14,10 +14,10 @@ type AzureClient struct {
 	client *azsecrets.Client
 }
 
-func NewAzureClient() *AzureClient {
+func NewAzureClient() (*AzureClient, error) {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	client, err := azsecrets.NewClient(os.Getenv("AZURE_VAULT_URL"), cred, nil)
@@ -27,7 +27,7 @@ func NewAzureClient() *AzureClient {
 
 	return &AzureClient{
 		client: client,
-	}
+	}, nil
 }
 
 func (s *AzureClient) Get(ctx context.Context, key string) (*ProviderVault, error) {
