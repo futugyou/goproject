@@ -21,7 +21,7 @@ require (
 	github.com/google/go-github/v61 v61.0.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.0
-	github.com/hashicorp/go-tfe v1.67.1
+	github.com/hashicorp/go-tfe v1.68.0
 	github.com/hashicorp/hcp-sdk-go v0.115.0
 	github.com/joho/godotenv v1.5.1
 	github.com/opentracing/opentracing-go v1.2.0
@@ -128,7 +128,7 @@ require (
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
