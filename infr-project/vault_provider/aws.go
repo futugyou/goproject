@@ -77,6 +77,21 @@ func (s *AWSClient) PrefixSearch(ctx context.Context, prefix string) (map[string
 
 func (s *AWSClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
 	var providerVaults = map[string]ProviderVault{}
+	input := &ssm.GetParametersInput{
+		Names:          keys,
+		WithDecryption: aws.Bool(true),
+	}
+	output, err := s.svc.GetParameters(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	for _, parameter := range output.Parameters {
+		providerVaults[*parameter.Name] = ProviderVault{
+			Key:       *parameter.Name,
+			Value:     *parameter.Value,
+			CreatedAt: *parameter.LastModifiedDate,
+		}
+	}
 	return providerVaults, nil
 }
 
