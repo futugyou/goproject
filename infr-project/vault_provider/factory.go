@@ -2,15 +2,18 @@ package vault_provider
 
 import "fmt"
 
-func VaultProviderFatory(provider string) (IVaultProvider, error) {
+func VaultProviderFatory(provider string) (IVaultProviderAsync, error) {
 	if provider == "AWS" {
-		return NewAWSClient()
+		client, err := NewAWSClient()
+		return NewAsyncWrapper(client), err
 	}
 	if provider == "HCP" {
-		return NewVaultClient()
+		client, err := NewVaultClient()
+		return NewAsyncWrapper(client), err
 	}
 	if provider == "AzureVault" {
-		return NewAzureClient()
+		client, err := NewAzureClient()
+		return NewAsyncWrapper(client), err
 	}
 	return nil, fmt.Errorf("provider type %s is not support", provider)
 }
