@@ -18,3 +18,11 @@ type IVaultProvider interface {
 	Upsert(ctx context.Context, key string, value string) (*ProviderVault, error)
 	Delete(ctx context.Context, key string) error
 }
+
+type IVaultProviderAsync interface {
+	SearchAsync(ctx context.Context, key string) (<-chan *ProviderVault, <-chan error)
+	PrefixSearchAsync(ctx context.Context, prefix string) (<-chan map[string]ProviderVault, <-chan error)
+	BatchSearchAsync(ctx context.Context, keys []string) (<-chan map[string]ProviderVault, <-chan error)
+	UpsertAsync(ctx context.Context, key string, value string) (<-chan *ProviderVault, <-chan error)
+	DeleteAsync(ctx context.Context, key string) <-chan error
+}
