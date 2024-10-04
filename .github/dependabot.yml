@@ -17,6 +17,19 @@ updates:
       time: "02:30"
     ignore:
       - dependency-name: "github.com/ThreeDotsLabs/watermill"
+    groups:
+      hashicorp:
+        patterns:
+          - "github.com/hashicorp/*"
+      aws:
+        patterns:
+          - "github.com/aws/*"
+      azure:
+        patterns:
+          - "github.com/Azure/*"
+      swaggo:
+        patterns:
+          - "github.com/swaggo/*"
   - package-ecosystem: "gomod"
     directory: "/aws-web"
     schedule:
