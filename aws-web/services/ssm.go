@@ -7,6 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 
+	"github.com/futugyou/extensions"
+
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 )
@@ -41,39 +43,52 @@ func (s *SSMService) SearchSSMData(ctx context.Context, filter model.SSMDataFilt
 
 func (*SSMService) getParameters(ctx context.Context, names []string, svc *ssm.Client) ([]model.SSMData, error) {
 	var result = []model.SSMData{}
-	input := &ssm.GetParametersInput{
-		Names:          names,
-		WithDecryption: aws.Bool(true),
+
+	namesList := extensions.SplitArray(names, 10)
+	for _, names := range namesList {
+		input := &ssm.GetParametersInput{
+			Names:          names,
+			WithDecryption: aws.Bool(true),
+		}
+
+		parameters, err := svc.GetParameters(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, p := range parameters.Parameters {
+			result = append(result, model.SSMData{
+				Key:        *p.Name,
+				Value:      *p.Value,
+				CreateDate: *p.LastModifiedDate,
+			})
+		}
 	}
 
-	parameters, err := svc.GetParameters(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, p := range parameters.Parameters {
-		result = append(result, model.SSMData{
-			Key:        *p.Name,
-			Value:      *p.Value,
-			CreateDate: *p.LastModifiedDate,
-		})
-	}
 	return result, nil
 }
 
 func (*SSMService) getParameterDescribes(ctx context.Context, svc *ssm.Client) ([]string, error) {
 	var result = []string{}
-	input := &ssm.DescribeParametersInput{
-		// max value 50
-		MaxResults: aws.Int32(50),
-	}
-	output, err := svc.DescribeParameters(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-	for _, p := range output.Parameters {
-		if p.Name != nil {
-			result = append(result, *p.Name)
+	var nextToken *string = nil
+
+	for {
+		input := &ssm.DescribeParametersInput{
+			NextToken:  nextToken,
+			MaxResults: aws.Int32(50),
+		}
+		output, err := svc.DescribeParameters(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+		nextToken = output.NextToken
+		for _, p := range output.Parameters {
+			if p.Name != nil {
+				result = append(result, *p.Name)
+			}
+		}
+		if nextToken == nil {
+			break
 		}
 	}
 	return result, nil
