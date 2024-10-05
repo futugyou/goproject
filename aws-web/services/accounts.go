@@ -45,6 +45,7 @@ func (a *AccountService) GetAllAccounts(ctx context.Context) []model.UserAccount
 			Alias:           entity.Alias,
 			Region:          entity.Region,
 			SecretAccessKey: entity.SecretAccessKey,
+			Valid:           entity.Valid,
 			CreatedAt:       time.Unix(entity.CreatedAt, 0),
 		})
 	}
@@ -66,6 +67,7 @@ func (a *AccountService) GetAccountsByPaging(ctx context.Context, paging core.Pa
 			Alias:           entity.Alias,
 			Region:          entity.Region,
 			SecretAccessKey: entity.SecretAccessKey,
+			Valid:           entity.Valid,
 			CreatedAt:       time.Unix(entity.CreatedAt, 0),
 		})
 	}
@@ -92,6 +94,7 @@ func (a *AccountService) CreateAccount(ctx context.Context, account model.UserAc
 		AccessKeyId:     account.AccessKeyId,
 		SecretAccessKey: account.SecretAccessKey,
 		Region:          account.Region,
+		Valid:           account.Valid,
 		CreatedAt:       time.Now().Unix(),
 	}
 
@@ -111,6 +114,7 @@ func (a *AccountService) UpdateAccount(ctx context.Context, account model.UserAc
 		AccessKeyId:     account.AccessKeyId,
 		SecretAccessKey: account.SecretAccessKey,
 		Region:          account.Region,
+		Valid:           account.Valid,
 		CreatedAt:       time.Now().Unix(),
 	}
 
@@ -145,6 +149,7 @@ func (a *AccountService) GetAccountByID(ctx context.Context, id string) *model.U
 		Alias:           entity.Alias,
 		Region:          entity.Region,
 		SecretAccessKey: entity.SecretAccessKey,
+		Valid:           entity.Valid,
 		CreatedAt:       time.Unix(entity.CreatedAt, 0),
 	}
 
@@ -163,6 +168,7 @@ func (a *AccountService) GetAccountByAlias(ctx context.Context, alias string) *m
 		Alias:           entity.Alias,
 		Region:          entity.Region,
 		SecretAccessKey: entity.SecretAccessKey,
+		Valid:           entity.Valid,
 		CreatedAt:       time.Unix(entity.CreatedAt, 0),
 	}
 
