@@ -80,7 +80,7 @@ func initAwsEnv(ctx context.Context) bool {
 	}
 
 	account := accountService.GetAccountByID(ctx, accountid)
-	if account == nil {
+	if account == nil || !account.Valid {
 		log.Printf("can not find accountid:%s from db.", accountid)
 		return false
 	}

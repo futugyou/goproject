@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/iam"
@@ -20,6 +21,9 @@ func NewIAMService() *IAMService {
 func (s *IAMService) SearchIAMData(ctx context.Context, filter model.IAMDataFilter) ([]model.IAMData, error) {
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	if !account.Valid {
+		return nil, fmt.Errorf("account %s is expired", account.Id)
+	}
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	svc := iam.NewFromConfig(awsenv.Cfg)
 

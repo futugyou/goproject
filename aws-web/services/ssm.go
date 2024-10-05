@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
@@ -20,6 +21,9 @@ func NewSSMService() *SSMService {
 func (s *SSMService) SearchSSMData(ctx context.Context, filter model.SSMDataFilter) ([]model.SSMData, error) {
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	if !account.Valid {
+		return nil, fmt.Errorf("account %s is expired", account.Id)
+	}
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	svc := ssm.NewFromConfig(awsenv.Cfg)
 

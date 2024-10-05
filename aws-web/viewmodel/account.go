@@ -8,6 +8,6 @@ type UserAccount struct {
 	AccessKeyId     string    `json:"accessKeyId"`
 	SecretAccessKey string    `json:"secretAccessKey"`
 	Region          string    `json:"region"`
-	Valid           bool      `bson:"valid"`
+	Valid           bool      `json:"valid"`
 	CreatedAt       time.Time `json:"createdAt"`
 }

@@ -22,6 +22,9 @@ func (s *S3bucketService) InitData(ctx context.Context) {
 	entities := make([]entity.S3bucketEntity, 0)
 	items := make([]entity.S3bucketItemEntity, 0)
 	for _, account := range accounts {
+		if !account.Valid {
+			continue
+		}
 		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		buckets, err := s.GetAllS3Bucket(ctx)
 		if err != nil {

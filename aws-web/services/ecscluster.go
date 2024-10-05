@@ -93,6 +93,10 @@ func (e *EcsClusterService) GetServiceDetailById(ctx context.Context, id string)
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, entity.AccountId)
 
+	if !account.Valid {
+		return nil, fmt.Errorf("account %s is expired", account.Id)
+	}
+
 	result := &model.EcsClusterDetailViewModel{}
 	result.AccountAlias = account.Alias
 	result.Id = entity.Id
@@ -167,6 +171,9 @@ func (e *EcsClusterService) CompareTaskDefinitions(ctx context.Context, compare 
 
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, entity.AccountId)
+	if !account.Valid {
+		return nil, fmt.Errorf("account %s is expired", account.Id)
+	}
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	data1 := describeTaskDefinition(ctx, compare.SourceTaskArn)
 	data2 := describeTaskDefinition(ctx, compare.DestTaskArn)

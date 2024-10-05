@@ -152,7 +152,9 @@ func (a *ParameterService) GetParameterByID(ctx context.Context, id string) *mod
 
 		parameter.History = history
 	}
-
+	if !account.Valid {
+		return parameter
+	}
 	// get parameter from aws
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	details, err := a.getParametersDatail(ctx, []string{entity.Key})
@@ -206,7 +208,7 @@ func (a *ParameterService) SyncParameterByID(ctx context.Context, id string) err
 	// account
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, parameter.AccountId)
-	if account == nil {
+	if account == nil || !account.Valid {
 		return errors.New("account not found")
 	}
 

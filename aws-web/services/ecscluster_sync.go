@@ -18,6 +18,9 @@ func (e *EcsClusterService) SyncAllEcsServices(ctx context.Context) {
 	accounts := accountService.GetAllAccounts(ctx)
 	services := make([]entity.EcsServiceEntity, 0)
 	for _, account := range accounts {
+		if !account.Valid {
+			continue
+		}
 		awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 		svc := ecs.NewFromConfig(awsenv.Cfg)
 		clusterinput := &ecs.ListClustersInput{}

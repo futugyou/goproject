@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -70,6 +71,9 @@ func (s *S3bucketService) GetS3BucketItems(ctx context.Context, filter model.S3B
 	result := make([]model.S3BucketItemViewModel, 0)
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	if !account.Valid {
+		return nil
+	}
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	output, err := s.ListItems(ctx, filter.BucketName, filter.Perfix, filter.Del)
 	if err != nil {
@@ -105,6 +109,9 @@ func (s *S3bucketService) GetS3BucketItems(ctx context.Context, filter model.S3B
 func (s *S3bucketService) GetS3BucketFile(ctx context.Context, filter model.S3BucketFileFilter) (*s3.GetObjectOutput, error) {
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	if !account.Valid {
+		return nil, fmt.Errorf("account %s is expired", account.Id)
+	}
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 
 	return s.GetS3Object(ctx, filter.BucketName, filter.FileName)
@@ -113,6 +120,9 @@ func (s *S3bucketService) GetS3BucketFile(ctx context.Context, filter model.S3Bu
 func (s *S3bucketService) GetS3FileUrl(ctx context.Context, filter model.S3BucketFileFilter) model.S3BucketUrlViewModel {
 	accountService := NewAccountService()
 	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	if !account.Valid {
+		return model.S3BucketUrlViewModel{Url: ""}
+	}
 	awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	url := s.PresignGetObject(ctx, filter.BucketName, filter.FileName)
 
