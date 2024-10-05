@@ -24,3 +24,18 @@ func ArrayFilter[T any](raws []T, filter func(T) bool) (ret []T) {
 
 	return
 }
+
+func SplitArray[T any](arr []T, size int) [][]T {
+	var result [][]T
+
+	for len(arr) > 0 {
+		if len(arr) < size {
+			result = append(result, arr)
+			break
+		}
+		result = append(result, arr[:size])
+		arr = arr[size:]
+	}
+
+	return result
+}
