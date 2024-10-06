@@ -16,6 +16,7 @@ type Vault struct {
 	StorageMedia     StorageMedia `json:"storage_media"` // local,aws,HCP,...
 	VaultType        VaultType    `json:"vault_type"`    // system,common,project,resource,platform
 	TypeIdentity     string       `json:"type_identity"` // system,common,projectId,...
+	State            VaultState   `json:"state"`         // default,changing
 	Tags             []string     `json:"tags"`
 	hasChange        bool         `json:"-"`
 }
