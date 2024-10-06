@@ -83,6 +83,11 @@ func (v *Vault) UpdateKey(key string) error {
 	return nil
 }
 
+func (v *Vault) UpdateState(state vaultState) error {
+	v.State = state
+	return nil
+}
+
 func (v *Vault) UpdateValue(value string) error {
 	if v.Value != value {
 		v.Value = value

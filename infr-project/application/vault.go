@@ -9,6 +9,7 @@ import (
 
 	domain "github.com/futugyou/infr-project/domain"
 	vault "github.com/futugyou/infr-project/vault"
+	provider "github.com/futugyou/infr-project/vault_provider"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -269,4 +270,38 @@ func decryptVaultValue(entity *vault.Vault) error {
 		return err
 	}
 	return entity.UpdateValue(value)
+}
+
+func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type string, key string) error {
+	p, err := provider.VaultProviderFatory(provider_type)
+	if err != nil {
+		return err
+	}
+
+	return p.Delete(ctx, key)
+}
+
+func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type string, datas []vault.Vault) error {
+	p, err := provider.VaultProviderFatory(provider_type)
+	if err != nil {
+		return err
+	}
+
+	for _, data := range datas {
+		_, err := p.Upsert(ctx, data.Key, data.Value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *VaultService) searchVaultInProvider(ctx context.Context, provider_type string, keys []string) (map[string]provider.ProviderVault, error) {
+	p, err := provider.VaultProviderFatory(provider_type)
+	if err != nil {
+		return nil, err
+	}
+
+	return p.BatchSearch(ctx, keys)
 }
