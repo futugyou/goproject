@@ -215,26 +215,14 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 		data.UpdateKey(*aux.Key)
 	}
 
-	if aux.Value != nil && aux.StorageMedia != nil {
+	if aux.Value != nil {
 		data.UpdateValue(*aux.Value)
+		encryptVaultValue(data)
+	}
+
+	if aux.StorageMedia != nil {
 		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
 		data.UpdateStorageMedia(storageMedia)
-		encryptVaultValue(data)
-	} else if aux.Value != nil {
-		data.UpdateValue(*aux.Value)
-		encryptVaultValue(data)
-	} else if aux.StorageMedia != nil {
-		storageMedia := vault.GetStorageMedia(*aux.StorageMedia)
-		// that means value need decrypt
-		if data.StorageMedia == vault.StorageMediaLocal && storageMedia != vault.StorageMediaLocal {
-			decryptVaultValue(data)
-			data.UpdateStorageMedia(storageMedia)
-		}
-		// that means value need encrypt
-		if data.StorageMedia != vault.StorageMediaLocal && storageMedia == vault.StorageMediaLocal {
-			data.UpdateStorageMedia(storageMedia)
-			encryptVaultValue(data)
-		}
 	}
 
 	if aux.VaultType != nil || aux.TypeIdentity != nil {
@@ -265,12 +253,9 @@ func encryptVaultValue(entity *vault.Vault) error {
 	if entity == nil {
 		return fmt.Errorf("vault can not be nil")
 	}
-	value := entity.Value
-	var err error
-	if entity.StorageMedia == vault.StorageMediaLocal {
-		if value, err = tool.AesCTREncrypt(entity.Value, os.Getenv("Encrypt_Key")); err != nil {
-			return err
-		}
+	value, err := tool.AesCTREncrypt(entity.Value, os.Getenv("Encrypt_Key"))
+	if err != nil {
+		return err
 	}
 	return entity.UpdateValue(value)
 }
@@ -279,12 +264,9 @@ func decryptVaultValue(entity *vault.Vault) error {
 	if entity == nil {
 		return fmt.Errorf("vault can not be nil")
 	}
-	value := entity.Value
-	var err error
-	if entity.StorageMedia == vault.StorageMediaLocal {
-		if value, err = tool.AesCTRDecrypt(entity.Value, os.Getenv("Encrypt_Key")); err != nil {
-			return err
-		}
+	value, err := tool.AesCTRDecrypt(entity.Value, os.Getenv("Encrypt_Key"))
+	if err != nil {
+		return err
 	}
 	return entity.UpdateValue(value)
 }
