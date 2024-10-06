@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	tool "github.com/futugyou/extensions"
 
@@ -287,14 +288,37 @@ func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type 
 		return err
 	}
 
+	var wg sync.WaitGroup
+	concurrencyLimit := 5
+	sem := make(chan struct{}, concurrencyLimit)
+
+	errCh := make(chan error, len(datas))
+	defer close(errCh)
+
 	for _, data := range datas {
-		_, err := p.Upsert(ctx, data.Key, data.Value)
-		if err != nil {
-			return err
-		}
+		wg.Add(1)
+
+		go func(data vault.Vault) {
+			defer wg.Done()
+
+			sem <- struct{}{}
+
+			_, err := p.Upsert(ctx, data.Key, data.Value)
+			if err != nil {
+				errCh <- err
+			}
+			<-sem
+		}(data)
 	}
 
-	return nil
+	wg.Wait()
+
+	select {
+	case err := <-errCh:
+		return err
+	default:
+		return nil
+	}
 }
 
 func (s *VaultService) searchVaultInProvider(ctx context.Context, provider_type string, keys []string) (map[string]provider.ProviderVault, error) {
