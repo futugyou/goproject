@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets"
@@ -61,12 +62,36 @@ func (s *AzureClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 			}
 		}
 	}
-	for _, key := range keys {
-		if v, err := s.Search(ctx, key); err != nil {
-			providerVaults[v.Key] = *v
-		}
-	}
+
+	s.concurrencySearch(ctx, keys, providerVaults)
+
 	return providerVaults, nil
+}
+
+func (s *AzureClient) concurrencySearch(ctx context.Context, keys []string, providerVaults map[string]ProviderVault) {
+	var wg sync.WaitGroup
+	concurrencyLimit := 5
+	sem := make(chan struct{}, concurrencyLimit)
+	errCh := make(chan error, len(keys))
+	defer close(errCh)
+
+	for _, key := range keys {
+		wg.Add(1)
+
+		go func(key string) {
+			defer wg.Done()
+
+			sem <- struct{}{}
+			v, err := s.Search(ctx, key)
+			if err != nil {
+				errCh <- err
+			} else {
+				providerVaults[v.Key] = *v
+			}
+
+			<-sem
+		}(key)
+	}
 }
 
 func (s *AzureClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
@@ -86,11 +111,9 @@ func (s *AzureClient) BatchSearch(ctx context.Context, keys []string) (map[strin
 			}
 		}
 	}
-	for _, key := range awskeys {
-		if v, err := s.Search(ctx, key); err != nil {
-			providerVaults[v.Key] = *v
-		}
-	}
+
+	s.concurrencySearch(ctx, awskeys, providerVaults)
+
 	return providerVaults, nil
 }
 
