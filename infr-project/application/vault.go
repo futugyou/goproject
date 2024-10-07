@@ -302,7 +302,7 @@ func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type 
 	return p.Delete(ctx, key)
 }
 
-func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type string, datas []vault.Vault) error {
+func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type string, datas map[string]string) error {
 	p, err := provider.VaultProviderFatory(provider_type)
 	if err != nil {
 		return err
@@ -315,20 +315,20 @@ func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type 
 	errCh := make(chan error, len(datas))
 	defer close(errCh)
 
-	for _, data := range datas {
+	for key, value := range datas {
 		wg.Add(1)
 
-		go func(data vault.Vault) {
+		go func(key string, value string) {
 			defer wg.Done()
 
 			sem <- struct{}{}
 
-			_, err := p.Upsert(ctx, data.Key, data.Value)
+			_, err := p.Upsert(ctx, key, value)
 			if err != nil {
 				errCh <- err
 			}
 			<-sem
-		}(data)
+		}(key, value)
 	}
 
 	wg.Wait()
