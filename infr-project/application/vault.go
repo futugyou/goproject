@@ -184,9 +184,15 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 		}); err != nil {
 			return nil, err
 		}
+
+		value, _ := tool.AesCTRDecrypt(data.Value, os.Getenv("Encrypt_Key"))
+		if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.Key: value}); err != nil {
+			return nil, err
+		}
 	}
 
 	model := convertVaultToVaultView(*data)
+
 	return &model, nil
 }
 
