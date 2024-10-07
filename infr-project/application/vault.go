@@ -122,10 +122,12 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 	// Although the code is grouped by StorageMedia, in reality there is only one StorageMedia per request.
 	providerDatas := map[string]map[string]string{}
 	for _, item := range aux.Vaults {
-		if _, exists := providerDatas[item.StorageMedia]; !exists {
-			providerDatas[item.StorageMedia] = make(map[string]string)
+		if item.StorageMedia != vault.StorageMediaLocal.String() {
+			if _, exists := providerDatas[item.StorageMedia]; !exists {
+				providerDatas[item.StorageMedia] = make(map[string]string)
+			}
+			providerDatas[item.StorageMedia][item.Key] = item.Value
 		}
-		providerDatas[item.StorageMedia][item.Key] = item.Value
 	}
 
 	for key, value := range providerDatas {
@@ -185,9 +187,11 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 			return nil, err
 		}
 
-		value, _ := tool.AesCTRDecrypt(data.Value, os.Getenv("Encrypt_Key"))
-		if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.Key: value}); err != nil {
-			return nil, err
+		if data.StorageMedia != vault.StorageMediaLocal {
+			value, _ := tool.AesCTRDecrypt(data.Value, os.Getenv("Encrypt_Key"))
+			if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.Key: value}); err != nil {
+				return nil, err
+			}
 		}
 	}
 
