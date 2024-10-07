@@ -13,7 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/spf13/cobra v1.8.1
 	go.mongodb.org/mongo-driver v1.17.1
-	golang.org/x/text v0.18.0
+	golang.org/x/text v0.19.0
 )
 
 require (
