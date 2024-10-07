@@ -119,6 +119,22 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 		return nil, err
 	}
 
+	// Although the code is grouped by StorageMedia, in reality there is only one StorageMedia per request.
+	providerDatas := map[string]map[string]string{}
+	for _, item := range aux.Vaults {
+		if _, exists := providerDatas[item.StorageMedia]; !exists {
+			providerDatas[item.StorageMedia] = make(map[string]string)
+		}
+		providerDatas[item.StorageMedia][item.Key] = item.Value
+	}
+
+	for key, value := range providerDatas {
+		// If an error occurs, you can force an 'ForceInsert' operation
+		if err := s.upsertVaultInProvider(ctx, key, value); err != nil {
+			return nil, err
+		}
+	}
+
 	response := models.CreateVaultsResponse{
 		Vaults: []models.VaultView{},
 	}
