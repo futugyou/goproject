@@ -175,16 +175,36 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 }
 
 func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, error) {
-	err := s.repository.DeleteAsync(ctx, vaultId)
+	vaCh, errCh := s.repository.GetAsync(ctx, vaultId)
+	var va *vault.Vault
 	select {
-	case errM := <-err:
-		if errM == nil {
-			return true, nil
+	case err := <-errCh:
+		if err != nil {
+			return false, err
+		}
+	case va = <-vaCh:
+	case <-ctx.Done():
+		return false, fmt.Errorf("DeleteVault timeout")
+	}
+
+	if va == nil {
+		return false, fmt.Errorf("vault with id: %s is not exist", vaultId)
+	}
+
+	errCh = s.repository.DeleteAsync(ctx, vaultId)
+	select {
+	case err := <-errCh:
+		if err == nil {
+			if err = s.deleteVaultInProvider(ctx, va.VaultType.String(), va.Key); err != nil {
+				return true, nil
+			} else {
+				return false, err
+			}
 		} else {
-			return false, errM
+			return false, err
 		}
 	case <-ctx.Done():
-		return false, fmt.Errorf("ShowVaultRawValue timeout")
+		return false, fmt.Errorf("DeleteVault timeout")
 	}
 }
 
