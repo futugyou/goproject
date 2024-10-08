@@ -118,12 +118,12 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 
 	// Although the code is grouped by StorageMedia, in reality there is only one StorageMedia per request.
 	providerDatas := map[string]map[string]string{}
-	for _, item := range aux.Vaults {
-		if item.StorageMedia != vault.StorageMediaLocal.String() {
-			if _, exists := providerDatas[item.StorageMedia]; !exists {
-				providerDatas[item.StorageMedia] = make(map[string]string)
+	for _, item := range entities {
+		if item.StorageMedia != vault.StorageMediaLocal {
+			if _, exists := providerDatas[item.StorageMedia.String()]; !exists {
+				providerDatas[item.StorageMedia.String()] = make(map[string]string)
 			}
-			providerDatas[item.StorageMedia][item.Key] = item.Value
+			providerDatas[item.StorageMedia.String()][item.GetIdentityKey()] = item.Value
 		}
 	}
 
@@ -185,7 +185,7 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 		}
 
 		if data.StorageMedia != vault.StorageMediaLocal {
-			if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.Key: data.Value}); err != nil {
+			if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value}); err != nil {
 				return nil, err
 			}
 		}
@@ -217,7 +217,7 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 	select {
 	case err := <-errCh:
 		if err == nil {
-			if err = s.deleteVaultInProvider(ctx, va.VaultType.String(), va.Key); err != nil {
+			if err = s.deleteVaultInProvider(ctx, va.VaultType.String(), va.GetIdentityKey()); err != nil {
 				return true, nil
 			} else {
 				return false, err
