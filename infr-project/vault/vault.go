@@ -136,3 +136,13 @@ func (v *Vault) UpdateTags(tags []string) error {
 func (v *Vault) HasChange() bool {
 	return v.hasChange
 }
+
+func (v *Vault) GetIdentityKey() string {
+	if v.VaultType == VaultTypeSystem {
+		return "system/system/" + v.Key
+	} else if v.VaultType == VaultTypeCommon {
+		return "common/common/" + v.Key
+	} else {
+		return v.VaultType.String() + "/" + v.TypeIdentity + "/" + v.Key
+	}
+}
