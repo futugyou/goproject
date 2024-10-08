@@ -230,6 +230,56 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 	}
 }
 
+func (s *VaultService) ImportVaults(aux models.ImportVaultsRequest, ctx context.Context) (*models.ImportVaultsResponse, error) {
+	prefix := "system/system"
+	vt := "system"
+	vi := "system"
+	if aux.VaultType != nil {
+		if *aux.VaultType == "common" {
+			prefix = "common/common"
+			vt = "common"
+			vi = "common"
+		} else if *aux.VaultType == "project" || *aux.VaultType == "resource" || *aux.VaultType == "platform" {
+			prefix = *aux.VaultType
+			vt = prefix
+			if aux.TypeIdentity == nil {
+				return nil, fmt.Errorf("when VaultType is project/resource/platform, the TypeIdentity can not be nil")
+			} else {
+				prefix = prefix + "/" + *aux.TypeIdentity
+				vi = *aux.TypeIdentity
+			}
+		}
+	}
+
+	entities := make([]vault.Vault, 0)
+	if datas, err := s.searchVaultInProvider(ctx, aux.StorageMedia, prefix); err != nil {
+		return nil, err
+	} else {
+		for _, data := range datas {
+			entities = append(entities, *vault.NewVault(
+				data.Key,
+				data.Value,
+				vault.WithStorageMedia(vault.GetStorageMedia(aux.StorageMedia)),
+				vault.WithVaultType(vault.GetVaultType(vt), vi),
+			))
+		}
+	}
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		return <-s.repository.InsertMultipleVaultAsync(ctx, entities)
+	}); err != nil {
+		return nil, err
+	}
+
+	response := models.ImportVaultsResponse{
+		Vaults: []models.VaultView{},
+	}
+	for _, va := range entities {
+		response.Vaults = append(response.Vaults, convertVaultToVaultView(va))
+	}
+	return &response, nil
+}
+
 func generateChangeVaultSearchFilter(aux models.ChangeVaultItem, id string) []vault.VaultSearch {
 	filter := []vault.VaultSearch{{
 		ID: id,
@@ -338,11 +388,11 @@ func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type 
 	}
 }
 
-func (s *VaultService) searchVaultInProvider(ctx context.Context, provider_type string, keys []string) (map[string]provider.ProviderVault, error) {
+func (s *VaultService) searchVaultInProvider(ctx context.Context, provider_type string, prefix string) (map[string]provider.ProviderVault, error) {
 	p, err := provider.VaultProviderFatory(provider_type)
 	if err != nil {
 		return nil, err
 	}
 
-	return p.BatchSearch(ctx, keys)
+	return p.PrefixSearch(ctx, prefix)
 }

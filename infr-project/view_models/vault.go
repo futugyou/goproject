@@ -51,3 +51,13 @@ type ChangeVaultItem struct {
 	TypeIdentity *string   `json:"type_identity" validate:"min=3,max=150"`
 	Tags         *[]string `json:"tags"`
 }
+
+type ImportVaultsRequest struct {
+	StorageMedia string  `json:"storage_media" validate:"oneof=AWS HCP AzureVault"`
+	VaultType    *string `json:"vault_type" validate:"oneof=system common project resource platform"`
+	TypeIdentity *string `json:"type_identity" validate:"min=3,max=150"`
+}
+
+type ImportVaultsResponse struct {
+	Vaults []VaultView `json:"vaults"`
+}
