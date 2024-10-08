@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"os"
 	"sync"
 
 	tool "github.com/futugyou/extensions"
@@ -62,7 +61,6 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 		if data == nil {
 			return "", fmt.Errorf("vault with id: %s is not exist", vaultId)
 		}
-		decryptVaultValue(data)
 		return data.Value, nil
 	case errM := <-err:
 		return "", errM
@@ -83,7 +81,6 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 			vault.WithTags(va.Tags),
 			vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
 		)
-		encryptVaultValue(entity)
 		entities = append(entities, *entity)
 	}
 
@@ -188,8 +185,7 @@ func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx
 		}
 
 		if data.StorageMedia != vault.StorageMediaLocal {
-			value, _ := tool.AesCTRDecrypt(data.Value, os.Getenv("Encrypt_Key"))
-			if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.Key: value}); err != nil {
+			if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.Key: data.Value}); err != nil {
 				return nil, err
 			}
 		}
@@ -265,7 +261,6 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 
 	if aux.Value != nil {
 		data.UpdateValue(*aux.Value)
-		encryptVaultValue(data)
 	}
 
 	if aux.StorageMedia != nil {
@@ -284,8 +279,6 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 }
 
 func convertVaultToVaultView(entity vault.Vault) models.VaultView {
-	decryptVaultValue(&entity)
-
 	return models.VaultView{
 		Id:           entity.Id,
 		Key:          entity.Key,
@@ -295,28 +288,6 @@ func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 		TypeIdentity: entity.TypeIdentity,
 		Tags:         entity.Tags,
 	}
-}
-
-func encryptVaultValue(entity *vault.Vault) error {
-	if entity == nil {
-		return fmt.Errorf("vault can not be nil")
-	}
-	value, err := tool.AesCTREncrypt(entity.Value, os.Getenv("Encrypt_Key"))
-	if err != nil {
-		return err
-	}
-	return entity.UpdateValue(value)
-}
-
-func decryptVaultValue(entity *vault.Vault) error {
-	if entity == nil {
-		return fmt.Errorf("vault can not be nil")
-	}
-	value, err := tool.AesCTRDecrypt(entity.Value, os.Getenv("Encrypt_Key"))
-	if err != nil {
-		return err
-	}
-	return entity.UpdateValue(value)
 }
 
 func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type string, key string) error {

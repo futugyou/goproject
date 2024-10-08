@@ -2,9 +2,12 @@ package vault
 
 import (
 	"encoding/json"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	tool "github.com/futugyou/extensions"
 )
 
 func (w Vault) MarshalJSON() ([]byte, error) {
@@ -19,10 +22,16 @@ func (r Vault) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byte,
 	m := map[string]interface{}{
 		"id":            r.Id,
 		"key":           r.Key,
-		"value":         r.Value,
 		"type_identity": r.TypeIdentity,
 		"tags":          r.Tags,
 	}
+
+	if value, err := tool.AesCTREncrypt(r.Value, os.Getenv("Encrypt_Key")); err != nil {
+		return nil, err
+	} else {
+		m["value"] = value
+	}
+
 	if r.StorageMedia != nil {
 		m["storage_media"] = r.StorageMedia.String()
 	}
@@ -58,7 +67,11 @@ func (w *Vault) commonUnmarshal(data []byte, unmarshal func([]byte, any) error) 
 	}
 
 	if value, ok := m["value"].(string); ok {
-		w.Value = value
+		if value, err := tool.AesCTRDecrypt(value, os.Getenv("Encrypt_Key")); err != nil {
+			return err
+		} else {
+			w.Value = value
+		}
 	}
 
 	if value, ok := m["type_identity"].(string); ok {
