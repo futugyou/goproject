@@ -231,28 +231,24 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 }
 
 func (s *VaultService) ImportVaults(aux models.ImportVaultsRequest, ctx context.Context) (*models.ImportVaultsResponse, error) {
-	prefix := "system/system"
 	vt := "system"
 	vi := "system"
 	if aux.VaultType != nil {
-		if *aux.VaultType == "common" {
-			prefix = "common/common"
+		switch *aux.VaultType {
+		case "common":
 			vt = "common"
 			vi = "common"
-		} else if *aux.VaultType == "project" || *aux.VaultType == "resource" || *aux.VaultType == "platform" {
-			prefix = *aux.VaultType
-			vt = prefix
+		case "project", "resource", "platform":
 			if aux.TypeIdentity == nil {
-				return nil, fmt.Errorf("when VaultType is project/resource/platform, the TypeIdentity can not be nil")
-			} else {
-				prefix = prefix + "/" + *aux.TypeIdentity
-				vi = *aux.TypeIdentity
+				return nil, fmt.Errorf("when VaultType is project/resource/platform, the TypeIdentity cannot be nil")
 			}
+			vt = *aux.VaultType
+			vi = *aux.TypeIdentity
 		}
 	}
 
 	entities := make([]vault.Vault, 0)
-	if datas, err := s.searchVaultInProvider(ctx, aux.StorageMedia, prefix); err != nil {
+	if datas, err := s.searchVaultInProvider(ctx, aux.StorageMedia, fmt.Sprintf("%s/%s", vt, vi)); err != nil {
 		return nil, err
 	} else {
 		for _, data := range datas {

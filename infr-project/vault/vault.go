@@ -139,10 +139,10 @@ func (v *Vault) HasChange() bool {
 
 func (v *Vault) GetIdentityKey() string {
 	if v.VaultType == VaultTypeSystem {
-		return "system/system/" + v.Key
+		return fmt.Sprintf("system/system/%s", v.Key)
 	} else if v.VaultType == VaultTypeCommon {
-		return "common/common/" + v.Key
+		return fmt.Sprintf("common/common/%s", v.Key)
 	} else {
-		return v.VaultType.String() + "/" + v.TypeIdentity + "/" + v.Key
+		return fmt.Sprintf("%s/%s/%s", v.VaultType.String(), v.TypeIdentity, v.Key)
 	}
 }
