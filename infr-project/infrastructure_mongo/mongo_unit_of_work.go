@@ -11,10 +11,11 @@ import (
 type MongoUnitOfWork struct {
 	Client        *mongo.Client
 	ClientSession mongo.Session
+	nestedLevel   int
 }
 
 func NewMongoUnitOfWork(client *mongo.Client) (*MongoUnitOfWork, error) {
-	return &MongoUnitOfWork{Client: client}, nil
+	return &MongoUnitOfWork{Client: client, nestedLevel: 0}, nil
 	// session, err := client.StartSession()
 	// if err != nil {
 	// 	return nil, err
@@ -24,45 +25,60 @@ func NewMongoUnitOfWork(client *mongo.Client) (*MongoUnitOfWork, error) {
 }
 
 func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
-	session := mongo.SessionFromContext(ctx)
-	if session != nil {
-		u.ClientSession = session
-		return ctx, nil
-	}
-
 	if u.Client == nil {
 		return nil, errors.New("client not initialized")
 	}
-	session, err := u.Client.StartSession()
-	if err != nil {
-		return nil, err
-	}
-	u.ClientSession = session
-	u.ClientSession.StartTransaction()
-	return mongo.NewSessionContext(ctx, u.ClientSession), nil
 
-	// if u.ClientSession == nil {
-	// 	return nil, errors.New("session not initialized")
-	// }
-	// u.ClientSession.StartTransaction()
-	// return mongo.NewSessionContext(ctx, u.ClientSession), nil
+	if session := mongo.SessionFromContext(ctx); session != nil {
+		u.ClientSession = session
+		u.nestedLevel = u.nestedLevel + 2
+		return ctx, nil
+	}
+
+	if session, err := u.Client.StartSession(); err != nil {
+		return nil, err
+	} else {
+		u.ClientSession = session
+		u.nestedLevel = 2
+		u.ClientSession.StartTransaction()
+		return mongo.NewSessionContext(ctx, u.ClientSession), nil
+	}
 }
 
 func (u *MongoUnitOfWork) Commit(ctx context.Context) error {
 	if u.ClientSession == nil {
 		return errors.New("session not initialized")
 	}
-	return u.ClientSession.CommitTransaction(ctx)
+
+	if u.nestedLevel > 2 {
+		u.nestedLevel--
+		return nil
+	}
+
+	if err := u.ClientSession.CommitTransaction(ctx); err != nil {
+		u.nestedLevel = 1
+		return err
+	}
+
+	u.nestedLevel--
+	return nil
 }
 
 func (u *MongoUnitOfWork) Rollback(ctx context.Context) error {
 	if u.ClientSession == nil {
 		return errors.New("session not initialized")
 	}
+	u.nestedLevel = 1
 	return u.ClientSession.AbortTransaction(ctx)
 }
 
 func (u *MongoUnitOfWork) End(ctx context.Context) {
+	if u.nestedLevel > 1 {
+		u.nestedLevel--
+		return
+	}
+
+	u.nestedLevel = 0
 	if u.ClientSession != nil {
 		u.ClientSession.EndSession(ctx)
 	}
