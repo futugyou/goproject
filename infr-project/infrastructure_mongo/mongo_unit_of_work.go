@@ -3,7 +3,6 @@ package infrastructure_mongo
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -31,7 +30,7 @@ func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
 
 	if session := mongo.SessionFromContext(ctx); session != nil {
 		u.ClientSession = session
-		u.nestedLevel = u.nestedLevel + 2
+		u.nestedLevel = u.nestedLevel + 1
 		return ctx, nil
 	}
 
@@ -39,7 +38,7 @@ func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
 		return nil, err
 	} else {
 		u.ClientSession = session
-		u.nestedLevel = 2
+		u.nestedLevel = 1
 		u.ClientSession.StartTransaction()
 		return mongo.NewSessionContext(ctx, u.ClientSession), nil
 	}
@@ -47,41 +46,28 @@ func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
 
 func (u *MongoUnitOfWork) Commit(ctx context.Context) error {
 	if u.ClientSession == nil {
-		return errors.New("session not initialized")
+		return errors.New("session not initialized or already end")
 	}
 
-	if u.nestedLevel > 2 {
+	if u.nestedLevel > 1 {
 		u.nestedLevel--
 		return nil
 	}
 
-	if err := u.ClientSession.CommitTransaction(ctx); err != nil {
-		u.nestedLevel = 1
-		return err
-	}
-
-	u.nestedLevel--
-	return nil
+	err := u.ClientSession.CommitTransaction(ctx)
+	u.ClientSession.EndSession(ctx)
+	return err
 }
 
 func (u *MongoUnitOfWork) Rollback(ctx context.Context) error {
 	if u.ClientSession == nil {
-		return errors.New("session not initialized")
-	}
-	u.nestedLevel = 1
-	return u.ClientSession.AbortTransaction(ctx)
-}
-
-func (u *MongoUnitOfWork) End(ctx context.Context) {
-	if u.nestedLevel > 1 {
-		u.nestedLevel--
-		return
+		return errors.New("session not initialized or already end")
 	}
 
 	u.nestedLevel = 0
-	if u.ClientSession != nil {
-		u.ClientSession.EndSession(ctx)
-	}
+	err := u.ClientSession.AbortTransaction(ctx)
+	u.ClientSession.EndSession(ctx)
+	return err
 }
 
 func (u *MongoUnitOfWork) StartAsync(ctx context.Context) (<-chan context.Context, <-chan error) {
@@ -127,26 +113,4 @@ func (u *MongoUnitOfWork) RollbackAsync(ctx context.Context) <-chan error {
 	}()
 
 	return errorChan
-}
-
-func (u *MongoUnitOfWork) EndAsync(ctx context.Context) <-chan error {
-	errChan := make(chan error, 1)
-
-	go func() {
-		defer close(errChan)
-
-		if u.ClientSession != nil {
-			// Handle any unexpected panics during EndSession call
-			defer func() {
-				if r := recover(); r != nil {
-					errChan <- fmt.Errorf("panic: %v", r)
-				}
-			}()
-
-			// Call EndSession asynchronously
-			u.ClientSession.EndSession(ctx)
-		}
-	}()
-
-	return errChan
 }

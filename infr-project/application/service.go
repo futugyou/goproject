@@ -29,14 +29,10 @@ func (s *AppService) withUnitOfWork(ctx context.Context, fn func(ctx context.Con
 
 	defer func() {
 		if err != nil {
-			s.unitOfWork.Rollback(ctx)
+			err = s.unitOfWork.Rollback(ctx)
 		} else {
-			commitErr := s.unitOfWork.Commit(ctx)
-			if commitErr != nil {
-				err = commitErr
-			}
+			err = s.unitOfWork.Commit(ctx)
 		}
-		s.unitOfWork.End(ctx)
 	}()
 
 	err = fn(ctx)
