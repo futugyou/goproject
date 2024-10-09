@@ -26,17 +26,18 @@ func (s *AppService) withUnitOfWork(ctx context.Context, fn func(ctx context.Con
 	if err != nil {
 		return err
 	}
-
+	var rollbackErr error
+	var commitErr error
 	defer func() {
 		if err != nil {
-			err = s.unitOfWork.Rollback(ctx)
+			rollbackErr = s.unitOfWork.Rollback(ctx)
 		} else {
-			err = s.unitOfWork.Commit(ctx)
+			commitErr = s.unitOfWork.Commit(ctx)
 		}
 	}()
 
 	err = fn(ctx)
-	return err
+	return errors.Join(err, rollbackErr, commitErr)
 }
 
 type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {

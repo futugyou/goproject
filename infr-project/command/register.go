@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
@@ -88,15 +89,16 @@ func (s *CommonHandler) withUnitOfWork(ctx context.Context, fn func(ctx context.
 	if err != nil {
 		return err
 	}
-
+	var rollbackErr error
+	var commitErr error
 	defer func() {
 		if err != nil {
-			err = s.unitOfWork.Rollback(ctx)
+			rollbackErr = s.unitOfWork.Rollback(ctx)
 		} else {
-			err = s.unitOfWork.Commit(ctx)
+			commitErr = s.unitOfWork.Commit(ctx)
 		}
 	}()
 
 	err = fn(ctx)
-	return err
+	return errors.Join(err, rollbackErr, commitErr)
 }
