@@ -9,24 +9,43 @@ import (
 )
 
 type MongoUnitOfWork struct {
+	Client        *mongo.Client
 	ClientSession mongo.Session
 }
 
 func NewMongoUnitOfWork(client *mongo.Client) (*MongoUnitOfWork, error) {
-	session, err := client.StartSession()
-	if err != nil {
-		return nil, err
-	}
+	return &MongoUnitOfWork{Client: client}, nil
+	// session, err := client.StartSession()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	return &MongoUnitOfWork{ClientSession: session}, nil
+	// return &MongoUnitOfWork{ClientSession: session}, nil
 }
 
 func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
-	if u.ClientSession == nil {
-		return nil, errors.New("session not initialized")
+	session := mongo.SessionFromContext(ctx)
+	if session != nil {
+		u.ClientSession = session
+		return ctx, nil
 	}
+
+	if u.Client == nil {
+		return nil, errors.New("client not initialized")
+	}
+	session, err := u.Client.StartSession()
+	if err != nil {
+		return nil, err
+	}
+	u.ClientSession = session
 	u.ClientSession.StartTransaction()
 	return mongo.NewSessionContext(ctx, u.ClientSession), nil
+
+	// if u.ClientSession == nil {
+	// 	return nil, errors.New("session not initialized")
+	// }
+	// u.ClientSession.StartTransaction()
+	// return mongo.NewSessionContext(ctx, u.ClientSession), nil
 }
 
 func (u *MongoUnitOfWork) Commit(ctx context.Context) error {
