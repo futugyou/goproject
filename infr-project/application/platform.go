@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	tool "github.com/futugyou/extensions"
@@ -48,14 +47,9 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 
 	property := make(map[string]platform.PropertyInfo)
 	for _, v := range aux.Property {
-		value, err := tool.AesCTREncrypt(v.Value, os.Getenv("Encrypt_Key"))
-		if err != nil {
-			return nil, err
-		}
 		property[v.Key] = platform.PropertyInfo{
-			Key:      v.Key,
-			Value:    value,
-			NeedMask: v.NeedMask,
+			Key:   v.Key,
+			Value: v.Value,
 		}
 	}
 
@@ -312,41 +306,11 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		}
 	}
 
-	ordProperty := make(map[string]platform.PropertyInfo)
-	for _, v := range plat.Property {
-		var value string = v.Value
-		var err error
-		if value != "" {
-			value, err = tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
-			if err != nil {
-				return nil, err
-			}
-		}
-		ordProperty[v.Key] = platform.PropertyInfo{
-			Key:      v.Key,
-			Value:    value,
-			NeedMask: v.NeedMask,
-		}
-	}
-
 	newProperty := make(map[string]platform.PropertyInfo)
 	for _, v := range data.Property {
-		value := v.Value
-		if raw, ok := ordProperty[v.Key]; ok {
-			rawValueMask := tool.MaskString(raw.Value, 5, 0.5)
-			if rawValueMask == v.Value {
-				value = raw.Value
-			}
-		}
-
-		encrypValue, err := tool.AesCTREncrypt(value, os.Getenv("Encrypt_Key"))
-		if err != nil {
-			return nil, err
-		}
 		newProperty[v.Key] = platform.PropertyInfo{
-			Key:      v.Key,
-			Value:    encrypValue,
-			NeedMask: v.NeedMask,
+			Key:   v.Key,
+			Value: v.Value,
 		}
 	}
 	if !tool.MapsCompareCommon(plat.Property, newProperty) {
@@ -410,22 +374,9 @@ func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformD
 func convertProperty(properties map[string]platform.PropertyInfo) ([]models.PropertyInfo, error) {
 	propertyInfos := make([]models.PropertyInfo, 0)
 	for _, v := range properties {
-		var value string = v.Value
-		var err error
-		if value != "" {
-			value, err = tool.AesCTRDecrypt(v.Value, os.Getenv("Encrypt_Key"))
-			if err != nil {
-				return nil, err
-			}
-			if v.NeedMask {
-				value = tool.MaskString(value, 5, 0.5)
-			}
-		}
-
 		propertyInfos = append(propertyInfos, models.PropertyInfo{
-			Key:      v.Key,
-			Value:    value,
-			NeedMask: v.NeedMask,
+			Key:   v.Key,
+			Value: v.Value,
 		})
 	}
 	return propertyInfos, nil

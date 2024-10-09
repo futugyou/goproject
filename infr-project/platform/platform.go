@@ -22,9 +22,8 @@ type Platform struct {
 }
 
 type PropertyInfo struct {
-	Key      string `json:"key"`
-	Value    string `json:"value"`
-	NeedMask bool   `json:"needMask"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 func NewPlatform(name string, url string, rest string, property map[string]PropertyInfo, tags []string) *Platform {

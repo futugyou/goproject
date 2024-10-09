@@ -1,9 +1,8 @@
 package viewmodels
 
 type PropertyInfo struct {
-	Key      string `json:"key"`
-	Value    string `json:"value"`
-	NeedMask bool   `json:"needMask"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type CreatePlatformRequest struct {
