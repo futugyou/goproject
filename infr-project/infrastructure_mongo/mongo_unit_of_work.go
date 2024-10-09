@@ -8,44 +8,38 @@ import (
 )
 
 type MongoUnitOfWork struct {
-	Client        *mongo.Client
-	ClientSession mongo.Session
+	client        *mongo.Client
+	clientSession mongo.Session
 	nestedLevel   int
 }
 
 func NewMongoUnitOfWork(client *mongo.Client) (*MongoUnitOfWork, error) {
-	return &MongoUnitOfWork{Client: client, nestedLevel: 0}, nil
-	// session, err := client.StartSession()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return &MongoUnitOfWork{ClientSession: session}, nil
+	return &MongoUnitOfWork{client: client, nestedLevel: 0}, nil
 }
 
 func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
-	if u.Client == nil {
+	if u.client == nil {
 		return nil, errors.New("client not initialized")
 	}
 
 	if session := mongo.SessionFromContext(ctx); session != nil {
-		u.ClientSession = session
+		u.clientSession = session
 		u.nestedLevel = u.nestedLevel + 1
 		return ctx, nil
 	}
 
-	if session, err := u.Client.StartSession(); err != nil {
+	if session, err := u.client.StartSession(); err != nil {
 		return nil, err
 	} else {
-		u.ClientSession = session
+		u.clientSession = session
 		u.nestedLevel = 1
-		u.ClientSession.StartTransaction()
-		return mongo.NewSessionContext(ctx, u.ClientSession), nil
+		u.clientSession.StartTransaction()
+		return mongo.NewSessionContext(ctx, u.clientSession), nil
 	}
 }
 
 func (u *MongoUnitOfWork) Commit(ctx context.Context) error {
-	if u.ClientSession == nil {
+	if u.clientSession == nil {
 		return errors.New("session not initialized or already end")
 	}
 
@@ -54,19 +48,19 @@ func (u *MongoUnitOfWork) Commit(ctx context.Context) error {
 		return nil
 	}
 
-	err := u.ClientSession.CommitTransaction(ctx)
-	u.ClientSession.EndSession(ctx)
+	err := u.clientSession.CommitTransaction(ctx)
+	u.clientSession.EndSession(ctx)
 	return err
 }
 
 func (u *MongoUnitOfWork) Rollback(ctx context.Context) error {
-	if u.ClientSession == nil {
+	if u.clientSession == nil {
 		return errors.New("session not initialized or already end")
 	}
 
 	u.nestedLevel = 0
-	err := u.ClientSession.AbortTransaction(ctx)
-	u.ClientSession.EndSession(ctx)
+	err := u.clientSession.AbortTransaction(ctx)
+	u.clientSession.EndSession(ctx)
 	return err
 }
 
