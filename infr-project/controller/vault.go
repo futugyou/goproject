@@ -12,6 +12,7 @@ import (
 	"github.com/futugyou/infr-project/application"
 	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	"github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -54,7 +55,22 @@ func (c *Controller) SearchVaults(w http.ResponseWriter, r *http.Request, aux mo
 		handleError(w, err, 400)
 		return
 	}
-	res, err := service.SearchVaults(ctx, aux)
+
+	query := application.VaultSearchQuery{
+		Filters: []vault.VaultSearch{
+			{
+				Key:          aux.Key,
+				KeyFuzzy:     true,
+				StorageMedia: aux.StorageMedia,
+				VaultType:    aux.VaultType,
+				TypeIdentity: aux.TypeIdentity,
+				Tags:         aux.Tags,
+			},
+		},
+		Page: aux.Page,
+		Size: aux.Size,
+	}
+	res, err := service.SearchVaults(ctx, query)
 	if err != nil {
 		handleError(w, err, 500)
 		return
