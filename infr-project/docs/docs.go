@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/import_vault": {
+            "post": {
+                "description": "import vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "import vault",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.ImportVaultsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.ImportVaultsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/platform": {
             "get": {
                 "description": "get all platform",
@@ -1319,9 +1353,6 @@ const docTemplate = `{
                 "key": {
                     "type": "string"
                 },
-                "needMask": {
-                    "type": "boolean"
-                },
                 "value": {
                     "type": "string"
                 }
@@ -1709,6 +1740,45 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.ImportVaultsRequest": {
+            "type": "object",
+            "properties": {
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
+                    ]
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform"
+                    ]
+                }
+            }
+        },
+        "viewmodels.ImportVaultsResponse": {
+            "type": "object",
+            "properties": {
+                "vaults": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.VaultView"
+                    }
+                }
+            }
+        },
         "viewmodels.PlatformDetailView": {
             "type": "object",
             "properties": {
@@ -1733,7 +1803,7 @@ const docTemplate = `{
                 "property": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "rest_endpoint": {
@@ -1877,14 +1947,29 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.Property": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "description": "vault aliases",
+                    "type": "string"
+                },
+                "mask_value": {
+                    "type": "string"
+                },
+                "vault_id": {
+                    "type": "string"
+                },
+                "vault_key": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.PropertyInfo": {
             "type": "object",
             "properties": {
                 "key": {
                     "type": "string"
-                },
-                "needMask": {
-                    "type": "boolean"
                 },
                 "value": {
                     "type": "string"

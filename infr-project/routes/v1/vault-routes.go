@@ -16,6 +16,7 @@ func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 	v1.GET("/vault", getVault)
 	v1.PUT("/vault/:id", updateVault)
 	v1.DELETE("/vault/:id", deleteVault)
+	v1.POST("/import_vault", importVault)
 }
 
 // @Summary create vault
@@ -120,4 +121,17 @@ func updateVault(c *gin.Context) {
 func deleteVault(c *gin.Context) {
 	ctrl := controller.NewController()
 	ctrl.DeleteVault(c.Writer, c.Request, c.Param("id"))
+}
+
+// @Summary import vault
+// @Description import vault
+// @Tags Vault
+// @Accept json
+// @Produce json
+// @Param request body viewmodels.ImportVaultsRequest true "Request body"
+// @Success 200 {object} viewmodels.ImportVaultsResponse
+// @Router /v1/import_vault [post]
+func importVault(c *gin.Context) {
+	ctrl := controller.NewController()
+	ctrl.ImportVaults(c.Writer, c.Request)
 }

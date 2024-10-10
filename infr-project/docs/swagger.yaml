@@ -30,8 +30,6 @@ definitions:
     properties:
       key:
         type: string
-      needMask:
-        type: boolean
       value:
         type: string
     type: object
@@ -307,6 +305,34 @@ definitions:
           $ref: '#/definitions/viewmodels.VaultView'
         type: array
     type: object
+  viewmodels.ImportVaultsRequest:
+    properties:
+      storage_media:
+        enum:
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        type: string
+    type: object
+  viewmodels.ImportVaultsResponse:
+    properties:
+      vaults:
+        items:
+          $ref: '#/definitions/viewmodels.VaultView'
+        type: array
+    type: object
   viewmodels.PlatformDetailView:
     properties:
       activate:
@@ -323,7 +349,7 @@ definitions:
         type: array
       property:
         items:
-          $ref: '#/definitions/viewmodels.PropertyInfo'
+          $ref: '#/definitions/viewmodels.Property'
         type: array
       rest_endpoint:
         type: string
@@ -417,12 +443,22 @@ definitions:
           type: string
         type: array
     type: object
+  viewmodels.Property:
+    properties:
+      key:
+        description: vault aliases
+        type: string
+      mask_value:
+        type: string
+      vault_id:
+        type: string
+      vault_key:
+        type: string
+    type: object
   viewmodels.PropertyInfo:
     properties:
       key:
         type: string
-      needMask:
-        type: boolean
       value:
         type: string
     type: object
@@ -638,6 +674,28 @@ definitions:
 info:
   contact: {}
 paths:
+  /v1/import_vault:
+    post:
+      consumes:
+      - application/json
+      description: import vault
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.ImportVaultsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodels.ImportVaultsResponse'
+      summary: import vault
+      tags:
+      - Vault
   /v1/platform:
     get:
       consumes:
