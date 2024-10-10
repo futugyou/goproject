@@ -37,7 +37,7 @@ func NewResourceService(
 	}
 }
 
-func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx context.Context) (*models.CreateResourceResponse, error) {
+func (s *ResourceService) CreateResource(ctx context.Context, aux models.CreateResourceRequest) (*models.CreateResourceResponse, error) {
 	var res *resource.Resource
 	resourceType := resource.GetResourceType(aux.Type)
 	err := s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -51,8 +51,8 @@ func (s *ResourceService) CreateResource(aux models.CreateResourceRequest, ctx c
 	return &models.CreateResourceResponse{Id: res.Id}, nil
 }
 
-func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceRequest, ctx context.Context) error {
-	res, err := s.service.RetrieveLatestVersion(id, ctx)
+func (s *ResourceService) UpdateResource(ctx context.Context, id string, aux models.UpdateResourceRequest) error {
+	res, err := s.service.RetrieveLatestVersion(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -106,8 +106,8 @@ func (s *ResourceService) UpdateResource(id string, aux models.UpdateResourceReq
 }
 
 // show all versions
-func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]models.ResourceView, error) {
-	re, err := s.service.RetrieveAllVersions(id, ctx)
+func (s *ResourceService) AllVersionResource(ctx context.Context, id string) ([]models.ResourceView, error) {
+	re, err := s.service.RetrieveAllVersions(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +119,8 @@ func (s *ResourceService) AllVersionResource(id string, ctx context.Context) ([]
 	return result, nil
 }
 
-func (s *ResourceService) DeleteResource(id string, ctx context.Context) error {
-	res, err := s.service.RetrieveLatestVersion(id, ctx)
+func (s *ResourceService) DeleteResource(ctx context.Context, id string) error {
+	res, err := s.service.RetrieveLatestVersion(ctx, id)
 	if err != nil {
 		return err
 	}

@@ -66,7 +66,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 	}
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id string, ctx context.Context) ([]EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(ctx context.Context, id string) ([]EventSourcing, error) {
 	events, err := es.eventStore.Load(ctx, id)
 	if err != nil {
 		return nil, err
@@ -82,12 +82,12 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveAllVersions(id strin
 	return es.domainService.RetrieveAllVersions(*aggregate, events)
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id string, version int, ctx context.Context) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(ctx context.Context, id string, version int) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
 
-	aggregate, err := es.RestoreFromSnapshotByVersion(id, version, ctx)
+	aggregate, err := es.RestoreFromSnapshotByVersion(ctx, id, version)
 	if err != nil {
 		return nil, err
 	}
@@ -108,9 +108,9 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveSpecificVersion(id s
 	return aggregate, nil
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(id string, ctx context.Context) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(ctx context.Context, id string) (*EventSourcing, error) {
 	// Attempt to restore the latest snapshot
-	aggregate, err := es.RestoreFromSnapshot(id, ctx)
+	aggregate, err := es.RestoreFromSnapshot(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx con
 	return s.eventStore.Save(ctx, events)
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id string, ctx context.Context) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(ctx context.Context, id string) (*EventSourcing, error) {
 	datas, err := es.snapshotStore.LoadSnapshot(ctx, id)
 	if err != nil {
 		return nil, err
@@ -183,7 +183,7 @@ func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(id strin
 	return &datas[len(datas)-1], nil
 }
 
-func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion(id string, version int, ctx context.Context) (*EventSourcing, error) {
+func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshotByVersion(ctx context.Context, id string, version int) (*EventSourcing, error) {
 	if version < 0 {
 		return nil, errors.New("invalid version number, must be non-negative")
 	}

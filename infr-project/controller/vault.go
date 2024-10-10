@@ -17,7 +17,8 @@ import (
 )
 
 func (c *Controller) CreateVaults(w http.ResponseWriter, r *http.Request) {
-	service, err := createVaultService(r.Context())
+	ctx := r.Context()
+	service, err := createVaultService(ctx)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -34,7 +35,7 @@ func (c *Controller) CreateVaults(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := service.CreateVaults(aux, r.Context())
+	res, err := service.CreateVaults(ctx, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -111,7 +112,7 @@ func (c *Controller) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId
 		return
 	}
 
-	res, err := service.ChangeVault(vaultId, aux, ctx)
+	res, err := service.ChangeVault(ctx, vaultId, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -130,6 +131,24 @@ func (c *Controller) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId
 	}
 
 	res, err := service.DeleteVault(ctx, vaultId)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
+}
+
+func (c *Controller) ImportVaults(w http.ResponseWriter, r *http.Request, aux models.ImportVaultsRequest) {
+	ctx := r.Context()
+	service, err := createVaultService(ctx)
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	res, err := service.ImportVaults(ctx, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return

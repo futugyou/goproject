@@ -20,6 +20,6 @@ func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.Re
 	return s.repository.GetAll(ctx)
 }
 
-func (s *ResourceQueryService) CurrentResource(id string, ctx context.Context) (*models.ResourceView, error) {
+func (s *ResourceQueryService) CurrentResource(ctx context.Context, id string) (*models.ResourceView, error) {
 	return s.repository.Get(ctx, id)
 }

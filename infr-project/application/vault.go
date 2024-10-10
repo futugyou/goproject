@@ -65,7 +65,7 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 	}
 }
 
-func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.Context) (*models.CreateVaultsResponse, error) {
+func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaultsRequest) (*models.CreateVaultsResponse, error) {
 	entities := make([]vault.Vault, 0)
 
 	for i := 0; i < len(aux.Vaults); i++ {
@@ -139,7 +139,7 @@ func (s *VaultService) CreateVaults(aux models.CreateVaultsRequest, ctx context.
 	return &response, nil
 }
 
-func (s *VaultService) ChangeVault(id string, aux models.ChangeVaultRequest, ctx context.Context) (*models.VaultView, error) {
+func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.ChangeVaultRequest) (*models.VaultView, error) {
 	if tool.IsAllFieldsNil(aux.Data) {
 		return nil, fmt.Errorf("no data need change")
 	}
@@ -226,7 +226,7 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 	}
 }
 
-func (s *VaultService) ImportVaults(aux models.ImportVaultsRequest, ctx context.Context) (*models.ImportVaultsResponse, error) {
+func (s *VaultService) ImportVaults(ctx context.Context, aux models.ImportVaultsRequest) (*models.ImportVaultsResponse, error) {
 	vt := "system"
 	vi := "system"
 	if aux.VaultType != nil {

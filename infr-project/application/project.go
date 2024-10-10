@@ -26,7 +26,7 @@ func NewProjectService(
 	}
 }
 
-func (s *ProjectService) CreateProject(request models.CreateProjectRequest, ctx context.Context) (*models.ProjectView, error) {
+func (s *ProjectService) CreateProject(ctx context.Context, request models.CreateProjectRequest) (*models.ProjectView, error) {
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		return nil, err
@@ -59,7 +59,7 @@ func (s *ProjectService) GetAllProject(ctx context.Context, page *int, size *int
 	return result, nil
 }
 
-func (s *ProjectService) GetProject(id string, ctx context.Context) (*models.ProjectView, error) {
+func (s *ProjectService) GetProject(ctx context.Context, id string) (*models.ProjectView, error) {
 	res, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (s *ProjectService) GetProject(id string, ctx context.Context) (*models.Pro
 	return convertProjectEntityToViewModel(res), nil
 }
 
-func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectRequest, ctx context.Context) (*models.ProjectView, error) {
+func (s *ProjectService) UpdateProject(ctx context.Context, id string, data models.UpdateProjectRequest) (*models.ProjectView, error) {
 	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (s *ProjectService) UpdateProject(id string, data models.UpdateProjectReque
 	return convertProjectEntityToViewModel(proj), nil
 }
 
-func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateProjectPlatformRequest, ctx context.Context) (*models.ProjectView, error) {
+func (s *ProjectService) UpdateProjectPlatform(ctx context.Context, id string, datas []models.UpdateProjectPlatformRequest) (*models.ProjectView, error) {
 	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (s *ProjectService) UpdateProjectPlatform(id string, datas []models.UpdateP
 	return convertProjectEntityToViewModel(proj), nil
 }
 
-func (s *ProjectService) UpdateProjectDesign(id string, datas []models.UpdateProjectDesignRequest, ctx context.Context) (*models.ProjectView, error) {
+func (s *ProjectService) UpdateProjectDesign(ctx context.Context, id string, datas []models.UpdateProjectDesignRequest) (*models.ProjectView, error) {
 	proj, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
