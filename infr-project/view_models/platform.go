@@ -52,10 +52,17 @@ type PlatformDetailView struct {
 	Activate     bool              `json:"activate"`
 	Url          string            `json:"url"`
 	RestEndpoint string            `json:"rest_endpoint"`
-	Property     []PropertyInfo    `json:"property"`
+	Property     []Property        `json:"property"`
 	Projects     []PlatformProject `json:"projects"`
 	Tags         []string          `json:"tags"`
 	IsDeleted    bool              `json:"is_deleted"`
+}
+
+type Property struct {
+	Key       string `json:"key"` //vault aliases
+	VaultId   string `json:"vault_id"`
+	VaultKey  string `json:"vault_key"`
+	MaskValue string `json:"mask_value"`
 }
 
 type PlatformProject struct {

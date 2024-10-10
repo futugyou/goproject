@@ -337,28 +337,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		return nil, nil
 	}
 
-	if len(src.Property) > 0 {
-		filter := []vault.VaultSearch{}
-		for _, v := range src.Property {
-			filter = append(filter, vault.VaultSearch{
-				ID: v.Value,
-			})
-		}
-		query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
-		if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
-			for key, v := range src.Property {
-				for i := 0; i < len(vaults); i++ {
-					if vaults[i].Id == v.Value {
-						v.Value = vaults[i].MaskValue
-						src.Property[key] = v
-						break
-					}
-				}
-			}
-		}
-	}
-
-	propertyInfos, err := convertProperty(src.Property)
+	propertyInfos, err := s.convertProperty(ctx, src.Property)
 	if err != nil {
 		return nil, nil
 	}
@@ -396,13 +375,33 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	}, nil
 }
 
-func convertProperty(properties map[string]platform.PropertyInfo) ([]models.PropertyInfo, error) {
-	propertyInfos := make([]models.PropertyInfo, 0)
-	for _, v := range properties {
-		propertyInfos = append(propertyInfos, models.PropertyInfo{
-			Key:   v.Key,
-			Value: v.Value,
-		})
+func (s *PlatformService) convertProperty(ctx context.Context, properties map[string]platform.PropertyInfo) ([]models.Property, error) {
+	propertyInfos := make([]models.Property, 0)
+	if len(properties) > 0 {
+		// TODO: need event driven
+		// But now there is no deployment environment that can run MQ
+		filter := []vault.VaultSearch{}
+		for _, v := range properties {
+			filter = append(filter, vault.VaultSearch{
+				ID: v.Value,
+			})
+		}
+		query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
+		if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
+			for key, v := range properties {
+				for i := 0; i < len(vaults); i++ {
+					if vaults[i].Id == v.Value {
+						propertyInfos = append(propertyInfos, models.Property{
+							Key:       key,
+							VaultId:   vaults[i].Id,
+							VaultKey:  vaults[i].Key,
+							MaskValue: vaults[i].MaskValue,
+						})
+						break
+					}
+				}
+			}
+		}
 	}
 	return propertyInfos, nil
 }
