@@ -22,8 +22,8 @@ type Platform struct {
 }
 
 type PropertyInfo struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key   string `json:"key"`   // vault aliases
+	Value string `json:"value"` // vault id
 }
 
 func NewPlatform(name string, url string, rest string, property map[string]PropertyInfo, tags []string) *Platform {

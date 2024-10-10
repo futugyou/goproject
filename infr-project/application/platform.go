@@ -10,21 +10,25 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
+	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
 type PlatformService struct {
 	innerService *AppService
 	repository   platform.IPlatformRepositoryAsync
+	vaultService *VaultService
 }
 
 func NewPlatformService(
 	unitOfWork domain.IUnitOfWork,
 	repository platform.IPlatformRepositoryAsync,
+	vaultService *VaultService,
 ) *PlatformService {
 	return &PlatformService{
 		innerService: NewAppService(unitOfWork),
 		repository:   repository,
+		vaultService: vaultService,
 	}
 }
 
@@ -60,7 +64,7 @@ func (s *PlatformService) CreatePlatform(aux models.CreatePlatformRequest, ctx c
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(res)
+	return s.convertPlatformEntityToViewModel(ctx, res)
 }
 
 func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.SearchPlatformsRequest) ([]models.PlatformView, error) {
@@ -103,7 +107,7 @@ func (s *PlatformService) GetPlatform(id string, ctx context.Context) (*models.P
 	srcCh, errCh := s.repository.GetAsync(ctx, id)
 	select {
 	case src := <-srcCh:
-		return convertPlatformEntityToViewModel(src)
+		return s.convertPlatformEntityToViewModel(ctx, src)
 	case err := <-errCh:
 		return nil, err
 	case <-ctx.Done():
@@ -142,7 +146,7 @@ func (s *PlatformService) UpsertWebhook(id string, projectId string, hook models
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat)
+	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
 func (s *PlatformService) RemoveWebhook(id string, projectId string, hookName string, ctx context.Context) (*models.PlatformDetailView, error) {
@@ -171,7 +175,7 @@ func (s *PlatformService) RemoveWebhook(id string, projectId string, hookName st
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat)
+	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
 func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*models.PlatformDetailView, error) {
@@ -181,7 +185,7 @@ func (s *PlatformService) DeletePlatform(id string, ctx context.Context) (*model
 	srcCh, errCh := s.repository.GetAsync(ctx, id)
 	select {
 	case src := <-srcCh:
-		return convertPlatformEntityToViewModel(src)
+		return s.convertPlatformEntityToViewModel(ctx, src)
 	case err := <-errCh:
 		return nil, err
 	case <-ctx.Done():
@@ -216,7 +220,7 @@ func (s *PlatformService) AddProject(id string, projectId string, project models
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat)
+	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
 func (s *PlatformService) DeleteProject(id string, projectId string, ctx context.Context) (*models.PlatformDetailView, error) {
@@ -239,7 +243,7 @@ func (s *PlatformService) DeleteProject(id string, projectId string, ctx context
 	}); err != nil {
 		return nil, err
 	}
-	return convertPlatformEntityToViewModel(plat)
+	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
 func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRequest, ctx context.Context) (*models.PlatformDetailView, error) {
@@ -325,12 +329,33 @@ func (s *PlatformService) UpdatePlatform(id string, data models.UpdatePlatformRe
 		return nil, err
 	}
 
-	return convertPlatformEntityToViewModel(plat)
+	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func convertPlatformEntityToViewModel(src *platform.Platform) (*models.PlatformDetailView, error) {
+func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, src *platform.Platform) (*models.PlatformDetailView, error) {
 	if src == nil {
 		return nil, nil
+	}
+
+	if len(src.Property) > 0 {
+		filter := []vault.VaultSearch{}
+		for _, v := range src.Property {
+			filter = append(filter, vault.VaultSearch{
+				ID: v.Value,
+			})
+		}
+		query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
+		if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
+			for key, v := range src.Property {
+				for i := 0; i < len(vaults); i++ {
+					if vaults[i].Id == v.Value {
+						v.Value = vaults[i].MaskValue
+						src.Property[key] = v
+						break
+					}
+				}
+			}
+		}
 	}
 
 	propertyInfos, err := convertProperty(src.Property)

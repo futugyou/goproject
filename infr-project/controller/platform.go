@@ -220,13 +220,15 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 		return nil, err
 	}
 
-	repo := infra.NewPlatformRepository(client, config)
 	unitOfWork, err := infra.NewMongoUnitOfWork(client)
 	if err != nil {
 		return nil, err
 	}
 
-	return application.NewPlatformService(unitOfWork, repo), nil
+	repo := infra.NewPlatformRepository(client, config)
+	vaultRepo := infra.NewVaultRepository(client, config)
+	vaultService := application.NewVaultService(unitOfWork, vaultRepo)
+	return application.NewPlatformService(unitOfWork, repo, vaultService), nil
 }
 
 func (c *Controller) CreatePlatformV2(cqrsRoute *command.Router, w http.ResponseWriter, r *http.Request) {
