@@ -34,6 +34,8 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 		updateVault(ctrl, r, w)
 	case "delete":
 		deleteVault(ctrl, r, w)
+	case "import":
+		importVault(ctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
@@ -110,4 +112,12 @@ func createVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 	}
 
 	ctrl.CreateVaults(w, r)
+}
+
+func importVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
+	ctrl.ImportVaults(w, r)
 }

@@ -139,12 +139,17 @@ func (c *Controller) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) ImportVaults(w http.ResponseWriter, r *http.Request, aux models.ImportVaultsRequest) {
+func (c *Controller) ImportVaults(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
-
 	if err != nil {
 		handleError(w, err, 500)
+		return
+	}
+
+	var aux models.ImportVaultsRequest
+	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+		handleError(w, err, 400)
 		return
 	}
 
