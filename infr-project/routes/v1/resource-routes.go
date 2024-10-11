@@ -16,8 +16,8 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 	v1.GET("/resource/:id/history", getResourceHistory)
 }
 
-// @Summary get resource history
-// @Description get resource history
+// @Summary get resource change history
+// @Description get resource change history
 // @Tags Resource
 // @Accept json
 // @Produce json

@@ -123,8 +123,8 @@ func deleteVault(c *gin.Context) {
 	ctrl.DeleteVault(c.Writer, c.Request, c.Param("id"))
 }
 
-// @Summary import vault
-// @Description import vault
+// @Summary import vault from provider
+// @Description import vault from provider
 // @Tags Vault
 // @Accept json
 // @Produce json

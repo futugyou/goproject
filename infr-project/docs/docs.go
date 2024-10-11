@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/v1/import_vault": {
             "post": {
-                "description": "import vault",
+                "description": "import vault from provider",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,7 +27,7 @@ const docTemplate = `{
                 "tags": [
                     "Vault"
                 ],
-                "summary": "import vault",
+                "summary": "import vault from provider",
                 "parameters": [
                     {
                         "description": "Request body",
@@ -51,7 +51,7 @@ const docTemplate = `{
         },
         "/v1/platform": {
             "get": {
-                "description": "get all platform",
+                "description": "search platforms",
                 "consumes": [
                     "application/json"
                 ],
@@ -61,7 +61,7 @@ const docTemplate = `{
                 "tags": [
                     "Platform"
                 ],
-                "summary": "get all platform",
+                "summary": "search platforms",
                 "parameters": [
                     {
                         "type": "string",
@@ -147,7 +147,7 @@ const docTemplate = `{
         },
         "/v1/platform/{id}": {
             "get": {
-                "description": "get platform",
+                "description": "get platform by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -157,7 +157,7 @@ const docTemplate = `{
                 "tags": [
                     "Platform"
                 ],
-                "summary": "get platform",
+                "summary": "get platform by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -248,7 +248,7 @@ const docTemplate = `{
         },
         "/v1/platform/{id}/project": {
             "post": {
-                "description": "create platform",
+                "description": "create platform project",
                 "consumes": [
                     "application/json"
                 ],
@@ -258,7 +258,7 @@ const docTemplate = `{
                 "tags": [
                     "Platform"
                 ],
-                "summary": "create platform",
+                "summary": "create platform project",
                 "parameters": [
                     {
                         "type": "string",
@@ -844,7 +844,7 @@ const docTemplate = `{
         },
         "/v1/resource/{id}/history": {
             "get": {
-                "description": "get resource history",
+                "description": "get resource change history",
                 "consumes": [
                     "application/json"
                 ],
@@ -854,7 +854,7 @@ const docTemplate = `{
                 "tags": [
                     "Resource"
                 ],
-                "summary": "get resource history",
+                "summary": "get resource change history",
                 "parameters": [
                     {
                         "type": "string",

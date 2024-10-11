@@ -17,6 +17,8 @@ func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
 	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Title = "Project Display Swagger Doc"
+	docs.SwaggerInfo.Version = "v1.0.0"
 
 	v2api := router.Group("/api/v2")
 	{

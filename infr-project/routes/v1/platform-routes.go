@@ -87,8 +87,8 @@ func updatePlatformProject(c *gin.Context) {
 	ctrl.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
-// @Summary create platform
-// @Description create platform
+// @Summary create platform project
+// @Description create platform project
 // @Tags Platform
 // @Accept json
 // @Produce json
@@ -141,8 +141,8 @@ func createPlatform(c *gin.Context) {
 	ctrl.CreatePlatform(c.Writer, c.Request)
 }
 
-// @Summary get all platform
-// @Description get all platform
+// @Summary search platforms
+// @Description search platforms
 // @Tags Platform
 // @Accept json
 // @Produce json
@@ -184,8 +184,8 @@ func searchPlatforms(c *gin.Context) {
 	ctrl.SearchPlatforms(c.Writer, c.Request, request)
 }
 
-// @Summary get platform
-// @Description get platform
+// @Summary get platform by id
+// @Description get platform by id
 // @Tags Platform
 // @Accept json
 // @Produce json
