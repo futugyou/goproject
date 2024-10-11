@@ -22,16 +22,6 @@ type Platform struct {
 	IsDeleted        bool                       `json:"is_deleted"`
 }
 
-type Secret struct {
-	Key   string `json:"key"`   // vault aliases
-	Value string `json:"value"` // vault id
-}
-
-type PropertyInfo struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
 func NewPlatform(name string, url string, properties map[string]PropertyInfo, tags []string) *Platform {
 	return &Platform{
 		Aggregate: domain.Aggregate{
@@ -95,7 +85,7 @@ func (w *Platform) UpdateTags(tags []string) (*Platform, error) {
 	return w, nil
 }
 
-func (w *Platform) UpdateProperty(properties map[string]PropertyInfo) (*Platform, error) {
+func (w *Platform) UpdateProperties(properties map[string]PropertyInfo) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}

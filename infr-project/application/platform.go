@@ -311,7 +311,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		}
 	}
 	if !tool.MapsCompareCommon(plat.Properties, newProperty) {
-		if _, err := plat.UpdateProperty(newProperty); err != nil {
+		if _, err := plat.UpdateProperties(newProperty); err != nil {
 			return nil, err
 		}
 	}

@@ -67,37 +67,17 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 	}
 
 	if value, ok := m["properties"].(primitive.A); ok {
-		properties := make(map[string]PropertyInfo)
-		for _, item := range value {
-			jsonBytes, err := marshal(item)
-			if err != nil {
-				return fmt.Errorf("failed to marshal PropertyInfo item: %v", err)
-			}
-
-			var proinfo PropertyInfo
-			if err := unmarshal(jsonBytes, &proinfo); err != nil {
-				return fmt.Errorf("failed to unmarshal item to PropertyInfo: %v", err)
-			}
-
-			properties[proinfo.Key] = proinfo
+		properties, err := parseArrayToMap[PropertyInfo](value, marshal, unmarshal)
+		if err != nil {
+			return err
 		}
 		r.Properties = properties
 	}
 
 	if value, ok := m["secrets"].(primitive.A); ok {
-		secrets := make(map[string]Secret)
-		for _, item := range value {
-			jsonBytes, err := marshal(item)
-			if err != nil {
-				return fmt.Errorf("failed to marshal Secret item: %v", err)
-			}
-
-			var secret Secret
-			if err := unmarshal(jsonBytes, &secret); err != nil {
-				return fmt.Errorf("failed to unmarshal item to Secret: %v", err)
-			}
-
-			secrets[secret.Key] = secret
+		secrets, err := parseArrayToMap[Secret](value, marshal, unmarshal)
+		if err != nil {
+			return err
 		}
 		r.Secrets = secrets
 	}
@@ -152,4 +132,27 @@ func makeMap(r Platform) map[string]interface{} {
 	}
 
 	return m
+}
+
+func parseArrayToMap[T any](array primitive.A, marshalFunc func(interface{}) ([]byte, error), unmarshalFunc func([]byte, any) error) (map[string]T, error) {
+	result := make(map[string]T)
+	for _, item := range array {
+		jsonBytes, err := marshalFunc(item)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal item: %v", err)
+		}
+
+		var obj T
+		if err := unmarshalFunc(jsonBytes, &obj); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal item: %v", err)
+		}
+
+		keyGetter, ok := any(&obj).(interface{ GetKey() string })
+		if !ok {
+			return nil, fmt.Errorf("type %T does not implement GetKey method", obj)
+		}
+
+		result[keyGetter.GetKey()] = obj
+	}
+	return result, nil
 }
