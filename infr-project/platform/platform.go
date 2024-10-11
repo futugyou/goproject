@@ -8,35 +8,42 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
-// aggregate root
+// platform aggregate root
+// The difference between Property and Secrets is like ConfigMap and Secrets in k8s
 type Platform struct {
 	domain.Aggregate `json:"-"`
 	Name             string                     `json:"name"`
 	Activate         bool                       `json:"activate"`
 	Url              string                     `json:"url"`
-	Property         map[string]PropertyInfo    `json:"property"`
+	Properties       map[string]PropertyInfo    `json:"properties"`
+	Secrets          map[string]Secret          `json:"secrets"`
 	Projects         map[string]PlatformProject `json:"projects"`
 	Tags             []string                   `json:"tags"`
 	IsDeleted        bool                       `json:"is_deleted"`
 }
 
-type PropertyInfo struct {
+type Secret struct {
 	Key   string `json:"key"`   // vault aliases
 	Value string `json:"value"` // vault id
 }
 
-func NewPlatform(name string, url string, property map[string]PropertyInfo, tags []string) *Platform {
+type PropertyInfo struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+func NewPlatform(name string, url string, properties map[string]PropertyInfo, tags []string) *Platform {
 	return &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
 		},
-		Name:      name,
-		Activate:  true,
-		Url:       url,
-		Property:  property,
-		Projects:  map[string]PlatformProject{},
-		Tags:      tags,
-		IsDeleted: false,
+		Name:       name,
+		Activate:   true,
+		Url:        url,
+		Properties: properties,
+		Projects:   map[string]PlatformProject{},
+		Tags:       tags,
+		IsDeleted:  false,
 	}
 }
 
@@ -88,11 +95,19 @@ func (w *Platform) UpdateTags(tags []string) (*Platform, error) {
 	return w, nil
 }
 
-func (w *Platform) UpdateProperty(property map[string]PropertyInfo) (*Platform, error) {
+func (w *Platform) UpdateProperty(properties map[string]PropertyInfo) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
-	w.Property = property
+	w.Properties = properties
+	return w, nil
+}
+
+func (w *Platform) UpdateSecret(secrets map[string]Secret) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
+	w.Secrets = secrets
 	return w, nil
 }
 

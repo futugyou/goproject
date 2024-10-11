@@ -49,16 +49,16 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	}
 
-	property := make(map[string]platform.PropertyInfo)
-	for _, v := range aux.Property {
-		property[v.Key] = platform.PropertyInfo{
+	properties := make(map[string]platform.PropertyInfo)
+	for _, v := range aux.Properties {
+		properties[v.Key] = platform.PropertyInfo{
 			Key:   v.Key,
 			Value: v.Value,
 		}
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, property, aux.Tags)
+		res = platform.NewPlatform(aux.Name, aux.Url, properties, aux.Tags)
 		return <-s.repository.InsertAsync(ctx, *res)
 	}); err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 	}
 
 	newhook := platform.NewWebhook(hook.Name, hook.Url,
-		platform.WithWebhookProperty(hook.Property),
+		platform.WithWebhookProperty(hook.Properties),
 		platform.WithWebhookActivate(hook.Activate),
 		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
 	)
@@ -208,7 +208,7 @@ func (s *PlatformService) AddProject(ctx context.Context, id string, projectId s
 		projectId = project.Name
 	}
 
-	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, project.Property)
+	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, project.Properties)
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}
@@ -304,13 +304,13 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 	}
 
 	newProperty := make(map[string]platform.PropertyInfo)
-	for _, v := range data.Property {
+	for _, v := range data.Properties {
 		newProperty[v.Key] = platform.PropertyInfo{
 			Key:   v.Key,
 			Value: v.Value,
 		}
 	}
-	if !tool.MapsCompareCommon(plat.Property, newProperty) {
+	if !tool.MapsCompareCommon(plat.Properties, newProperty) {
 		if _, err := plat.UpdateProperty(newProperty); err != nil {
 			return nil, err
 		}
@@ -327,12 +327,12 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 
 func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, src *platform.Platform) (*models.PlatformDetailView, error) {
 	if src == nil {
-		return nil, nil
+		return nil, fmt.Errorf("no platform data found")
 	}
 
-	propertyInfos, err := s.convertProperty(ctx, src.Property)
+	secrets, err := s.convertSecrets(ctx, src.Secrets)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	platformProjects := make([]models.PlatformProject, 0)
@@ -340,50 +340,57 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		webhooks := make([]models.Webhook, 0)
 		for i := 0; i < len(v.Webhooks); i++ {
 			webhooks = append(webhooks, models.Webhook{
-				Name:     v.Webhooks[i].Name,
-				Url:      v.Webhooks[i].Url,
-				Activate: v.Webhooks[i].Activate,
-				State:    v.Webhooks[i].State.String(),
-				Property: v.Webhooks[i].Property,
+				Name:       v.Webhooks[i].Name,
+				Url:        v.Webhooks[i].Url,
+				Activate:   v.Webhooks[i].Activate,
+				State:      v.Webhooks[i].State.String(),
+				Properties: v.Webhooks[i].Properties,
 			})
 		}
 		platformProjects = append(platformProjects, models.PlatformProject{
-			Id:       v.Id,
-			Name:     v.Name,
-			Url:      v.Url,
-			Property: v.Property,
-			Webhooks: webhooks,
+			Id:         v.Id,
+			Name:       v.Name,
+			Url:        v.Url,
+			Properties: v.Properties,
+			Webhooks:   webhooks,
 		})
 	}
+
+	propertyInfos := make([]models.PropertyInfo, 0)
+	for _, v := range src.Properties {
+		propertyInfos = append(propertyInfos, models.PropertyInfo(v))
+	}
+
 	return &models.PlatformDetailView{
-		Id:        src.Id,
-		Name:      src.Name,
-		Activate:  src.Activate,
-		Url:       src.Url,
-		Property:  propertyInfos,
-		Projects:  platformProjects,
-		Tags:      src.Tags,
-		IsDeleted: src.IsDeleted,
+		Id:         src.Id,
+		Name:       src.Name,
+		Activate:   src.Activate,
+		Url:        src.Url,
+		Properties: propertyInfos,
+		Secrets:    secrets,
+		Projects:   platformProjects,
+		Tags:       src.Tags,
+		IsDeleted:  src.IsDeleted,
 	}, nil
 }
 
-func (s *PlatformService) convertProperty(ctx context.Context, properties map[string]platform.PropertyInfo) ([]models.Property, error) {
-	propertyInfos := make([]models.Property, 0)
-	if len(properties) > 0 {
+func (s *PlatformService) convertSecrets(ctx context.Context, secrets map[string]platform.Secret) ([]models.Secret, error) {
+	secretInfos := make([]models.Secret, 0)
+	if len(secrets) > 0 {
 		// TODO: need event driven
 		// But now there is no deployment environment that can run MQ
 		filter := []vault.VaultSearch{}
-		for _, v := range properties {
+		for _, v := range secrets {
 			filter = append(filter, vault.VaultSearch{
 				ID: v.Value,
 			})
 		}
 		query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
 		if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
-			for key, v := range properties {
+			for key, v := range secrets {
 				for i := 0; i < len(vaults); i++ {
 					if vaults[i].Id == v.Value {
-						propertyInfos = append(propertyInfos, models.Property{
+						secretInfos = append(secretInfos, models.Secret{
 							Key:       key,
 							VaultId:   vaults[i].Id,
 							VaultKey:  vaults[i].Key,
@@ -395,5 +402,5 @@ func (s *PlatformService) convertProperty(ctx context.Context, properties map[st
 			}
 		}
 	}
-	return propertyInfos, nil
+	return secretInfos, nil
 }

@@ -1558,7 +1558,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "property": {
+                "properties": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
@@ -1794,10 +1794,16 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.PlatformProject"
                     }
                 },
-                "property": {
+                "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
+                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                    }
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
                 "tags": {
@@ -1820,7 +1826,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "property": {
+                "properties": {
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
@@ -1935,24 +1941,6 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.Property": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "description": "vault aliases",
-                    "type": "string"
-                },
-                "mask_value": {
-                    "type": "string"
-                },
-                "vault_id": {
-                    "type": "string"
-                },
-                "vault_key": {
-                    "type": "string"
-                }
-            }
-        },
         "viewmodels.PropertyInfo": {
             "type": "object",
             "properties": {
@@ -1999,6 +1987,24 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.Secret": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "description": "vault aliases",
+                    "type": "string"
+                },
+                "mask_value": {
+                    "type": "string"
+                },
+                "vault_id": {
+                    "type": "string"
+                },
+                "vault_key": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.UpdatePlatformProjectRequest": {
             "type": "object",
             "required": [
@@ -2011,7 +2017,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "property": {
+                "properties": {
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
@@ -2039,7 +2045,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "property": {
+                "properties": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
@@ -2074,7 +2080,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "property": {
+                "properties": {
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
@@ -2241,7 +2247,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "property": {
+                "properties": {
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"

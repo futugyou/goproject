@@ -172,7 +172,7 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
-      property:
+      properties:
         items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
         type: array
@@ -342,9 +342,13 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.PlatformProject'
         type: array
-      property:
+      properties:
         items:
-          $ref: '#/definitions/viewmodels.Property'
+          $ref: '#/definitions/viewmodels.PropertyInfo'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
         type: array
       tags:
         items:
@@ -359,7 +363,7 @@ definitions:
         type: string
       name:
         type: string
-      property:
+      properties:
         additionalProperties:
           type: string
         type: object
@@ -434,18 +438,6 @@ definitions:
           type: string
         type: array
     type: object
-  viewmodels.Property:
-    properties:
-      key:
-        description: vault aliases
-        type: string
-      mask_value:
-        type: string
-      vault_id:
-        type: string
-      vault_key:
-        type: string
-    type: object
   viewmodels.PropertyInfo:
     properties:
       key:
@@ -476,13 +468,25 @@ definitions:
       version:
         type: integer
     type: object
+  viewmodels.Secret:
+    properties:
+      key:
+        description: vault aliases
+        type: string
+      mask_value:
+        type: string
+      vault_id:
+        type: string
+      vault_key:
+        type: string
+    type: object
   viewmodels.UpdatePlatformProjectRequest:
     properties:
       name:
         maxLength: 50
         minLength: 3
         type: string
-      property:
+      properties:
         additionalProperties:
           type: string
         type: object
@@ -502,7 +506,7 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
-      property:
+      properties:
         items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
         type: array
@@ -526,7 +530,7 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
-      property:
+      properties:
         additionalProperties:
           type: string
         type: object
@@ -648,7 +652,7 @@ definitions:
         type: boolean
       name:
         type: string
-      property:
+      properties:
         additionalProperties:
           type: string
         type: object

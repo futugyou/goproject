@@ -6,32 +6,32 @@ type PropertyInfo struct {
 }
 
 type CreatePlatformRequest struct {
-	Name     string         `json:"name" validate:"required,min=3,max=50"`
-	Url      string         `json:"url" validate:"required,min=3,max=150"`
-	Tags     []string       `json:"tags"`
-	Property []PropertyInfo `json:"property"`
+	Name       string         `json:"name" validate:"required,min=3,max=50"`
+	Url        string         `json:"url" validate:"required,min=3,max=150"`
+	Tags       []string       `json:"tags"`
+	Properties []PropertyInfo `json:"properties"`
 }
 
 type UpdatePlatformRequest struct {
-	Name     string         `json:"name" validate:"required,min=3,max=50"`
-	Url      string         `json:"url" validate:"required,min=3,max=150"`
-	Property []PropertyInfo `json:"property,omitempty"`
-	Tags     []string       `json:"tags"`
-	Activate *bool          `json:"activate,omitempty"`
+	Name       string         `json:"name" validate:"required,min=3,max=50"`
+	Url        string         `json:"url" validate:"required,min=3,max=150"`
+	Properties []PropertyInfo `json:"properties,omitempty"`
+	Tags       []string       `json:"tags"`
+	Activate   *bool          `json:"activate,omitempty"`
 }
 
 type UpdatePlatformProjectRequest struct {
-	Name     string            `json:"name" validate:"required,min=3,max=50"`
-	Url      string            `json:"url" validate:"required,min=3,max=150"`
-	Property map[string]string `json:"property,omitempty"`
+	Name       string            `json:"name" validate:"required,min=3,max=50"`
+	Url        string            `json:"url" validate:"required,min=3,max=150"`
+	Properties map[string]string `json:"properties,omitempty"`
 }
 
 type UpdatePlatformWebhookRequest struct {
-	Name     string            `json:"name" validate:"required,min=3,max=50"`
-	Url      string            `json:"url" validate:"required,min=3,max=150"`
-	Activate bool              `json:"activate" validate:"required"`
-	State    string            `json:"state" validate:"oneof=Init Creating Ready"`
-	Property map[string]string `json:"property"`
+	Name       string            `json:"name" validate:"required,min=3,max=50"`
+	Url        string            `json:"url" validate:"required,min=3,max=150"`
+	Activate   bool              `json:"activate" validate:"required"`
+	State      string            `json:"state" validate:"oneof=Init Creating Ready"`
+	Properties map[string]string `json:"properties"`
 }
 
 type PlatformView struct {
@@ -44,17 +44,18 @@ type PlatformView struct {
 }
 
 type PlatformDetailView struct {
-	Id        string            `json:"id"`
-	Name      string            `json:"name"`
-	Activate  bool              `json:"activate"`
-	Url       string            `json:"url"`
-	Property  []Property        `json:"property"`
-	Projects  []PlatformProject `json:"projects"`
-	Tags      []string          `json:"tags"`
-	IsDeleted bool              `json:"is_deleted"`
+	Id         string            `json:"id"`
+	Name       string            `json:"name"`
+	Activate   bool              `json:"activate"`
+	Url        string            `json:"url"`
+	Properties []PropertyInfo    `json:"properties"`
+	Secrets    []Secret          `json:"secrets"`
+	Projects   []PlatformProject `json:"projects"`
+	Tags       []string          `json:"tags"`
+	IsDeleted  bool              `json:"is_deleted"`
 }
 
-type Property struct {
+type Secret struct {
 	Key       string `json:"key"` //vault aliases
 	VaultId   string `json:"vault_id"`
 	VaultKey  string `json:"vault_key"`
@@ -62,19 +63,19 @@ type Property struct {
 }
 
 type PlatformProject struct {
-	Id       string            `json:"id"`
-	Name     string            `json:"name"`
-	Url      string            `json:"url"`
-	Property map[string]string `json:"property"`
-	Webhooks []Webhook         `json:"webhooks"`
+	Id         string            `json:"id"`
+	Name       string            `json:"name"`
+	Url        string            `json:"url"`
+	Properties map[string]string `json:"properties"`
+	Webhooks   []Webhook         `json:"webhooks"`
 }
 
 type Webhook struct {
-	Name     string            `json:"name"`
-	Url      string            `json:"url"`
-	Activate bool              `json:"activate"`
-	State    string            `json:"state"`
-	Property map[string]string `json:"property"`
+	Name       string            `json:"name"`
+	Url        string            `json:"url"`
+	Activate   bool              `json:"activate"`
+	State      string            `json:"state"`
+	Properties map[string]string `json:"properties"`
 }
 
 type SearchPlatformsRequest struct {
