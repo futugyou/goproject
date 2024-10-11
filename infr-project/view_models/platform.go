@@ -8,7 +8,6 @@ type PropertyInfo struct {
 type CreatePlatformRequest struct {
 	Name     string         `json:"name" validate:"required,min=3,max=50"`
 	Url      string         `json:"url" validate:"required,min=3,max=150"`
-	Rest     string         `json:"rest" validate:"required,min=3,max=50"`
 	Tags     []string       `json:"tags"`
 	Property []PropertyInfo `json:"property"`
 }
@@ -16,7 +15,6 @@ type CreatePlatformRequest struct {
 type UpdatePlatformRequest struct {
 	Name     string         `json:"name" validate:"required,min=3,max=50"`
 	Url      string         `json:"url" validate:"required,min=3,max=150"`
-	Rest     string         `json:"rest" validate:"required,min=3,max=50"`
 	Property []PropertyInfo `json:"property,omitempty"`
 	Tags     []string       `json:"tags"`
 	Activate *bool          `json:"activate,omitempty"`
@@ -37,25 +35,23 @@ type UpdatePlatformWebhookRequest struct {
 }
 
 type PlatformView struct {
-	Id           string   `json:"id"`
-	Name         string   `json:"name"`
-	Activate     bool     `json:"activate"`
-	Url          string   `json:"url"`
-	RestEndpoint string   `json:"rest_endpoint"`
-	Tags         []string `json:"tags"`
-	IsDeleted    bool     `json:"is_deleted"`
+	Id        string   `json:"id"`
+	Name      string   `json:"name"`
+	Activate  bool     `json:"activate"`
+	Url       string   `json:"url"`
+	Tags      []string `json:"tags"`
+	IsDeleted bool     `json:"is_deleted"`
 }
 
 type PlatformDetailView struct {
-	Id           string            `json:"id"`
-	Name         string            `json:"name"`
-	Activate     bool              `json:"activate"`
-	Url          string            `json:"url"`
-	RestEndpoint string            `json:"rest_endpoint"`
-	Property     []Property        `json:"property"`
-	Projects     []PlatformProject `json:"projects"`
-	Tags         []string          `json:"tags"`
-	IsDeleted    bool              `json:"is_deleted"`
+	Id        string            `json:"id"`
+	Name      string            `json:"name"`
+	Activate  bool              `json:"activate"`
+	Url       string            `json:"url"`
+	Property  []Property        `json:"property"`
+	Projects  []PlatformProject `json:"projects"`
+	Tags      []string          `json:"tags"`
+	IsDeleted bool              `json:"is_deleted"`
 }
 
 type Property struct {

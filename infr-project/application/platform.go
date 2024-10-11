@@ -58,7 +58,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, property, aux.Tags)
+		res = platform.NewPlatform(aux.Name, aux.Url, property, aux.Tags)
 		return <-s.repository.InsertAsync(ctx, *res)
 	}); err != nil {
 		return nil, err
@@ -91,13 +91,12 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 	result := make([]models.PlatformView, len(src))
 	for i := 0; i < len(src); i++ {
 		result[i] = models.PlatformView{
-			Id:           src[i].Id,
-			Name:         src[i].Name,
-			Activate:     src[i].Activate,
-			Url:          src[i].Url,
-			RestEndpoint: src[i].RestEndpoint,
-			Tags:         src[i].Tags,
-			IsDeleted:    src[i].IsDeleted,
+			Id:        src[i].Id,
+			Name:      src[i].Name,
+			Activate:  src[i].Activate,
+			Url:       src[i].Url,
+			Tags:      src[i].Tags,
+			IsDeleted: src[i].IsDeleted,
 		}
 	}
 	return result, nil
@@ -286,12 +285,6 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		}
 	}
 
-	if plat.RestEndpoint != data.Rest {
-		if _, err := plat.UpdateRestEndpoint(data.Rest); err != nil {
-			return nil, err
-		}
-	}
-
 	if !tool.StringArrayCompare(plat.Tags, data.Tags) {
 		if _, err := plat.UpdateTags(data.Tags); err != nil {
 			return nil, err
@@ -363,15 +356,14 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		})
 	}
 	return &models.PlatformDetailView{
-		Id:           src.Id,
-		Name:         src.Name,
-		Activate:     src.Activate,
-		Url:          src.Url,
-		RestEndpoint: src.RestEndpoint,
-		Property:     propertyInfos,
-		Projects:     platformProjects,
-		Tags:         src.Tags,
-		IsDeleted:    src.IsDeleted,
+		Id:        src.Id,
+		Name:      src.Name,
+		Activate:  src.Activate,
+		Url:       src.Url,
+		Property:  propertyInfos,
+		Projects:  platformProjects,
+		Tags:      src.Tags,
+		IsDeleted: src.IsDeleted,
 	}, nil
 }
 

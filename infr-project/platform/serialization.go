@@ -143,10 +143,6 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.IsDeleted = value
 	}
 
-	if value, ok := m["restendpoint"].(string); ok {
-		r.RestEndpoint = value
-	}
-
 	if value, ok := m["property"].(primitive.A); ok {
 		propertys := make(map[string]PropertyInfo)
 		for _, item := range value {
@@ -198,15 +194,14 @@ func makeMap(r Platform) map[string]interface{} {
 	}
 
 	m := map[string]interface{}{
-		"id":           r.Id,
-		"name":         r.Name,
-		"activate":     r.Activate,
-		"url":          r.Url,
-		"restendpoint": r.RestEndpoint,
-		"property":     properties,
-		"projects":     projects,
-		"tags":         r.Tags,
-		"is_deleted":   r.IsDeleted,
+		"id":         r.Id,
+		"name":       r.Name,
+		"activate":   r.Activate,
+		"url":        r.Url,
+		"property":   properties,
+		"projects":   projects,
+		"tags":       r.Tags,
+		"is_deleted": r.IsDeleted,
 	}
 
 	return m

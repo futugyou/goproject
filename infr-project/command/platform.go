@@ -71,7 +71,7 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		// }
 	}
 	err = commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, aux.Rest, property, aux.Tags)
+		res = platform.NewPlatform(aux.Name, aux.Url, property, aux.Tags)
 		return repository.Insert(ctx, *res)
 	})
 	if err != nil {

@@ -1539,7 +1539,6 @@
             "type": "object",
             "required": [
                 "name",
-                "rest",
                 "url"
             ],
             "properties": {
@@ -1553,11 +1552,6 @@
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
-                },
-                "rest": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
                 },
                 "tags": {
                     "type": "array",
@@ -1795,9 +1789,6 @@
                         "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
-                "rest_endpoint": {
-                    "type": "string"
-                },
                 "tags": {
                     "type": "array",
                     "items": {
@@ -1848,9 +1839,6 @@
                     "type": "boolean"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "rest_endpoint": {
                     "type": "string"
                 },
                 "tags": {
@@ -2029,7 +2017,6 @@
             "type": "object",
             "required": [
                 "name",
-                "rest",
                 "url"
             ],
             "properties": {
@@ -2046,11 +2033,6 @@
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
                     }
-                },
-                "rest": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
                 },
                 "tags": {
                     "type": "array",

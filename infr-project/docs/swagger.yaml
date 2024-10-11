@@ -176,10 +176,6 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
         type: array
-      rest:
-        maxLength: 50
-        minLength: 3
-        type: string
       tags:
         items:
           type: string
@@ -190,7 +186,6 @@ definitions:
         type: string
     required:
     - name
-    - rest
     - url
     type: object
   viewmodels.CreateProjectRequest:
@@ -351,8 +346,6 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
-      rest_endpoint:
-        type: string
       tags:
         items:
           type: string
@@ -386,8 +379,6 @@ definitions:
       is_deleted:
         type: boolean
       name:
-        type: string
-      rest_endpoint:
         type: string
       tags:
         items:
@@ -515,10 +506,6 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
         type: array
-      rest:
-        maxLength: 50
-        minLength: 3
-        type: string
       tags:
         items:
           type: string
@@ -529,7 +516,6 @@ definitions:
         type: string
     required:
     - name
-    - rest
     - url
     type: object
   viewmodels.UpdatePlatformWebhookRequest:

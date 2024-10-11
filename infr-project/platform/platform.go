@@ -14,7 +14,6 @@ type Platform struct {
 	Name             string                     `json:"name"`
 	Activate         bool                       `json:"activate"`
 	Url              string                     `json:"url"`
-	RestEndpoint     string                     `json:"rest_endpoint"`
 	Property         map[string]PropertyInfo    `json:"property"`
 	Projects         map[string]PlatformProject `json:"projects"`
 	Tags             []string                   `json:"tags"`
@@ -26,19 +25,18 @@ type PropertyInfo struct {
 	Value string `json:"value"` // vault id
 }
 
-func NewPlatform(name string, url string, rest string, property map[string]PropertyInfo, tags []string) *Platform {
+func NewPlatform(name string, url string, property map[string]PropertyInfo, tags []string) *Platform {
 	return &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
 		},
-		Name:         name,
-		Activate:     true,
-		Url:          url,
-		RestEndpoint: rest,
-		Property:     property,
-		Projects:     map[string]PlatformProject{},
-		Tags:         tags,
-		IsDeleted:    false,
+		Name:      name,
+		Activate:  true,
+		Url:       url,
+		Property:  property,
+		Projects:  map[string]PlatformProject{},
+		Tags:      tags,
+		IsDeleted: false,
 	}
 }
 
@@ -79,14 +77,6 @@ func (w *Platform) UpdateUrl(url string) (*Platform, error) {
 		return nil, err
 	}
 	w.Url = url
-	return w, nil
-}
-
-func (w *Platform) UpdateRestEndpoint(url string) (*Platform, error) {
-	if err := w.stateCheck(); err != nil {
-		return nil, err
-	}
-	w.RestEndpoint = url
 	return w, nil
 }
 
