@@ -10,12 +10,14 @@ type CreatePlatformRequest struct {
 	Url        string         `json:"url" validate:"required,min=3,max=150"`
 	Tags       []string       `json:"tags"`
 	Properties []PropertyInfo `json:"properties"`
+	Secrets    []Secret       `json:"secrets"`
 }
 
 type UpdatePlatformRequest struct {
 	Name       string         `json:"name" validate:"required,min=3,max=50"`
 	Url        string         `json:"url" validate:"required,min=3,max=150"`
 	Properties []PropertyInfo `json:"properties,omitempty"`
+	Secrets    []Secret       `json:"secrets"`
 	Tags       []string       `json:"tags"`
 	Activate   *bool          `json:"activate,omitempty"`
 }
@@ -58,8 +60,8 @@ type PlatformDetailView struct {
 type Secret struct {
 	Key       string `json:"key"` //vault aliases
 	VaultId   string `json:"vault_id"`
-	VaultKey  string `json:"vault_key"`
-	MaskValue string `json:"mask_value"`
+	VaultKey  string `json:"vault_key,omitempty"`
+	MaskValue string `json:"mask_value,omitempty"`
 }
 
 type PlatformProject struct {

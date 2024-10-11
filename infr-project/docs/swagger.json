@@ -1312,7 +1312,7 @@
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "property": {
+                "properties": {
                     "type": "object",
                     "additionalProperties": {
                         "$ref": "#/definitions/command.PropertyInfo"
@@ -1322,6 +1322,12 @@
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "secrets": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/command.PropertyInfo"
+                    }
                 },
                 "tags": {
                     "type": "array",
@@ -1551,6 +1557,12 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
+                    }
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
                 "tags": {
@@ -2038,6 +2050,12 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
+                    }
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
                 "tags": {

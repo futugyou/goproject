@@ -1323,7 +1323,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
-                "property": {
+                "properties": {
                     "type": "object",
                     "additionalProperties": {
                         "$ref": "#/definitions/command.PropertyInfo"
@@ -1333,6 +1333,12 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
+                },
+                "secrets": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/command.PropertyInfo"
+                    }
                 },
                 "tags": {
                     "type": "array",
@@ -1562,6 +1568,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
+                    }
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
                 "tags": {
@@ -2049,6 +2061,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.PropertyInfo"
+                    }
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
                 "tags": {

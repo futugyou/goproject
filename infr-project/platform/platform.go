@@ -22,19 +22,46 @@ type Platform struct {
 	IsDeleted        bool                       `json:"is_deleted"`
 }
 
-func NewPlatform(name string, url string, properties map[string]PropertyInfo, tags []string) *Platform {
-	return &Platform{
+type PlatformOption func(*Platform)
+
+func WithPlatformSecrets(secrets map[string]Secret) PlatformOption {
+	return func(w *Platform) {
+		w.Secrets = secrets
+	}
+}
+
+func WithPlatformTags(tags []string) PlatformOption {
+	return func(w *Platform) {
+		w.Tags = tags
+	}
+}
+
+func WithPlatformProperties(properties map[string]PropertyInfo) PlatformOption {
+	return func(w *Platform) {
+		w.Properties = properties
+	}
+}
+
+func NewPlatform(name string, url string, opts ...PlatformOption) *Platform {
+	platform := &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
 		},
 		Name:       name,
 		Activate:   true,
 		Url:        url,
-		Properties: properties,
+		Properties: map[string]PropertyInfo{},
+		Secrets:    map[string]Secret{},
 		Projects:   map[string]PlatformProject{},
-		Tags:       tags,
+		Tags:       []string{},
 		IsDeleted:  false,
 	}
+
+	for _, opt := range opts {
+		opt(platform)
+	}
+
+	return platform
 }
 
 func (r *Platform) stateCheck() error {
@@ -93,7 +120,7 @@ func (w *Platform) UpdateProperties(properties map[string]PropertyInfo) (*Platfo
 	return w, nil
 }
 
-func (w *Platform) UpdateSecret(secrets map[string]Secret) (*Platform, error) {
+func (w *Platform) UpdateSecrets(secrets map[string]Secret) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}

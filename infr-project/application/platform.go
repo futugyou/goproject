@@ -57,8 +57,20 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 		}
 	}
 
+	secrets := make(map[string]platform.Secret)
+	for _, v := range aux.Secrets {
+		secrets[v.Key] = platform.Secret{
+			Key:   v.Key,
+			Value: v.VaultId,
+		}
+	}
+
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, properties, aux.Tags)
+		res = platform.NewPlatform(aux.Name, aux.Url,
+			platform.WithPlatformProperties(properties),
+			platform.WithPlatformTags(aux.Tags),
+			platform.WithPlatformSecrets(secrets),
+		)
 		return <-s.repository.InsertAsync(ctx, *res)
 	}); err != nil {
 		return nil, err
@@ -312,6 +324,19 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 	}
 	if !tool.MapsCompareCommon(plat.Properties, newProperty) {
 		if _, err := plat.UpdateProperties(newProperty); err != nil {
+			return nil, err
+		}
+	}
+
+	newSecrets := make(map[string]platform.Secret)
+	for _, v := range data.Secrets {
+		newSecrets[v.Key] = platform.Secret{
+			Key:   v.Key,
+			Value: v.VaultId,
+		}
+	}
+	if !tool.MapsCompareCommon(plat.Secrets, newSecrets) {
+		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
 			return nil, err
 		}
 	}

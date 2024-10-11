@@ -5,7 +5,7 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
-      property:
+      properties:
         additionalProperties:
           $ref: '#/definitions/command.PropertyInfo'
         type: object
@@ -13,6 +13,10 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
+      secrets:
+        additionalProperties:
+          $ref: '#/definitions/command.PropertyInfo'
+        type: object
       tags:
         items:
           type: string
@@ -175,6 +179,10 @@ definitions:
       properties:
         items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
         type: array
       tags:
         items:
@@ -509,6 +517,10 @@ definitions:
       properties:
         items:
           $ref: '#/definitions/viewmodels.PropertyInfo'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
         type: array
       tags:
         items:
