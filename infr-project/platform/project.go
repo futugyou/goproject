@@ -60,6 +60,11 @@ func (w *PlatformProject) UpdateProperties(properties map[string]Property) *Plat
 	return w
 }
 
+func (w *PlatformProject) UpdateSecrets(secrets map[string]Secret) *PlatformProject {
+	w.Secrets = secrets
+	return w
+}
+
 func (w *PlatformProject) UpsertWebhook(hook Webhook) {
 	for i := 0; i < len(w.Webhooks); i++ {
 		if w.Webhooks[i].Name == hook.Name {

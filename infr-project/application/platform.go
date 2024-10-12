@@ -370,7 +370,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		return nil, fmt.Errorf("no platform data found")
 	}
 
-	secrets, err := s.convertSecrets(ctx, src.Secrets)
+	secrets, err := s.convertSecrets(ctx, *src)
 	if err != nil {
 		return nil, err
 	}
@@ -379,9 +379,9 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	for _, v := range src.Projects {
 		webhooks := make([]models.Webhook, 0)
 		for i := 0; i < len(v.Webhooks); i++ {
-			wps := map[string]string{}
+			wps := []models.Property{}
 			for _, v := range v.Webhooks[i].Properties {
-				wps[v.Key] = v.Value
+				wps = append(wps, models.Property(v))
 			}
 			webhooks = append(webhooks, models.Webhook{
 				Name:       v.Webhooks[i].Name,
@@ -389,11 +389,12 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 				Activate:   v.Webhooks[i].Activate,
 				State:      v.Webhooks[i].State.String(),
 				Properties: wps,
+				Secrets:    filterSecrets(secrets, v.Webhooks[i].Secrets),
 			})
 		}
-		props := map[string]string{}
+		props := []models.Property{}
 		for _, v := range v.Properties {
-			props[v.Key] = v.Value
+			props = append(props, models.Property(v))
 		}
 
 		platformProjects = append(platformProjects, models.PlatformProject{
@@ -401,6 +402,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 			Name:       v.Name,
 			Url:        v.Url,
 			Properties: props,
+			Secrets:    filterSecrets(secrets, v.Secrets),
 			Webhooks:   webhooks,
 		})
 	}
@@ -416,40 +418,67 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		Activate:   src.Activate,
 		Url:        src.Url,
 		Properties: properties,
-		Secrets:    secrets,
+		Secrets:    filterSecrets(secrets, src.Secrets),
 		Projects:   platformProjects,
 		Tags:       src.Tags,
 		IsDeleted:  src.IsDeleted,
 	}, nil
 }
 
-func (s *PlatformService) convertSecrets(ctx context.Context, secrets map[string]platform.Secret) ([]models.Secret, error) {
+// TODO: need event driven
+// But now there is no deployment environment that can run MQ
+func (s *PlatformService) convertSecrets(ctx context.Context, form platform.Platform) ([]models.Secret, error) {
 	secretInfos := make([]models.Secret, 0)
-	if len(secrets) > 0 {
-		// TODO: need event driven
-		// But now there is no deployment environment that can run MQ
-		filter := []vault.VaultSearch{}
-		for _, v := range secrets {
-			filter = append(filter, vault.VaultSearch{
-				ID: v.Value,
-			})
+	secretsMap := map[string]string{}
+	for key, secret := range form.Secrets {
+		secretsMap[secret.Value] = key
+	}
+	for _, pro := range form.Projects {
+		for key, secret := range pro.Secrets {
+			secretsMap[secret.Value] = key
 		}
-		query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
-		if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
-			for key, v := range secrets {
-				for i := 0; i < len(vaults); i++ {
-					if vaults[i].Id == v.Value {
-						secretInfos = append(secretInfos, models.Secret{
-							Key:       key,
-							VaultId:   vaults[i].Id,
-							VaultKey:  vaults[i].Key,
-							MaskValue: vaults[i].MaskValue,
-						})
-						break
-					}
+		for _, hook := range pro.Webhooks {
+			for key, secret := range hook.Secrets {
+				secretsMap[secret.Value] = key
+			}
+		}
+	}
+
+	filter := []vault.VaultSearch{}
+	for k := range secretsMap {
+		filter = append(filter, vault.VaultSearch{
+			ID: k,
+		})
+	}
+	query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
+	if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
+		for key, v := range secretsMap {
+			for i := 0; i < len(vaults); i++ {
+				if vaults[i].Id == key {
+					secretInfos = append(secretInfos, models.Secret{
+						Key:       v,
+						VaultId:   key,
+						VaultKey:  vaults[i].Key,
+						MaskValue: vaults[i].MaskValue,
+					})
+					break
 				}
 			}
 		}
 	}
 	return secretInfos, nil
+}
+
+func filterSecrets(secrets []models.Secret, filter map[string]platform.Secret) []models.Secret {
+	ss := []models.Secret{}
+	secretsMap := map[string]string{}
+	for key, secret := range filter {
+		secretsMap[secret.Value] = key
+	}
+	for _, s := range secrets {
+		if _, ok := secretsMap[s.VaultId]; ok {
+			ss = append(ss, s)
+		}
+	}
+	return ss
 }

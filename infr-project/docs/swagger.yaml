@@ -372,9 +372,13 @@ definitions:
       name:
         type: string
       properties:
-        additionalProperties:
-          type: string
-        type: object
+        items:
+          $ref: '#/definitions/viewmodels.Property'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
+        type: array
       url:
         type: string
       webhooks:
@@ -665,9 +669,13 @@ definitions:
       name:
         type: string
       properties:
-        additionalProperties:
-          type: string
-        type: object
+        items:
+          $ref: '#/definitions/viewmodels.Property'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
+        type: array
       state:
         type: string
       url:

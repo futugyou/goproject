@@ -65,19 +65,21 @@ type Secret struct {
 }
 
 type PlatformProject struct {
-	Id         string            `json:"id"`
-	Name       string            `json:"name"`
-	Url        string            `json:"url"`
-	Properties map[string]string `json:"properties"`
-	Webhooks   []Webhook         `json:"webhooks"`
+	Id         string     `json:"id"`
+	Name       string     `json:"name"`
+	Url        string     `json:"url"`
+	Properties []Property `json:"properties"`
+	Secrets    []Secret   `json:"secrets"`
+	Webhooks   []Webhook  `json:"webhooks"`
 }
 
 type Webhook struct {
-	Name       string            `json:"name"`
-	Url        string            `json:"url"`
-	Activate   bool              `json:"activate"`
-	State      string            `json:"state"`
-	Properties map[string]string `json:"properties"`
+	Name       string     `json:"name"`
+	Url        string     `json:"url"`
+	Activate   bool       `json:"activate"`
+	State      string     `json:"state"`
+	Properties []Property `json:"properties"`
+	Secrets    []Secret   `json:"secrets"`
 }
 
 type SearchPlatformsRequest struct {
