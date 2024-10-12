@@ -11,6 +11,10 @@ type PlatformProject struct {
 	Webhooks   []Webhook         `json:"webhooks" bson:"webhooks"`
 }
 
+func (s PlatformProject) GetKey() string {
+	return s.Id
+}
+
 func NewPlatformProject(id string, name string, url string, properties map[string]string) *PlatformProject {
 	return &PlatformProject{
 		Id:         id,

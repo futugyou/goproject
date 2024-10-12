@@ -83,19 +83,9 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 	}
 
 	if value, ok := m["projects"].(primitive.A); ok {
-		projects := make(map[string]PlatformProject)
-		for _, item := range value {
-			jsonBytes, err := marshal(item)
-			if err != nil {
-				return fmt.Errorf("failed to marshal PlatformProject item: %v", err)
-			}
-
-			var project PlatformProject
-			if err := unmarshal(jsonBytes, &project); err != nil {
-				return fmt.Errorf("failed to unmarshal item to PlatformProject: %v", err)
-			}
-
-			projects[project.Id] = project
+		projects, err := parseArrayToMap[PlatformProject](value, marshal, unmarshal)
+		if err != nil {
+			return err
 		}
 		r.Projects = projects
 	}
