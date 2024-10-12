@@ -16,13 +16,33 @@ func (s PlatformProject) GetKey() string {
 	return s.Id
 }
 
-func NewPlatformProject(id string, name string, url string, properties map[string]Property) *PlatformProject {
-	return &PlatformProject{
-		Id:         id,
-		Name:       name,
-		Url:        url,
-		Properties: properties,
+type ProjectOption func(*PlatformProject)
+
+func WithProjectProperties(properties map[string]Property) ProjectOption {
+	return func(w *PlatformProject) {
+		w.Properties = properties
 	}
+}
+
+func WithProjectSecrets(secrets map[string]Secret) ProjectOption {
+	return func(w *PlatformProject) {
+		w.Secrets = secrets
+	}
+}
+
+func NewPlatformProject(id string, name string, url string, opts ...ProjectOption) *PlatformProject {
+	project := &PlatformProject{
+		Id:   id,
+		Name: name,
+		Url:  url, Properties: make(map[string]Property),
+		Secrets: make(map[string]Secret),
+	}
+
+	for _, opt := range opts {
+		opt(project)
+	}
+
+	return project
 }
 
 func (w *PlatformProject) UpdateName(name string) *PlatformProject {

@@ -151,7 +151,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 	}
 
 	newhook := platform.NewWebhook(hook.Name, hook.Url,
-		platform.WithWebhookProperty(properties),
+		platform.WithWebhookProperties(properties),
 		platform.WithWebhookActivate(hook.Activate),
 		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
 	)
@@ -235,7 +235,7 @@ func (s *PlatformService) AddProject(ctx context.Context, id string, projectId s
 			Value: value,
 		}
 	}
-	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, properties)
+	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, platform.WithProjectProperties(properties))
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}

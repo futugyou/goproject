@@ -23,9 +23,15 @@ func WithWebhookState(state WebhookState) WebhookOption {
 	}
 }
 
-func WithWebhookProperty(properties map[string]Property) WebhookOption {
+func WithWebhookProperties(properties map[string]Property) WebhookOption {
 	return func(w *Webhook) {
 		w.Properties = properties
+	}
+}
+
+func WithWebhookSecrets(secrets map[string]Secret) WebhookOption {
+	return func(w *Webhook) {
+		w.Secrets = secrets
 	}
 }
 
@@ -36,6 +42,7 @@ func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
 		Url:        url,
 		State:      WebhookInit,
 		Properties: make(map[string]Property),
+		Secrets:    make(map[string]Secret),
 	}
 
 	for _, opt := range opts {

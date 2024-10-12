@@ -124,7 +124,7 @@ func makeMap(r Platform) map[string]interface{} {
 	return m
 }
 
-func parseArrayToMap[T any](array primitive.A, marshalFunc func(interface{}) ([]byte, error), unmarshalFunc func([]byte, any) error) (map[string]T, error) {
+func parseArrayToMap[T any](array []any, marshalFunc func(any) ([]byte, error), unmarshalFunc func([]byte, any) error) (map[string]T, error) {
 	result := make(map[string]T)
 	for _, item := range array {
 		jsonBytes, err := marshalFunc(item)
