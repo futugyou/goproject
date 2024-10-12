@@ -1,25 +1,25 @@
 package viewmodels
 
-type PropertyInfo struct {
+type Property struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
 type CreatePlatformRequest struct {
-	Name       string         `json:"name" validate:"required,min=3,max=50"`
-	Url        string         `json:"url" validate:"required,min=3,max=150"`
-	Tags       []string       `json:"tags"`
-	Properties []PropertyInfo `json:"properties"`
-	Secrets    []Secret       `json:"secrets"`
+	Name       string     `json:"name" validate:"required,min=3,max=50"`
+	Url        string     `json:"url" validate:"required,min=3,max=150"`
+	Tags       []string   `json:"tags"`
+	Properties []Property `json:"properties"`
+	Secrets    []Secret   `json:"secrets"`
 }
 
 type UpdatePlatformRequest struct {
-	Name       string         `json:"name" validate:"required,min=3,max=50"`
-	Url        string         `json:"url" validate:"required,min=3,max=150"`
-	Properties []PropertyInfo `json:"properties,omitempty"`
-	Secrets    []Secret       `json:"secrets"`
-	Tags       []string       `json:"tags"`
-	Activate   *bool          `json:"activate,omitempty"`
+	Name       string     `json:"name" validate:"required,min=3,max=50"`
+	Url        string     `json:"url" validate:"required,min=3,max=150"`
+	Properties []Property `json:"properties,omitempty"`
+	Secrets    []Secret   `json:"secrets"`
+	Tags       []string   `json:"tags"`
+	Activate   *bool      `json:"activate,omitempty"`
 }
 
 type UpdatePlatformProjectRequest struct {
@@ -50,7 +50,7 @@ type PlatformDetailView struct {
 	Name       string            `json:"name"`
 	Activate   bool              `json:"activate"`
 	Url        string            `json:"url"`
-	Properties []PropertyInfo    `json:"properties"`
+	Properties []Property        `json:"properties"`
 	Secrets    []Secret          `json:"secrets"`
 	Projects   []PlatformProject `json:"projects"`
 	Tags       []string          `json:"tags"`

@@ -49,9 +49,9 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	}
 
-	properties := make(map[string]platform.PropertyInfo)
+	properties := make(map[string]platform.Property)
 	for _, v := range aux.Properties {
-		properties[v.Key] = platform.PropertyInfo{
+		properties[v.Key] = platform.Property{
 			Key:   v.Key,
 			Value: v.Value,
 		}
@@ -315,9 +315,9 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		}
 	}
 
-	newProperty := make(map[string]platform.PropertyInfo)
+	newProperty := make(map[string]platform.Property)
 	for _, v := range data.Properties {
-		newProperty[v.Key] = platform.PropertyInfo{
+		newProperty[v.Key] = platform.Property{
 			Key:   v.Key,
 			Value: v.Value,
 		}
@@ -381,9 +381,9 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		})
 	}
 
-	propertyInfos := make([]models.PropertyInfo, 0)
+	properties := make([]models.Property, 0)
 	for _, v := range src.Properties {
-		propertyInfos = append(propertyInfos, models.PropertyInfo(v))
+		properties = append(properties, models.Property(v))
 	}
 
 	return &models.PlatformDetailView{
@@ -391,7 +391,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		Name:       src.Name,
 		Activate:   src.Activate,
 		Url:        src.Url,
-		Properties: propertyInfos,
+		Properties: properties,
 		Secrets:    secrets,
 		Projects:   platformProjects,
 		Tags:       src.Tags,

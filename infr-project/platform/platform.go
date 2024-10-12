@@ -15,7 +15,7 @@ type Platform struct {
 	Name             string                     `json:"name"`
 	Activate         bool                       `json:"activate"`
 	Url              string                     `json:"url"`
-	Properties       map[string]PropertyInfo    `json:"properties"`
+	Properties       map[string]Property        `json:"properties"`
 	Secrets          map[string]Secret          `json:"secrets"`
 	Projects         map[string]PlatformProject `json:"projects"`
 	Tags             []string                   `json:"tags"`
@@ -36,7 +36,7 @@ func WithPlatformTags(tags []string) PlatformOption {
 	}
 }
 
-func WithPlatformProperties(properties map[string]PropertyInfo) PlatformOption {
+func WithPlatformProperties(properties map[string]Property) PlatformOption {
 	return func(w *Platform) {
 		w.Properties = properties
 	}
@@ -50,7 +50,7 @@ func NewPlatform(name string, url string, opts ...PlatformOption) *Platform {
 		Name:       name,
 		Activate:   true,
 		Url:        url,
-		Properties: map[string]PropertyInfo{},
+		Properties: map[string]Property{},
 		Secrets:    map[string]Secret{},
 		Projects:   map[string]PlatformProject{},
 		Tags:       []string{},
@@ -112,7 +112,7 @@ func (w *Platform) UpdateTags(tags []string) (*Platform, error) {
 	return w, nil
 }
 
-func (w *Platform) UpdateProperties(properties map[string]PropertyInfo) (*Platform, error) {
+func (w *Platform) UpdateProperties(properties map[string]Property) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}

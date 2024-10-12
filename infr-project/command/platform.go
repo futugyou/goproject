@@ -16,15 +16,15 @@ import (
 )
 
 type CreatePlatformCommand struct {
-	Name       string                  `json:"name" validate:"required,min=3,max=50"`
-	Url        string                  `json:"url" validate:"required,min=3,max=50"`
-	Rest       string                  `json:"rest" validate:"required,min=3,max=50"`
-	Tags       []string                `json:"tags"`
-	Properties map[string]PropertyInfo `json:"properties"`
-	Secrets    map[string]PropertyInfo `json:"secrets"`
+	Name       string              `json:"name" validate:"required,min=3,max=50"`
+	Url        string              `json:"url" validate:"required,min=3,max=50"`
+	Rest       string              `json:"rest" validate:"required,min=3,max=50"`
+	Tags       []string            `json:"tags"`
+	Properties map[string]Property `json:"properties"`
+	Secrets    map[string]Property `json:"secrets"`
 }
 
-type PropertyInfo struct {
+type Property struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
@@ -62,9 +62,9 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		return nil
 	}
 
-	property := make(map[string]platform.PropertyInfo)
+	property := make(map[string]platform.Property)
 	for _, v := range aux.Properties {
-		property[v.Key] = platform.PropertyInfo(v)
+		property[v.Key] = platform.Property(v)
 		// {
 		// 	Key:      v.Key,
 		// 	Value:    v.Value,

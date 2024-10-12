@@ -1326,7 +1326,7 @@ const docTemplate = `{
                 "properties": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/command.PropertyInfo"
+                        "$ref": "#/definitions/command.Property"
                     }
                 },
                 "rest": {
@@ -1337,7 +1337,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/command.PropertyInfo"
+                        "$ref": "#/definitions/command.Property"
                     }
                 },
                 "tags": {
@@ -1353,7 +1353,7 @@ const docTemplate = `{
                 }
             }
         },
-        "command.PropertyInfo": {
+        "command.Property": {
             "type": "object",
             "properties": {
                 "key": {
@@ -1567,7 +1567,7 @@ const docTemplate = `{
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {
@@ -1809,7 +1809,7 @@ const docTemplate = `{
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {
@@ -1953,7 +1953,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.PropertyInfo": {
+        "viewmodels.Property": {
             "type": "object",
             "properties": {
                 "key": {
@@ -2060,7 +2060,7 @@ const docTemplate = `{
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {

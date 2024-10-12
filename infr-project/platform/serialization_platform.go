@@ -67,7 +67,7 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 	}
 
 	if value, ok := m["properties"].(primitive.A); ok {
-		properties, err := parseArrayToMap[PropertyInfo](value, marshal, unmarshal)
+		properties, err := parseArrayToMap[Property](value, marshal, unmarshal)
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func makeMap(r Platform) map[string]interface{} {
 		projects = append(projects, k)
 	}
 
-	properties := make([]PropertyInfo, 0, len(r.Properties))
+	properties := make([]Property, 0, len(r.Properties))
 	for _, k := range r.Properties {
 		properties = append(properties, k)
 	}

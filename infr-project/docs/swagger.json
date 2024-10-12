@@ -1315,7 +1315,7 @@
                 "properties": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/command.PropertyInfo"
+                        "$ref": "#/definitions/command.Property"
                     }
                 },
                 "rest": {
@@ -1326,7 +1326,7 @@
                 "secrets": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/command.PropertyInfo"
+                        "$ref": "#/definitions/command.Property"
                     }
                 },
                 "tags": {
@@ -1342,7 +1342,7 @@
                 }
             }
         },
-        "command.PropertyInfo": {
+        "command.Property": {
             "type": "object",
             "properties": {
                 "key": {
@@ -1556,7 +1556,7 @@
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {
@@ -1798,7 +1798,7 @@
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {
@@ -1942,7 +1942,7 @@
                 }
             }
         },
-        "viewmodels.PropertyInfo": {
+        "viewmodels.Property": {
             "type": "object",
             "properties": {
                 "key": {
@@ -2049,7 +2049,7 @@
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.PropertyInfo"
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {

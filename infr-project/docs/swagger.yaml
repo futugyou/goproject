@@ -7,7 +7,7 @@ definitions:
         type: string
       properties:
         additionalProperties:
-          $ref: '#/definitions/command.PropertyInfo'
+          $ref: '#/definitions/command.Property'
         type: object
       rest:
         maxLength: 50
@@ -15,7 +15,7 @@ definitions:
         type: string
       secrets:
         additionalProperties:
-          $ref: '#/definitions/command.PropertyInfo'
+          $ref: '#/definitions/command.Property'
         type: object
       tags:
         items:
@@ -30,7 +30,7 @@ definitions:
     - rest
     - url
     type: object
-  command.PropertyInfo:
+  command.Property:
     properties:
       key:
         type: string
@@ -178,7 +178,7 @@ definitions:
         type: string
       properties:
         items:
-          $ref: '#/definitions/viewmodels.PropertyInfo'
+          $ref: '#/definitions/viewmodels.Property'
         type: array
       secrets:
         items:
@@ -352,7 +352,7 @@ definitions:
         type: array
       properties:
         items:
-          $ref: '#/definitions/viewmodels.PropertyInfo'
+          $ref: '#/definitions/viewmodels.Property'
         type: array
       secrets:
         items:
@@ -446,7 +446,7 @@ definitions:
           type: string
         type: array
     type: object
-  viewmodels.PropertyInfo:
+  viewmodels.Property:
     properties:
       key:
         type: string
@@ -516,7 +516,7 @@ definitions:
         type: string
       properties:
         items:
-          $ref: '#/definitions/viewmodels.PropertyInfo'
+          $ref: '#/definitions/viewmodels.Property'
         type: array
       secrets:
         items:
