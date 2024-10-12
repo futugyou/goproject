@@ -48,14 +48,20 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.Url = value
 	}
 
-	if value, ok := m["properties"].(map[string]interface{}); ok {
-		properties := make(map[string]string, len(value))
-		for key, v := range value {
-			if d, ok := v.(string); ok {
-				properties[key] = d
-			}
+	if value, ok := m["properties"].(primitive.A); ok {
+		properties, err := parseArrayToMap[Property](value, marshal, unmarshal)
+		if err != nil {
+			return err
 		}
 		r.Properties = properties
+	}
+
+	if value, ok := m["secrets"].(primitive.A); ok {
+		secrets, err := parseArrayToMap[Secret](value, marshal, unmarshal)
+		if err != nil {
+			return err
+		}
+		r.Secrets = secrets
 	}
 
 	if value, ok := m["webhooks"].(primitive.A); ok {
@@ -80,11 +86,21 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 }
 
 func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
+	properties := make([]Property, 0, len(r.Properties))
+	for _, k := range r.Properties {
+		properties = append(properties, k)
+	}
+
+	secrets := make([]Secret, 0, len(r.Secrets))
+	for _, k := range r.Secrets {
+		secrets = append(secrets, k)
+	}
 	m := map[string]interface{}{
 		"id":         r.Id,
 		"name":       r.Name,
 		"url":        r.Url,
-		"properties": r.Properties,
+		"properties": properties,
+		"secrets":    secrets,
 		"webhooks":   r.Webhooks,
 	}
 

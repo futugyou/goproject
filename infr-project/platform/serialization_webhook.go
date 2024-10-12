@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // MarshalJSON is a custom marshaler for Webhook that handles the serialization of WebhookState.
@@ -18,11 +19,21 @@ func (w Webhook) MarshalBSON() ([]byte, error) {
 }
 
 func (r Webhook) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byte, error) {
+	properties := make([]Property, 0, len(r.Properties))
+	for _, k := range r.Properties {
+		properties = append(properties, k)
+	}
+
+	secrets := make([]Secret, 0, len(r.Secrets))
+	for _, k := range r.Secrets {
+		secrets = append(secrets, k)
+	}
 	m := map[string]interface{}{
 		"name":       r.Name,
 		"url":        r.Url,
 		"activate":   r.Activate,
-		"properties": r.Properties,
+		"properties": properties,
+		"secrets":    secrets,
 	}
 	if r.State != nil {
 		m["state"] = r.State.String()
@@ -32,14 +43,14 @@ func (r Webhook) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byt
 
 // UnmarshalJSON is a custom unmarshaler for Webhook that handles the deserialization of WebhookState.
 func (w *Webhook) UnmarshalJSON(data []byte) error {
-	return w.commonUnmarshal(data, json.Unmarshal)
+	return w.commonUnmarshal(data, json.Marshal, json.Unmarshal)
 }
 
 func (w *Webhook) UnmarshalBSON(data []byte) error {
-	return w.commonUnmarshal(data, bson.Unmarshal)
+	return w.commonUnmarshal(data, bson.Marshal, bson.Unmarshal)
 }
 
-func (w *Webhook) commonUnmarshal(data []byte, unmarshal func([]byte, any) error) error {
+func (w *Webhook) commonUnmarshal(data []byte, marshal func(interface{}) ([]byte, error), unmarshal func([]byte, any) error) error {
 	var m map[string]interface{}
 	if err := unmarshal(data, &m); err != nil {
 		return err
@@ -57,14 +68,20 @@ func (w *Webhook) commonUnmarshal(data []byte, unmarshal func([]byte, any) error
 		w.Activate = value
 	}
 
-	if value, ok := m["properties"].(map[string]interface{}); ok {
-		properties := make(map[string]string, len(value))
-		for key, v := range value {
-			if d, ok := v.(string); ok {
-				properties[key] = d
-			}
+	if value, ok := m["properties"].(primitive.A); ok {
+		properties, err := parseArrayToMap[Property](value, marshal, unmarshal)
+		if err != nil {
+			return err
 		}
 		w.Properties = properties
+	}
+
+	if value, ok := m["secrets"].(primitive.A); ok {
+		secrets, err := parseArrayToMap[Secret](value, marshal, unmarshal)
+		if err != nil {
+			return err
+		}
+		w.Secrets = secrets
 	}
 
 	if state, ok := m["state"].(string); ok {

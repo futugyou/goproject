@@ -142,8 +142,16 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
 	}
 
+	properties := make(map[string]platform.Property)
+	for key, value := range hook.Properties {
+		properties[key] = platform.Property{
+			Key:   key,
+			Value: value,
+		}
+	}
+
 	newhook := platform.NewWebhook(hook.Name, hook.Url,
-		platform.WithWebhookProperty(hook.Properties),
+		platform.WithWebhookProperty(properties),
 		platform.WithWebhookActivate(hook.Activate),
 		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
 	)
@@ -220,7 +228,14 @@ func (s *PlatformService) AddProject(ctx context.Context, id string, projectId s
 		projectId = project.Name
 	}
 
-	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, project.Properties)
+	properties := make(map[string]platform.Property)
+	for key, value := range project.Properties {
+		properties[key] = platform.Property{
+			Key:   key,
+			Value: value,
+		}
+	}
+	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, properties)
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}
@@ -364,19 +379,28 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	for _, v := range src.Projects {
 		webhooks := make([]models.Webhook, 0)
 		for i := 0; i < len(v.Webhooks); i++ {
+			wps := map[string]string{}
+			for _, v := range v.Webhooks[i].Properties {
+				wps[v.Key] = v.Value
+			}
 			webhooks = append(webhooks, models.Webhook{
 				Name:       v.Webhooks[i].Name,
 				Url:        v.Webhooks[i].Url,
 				Activate:   v.Webhooks[i].Activate,
 				State:      v.Webhooks[i].State.String(),
-				Properties: v.Webhooks[i].Properties,
+				Properties: wps,
 			})
 		}
+		props := map[string]string{}
+		for _, v := range v.Properties {
+			props[v.Key] = v.Value
+		}
+
 		platformProjects = append(platformProjects, models.PlatformProject{
 			Id:         v.Id,
 			Name:       v.Name,
 			Url:        v.Url,
-			Properties: v.Properties,
+			Properties: props,
 			Webhooks:   webhooks,
 		})
 	}

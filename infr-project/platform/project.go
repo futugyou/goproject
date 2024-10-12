@@ -4,18 +4,19 @@ import "fmt"
 
 // entity
 type PlatformProject struct {
-	Id         string            `json:"id" bson:"id"`
-	Name       string            `json:"name" bson:"name"`
-	Url        string            `json:"url" bson:"url"`
-	Properties map[string]string `json:"property" bson:"properties"`
-	Webhooks   []Webhook         `json:"webhooks" bson:"webhooks"`
+	Id         string              `json:"id" bson:"id"`
+	Name       string              `json:"name" bson:"name"`
+	Url        string              `json:"url" bson:"url"`
+	Properties map[string]Property `json:"properties"`
+	Secrets    map[string]Secret   `json:"secrets"`
+	Webhooks   []Webhook           `json:"webhooks" bson:"webhooks"`
 }
 
 func (s PlatformProject) GetKey() string {
 	return s.Id
 }
 
-func NewPlatformProject(id string, name string, url string, properties map[string]string) *PlatformProject {
+func NewPlatformProject(id string, name string, url string, properties map[string]Property) *PlatformProject {
 	return &PlatformProject{
 		Id:         id,
 		Name:       name,
@@ -34,7 +35,7 @@ func (w *PlatformProject) UpdateUrl(url string) *PlatformProject {
 	return w
 }
 
-func (w *PlatformProject) UpdateProperties(properties map[string]string) *PlatformProject {
+func (w *PlatformProject) UpdateProperties(properties map[string]Property) *PlatformProject {
 	w.Properties = properties
 	return w
 }

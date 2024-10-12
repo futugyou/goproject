@@ -1,11 +1,12 @@
 package platform
 
 type Webhook struct {
-	Name       string            `json:"name"`
-	Url        string            `json:"url"`
-	Activate   bool              `json:"activate"`
-	State      WebhookState      `json:"state"`
-	Properties map[string]string `json:"properties"`
+	Name       string              `json:"name"`
+	Url        string              `json:"url"`
+	Activate   bool                `json:"activate"`
+	State      WebhookState        `json:"state"`
+	Properties map[string]Property `json:"properties"`
+	Secrets    map[string]Secret   `json:"secrets"`
 }
 
 type WebhookOption func(*Webhook)
@@ -22,7 +23,7 @@ func WithWebhookState(state WebhookState) WebhookOption {
 	}
 }
 
-func WithWebhookProperty(properties map[string]string) WebhookOption {
+func WithWebhookProperty(properties map[string]Property) WebhookOption {
 	return func(w *Webhook) {
 		w.Properties = properties
 	}
@@ -34,7 +35,7 @@ func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
 		Activate:   true,
 		Url:        url,
 		State:      WebhookInit,
-		Properties: make(map[string]string),
+		Properties: make(map[string]Property),
 	}
 
 	for _, opt := range opts {
