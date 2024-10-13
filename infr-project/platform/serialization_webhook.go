@@ -2,7 +2,6 @@ package platform
 
 import (
 	"encoding/json"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -37,6 +36,8 @@ func (r Webhook) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byt
 	}
 	if r.State != nil {
 		m["state"] = r.State.String()
+	} else {
+		m["state"] = string(WebhookInit)
 	}
 	return marshal(m)
 }
@@ -84,18 +85,8 @@ func (w *Webhook) commonUnmarshal(data []byte, marshal func(interface{}) ([]byte
 		w.Secrets = secrets
 	}
 
-	if state, ok := m["state"].(string); ok {
-		switch state {
-		case string(WebhookInit):
-			w.State = WebhookInit
-		case string(WebhookCreating):
-			w.State = WebhookCreating
-		case string(WebhookReady):
-			w.State = WebhookReady
-		default:
-			return errors.New("invalid webhook state")
-		}
-	}
+	state, _ := m["state"].(string)
+	w.State = GetWebhookState(state)
 
 	return nil
 }

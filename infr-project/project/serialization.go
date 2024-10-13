@@ -72,9 +72,8 @@ func makeEntity(r *Project, m map[string]interface{}, marshal func(interface{}) 
 		}
 	}
 
-	if state, ok := m["state"].(string); ok {
-		r.State = GetProjectState(state)
-	}
+	state, _ := m["state"].(string)
+	r.State = GetProjectState(state)
 
 	if value, ok := m["platforms"].(primitive.A); ok {
 		var platforms []ProjectPlatform
@@ -120,7 +119,6 @@ func makeMap(r Project) map[string]interface{} {
 		"id":          r.Id,
 		"name":        r.Name,
 		"description": r.Description,
-		"state":       r.State.String(),
 		"platforms":   r.Platforms,
 		"designs":     r.Designs,
 		"tags":        r.Tags,
@@ -130,6 +128,11 @@ func makeMap(r Project) map[string]interface{} {
 	}
 	if r.EndDate != nil {
 		m["end_date"] = r.EndDate.Format(time.RFC3339)
+	}
+	if r.State == nil {
+		m["state"] = r.State.String()
+	} else {
+		m["state"] = string(ProjectPreparing)
 	}
 	return m
 }

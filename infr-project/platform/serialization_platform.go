@@ -126,6 +126,8 @@ func makeMap(r Platform) map[string]interface{} {
 
 	if r.Provider != nil {
 		m["provider"] = r.Provider.String()
+	} else {
+		m["provider"] = string(PlatformProviderOther)
 	}
 	return m
 }

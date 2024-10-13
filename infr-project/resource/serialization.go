@@ -109,9 +109,8 @@ func makeEntity(r *Resource, m map[string]interface{}) error {
 		}
 	}
 
-	if resourceType, ok := m["type"].(string); ok {
-		r.Type = GetResourceType(resourceType)
-	}
+	resourceType, _ := m["type"].(string)
+	r.Type = GetResourceType(resourceType)
 
 	if data, ok := m["data"].(string); ok {
 		r.Data = data
@@ -149,6 +148,8 @@ func makeMap(r Resource) map[string]interface{} {
 	}
 	if r.Type != nil {
 		m["type"] = r.Type.String()
+	} else {
+		m["type"] = string(Markdown)
 	}
 
 	return m

@@ -34,13 +34,20 @@ func (r Vault) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byte,
 
 	if r.StorageMedia != nil {
 		m["storage_media"] = r.StorageMedia.String()
+	} else {
+		m["storage_media"] = string(StorageMediaLocal)
 	}
 	if r.VaultType != nil {
 		m["vault_type"] = r.VaultType.String()
+	} else {
+		m["vault_type"] = string(VaultTypeCommon)
 	}
 	if r.State != nil {
 		m["state"] = r.State.String()
+	} else {
+		m["state"] = string(VaultStateDefault)
 	}
+
 	return marshal(m)
 }
 
@@ -90,17 +97,14 @@ func (w *Vault) commonUnmarshal(data []byte, unmarshal func([]byte, any) error) 
 		w.Tags = tags
 	}
 
-	if value, ok := m["storage_media"].(string); ok {
-		w.StorageMedia = GetStorageMedia(value)
-	}
+	value, _ := m["storage_media"].(string)
+	w.StorageMedia = GetStorageMedia(value)
 
-	if value, ok := m["state"].(string); ok {
-		w.State = GetVaultState(value)
-	}
+	value, _ = m["state"].(string)
+	w.State = GetVaultState(value)
 
-	if value, ok := m["vault_type"].(string); ok {
-		w.VaultType = GetVaultType(value)
-	}
+	value, _ = m["vault_type"].(string)
+	w.VaultType = GetVaultType(value)
 
 	return nil
 }
