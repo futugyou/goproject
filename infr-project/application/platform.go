@@ -109,6 +109,7 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 			Url:       src[i].Url,
 			Tags:      src[i].Tags,
 			IsDeleted: src[i].IsDeleted,
+			Provider:  src[i].Provider.String(),
 		}
 	}
 	return result, nil
@@ -422,6 +423,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		Projects:   platformProjects,
 		Tags:       src.Tags,
 		IsDeleted:  src.IsDeleted,
+		Provider:   src.Provider.String(),
 	}, nil
 }
 

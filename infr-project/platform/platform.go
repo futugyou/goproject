@@ -56,6 +56,7 @@ func NewPlatform(name string, url string, opts ...PlatformOption) *Platform {
 		Projects:   map[string]PlatformProject{},
 		Tags:       []string{},
 		IsDeleted:  false,
+		Provider:   PlatformProviderOther,
 	}
 
 	for _, opt := range opts {
@@ -102,6 +103,14 @@ func (w *Platform) UpdateUrl(url string) (*Platform, error) {
 		return nil, err
 	}
 	w.Url = url
+	return w, nil
+}
+
+func (w *Platform) UpdatProvider(provider PlatformProvider) (*Platform, error) {
+	if err := w.stateCheck(); err != nil {
+		return nil, err
+	}
+	w.Provider = provider
 	return w, nil
 }
 

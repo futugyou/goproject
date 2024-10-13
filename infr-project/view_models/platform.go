@@ -43,6 +43,7 @@ type PlatformView struct {
 	Url       string   `json:"url"`
 	Tags      []string `json:"tags"`
 	IsDeleted bool     `json:"is_deleted"`
+	Provider  string   `json:"provider"`
 }
 
 type PlatformDetailView struct {
@@ -55,6 +56,7 @@ type PlatformDetailView struct {
 	Projects   []PlatformProject `json:"projects"`
 	Tags       []string          `json:"tags"`
 	IsDeleted  bool              `json:"is_deleted"`
+	Provider   string            `json:"provider"`
 }
 
 type Secret struct {
