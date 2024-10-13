@@ -66,7 +66,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url,
+		res = platform.NewPlatform(aux.Name, aux.Url, platform.GetPlatformProvider(aux.Provider),
 			platform.WithPlatformProperties(properties),
 			platform.WithPlatformTags(aux.Tags),
 			platform.WithPlatformSecrets(secrets),
@@ -353,6 +353,12 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 	}
 	if !tool.MapsCompareCommon(plat.Secrets, newSecrets) {
 		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
+			return nil, err
+		}
+	}
+
+	if plat.Provider.String() != data.Provider {
+		if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
 			return nil, err
 		}
 	}

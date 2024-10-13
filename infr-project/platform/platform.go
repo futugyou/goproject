@@ -43,7 +43,7 @@ func WithPlatformProperties(properties map[string]Property) PlatformOption {
 	}
 }
 
-func NewPlatform(name string, url string, opts ...PlatformOption) *Platform {
+func NewPlatform(name string, url string, provider PlatformProvider, opts ...PlatformOption) *Platform {
 	platform := &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
@@ -56,7 +56,7 @@ func NewPlatform(name string, url string, opts ...PlatformOption) *Platform {
 		Projects:   map[string]PlatformProject{},
 		Tags:       []string{},
 		IsDeleted:  false,
-		Provider:   PlatformProviderOther,
+		Provider:   provider,
 	}
 
 	for _, opt := range opts {
@@ -106,7 +106,7 @@ func (w *Platform) UpdateUrl(url string) (*Platform, error) {
 	return w, nil
 }
 
-func (w *Platform) UpdatProvider(provider PlatformProvider) (*Platform, error) {
+func (w *Platform) UpdateProvider(provider PlatformProvider) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}

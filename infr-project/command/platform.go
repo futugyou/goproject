@@ -72,7 +72,7 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		// }
 	}
 	err = commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url,
+		res = platform.NewPlatform(aux.Name, aux.Url, nil,
 			platform.WithPlatformProperties(property),
 			platform.WithPlatformTags(aux.Tags),
 		)

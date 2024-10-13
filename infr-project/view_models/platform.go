@@ -11,6 +11,7 @@ type CreatePlatformRequest struct {
 	Tags       []string   `json:"tags"`
 	Properties []Property `json:"properties"`
 	Secrets    []Secret   `json:"secrets"`
+	Provider   string     `json:"provider" validate:"oneof=vercel github circleci other"`
 }
 
 type UpdatePlatformRequest struct {
@@ -20,6 +21,7 @@ type UpdatePlatformRequest struct {
 	Secrets    []Secret   `json:"secrets"`
 	Tags       []string   `json:"tags"`
 	Activate   *bool      `json:"activate,omitempty"`
+	Provider   string     `json:"provider" validate:"oneof=vercel github circleci other"`
 }
 
 type UpdatePlatformProjectRequest struct {
