@@ -1570,6 +1570,15 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
+                "provider": {
+                    "type": "string",
+                    "enum": [
+                        "vercel",
+                        "github",
+                        "circleci",
+                        "other"
+                    ]
+                },
                 "secrets": {
                     "type": "array",
                     "items": {
@@ -1812,6 +1821,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
+                "provider": {
+                    "type": "string"
+                },
                 "secrets": {
                     "type": "array",
                     "items": {
@@ -1874,6 +1886,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "provider": {
                     "type": "string"
                 },
                 "tags": {
@@ -2068,6 +2083,15 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/viewmodels.Property"
                     }
+                },
+                "provider": {
+                    "type": "string",
+                    "enum": [
+                        "vercel",
+                        "github",
+                        "circleci",
+                        "other"
+                    ]
                 },
                 "secrets": {
                     "type": "array",

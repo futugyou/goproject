@@ -180,6 +180,13 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      provider:
+        enum:
+        - vercel
+        - github
+        - circleci
+        - other
+        type: string
       secrets:
         items:
           $ref: '#/definitions/viewmodels.Secret'
@@ -354,6 +361,8 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      provider:
+        type: string
       secrets:
         items:
           $ref: '#/definitions/viewmodels.Secret'
@@ -395,6 +404,8 @@ definitions:
       is_deleted:
         type: boolean
       name:
+        type: string
+      provider:
         type: string
       tags:
         items:
@@ -522,6 +533,13 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      provider:
+        enum:
+        - vercel
+        - github
+        - circleci
+        - other
+        type: string
       secrets:
         items:
           $ref: '#/definitions/viewmodels.Secret'
