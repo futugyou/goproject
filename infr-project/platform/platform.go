@@ -15,6 +15,7 @@ type Platform struct {
 	Name             string                     `json:"name"`
 	Activate         bool                       `json:"activate"`
 	Url              string                     `json:"url"`
+	Provider         PlatformProvider           `json:"provider"`
 	Properties       map[string]Property        `json:"properties"`
 	Secrets          map[string]Secret          `json:"secrets"`
 	Projects         map[string]PlatformProject `json:"projects"`

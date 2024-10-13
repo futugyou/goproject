@@ -90,6 +90,9 @@ func makeEntity(r *Platform, m map[string]interface{}, marshal func(interface{})
 		r.Projects = projects
 	}
 
+	value, _ := m["provider"].(string)
+	r.Provider = GetPlatformProvider(value)
+
 	return nil
 }
 
@@ -121,6 +124,9 @@ func makeMap(r Platform) map[string]interface{} {
 		"is_deleted": r.IsDeleted,
 	}
 
+	if r.Provider != nil {
+		m["provider"] = r.Provider.String()
+	}
 	return m
 }
 
