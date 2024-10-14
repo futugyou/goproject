@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type IHttpClient interface {
+type iHttpClient interface {
 	Get(path string, response interface{}) error
 	Post(path string, request, response interface{}) error
 	Put(path string, request, response interface{}) error
@@ -24,7 +24,7 @@ type httpClient struct {
 	customeHeader map[string]string
 }
 
-func NewHttpClient(token string, baseUrl string) *httpClient {
+func newHttpClient(token string, baseUrl string) *httpClient {
 	c := &httpClient{
 		token:   token,
 		baseurl: baseUrl,
@@ -33,7 +33,7 @@ func NewHttpClient(token string, baseUrl string) *httpClient {
 	return c
 }
 
-func NewHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
+func newHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
 	c := &httpClient{
 		baseurl:       baseUrl,
 		http:          &http.Client{},
