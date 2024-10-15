@@ -7,6 +7,7 @@ import "context"
 type CreateProjectRequest struct {
 	PlatformId string
 	Name       string
+	Parameters map[string]string
 }
 
 type Project struct {
