@@ -64,13 +64,41 @@ func (g *GithubClient) CreateProjectAsync(ctx context.Context, request CreatePro
 		}
 		resultChan <- &Project{
 			Name: *repository.Name,
+			Url:  *repository.URL,
 		}
 	}()
 	return resultChan, errorChan
 }
 
 func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan []Project, <-chan error) {
-	return nil, nil
+	resultChan := make(chan []Project, 1)
+	errorChan := make(chan error, 1)
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		opts := &github.RepositoryListByAuthenticatedUserOptions{
+			Sort: "pushed",
+			ListOptions: github.ListOptions{
+				PerPage: 1000,
+			},
+		}
+
+		repos, _, err := g.client.Repositories.ListByAuthenticatedUser(ctx, opts)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		result := []Project{}
+		for _, repo := range repos {
+			result = append(result, Project{
+				Name: *repo.Name,
+				Url:  *repo.URL,
+			})
+		}
+		resultChan <- result
+	}()
+	return resultChan, errorChan
 }
 
 func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {

@@ -12,6 +12,7 @@ type CreateProjectRequest struct {
 
 type Project struct {
 	Name  string
+	Url   string
 	Hooks []WebHook
 }
 
