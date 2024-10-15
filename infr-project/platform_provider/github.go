@@ -2,6 +2,7 @@ package platform_provider
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/google/go-github/v66/github"
@@ -63,6 +64,7 @@ func (g *GithubClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			return
 		}
 		resultChan <- &Project{
+			ID:   repository.GetName(), // gitHub repository uses name more often than id
 			Name: repository.GetName(),
 			Url:  repository.GetURL(),
 		}
@@ -92,6 +94,7 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 		result := []Project{}
 		for _, repo := range repos {
 			result = append(result, Project{
+				ID:   repo.GetName(),
 				Name: repo.GetName(),
 				Url:  repo.GetURL(),
 			})
@@ -140,6 +143,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					paras["URL"] = githookconfig.GetURL()
 				}
 				hooks = append(hooks, WebHook{
+					ID:         fmt.Sprintf("%d", hook.GetID()),
 					Name:       hook.GetName(),
 					Url:        hook.GetURL(),
 					Parameters: paras,
@@ -147,6 +151,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 		resultChan <- &Project{
+			ID:    repository.GetName(),
 			Name:  repository.GetName(),
 			Url:   repository.GetURL(),
 			Hooks: hooks,
@@ -193,6 +198,7 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			paras["URL"] = githookconfig.GetURL()
 		}
 		hook := &WebHook{
+			ID:         fmt.Sprintf("%d", githook.GetID()),
 			Name:       githook.GetName(),
 			Url:        githook.GetURL(),
 			Parameters: paras,

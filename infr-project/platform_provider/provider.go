@@ -11,12 +11,14 @@ type CreateProjectRequest struct {
 }
 
 type Project struct {
+	ID    string
 	Name  string
 	Url   string
 	Hooks []WebHook
 }
 
 type WebHook struct {
+	ID         string
 	Name       string
 	Url        string
 	Parameters map[string]string
