@@ -29,9 +29,9 @@ func NewGithubClient(token string) (*GithubClient, error) {
 	}, nil
 }
 
-// Need GITHUB_BRANCH, GITHUB_PRIVATE, GITHUB_OWNER in request 'Parameters',
+// Need GITHUB_BRANCH, GITHUB_PRIVATE, GITHUB_OWNER in CreateProjectRequest 'Parameters',
 // default value 'master', 'true', ”.
-// repository name use request 'Name'.
+// repository name use CreateProjectRequest 'Name'.
 func (g *GithubClient) CreateProjectAsync(ctx context.Context, request CreateProjectRequest) (<-chan *Project, <-chan error) {
 	resultChan := make(chan *Project, 1)
 	errorChan := make(chan error, 1)
@@ -63,8 +63,8 @@ func (g *GithubClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			return
 		}
 		resultChan <- &Project{
-			Name: *repository.Name,
-			Url:  *repository.URL,
+			Name: repository.GetName(),
+			Url:  repository.GetURL(),
 		}
 	}()
 	return resultChan, errorChan
@@ -92,8 +92,8 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 		result := []Project{}
 		for _, repo := range repos {
 			result = append(result, Project{
-				Name: *repo.Name,
-				Url:  *repo.URL,
+				Name: repo.GetName(),
+				Url:  repo.GetURL(),
 			})
 		}
 		resultChan <- result
@@ -101,8 +101,58 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 	return resultChan, errorChan
 }
 
+// Need GITHUB_OWNER in ProjectFilter 'Parameters',
+// default value ”.
+// repository name use ProjectFilter 'Name'.
+// github webhook config will set in hook Parameters, it include 'ContentType' 'InsecureSSL' 'Secret' 'URL'
 func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {
-	return nil, nil
+	resultChan := make(chan *Project, 1)
+	errorChan := make(chan error, 1)
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		if value, ok := filter.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
+			GITHUB_OWNER = value
+		}
+
+		repository, _, err := g.client.Repositories.Get(ctx, GITHUB_OWNER, filter.Name)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		opts := &github.ListOptions{PerPage: 1000}
+		githooks, _, err := g.client.Repositories.ListHooks(ctx, GITHUB_OWNER, filter.Name, opts)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		hooks := []WebHook{}
+		for _, hook := range githooks {
+			if hook.GetActive() {
+				paras := map[string]string{}
+				githookconfig := hook.Config
+				if githookconfig != nil {
+					paras["ContentType"] = githookconfig.GetContentType()
+					paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
+					paras["Secret"] = githookconfig.GetSecret()
+					paras["URL"] = githookconfig.GetURL()
+				}
+				hooks = append(hooks, WebHook{
+					Name:       hook.GetName(),
+					Url:        hook.GetURL(),
+					Parameters: paras,
+				})
+			}
+		}
+		resultChan <- &Project{
+			Name:  repository.GetName(),
+			Url:   repository.GetURL(),
+			Hooks: hooks,
+		}
+	}()
+	return resultChan, errorChan
 }
 
 func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {

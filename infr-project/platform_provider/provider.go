@@ -17,12 +17,14 @@ type Project struct {
 }
 
 type WebHook struct {
-	Name string
-	Url  string
+	Name       string
+	Url        string
+	Parameters map[string]string
 }
 
 type ProjectFilter struct {
-	Name string
+	Name       string
+	Parameters map[string]string
 }
 
 type CreateWebHookRequest struct {
