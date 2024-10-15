@@ -155,6 +155,49 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 	return resultChan, errorChan
 }
 
+// if need webhook secret, set it in WebHook.Parameters with key 'WEBHOOK_SECRET'
 func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
-	return nil, nil
+	resultChan := make(chan *WebHook, 1)
+	errorChan := make(chan error, 1)
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+		config := &github.HookConfig{
+			ContentType: github.String("json"),
+			InsecureSSL: github.String("1"),
+			URL:         github.String(request.WebHook.Url),
+		}
+
+		if s, ok := request.WebHook.Parameters["WEBHOOK_SECRET"]; ok && len(s) > 0 {
+			config.Secret = github.String(s)
+		}
+
+		hookParam := &github.Hook{
+			Name:   github.String(request.WebHook.Name),
+			Config: config,
+			Events: []string{"push", "pull_request"},
+		}
+
+		githook, _, err := g.client.Repositories.CreateHook(ctx, request.PlatformId, request.ProjectId, hookParam)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		paras := map[string]string{}
+		githookconfig := githook.Config
+		if githookconfig != nil {
+			paras["ContentType"] = githookconfig.GetContentType()
+			paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
+			paras["Secret"] = githookconfig.GetSecret()
+			paras["URL"] = githookconfig.GetURL()
+		}
+		hook := &WebHook{
+			Name:       githook.GetName(),
+			Url:        githook.GetURL(),
+			Parameters: paras,
+		}
+		resultChan <- hook
+	}()
+	return resultChan, errorChan
 }
