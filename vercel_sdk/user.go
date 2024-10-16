@@ -4,10 +4,12 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) GetUser() (*AuthUser, error) {
+type UserService service
+
+func (v *UserService) GetUser() (*AuthUser, error) {
 	path := "/v2/user"
 	result := &AuthUser{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -15,7 +17,7 @@ func (v *VercelClient) GetUser() (*AuthUser, error) {
 	return result, nil
 }
 
-func (v *VercelClient) ListUserEvent(slug string, teamId string, limit string, since string, until string,
+func (v *UserService) ListUserEvent(slug string, teamId string, limit string, since string, until string,
 	types string, userId string, withPayload string) ([]UserEvent, error) {
 	path := "/v3/events"
 	queryParams := url.Values{}
@@ -47,7 +49,7 @@ func (v *VercelClient) ListUserEvent(slug string, teamId string, limit string, s
 		path += "?" + queryParams.Encode()
 	}
 	result := []UserEvent{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -55,10 +57,10 @@ func (v *VercelClient) ListUserEvent(slug string, teamId string, limit string, s
 	return result, nil
 }
 
-func (v *VercelClient) DeleteUserAccount(req DeleteUserRequest) (*DeleteUserResponse, error) {
+func (v *UserService) DeleteUserAccount(req DeleteUserRequest) (*DeleteUserResponse, error) {
 	path := "/v1/user"
 	result := &DeleteUserResponse{}
-	err := v.http.DeleteWithBody(path, req, result)
+	err := v.client.http.DeleteWithBody(path, req, result)
 
 	if err != nil {
 		return nil, err

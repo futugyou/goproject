@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CreateDNSRecord(domain string, slug string, teamId string, req UpsertDNSRecordRequest) (*CreateDNSRecordResponse, error) {
+type DNSService service
+
+func (v *DNSService) CreateDNSRecord(domain string, slug string, teamId string, req UpsertDNSRecordRequest) (*CreateDNSRecordResponse, error) {
 	path := fmt.Sprintf("/v2/domains/%s/records", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +20,7 @@ func (v *VercelClient) CreateDNSRecord(domain string, slug string, teamId string
 		path += "?" + queryParams.Encode()
 	}
 	result := &CreateDNSRecordResponse{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func (v *VercelClient) CreateDNSRecord(domain string, slug string, teamId string
 	return result, nil
 }
 
-func (v *VercelClient) ListDNSRecords(domain string, slug string, teamId string, limit string, since string, until string) (*ListDNSRecordResponse, error) {
+func (v *DNSService) ListDNSRecords(domain string, slug string, teamId string, limit string, since string, until string) (*ListDNSRecordResponse, error) {
 	path := fmt.Sprintf("/v4/domains/%s/records", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -48,7 +50,7 @@ func (v *VercelClient) ListDNSRecords(domain string, slug string, teamId string,
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListDNSRecordResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -56,7 +58,7 @@ func (v *VercelClient) ListDNSRecords(domain string, slug string, teamId string,
 	return result, nil
 }
 
-func (v *VercelClient) DeleteDNSRecords(domain string, recordId string, slug string, teamId string) (*string, error) {
+func (v *DNSService) DeleteDNSRecords(domain string, recordId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v2/domains/%s/records/%s", domain, recordId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -69,7 +71,7 @@ func (v *VercelClient) DeleteDNSRecords(domain string, recordId string, slug str
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -77,7 +79,7 @@ func (v *VercelClient) DeleteDNSRecords(domain string, recordId string, slug str
 	return &result, nil
 }
 
-func (v *VercelClient) UpdatesDNSRecords(recordId string, slug string, teamId string, req UpsertDNSRecordRequest) (*UpdateDNSRecordResponse, error) {
+func (v *DNSService) UpdatesDNSRecords(recordId string, slug string, teamId string, req UpsertDNSRecordRequest) (*UpdateDNSRecordResponse, error) {
 	path := fmt.Sprintf("/v1/domains/records/%s", recordId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -90,7 +92,7 @@ func (v *VercelClient) UpdatesDNSRecords(recordId string, slug string, teamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := &UpdateDNSRecordResponse{}
-	err := v.http.Patch(path, req, result)
+	err := v.client.http.Patch(path, req, result)
 
 	if err != nil {
 		return nil, err

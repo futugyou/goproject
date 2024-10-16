@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CreateLogDrain(slug string, teamId string, req CreateLogDrainRequest) (*LogDrainInfo, error) {
+type LogDrainService service
+
+func (v *LogDrainService) CreateLogDrain(slug string, teamId string, req CreateLogDrainRequest) (*LogDrainInfo, error) {
 	path := "/v1/log-drains"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +20,7 @@ func (v *VercelClient) CreateLogDrain(slug string, teamId string, req CreateLogD
 		path += "?" + queryParams.Encode()
 	}
 	result := &LogDrainInfo{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func (v *VercelClient) CreateLogDrain(slug string, teamId string, req CreateLogD
 	return result, nil
 }
 
-func (v *VercelClient) CreateIntegrationLogDrain(slug string, teamId string, req CreateLogDrainRequest) (*LogDrainInfo, error) {
+func (v *LogDrainService) CreateIntegrationLogDrain(slug string, teamId string, req CreateLogDrainRequest) (*LogDrainInfo, error) {
 	path := "/v2/integrations/log-drains"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -39,7 +41,7 @@ func (v *VercelClient) CreateIntegrationLogDrain(slug string, teamId string, req
 		path += "?" + queryParams.Encode()
 	}
 	result := &LogDrainInfo{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -47,7 +49,7 @@ func (v *VercelClient) CreateIntegrationLogDrain(slug string, teamId string, req
 	return result, nil
 }
 
-func (v *VercelClient) DeletesConfigurableLogDrain(id string, slug string, teamId string) (*string, error) {
+func (v *LogDrainService) DeletesConfigurableLogDrain(id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/log-drains/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -60,7 +62,7 @@ func (v *VercelClient) DeletesConfigurableLogDrain(id string, slug string, teamI
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -68,7 +70,7 @@ func (v *VercelClient) DeletesConfigurableLogDrain(id string, slug string, teamI
 	return &result, nil
 }
 
-func (v *VercelClient) DeletesIntegrationConfigurableLogDrain(id string, slug string, teamId string) (*string, error) {
+func (v *LogDrainService) DeletesIntegrationConfigurableLogDrain(id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/integrations/log-drains/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -81,7 +83,7 @@ func (v *VercelClient) DeletesIntegrationConfigurableLogDrain(id string, slug st
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -89,7 +91,7 @@ func (v *VercelClient) DeletesIntegrationConfigurableLogDrain(id string, slug st
 	return &result, nil
 }
 
-func (v *VercelClient) RetrievesListLogDrain(projectId string, slug string, teamId string) ([]LogDrainInfo, error) {
+func (v *LogDrainService) RetrievesListLogDrain(projectId string, slug string, teamId string) ([]LogDrainInfo, error) {
 	path := "/v1/log-drains"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -102,7 +104,7 @@ func (v *VercelClient) RetrievesListLogDrain(projectId string, slug string, team
 		path += "?" + queryParams.Encode()
 	}
 	result := []LogDrainInfo{}
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -110,7 +112,7 @@ func (v *VercelClient) RetrievesListLogDrain(projectId string, slug string, team
 	return result, nil
 }
 
-func (v *VercelClient) RetrievesConfigurableLogDrain(id string, slug string, teamId string) (*LogDrainInfo, error) {
+func (v *LogDrainService) RetrievesConfigurableLogDrain(id string, slug string, teamId string) (*LogDrainInfo, error) {
 	path := fmt.Sprintf("/v1/log-drains/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -123,7 +125,7 @@ func (v *VercelClient) RetrievesConfigurableLogDrain(id string, slug string, tea
 		path += "?" + queryParams.Encode()
 	}
 	result := &LogDrainInfo{}
-	err := v.http.Delete(path, result)
+	err := v.client.http.Delete(path, result)
 
 	if err != nil {
 		return nil, err
@@ -131,7 +133,7 @@ func (v *VercelClient) RetrievesConfigurableLogDrain(id string, slug string, tea
 	return result, nil
 }
 
-func (v *VercelClient) RetrievesIntegrationLogDrain(slug string, teamId string) ([]LogDrainInfo, error) {
+func (v *LogDrainService) RetrievesIntegrationLogDrain(slug string, teamId string) ([]LogDrainInfo, error) {
 	path := "/v2/integrations/log-drains"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -144,7 +146,7 @@ func (v *VercelClient) RetrievesIntegrationLogDrain(slug string, teamId string) 
 		path += "?" + queryParams.Encode()
 	}
 	result := []LogDrainInfo{}
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err

@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CheckArtifactExists(hash string, slug string, teamId string) (*string, error) {
+func (v *ArtifactService) CheckArtifactExists(hash string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v8/artifacts/%s", hash)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +18,7 @@ func (v *VercelClient) CheckArtifactExists(hash string, slug string, teamId stri
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (v *VercelClient) CheckArtifactExists(hash string, slug string, teamId stri
 	return &result, nil
 }
 
-func (v *VercelClient) QueryArtifact(slug string, teamId string, hashes []string) (*QueryArtifactResponse, error) {
+func (v *ArtifactService) QueryArtifact(slug string, teamId string, hashes []string) (*QueryArtifactResponse, error) {
 	path := "/v8/artifacts"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -44,7 +44,7 @@ func (v *VercelClient) QueryArtifact(slug string, teamId string, hashes []string
 	}{
 		Hashes: hashes,
 	}
-	err := v.http.Post(path, request, result)
+	err := v.client.http.Post(path, request, result)
 
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (v *VercelClient) QueryArtifact(slug string, teamId string, hashes []string
 	return result, nil
 }
 
-func (v *VercelClient) DownloadArtifact(slug string, teamId string, hash string) (*string, error) {
+func (v *ArtifactService) DownloadArtifact(slug string, teamId string, hash string) (*string, error) {
 	path := fmt.Sprintf("/v8/artifacts/%s", hash)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -65,7 +65,7 @@ func (v *VercelClient) DownloadArtifact(slug string, teamId string, hash string)
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (v *VercelClient) DownloadArtifact(slug string, teamId string, hash string)
 	return &result, nil
 }
 
-func (v *VercelClient) RecordArtifactEvent(teamId string, hash string, request ArtifactEventRequest) (*string, error) {
+func (v *ArtifactService) RecordArtifactEvent(teamId string, hash string, request ArtifactEventRequest) (*string, error) {
 	path := "/v8/artifacts/events"
 	queryParams := url.Values{}
 
@@ -84,7 +84,7 @@ func (v *VercelClient) RecordArtifactEvent(teamId string, hash string, request A
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Post(path, request, &result)
+	err := v.client.http.Post(path, request, &result)
 
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (v *VercelClient) RecordArtifactEvent(teamId string, hash string, request A
 	return &result, nil
 }
 
-func (v *VercelClient) GetCachingStatus(slug string, teamId string) (*CachingStatus, error) {
+func (v *ArtifactService) GetCachingStatus(slug string, teamId string) (*CachingStatus, error) {
 	path := "/v8/artifacts/status"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -105,7 +105,7 @@ func (v *VercelClient) GetCachingStatus(slug string, teamId string) (*CachingSta
 		path += "?" + queryParams.Encode()
 	}
 	result := &CachingStatus{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -113,7 +113,9 @@ func (v *VercelClient) GetCachingStatus(slug string, teamId string) (*CachingSta
 	return result, nil
 }
 
-func (v *VercelClient) UploadArtifact(hash string, slug string, teamId string) (*UploadArtifactResponse, error) {
+type ArtifactService service
+
+func (v *ArtifactService) UploadArtifact(hash string, slug string, teamId string) (*UploadArtifactResponse, error) {
 	path := "/v8/artifacts/status"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -127,7 +129,7 @@ func (v *VercelClient) UploadArtifact(hash string, slug string, teamId string) (
 	}
 	result := &UploadArtifactResponse{}
 	//TODO Header Params Content-Length Required
-	err := v.http.Put(path, nil, result)
+	err := v.client.http.Put(path, nil, result)
 
 	if err != nil {
 		return nil, err

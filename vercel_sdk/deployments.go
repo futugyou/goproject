@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CancelDeployment(id string, slug string, teamId string) (*DeploymentInfo, error) {
+type DeploymentService service
+
+func (v *DeploymentService) CancelDeployment(id string, slug string, teamId string) (*DeploymentInfo, error) {
 	path := fmt.Sprintf("/v12/deployments/%s/cancel", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +20,7 @@ func (v *VercelClient) CancelDeployment(id string, slug string, teamId string) (
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeploymentInfo{}
-	err := v.http.Patch(path, nil, result)
+	err := v.client.http.Patch(path, nil, result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func (v *VercelClient) CancelDeployment(id string, slug string, teamId string) (
 	return result, nil
 }
 
-func (v *VercelClient) CreateDeployment(forceNew string, skipAutoDetectionConfirmation string,
+func (v *DeploymentService) CreateDeployment(forceNew string, skipAutoDetectionConfirmation string,
 	slug string, teamId string, req CreateDeploymentRequest) (*DeploymentInfo, error) {
 	path := "/v13/deployments"
 	queryParams := url.Values{}
@@ -46,7 +48,7 @@ func (v *VercelClient) CreateDeployment(forceNew string, skipAutoDetectionConfir
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeploymentInfo{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -54,7 +56,7 @@ func (v *VercelClient) CreateDeployment(forceNew string, skipAutoDetectionConfir
 	return result, nil
 }
 
-func (v *VercelClient) DeleteDeployment(id string, deploymentUrl string, slug string, teamId string) (*DeleteDeploymentResponse, error) {
+func (v *DeploymentService) DeleteDeployment(id string, deploymentUrl string, slug string, teamId string) (*DeleteDeploymentResponse, error) {
 	path := fmt.Sprintf("/v13/deployments/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -70,7 +72,7 @@ func (v *VercelClient) DeleteDeployment(id string, deploymentUrl string, slug st
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeleteDeploymentResponse{}
-	err := v.http.Delete(path, result)
+	err := v.client.http.Delete(path, result)
 
 	if err != nil {
 		return nil, err
@@ -78,7 +80,7 @@ func (v *VercelClient) DeleteDeployment(id string, deploymentUrl string, slug st
 	return result, nil
 }
 
-func (v *VercelClient) GetDeployment(idOrUrl string, slug string, teamId string, withGitRepoInfo string) (*DeploymentInfo, error) {
+func (v *DeploymentService) GetDeployment(idOrUrl string, slug string, teamId string, withGitRepoInfo string) (*DeploymentInfo, error) {
 	path := fmt.Sprintf("/v13/deployments/%s", idOrUrl)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -94,7 +96,7 @@ func (v *VercelClient) GetDeployment(idOrUrl string, slug string, teamId string,
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeploymentInfo{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -102,7 +104,7 @@ func (v *VercelClient) GetDeployment(idOrUrl string, slug string, teamId string,
 	return result, nil
 }
 
-func (v *VercelClient) GetDeploymentEvent(idOrUrl string, slug string, teamId string,
+func (v *DeploymentService) GetDeploymentEvent(idOrUrl string, slug string, teamId string,
 	builds string, delimiter string, direction string, follow string, limit string, name string,
 	since string, statusCode string, until string) ([]DeploymentEvent, error) {
 	path := fmt.Sprintf("/v3/deployments/%s/events", idOrUrl)
@@ -144,7 +146,7 @@ func (v *VercelClient) GetDeploymentEvent(idOrUrl string, slug string, teamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := []DeploymentEvent{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -152,7 +154,7 @@ func (v *VercelClient) GetDeploymentEvent(idOrUrl string, slug string, teamId st
 	return result, nil
 }
 
-func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, teamId string, filePath string) (*FileTree, error) {
+func (v *DeploymentService) GetDeploymentFile(id string, fileId string, slug string, teamId string, filePath string) (*FileTree, error) {
 	path := fmt.Sprintf("/v7/deployments/%s/files/%s", id, fileId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -168,7 +170,7 @@ func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, 
 		path += "?" + queryParams.Encode()
 	}
 	result := &FileTree{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -176,7 +178,7 @@ func (v *VercelClient) GetDeploymentFile(id string, fileId string, slug string, 
 	return result, nil
 }
 
-func (v *VercelClient) ListDeployment(app string, until string, slug string, teamId string, limit string,
+func (v *DeploymentService) ListDeployment(app string, until string, slug string, teamId string, limit string,
 	projectId string, rollbackCandidate string, since string, state string, target string, users string) (*ListDeploymentResponse, error) {
 	path := "/v6/deployments"
 	queryParams := url.Values{}
@@ -217,7 +219,7 @@ func (v *VercelClient) ListDeployment(app string, until string, slug string, tea
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListDeploymentResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -225,7 +227,7 @@ func (v *VercelClient) ListDeployment(app string, until string, slug string, tea
 	return result, nil
 }
 
-func (v *VercelClient) ListDeploymentFile(id string, slug string, teamId string) ([]FileTree, error) {
+func (v *DeploymentService) ListDeploymentFile(id string, slug string, teamId string) ([]FileTree, error) {
 	path := fmt.Sprintf("/v6/deployments/%s/files", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -238,7 +240,7 @@ func (v *VercelClient) ListDeploymentFile(id string, slug string, teamId string)
 		path += "?" + queryParams.Encode()
 	}
 	result := []FileTree{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err

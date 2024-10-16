@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) AddMember(idOrName string, slug string, teamId string, req AddMemberRequest) (*OperateMemberResponse, error) {
+type MemberService service
+
+func (v *MemberService) AddMember(idOrName string, slug string, teamId string, req AddMemberRequest) (*OperateMemberResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +20,7 @@ func (v *VercelClient) AddMember(idOrName string, slug string, teamId string, re
 		path += "?" + queryParams.Encode()
 	}
 	result := &OperateMemberResponse{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func (v *VercelClient) AddMember(idOrName string, slug string, teamId string, re
 	return result, nil
 }
 
-func (v *VercelClient) ListProjectMember(idOrName string, slug string, teamId string, search string, limit string, since string, until string) (*ListProjectMemberrResponse, error) {
+func (v *MemberService) ListProjectMember(idOrName string, slug string, teamId string, search string, limit string, since string, until string) (*ListProjectMemberrResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -51,7 +53,7 @@ func (v *VercelClient) ListProjectMember(idOrName string, slug string, teamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListProjectMemberrResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -59,7 +61,7 @@ func (v *VercelClient) ListProjectMember(idOrName string, slug string, teamId st
 	return result, nil
 }
 
-func (v *VercelClient) RemoveProjectMember(idOrName string, uid string, slug string, teamId string) (*OperateMemberResponse, error) {
+func (v *MemberService) RemoveProjectMember(idOrName string, uid string, slug string, teamId string) (*OperateMemberResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members/%s", idOrName, uid)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -72,7 +74,7 @@ func (v *VercelClient) RemoveProjectMember(idOrName string, uid string, slug str
 		path += "?" + queryParams.Encode()
 	}
 	result := &OperateMemberResponse{}
-	err := v.http.Delete(path, result)
+	err := v.client.http.Delete(path, result)
 
 	if err != nil {
 		return nil, err

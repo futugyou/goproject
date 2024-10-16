@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) DeleteIntegrationConfiguration(id string, slug string, teamId string) (*string, error) {
+type IntegrationService service
+
+func (v *IntegrationService) DeleteIntegrationConfiguration(id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/integrations/configuration/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +20,7 @@ func (v *VercelClient) DeleteIntegrationConfiguration(id string, slug string, te
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func (v *VercelClient) DeleteIntegrationConfiguration(id string, slug string, te
 	return &result, nil
 }
 
-func (v *VercelClient) RetrieveIntegrationConfiguration(id string, slug string, teamId string) (*IntegrationConfigurationInfo, error) {
+func (v *IntegrationService) RetrieveIntegrationConfiguration(id string, slug string, teamId string) (*IntegrationConfigurationInfo, error) {
 	path := fmt.Sprintf("/v1/integrations/configuration/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -39,7 +41,7 @@ func (v *VercelClient) RetrieveIntegrationConfiguration(id string, slug string, 
 		path += "?" + queryParams.Encode()
 	}
 	result := &IntegrationConfigurationInfo{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -47,7 +49,7 @@ func (v *VercelClient) RetrieveIntegrationConfiguration(id string, slug string, 
 	return result, nil
 }
 
-func (v *VercelClient) GetConfiguration(view string, slug string, teamId string) (*string, error) {
+func (v *IntegrationService) GetConfiguration(view string, slug string, teamId string) (*string, error) {
 	path := "/v1/integrations/configurations"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -63,7 +65,7 @@ func (v *VercelClient) GetConfiguration(view string, slug string, teamId string)
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -71,7 +73,7 @@ func (v *VercelClient) GetConfiguration(view string, slug string, teamId string)
 	return &result, nil
 }
 
-func (v *VercelClient) ListGitByProvider(host string, provider string, slug string, teamId string) ([]ListGitByProviderResponse, error) {
+func (v *IntegrationService) ListGitByProvider(host string, provider string, slug string, teamId string) ([]ListGitByProviderResponse, error) {
 	path := "/v1/integrations/git-namespaces"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -90,7 +92,7 @@ func (v *VercelClient) ListGitByProvider(host string, provider string, slug stri
 		path += "?" + queryParams.Encode()
 	}
 	result := []ListGitByProviderResponse{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -98,7 +100,7 @@ func (v *VercelClient) ListGitByProvider(host string, provider string, slug stri
 	return result, nil
 }
 
-func (v *VercelClient) ListGitLinkedByProvider(host string, installationId string, namespaceId string, query string,
+func (v *IntegrationService) ListGitLinkedByProvider(host string, installationId string, namespaceId string, query string,
 	provider string, slug string, teamId string) (*ListGitLinkedByProviderResponse, error) {
 	path := "/v1/integrations/search-repo"
 	queryParams := url.Values{}
@@ -127,7 +129,7 @@ func (v *VercelClient) ListGitLinkedByProvider(host string, installationId strin
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListGitLinkedByProviderResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err

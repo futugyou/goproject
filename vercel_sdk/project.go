@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
+type ProjectService service
+
+func (v *ProjectService) AddDomainToProject(idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v10/projects/%s/domains", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -18,7 +20,7 @@ func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId s
 		path += "?" + queryParams.Encode()
 	}
 	result := &ProjectDomainInfo{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func (v *VercelClient) AddDomainToProject(idOrName string, slug string, teamId s
 	return result, nil
 }
 
-func (v *VercelClient) CreateProject(name string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
+func (v *ProjectService) CreateProject(name string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
 	path := "/v10/projects"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -40,7 +42,7 @@ func (v *VercelClient) CreateProject(name string, slug string, teamId string, re
 	}
 
 	result := &ProjectInfo{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -48,7 +50,7 @@ func (v *VercelClient) CreateProject(name string, slug string, teamId string, re
 	return result, nil
 }
 
-func (v *VercelClient) CreateEnvironmentVariables(idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectEnvResponse, error) {
+func (v *ProjectService) CreateEnvironmentVariables(idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectEnvResponse, error) {
 	path := fmt.Sprintf("/v10/projects/%s/env", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -62,7 +64,7 @@ func (v *VercelClient) CreateEnvironmentVariables(idOrName string, slug string, 
 	}
 
 	result := &CreateProjectEnvResponse{}
-	err := v.http.Post(path, req, result)
+	err := v.client.http.Post(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +72,7 @@ func (v *VercelClient) CreateEnvironmentVariables(idOrName string, slug string, 
 	return result, nil
 }
 
-func (v *VercelClient) DeleteProject(idOrName string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) DeleteProject(idOrName string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v9/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -84,7 +86,7 @@ func (v *VercelClient) DeleteProject(idOrName string, slug string, teamId string
 	}
 
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -92,7 +94,7 @@ func (v *VercelClient) DeleteProject(idOrName string, slug string, teamId string
 	return &result, nil
 }
 
-func (v *VercelClient) EditEnvironmentVariable(idOrName string, id string, slug string, teamId string, req ProjectEnv) (*ProjectEnv, error) {
+func (v *ProjectService) EditEnvironmentVariable(idOrName string, id string, slug string, teamId string, req ProjectEnv) (*ProjectEnv, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -106,7 +108,7 @@ func (v *VercelClient) EditEnvironmentVariable(idOrName string, id string, slug 
 	}
 
 	result := &ProjectEnv{}
-	err := v.http.Patch(path, req, result)
+	err := v.client.http.Patch(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -114,7 +116,7 @@ func (v *VercelClient) EditEnvironmentVariable(idOrName string, id string, slug 
 	return result, nil
 }
 
-func (v *VercelClient) ListEnvironmentVariable(idOrName string, slug string, teamId string, decrypt string,
+func (v *ProjectService) ListEnvironmentVariable(idOrName string, slug string, teamId string, decrypt string,
 	gitBranch string, source string) ([]ProjectEnv, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env", idOrName)
 	queryParams := url.Values{}
@@ -138,7 +140,7 @@ func (v *VercelClient) ListEnvironmentVariable(idOrName string, slug string, tea
 	}
 
 	result := []ProjectEnv{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -146,7 +148,7 @@ func (v *VercelClient) ListEnvironmentVariable(idOrName string, slug string, tea
 	return result, nil
 }
 
-func (v *VercelClient) GetProject(idOrName string, slug string, teamId string) (*ProjectInfo, error) {
+func (v *ProjectService) GetProject(idOrName string, slug string, teamId string) (*ProjectInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -157,7 +159,7 @@ func (v *VercelClient) GetProject(idOrName string, slug string, teamId string) (
 	}
 
 	result := &ProjectInfo{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -165,7 +167,7 @@ func (v *VercelClient) GetProject(idOrName string, slug string, teamId string) (
 	return result, nil
 }
 
-func (v *VercelClient) GetProjectDomain(idOrName string, domain string, slug string, teamId string) (*ProjectDomainInfo, error) {
+func (v *ProjectService) GetProjectDomain(idOrName string, domain string, slug string, teamId string) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -176,7 +178,7 @@ func (v *VercelClient) GetProjectDomain(idOrName string, domain string, slug str
 	}
 
 	result := &ProjectDomainInfo{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -184,7 +186,7 @@ func (v *VercelClient) GetProjectDomain(idOrName string, domain string, slug str
 	return result, nil
 }
 
-func (v *VercelClient) ListProjectDomain(idOrName string, slug string, teamId string) (*ListProjectDomainResponse, error) {
+func (v *ProjectService) ListProjectDomain(idOrName string, slug string, teamId string) (*ListProjectDomainResponse, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -195,7 +197,7 @@ func (v *VercelClient) ListProjectDomain(idOrName string, slug string, teamId st
 	}
 
 	result := &ListProjectDomainResponse{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -203,7 +205,7 @@ func (v *VercelClient) ListProjectDomain(idOrName string, slug string, teamId st
 	return result, nil
 }
 
-func (v *VercelClient) GetEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
+func (v *ProjectService) GetEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
 	path := fmt.Sprintf("/v1/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -214,7 +216,7 @@ func (v *VercelClient) GetEnvironmentVariable(idOrName string, id string, slug s
 	}
 
 	result := &ProjectEnv{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -222,7 +224,7 @@ func (v *VercelClient) GetEnvironmentVariable(idOrName string, id string, slug s
 	return result, nil
 }
 
-func (v *VercelClient) ListProject(slug string, teamId string) (*ListProjectResponse, error) {
+func (v *ProjectService) ListProject(slug string, teamId string) (*ListProjectResponse, error) {
 	path := "/v9/projects"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -233,7 +235,7 @@ func (v *VercelClient) ListProject(slug string, teamId string) (*ListProjectResp
 	}
 
 	result := &ListProjectResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -241,7 +243,7 @@ func (v *VercelClient) ListProject(slug string, teamId string) (*ListProjectResp
 	return result, nil
 }
 
-func (v *VercelClient) ListProjectAlias(projectId string, slug string, teamId string) (*ListProjectAliasResponse, error) {
+func (v *ProjectService) ListProjectAlias(projectId string, slug string, teamId string) (*ListProjectAliasResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/promote/aliases", projectId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -252,7 +254,7 @@ func (v *VercelClient) ListProjectAlias(projectId string, slug string, teamId st
 	}
 
 	result := &ListProjectAliasResponse{}
-	err := v.http.Get(path, &result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -260,7 +262,7 @@ func (v *VercelClient) ListProjectAlias(projectId string, slug string, teamId st
 	return result, nil
 }
 
-func (v *VercelClient) PauseProject(projectId string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) PauseProject(projectId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/projects/%s/pause", projectId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -271,7 +273,7 @@ func (v *VercelClient) PauseProject(projectId string, slug string, teamId string
 	}
 
 	result := ""
-	err := v.http.Post(path, nil, &result)
+	err := v.client.http.Post(path, nil, &result)
 
 	if err != nil {
 		return nil, err
@@ -279,7 +281,7 @@ func (v *VercelClient) PauseProject(projectId string, slug string, teamId string
 	return &result, nil
 }
 
-func (v *VercelClient) RemoveDomainFromProject(idOrName string, domain string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) RemoveDomainFromProject(idOrName string, domain string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -290,7 +292,7 @@ func (v *VercelClient) RemoveDomainFromProject(idOrName string, domain string, s
 	}
 
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -298,7 +300,7 @@ func (v *VercelClient) RemoveDomainFromProject(idOrName string, domain string, s
 	return &result, nil
 }
 
-func (v *VercelClient) RemoveEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) RemoveEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -309,7 +311,7 @@ func (v *VercelClient) RemoveEnvironmentVariable(idOrName string, id string, slu
 	}
 
 	result := ""
-	err := v.http.Delete(path, &result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -317,7 +319,7 @@ func (v *VercelClient) RemoveEnvironmentVariable(idOrName string, id string, slu
 	return &result, nil
 }
 
-func (v *VercelClient) PointsProductionDomains(projectId string, deploymentId string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) PointsProductionDomains(projectId string, deploymentId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v10/projects/%s/promote/%s", projectId, deploymentId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -328,7 +330,7 @@ func (v *VercelClient) PointsProductionDomains(projectId string, deploymentId st
 	}
 
 	result := ""
-	err := v.http.Post(path, nil, &result)
+	err := v.client.http.Post(path, nil, &result)
 
 	if err != nil {
 		return nil, err
@@ -336,7 +338,7 @@ func (v *VercelClient) PointsProductionDomains(projectId string, deploymentId st
 	return &result, nil
 }
 
-func (v *VercelClient) UnpauseProject(projectId string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) UnpauseProject(projectId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/projects/%s/unpause", projectId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -347,7 +349,7 @@ func (v *VercelClient) UnpauseProject(projectId string, slug string, teamId stri
 	}
 
 	result := ""
-	err := v.http.Post(path, nil, &result)
+	err := v.client.http.Post(path, nil, &result)
 
 	if err != nil {
 		return nil, err
@@ -355,7 +357,7 @@ func (v *VercelClient) UnpauseProject(projectId string, slug string, teamId stri
 	return &result, nil
 }
 
-func (v *VercelClient) UpdateProject(idOrName string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
+func (v *ProjectService) UpdateProject(idOrName string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -366,7 +368,7 @@ func (v *VercelClient) UpdateProject(idOrName string, slug string, teamId string
 	}
 
 	result := &ProjectInfo{}
-	err := v.http.Patch(path, req, result)
+	err := v.client.http.Patch(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -374,7 +376,7 @@ func (v *VercelClient) UpdateProject(idOrName string, slug string, teamId string
 	return result, nil
 }
 
-func (v *VercelClient) UpdateProjectDataCache(idOrName string, slug string, teamId string, disabled bool) (*ProjectInfo, error) {
+func (v *ProjectService) UpdateProjectDataCache(idOrName string, slug string, teamId string, disabled bool) (*ProjectInfo, error) {
 	path := fmt.Sprintf("/v1/data-cache/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -389,7 +391,7 @@ func (v *VercelClient) UpdateProjectDataCache(idOrName string, slug string, team
 		Disabled: disabled,
 	}
 	result := &ProjectInfo{}
-	err := v.http.Patch(path, req, result)
+	err := v.client.http.Patch(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -397,7 +399,7 @@ func (v *VercelClient) UpdateProjectDataCache(idOrName string, slug string, team
 	return result, nil
 }
 
-func (v *VercelClient) UpdateProjectDomain(idOrName string, domain string,
+func (v *ProjectService) UpdateProjectDomain(idOrName string, domain string,
 	slug string, teamId string, req UpdateProjectDomainRequest) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
 	queryParams := url.Values{}
@@ -408,7 +410,7 @@ func (v *VercelClient) UpdateProjectDomain(idOrName string, domain string,
 		queryParams.Add("teamId", teamId)
 	}
 	result := &ProjectDomainInfo{}
-	err := v.http.Patch(path, req, result)
+	err := v.client.http.Patch(path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -416,7 +418,7 @@ func (v *VercelClient) UpdateProjectDomain(idOrName string, domain string,
 	return result, nil
 }
 
-func (v *VercelClient) UpdateProtectionBypass(idOrName string, slug string, teamId string, req UpdateProtectionBypassRequest,
+func (v *ProjectService) UpdateProtectionBypass(idOrName string, slug string, teamId string, req UpdateProtectionBypassRequest,
 ) (*string, error) {
 	path := fmt.Sprintf("/v1/projects/%s/protection-bypass", idOrName)
 	queryParams := url.Values{}
@@ -427,7 +429,7 @@ func (v *VercelClient) UpdateProtectionBypass(idOrName string, slug string, team
 		queryParams.Add("teamId", teamId)
 	}
 	result := ""
-	err := v.http.Patch(path, req, &result)
+	err := v.client.http.Patch(path, req, &result)
 
 	if err != nil {
 		return nil, err
@@ -435,7 +437,7 @@ func (v *VercelClient) UpdateProtectionBypass(idOrName string, slug string, team
 	return &result, nil
 }
 
-func (v *VercelClient) VerifyProjectDomain(idOrName string, domain string,
+func (v *ProjectService) VerifyProjectDomain(idOrName string, domain string,
 	slug string, teamId string) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s/verify", idOrName, domain)
 	queryParams := url.Values{}
@@ -446,7 +448,7 @@ func (v *VercelClient) VerifyProjectDomain(idOrName string, domain string,
 		queryParams.Add("teamId", teamId)
 	}
 	result := &ProjectDomainInfo{}
-	err := v.http.Post(path, nil, result)
+	err := v.client.http.Post(path, nil, result)
 
 	if err != nil {
 		return nil, err

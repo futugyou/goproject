@@ -5,7 +5,9 @@ import (
 	"net/url"
 )
 
-func (v *VercelClient) CreateAuthToken(slug string, teamId string, name string) (*CreateAuthTokenResponse, error) {
+type AuthService service
+
+func (v *AuthService) CreateAuthToken(slug string, teamId string, name string) (*CreateAuthTokenResponse, error) {
 	path := "/v3/user/tokens"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -25,7 +27,7 @@ func (v *VercelClient) CreateAuthToken(slug string, teamId string, name string) 
 		Name: name,
 		Type: "oauth2-token",
 	}
-	err := v.http.Post(path, request, result)
+	err := v.client.http.Post(path, request, result)
 
 	if err != nil {
 		return nil, err
@@ -33,11 +35,11 @@ func (v *VercelClient) CreateAuthToken(slug string, teamId string, name string) 
 	return result, nil
 }
 
-func (v *VercelClient) DeleteAuthToken(tokenId string) (*DeleteAuthTokenResponse, error) {
+func (v *AuthService) DeleteAuthToken(tokenId string) (*DeleteAuthTokenResponse, error) {
 	path := fmt.Sprintf("/v3/user/tokens/%s", tokenId)
 	result := &DeleteAuthTokenResponse{}
 
-	err := v.http.Delete(path, result)
+	err := v.client.http.Delete(path, result)
 
 	if err != nil {
 		return nil, err
@@ -45,7 +47,7 @@ func (v *VercelClient) DeleteAuthToken(tokenId string) (*DeleteAuthTokenResponse
 	return result, nil
 }
 
-func (v *VercelClient) LoginWithEmail(email string, tokenName string) (*LoginWithEmailResponse, error) {
+func (v *AuthService) LoginWithEmail(email string, tokenName string) (*LoginWithEmailResponse, error) {
 	path := "/registration"
 	result := &LoginWithEmailResponse{}
 	request := struct {
@@ -55,7 +57,7 @@ func (v *VercelClient) LoginWithEmail(email string, tokenName string) (*LoginWit
 		Email:     email,
 		TokenName: tokenName,
 	}
-	err := v.http.Post(path, request, result)
+	err := v.client.http.Post(path, request, result)
 
 	if err != nil {
 		return nil, err
@@ -63,11 +65,11 @@ func (v *VercelClient) LoginWithEmail(email string, tokenName string) (*LoginWit
 	return result, nil
 }
 
-func (v *VercelClient) GetAuthTokenMetadata(tokenId string) (*TokenInfo, error) {
+func (v *AuthService) GetAuthTokenMetadata(tokenId string) (*TokenInfo, error) {
 	path := fmt.Sprintf("/v5/user/tokens/%s", tokenId)
 	result := &TokenInfo{}
 
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -75,11 +77,11 @@ func (v *VercelClient) GetAuthTokenMetadata(tokenId string) (*TokenInfo, error) 
 	return result, nil
 }
 
-func (v *VercelClient) ListAuthTokens() (*ListAuthTokensResponse, error) {
+func (v *AuthService) ListAuthTokens() (*ListAuthTokensResponse, error) {
 	path := "/v5/user/tokens"
 	result := &ListAuthTokensResponse{}
 
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -87,7 +89,7 @@ func (v *VercelClient) ListAuthTokens() (*ListAuthTokensResponse, error) {
 	return result, nil
 }
 
-func (v *VercelClient) VerifyAuthToken(token string, email string) (*VerifyAuthTokenResponse, error) {
+func (v *AuthService) VerifyAuthToken(token string, email string) (*VerifyAuthTokenResponse, error) {
 	path := "/registration/verify"
 	queryParams := url.Values{}
 	queryParams.Add("token", token)
@@ -96,7 +98,7 @@ func (v *VercelClient) VerifyAuthToken(token string, email string) (*VerifyAuthT
 
 	result := &VerifyAuthTokenResponse{}
 
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err

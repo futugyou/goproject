@@ -4,7 +4,9 @@ import (
 	"strings"
 )
 
-func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
+type AccessGroupService service
+
+func (v *AccessGroupService) CreateAccessGroup(slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
 	path := "/v1/access-groups"
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -17,7 +19,7 @@ func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info Access
 		}
 	}
 	result := &AccessGroupInfo{}
-	err := v.http.Post(path, info, result)
+	err := v.client.http.Post(path, info, result)
 
 	if err != nil {
 		return nil, err
@@ -25,7 +27,7 @@ func (v *VercelClient) CreateAccessGroup(slug string, teamId string, info Access
 	return result, nil
 }
 
-func (v *VercelClient) DeleteAccessGroup(idOrName string, slug string, teamId string) (*string, error) {
+func (v *AccessGroupService) DeleteAccessGroup(idOrName string, slug string, teamId string) (*string, error) {
 	path := "/v1/access-groups/" + idOrName
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -38,7 +40,7 @@ func (v *VercelClient) DeleteAccessGroup(idOrName string, slug string, teamId st
 		}
 	}
 	result := ""
-	err := v.http.Delete(path, result)
+	err := v.client.http.Delete(path, result)
 
 	if err != nil {
 		return nil, err
@@ -46,7 +48,7 @@ func (v *VercelClient) DeleteAccessGroup(idOrName string, slug string, teamId st
 	return &result, nil
 }
 
-func (v *VercelClient) ListMembersOfAccessGroup(idOrName string, slug string, teamId string) (*ListMembersResponse, error) {
+func (v *AccessGroupService) ListMembersOfAccessGroup(idOrName string, slug string, teamId string) (*ListMembersResponse, error) {
 	path := "/v1/access-groups/" + idOrName + "/members"
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -59,7 +61,7 @@ func (v *VercelClient) ListMembersOfAccessGroup(idOrName string, slug string, te
 		}
 	}
 	result := &ListMembersResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -67,7 +69,7 @@ func (v *VercelClient) ListMembersOfAccessGroup(idOrName string, slug string, te
 	return result, nil
 }
 
-func (v *VercelClient) ListProjectsOfAccessGroup(idOrName string, slug string, teamId string) (*ListProjectsResponse, error) {
+func (v *AccessGroupService) ListProjectsOfAccessGroup(idOrName string, slug string, teamId string) (*ListProjectsResponse, error) {
 	path := "/v1/access-groups/" + idOrName + "/projects"
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -80,7 +82,7 @@ func (v *VercelClient) ListProjectsOfAccessGroup(idOrName string, slug string, t
 		}
 	}
 	result := &ListProjectsResponse{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -88,7 +90,7 @@ func (v *VercelClient) ListProjectsOfAccessGroup(idOrName string, slug string, t
 	return result, nil
 }
 
-func (v *VercelClient) ListAccessGroup(projectId string, search string, slug string, teamId string) ([]AccessGroupInfo, error) {
+func (v *AccessGroupService) ListAccessGroup(projectId string, search string, slug string, teamId string) ([]AccessGroupInfo, error) {
 	path := "/v1/access-groups/"
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -115,7 +117,7 @@ func (v *VercelClient) ListAccessGroup(projectId string, search string, slug str
 		}
 	}
 	result := []AccessGroupInfo{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -123,7 +125,7 @@ func (v *VercelClient) ListAccessGroup(projectId string, search string, slug str
 	return result, nil
 }
 
-func (v *VercelClient) GetAccessGroup(idOrName string, slug string, teamId string) (*AccessGroupInfo, error) {
+func (v *AccessGroupService) GetAccessGroup(idOrName string, slug string, teamId string) (*AccessGroupInfo, error) {
 	path := "/v1/access-groups/" + idOrName
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -136,7 +138,7 @@ func (v *VercelClient) GetAccessGroup(idOrName string, slug string, teamId strin
 		}
 	}
 	result := &AccessGroupInfo{}
-	err := v.http.Get(path, result)
+	err := v.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -144,7 +146,7 @@ func (v *VercelClient) GetAccessGroup(idOrName string, slug string, teamId strin
 	return result, nil
 }
 
-func (v *VercelClient) UpdateAccessGroup(idOrName string, slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
+func (v *AccessGroupService) UpdateAccessGroup(idOrName string, slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
 	path := "/v1/access-groups/" + idOrName
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -157,7 +159,7 @@ func (v *VercelClient) UpdateAccessGroup(idOrName string, slug string, teamId st
 		}
 	}
 	result := &AccessGroupInfo{}
-	err := v.http.Post(path, info, result)
+	err := v.client.http.Post(path, info, result)
 
 	if err != nil {
 		return nil, err
