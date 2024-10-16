@@ -24,7 +24,7 @@ type httpClient struct {
 	customeHeader map[string]string
 }
 
-func newHttpClient(token string, baseUrl string) *httpClient {
+func newClient(token string, baseUrl string) *httpClient {
 	c := &httpClient{
 		token:   token,
 		baseurl: baseUrl,
@@ -33,11 +33,22 @@ func newHttpClient(token string, baseUrl string) *httpClient {
 	return c
 }
 
-func newHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
+func newClientWithHeader(baseUrl string, customeHeader map[string]string) *httpClient {
 	c := &httpClient{
 		baseurl:       baseUrl,
 		http:          &http.Client{},
 		customeHeader: customeHeader,
+	}
+	return c
+}
+
+func newClientWithHttp(baseUrl string, client *http.Client) *httpClient {
+	if client == nil {
+		client = &http.Client{}
+	}
+	c := &httpClient{
+		baseurl: baseUrl,
+		http:    client,
 	}
 	return c
 }
@@ -77,12 +88,15 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 
 	req, _ := http.NewRequest(method, path, body)
 	req.Header.Set("Content-Type", "application/json")
-	if c.customeHeader != nil && len(c.customeHeader) > 0 {
-		for key, value := range c.customeHeader {
+
+	if len(c.token) > 0 {
+		req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))
+	}
+
+	for key, value := range c.customeHeader {
+		if len(value) > 0 {
 			req.Header.Set(key, value)
 		}
-	} else {
-		req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))
 	}
 
 	return c.readHttpResponse(req, response)

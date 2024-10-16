@@ -1,5 +1,7 @@
 package vercel
 
+import "net/http"
+
 type VercelClient struct {
 	token  string
 	http   iHttpClient
@@ -31,18 +33,26 @@ type service struct {
 
 const vercle_url string = "https://api.vercel.com"
 
-func NewVercelClient(token string) *VercelClient {
+func NewClient(token string) *VercelClient {
 	c := &VercelClient{
-		http: newHttpClient(token, vercle_url),
+		http: newClient(token, vercle_url),
 	}
 	c.token = token
 	c.initialize()
 	return c
 }
 
-func NewVercelClientWithHeader(customeHeader map[string]string) *VercelClient {
+func NewClientWithHeader(customeHeader map[string]string) *VercelClient {
 	c := &VercelClient{
-		http: newHttpClientWithHeader(vercle_url, customeHeader),
+		http: newClientWithHeader(vercle_url, customeHeader),
+	}
+	c.initialize()
+	return c
+}
+
+func NewClientWithHttp(client *http.Client) *VercelClient {
+	c := &VercelClient{
+		http: newClientWithHttp(vercle_url, client),
 	}
 	c.initialize()
 	return c

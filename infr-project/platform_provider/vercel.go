@@ -11,7 +11,7 @@ type VercelClient struct {
 }
 
 func NewVercelClient(token string) (*VercelClient, error) {
-	client := vercel.NewVercelClient(token)
+	client := vercel.NewClient(token)
 	return &VercelClient{
 		client,
 	}, nil
