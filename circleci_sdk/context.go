@@ -1,6 +1,8 @@
 package circleci
 
-func (s *CircleciClient) CreateContext(name string, ownerId string, ownerType string) (*ContextInfo, error) {
+type ContextService service
+
+func (s *ContextService) CreateContext(name string, ownerId string, ownerType string) (*ContextInfo, error) {
 	path := "/context/"
 
 	result := &ContextInfo{}
@@ -12,88 +14,88 @@ func (s *CircleciClient) CreateContext(name string, ownerId string, ownerType st
 		},
 	}
 
-	if err := s.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) ListContext(ownerId string) (*ListContextResponse, error) {
+func (s *ContextService) ListContext(ownerId string) (*ListContextResponse, error) {
 	path := "/context?owner-id=" + ownerId
 
 	result := &ListContextResponse{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) DeleteContext(contextId string) (*BaseResponse, error) {
+func (s *ContextService) DeleteContext(contextId string) (*BaseResponse, error) {
 	path := "/context/" + contextId
 
 	result := &BaseResponse{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) GetContext(contextId string) (*ContextInfo, error) {
+func (s *ContextService) GetContext(contextId string) (*ContextInfo, error) {
 	path := "/context/" + contextId
 
 	result := &ContextInfo{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) ListContextEnvironment(contextId string) (*ListContextEnvResponse, error) {
+func (s *ContextService) ListContextEnvironment(contextId string) (*ListContextEnvResponse, error) {
 	path := "/context/" + contextId + "/environment-variable"
 
 	result := &ListContextEnvResponse{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) UpsertContextEnvironment(contextId string, name string, value string) (*ContextEnvInfo, error) {
+func (s *ContextService) UpsertContextEnvironment(contextId string, name string, value string) (*ContextEnvInfo, error) {
 	path := "/context/" + contextId + "/environment-variable/" + name
 	request := UpsertContextEnv{
 		Value: value,
 	}
 	result := &ContextEnvInfo{}
-	if err := s.http.Put(path, request, result); err != nil {
+	if err := s.client.http.Put(path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) RemoveContextEnvironment(contextId string, name string) (*BaseResponse, error) {
+func (s *ContextService) RemoveContextEnvironment(contextId string, name string) (*BaseResponse, error) {
 	path := "/context/" + contextId + "/environment-variable/" + name
 
 	result := &BaseResponse{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) GetContextRestrictions(contextId string) (*ContextRestrictionsResponse, error) {
+func (s *ContextService) GetContextRestrictions(contextId string) (*ContextRestrictionsResponse, error) {
 	path := "/context/" + contextId + "/restrictions"
 
 	result := &ContextRestrictionsResponse{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) CreateContextRestriction(contextId string, restriction_type string, restriction_value string) (*ContextRestriction, error) {
+func (s *ContextService) CreateContextRestriction(contextId string, restriction_type string, restriction_value string) (*ContextRestriction, error) {
 	path := "/context/" + contextId + "/restrictions"
 
 	result := &ContextRestriction{}
@@ -104,17 +106,17 @@ func (s *CircleciClient) CreateContextRestriction(contextId string, restriction_
 		RestrictionType:  restriction_type,
 		RestrictionValue: restriction_value,
 	}
-	if err := s.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) DeleteContextRestriction(contextId string, restriction_id string) (*BaseResponse, error) {
+func (s *ContextService) DeleteContextRestriction(contextId string, restriction_id string) (*BaseResponse, error) {
 	path := "/context/" + contextId + "/restrictions/" + restriction_id
 
 	result := &BaseResponse{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil

@@ -1,9 +1,11 @@
 package circleci
 
-func (s *CircleciClient) GetWorkflow(id string) (*JobDetailInfo, error) {
+type WorkflowService service
+
+func (s *WorkflowService) GetWorkflow(id string) (*JobDetailInfo, error) {
 	path := "/workflow/" + id
 	result := &JobDetailInfo{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -11,10 +13,10 @@ func (s *CircleciClient) GetWorkflow(id string) (*JobDetailInfo, error) {
 	return result, nil
 }
 
-func (s *CircleciClient) ApproveJob(id string, approval_request_id string) (*BaseResponse, error) {
+func (s *WorkflowService) ApproveJob(id string, approval_request_id string) (*BaseResponse, error) {
 	path := "/workflow/" + id + "/approve/" + approval_request_id
 	result := &BaseResponse{}
-	err := s.http.Post(path, nil, result)
+	err := s.client.http.Post(path, nil, result)
 
 	if err != nil {
 		return nil, err
@@ -22,10 +24,10 @@ func (s *CircleciClient) ApproveJob(id string, approval_request_id string) (*Bas
 	return result, nil
 }
 
-func (s *CircleciClient) CancelWorkflow(id string) (*BaseResponse, error) {
+func (s *WorkflowService) CancelWorkflow(id string) (*BaseResponse, error) {
 	path := "/workflow/" + id + "/cancel"
 	result := &BaseResponse{}
-	err := s.http.Post(path, nil, result)
+	err := s.client.http.Post(path, nil, result)
 
 	if err != nil {
 		return nil, err
@@ -33,10 +35,10 @@ func (s *CircleciClient) CancelWorkflow(id string) (*BaseResponse, error) {
 	return result, nil
 }
 
-func (s *CircleciClient) GetWorkflowJobs(id string) (*WorkflowJobsResponse, error) {
+func (s *WorkflowService) GetWorkflowJobs(id string) (*WorkflowJobsResponse, error) {
 	path := "/workflow/" + id + "/job"
 	result := &WorkflowJobsResponse{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -44,10 +46,10 @@ func (s *CircleciClient) GetWorkflowJobs(id string) (*WorkflowJobsResponse, erro
 	return result, nil
 }
 
-func (s *CircleciClient) RerunWorkflow(id string) (*RerunWorkflowInfo, error) {
+func (s *WorkflowService) RerunWorkflow(id string) (*RerunWorkflowInfo, error) {
 	path := "/workflow/" + id + "/rerun"
 	result := &RerunWorkflowInfo{}
-	err := s.http.Post(path, nil, result)
+	err := s.client.http.Post(path, nil, result)
 
 	if err != nil {
 		return nil, err

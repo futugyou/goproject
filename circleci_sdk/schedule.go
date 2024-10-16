@@ -1,48 +1,50 @@
 package circleci
 
-func (s *CircleciClient) GetAllSchedules(project_slug string, page_token string) (*ScheduleList, error) {
+type ScheduleService service
+
+func (s *ScheduleService) GetAllSchedules(project_slug string, page_token string) (*ScheduleList, error) {
 	path := "/project/" + project_slug + "/schedule"
 	if len(page_token) > 0 {
 		path += ("?page-token=" + page_token)
 	}
 	result := &ScheduleList{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) CreateSchedule(project_slug string, request CreateScheduleRequest) (*ScheduleInfo, error) {
+func (s *ScheduleService) CreateSchedule(project_slug string, request CreateScheduleRequest) (*ScheduleInfo, error) {
 	path := "/project/" + project_slug + "/schedule"
 	result := &ScheduleInfo{}
-	if err := s.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) GetSchedule(schedule_id string) (*ScheduleInfo, error) {
+func (s *ScheduleService) GetSchedule(schedule_id string) (*ScheduleInfo, error) {
 	path := "/schedule/" + schedule_id
 	result := &ScheduleInfo{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) UpdateSchedule(schedule_id string, request CreateScheduleRequest) (*ScheduleInfo, error) {
+func (s *ScheduleService) UpdateSchedule(schedule_id string, request CreateScheduleRequest) (*ScheduleInfo, error) {
 	path := "/schedule/" + schedule_id
 	result := &ScheduleInfo{}
-	if err := s.http.Patch(path, request, result); err != nil {
+	if err := s.client.http.Patch(path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) DeleteSchedule(schedule_id string) (*BaseResponse, error) {
+func (s *ScheduleService) DeleteSchedule(schedule_id string) (*BaseResponse, error) {
 	path := "/schedule/" + schedule_id
 	result := &BaseResponse{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil

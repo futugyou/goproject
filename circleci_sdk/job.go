@@ -1,9 +1,11 @@
 package circleci
 
-func (s *CircleciClient) GetJobDetails(project_slug string, job_number string) (*JobDetailInfo, error) {
+type JobService service
+
+func (s *JobService) GetJobDetails(project_slug string, job_number string) (*JobDetailInfo, error) {
 	path := "/project/" + project_slug + "/job/" + job_number
 	result := &JobDetailInfo{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -11,10 +13,10 @@ func (s *CircleciClient) GetJobDetails(project_slug string, job_number string) (
 	return result, nil
 }
 
-func (s *CircleciClient) CancelJob(project_slug string, job_number string) (*BaseResponse, error) {
+func (s *JobService) CancelJob(project_slug string, job_number string) (*BaseResponse, error) {
 	path := "/project/" + project_slug + "/job/" + job_number + "/artifacts"
 	result := &BaseResponse{}
-	err := s.http.Post(path, nil, result)
+	err := s.client.http.Post(path, nil, result)
 
 	if err != nil {
 		return nil, err
@@ -22,10 +24,10 @@ func (s *CircleciClient) CancelJob(project_slug string, job_number string) (*Bas
 	return result, nil
 }
 
-func (s *CircleciClient) GetJobArtifacts(project_slug string, job_number string) (*JobArtifactResponse, error) {
+func (s *JobService) GetJobArtifacts(project_slug string, job_number string) (*JobArtifactResponse, error) {
 	path := "/project/" + project_slug + "/job/" + job_number + "/artifacts"
 	result := &JobArtifactResponse{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err

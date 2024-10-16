@@ -1,27 +1,29 @@
 package circleci
 
-func (s *CircleciClient) GetUserInfo() (*UserInfo, error) {
+type UserService service
+
+func (s *UserService) GetUserInfo() (*UserInfo, error) {
 	path := "/me"
 	result := &UserInfo{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) GetCollaborations() ([]CollaborationInfo, error) {
+func (s *UserService) GetCollaborations() ([]CollaborationInfo, error) {
 	path := "/me/collaborations"
 	result := []CollaborationInfo{}
-	if err := s.http.Get(path, &result); err != nil {
+	if err := s.client.http.Get(path, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *CircleciClient) GetUserInfoById(id string) (*UserInfo, error) {
+func (s *UserService) GetUserInfoById(id string) (*UserInfo, error) {
 	path := "/user/" + id
 	result := &UserInfo{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 	return result, nil

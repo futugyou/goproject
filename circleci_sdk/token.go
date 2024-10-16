@@ -1,6 +1,8 @@
 package circleci
 
-func (s *CircleciClient) DeleteOrgLevelClaims(orgID string, claims []string) (*OrgLevelClaim, error) {
+type TokenService service
+
+func (s *TokenService) DeleteOrgLevelClaims(orgID string, claims []string) (*OrgLevelClaim, error) {
 	path := "/org/" + orgID + "/oidc-custom-claims"
 	for i := 0; i < len(claims); i++ {
 		if i == 0 {
@@ -12,39 +14,39 @@ func (s *CircleciClient) DeleteOrgLevelClaims(orgID string, claims []string) (*O
 	}
 
 	result := &OrgLevelClaim{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) GetOrgLevelClaims(orgID string) (*OrgLevelClaim, error) {
+func (s *TokenService) GetOrgLevelClaims(orgID string) (*OrgLevelClaim, error) {
 	path := "/org/" + orgID + "/oidc-custom-claims"
 
 	result := &OrgLevelClaim{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) PatchOrgLevelClaims(orgID string, audience []string, ttl string) (*OrgLevelClaim, error) {
+func (s *TokenService) PatchOrgLevelClaims(orgID string, audience []string, ttl string) (*OrgLevelClaim, error) {
 	path := "/org/" + orgID + "/oidc-custom-claims"
 	request := UpdateClaimRequest{
 		Audience: audience,
 		TTL:      ttl,
 	}
 	result := &OrgLevelClaim{}
-	if err := s.http.Patch(path, request, result); err != nil {
+	if err := s.client.http.Patch(path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) DeleteProjectLevelClaims(orgID string, projectId string, claims []string) (*OrgLevelClaim, error) {
+func (s *TokenService) DeleteProjectLevelClaims(orgID string, projectId string, claims []string) (*OrgLevelClaim, error) {
 	path := "/org/" + orgID + "/project/" + projectId + "/oidc-custom-claims"
 	for i := 0; i < len(claims); i++ {
 		if i == 0 {
@@ -56,32 +58,32 @@ func (s *CircleciClient) DeleteProjectLevelClaims(orgID string, projectId string
 	}
 
 	result := &OrgLevelClaim{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) GetProjectLevelClaims(orgID string, projectId string) (*OrgLevelClaim, error) {
+func (s *TokenService) GetProjectLevelClaims(orgID string, projectId string) (*OrgLevelClaim, error) {
 	path := "/org/" + orgID + "/project/" + projectId + "/oidc-custom-claims"
 
 	result := &OrgLevelClaim{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) PatchProjectLevelClaims(orgID string, projectId string, audience []string, ttl string) (*OrgLevelClaim, error) {
+func (s *TokenService) PatchProjectLevelClaims(orgID string, projectId string, audience []string, ttl string) (*OrgLevelClaim, error) {
 	path := "/org/" + orgID + "/project/" + projectId + "/oidc-custom-claims"
 	request := UpdateClaimRequest{
 		Audience: audience,
 		TTL:      ttl,
 	}
 	result := &OrgLevelClaim{}
-	if err := s.http.Patch(path, request, result); err != nil {
+	if err := s.client.http.Patch(path, request, result); err != nil {
 		return nil, err
 	}
 

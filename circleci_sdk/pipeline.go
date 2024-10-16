@@ -1,9 +1,11 @@
 package circleci
 
-func (s *CircleciClient) Pipelines(org_slug string) (*CircleciPipelineResponse, error) {
+type PipelineService service
+
+func (s *PipelineService) Pipelines(org_slug string) (*CircleciPipelineResponse, error) {
 	path := "/pipeline?org-slug=" + org_slug
 	result := &CircleciPipelineResponse{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -11,10 +13,10 @@ func (s *CircleciClient) Pipelines(org_slug string) (*CircleciPipelineResponse, 
 	return result, nil
 }
 
-func (s *CircleciClient) GetPipelineById(pipelineid string) (*CircleciPipeline, error) {
+func (s *PipelineService) GetPipelineById(pipelineid string) (*CircleciPipeline, error) {
 	path := "/pipeline/" + pipelineid + "/config"
 	result := &CircleciPipeline{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -22,10 +24,10 @@ func (s *CircleciClient) GetPipelineById(pipelineid string) (*CircleciPipeline, 
 	return result, nil
 }
 
-func (s *CircleciClient) GetPipelineConfiguration(pipelineid string) (*PipelineConfig, error) {
+func (s *PipelineService) GetPipelineConfiguration(pipelineid string) (*PipelineConfig, error) {
 	path := "/pipeline/" + pipelineid
 	result := &PipelineConfig{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -33,10 +35,10 @@ func (s *CircleciClient) GetPipelineConfiguration(pipelineid string) (*PipelineC
 	return result, nil
 }
 
-func (s *CircleciClient) PipelineWorkflows(pipelineId string) (*PipelineWorkflowResponse, error) {
+func (s *PipelineService) PipelineWorkflows(pipelineId string) (*PipelineWorkflowResponse, error) {
 	path := "/pipeline/" + pipelineId + "/workflow"
 	result := &PipelineWorkflowResponse{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -44,7 +46,7 @@ func (s *CircleciClient) PipelineWorkflows(pipelineId string) (*PipelineWorkflow
 	return result, nil
 }
 
-func (s *CircleciClient) ContinuePipeline(continuationKey string, configuration string, parameters interface{}) (*BaseResponse, error) {
+func (s *PipelineService) ContinuePipeline(continuationKey string, configuration string, parameters interface{}) (*BaseResponse, error) {
 	path := "/pipeline/continue"
 	request := ContinuePipelineRequest{
 		ContinuationKey: continuationKey,
@@ -52,7 +54,7 @@ func (s *CircleciClient) ContinuePipeline(continuationKey string, configuration 
 		Parameters:      parameters,
 	}
 	result := &BaseResponse{}
-	err := s.http.Post(path, request, result)
+	err := s.client.http.Post(path, request, result)
 
 	if err != nil {
 		return nil, err
@@ -60,10 +62,10 @@ func (s *CircleciClient) ContinuePipeline(continuationKey string, configuration 
 	return result, nil
 }
 
-func (s *CircleciClient) GetPipelinesByProject(project_slug string) (*CircleciPipelineResponse, error) {
+func (s *PipelineService) GetPipelinesByProject(project_slug string) (*CircleciPipelineResponse, error) {
 	path := "/rpoject/" + project_slug + "/pipeline"
 	result := &CircleciPipelineResponse{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -71,7 +73,7 @@ func (s *CircleciClient) GetPipelinesByProject(project_slug string) (*CircleciPi
 	return result, nil
 }
 
-func (s *CircleciClient) TriggerPipeline(project_slug string, branch string, tag string, parameters interface{}) (*TriggerPipelineResponse, error) {
+func (s *PipelineService) TriggerPipeline(project_slug string, branch string, tag string, parameters interface{}) (*TriggerPipelineResponse, error) {
 	path := "/rpoject/" + project_slug + "/pipeline"
 	request := TriggerPipelineRequest{
 		Branch:     branch,
@@ -79,7 +81,7 @@ func (s *CircleciClient) TriggerPipeline(project_slug string, branch string, tag
 		Parameters: parameters,
 	}
 	result := &TriggerPipelineResponse{}
-	err := s.http.Post(path, request, result)
+	err := s.client.http.Post(path, request, result)
 
 	if err != nil {
 		return nil, err
@@ -87,10 +89,10 @@ func (s *CircleciClient) TriggerPipeline(project_slug string, branch string, tag
 	return result, nil
 }
 
-func (s *CircleciClient) GetYourPipelines(project_slug string) (*CircleciPipelineResponse, error) {
+func (s *PipelineService) GetYourPipelines(project_slug string) (*CircleciPipelineResponse, error) {
 	path := "/rpoject/" + project_slug + "/pipeline/mine"
 	result := &CircleciPipelineResponse{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -98,10 +100,10 @@ func (s *CircleciClient) GetYourPipelines(project_slug string) (*CircleciPipelin
 	return result, nil
 }
 
-func (s *CircleciClient) GetPipelineByNumber(project_slug string, number string) (*CircleciPipeline, error) {
+func (s *PipelineService) GetPipelineByNumber(project_slug string, number string) (*CircleciPipeline, error) {
 	path := "/rpoject/" + project_slug + "/pipeline/" + number
 	result := &CircleciPipeline{}
-	err := s.http.Get(path, result)
+	err := s.client.http.Get(path, result)
 
 	if err != nil {
 		return nil, err
@@ -148,7 +150,7 @@ type CircleciPipeline struct {
 	Errors            []CircleciError   `json:"errors"`
 	ProjectSlug       string            `json:"project_slug"`
 	UpdatedAt         string            `json:"updated_at"`
-	Number            string            `json:"number"`
+	Number            int               `json:"number"`
 	TriggerParameters TriggerParameters `json:"trigger_parameters"`
 	State             string            `json:"state"`
 	CreatedAt         string            `json:"created_at"`

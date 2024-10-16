@@ -1,6 +1,8 @@
 package circleci
 
-func (s *CircleciClient) CreateWebhook(name string, url string, projectId string, signingSecret string) (*WebhookItem, error) {
+type WebhookService service
+
+func (s *WebhookService) CreateWebhook(name string, url string, projectId string, signingSecret string) (*WebhookItem, error) {
 	path := "/webhook"
 	request := WebhookItem{
 		Name:          name,
@@ -15,34 +17,34 @@ func (s *CircleciClient) CreateWebhook(name string, url string, projectId string
 	}
 
 	result := &WebhookItem{}
-	if err := s.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) ListWebhook(projectId string) (*ListWebhookResponse, error) {
+func (s *WebhookService) ListWebhook(projectId string) (*ListWebhookResponse, error) {
 	path := "/webhook?scope-id=" + projectId + "&scope-type=project"
 	result := &ListWebhookResponse{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) GetWebhook(webhookId string) (*WebhookItem, error) {
+func (s *WebhookService) GetWebhook(webhookId string) (*WebhookItem, error) {
 	path := "/webhook/" + webhookId
 	result := &WebhookItem{}
-	if err := s.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) UpdateWebhook(webhookId string, name string, url string, signingSecret string) (*WebhookItem, error) {
+func (s *WebhookService) UpdateWebhook(webhookId string, name string, url string, signingSecret string) (*WebhookItem, error) {
 	path := "/webhook/" + webhookId
 	request := WebhookItem{
 		Name:          name,
@@ -53,17 +55,17 @@ func (s *CircleciClient) UpdateWebhook(webhookId string, name string, url string
 	}
 
 	result := &WebhookItem{}
-	if err := s.http.Put(path, request, result); err != nil {
+	if err := s.client.http.Put(path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *CircleciClient) DeleteWebhook(webhookId string) (*BaseResponse, error) {
+func (s *WebhookService) DeleteWebhook(webhookId string) (*BaseResponse, error) {
 	path := "/webhook/" + webhookId
 	result := &BaseResponse{}
-	if err := s.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(path, result); err != nil {
 		return nil, err
 	}
 
