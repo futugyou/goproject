@@ -1288,6 +1288,32 @@ paths:
       summary: circle CI
       tags:
       - Test
+  /v1/test/circleci/project:
+    get:
+      consumes:
+      - application/json
+      description: circle CI project
+      parameters:
+      - description: org_slug
+        in: query
+        name: org_slug
+        required: true
+        type: string
+      - description: name
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: circle CI project
+      tags:
+      - Test
   /v1/test/cqrstest:
     get:
       consumes:

@@ -900,6 +900,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/test/circleci/project": {
+            "get": {
+                "description": "circle CI project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "circle CI project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "org_slug",
+                        "name": "org_slug",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/test/cqrstest": {
             "get": {
                 "description": "cqrstest",
