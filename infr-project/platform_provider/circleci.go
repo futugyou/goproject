@@ -10,12 +10,22 @@ import (
 
 type CircleClient struct {
 	client *circleci.CircleciClient
+	token  string
 }
 
 func NewCircleClient(token string) (*CircleClient, error) {
-	client := circleci.NewCircleciClient(token)
+	client := circleci.NewClientV2(token)
 	return &CircleClient{
 		client,
+		token,
+	}, nil
+}
+
+func NewCircleClientV1(token string) (*CircleClient, error) {
+	client := circleci.NewClientV1(token)
+	return &CircleClient{
+		client,
+		token,
 	}, nil
 }
 
@@ -29,9 +39,11 @@ var CircleciVCSMapping = map[string]string{"gh": "github"}
 func (g *CircleClient) CreateProjectAsync(ctx context.Context, request CreateProjectRequest) (<-chan *Project, <-chan error) {
 	resultChan := make(chan *Project, 1)
 	errorChan := make(chan error, 1)
+
 	go func() {
 		defer close(resultChan)
 		defer close(errorChan)
+
 		org_slug := ""
 		if org, ok := request.Parameters["org_slug"]; ok {
 			org_slug = org
@@ -75,8 +87,18 @@ func (g *CircleClient) CreateProjectAsync(ctx context.Context, request CreatePro
 	return resultChan, errorChan
 }
 
+// For now circleci api v2 do not include list project api,
+// So, we need use api v1.1
 func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan []Project, <-chan error) {
-	return nil, nil
+	resultChan := make(chan []Project, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+	}()
+
+	return resultChan, errorChan
 }
 
 func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {

@@ -85,7 +85,7 @@ func vercelProjectEndpoint(c *gin.Context) {
 // @Success 200 {string}  string
 // @Router /v1/test/circleci [get]
 func circleciPipeline(c *gin.Context) {
-	f := circleci.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
+	f := circleci.NewClientV2(os.Getenv("CIRCLECI_TOKEN"))
 	result, _ := f.Pipeline.Pipelines(os.Getenv("CIRCLECI_ORG_SLUG"))
 	c.JSON(200, result)
 }
@@ -102,7 +102,7 @@ func circleciPipeline(c *gin.Context) {
 func circleciProject(c *gin.Context) {
 	org_slug := c.Query("org_slug")
 	name := c.Query("name")
-	f := circleci.NewCircleciClient(os.Getenv("CIRCLECI_TOKEN"))
+	f := circleci.NewClientV2(os.Getenv("CIRCLECI_TOKEN"))
 	result, _ := f.Project.GetProject(org_slug, name)
 	c.JSON(200, result)
 }

@@ -22,8 +22,9 @@ type service struct {
 }
 
 const circleci_url string = "https://circleci.com/api/v2"
+const circleci_url_v1 string = "https://circleci.com/api/v1.1"
 
-func NewCircleciClient(token string) *CircleciClient {
+func NewClientV2(token string) *CircleciClient {
 	header := make(map[string]string)
 	header["Circle-Token"] = token
 
@@ -33,6 +34,29 @@ func NewCircleciClient(token string) *CircleciClient {
 	c.initialize()
 	return c
 }
+
+func NewClientV1(token string) *CircleciClient {
+	header := make(map[string]string)
+	header["Circle-Token"] = token
+
+	c := &CircleciClient{
+		http: NewHttpClientWithHeader(circleci_url_v1, header),
+	}
+	c.initialize()
+	return c
+}
+
+func NewClientWithFelfHosted(token string, hostUrl string) *CircleciClient {
+	header := make(map[string]string)
+	header["Circle-Token"] = token
+
+	c := &CircleciClient{
+		http: NewHttpClientWithHeader(hostUrl, header),
+	}
+	c.initialize()
+	return c
+}
+
 func (c *CircleciClient) initialize() {
 	c.common.client = c
 	c.Context = (*ContextService)(&c.common)
