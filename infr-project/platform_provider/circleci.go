@@ -96,6 +96,31 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 	go func() {
 		defer close(resultChan)
 		defer close(errorChan)
+
+		client, err := NewCircleClientV1(g.token)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		circleciProjects, err := client.client.Project.ListProject()
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		projects := []Project{}
+		for _, pro := range circleciProjects {
+			if pro.Followed {
+				projects = append(projects, Project{
+					ID:   pro.Reponame,
+					Name: pro.Reponame,
+					Url:  pro.VcsURL,
+				})
+			}
+		}
+
+		resultChan <- projects
 	}()
 
 	return resultChan, errorChan
