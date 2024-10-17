@@ -3,6 +3,7 @@ package platform_provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/futugyou/circleci"
 )
@@ -18,6 +19,13 @@ func NewCircleClient(token string) (*CircleClient, error) {
 	}, nil
 }
 
+const CircleciProjectUrl = "https://app.circleci.com/pipelines/%s/%s/%s"
+
+// TODO: add all vcs mapping
+var CircleciVCSMapping = map[string]string{"gh": "github"}
+
+// Parameters MUST include org_slug. eg. gh/demo
+// Parameters can set circleci_project_url. eg. https://app.circleci.com/pipelines/%s/%s/%s
 func (g *CircleClient) CreateProjectAsync(ctx context.Context, request CreateProjectRequest) (<-chan *Project, <-chan error) {
 	resultChan := make(chan *Project, 1)
 	errorChan := make(chan error, 1)
@@ -36,15 +44,31 @@ func (g *CircleClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			errorChan <- err
 			return
 		}
+
 		project, err := g.client.Project.GetProject(org_slug, request.Name)
 		if err != nil {
 			errorChan <- err
 			return
 		}
+
+		orgSplit := strings.Split(org_slug, "/")
+		url := ""
+		if len(orgSplit) == 2 {
+			vsc := "github"
+			if vcs_slug, ok := CircleciVCSMapping[orgSplit[0]]; ok {
+				vsc = vcs_slug
+			}
+			circleciProjectUrl := CircleciProjectUrl
+			if url, ok := request.Parameters["circleci_project_url"]; ok {
+				circleciProjectUrl = url
+			}
+			url = fmt.Sprintf(circleciProjectUrl, vsc, orgSplit[1], project.Name)
+		}
+
 		resultChan <- &Project{
 			ID:   project.ID,
 			Name: project.Name,
-			Url:  "", // url may set in applcation layer
+			Url:  url,
 		}
 	}()
 
