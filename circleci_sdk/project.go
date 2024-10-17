@@ -26,6 +26,16 @@ func (s *ProjectService) GetProject(org_slug string, name string) (*ProjectInfo,
 	return result, nil
 }
 
+func (s *ProjectService) ListProject() ([]ProjectListItem, error) {
+	path := "/projects"
+
+	result := []ProjectListItem{}
+	if err := s.client.http.Get(path, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (s *ProjectService) CreateCheckoutKey(project_slug string, keyType string) (*CheckoutKey, error) {
 	path := "/project/" + project_slug + "/checkout-key"
 
@@ -191,4 +201,27 @@ type VcsInfo struct {
 	VcsURL        string `json:"vcs_url"`
 	Provider      string `json:"provider"`
 	DefaultBranch string `json:"default_branch"`
+}
+
+type ProjectListItem struct {
+	VcsURL   string                `json:"vcs_url"`
+	Followed bool                  `json:"followed"`
+	Username string                `json:"username"`
+	Reponame string                `json:"reponame"`
+	Branches map[string]BranchInfo `json:"branches"`
+}
+
+type BranchInfo struct {
+	PusherLogins   []string            `json:"pusher_logins"`
+	LastNonSuccess BranchRunningInfo   `json:"last_non_success"`
+	LastSuccess    BranchRunningInfo   `json:"last_success"`
+	RecentBuilds   []BranchRunningInfo `json:"recent_builds"`
+	RunningBuilds  []interface{}       `json:"running_builds"`
+}
+
+type BranchRunningInfo struct {
+	PushedAt    string `json:"pushed_at"`
+	VcsRevision string `json:"vcs_revision"`
+	BuildNum    int64  `json:"build_num"`
+	Outcome     string `json:"outcome"`
 }
