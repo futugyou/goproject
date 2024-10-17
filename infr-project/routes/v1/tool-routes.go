@@ -26,6 +26,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
 	v1.GET("/test/vercel", vercelProjectEndpoint)
 	v1.GET("/test/circleci", circleciPipeline)
 	v1.GET("/test/circleci/project", circleciProject)
+	v1.GET("/test/circleci/projects", circleciProjectList)
 	v1.GET("/test/vault", vaultSecret)
 	v1.GET("/test/tf", terraformWS)
 	v1.GET("/test/cqrs", cqrstest)
@@ -104,6 +105,19 @@ func circleciProject(c *gin.Context) {
 	name := c.Query("name")
 	f := circleci.NewClientV2(os.Getenv("CIRCLECI_TOKEN"))
 	result, _ := f.Project.GetProject(org_slug, name)
+	c.JSON(200, result)
+}
+
+// @Summary circle CI project List
+// @Description circle CI project List
+// @Tags Test
+// @Accept json
+// @Produce json
+// @Success 200 {string}  string
+// @Router /v1/test/circleci/projects [get]
+func circleciProjectList(c *gin.Context) {
+	f := circleci.NewClientV1(os.Getenv("CIRCLECI_TOKEN"))
+	result, _ := f.Project.ListProject()
 	c.JSON(200, result)
 }
 

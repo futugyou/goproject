@@ -939,6 +939,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/test/circleci/projects": {
+            "get": {
+                "description": "circle CI project List",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "circle CI project List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/test/cqrstest": {
             "get": {
                 "description": "cqrstest",

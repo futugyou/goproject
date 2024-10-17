@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/google/go-github/v61/github"
+	"github.com/google/go-github/v66/github"
 )
 
 type WorkflowService struct {

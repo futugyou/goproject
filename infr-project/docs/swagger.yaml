@@ -1314,6 +1314,21 @@ paths:
       summary: circle CI project
       tags:
       - Test
+  /v1/test/circleci/projects:
+    get:
+      consumes:
+      - application/json
+      description: circle CI project List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: circle CI project List
+      tags:
+      - Test
   /v1/test/cqrstest:
     get:
       consumes:

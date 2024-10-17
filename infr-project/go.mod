@@ -16,7 +16,6 @@ require (
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.22.1
-	github.com/google/go-github/v61 v61.0.0
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.0
