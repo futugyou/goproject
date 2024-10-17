@@ -30,7 +30,7 @@ func (s *ProjectService) ListProject() ([]ProjectListItem, error) {
 	path := "/projects"
 
 	result := []ProjectListItem{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, &result); err != nil {
 		return nil, err
 	}
 	return result, nil

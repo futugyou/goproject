@@ -7,7 +7,7 @@ type PolicyService service
 func (s *PolicyService) DecisionAuditLogs(ownerID string, context string) ([]AuditLogInfo, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision"
 	result := []AuditLogInfo{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(path, &result); err != nil {
 		return nil, err
 	}
 

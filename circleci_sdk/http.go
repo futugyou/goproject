@@ -72,6 +72,7 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 
 	req, _ := http.NewRequest(method, path, body)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
 	if c.customeHeader != nil && len(c.customeHeader) > 0 {
 		for key, value := range c.customeHeader {
 			req.Header.Set(key, value)
