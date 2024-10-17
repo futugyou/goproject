@@ -88,6 +88,7 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 
 	req, _ := http.NewRequest(method, path, body)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
 
 	if len(c.token) > 0 {
 		req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))

@@ -117,7 +117,7 @@ func (v *AccessGroupService) ListAccessGroup(projectId string, search string, sl
 		}
 	}
 	result := []AccessGroupInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err

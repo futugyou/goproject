@@ -159,7 +159,7 @@ func (v *EdgeService) GetEdgeConfigItems(edgeConfigId string, slug string, teamI
 		path += "?" + queryParams.Encode()
 	}
 	result := []EdgeConfigItemInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (v *EdgeService) GetEdgeConfigTokens(edgeConfigId string, slug string, team
 		path += "?" + queryParams.Encode()
 	}
 	result := []EdgeConfigTokennfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -243,7 +243,7 @@ func (v *EdgeService) GetEdgeConfigs(slug string, teamId string) ([]EdgeConfigIn
 		path += "?" + queryParams.Encode()
 	}
 	result := []EdgeConfigInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -264,7 +264,7 @@ func (v *EdgeService) UpdateEdgeConfigItems(edgeConfigId string, slug string, te
 		path += "?" + queryParams.Encode()
 	}
 	result := []UpdateEdgeConfigItemResponse{}
-	err := v.client.http.Patch(path, items, result)
+	err := v.client.http.Patch(path, items, &result)
 
 	if err != nil {
 		return nil, err

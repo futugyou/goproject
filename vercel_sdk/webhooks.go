@@ -86,7 +86,7 @@ func (v *WebhookService) ListWebhook(projectId string, slug string, teamId strin
 		path += "?" + queryParams.Encode()
 	}
 	result := []WebhookInfo{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(path, &result)
 
 	if err != nil {
 		return nil, err

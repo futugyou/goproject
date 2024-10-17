@@ -140,7 +140,7 @@ func (v *ProjectService) ListEnvironmentVariable(idOrName string, slug string, t
 	}
 
 	result := []ProjectEnv{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err

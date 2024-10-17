@@ -49,7 +49,7 @@ func (v *UserService) ListUserEvent(slug string, teamId string, limit string, si
 		path += "?" + queryParams.Encode()
 	}
 	result := []UserEvent{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err

@@ -72,7 +72,7 @@ func (v *AliasService) GetAlias(id string, slug string, teamId string, projectId
 		path += "?" + queryParams.Encode()
 	}
 	result := []AliasInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func (v *AliasService) ListdeploymentsAlias(id string, slug string, teamId strin
 		queryParams.Add("teamId", teamId)
 	}
 	result := []AliasInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err

@@ -41,7 +41,7 @@ func (v *CheckService) ListAllChecks(deploymentId string, slug string, teamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := []CheckInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err

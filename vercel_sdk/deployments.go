@@ -146,7 +146,7 @@ func (v *DeploymentService) GetDeploymentEvent(idOrUrl string, slug string, team
 		path += "?" + queryParams.Encode()
 	}
 	result := []DeploymentEvent{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(path, &result)
 
 	if err != nil {
 		return nil, err
