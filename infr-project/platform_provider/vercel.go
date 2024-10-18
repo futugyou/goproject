@@ -43,6 +43,16 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			team_id = value
 		}
 
+		if len(team_slug) == 0 && len(team_id) == 0 {
+			teamSlugCh, errCh := g.getDefaultTeamtSlug(ctx)
+			select {
+			case teamSlug := <-teamSlugCh:
+				team_slug = *teamSlug
+			case <-errCh:
+			case <-ctx.Done():
+			}
+		}
+
 		vercelProject, err := g.client.Project.CreateProject(team_slug, team_id, req)
 		if err != nil {
 			errorChan <- err
@@ -74,4 +84,30 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
 	return nil, nil
+}
+
+// TODO: pass context to all circelci/vercel sdk
+func (g *VercelClient) getDefaultTeamtSlug(_ context.Context) (<-chan *string, <-chan error) {
+	resultChan := make(chan *string, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		team_slug := ""
+		teams, err := g.client.Team.ListTeam("", "", "")
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		if len(teams.Teams) > 0 {
+			team_slug = teams.Teams[0].Slug
+		}
+
+		resultChan <- &team_slug
+	}()
+
+	return resultChan, errorChan
 }
