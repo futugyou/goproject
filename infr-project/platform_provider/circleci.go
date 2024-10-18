@@ -196,6 +196,38 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 	return resultChan, errorChan
 }
 
+// if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
 func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
-	return nil, nil
+	resultChan := make(chan *WebHook, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+		secret := ""
+		if s, ok := request.WebHook.Parameters["SigningSecret"]; ok && len(s) > 0 {
+			secret = s
+		}
+
+		hook, err := g.client.Webhook.CreateWebhook(request.WebHook.Name, request.WebHook.Url, request.ProjectId, secret)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		paras := map[string]string{}
+		paras["Scope"] = hook.Scope.Type
+		paras["SigningSecret"] = hook.SigningSecret
+		paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
+		webHook := &WebHook{
+			ID:         hook.Id,
+			Name:       hook.Name,
+			Url:        hook.Url,
+			Parameters: paras,
+		}
+
+		resultChan <- webHook
+	}()
+
+	return resultChan, errorChan
 }
