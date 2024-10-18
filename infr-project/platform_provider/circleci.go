@@ -3,6 +3,7 @@ package platform_provider
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/futugyou/circleci"
@@ -126,8 +127,73 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 	return resultChan, errorChan
 }
 
+// Need org_slug in ProjectFilter 'Parameters'
+// circleci webhook will set some other information in hook Parameters, it include 'Scope' 'SigningSecret' 'VerifyTLS'
 func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {
-	return nil, nil
+	resultChan := make(chan *Project, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		org_slug := ""
+		if org, ok := filter.Parameters["org_slug"]; ok {
+			org_slug = org
+		} else {
+			errorChan <- fmt.Errorf("create project request need 'org_slug' in parameters")
+			return
+		}
+
+		circleciProject, err := g.client.Project.GetProject(org_slug, filter.Name)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		orgSplit := strings.Split(org_slug, "/")
+		url := ""
+		if len(orgSplit) == 2 {
+			vsc := "github"
+			if vcs_slug, ok := CircleciVCSMapping[orgSplit[0]]; ok {
+				vsc = vcs_slug
+			}
+			circleciProjectUrl := CircleciProjectUrl
+			if url, ok := filter.Parameters["circleci_project_url"]; ok {
+				circleciProjectUrl = url
+			}
+			url = fmt.Sprintf(circleciProjectUrl, vsc, orgSplit[1], circleciProject.Name)
+		}
+
+		circleciWebhooks, err := g.client.Webhook.ListWebhook(circleciProject.ID)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		webHooks := []WebHook{}
+		for _, hook := range circleciWebhooks.Items {
+			paras := map[string]string{}
+			paras["Scope"] = hook.Scope.Type
+			paras["SigningSecret"] = hook.SigningSecret
+			paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
+			webHooks = append(webHooks, WebHook{
+				ID:         hook.Id,
+				Name:       hook.Name,
+				Url:        hook.Url,
+				Parameters: paras,
+			})
+		}
+		project := &Project{
+			ID:    circleciProject.ID,
+			Name:  circleciProject.Name,
+			Url:   url,
+			Hooks: webHooks,
+		}
+
+		resultChan <- project
+	}()
+
+	return resultChan, errorChan
 }
 
 func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
