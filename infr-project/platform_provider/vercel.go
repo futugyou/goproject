@@ -44,10 +44,13 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 		}
 
 		if len(team_slug) == 0 && len(team_id) == 0 {
-			teamSlugCh, errCh := g.getDefaultTeamtSlug(ctx)
+			teamCh, errCh := g.getDefaultTeam(ctx)
 			select {
-			case teamSlug := <-teamSlugCh:
-				team_slug = *teamSlug
+			case team := <-teamCh:
+				if team != nil {
+					team_slug = team.Slug
+					team_id = team.Id
+				}
 			case <-errCh:
 			case <-ctx.Done():
 			}
@@ -87,15 +90,15 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 }
 
 // TODO: pass context to all circelci/vercel sdk
-func (g *VercelClient) getDefaultTeamtSlug(_ context.Context) (<-chan *string, <-chan error) {
-	resultChan := make(chan *string, 1)
+func (g *VercelClient) getDefaultTeam(_ context.Context) (<-chan *VercelTeam, <-chan error) {
+	resultChan := make(chan *VercelTeam, 1)
 	errorChan := make(chan error, 1)
 
 	go func() {
 		defer close(resultChan)
 		defer close(errorChan)
 
-		team_slug := ""
+		team := new(VercelTeam)
 		teams, err := g.client.Team.ListTeam("", "", "")
 		if err != nil {
 			errorChan <- err
@@ -103,11 +106,19 @@ func (g *VercelClient) getDefaultTeamtSlug(_ context.Context) (<-chan *string, <
 		}
 
 		if len(teams.Teams) > 0 {
-			team_slug = teams.Teams[0].Slug
+			team.Slug = teams.Teams[0].Slug
+			team.Id = teams.Teams[0].Id
+			team.Name = teams.Teams[0].Name
 		}
 
-		resultChan <- &team_slug
+		resultChan <- team
 	}()
 
 	return resultChan, errorChan
+}
+
+type VercelTeam struct {
+	Id   string
+	Slug string
+	Name string
 }
