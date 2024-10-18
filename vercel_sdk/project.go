@@ -28,7 +28,7 @@ func (v *ProjectService) AddDomainToProject(idOrName string, slug string, teamId
 	return result, nil
 }
 
-func (v *ProjectService) CreateProject(name string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
+func (v *ProjectService) CreateProject(slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
 	path := "/v10/projects"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
