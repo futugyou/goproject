@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type CheckService service
 
-func (v *CheckService) CreatesCheck(deploymentId string, slug string, teamId string, req CreateCheckRequest) (*CheckInfo, error) {
+func (v *CheckService) CreatesCheck(ctx context.Context, deploymentId string, slug string, teamId string, req CreateCheckRequest) (*CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks", deploymentId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *CheckService) CreatesCheck(deploymentId string, slug string, teamId str
 		path += "?" + queryParams.Encode()
 	}
 	result := &CheckInfo{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *CheckService) CreatesCheck(deploymentId string, slug string, teamId str
 	return result, nil
 }
 
-func (v *CheckService) ListAllChecks(deploymentId string, slug string, teamId string) ([]CheckInfo, error) {
+func (v *CheckService) ListAllChecks(ctx context.Context, deploymentId string, slug string, teamId string) ([]CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks", deploymentId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -41,7 +42,7 @@ func (v *CheckService) ListAllChecks(deploymentId string, slug string, teamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := []CheckInfo{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (v *CheckService) ListAllChecks(deploymentId string, slug string, teamId st
 	return result, nil
 }
 
-func (v *CheckService) GetSingleCheck(deploymentId string, checkId string, slug string, teamId string) (*CheckInfo, error) {
+func (v *CheckService) GetSingleCheck(ctx context.Context, deploymentId string, checkId string, slug string, teamId string) (*CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks/%s", deploymentId, checkId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -62,7 +63,7 @@ func (v *CheckService) GetSingleCheck(deploymentId string, checkId string, slug 
 		path += "?" + queryParams.Encode()
 	}
 	result := &CheckInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +71,7 @@ func (v *CheckService) GetSingleCheck(deploymentId string, checkId string, slug 
 	return result, nil
 }
 
-func (v *CheckService) RerequestCheck(deploymentId string, checkId string, slug string, teamId string) (*CheckInfo, error) {
+func (v *CheckService) RerequestCheck(ctx context.Context, deploymentId string, checkId string, slug string, teamId string) (*CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks/%s/rerequest", deploymentId, checkId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -83,7 +84,7 @@ func (v *CheckService) RerequestCheck(deploymentId string, checkId string, slug 
 		path += "?" + queryParams.Encode()
 	}
 	result := &CheckInfo{}
-	err := v.client.http.Post(path, nil, result)
+	err := v.client.http.Post(ctx, path, nil, result)
 
 	if err != nil {
 		return nil, err
@@ -91,7 +92,7 @@ func (v *CheckService) RerequestCheck(deploymentId string, checkId string, slug 
 	return result, nil
 }
 
-func (v *CheckService) UpdateCheck(deploymentId string, checkId string, slug string, teamId string, req CheckInfo) (*CheckInfo, error) {
+func (v *CheckService) UpdateCheck(ctx context.Context, deploymentId string, checkId string, slug string, teamId string, req CheckInfo) (*CheckInfo, error) {
 	path := fmt.Sprintf("/v1/deployments/%s/checks/%s", deploymentId, checkId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -104,7 +105,7 @@ func (v *CheckService) UpdateCheck(deploymentId string, checkId string, slug str
 		path += "?" + queryParams.Encode()
 	}
 	result := &CheckInfo{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err

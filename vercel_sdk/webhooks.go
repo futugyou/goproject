@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type WebhookService service
 
-func (v *WebhookService) CreateWebhook(slug string, teamId string, req CreateWebhookRequest) (*WebhookInfo, error) {
+func (v *WebhookService) CreateWebhook(ctx context.Context, slug string, teamId string, req CreateWebhookRequest) (*WebhookInfo, error) {
 	path := "/v1/webhooks"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *WebhookService) CreateWebhook(slug string, teamId string, req CreateWeb
 		path += "?" + queryParams.Encode()
 	}
 	result := &WebhookInfo{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *WebhookService) CreateWebhook(slug string, teamId string, req CreateWeb
 	return result, nil
 }
 
-func (v *WebhookService) DeleteWebhook(id string, slug string, teamId string) (*string, error) {
+func (v *WebhookService) DeleteWebhook(ctx context.Context, id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/webhooks/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -41,7 +42,7 @@ func (v *WebhookService) DeleteWebhook(id string, slug string, teamId string) (*
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.client.http.Delete(path, &result)
+	err := v.client.http.Delete(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (v *WebhookService) DeleteWebhook(id string, slug string, teamId string) (*
 	return &result, nil
 }
 
-func (v *WebhookService) GetWebhook(id string, slug string, teamId string) (*WebhookInfo, error) {
+func (v *WebhookService) GetWebhook(ctx context.Context, id string, slug string, teamId string) (*WebhookInfo, error) {
 	path := fmt.Sprintf("/v1/webhooks/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -62,7 +63,7 @@ func (v *WebhookService) GetWebhook(id string, slug string, teamId string) (*Web
 		path += "?" + queryParams.Encode()
 	}
 	result := &WebhookInfo{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +71,7 @@ func (v *WebhookService) GetWebhook(id string, slug string, teamId string) (*Web
 	return result, nil
 }
 
-func (v *WebhookService) ListWebhook(projectId string, slug string, teamId string) ([]WebhookInfo, error) {
+func (v *WebhookService) ListWebhook(ctx context.Context, projectId string, slug string, teamId string) ([]WebhookInfo, error) {
 	path := "/v1/webhooks"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -86,7 +87,7 @@ func (v *WebhookService) ListWebhook(projectId string, slug string, teamId strin
 		path += "?" + queryParams.Encode()
 	}
 	result := []WebhookInfo{}
-	err := v.client.http.Delete(path, &result)
+	err := v.client.http.Delete(ctx, path, &result)
 
 	if err != nil {
 		return nil, err

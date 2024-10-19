@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type ProjectService service
 
-func (v *ProjectService) AddDomainToProject(idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
+func (v *ProjectService) AddDomainToProject(ctx context.Context, idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v10/projects/%s/domains", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *ProjectService) AddDomainToProject(idOrName string, slug string, teamId
 		path += "?" + queryParams.Encode()
 	}
 	result := &ProjectDomainInfo{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *ProjectService) AddDomainToProject(idOrName string, slug string, teamId
 	return result, nil
 }
 
-func (v *ProjectService) CreateProject(slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
+func (v *ProjectService) CreateProject(ctx context.Context, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
 	path := "/v10/projects"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -42,7 +43,7 @@ func (v *ProjectService) CreateProject(slug string, teamId string, req CreatePro
 	}
 
 	result := &ProjectInfo{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func (v *ProjectService) CreateProject(slug string, teamId string, req CreatePro
 	return result, nil
 }
 
-func (v *ProjectService) CreateEnvironmentVariables(idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectEnvResponse, error) {
+func (v *ProjectService) CreateEnvironmentVariables(ctx context.Context, idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectEnvResponse, error) {
 	path := fmt.Sprintf("/v10/projects/%s/env", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -64,7 +65,7 @@ func (v *ProjectService) CreateEnvironmentVariables(idOrName string, slug string
 	}
 
 	result := &CreateProjectEnvResponse{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (v *ProjectService) CreateEnvironmentVariables(idOrName string, slug string
 	return result, nil
 }
 
-func (v *ProjectService) DeleteProject(idOrName string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) DeleteProject(ctx context.Context, idOrName string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v9/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -86,7 +87,7 @@ func (v *ProjectService) DeleteProject(idOrName string, slug string, teamId stri
 	}
 
 	result := ""
-	err := v.client.http.Delete(path, &result)
+	err := v.client.http.Delete(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -94,7 +95,7 @@ func (v *ProjectService) DeleteProject(idOrName string, slug string, teamId stri
 	return &result, nil
 }
 
-func (v *ProjectService) EditEnvironmentVariable(idOrName string, id string, slug string, teamId string, req ProjectEnv) (*ProjectEnv, error) {
+func (v *ProjectService) EditEnvironmentVariable(ctx context.Context, idOrName string, id string, slug string, teamId string, req ProjectEnv) (*ProjectEnv, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -108,7 +109,7 @@ func (v *ProjectService) EditEnvironmentVariable(idOrName string, id string, slu
 	}
 
 	result := &ProjectEnv{}
-	err := v.client.http.Patch(path, req, result)
+	err := v.client.http.Patch(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -116,7 +117,7 @@ func (v *ProjectService) EditEnvironmentVariable(idOrName string, id string, slu
 	return result, nil
 }
 
-func (v *ProjectService) ListEnvironmentVariable(idOrName string, slug string, teamId string, decrypt string,
+func (v *ProjectService) ListEnvironmentVariable(ctx context.Context, idOrName string, slug string, teamId string, decrypt string,
 	gitBranch string, source string) ([]ProjectEnv, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env", idOrName)
 	queryParams := url.Values{}
@@ -140,7 +141,7 @@ func (v *ProjectService) ListEnvironmentVariable(idOrName string, slug string, t
 	}
 
 	result := []ProjectEnv{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -148,7 +149,7 @@ func (v *ProjectService) ListEnvironmentVariable(idOrName string, slug string, t
 	return result, nil
 }
 
-func (v *ProjectService) GetProject(idOrName string, slug string, teamId string) (*ProjectInfo, error) {
+func (v *ProjectService) GetProject(ctx context.Context, idOrName string, slug string, teamId string) (*ProjectInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -159,7 +160,7 @@ func (v *ProjectService) GetProject(idOrName string, slug string, teamId string)
 	}
 
 	result := &ProjectInfo{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -167,7 +168,7 @@ func (v *ProjectService) GetProject(idOrName string, slug string, teamId string)
 	return result, nil
 }
 
-func (v *ProjectService) GetProjectDomain(idOrName string, domain string, slug string, teamId string) (*ProjectDomainInfo, error) {
+func (v *ProjectService) GetProjectDomain(ctx context.Context, idOrName string, domain string, slug string, teamId string) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -178,7 +179,7 @@ func (v *ProjectService) GetProjectDomain(idOrName string, domain string, slug s
 	}
 
 	result := &ProjectDomainInfo{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -186,7 +187,7 @@ func (v *ProjectService) GetProjectDomain(idOrName string, domain string, slug s
 	return result, nil
 }
 
-func (v *ProjectService) ListProjectDomain(idOrName string, slug string, teamId string) (*ListProjectDomainResponse, error) {
+func (v *ProjectService) ListProjectDomain(ctx context.Context, idOrName string, slug string, teamId string) (*ListProjectDomainResponse, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -197,7 +198,7 @@ func (v *ProjectService) ListProjectDomain(idOrName string, slug string, teamId 
 	}
 
 	result := &ListProjectDomainResponse{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -205,7 +206,7 @@ func (v *ProjectService) ListProjectDomain(idOrName string, slug string, teamId 
 	return result, nil
 }
 
-func (v *ProjectService) GetEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
+func (v *ProjectService) GetEnvironmentVariable(ctx context.Context, idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
 	path := fmt.Sprintf("/v1/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -216,7 +217,7 @@ func (v *ProjectService) GetEnvironmentVariable(idOrName string, id string, slug
 	}
 
 	result := &ProjectEnv{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -224,7 +225,7 @@ func (v *ProjectService) GetEnvironmentVariable(idOrName string, id string, slug
 	return result, nil
 }
 
-func (v *ProjectService) ListProject(slug string, teamId string) (*ListProjectResponse, error) {
+func (v *ProjectService) ListProject(ctx context.Context, slug string, teamId string) (*ListProjectResponse, error) {
 	path := "/v9/projects"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -235,7 +236,7 @@ func (v *ProjectService) ListProject(slug string, teamId string) (*ListProjectRe
 	}
 
 	result := &ListProjectResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -243,7 +244,7 @@ func (v *ProjectService) ListProject(slug string, teamId string) (*ListProjectRe
 	return result, nil
 }
 
-func (v *ProjectService) ListProjectAlias(projectId string, slug string, teamId string) (*ListProjectAliasResponse, error) {
+func (v *ProjectService) ListProjectAlias(ctx context.Context, projectId string, slug string, teamId string) (*ListProjectAliasResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/promote/aliases", projectId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -254,7 +255,7 @@ func (v *ProjectService) ListProjectAlias(projectId string, slug string, teamId 
 	}
 
 	result := &ListProjectAliasResponse{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -262,7 +263,7 @@ func (v *ProjectService) ListProjectAlias(projectId string, slug string, teamId 
 	return result, nil
 }
 
-func (v *ProjectService) PauseProject(projectId string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) PauseProject(ctx context.Context, projectId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/projects/%s/pause", projectId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -273,7 +274,7 @@ func (v *ProjectService) PauseProject(projectId string, slug string, teamId stri
 	}
 
 	result := ""
-	err := v.client.http.Post(path, nil, &result)
+	err := v.client.http.Post(ctx, path, nil, &result)
 
 	if err != nil {
 		return nil, err
@@ -281,7 +282,7 @@ func (v *ProjectService) PauseProject(projectId string, slug string, teamId stri
 	return &result, nil
 }
 
-func (v *ProjectService) RemoveDomainFromProject(idOrName string, domain string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) RemoveDomainFromProject(ctx context.Context, idOrName string, domain string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -292,7 +293,7 @@ func (v *ProjectService) RemoveDomainFromProject(idOrName string, domain string,
 	}
 
 	result := ""
-	err := v.client.http.Delete(path, &result)
+	err := v.client.http.Delete(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -300,7 +301,7 @@ func (v *ProjectService) RemoveDomainFromProject(idOrName string, domain string,
 	return &result, nil
 }
 
-func (v *ProjectService) RemoveEnvironmentVariable(idOrName string, id string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) RemoveEnvironmentVariable(ctx context.Context, idOrName string, id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -311,7 +312,7 @@ func (v *ProjectService) RemoveEnvironmentVariable(idOrName string, id string, s
 	}
 
 	result := ""
-	err := v.client.http.Delete(path, &result)
+	err := v.client.http.Delete(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -319,7 +320,7 @@ func (v *ProjectService) RemoveEnvironmentVariable(idOrName string, id string, s
 	return &result, nil
 }
 
-func (v *ProjectService) PointsProductionDomains(projectId string, deploymentId string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) PointsProductionDomains(ctx context.Context, projectId string, deploymentId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v10/projects/%s/promote/%s", projectId, deploymentId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -330,7 +331,7 @@ func (v *ProjectService) PointsProductionDomains(projectId string, deploymentId 
 	}
 
 	result := ""
-	err := v.client.http.Post(path, nil, &result)
+	err := v.client.http.Post(ctx, path, nil, &result)
 
 	if err != nil {
 		return nil, err
@@ -338,7 +339,7 @@ func (v *ProjectService) PointsProductionDomains(projectId string, deploymentId 
 	return &result, nil
 }
 
-func (v *ProjectService) UnpauseProject(projectId string, slug string, teamId string) (*string, error) {
+func (v *ProjectService) UnpauseProject(ctx context.Context, projectId string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/projects/%s/unpause", projectId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -349,7 +350,7 @@ func (v *ProjectService) UnpauseProject(projectId string, slug string, teamId st
 	}
 
 	result := ""
-	err := v.client.http.Post(path, nil, &result)
+	err := v.client.http.Post(ctx, path, nil, &result)
 
 	if err != nil {
 		return nil, err
@@ -357,7 +358,7 @@ func (v *ProjectService) UnpauseProject(projectId string, slug string, teamId st
 	return &result, nil
 }
 
-func (v *ProjectService) UpdateProject(idOrName string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
+func (v *ProjectService) UpdateProject(ctx context.Context, idOrName string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -368,7 +369,7 @@ func (v *ProjectService) UpdateProject(idOrName string, slug string, teamId stri
 	}
 
 	result := &ProjectInfo{}
-	err := v.client.http.Patch(path, req, result)
+	err := v.client.http.Patch(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -376,7 +377,7 @@ func (v *ProjectService) UpdateProject(idOrName string, slug string, teamId stri
 	return result, nil
 }
 
-func (v *ProjectService) UpdateProjectDataCache(idOrName string, slug string, teamId string, disabled bool) (*ProjectInfo, error) {
+func (v *ProjectService) UpdateProjectDataCache(ctx context.Context, idOrName string, slug string, teamId string, disabled bool) (*ProjectInfo, error) {
 	path := fmt.Sprintf("/v1/data-cache/projects/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -391,7 +392,7 @@ func (v *ProjectService) UpdateProjectDataCache(idOrName string, slug string, te
 		Disabled: disabled,
 	}
 	result := &ProjectInfo{}
-	err := v.client.http.Patch(path, req, result)
+	err := v.client.http.Patch(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -399,7 +400,7 @@ func (v *ProjectService) UpdateProjectDataCache(idOrName string, slug string, te
 	return result, nil
 }
 
-func (v *ProjectService) UpdateProjectDomain(idOrName string, domain string,
+func (v *ProjectService) UpdateProjectDomain(ctx context.Context, idOrName string, domain string,
 	slug string, teamId string, req UpdateProjectDomainRequest) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
 	queryParams := url.Values{}
@@ -410,7 +411,7 @@ func (v *ProjectService) UpdateProjectDomain(idOrName string, domain string,
 		queryParams.Add("teamId", teamId)
 	}
 	result := &ProjectDomainInfo{}
-	err := v.client.http.Patch(path, req, result)
+	err := v.client.http.Patch(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -418,7 +419,7 @@ func (v *ProjectService) UpdateProjectDomain(idOrName string, domain string,
 	return result, nil
 }
 
-func (v *ProjectService) UpdateProtectionBypass(idOrName string, slug string, teamId string, req UpdateProtectionBypassRequest,
+func (v *ProjectService) UpdateProtectionBypass(ctx context.Context, idOrName string, slug string, teamId string, req UpdateProtectionBypassRequest,
 ) (*string, error) {
 	path := fmt.Sprintf("/v1/projects/%s/protection-bypass", idOrName)
 	queryParams := url.Values{}
@@ -429,7 +430,7 @@ func (v *ProjectService) UpdateProtectionBypass(idOrName string, slug string, te
 		queryParams.Add("teamId", teamId)
 	}
 	result := ""
-	err := v.client.http.Patch(path, req, &result)
+	err := v.client.http.Patch(ctx, path, req, &result)
 
 	if err != nil {
 		return nil, err
@@ -437,7 +438,7 @@ func (v *ProjectService) UpdateProtectionBypass(idOrName string, slug string, te
 	return &result, nil
 }
 
-func (v *ProjectService) VerifyProjectDomain(idOrName string, domain string,
+func (v *ProjectService) VerifyProjectDomain(ctx context.Context, idOrName string, domain string,
 	slug string, teamId string) (*ProjectDomainInfo, error) {
 	path := fmt.Sprintf("/v9/projects/%s/domains/%s/verify", idOrName, domain)
 	queryParams := url.Values{}
@@ -448,7 +449,7 @@ func (v *ProjectService) VerifyProjectDomain(idOrName string, domain string,
 		queryParams.Add("teamId", teamId)
 	}
 	result := &ProjectDomainInfo{}
-	err := v.client.http.Post(path, nil, result)
+	err := v.client.http.Post(ctx, path, nil, result)
 
 	if err != nil {
 		return nil, err

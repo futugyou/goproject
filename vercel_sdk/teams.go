@@ -1,22 +1,23 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type TeamService service
 
-func (v *TeamService) CreateTeam(req CreateTeamRequest) (*TeamInfo, error) {
+func (v *TeamService) CreateTeam(ctx context.Context, req CreateTeamRequest) (*TeamInfo, error) {
 	path := "/v1/teams"
 	result := &TeamInfo{}
-	if err := v.client.http.Post(path, req, result); err != nil {
+	if err := v.client.http.Post(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (v *TeamService) DeleteTeam(teamId string, slug string, newDefaultTeamId string) (*DeleteTeamResponse, error) {
+func (v *TeamService) DeleteTeam(ctx context.Context, teamId string, slug string, newDefaultTeamId string) (*DeleteTeamResponse, error) {
 	path := fmt.Sprintf("/v1/teams/%s", teamId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -29,25 +30,25 @@ func (v *TeamService) DeleteTeam(teamId string, slug string, newDefaultTeamId st
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeleteTeamResponse{}
-	if err := v.client.http.Delete(path, result); err != nil {
+	if err := v.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) DeleteTeamInviteCode(teamId string, inviteId string) (*DeleteTeamInviteCodeResponse, error) {
+func (v *TeamService) DeleteTeamInviteCode(ctx context.Context, teamId string, inviteId string) (*DeleteTeamInviteCodeResponse, error) {
 	path := fmt.Sprintf("/v1/teams/%s/invites/%s", teamId, inviteId)
 
 	result := &DeleteTeamInviteCodeResponse{}
-	if err := v.client.http.Delete(path, result); err != nil {
+	if err := v.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) GetTeam(teamId string, slug string) (*TeamInfo, error) {
+func (v *TeamService) GetTeam(ctx context.Context, teamId string, slug string) (*TeamInfo, error) {
 	path := fmt.Sprintf("/v2/teams/%s", teamId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -57,24 +58,24 @@ func (v *TeamService) GetTeam(teamId string, slug string) (*TeamInfo, error) {
 		path += "?" + queryParams.Encode()
 	}
 	result := &TeamInfo{}
-	if err := v.client.http.Get(path, result); err != nil {
+	if err := v.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) GetAccessRequestStatus(teamId string, userId string) (*AccessRequestStatus, error) {
+func (v *TeamService) GetAccessRequestStatus(ctx context.Context, teamId string, userId string) (*AccessRequestStatus, error) {
 	path := fmt.Sprintf("/v1/teams/%s/request/%s", teamId, userId)
 	result := &AccessRequestStatus{}
-	if err := v.client.http.Get(path, result); err != nil {
+	if err := v.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) ListTeamMembers(teamId string, eligibleMembersForProjectId string, excludeProject string,
+func (v *TeamService) ListTeamMembers(ctx context.Context, teamId string, eligibleMembersForProjectId string, excludeProject string,
 	limit string, role string, search string, since string, until string) (*ListTeamMembersResponse, error) {
 	path := fmt.Sprintf("/v2/teams/%s/members", teamId)
 	queryParams := url.Values{}
@@ -104,14 +105,14 @@ func (v *TeamService) ListTeamMembers(teamId string, eligibleMembersForProjectId
 	}
 
 	result := &ListTeamMembersResponse{}
-	if err := v.client.http.Get(path, result); err != nil {
+	if err := v.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) ListTeam(limit string, since string, until string) (*ListTeamResponse, error) {
+func (v *TeamService) ListTeam(ctx context.Context, limit string, since string, until string) (*ListTeamResponse, error) {
 	path := "/v2/teams"
 	queryParams := url.Values{}
 	if len(limit) > 0 {
@@ -127,24 +128,24 @@ func (v *TeamService) ListTeam(limit string, since string, until string) (*ListT
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListTeamResponse{}
-	if err := v.client.http.Get(path, result); err != nil {
+	if err := v.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) InviteUser(teamId string, req InviteUserRequest) (*InviteUserResponse, error) {
+func (v *TeamService) InviteUser(ctx context.Context, teamId string, req InviteUserRequest) (*InviteUserResponse, error) {
 	path := fmt.Sprintf("/v1/teams/%s/members", teamId)
 	result := &InviteUserResponse{}
-	if err := v.client.http.Post(path, req, result); err != nil {
+	if err := v.client.http.Post(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) JoinTeam(teamId string, inviteCode string) (*JoinTeamResponse, error) {
+func (v *TeamService) JoinTeam(ctx context.Context, teamId string, inviteCode string) (*JoinTeamResponse, error) {
 	path := fmt.Sprintf("/v1/teams/%s/members/teams/join", teamId)
 	req := struct {
 		InviteCode string `json:"inviteCode,omitempty"`
@@ -152,14 +153,14 @@ func (v *TeamService) JoinTeam(teamId string, inviteCode string) (*JoinTeamRespo
 		InviteCode: inviteCode,
 	}
 	result := &JoinTeamResponse{}
-	if err := v.client.http.Post(path, req, result); err != nil {
+	if err := v.client.http.Post(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) UpdateTeam(teamId string, slug string, req UpdateTeamInfo) (*TeamInfo, error) {
+func (v *TeamService) UpdateTeam(ctx context.Context, teamId string, slug string, req UpdateTeamInfo) (*TeamInfo, error) {
 	path := fmt.Sprintf("/v2/teams/%s", teamId)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -169,14 +170,14 @@ func (v *TeamService) UpdateTeam(teamId string, slug string, req UpdateTeamInfo)
 		path += "?" + queryParams.Encode()
 	}
 	result := &TeamInfo{}
-	if err := v.client.http.Patch(path, req, result); err != nil {
+	if err := v.client.http.Patch(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) RemoveTeamMember(teamId string, uid string, newDefaultTeamId string) (*RemoveTeamMemberResponse, error) {
+func (v *TeamService) RemoveTeamMember(ctx context.Context, teamId string, uid string, newDefaultTeamId string) (*RemoveTeamMemberResponse, error) {
 	path := fmt.Sprintf("/v1/teams/%s/members/%s", teamId, uid)
 	queryParams := url.Values{}
 	if len(newDefaultTeamId) > 0 {
@@ -186,27 +187,27 @@ func (v *TeamService) RemoveTeamMember(teamId string, uid string, newDefaultTeam
 		path += "?" + queryParams.Encode()
 	}
 	result := &RemoveTeamMemberResponse{}
-	if err := v.client.http.Delete(path, result); err != nil {
+	if err := v.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) RequestAccessToTeam(teamId string, req JoinedFrom) (*AccessRequestStatus, error) {
+func (v *TeamService) RequestAccessToTeam(ctx context.Context, teamId string, req JoinedFrom) (*AccessRequestStatus, error) {
 	path := fmt.Sprintf("/v1/teams/%s/request", teamId)
 	result := &AccessRequestStatus{}
-	if err := v.client.http.Post(path, req, result); err != nil {
+	if err := v.client.http.Post(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (v *TeamService) UpdateTeamMember(teamId string, uid string, req UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error) {
+func (v *TeamService) UpdateTeamMember(ctx context.Context, teamId string, uid string, req UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error) {
 	path := fmt.Sprintf("/v1/teams/%s/members/%s", teamId, uid)
 	result := &UpdateTeamMemberResponse{}
-	if err := v.client.http.Patch(path, req, result); err != nil {
+	if err := v.client.http.Patch(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 

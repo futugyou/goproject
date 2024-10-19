@@ -56,7 +56,7 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			}
 		}
 
-		vercelProject, err := g.client.Project.CreateProject(team_slug, team_id, req)
+		vercelProject, err := g.client.Project.CreateProject(ctx, team_slug, team_id, req)
 		if err != nil {
 			errorChan <- err
 			return
@@ -90,7 +90,7 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 }
 
 // TODO: pass context to all circelci/vercel sdk
-func (g *VercelClient) getDefaultTeam(_ context.Context) (<-chan *VercelTeam, <-chan error) {
+func (g *VercelClient) getDefaultTeam(ctx context.Context) (<-chan *VercelTeam, <-chan error) {
 	resultChan := make(chan *VercelTeam, 1)
 	errorChan := make(chan error, 1)
 
@@ -99,7 +99,7 @@ func (g *VercelClient) getDefaultTeam(_ context.Context) (<-chan *VercelTeam, <-
 		defer close(errorChan)
 
 		team := new(VercelTeam)
-		teams, err := g.client.Team.ListTeam("", "", "")
+		teams, err := g.client.Team.ListTeam(ctx, "", "", "")
 		if err != nil {
 			errorChan <- err
 			return

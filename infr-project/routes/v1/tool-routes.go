@@ -73,8 +73,9 @@ func workflowEndpoint(c *gin.Context) {
 // @Success 200 {string}  string
 // @Router /v1/test/vercel [get]
 func vercelProjectEndpoint(c *gin.Context) {
+	ctx := c.Request.Context()
 	f := vercel.NewClient(os.Getenv("VERCEL_TOKEN"))
-	result, _ := f.Project.ListProject("", "")
+	result, _ := f.Project.ListProject(ctx, "", "")
 	c.JSON(200, result)
 }
 

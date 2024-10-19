@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type IntegrationService service
 
-func (v *IntegrationService) DeleteIntegrationConfiguration(id string, slug string, teamId string) (*string, error) {
+func (v *IntegrationService) DeleteIntegrationConfiguration(ctx context.Context, id string, slug string, teamId string) (*string, error) {
 	path := fmt.Sprintf("/v1/integrations/configuration/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *IntegrationService) DeleteIntegrationConfiguration(id string, slug stri
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.client.http.Delete(path, &result)
+	err := v.client.http.Delete(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *IntegrationService) DeleteIntegrationConfiguration(id string, slug stri
 	return &result, nil
 }
 
-func (v *IntegrationService) RetrieveIntegrationConfiguration(id string, slug string, teamId string) (*IntegrationConfigurationInfo, error) {
+func (v *IntegrationService) RetrieveIntegrationConfiguration(ctx context.Context, id string, slug string, teamId string) (*IntegrationConfigurationInfo, error) {
 	path := fmt.Sprintf("/v1/integrations/configuration/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -41,7 +42,7 @@ func (v *IntegrationService) RetrieveIntegrationConfiguration(id string, slug st
 		path += "?" + queryParams.Encode()
 	}
 	result := &IntegrationConfigurationInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (v *IntegrationService) RetrieveIntegrationConfiguration(id string, slug st
 	return result, nil
 }
 
-func (v *IntegrationService) GetConfiguration(view string, slug string, teamId string) (*string, error) {
+func (v *IntegrationService) GetConfiguration(ctx context.Context, view string, slug string, teamId string) (*string, error) {
 	path := "/v1/integrations/configurations"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -65,7 +66,7 @@ func (v *IntegrationService) GetConfiguration(view string, slug string, teamId s
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (v *IntegrationService) GetConfiguration(view string, slug string, teamId s
 	return &result, nil
 }
 
-func (v *IntegrationService) ListGitByProvider(host string, provider string, slug string, teamId string) ([]ListGitByProviderResponse, error) {
+func (v *IntegrationService) ListGitByProvider(ctx context.Context, host string, provider string, slug string, teamId string) ([]ListGitByProviderResponse, error) {
 	path := "/v1/integrations/git-namespaces"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -92,7 +93,7 @@ func (v *IntegrationService) ListGitByProvider(host string, provider string, slu
 		path += "?" + queryParams.Encode()
 	}
 	result := []ListGitByProviderResponse{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -100,7 +101,7 @@ func (v *IntegrationService) ListGitByProvider(host string, provider string, slu
 	return result, nil
 }
 
-func (v *IntegrationService) ListGitLinkedByProvider(host string, installationId string, namespaceId string, query string,
+func (v *IntegrationService) ListGitLinkedByProvider(ctx context.Context, host string, installationId string, namespaceId string, query string,
 	provider string, slug string, teamId string) (*ListGitLinkedByProviderResponse, error) {
 	path := "/v1/integrations/search-repo"
 	queryParams := url.Values{}
@@ -129,7 +130,7 @@ func (v *IntegrationService) ListGitLinkedByProvider(host string, installationId
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListGitLinkedByProviderResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err

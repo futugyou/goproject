@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type DomainService service
 
-func (v *DomainService) PurchaseDomain(slug string, teamId string, req PurchaseDomainRequest) (*PurchaseDomainResponse, error) {
+func (v *DomainService) PurchaseDomain(ctx context.Context, slug string, teamId string, req PurchaseDomainRequest) (*PurchaseDomainResponse, error) {
 	path := "/v5/domains/buy"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *DomainService) PurchaseDomain(slug string, teamId string, req PurchaseD
 		path += "?" + queryParams.Encode()
 	}
 	result := &PurchaseDomainResponse{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *DomainService) PurchaseDomain(slug string, teamId string, req PurchaseD
 	return result, nil
 }
 
-func (v *DomainService) CheckDomainPrice(slug string, teamId string, name string, domainType string) (*CheckDomainPriceResponse, error) {
+func (v *DomainService) CheckDomainPrice(ctx context.Context, slug string, teamId string, name string, domainType string) (*CheckDomainPriceResponse, error) {
 	path := "/v4/domains/price"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -47,7 +48,7 @@ func (v *DomainService) CheckDomainPrice(slug string, teamId string, name string
 		path += "?" + queryParams.Encode()
 	}
 	result := &CheckDomainPriceResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -55,7 +56,7 @@ func (v *DomainService) CheckDomainPrice(slug string, teamId string, name string
 	return result, nil
 }
 
-func (v *DomainService) CheckDomainAvailability(slug string, teamId string, name string) (*CheckDomainAvailabilityResponse, error) {
+func (v *DomainService) CheckDomainAvailability(ctx context.Context, slug string, teamId string, name string) (*CheckDomainAvailabilityResponse, error) {
 	path := "/v4/domains/status"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -71,7 +72,7 @@ func (v *DomainService) CheckDomainAvailability(slug string, teamId string, name
 		path += "?" + queryParams.Encode()
 	}
 	result := &CheckDomainAvailabilityResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -79,7 +80,7 @@ func (v *DomainService) CheckDomainAvailability(slug string, teamId string, name
 	return result, nil
 }
 
-func (v *DomainService) RegisterDomain(slug string, teamId string, req RegisterDomainRequest) (*RegisterDomainResponse, error) {
+func (v *DomainService) RegisterDomain(ctx context.Context, slug string, teamId string, req RegisterDomainRequest) (*RegisterDomainResponse, error) {
 	path := "/v5/domains"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -92,7 +93,7 @@ func (v *DomainService) RegisterDomain(slug string, teamId string, req RegisterD
 		path += "?" + queryParams.Encode()
 	}
 	result := &RegisterDomainResponse{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -100,7 +101,7 @@ func (v *DomainService) RegisterDomain(slug string, teamId string, req RegisterD
 	return result, nil
 }
 
-func (v *DomainService) RemoveDomain(slug string, teamId string, domain string) (*RemoveDomainResponse, error) {
+func (v *DomainService) RemoveDomain(ctx context.Context, slug string, teamId string, domain string) (*RemoveDomainResponse, error) {
 	path := fmt.Sprintf("/v6/domains/%s", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -113,7 +114,7 @@ func (v *DomainService) RemoveDomain(slug string, teamId string, domain string) 
 		path += "?" + queryParams.Encode()
 	}
 	result := &RemoveDomainResponse{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -121,7 +122,7 @@ func (v *DomainService) RemoveDomain(slug string, teamId string, domain string) 
 	return result, nil
 }
 
-func (v *DomainService) GetDomain(slug string, teamId string, domain string) (*DomainInfo, error) {
+func (v *DomainService) GetDomain(ctx context.Context, slug string, teamId string, domain string) (*DomainInfo, error) {
 	path := fmt.Sprintf("/v5/domains/%s", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -134,7 +135,7 @@ func (v *DomainService) GetDomain(slug string, teamId string, domain string) (*D
 		path += "?" + queryParams.Encode()
 	}
 	result := &DomainInfo{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -142,7 +143,7 @@ func (v *DomainService) GetDomain(slug string, teamId string, domain string) (*D
 	return result, nil
 }
 
-func (v *DomainService) GetDomainConfiguration(slug string, teamId string, domain string, strict string) (*DomainConfiguration, error) {
+func (v *DomainService) GetDomainConfiguration(ctx context.Context, slug string, teamId string, domain string, strict string) (*DomainConfiguration, error) {
 	path := fmt.Sprintf("/v6/domains/%s/config", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -158,7 +159,7 @@ func (v *DomainService) GetDomainConfiguration(slug string, teamId string, domai
 		path += "?" + queryParams.Encode()
 	}
 	result := &DomainConfiguration{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -166,7 +167,7 @@ func (v *DomainService) GetDomainConfiguration(slug string, teamId string, domai
 	return result, nil
 }
 
-func (v *DomainService) GetDomainTransfer(slug string, teamId string, domain string) (*DomainTransfer, error) {
+func (v *DomainService) GetDomainTransfer(ctx context.Context, slug string, teamId string, domain string) (*DomainTransfer, error) {
 	path := fmt.Sprintf("/v1/domains/%s/registry", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -179,7 +180,7 @@ func (v *DomainService) GetDomainTransfer(slug string, teamId string, domain str
 		path += "?" + queryParams.Encode()
 	}
 	result := &DomainTransfer{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -187,7 +188,7 @@ func (v *DomainService) GetDomainTransfer(slug string, teamId string, domain str
 	return result, nil
 }
 
-func (v *DomainService) ListDomains(slug string, teamId string, limit string, since string, until string) (*ListDomainsResponse, error) {
+func (v *DomainService) ListDomains(ctx context.Context, slug string, teamId string, limit string, since string, until string) (*ListDomainsResponse, error) {
 	path := "/v5/domains"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -209,7 +210,7 @@ func (v *DomainService) ListDomains(slug string, teamId string, limit string, si
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListDomainsResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -217,7 +218,7 @@ func (v *DomainService) ListDomains(slug string, teamId string, limit string, si
 	return result, nil
 }
 
-func (v *DomainService) UpdateDomain(domain string, slug string, teamId string, req UpdateDomainRequest) (*UpdateDomainResponse, error) {
+func (v *DomainService) UpdateDomain(ctx context.Context, domain string, slug string, teamId string, req UpdateDomainRequest) (*UpdateDomainResponse, error) {
 	path := fmt.Sprintf("/v3/domains/%s", domain)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -230,7 +231,7 @@ func (v *DomainService) UpdateDomain(domain string, slug string, teamId string, 
 		path += "?" + queryParams.Encode()
 	}
 	result := &UpdateDomainResponse{}
-	err := v.client.http.Patch(path, req, result)
+	err := v.client.http.Patch(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err

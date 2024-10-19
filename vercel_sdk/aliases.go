@@ -1,6 +1,7 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -8,7 +9,7 @@ import (
 
 type AliasService service
 
-func (v *AliasService) AssignAlias(id string, slug string, teamId string, info AssignAliasRequest) (*AssignAliasResponse, error) {
+func (v *AliasService) AssignAlias(ctx context.Context, id string, slug string, teamId string, info AssignAliasRequest) (*AssignAliasResponse, error) {
 	path := fmt.Sprintf("/v2/deployments/%s/aliases", id)
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -21,7 +22,7 @@ func (v *AliasService) AssignAlias(id string, slug string, teamId string, info A
 		}
 	}
 	result := &AssignAliasResponse{}
-	err := v.client.http.Post(path, info, result)
+	err := v.client.http.Post(ctx, path, info, result)
 
 	if err != nil {
 		return nil, err
@@ -29,7 +30,7 @@ func (v *AliasService) AssignAlias(id string, slug string, teamId string, info A
 	return result, nil
 }
 
-func (v *AliasService) DeleteAlias(id string, slug string, teamId string) (*DeleteAliasResponse, error) {
+func (v *AliasService) DeleteAlias(ctx context.Context, id string, slug string, teamId string) (*DeleteAliasResponse, error) {
 	path := fmt.Sprintf("/v2/aliases/%s", id)
 	if len(slug) > 0 {
 		path += ("?slug=" + slug)
@@ -42,7 +43,7 @@ func (v *AliasService) DeleteAlias(id string, slug string, teamId string) (*Dele
 		}
 	}
 	result := &DeleteAliasResponse{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func (v *AliasService) DeleteAlias(id string, slug string, teamId string) (*Dele
 	return result, nil
 }
 
-func (v *AliasService) GetAlias(id string, slug string, teamId string, projectId string, since string, until string) ([]AliasInfo, error) {
+func (v *AliasService) GetAlias(ctx context.Context, id string, slug string, teamId string, projectId string, since string, until string) ([]AliasInfo, error) {
 	path := fmt.Sprintf("/v4/aliases/%s", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -72,7 +73,7 @@ func (v *AliasService) GetAlias(id string, slug string, teamId string, projectId
 		path += "?" + queryParams.Encode()
 	}
 	result := []AliasInfo{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err
@@ -80,7 +81,7 @@ func (v *AliasService) GetAlias(id string, slug string, teamId string, projectId
 	return result, nil
 }
 
-func (v *AliasService) ListAlias(slug string, teamId string, projectId string, since string, until string) (*ListAliasResponse, error) {
+func (v *AliasService) ListAlias(ctx context.Context, slug string, teamId string, projectId string, since string, until string) (*ListAliasResponse, error) {
 	path := "/v4/aliases"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -102,7 +103,7 @@ func (v *AliasService) ListAlias(slug string, teamId string, projectId string, s
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListAliasResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -110,7 +111,7 @@ func (v *AliasService) ListAlias(slug string, teamId string, projectId string, s
 	return result, nil
 }
 
-func (v *AliasService) ListdeploymentsAlias(id string, slug string, teamId string) ([]AliasInfo, error) {
+func (v *AliasService) ListdeploymentsAlias(ctx context.Context, id string, slug string, teamId string) ([]AliasInfo, error) {
 	path := fmt.Sprintf("/v2/deployments/%s/aliases", id)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -120,7 +121,7 @@ func (v *AliasService) ListdeploymentsAlias(id string, slug string, teamId strin
 		queryParams.Add("teamId", teamId)
 	}
 	result := []AliasInfo{}
-	err := v.client.http.Get(path, &result)
+	err := v.client.http.Get(ctx, path, &result)
 
 	if err != nil {
 		return nil, err

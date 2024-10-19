@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type SecretService service
 
-func (v *SecretService) CreateSecret(slug string, teamId string, req CreateSecretRequest) (*SecretInfo, error) {
+func (v *SecretService) CreateSecret(ctx context.Context, slug string, teamId string, req CreateSecretRequest) (*SecretInfo, error) {
 	path := fmt.Sprintf("/v2/secrets/%s", req.Name)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *SecretService) CreateSecret(slug string, teamId string, req CreateSecre
 		path += "?" + queryParams.Encode()
 	}
 	result := &SecretInfo{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *SecretService) CreateSecret(slug string, teamId string, req CreateSecre
 	return result, nil
 }
 
-func (v *SecretService) DeleteSecret(idOrName string, slug string, teamId string) (*DeleteSecretResponse, error) {
+func (v *SecretService) DeleteSecret(ctx context.Context, idOrName string, slug string, teamId string) (*DeleteSecretResponse, error) {
 	path := fmt.Sprintf("/v2/secrets/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -41,7 +42,7 @@ func (v *SecretService) DeleteSecret(idOrName string, slug string, teamId string
 		path += "?" + queryParams.Encode()
 	}
 	result := &DeleteSecretResponse{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (v *SecretService) DeleteSecret(idOrName string, slug string, teamId string
 	return result, nil
 }
 
-func (v *SecretService) GetSecret(idOrName string, slug string, teamId string, decrypt string) (*SecretInfo, error) {
+func (v *SecretService) GetSecret(ctx context.Context, idOrName string, slug string, teamId string, decrypt string) (*SecretInfo, error) {
 	path := fmt.Sprintf("/v3/secrets/%s", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -65,7 +66,7 @@ func (v *SecretService) GetSecret(idOrName string, slug string, teamId string, d
 		path += "?" + queryParams.Encode()
 	}
 	result := &SecretInfo{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (v *SecretService) GetSecret(idOrName string, slug string, teamId string, d
 	return result, nil
 }
 
-func (v *SecretService) ListSecret(slug string, teamId string) (*ListSecretResponse, error) {
+func (v *SecretService) ListSecret(ctx context.Context, slug string, teamId string) (*ListSecretResponse, error) {
 	path := "/v3/secrets"
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -86,7 +87,7 @@ func (v *SecretService) ListSecret(slug string, teamId string) (*ListSecretRespo
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListSecretResponse{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -94,7 +95,7 @@ func (v *SecretService) ListSecret(slug string, teamId string) (*ListSecretRespo
 	return result, nil
 }
 
-func (v *SecretService) ChangeSecretName(name string, slug string, teamId string, req CreateSecretRequest) (*string, error) {
+func (v *SecretService) ChangeSecretName(ctx context.Context, name string, slug string, teamId string, req CreateSecretRequest) (*string, error) {
 	path := fmt.Sprintf("/v2/secrets/%s", name)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -107,7 +108,7 @@ func (v *SecretService) ChangeSecretName(name string, slug string, teamId string
 		path += "?" + queryParams.Encode()
 	}
 	result := ""
-	err := v.client.http.Patch(path, req, &result)
+	err := v.client.http.Patch(ctx, path, req, &result)
 
 	if err != nil {
 		return nil, err

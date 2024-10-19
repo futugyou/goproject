@@ -1,13 +1,14 @@
 package vercel
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
 
 type MemberService service
 
-func (v *MemberService) AddMember(idOrName string, slug string, teamId string, req AddMemberRequest) (*OperateMemberResponse, error) {
+func (v *MemberService) AddMember(ctx context.Context, idOrName string, slug string, teamId string, req AddMemberRequest) (*OperateMemberResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -20,7 +21,7 @@ func (v *MemberService) AddMember(idOrName string, slug string, teamId string, r
 		path += "?" + queryParams.Encode()
 	}
 	result := &OperateMemberResponse{}
-	err := v.client.http.Post(path, req, result)
+	err := v.client.http.Post(ctx, path, req, result)
 
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (v *MemberService) AddMember(idOrName string, slug string, teamId string, r
 	return result, nil
 }
 
-func (v *MemberService) ListProjectMember(idOrName string, slug string, teamId string, search string, limit string, since string, until string) (*ListProjectMemberrResponse, error) {
+func (v *MemberService) ListProjectMember(ctx context.Context, idOrName string, slug string, teamId string, search string, limit string, since string, until string) (*ListProjectMemberrResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -53,7 +54,7 @@ func (v *MemberService) ListProjectMember(idOrName string, slug string, teamId s
 		path += "?" + queryParams.Encode()
 	}
 	result := &ListProjectMemberrResponse{}
-	err := v.client.http.Get(path, result)
+	err := v.client.http.Get(ctx, path, result)
 
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func (v *MemberService) ListProjectMember(idOrName string, slug string, teamId s
 	return result, nil
 }
 
-func (v *MemberService) RemoveProjectMember(idOrName string, uid string, slug string, teamId string) (*OperateMemberResponse, error) {
+func (v *MemberService) RemoveProjectMember(ctx context.Context, idOrName string, uid string, slug string, teamId string) (*OperateMemberResponse, error) {
 	path := fmt.Sprintf("/v1/projects/%s/members/%s", idOrName, uid)
 	queryParams := url.Values{}
 	if len(slug) > 0 {
@@ -74,7 +75,7 @@ func (v *MemberService) RemoveProjectMember(idOrName string, uid string, slug st
 		path += "?" + queryParams.Encode()
 	}
 	result := &OperateMemberResponse{}
-	err := v.client.http.Delete(path, result)
+	err := v.client.http.Delete(ctx, path, result)
 
 	if err != nil {
 		return nil, err

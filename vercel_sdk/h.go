@@ -2,20 +2,12 @@ package vercel
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
-
-type iHttpClient interface {
-	Get(path string, response interface{}) error
-	Post(path string, request, response interface{}) error
-	Put(path string, request, response interface{}) error
-	Patch(path string, request, response interface{}) error
-	Delete(path string, response interface{}) error
-	DeleteWithBody(path string, request, response interface{}) error
-}
 
 type httpClient struct {
 	http          *http.Client
@@ -53,31 +45,31 @@ func newClientWithHttp(baseUrl string, client *http.Client) *httpClient {
 	return c
 }
 
-func (c *httpClient) Post(path string, request, response interface{}) error {
-	return c.doRequest(path, "POST", request, response)
+func (c *httpClient) Post(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "POST", request, response)
 }
 
-func (c *httpClient) Put(path string, request, response interface{}) error {
-	return c.doRequest(path, "PUT", request, response)
+func (c *httpClient) Put(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "PUT", request, response)
 }
 
-func (c *httpClient) Patch(path string, request, response interface{}) error {
-	return c.doRequest(path, "PATCH", request, response)
+func (c *httpClient) Patch(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "PATCH", request, response)
 }
 
-func (c *httpClient) Get(path string, response interface{}) error {
-	return c.doRequest(path, "GET", nil, response)
+func (c *httpClient) Get(ctx context.Context, path string, response interface{}) error {
+	return c.doRequest(ctx, path, "GET", nil, response)
 }
 
-func (c *httpClient) Delete(path string, response interface{}) error {
-	return c.doRequest(path, "DELETE", nil, response)
+func (c *httpClient) Delete(ctx context.Context, path string, response interface{}) error {
+	return c.doRequest(ctx, path, "DELETE", nil, response)
 }
 
-func (c *httpClient) DeleteWithBody(path string, request, response interface{}) error {
-	return c.doRequest(path, "DELETE", request, response)
+func (c *httpClient) DeleteWithBody(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "DELETE", request, response)
 }
 
-func (c *httpClient) doRequest(path, method string, request, response interface{}) error {
+func (c *httpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) error {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -100,10 +92,11 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 		}
 	}
 
-	return c.readHttpResponse(req, response)
+	return c.readHttpResponse(ctx, req, response)
 }
 
-func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) error {
+func (c *httpClient) readHttpResponse(ctx context.Context, req *http.Request, response interface{}) error {
+	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 
 	if err != nil {

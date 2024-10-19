@@ -4,7 +4,7 @@ import "net/http"
 
 type VercelClient struct {
 	token  string
-	http   iHttpClient
+	http   *httpClient
 	common service
 
 	AccessGroups *AccessGroupService
