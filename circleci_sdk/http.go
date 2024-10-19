@@ -2,19 +2,13 @@ package circleci
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
-
-type IHttpClient interface {
-	Get(path string, response interface{}) error
-	Post(path string, request, response interface{}) error
-	Put(path string, request, response interface{}) error
-	Patch(path string, request, response interface{}) error
-	Delete(path string, response interface{}) error
-}
 
 type httpClient struct {
 	http          *http.Client
@@ -41,27 +35,27 @@ func NewHttpClientWithHeader(baseUrl string, customeHeader map[string]string) *h
 	return c
 }
 
-func (c *httpClient) Post(path string, request, response interface{}) error {
-	return c.doRequest(path, "POST", request, response)
+func (c *httpClient) Post(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "POST", request, response)
 }
 
-func (c *httpClient) Put(path string, request, response interface{}) error {
-	return c.doRequest(path, "PUT", request, response)
+func (c *httpClient) Put(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "PUT", request, response)
 }
 
-func (c *httpClient) Patch(path string, request, response interface{}) error {
-	return c.doRequest(path, "PATCH", request, response)
+func (c *httpClient) Patch(ctx context.Context, path string, request, response interface{}) error {
+	return c.doRequest(ctx, path, "PATCH", request, response)
 }
 
-func (c *httpClient) Get(path string, response interface{}) error {
-	return c.doRequest(path, "GET", nil, response)
+func (c *httpClient) Get(ctx context.Context, path string, response interface{}) error {
+	return c.doRequest(ctx, path, "GET", nil, response)
 }
 
-func (c *httpClient) Delete(path string, response interface{}) error {
-	return c.doRequest(path, "DELETE", nil, response)
+func (c *httpClient) Delete(ctx context.Context, path string, response interface{}) error {
+	return c.doRequest(ctx, path, "DELETE", nil, response)
 }
 
-func (c *httpClient) doRequest(path, method string, request, response interface{}) error {
+func (c *httpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) error {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -81,13 +75,27 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 		req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))
 	}
 
-	return c.readHttpResponse(req, response)
+	return c.readHttpResponse(ctx, req, response)
 }
 
-func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) error {
+func (c *httpClient) readHttpResponse(ctx context.Context, req *http.Request, response interface{}) error {
+	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 
 	if err != nil {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		if e, ok := err.(*url.Error); ok {
+			if url, err := url.Parse(e.URL); err == nil {
+				e.URL = url.String()
+				return e
+			}
+		}
+
 		return err
 	}
 

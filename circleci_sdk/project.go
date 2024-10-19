@@ -1,42 +1,44 @@
 package circleci
 
+import "context"
+
 type ProjectService service
 
 // org_slug include provider and organization
 // project_slug include provider and organization and project
 // eg. org_slug gh/CircleCI-Public
 // eg. project_slug gh/CircleCI-Public/api-preview-docs
-func (s *ProjectService) CreateProject(org_slug string, name string) (*CreateProjectResponse, error) {
+func (s *ProjectService) CreateProject(ctx context.Context, org_slug string, name string) (*CreateProjectResponse, error) {
 	path := "/project/" + org_slug + "/" + name
 
 	result := &CreateProjectResponse{}
-	if err := s.client.http.Post(path, nil, result); err != nil {
+	if err := s.client.http.Post(ctx, path, nil, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) GetProject(org_slug string, name string) (*ProjectInfo, error) {
+func (s *ProjectService) GetProject(ctx context.Context, org_slug string, name string) (*ProjectInfo, error) {
 	path := "/project/" + org_slug + "/" + name
 
 	result := &ProjectInfo{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) ListProject() ([]ProjectListItem, error) {
+func (s *ProjectService) ListProject(ctx context.Context) ([]ProjectListItem, error) {
 	path := "/projects"
 
 	result := []ProjectListItem{}
-	if err := s.client.http.Get(path, &result); err != nil {
+	if err := s.client.http.Get(ctx, path, &result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) CreateCheckoutKey(project_slug string, keyType string) (*CheckoutKey, error) {
+func (s *ProjectService) CreateCheckoutKey(ctx context.Context, project_slug string, keyType string) (*CheckoutKey, error) {
 	path := "/project/" + project_slug + "/checkout-key"
 
 	request := &struct {
@@ -45,42 +47,42 @@ func (s *ProjectService) CreateCheckoutKey(project_slug string, keyType string) 
 		Type: keyType,
 	}
 	result := &CheckoutKey{}
-	if err := s.client.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) GetCheckoutKey(project_slug string, digest string) (*CheckoutKeyList, error) {
+func (s *ProjectService) GetCheckoutKey(ctx context.Context, project_slug string, digest string) (*CheckoutKeyList, error) {
 	path := "/project/" + project_slug + "/checkout-key?digest=" + digest
 
 	result := &CheckoutKeyList{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) DeleteCheckoutKey(project_slug string, fingerprint string) (*BaseResponse, error) {
+func (s *ProjectService) DeleteCheckoutKey(ctx context.Context, project_slug string, fingerprint string) (*BaseResponse, error) {
 	path := "/project/" + project_slug + "/checkout-key/" + fingerprint
 	result := &BaseResponse{}
-	if err := s.client.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) GetEnvironmentVariables(project_slug string) (*EnvironmentVariableList, error) {
+func (s *ProjectService) GetEnvironmentVariables(ctx context.Context, project_slug string) (*EnvironmentVariableList, error) {
 	path := "/project/" + project_slug + "/envvar"
 
 	result := &EnvironmentVariableList{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) CreateEnvironmentVariables(project_slug string, name string, value string) (*EnvironmentVariableInfo, error) {
+func (s *ProjectService) CreateEnvironmentVariables(ctx context.Context, project_slug string, name string, value string) (*EnvironmentVariableInfo, error) {
 	path := "/project/" + project_slug + "/envvar"
 	request := struct {
 		Name  string `json:"name"`
@@ -90,47 +92,47 @@ func (s *ProjectService) CreateEnvironmentVariables(project_slug string, name st
 		Value: value,
 	}
 	result := &EnvironmentVariableInfo{}
-	if err := s.client.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) DeleteEnvironmentVariables(project_slug string, name string) (*BaseResponse, error) {
+func (s *ProjectService) DeleteEnvironmentVariables(ctx context.Context, project_slug string, name string) (*BaseResponse, error) {
 	path := "/project/" + project_slug + "/envvar/" + name
 
 	result := &BaseResponse{}
-	if err := s.client.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) GetMaskedEnvironmentVariable(project_slug string, name string) (*EnvironmentVariableInfo, error) {
+func (s *ProjectService) GetMaskedEnvironmentVariable(ctx context.Context, project_slug string, name string) (*EnvironmentVariableInfo, error) {
 	path := "/project/" + project_slug + "/envvar/" + name
 
 	result := &EnvironmentVariableInfo{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) GetProjectSettings(project_slug string) (*ProjectSettingList, error) {
+func (s *ProjectService) GetProjectSettings(ctx context.Context, project_slug string) (*ProjectSettingList, error) {
 	path := "/project/" + project_slug + "/settings"
 
 	result := &ProjectSettingList{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *ProjectService) UpdateProjectSettings(project_slug string, advanced Advanced) (*ProjectSettingList, error) {
+func (s *ProjectService) UpdateProjectSettings(ctx context.Context, project_slug string, advanced Advanced) (*ProjectSettingList, error) {
 	path := "/project/" + project_slug + "/settings"
 
 	result := &ProjectSettingList{}
-	if err := s.client.http.Patch(path, advanced, result); err != nil {
+	if err := s.client.http.Patch(ctx, path, advanced, result); err != nil {
 		return nil, err
 	}
 	return result, nil

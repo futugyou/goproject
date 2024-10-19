@@ -53,12 +53,12 @@ func (g *CircleClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			return
 		}
 
-		if _, err := g.client.Project.CreateProject(org_slug, request.Name); err != nil {
+		if _, err := g.client.Project.CreateProject(ctx, org_slug, request.Name); err != nil {
 			errorChan <- err
 			return
 		}
 
-		project, err := g.client.Project.GetProject(org_slug, request.Name)
+		project, err := g.client.Project.GetProject(ctx, org_slug, request.Name)
 		if err != nil {
 			errorChan <- err
 			return
@@ -104,7 +104,7 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 			return
 		}
 
-		circleciProjects, err := client.client.Project.ListProject()
+		circleciProjects, err := client.client.Project.ListProject(ctx)
 		if err != nil {
 			errorChan <- err
 			return
@@ -145,7 +145,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			return
 		}
 
-		circleciProject, err := g.client.Project.GetProject(org_slug, filter.Name)
+		circleciProject, err := g.client.Project.GetProject(ctx, org_slug, filter.Name)
 		if err != nil {
 			errorChan <- err
 			return
@@ -165,7 +165,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			url = fmt.Sprintf(circleciProjectUrl, vsc, orgSplit[1], circleciProject.Name)
 		}
 
-		circleciWebhooks, err := g.client.Webhook.ListWebhook(circleciProject.ID)
+		circleciWebhooks, err := g.client.Webhook.ListWebhook(ctx, circleciProject.ID)
 		if err != nil {
 			errorChan <- err
 			return
@@ -209,7 +209,7 @@ func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			secret = s
 		}
 
-		hook, err := g.client.Webhook.CreateWebhook(request.WebHook.Name, request.WebHook.Url, request.ProjectId, secret)
+		hook, err := g.client.Webhook.CreateWebhook(ctx, request.WebHook.Name, request.WebHook.Url, request.ProjectId, secret)
 		if err != nil {
 			errorChan <- err
 			return

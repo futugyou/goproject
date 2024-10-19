@@ -1,7 +1,7 @@
 package circleci
 
 type CircleciClient struct {
-	http     IHttpClient
+	http     *httpClient
 	common   service
 	Context  *ContextService
 	Insights *InsightsService

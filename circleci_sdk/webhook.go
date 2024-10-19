@@ -1,8 +1,10 @@
 package circleci
 
+import "context"
+
 type WebhookService service
 
-func (s *WebhookService) CreateWebhook(name string, url string, projectId string, signingSecret string) (*WebhookItem, error) {
+func (s *WebhookService) CreateWebhook(ctx context.Context, name string, url string, projectId string, signingSecret string) (*WebhookItem, error) {
 	path := "/webhook"
 	request := WebhookItem{
 		Name:          name,
@@ -17,34 +19,34 @@ func (s *WebhookService) CreateWebhook(name string, url string, projectId string
 	}
 
 	result := &WebhookItem{}
-	if err := s.client.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *WebhookService) ListWebhook(projectId string) (*ListWebhookResponse, error) {
+func (s *WebhookService) ListWebhook(ctx context.Context, projectId string) (*ListWebhookResponse, error) {
 	path := "/webhook?scope-id=" + projectId + "&scope-type=project"
 	result := &ListWebhookResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *WebhookService) GetWebhook(webhookId string) (*WebhookItem, error) {
+func (s *WebhookService) GetWebhook(ctx context.Context, webhookId string) (*WebhookItem, error) {
 	path := "/webhook/" + webhookId
 	result := &WebhookItem{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *WebhookService) UpdateWebhook(webhookId string, name string, url string, signingSecret string) (*WebhookItem, error) {
+func (s *WebhookService) UpdateWebhook(ctx context.Context, webhookId string, name string, url string, signingSecret string) (*WebhookItem, error) {
 	path := "/webhook/" + webhookId
 	request := WebhookItem{
 		Name:          name,
@@ -55,17 +57,17 @@ func (s *WebhookService) UpdateWebhook(webhookId string, name string, url string
 	}
 
 	result := &WebhookItem{}
-	if err := s.client.http.Put(path, request, result); err != nil {
+	if err := s.client.http.Put(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *WebhookService) DeleteWebhook(webhookId string) (*BaseResponse, error) {
+func (s *WebhookService) DeleteWebhook(ctx context.Context, webhookId string) (*BaseResponse, error) {
 	path := "/webhook/" + webhookId
 	result := &BaseResponse{}
-	if err := s.client.http.Delete(path, result); err != nil {
+	if err := s.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
 	}
 

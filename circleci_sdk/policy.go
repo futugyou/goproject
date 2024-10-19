@@ -1,20 +1,23 @@
 package circleci
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type PolicyService service
 
-func (s *PolicyService) DecisionAuditLogs(ownerID string, context string) ([]AuditLogInfo, error) {
+func (s *PolicyService) DecisionAuditLogs(ctx context.Context, ownerID string, context string) ([]AuditLogInfo, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision"
 	result := []AuditLogInfo{}
-	if err := s.client.http.Get(path, &result); err != nil {
+	if err := s.client.http.Get(ctx, path, &result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) MakeDecision(ownerID string, context string, input string, metadata interface{}) (*MakeDecisionResponse, error) {
+func (s *PolicyService) MakeDecision(ctx context.Context, ownerID string, context string, input string, metadata interface{}) (*MakeDecisionResponse, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision"
 	request := &struct {
 		Input    string      `json:"input"`
@@ -24,24 +27,24 @@ func (s *PolicyService) MakeDecision(ownerID string, context string, input strin
 		Metadata: metadata,
 	}
 	result := &MakeDecisionResponse{}
-	if err := s.client.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) GetDecisionSettings(ownerID string, context string) (*DecisionSetting, error) {
+func (s *PolicyService) GetDecisionSettings(ctx context.Context, ownerID string, context string) (*DecisionSetting, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision/settings"
 	result := &DecisionSetting{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) SetDecisionSettings(ownerID string, context string, enabled bool) (*DecisionSetting, error) {
+func (s *PolicyService) SetDecisionSettings(ctx context.Context, ownerID string, context string, enabled bool) (*DecisionSetting, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision/settings"
 	request := &struct {
 		Enabled bool `json:"enabled"`
@@ -49,44 +52,44 @@ func (s *PolicyService) SetDecisionSettings(ownerID string, context string, enab
 		Enabled: enabled,
 	}
 	result := &DecisionSetting{}
-	if err := s.client.http.Patch(path, request, result); err != nil {
+	if err := s.client.http.Patch(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) DecisionAuditLogById(ownerID string, context string, decisionID string) (*AuditLogInfo, error) {
+func (s *PolicyService) DecisionAuditLogById(ctx context.Context, ownerID string, context string, decisionID string) (*AuditLogInfo, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision/" + decisionID
 	result := &AuditLogInfo{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) PolicyBundleLogById(ownerID string, context string, decisionID string) (map[string]PolicyProperty, error) {
+func (s *PolicyService) PolicyBundleLogById(ctx context.Context, ownerID string, context string, decisionID string) (map[string]PolicyProperty, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/decision/" + decisionID + "/policy-bundle"
 	result := make(map[string]PolicyProperty)
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) PolicyBundles(ownerID string, context string) (map[string]PolicyProperty, error) {
+func (s *PolicyService) PolicyBundles(ctx context.Context, ownerID string, context string) (map[string]PolicyProperty, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/policy-bundle"
 	result := make(map[string]PolicyProperty)
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) CreatesPolicyBundle(ownerID string, context string, dry bool, policies map[string]string) (*CreatesPolicyBundleResponse, error) {
+func (s *PolicyService) CreatesPolicyBundle(ctx context.Context, ownerID string, context string, dry bool, policies map[string]string) (*CreatesPolicyBundleResponse, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/policy-bundle?dry=" + fmt.Sprintf("%t", dry)
 	request := &struct {
 		Policies map[string]string `json:"policies"`
@@ -94,17 +97,17 @@ func (s *PolicyService) CreatesPolicyBundle(ownerID string, context string, dry 
 		Policies: policies,
 	}
 	result := &CreatesPolicyBundleResponse{}
-	if err := s.client.http.Post(path, request, result); err != nil {
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
 	}
 
 	return result, nil
 }
 
-func (s *PolicyService) RetrievesPolicyDocument(ownerID string, context string, policyName string) (*PolicyProperty, error) {
+func (s *PolicyService) RetrievesPolicyDocument(ctx context.Context, ownerID string, context string, policyName string) (*PolicyProperty, error) {
 	path := "/owner/" + ownerID + "/context/" + context + "/policy-bundle/" + policyName
 	result := &PolicyProperty{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 

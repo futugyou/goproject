@@ -1,10 +1,12 @@
 package circleci
 
+import "context"
+
 type InsightsService service
 
 // Example: workflow-names=A single workflow name: ?workflow-names=build-test-deploy
 // or for multiple workflow names: ?workflow-names=build&workflow-names=test-and-deploy.
-func (s *InsightsService) GetMetricsTrends(project_slug string, workflow_names []string) (*MetricsTrends, error) {
+func (s *InsightsService) GetMetricsTrends(ctx context.Context, project_slug string, workflow_names []string) (*MetricsTrends, error) {
 	path := "/insights/pages/" + project_slug + "/summary"
 	for i := 0; i < len(workflow_names); i++ {
 		if i == 0 {
@@ -16,23 +18,23 @@ func (s *InsightsService) GetMetricsTrends(project_slug string, workflow_names [
 	}
 
 	result := &MetricsTrends{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetJobTimeseriesData(project_slug string, workflow_names string) (*JobTimeseriesDataResponse, error) {
+func (s *InsightsService) GetJobTimeseriesData(ctx context.Context, project_slug string, workflow_names string) (*JobTimeseriesDataResponse, error) {
 	path := "/insights/time-series/" + project_slug + "/workflows/jobs"
 
 	result := &JobTimeseriesDataResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetOrgMetricsTrends(org_slug string, project_names []string) (*OrgMetricsTrends, error) {
+func (s *InsightsService) GetOrgMetricsTrends(ctx context.Context, org_slug string, project_names []string) (*OrgMetricsTrends, error) {
 	path := "/insights/pages/" + org_slug + "/summary"
 	for i := 0; i < len(project_names); i++ {
 		if i == 0 {
@@ -44,75 +46,75 @@ func (s *InsightsService) GetOrgMetricsTrends(org_slug string, project_names []s
 	}
 
 	result := &OrgMetricsTrends{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetBranches(project_slug string, workflow_ame string) (*ProjectBranches, error) {
+func (s *InsightsService) GetBranches(ctx context.Context, project_slug string, workflow_ame string) (*ProjectBranches, error) {
 	path := "/insights/" + project_slug + "/branches"
 	if len(workflow_ame) > 0 {
 		path += ("?workflow-name=" + workflow_ame)
 	}
 
 	result := &ProjectBranches{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetFlakyTests(project_slug string) (*FlakyTestsResponse, error) {
+func (s *InsightsService) GetFlakyTests(ctx context.Context, project_slug string) (*FlakyTestsResponse, error) {
 	path := "/insights/" + project_slug + "/flaky-tests"
 	result := &FlakyTestsResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetMetricsForProjectWorkflows(project_slug string) (*WorkflowMetricsResponse, error) {
+func (s *InsightsService) GetMetricsForProjectWorkflows(ctx context.Context, project_slug string) (*WorkflowMetricsResponse, error) {
 	path := "/insights/" + project_slug + "/workflows"
 	result := &WorkflowMetricsResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetRecentRuns(project_slug string, workflow_name string) (*RecentRunsResponse, error) {
+func (s *InsightsService) GetRecentRuns(ctx context.Context, project_slug string, workflow_name string) (*RecentRunsResponse, error) {
 	path := "/insights/" + project_slug + "/workflows/" + workflow_name
 	result := &RecentRunsResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetMetricsForProjectWorkflowJobs(project_slug string, workflow_name string) (*MetricsProjectWorkflowJobsResponse, error) {
+func (s *InsightsService) GetMetricsForProjectWorkflowJobs(ctx context.Context, project_slug string, workflow_name string) (*MetricsProjectWorkflowJobsResponse, error) {
 	path := "/insights/" + project_slug + "/workflows/" + workflow_name + "/jobs"
 	result := &MetricsProjectWorkflowJobsResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetMetricsTrendsForWorkflows(project_slug string, workflow_name string) (*MetricsTrendsForWorkflowsResponse, error) {
+func (s *InsightsService) GetMetricsTrendsForWorkflows(ctx context.Context, project_slug string, workflow_name string) (*MetricsTrendsForWorkflowsResponse, error) {
 	path := "/insights/" + project_slug + "/workflows/" + workflow_name + "/summary"
 
 	result := &MetricsTrendsForWorkflowsResponse{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (s *InsightsService) GetTestMetricsForProjectWorkflow(project_slug string, workflow_name string) (*TestMetrics, error) {
+func (s *InsightsService) GetTestMetricsForProjectWorkflow(ctx context.Context, project_slug string, workflow_name string) (*TestMetrics, error) {
 	path := "/insights/" + project_slug + "/workflows/" + workflow_name + "/test-metrics"
 	result := &TestMetrics{}
-	if err := s.client.http.Get(path, result); err != nil {
+	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
 	return result, nil
