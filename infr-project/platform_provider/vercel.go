@@ -96,7 +96,54 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 }
 
 func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {
-	return nil, nil
+	resultChan := make(chan *Project, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
+
+		vercelProject, err := g.client.Project.GetProject(ctx, filter.Name, team_slug, team_id)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		url := ""
+		if len(team_slug) > 0 {
+			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
+		}
+
+		vercelHooks, err := g.client.Webhook.ListWebhook(ctx, vercelProject.Id, team_slug, team_id)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		hooks := []WebHook{}
+		for _, hook := range vercelHooks {
+			paras := map[string]string{}
+			paras["Secret"] = hook.Secret
+			hooks = append(hooks, WebHook{
+				ID:         hook.Id,
+				Name:       hook.Id,
+				Url:        hook.Url,
+				Parameters: paras,
+			})
+		}
+		project := &Project{
+			ID:    vercelProject.Id,
+			Name:  vercelProject.Name,
+			Url:   url,
+			Hooks: hooks,
+		}
+
+		resultChan <- project
+	}()
+
+	return resultChan, errorChan
 }
 
 func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
