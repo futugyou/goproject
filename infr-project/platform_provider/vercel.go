@@ -34,27 +34,7 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			Name: request.Name,
 		}
 
-		team_slug := ""
-		team_id := ""
-		if value, ok := request.Parameters["TEAM_SLUG"]; ok {
-			team_slug = value
-		}
-		if value, ok := request.Parameters["TEAM_ID"]; ok {
-			team_id = value
-		}
-
-		if len(team_slug) == 0 && len(team_id) == 0 {
-			teamCh, errCh := g.getDefaultTeam(ctx)
-			select {
-			case team := <-teamCh:
-				if team != nil {
-					team_slug = team.Slug
-					team_id = team.Id
-				}
-			case <-errCh:
-			case <-ctx.Done():
-			}
-		}
+		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
 
 		vercelProject, err := g.client.Project.CreateProject(ctx, team_slug, team_id, req)
 		if err != nil {
@@ -87,27 +67,7 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 		defer close(resultChan)
 		defer close(errorChan)
 
-		team_slug := ""
-		team_id := ""
-		if value, ok := filter.Parameters["TEAM_SLUG"]; ok {
-			team_slug = value
-		}
-		if value, ok := filter.Parameters["TEAM_ID"]; ok {
-			team_id = value
-		}
-
-		if len(team_slug) == 0 && len(team_id) == 0 {
-			teamCh, errCh := g.getDefaultTeam(ctx)
-			select {
-			case team := <-teamCh:
-				if team != nil {
-					team_slug = team.Slug
-					team_id = team.Id
-				}
-			case <-errCh:
-			case <-ctx.Done():
-			}
-		}
+		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
 
 		vercelProjects, err := g.client.Project.ListProject(ctx, team_slug, team_id)
 		if err != nil {
@@ -143,7 +103,30 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 	return nil, nil
 }
 
-// TODO: pass context to all circelci/vercel sdk
+func (g *VercelClient) getTeamSlugAndId(ctx context.Context, parameters map[string]string) (team_slug string, team_id string, err error) {
+	if value, ok := parameters["TEAM_SLUG"]; ok {
+		team_slug = value
+	}
+	if value, ok := parameters["TEAM_ID"]; ok {
+		team_id = value
+	}
+
+	if len(team_slug) == 0 && len(team_id) == 0 {
+		teamCh, errCh := g.getDefaultTeam(ctx)
+		select {
+		case team := <-teamCh:
+			if team != nil {
+				team_slug = team.Slug
+				team_id = team.Id
+			}
+		case err = <-errCh:
+		case <-ctx.Done():
+			err = fmt.Errorf("context timeout")
+		}
+	}
+	return
+}
+
 func (g *VercelClient) getDefaultTeam(ctx context.Context) (<-chan *VercelTeam, <-chan error) {
 	resultChan := make(chan *VercelTeam, 1)
 	errorChan := make(chan error, 1)
