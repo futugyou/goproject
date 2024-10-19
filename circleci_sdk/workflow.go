@@ -1,11 +1,14 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type WorkflowService service
 
 func (s *WorkflowService) GetWorkflow(ctx context.Context, id string) (*JobDetailInfo, error) {
-	path := "/workflow/" + id
+	path := fmt.Sprintf("/workflow/%s", id)
 	result := &JobDetailInfo{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -16,7 +19,7 @@ func (s *WorkflowService) GetWorkflow(ctx context.Context, id string) (*JobDetai
 }
 
 func (s *WorkflowService) ApproveJob(ctx context.Context, id string, approval_request_id string) (*BaseResponse, error) {
-	path := "/workflow/" + id + "/approve/" + approval_request_id
+	path := fmt.Sprintf("/workflow/%s/approve/%s", id, approval_request_id)
 	result := &BaseResponse{}
 	err := s.client.http.Post(ctx, path, nil, result)
 
@@ -27,7 +30,7 @@ func (s *WorkflowService) ApproveJob(ctx context.Context, id string, approval_re
 }
 
 func (s *WorkflowService) CancelWorkflow(ctx context.Context, id string) (*BaseResponse, error) {
-	path := "/workflow/" + id + "/cancel"
+	path := fmt.Sprintf("/workflow/%s/cancel", id)
 	result := &BaseResponse{}
 	err := s.client.http.Post(ctx, path, nil, result)
 
@@ -38,7 +41,7 @@ func (s *WorkflowService) CancelWorkflow(ctx context.Context, id string) (*BaseR
 }
 
 func (s *WorkflowService) GetWorkflowJobs(ctx context.Context, id string) (*WorkflowJobsResponse, error) {
-	path := "/workflow/" + id + "/job"
+	path := fmt.Sprintf("/workflow/%s/job", id)
 	result := &WorkflowJobsResponse{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -49,7 +52,7 @@ func (s *WorkflowService) GetWorkflowJobs(ctx context.Context, id string) (*Work
 }
 
 func (s *WorkflowService) RerunWorkflow(ctx context.Context, id string) (*RerunWorkflowInfo, error) {
-	path := "/workflow/" + id + "/rerun"
+	path := fmt.Sprintf("/workflow/%s/rerun", id)
 	result := &RerunWorkflowInfo{}
 	err := s.client.http.Post(ctx, path, nil, result)
 

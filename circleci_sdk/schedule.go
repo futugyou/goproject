@@ -1,11 +1,14 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type ScheduleService service
 
 func (s *ScheduleService) GetAllSchedules(ctx context.Context, project_slug string, page_token string) (*ScheduleList, error) {
-	path := "/project/" + project_slug + "/schedule"
+	path := fmt.Sprintf("/project/%s/schedule", project_slug)
 	if len(page_token) > 0 {
 		path += ("?page-token=" + page_token)
 	}
@@ -17,7 +20,7 @@ func (s *ScheduleService) GetAllSchedules(ctx context.Context, project_slug stri
 }
 
 func (s *ScheduleService) CreateSchedule(ctx context.Context, project_slug string, request CreateScheduleRequest) (*ScheduleInfo, error) {
-	path := "/project/" + project_slug + "/schedule"
+	path := fmt.Sprintf("/project/%s/schedule", project_slug)
 	result := &ScheduleInfo{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -26,7 +29,7 @@ func (s *ScheduleService) CreateSchedule(ctx context.Context, project_slug strin
 }
 
 func (s *ScheduleService) GetSchedule(ctx context.Context, schedule_id string) (*ScheduleInfo, error) {
-	path := "/schedule/" + schedule_id
+	path := fmt.Sprintf("/schedule/%s", schedule_id)
 	result := &ScheduleInfo{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -35,7 +38,7 @@ func (s *ScheduleService) GetSchedule(ctx context.Context, schedule_id string) (
 }
 
 func (s *ScheduleService) UpdateSchedule(ctx context.Context, schedule_id string, request CreateScheduleRequest) (*ScheduleInfo, error) {
-	path := "/schedule/" + schedule_id
+	path := fmt.Sprintf("/schedule/%s", schedule_id)
 	result := &ScheduleInfo{}
 	if err := s.client.http.Patch(ctx, path, request, result); err != nil {
 		return nil, err
@@ -44,7 +47,7 @@ func (s *ScheduleService) UpdateSchedule(ctx context.Context, schedule_id string
 }
 
 func (s *ScheduleService) DeleteSchedule(ctx context.Context, schedule_id string) (*BaseResponse, error) {
-	path := "/schedule/" + schedule_id
+	path := fmt.Sprintf("/schedule/%s", schedule_id)
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err

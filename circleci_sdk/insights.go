@@ -1,13 +1,16 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type InsightsService service
 
 // Example: workflow-names=A single workflow name: ?workflow-names=build-test-deploy
 // or for multiple workflow names: ?workflow-names=build&workflow-names=test-and-deploy.
 func (s *InsightsService) GetMetricsTrends(ctx context.Context, project_slug string, workflow_names []string) (*MetricsTrends, error) {
-	path := "/insights/pages/" + project_slug + "/summary"
+	path := fmt.Sprintf("/insights/pages/%s/summary", project_slug)
 	for i := 0; i < len(workflow_names); i++ {
 		if i == 0 {
 			path += "?"
@@ -25,7 +28,7 @@ func (s *InsightsService) GetMetricsTrends(ctx context.Context, project_slug str
 }
 
 func (s *InsightsService) GetJobTimeseriesData(ctx context.Context, project_slug string, workflow_names string) (*JobTimeseriesDataResponse, error) {
-	path := "/insights/time-series/" + project_slug + "/workflows/jobs"
+	path := fmt.Sprintf("/insights/time-series/%s/workflows/jobs", project_slug)
 
 	result := &JobTimeseriesDataResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -35,7 +38,7 @@ func (s *InsightsService) GetJobTimeseriesData(ctx context.Context, project_slug
 }
 
 func (s *InsightsService) GetOrgMetricsTrends(ctx context.Context, org_slug string, project_names []string) (*OrgMetricsTrends, error) {
-	path := "/insights/pages/" + org_slug + "/summary"
+	path := fmt.Sprintf("/insights/pages/%s/summary", org_slug)
 	for i := 0; i < len(project_names); i++ {
 		if i == 0 {
 			path += "?"
@@ -53,7 +56,8 @@ func (s *InsightsService) GetOrgMetricsTrends(ctx context.Context, org_slug stri
 }
 
 func (s *InsightsService) GetBranches(ctx context.Context, project_slug string, workflow_ame string) (*ProjectBranches, error) {
-	path := "/insights/" + project_slug + "/branches"
+	path := fmt.Sprintf("/insights/%s/branches", project_slug)
+
 	if len(workflow_ame) > 0 {
 		path += ("?workflow-name=" + workflow_ame)
 	}
@@ -66,7 +70,7 @@ func (s *InsightsService) GetBranches(ctx context.Context, project_slug string, 
 }
 
 func (s *InsightsService) GetFlakyTests(ctx context.Context, project_slug string) (*FlakyTestsResponse, error) {
-	path := "/insights/" + project_slug + "/flaky-tests"
+	path := fmt.Sprintf("/insights/%s/flaky-tests", project_slug)
 	result := &FlakyTestsResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -75,7 +79,8 @@ func (s *InsightsService) GetFlakyTests(ctx context.Context, project_slug string
 }
 
 func (s *InsightsService) GetMetricsForProjectWorkflows(ctx context.Context, project_slug string) (*WorkflowMetricsResponse, error) {
-	path := "/insights/" + project_slug + "/workflows"
+	path := fmt.Sprintf("/insights/%s/workflows", project_slug)
+
 	result := &WorkflowMetricsResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -84,7 +89,7 @@ func (s *InsightsService) GetMetricsForProjectWorkflows(ctx context.Context, pro
 }
 
 func (s *InsightsService) GetRecentRuns(ctx context.Context, project_slug string, workflow_name string) (*RecentRunsResponse, error) {
-	path := "/insights/" + project_slug + "/workflows/" + workflow_name
+	path := fmt.Sprintf("/insights/%s/workflows/%s", project_slug, workflow_name)
 	result := &RecentRunsResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -93,7 +98,7 @@ func (s *InsightsService) GetRecentRuns(ctx context.Context, project_slug string
 }
 
 func (s *InsightsService) GetMetricsForProjectWorkflowJobs(ctx context.Context, project_slug string, workflow_name string) (*MetricsProjectWorkflowJobsResponse, error) {
-	path := "/insights/" + project_slug + "/workflows/" + workflow_name + "/jobs"
+	path := fmt.Sprintf("/insights/%s/workflows/%s/jobs", project_slug, workflow_name)
 	result := &MetricsProjectWorkflowJobsResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -102,8 +107,7 @@ func (s *InsightsService) GetMetricsForProjectWorkflowJobs(ctx context.Context, 
 }
 
 func (s *InsightsService) GetMetricsTrendsForWorkflows(ctx context.Context, project_slug string, workflow_name string) (*MetricsTrendsForWorkflowsResponse, error) {
-	path := "/insights/" + project_slug + "/workflows/" + workflow_name + "/summary"
-
+	path := fmt.Sprintf("/insights/%s/workflows/%s/summary", project_slug, workflow_name)
 	result := &MetricsTrendsForWorkflowsResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -112,7 +116,7 @@ func (s *InsightsService) GetMetricsTrendsForWorkflows(ctx context.Context, proj
 }
 
 func (s *InsightsService) GetTestMetricsForProjectWorkflow(ctx context.Context, project_slug string, workflow_name string) (*TestMetrics, error) {
-	path := "/insights/" + project_slug + "/workflows/" + workflow_name + "/test-metrics"
+	path := fmt.Sprintf("/insights/%s/workflows/%s/test-metrics", project_slug, workflow_name)
 	result := &TestMetrics{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err

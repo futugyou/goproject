@@ -1,11 +1,14 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type PipelineService service
 
 func (s *PipelineService) Pipelines(ctx context.Context, org_slug string) (*CircleciPipelineResponse, error) {
-	path := "/pipeline?org-slug=" + org_slug
+	path := fmt.Sprintf("/pipeline?org-slug=%s", org_slug)
 	result := &CircleciPipelineResponse{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -16,7 +19,7 @@ func (s *PipelineService) Pipelines(ctx context.Context, org_slug string) (*Circ
 }
 
 func (s *PipelineService) GetPipelineById(ctx context.Context, pipelineid string) (*CircleciPipeline, error) {
-	path := "/pipeline/" + pipelineid + "/config"
+	path := fmt.Sprintf("/pipeline/%s/config", pipelineid)
 	result := &CircleciPipeline{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -27,7 +30,7 @@ func (s *PipelineService) GetPipelineById(ctx context.Context, pipelineid string
 }
 
 func (s *PipelineService) GetPipelineConfiguration(ctx context.Context, pipelineid string) (*PipelineConfig, error) {
-	path := "/pipeline/" + pipelineid
+	path := fmt.Sprintf("/pipeline/%s", pipelineid)
 	result := &PipelineConfig{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -38,7 +41,7 @@ func (s *PipelineService) GetPipelineConfiguration(ctx context.Context, pipeline
 }
 
 func (s *PipelineService) PipelineWorkflows(ctx context.Context, pipelineId string) (*PipelineWorkflowResponse, error) {
-	path := "/pipeline/" + pipelineId + "/workflow"
+	path := fmt.Sprintf("/pipeline/%s/workflow", pipelineId)
 	result := &PipelineWorkflowResponse{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -65,7 +68,7 @@ func (s *PipelineService) ContinuePipeline(ctx context.Context, continuationKey 
 }
 
 func (s *PipelineService) GetPipelinesByProject(ctx context.Context, project_slug string) (*CircleciPipelineResponse, error) {
-	path := "/rpoject/" + project_slug + "/pipeline"
+	path := fmt.Sprintf("/pipeline/%s/pipeline", project_slug)
 	result := &CircleciPipelineResponse{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -76,7 +79,7 @@ func (s *PipelineService) GetPipelinesByProject(ctx context.Context, project_slu
 }
 
 func (s *PipelineService) TriggerPipeline(ctx context.Context, project_slug string, branch string, tag string, parameters interface{}) (*TriggerPipelineResponse, error) {
-	path := "/rpoject/" + project_slug + "/pipeline"
+	path := fmt.Sprintf("/pipeline/%s/pipeline", project_slug)
 	request := TriggerPipelineRequest{
 		Branch:     branch,
 		Tag:        tag,
@@ -103,7 +106,7 @@ func (s *PipelineService) GetYourPipelines(ctx context.Context, project_slug str
 }
 
 func (s *PipelineService) GetPipelineByNumber(ctx context.Context, project_slug string, number string) (*CircleciPipeline, error) {
-	path := "/rpoject/" + project_slug + "/pipeline/" + number
+	path := fmt.Sprintf("/pipeline/%s/pipeline/%s", project_slug, number)
 	result := &CircleciPipeline{}
 	err := s.client.http.Get(ctx, path, result)
 

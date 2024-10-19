@@ -1,11 +1,14 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type TokenService service
 
 func (s *TokenService) DeleteOrgLevelClaims(ctx context.Context, orgID string, claims []string) (*OrgLevelClaim, error) {
-	path := "/org/" + orgID + "/oidc-custom-claims"
+	path := fmt.Sprintf("/org/%s/oidc-custom-claims", orgID)
 	for i := 0; i < len(claims); i++ {
 		if i == 0 {
 			path += "?"
@@ -24,7 +27,7 @@ func (s *TokenService) DeleteOrgLevelClaims(ctx context.Context, orgID string, c
 }
 
 func (s *TokenService) GetOrgLevelClaims(ctx context.Context, orgID string) (*OrgLevelClaim, error) {
-	path := "/org/" + orgID + "/oidc-custom-claims"
+	path := fmt.Sprintf("/org/%s/oidc-custom-claims", orgID)
 
 	result := &OrgLevelClaim{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -35,7 +38,7 @@ func (s *TokenService) GetOrgLevelClaims(ctx context.Context, orgID string) (*Or
 }
 
 func (s *TokenService) PatchOrgLevelClaims(ctx context.Context, orgID string, audience []string, ttl string) (*OrgLevelClaim, error) {
-	path := "/org/" + orgID + "/oidc-custom-claims"
+	path := fmt.Sprintf("/org/%s/oidc-custom-claims", orgID)
 	request := UpdateClaimRequest{
 		Audience: audience,
 		TTL:      ttl,
@@ -49,7 +52,7 @@ func (s *TokenService) PatchOrgLevelClaims(ctx context.Context, orgID string, au
 }
 
 func (s *TokenService) DeleteProjectLevelClaims(ctx context.Context, orgID string, projectId string, claims []string) (*OrgLevelClaim, error) {
-	path := "/org/" + orgID + "/project/" + projectId + "/oidc-custom-claims"
+	path := fmt.Sprintf("/org/%s/project/%s/oidc-custom-claims", orgID, projectId)
 	for i := 0; i < len(claims); i++ {
 		if i == 0 {
 			path += "?"
@@ -68,8 +71,7 @@ func (s *TokenService) DeleteProjectLevelClaims(ctx context.Context, orgID strin
 }
 
 func (s *TokenService) GetProjectLevelClaims(ctx context.Context, orgID string, projectId string) (*OrgLevelClaim, error) {
-	path := "/org/" + orgID + "/project/" + projectId + "/oidc-custom-claims"
-
+	path := fmt.Sprintf("/org/%s/project/%s/oidc-custom-claims", orgID, projectId)
 	result := &OrgLevelClaim{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -79,7 +81,7 @@ func (s *TokenService) GetProjectLevelClaims(ctx context.Context, orgID string, 
 }
 
 func (s *TokenService) PatchProjectLevelClaims(ctx context.Context, orgID string, projectId string, audience []string, ttl string) (*OrgLevelClaim, error) {
-	path := "/org/" + orgID + "/project/" + projectId + "/oidc-custom-claims"
+	path := fmt.Sprintf("/org/%s/project/%s/oidc-custom-claims", orgID, projectId)
 	request := UpdateClaimRequest{
 		Audience: audience,
 		TTL:      ttl,

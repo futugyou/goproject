@@ -1,11 +1,14 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type JobService service
 
 func (s *JobService) GetJobDetails(ctx context.Context, project_slug string, job_number string) (*JobDetailInfo, error) {
-	path := "/project/" + project_slug + "/job/" + job_number
+	path := fmt.Sprintf("/project/%s/job/%s", project_slug, job_number)
 	result := &JobDetailInfo{}
 	err := s.client.http.Get(ctx, path, result)
 
@@ -16,7 +19,7 @@ func (s *JobService) GetJobDetails(ctx context.Context, project_slug string, job
 }
 
 func (s *JobService) CancelJob(ctx context.Context, project_slug string, job_number string) (*BaseResponse, error) {
-	path := "/project/" + project_slug + "/job/" + job_number + "/artifacts"
+	path := fmt.Sprintf("/project/%s/job/%s/artifacts", project_slug, job_number)
 	result := &BaseResponse{}
 	err := s.client.http.Post(ctx, path, nil, result)
 
@@ -27,7 +30,7 @@ func (s *JobService) CancelJob(ctx context.Context, project_slug string, job_num
 }
 
 func (s *JobService) GetJobArtifacts(ctx context.Context, project_slug string, job_number string) (*JobArtifactResponse, error) {
-	path := "/project/" + project_slug + "/job/" + job_number + "/artifacts"
+	path := fmt.Sprintf("/project/%s/job/%s/artifacts", project_slug, job_number)
 	result := &JobArtifactResponse{}
 	err := s.client.http.Get(ctx, path, result)
 

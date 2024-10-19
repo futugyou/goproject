@@ -1,6 +1,9 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type ContextService service
 
@@ -24,7 +27,7 @@ func (s *ContextService) CreateContext(ctx context.Context, name string, ownerId
 }
 
 func (s *ContextService) ListContext(ctx context.Context, ownerId string) (*ListContextResponse, error) {
-	path := "/context?owner-id=" + ownerId
+	path := fmt.Sprintf("/context?owner-id=%s", ownerId)
 
 	result := &ListContextResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -35,7 +38,7 @@ func (s *ContextService) ListContext(ctx context.Context, ownerId string) (*List
 }
 
 func (s *ContextService) DeleteContext(ctx context.Context, contextId string) (*BaseResponse, error) {
-	path := "/context/" + contextId
+	path := fmt.Sprintf("/context/%s", contextId)
 
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {
@@ -46,7 +49,7 @@ func (s *ContextService) DeleteContext(ctx context.Context, contextId string) (*
 }
 
 func (s *ContextService) GetContext(ctx context.Context, contextId string) (*ContextInfo, error) {
-	path := "/context/" + contextId
+	path := fmt.Sprintf("/context/%s", contextId)
 
 	result := &ContextInfo{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -56,7 +59,7 @@ func (s *ContextService) GetContext(ctx context.Context, contextId string) (*Con
 }
 
 func (s *ContextService) ListContextEnvironment(ctx context.Context, contextId string) (*ListContextEnvResponse, error) {
-	path := "/context/" + contextId + "/environment-variable"
+	path := fmt.Sprintf("/context/%s/environment-variable", contextId)
 
 	result := &ListContextEnvResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -66,7 +69,7 @@ func (s *ContextService) ListContextEnvironment(ctx context.Context, contextId s
 }
 
 func (s *ContextService) UpsertContextEnvironment(ctx context.Context, contextId string, name string, value string) (*ContextEnvInfo, error) {
-	path := "/context/" + contextId + "/environment-variable/" + name
+	path := fmt.Sprintf("/context/%s/environment-variable/%s", contextId, name)
 	request := UpsertContextEnv{
 		Value: value,
 	}
@@ -78,7 +81,7 @@ func (s *ContextService) UpsertContextEnvironment(ctx context.Context, contextId
 }
 
 func (s *ContextService) RemoveContextEnvironment(ctx context.Context, contextId string, name string) (*BaseResponse, error) {
-	path := "/context/" + contextId + "/environment-variable/" + name
+	path := fmt.Sprintf("/context/%s/environment-variable/%s", contextId, name)
 
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {
@@ -88,7 +91,7 @@ func (s *ContextService) RemoveContextEnvironment(ctx context.Context, contextId
 }
 
 func (s *ContextService) GetContextRestrictions(ctx context.Context, contextId string) (*ContextRestrictionsResponse, error) {
-	path := "/context/" + contextId + "/restrictions"
+	path := fmt.Sprintf("/context/%s/restrictions", contextId)
 
 	result := &ContextRestrictionsResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -98,7 +101,7 @@ func (s *ContextService) GetContextRestrictions(ctx context.Context, contextId s
 }
 
 func (s *ContextService) CreateContextRestriction(ctx context.Context, contextId string, restriction_type string, restriction_value string) (*ContextRestriction, error) {
-	path := "/context/" + contextId + "/restrictions"
+	path := fmt.Sprintf("/context/%s/restrictions", contextId)
 
 	result := &ContextRestriction{}
 	request := &struct {
@@ -115,7 +118,7 @@ func (s *ContextService) CreateContextRestriction(ctx context.Context, contextId
 }
 
 func (s *ContextService) DeleteContextRestriction(ctx context.Context, contextId string, restriction_id string) (*BaseResponse, error) {
-	path := "/context/" + contextId + "/restrictions/" + restriction_id
+	path := fmt.Sprintf("/context/%s/restrictions/%s", contextId, restriction_id)
 
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {

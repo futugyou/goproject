@@ -1,6 +1,10 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+	"net/url"
+)
 
 type ProjectService service
 
@@ -9,7 +13,7 @@ type ProjectService service
 // eg. org_slug gh/CircleCI-Public
 // eg. project_slug gh/CircleCI-Public/api-preview-docs
 func (s *ProjectService) CreateProject(ctx context.Context, org_slug string, name string) (*CreateProjectResponse, error) {
-	path := "/project/" + org_slug + "/" + name
+	path := fmt.Sprintf("/project/%s/%s", org_slug, name)
 
 	result := &CreateProjectResponse{}
 	if err := s.client.http.Post(ctx, path, nil, result); err != nil {
@@ -19,7 +23,7 @@ func (s *ProjectService) CreateProject(ctx context.Context, org_slug string, nam
 }
 
 func (s *ProjectService) GetProject(ctx context.Context, org_slug string, name string) (*ProjectInfo, error) {
-	path := "/project/" + org_slug + "/" + name
+	path := fmt.Sprintf("/project/%s/%s", org_slug, name)
 
 	result := &ProjectInfo{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -39,7 +43,7 @@ func (s *ProjectService) ListProject(ctx context.Context) ([]ProjectListItem, er
 }
 
 func (s *ProjectService) CreateCheckoutKey(ctx context.Context, project_slug string, keyType string) (*CheckoutKey, error) {
-	path := "/project/" + project_slug + "/checkout-key"
+	path := fmt.Sprintf("/project/%s/checkout-key", project_slug)
 
 	request := &struct {
 		Type string `json:"type"`
@@ -54,8 +58,13 @@ func (s *ProjectService) CreateCheckoutKey(ctx context.Context, project_slug str
 }
 
 func (s *ProjectService) GetCheckoutKey(ctx context.Context, project_slug string, digest string) (*CheckoutKeyList, error) {
-	path := "/project/" + project_slug + "/checkout-key?digest=" + digest
-
+	u := &url.URL{
+		Path: fmt.Sprintf("/project/%s/checkout-key", project_slug),
+	}
+	params := url.Values{}
+	params.Add("digest", digest)
+	u.RawQuery = params.Encode()
+	path := u.String()
 	result := &CheckoutKeyList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -64,7 +73,8 @@ func (s *ProjectService) GetCheckoutKey(ctx context.Context, project_slug string
 }
 
 func (s *ProjectService) DeleteCheckoutKey(ctx context.Context, project_slug string, fingerprint string) (*BaseResponse, error) {
-	path := "/project/" + project_slug + "/checkout-key/" + fingerprint
+	path := fmt.Sprintf("/project/%s/checkout-key/%s", project_slug, fingerprint)
+
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
@@ -73,7 +83,7 @@ func (s *ProjectService) DeleteCheckoutKey(ctx context.Context, project_slug str
 }
 
 func (s *ProjectService) GetEnvironmentVariables(ctx context.Context, project_slug string) (*EnvironmentVariableList, error) {
-	path := "/project/" + project_slug + "/envvar"
+	path := fmt.Sprintf("/project/%s/envvar", project_slug)
 
 	result := &EnvironmentVariableList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -83,7 +93,7 @@ func (s *ProjectService) GetEnvironmentVariables(ctx context.Context, project_sl
 }
 
 func (s *ProjectService) CreateEnvironmentVariables(ctx context.Context, project_slug string, name string, value string) (*EnvironmentVariableInfo, error) {
-	path := "/project/" + project_slug + "/envvar"
+	path := fmt.Sprintf("/project/%s/envvar", project_slug)
 	request := struct {
 		Name  string `json:"name"`
 		Value string `json:"value"`
@@ -99,7 +109,7 @@ func (s *ProjectService) CreateEnvironmentVariables(ctx context.Context, project
 }
 
 func (s *ProjectService) DeleteEnvironmentVariables(ctx context.Context, project_slug string, name string) (*BaseResponse, error) {
-	path := "/project/" + project_slug + "/envvar/" + name
+	path := fmt.Sprintf("/project/%s/envvar/%s", project_slug, name)
 
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {
@@ -109,7 +119,7 @@ func (s *ProjectService) DeleteEnvironmentVariables(ctx context.Context, project
 }
 
 func (s *ProjectService) GetMaskedEnvironmentVariable(ctx context.Context, project_slug string, name string) (*EnvironmentVariableInfo, error) {
-	path := "/project/" + project_slug + "/envvar/" + name
+	path := fmt.Sprintf("/project/%s/envvar/%s", project_slug, name)
 
 	result := &EnvironmentVariableInfo{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -119,7 +129,7 @@ func (s *ProjectService) GetMaskedEnvironmentVariable(ctx context.Context, proje
 }
 
 func (s *ProjectService) GetProjectSettings(ctx context.Context, project_slug string) (*ProjectSettingList, error) {
-	path := "/project/" + project_slug + "/settings"
+	path := fmt.Sprintf("/project/%s/settings", project_slug)
 
 	result := &ProjectSettingList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -129,7 +139,7 @@ func (s *ProjectService) GetProjectSettings(ctx context.Context, project_slug st
 }
 
 func (s *ProjectService) UpdateProjectSettings(ctx context.Context, project_slug string, advanced Advanced) (*ProjectSettingList, error) {
-	path := "/project/" + project_slug + "/settings"
+	path := fmt.Sprintf("/project/%s/settings", project_slug)
 
 	result := &ProjectSettingList{}
 	if err := s.client.http.Patch(ctx, path, advanced, result); err != nil {

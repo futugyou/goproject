@@ -1,11 +1,14 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type UsageService service
 
 func (s *UsageService) CreateUsageExport(ctx context.Context, org_id string, start string, end string, shared_org_ids []string) (*UsageExport, error) {
-	path := "/organizations/" + org_id + "/usage_export_job"
+	path := fmt.Sprintf("/organizations/%s/usage_export_job", org_id)
 	request := struct {
 		Start        string   `json:"start"`
 		End          string   `json:"end"`
@@ -23,7 +26,7 @@ func (s *UsageService) CreateUsageExport(ctx context.Context, org_id string, sta
 }
 
 func (s *UsageService) GetUsageExport(ctx context.Context, org_id string, usage_export_job_id string) (*UsageExport, error) {
-	path := "/organizations/" + org_id + "/usage_export_job/" + usage_export_job_id
+	path := fmt.Sprintf("/organizations/%s/usage_export_job/%s", org_id, usage_export_job_id)
 
 	result := &UsageExport{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {

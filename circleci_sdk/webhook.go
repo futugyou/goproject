@@ -1,6 +1,9 @@
 package circleci
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type WebhookService service
 
@@ -27,7 +30,7 @@ func (s *WebhookService) CreateWebhook(ctx context.Context, name string, url str
 }
 
 func (s *WebhookService) ListWebhook(ctx context.Context, projectId string) (*ListWebhookResponse, error) {
-	path := "/webhook?scope-id=" + projectId + "&scope-type=project"
+	path := fmt.Sprintf("/webhook?scope-id=%s&scope-type=project", projectId)
 	result := &ListWebhookResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -37,7 +40,7 @@ func (s *WebhookService) ListWebhook(ctx context.Context, projectId string) (*Li
 }
 
 func (s *WebhookService) GetWebhook(ctx context.Context, webhookId string) (*WebhookItem, error) {
-	path := "/webhook/" + webhookId
+	path := fmt.Sprintf("/webhook/%s", webhookId)
 	result := &WebhookItem{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -47,7 +50,7 @@ func (s *WebhookService) GetWebhook(ctx context.Context, webhookId string) (*Web
 }
 
 func (s *WebhookService) UpdateWebhook(ctx context.Context, webhookId string, name string, url string, signingSecret string) (*WebhookItem, error) {
-	path := "/webhook/" + webhookId
+	path := fmt.Sprintf("/webhook/%s", webhookId)
 	request := WebhookItem{
 		Name:          name,
 		Events:        []string{"workflow-completed"},
@@ -65,7 +68,7 @@ func (s *WebhookService) UpdateWebhook(ctx context.Context, webhookId string, na
 }
 
 func (s *WebhookService) DeleteWebhook(ctx context.Context, webhookId string) (*BaseResponse, error) {
-	path := "/webhook/" + webhookId
+	path := fmt.Sprintf("/webhook/%s", webhookId)
 	result := &BaseResponse{}
 	if err := s.client.http.Delete(ctx, path, result); err != nil {
 		return nil, err
