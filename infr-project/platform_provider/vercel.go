@@ -77,8 +77,62 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 	return resultChan, errorChan
 }
 
+// Optional. TEAM_SLUG TEAM_ID in CreateProjectRequest 'Parameters',
+// default value ” ”.
 func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan []Project, <-chan error) {
-	return nil, nil
+	resultChan := make(chan []Project, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		team_slug := ""
+		team_id := ""
+		if value, ok := filter.Parameters["TEAM_SLUG"]; ok {
+			team_slug = value
+		}
+		if value, ok := filter.Parameters["TEAM_ID"]; ok {
+			team_id = value
+		}
+
+		if len(team_slug) == 0 && len(team_id) == 0 {
+			teamCh, errCh := g.getDefaultTeam(ctx)
+			select {
+			case team := <-teamCh:
+				if team != nil {
+					team_slug = team.Slug
+					team_id = team.Id
+				}
+			case <-errCh:
+			case <-ctx.Done():
+			}
+		}
+
+		vercelProjects, err := g.client.Project.ListProject(ctx, team_slug, team_id)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		projects := []Project{}
+		for _, project := range vercelProjects.Projects {
+			url := ""
+			if len(team_slug) > 0 {
+				url = fmt.Sprintf(VercelProjectUrl, team_slug, project.Name)
+			}
+
+			projects = append(projects, Project{
+				ID:   project.Id,
+				Name: project.Name,
+				Url:  url,
+			})
+		}
+
+		resultChan <- projects
+	}()
+
+	return resultChan, errorChan
 }
 
 func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {
