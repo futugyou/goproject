@@ -2,177 +2,224 @@ package vercel
 
 import (
 	"context"
-	"strings"
+	"fmt"
+	"net/url"
 )
 
 type AccessGroupService service
 
-func (v *AccessGroupService) CreateAccessGroup(ctx context.Context, slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
-	path := "/v1/access-groups"
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
+func (v *AccessGroupService) CreateAccessGroup(ctx context.Context, request AccessGroupRequest) (*AccessGroupInfo, error) {
+	u := &url.URL{
+		Path: "/v1/access-groups",
 	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	result := &AccessGroupInfo{}
-	err := v.client.http.Post(ctx, path, info, result)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+
+	response := &AccessGroupInfo{}
+	err := v.client.http.Post(ctx, path, request, response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *AccessGroupService) DeleteAccessGroup(ctx context.Context, idOrName string, slug string, teamId string) (*string, error) {
-	path := "/v1/access-groups/" + idOrName
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
-	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
-	}
-	result := ""
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type DeleteAccessGroupRequest struct {
+	IdOrName         string `json:"idOrName"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *AccessGroupService) ListMembersOfAccessGroup(ctx context.Context, idOrName string, slug string, teamId string) (*ListMembersResponse, error) {
-	path := "/v1/access-groups/" + idOrName + "/members"
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
+func (v *AccessGroupService) DeleteAccessGroup(ctx context.Context, request DeleteAccessGroupRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/access-groups/%s", request.IdOrName),
 	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	result := &ListMembersResponse{}
-	err := v.client.http.Get(ctx, path, result)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+
+	response := ""
+	err := v.client.http.Delete(ctx, path, response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return &response, nil
 }
 
-func (v *AccessGroupService) ListProjectsOfAccessGroup(ctx context.Context, idOrName string, slug string, teamId string) (*ListProjectsResponse, error) {
-	path := "/v1/access-groups/" + idOrName + "/projects"
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
-	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
-	}
-	result := &ListProjectsResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type ListMembersOfAccessGroupParameter struct {
+	IdOrName         string `json:"idOrName"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *AccessGroupService) ListAccessGroup(ctx context.Context, projectId string, search string, slug string, teamId string) ([]AccessGroupInfo, error) {
-	path := "/v1/access-groups/"
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
+func (v *AccessGroupService) ListMembersOfAccessGroup(ctx context.Context, request ListMembersOfAccessGroupParameter) (*ListMembersResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/access-groups/%s/members", request.IdOrName),
 	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(projectId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&projectId=" + projectId)
-		} else {
-			path += ("?projectId=" + projectId)
-		}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	if len(search) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&search=" + search)
-		} else {
-			path += ("?search=" + search)
-		}
-	}
-	result := []AccessGroupInfo{}
-	err := v.client.http.Get(ctx, path, &result)
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+
+	response := &ListMembersResponse{}
+	err := v.client.http.Get(ctx, path, response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *AccessGroupService) GetAccessGroup(ctx context.Context, idOrName string, slug string, teamId string) (*AccessGroupInfo, error) {
-	path := "/v1/access-groups/" + idOrName
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
-	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
-	}
-	result := &AccessGroupInfo{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type ListProjectsOfAccessGroupParameter struct {
+	IdOrName         string `json:"idOrName"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *AccessGroupService) UpdateAccessGroup(ctx context.Context, idOrName string, slug string, teamId string, info AccessGroupRequest) (*AccessGroupInfo, error) {
-	path := "/v1/access-groups/" + idOrName
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
+func (v *AccessGroupService) ListProjectsOfAccessGroup(ctx context.Context, request ListProjectsOfAccessGroupParameter) (*ListProjectsResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/access-groups/%s/projects", request.IdOrName),
 	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	result := &AccessGroupInfo{}
-	err := v.client.http.Post(ctx, path, info, result)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+	response := &ListProjectsResponse{}
+	err := v.client.http.Get(ctx, path, response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
+}
+
+type ListAccessGroupParameter struct {
+	ProjectId        *string `json:"projectId"`
+	Search           *string `json:"search"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *AccessGroupService) ListAccessGroup(ctx context.Context, request ListAccessGroupParameter) ([]AccessGroupInfo, error) {
+	u := &url.URL{
+		Path: "/v1/access-groups/",
+	}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	if request.Search != nil {
+		params.Add("search", *request.Search)
+	}
+	if request.ProjectId != nil {
+		params.Add("projectId", *request.ProjectId)
+	}
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+
+	response := []AccessGroupInfo{}
+	err := v.client.http.Get(ctx, path, &response)
+
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetAccessGroupParameter struct {
+	IdOrName         string `json:"idOrName"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *AccessGroupService) GetAccessGroup(ctx context.Context, request GetAccessGroupParameter) (*AccessGroupInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/access-groups/%s", request.IdOrName),
+	}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+
+	response := &AccessGroupInfo{}
+	err := v.client.http.Get(ctx, path, response)
+
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (v *AccessGroupService) UpdateAccessGroup(ctx context.Context, request AccessGroupRequest) (*AccessGroupInfo, error) {
+	response := &AccessGroupInfo{}
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/access-groups/%s", *request.IdOrName),
+	}
+
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+
+	path := u.String()
+	err := v.client.http.Post(ctx, path, request, response)
+
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type AccessGroupRequest struct {
-	Name            string               `json:"name"`
-	MembersToAdd    []string             `json:"membersToAdd"`
-	MembersToRemove []string             `json:"membersToRemove,omitempty"`
-	Projects        []AccessGroupProject `json:"projects"`
+	Name             string               `json:"name"`
+	MembersToAdd     []string             `json:"membersToAdd"`
+	MembersToRemove  []string             `json:"membersToRemove,omitempty"`
+	Projects         []AccessGroupProject `json:"projects"`
+	IdOrName         *string              `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
 type AccessGroupProject struct {

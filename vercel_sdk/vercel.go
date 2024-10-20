@@ -89,3 +89,8 @@ type Pagination struct {
 	Count int    `json:"count"`
 	Next  string `json:"next"`
 }
+
+type BaseUrlParameter struct {
+	TeamSlug *string `json:"slug"`
+	TeamId   *string `json:"teamId"`
+}
