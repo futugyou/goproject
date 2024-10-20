@@ -7,22 +7,37 @@ import (
 
 type WebhookService service
 
-func (s *WebhookService) CreateWebhook(ctx context.Context, name string, url string, projectId string, signingSecret string) (*WebhookItem, error) {
+var WebhookEvents []string = []string{
+	"workflow-completed",
+	"job-completed",
+}
+
+type CreateWebhookRequest struct {
+	Name          string
+	Events        []string
+	Url           string
+	VerifyTLS     bool
+	SigningSecret string
+	ScopeId       string
+	ScopeType     string
+}
+
+func (s *WebhookService) CreateWebhook(ctx context.Context, request CreateWebhookRequest) (*Webhook, error) {
 	path := "/webhook"
-	request := WebhookItem{
-		Name:          name,
-		Events:        []string{"workflow-completed"},
-		Url:           url,
-		VerifyTLS:     false,
-		SigningSecret: signingSecret,
+	req := Webhook{
+		Name:          request.Name,
+		Events:        request.Events,
+		Url:           request.Url,
+		VerifyTLS:     request.VerifyTLS,
+		SigningSecret: request.SigningSecret,
 		Scope: WebhookScope{
-			Id:   projectId,
-			Type: "project",
+			Id:   request.ScopeId,
+			Type: request.ScopeType,
 		},
 	}
 
-	result := &WebhookItem{}
-	if err := s.client.http.Post(ctx, path, request, result); err != nil {
+	result := &Webhook{}
+	if err := s.client.http.Post(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 
@@ -39,9 +54,9 @@ func (s *WebhookService) ListWebhook(ctx context.Context, projectId string) (*Li
 	return result, nil
 }
 
-func (s *WebhookService) GetWebhook(ctx context.Context, webhookId string) (*WebhookItem, error) {
+func (s *WebhookService) GetWebhook(ctx context.Context, webhookId string) (*Webhook, error) {
 	path := fmt.Sprintf("/webhook/%s", webhookId)
-	result := &WebhookItem{}
+	result := &Webhook{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
@@ -49,18 +64,27 @@ func (s *WebhookService) GetWebhook(ctx context.Context, webhookId string) (*Web
 	return result, nil
 }
 
-func (s *WebhookService) UpdateWebhook(ctx context.Context, webhookId string, name string, url string, signingSecret string) (*WebhookItem, error) {
-	path := fmt.Sprintf("/webhook/%s", webhookId)
-	request := WebhookItem{
-		Name:          name,
-		Events:        []string{"workflow-completed"},
-		Url:           url,
-		VerifyTLS:     false,
-		SigningSecret: signingSecret,
+type UpdateWebhookRequest struct {
+	WebhookId     string
+	Name          string
+	Events        []string
+	Url           string
+	VerifyTLS     bool
+	SigningSecret string
+}
+
+func (s *WebhookService) UpdateWebhook(ctx context.Context, request UpdateWebhookRequest) (*Webhook, error) {
+	path := fmt.Sprintf("/webhook/%s", request.WebhookId)
+	req := Webhook{
+		Name:          request.Name,
+		Events:        request.Events,
+		Url:           request.Url,
+		VerifyTLS:     request.VerifyTLS,
+		SigningSecret: request.SigningSecret,
 	}
 
-	result := &WebhookItem{}
-	if err := s.client.http.Put(ctx, path, request, result); err != nil {
+	result := &Webhook{}
+	if err := s.client.http.Put(ctx, path, req, result); err != nil {
 		return nil, err
 	}
 
@@ -78,12 +102,12 @@ func (s *WebhookService) DeleteWebhook(ctx context.Context, webhookId string) (*
 }
 
 type ListWebhookResponse struct {
-	Items         []WebhookItem `json:"items"`
-	NextPageToken string        `json:"next_page_token"`
-	Message       *string       `json:"message,omitempty"`
+	Items         []Webhook `json:"items"`
+	NextPageToken string    `json:"next_page_token"`
+	Message       *string   `json:"message,omitempty"`
 }
 
-type WebhookItem struct {
+type Webhook struct {
 	Name          string       `json:"name,omitempty"`
 	Events        []string     `json:"events,omitempty"` // "workflow-completed" "job-completed"
 	Url           string       `json:"url,omitempty"`

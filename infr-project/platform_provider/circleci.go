@@ -180,6 +180,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				ID:         hook.Id,
 				Name:       hook.Name,
 				Url:        hook.Url,
+				Events:     hook.Events,
 				Parameters: paras,
 			})
 		}
@@ -208,8 +209,23 @@ func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 		if s, ok := request.WebHook.Parameters["SigningSecret"]; ok && len(s) > 0 {
 			secret = s
 		}
+		verifyTLS := false
+		if tls, ok := request.WebHook.Parameters["VerifyTLS"]; ok {
+			if value, err := strconv.ParseBool(tls); err != nil {
+				verifyTLS = value
+			}
+		}
 
-		hook, err := g.client.Webhook.CreateWebhook(ctx, request.WebHook.Name, request.WebHook.Url, request.ProjectId, secret)
+		req := circleci.CreateWebhookRequest{
+			Name:          request.WebHook.Name,
+			Events:        request.WebHook.Events,
+			Url:           request.WebHook.Url,
+			VerifyTLS:     verifyTLS,
+			SigningSecret: secret,
+			ScopeId:       request.ProjectId,
+			ScopeType:     "project",
+		}
+		hook, err := g.client.Webhook.CreateWebhook(ctx, req)
 		if err != nil {
 			errorChan <- err
 			return
@@ -223,6 +239,7 @@ func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			ID:         hook.Id,
 			Name:       hook.Name,
 			Url:        hook.Url,
+			Events:     hook.Events,
 			Parameters: paras,
 		}
 
