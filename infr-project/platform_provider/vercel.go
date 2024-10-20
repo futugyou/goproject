@@ -147,7 +147,38 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 }
 
 func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
-	return nil, nil
+	resultChan := make(chan *WebHook, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		team_slug, team_id := "", ""
+		req := vercel.CreateWebhookRequest{
+			Events:     request.WebHook.Events,
+			Url:        request.WebHook.Url,
+			ProjectIds: []string{request.ProjectId},
+		}
+		vercelHook, err := g.client.Webhook.CreateWebhook(ctx, team_slug, team_id, req)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		paras := map[string]string{}
+		paras["Secret"] = vercelHook.Secret
+		hook := &WebHook{
+			ID:         vercelHook.Id,
+			Name:       vercelHook.Id,
+			Url:        vercelHook.Url,
+			Parameters: paras,
+		}
+
+		resultChan <- hook
+	}()
+
+	return resultChan, errorChan
 }
 
 func (g *VercelClient) getTeamSlugAndId(ctx context.Context, parameters map[string]string) (team_slug string, team_id string, err error) {

@@ -21,6 +21,7 @@ type WebHook struct {
 	ID         string
 	Name       string
 	Url        string
+	Events     []string
 	Parameters map[string]string
 }
 
