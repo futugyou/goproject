@@ -12,7 +12,6 @@ func (v *AccessGroupService) CreateAccessGroup(ctx context.Context, request Acce
 	u := &url.URL{
 		Path: "/v1/access-groups",
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -21,15 +20,13 @@ func (v *AccessGroupService) CreateAccessGroup(ctx context.Context, request Acce
 		params.Add("slug", *request.TeamSlug)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
 
 	response := &AccessGroupInfo{}
-	err := v.client.http.Post(ctx, path, request, response)
-
-	if err != nil {
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
@@ -42,7 +39,6 @@ func (v *AccessGroupService) DeleteAccessGroup(ctx context.Context, request Dele
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s", request.IdOrName),
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -51,15 +47,13 @@ func (v *AccessGroupService) DeleteAccessGroup(ctx context.Context, request Dele
 		params.Add("slug", *request.TeamSlug)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
 
 	response := ""
-	err := v.client.http.Delete(ctx, path, response)
-
-	if err != nil {
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
+
 	return &response, nil
 }
 
@@ -72,7 +66,6 @@ func (v *AccessGroupService) ListMembersOfAccessGroup(ctx context.Context, reque
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s/members", request.IdOrName),
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -81,15 +74,13 @@ func (v *AccessGroupService) ListMembersOfAccessGroup(ctx context.Context, reque
 		params.Add("slug", *request.TeamSlug)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
 
 	response := &ListMembersResponse{}
-	err := v.client.http.Get(ctx, path, response)
-
-	if err != nil {
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
@@ -102,7 +93,6 @@ func (v *AccessGroupService) ListProjectsOfAccessGroup(ctx context.Context, requ
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s/projects", request.IdOrName),
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -111,14 +101,13 @@ func (v *AccessGroupService) ListProjectsOfAccessGroup(ctx context.Context, requ
 		params.Add("slug", *request.TeamSlug)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
-	response := &ListProjectsResponse{}
-	err := v.client.http.Get(ctx, path, response)
 
-	if err != nil {
+	response := &ListProjectsResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
@@ -132,7 +121,6 @@ func (v *AccessGroupService) ListAccessGroup(ctx context.Context, request ListAc
 	u := &url.URL{
 		Path: "/v1/access-groups/",
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -147,15 +135,13 @@ func (v *AccessGroupService) ListAccessGroup(ctx context.Context, request ListAc
 		params.Add("projectId", *request.ProjectId)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
 
 	response := []AccessGroupInfo{}
-	err := v.client.http.Get(ctx, path, &response)
-
-	if err != nil {
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
@@ -168,7 +154,6 @@ func (v *AccessGroupService) GetAccessGroup(ctx context.Context, request GetAcce
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s", request.IdOrName),
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -177,24 +162,20 @@ func (v *AccessGroupService) GetAccessGroup(ctx context.Context, request GetAcce
 		params.Add("slug", *request.TeamSlug)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
 
 	response := &AccessGroupInfo{}
-	err := v.client.http.Get(ctx, path, response)
-
-	if err != nil {
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
 func (v *AccessGroupService) UpdateAccessGroup(ctx context.Context, request AccessGroupRequest) (*AccessGroupInfo, error) {
-	response := &AccessGroupInfo{}
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s", *request.IdOrName),
 	}
-
 	params := url.Values{}
 	if request.TeamId != nil {
 		params.Add("teamId", *request.TeamId)
@@ -203,13 +184,13 @@ func (v *AccessGroupService) UpdateAccessGroup(ctx context.Context, request Acce
 		params.Add("slug", *request.TeamSlug)
 	}
 	u.RawQuery = params.Encode()
-
 	path := u.String()
-	err := v.client.http.Post(ctx, path, request, response)
 
-	if err != nil {
+	response := &AccessGroupInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 

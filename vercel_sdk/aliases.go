@@ -4,129 +4,165 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strings"
 )
 
 type AliasService service
 
-func (v *AliasService) AssignAlias(ctx context.Context, id string, slug string, teamId string, info AssignAliasRequest) (*AssignAliasResponse, error) {
-	path := fmt.Sprintf("/v2/deployments/%s/aliases", id)
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
+func (v *AliasService) AssignAlias(ctx context.Context, request AssignAliasRequest) (*AssignAliasResponse, error) {
+	if request.Id == nil {
+		return nil, fmt.Errorf("vercel assign alias request need id")
 	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
-	}
-	result := &AssignAliasResponse{}
-	err := v.client.http.Post(ctx, path, info, result)
 
-	if err != nil {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/deployments/%s/aliases", *request.Id),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &AssignAliasResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	return response, nil
 }
 
-func (v *AliasService) DeleteAlias(ctx context.Context, id string, slug string, teamId string) (*DeleteAliasResponse, error) {
-	path := fmt.Sprintf("/v2/aliases/%s", id)
-	if len(slug) > 0 {
-		path += ("?slug=" + slug)
-	}
-	if len(teamId) > 0 {
-		if strings.Contains(path, "?") {
-			path += ("&teamId=" + teamId)
-		} else {
-			path += ("?teamId=" + teamId)
-		}
-	}
-	result := &DeleteAliasResponse{}
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type DeleteAliasRequest struct {
+	Id               string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *AliasService) GetAlias(ctx context.Context, id string, slug string, teamId string, projectId string, since string, until string) ([]AliasInfo, error) {
-	path := fmt.Sprintf("/v4/aliases/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *AliasService) DeleteAlias(ctx context.Context, request DeleteAliasRequest) (*DeleteAliasResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/aliases/%s/", request.Id),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(projectId) > 0 {
-		queryParams.Add("projectId", projectId)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []AliasInfo{}
-	err := v.client.http.Get(ctx, path, &result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &DeleteAliasResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	return response, nil
 }
 
-func (v *AliasService) ListAlias(ctx context.Context, slug string, teamId string, projectId string, since string, until string) (*ListAliasResponse, error) {
-	path := "/v4/aliases"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(projectId) > 0 {
-		queryParams.Add("projectId", projectId)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListAliasResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type GetAliasParameter struct {
+	Id               string  `json:"-"`
+	ProjectId        *string `json:"-"`
+	Since            *string `json:"-"`
+	Until            *string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *AliasService) ListdeploymentsAlias(ctx context.Context, id string, slug string, teamId string) ([]AliasInfo, error) {
-	path := fmt.Sprintf("/v2/deployments/%s/aliases", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *AliasService) GetAlias(ctx context.Context, request GetAliasParameter) ([]AliasInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v4/aliases/%s/", request.Id),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	result := []AliasInfo{}
-	err := v.client.http.Get(ctx, path, &result)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	if request.ProjectId != nil {
+		params.Add("projectId", *request.ProjectId)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := []AliasInfo{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	return response, nil
+}
+
+type ListAliasParameter struct {
+	ProjectId        *string `json:"-"`
+	Since            *string `json:"-"`
+	Until            *string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *AliasService) ListAlias(ctx context.Context, request ListAliasParameter) (*ListAliasResponse, error) {
+	u := &url.URL{
+		Path: "/v4/aliases",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	if request.ProjectId != nil {
+		params.Add("projectId", *request.ProjectId)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListAliasResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type ListDeploymentsAliasParameter struct {
+	DeploymentId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *AliasService) ListDeploymentsAlias(ctx context.Context, request ListDeploymentsAliasParameter) ([]AliasInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/deployments/%s/aliases", request.DeploymentId),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []AliasInfo{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }
 
 type ListAliasResponse struct {
@@ -136,9 +172,10 @@ type ListAliasResponse struct {
 }
 
 type AssignAliasRequest struct {
-	Alias    string       `json:"alias,omitempty"`
-	Redirect string       `json:"redirect,omitempty"`
-	Error    *VercelError `json:"error,omitempty"`
+	Id               *string `json:"-"`
+	Alias            string  `json:"alias,omitempty"`
+	Redirect         string  `json:"redirect,omitempty"`
+	BaseUrlParameter `json:"-"`
 }
 
 type AssignAliasResponse struct {
