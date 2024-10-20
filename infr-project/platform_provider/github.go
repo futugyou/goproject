@@ -146,6 +146,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					ID:         fmt.Sprintf("%d", hook.GetID()),
 					Name:       hook.GetName(),
 					Url:        hook.GetURL(),
+					Events:     hook.Events,
 					Parameters: paras,
 				})
 			}
@@ -177,10 +178,16 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			config.Secret = github.String(s)
 		}
 
+		events := request.WebHook.Events
+		if len(events) == 0 {
+			events = []string{"push", "pull_request"}
+		} else {
+			events = Intersect(events, []string{"push", "pull_request"})
+		}
 		hookParam := &github.Hook{
 			Name:   github.String(request.WebHook.Name),
 			Config: config,
-			Events: []string{"push", "pull_request"},
+			Events: events,
 		}
 
 		githook, _, err := g.client.Repositories.CreateHook(ctx, request.PlatformId, request.ProjectId, hookParam)
@@ -201,6 +208,7 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			ID:         fmt.Sprintf("%d", githook.GetID()),
 			Name:       githook.GetName(),
 			Url:        githook.GetURL(),
+			Events:     githook.Events,
 			Parameters: paras,
 		}
 		resultChan <- hook

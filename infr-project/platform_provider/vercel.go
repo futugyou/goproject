@@ -130,6 +130,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				ID:         hook.Id,
 				Name:       hook.Id,
 				Url:        hook.Url,
+				Events:     hook.Events,
 				Parameters: paras,
 			})
 		}
@@ -155,8 +156,15 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 		defer close(errorChan)
 
 		team_slug, team_id := "", ""
+		events := request.WebHook.Events
+		if len(events) == 0 {
+			events = []string{"deployment.succeeded"}
+		} else {
+			events = Intersect(events, vercel.WebHookEvent)
+		}
+
 		req := vercel.CreateWebhookRequest{
-			Events:     request.WebHook.Events,
+			Events:     events,
 			Url:        request.WebHook.Url,
 			ProjectIds: []string{request.ProjectId},
 		}
@@ -172,6 +180,7 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			ID:         vercelHook.Id,
 			Name:       vercelHook.Id,
 			Url:        vercelHook.Url,
+			Events:     vercelHook.Events,
 			Parameters: paras,
 		}
 

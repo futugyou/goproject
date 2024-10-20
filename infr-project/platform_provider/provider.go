@@ -44,3 +44,21 @@ type IPlatformProviderAsync interface {
 	GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error)
 	CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error)
 }
+
+func Intersect(setA, setB []string) []string {
+	bMap := make(map[string]struct{})
+
+	for _, b := range setB {
+		bMap[b] = struct{}{}
+	}
+
+	var intersection []string
+
+	for _, a := range setA {
+		if _, found := bMap[a]; found {
+			intersection = append(intersection, a)
+		}
+	}
+
+	return intersection
+}

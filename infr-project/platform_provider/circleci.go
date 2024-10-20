@@ -216,9 +216,16 @@ func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			}
 		}
 
+		events := request.WebHook.Events
+		if len(events) == 0 {
+			events = circleci.WebhookEvents
+		} else {
+			events = Intersect(events, circleci.WebhookEvents)
+		}
+
 		req := circleci.CreateWebhookRequest{
 			Name:          request.WebHook.Name,
-			Events:        request.WebHook.Events,
+			Events:        events,
 			Url:           request.WebHook.Url,
 			VerifyTLS:     verifyTLS,
 			SigningSecret: secret,

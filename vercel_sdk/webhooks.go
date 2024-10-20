@@ -8,6 +8,22 @@ import (
 
 type WebhookService service
 
+var WebHookEvent []string = []string{
+	"deployment.created",
+	"deployment.succeeded",
+	"deployment.ready",
+	"deployment.promoted",
+	"deployment.canceled",
+	"deployment.error",
+	"deployment.check-rerequested",
+	"project.created",
+	"project.removed",
+	"integration-configuration.scope-change-confirmed",
+	"integration-configuration.removed",
+	"integration-configuration.permission-upgraded",
+	"domain.created",
+}
+
 func (v *WebhookService) CreateWebhook(ctx context.Context, slug string, teamId string, req CreateWebhookRequest) (*WebhookInfo, error) {
 	path := "/v1/webhooks"
 	queryParams := url.Values{}
