@@ -6,144 +6,173 @@ import (
 	"net/url"
 )
 
-func (v *ArtifactService) CheckArtifactExists(ctx context.Context, hash string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v8/artifacts/%s", hash)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ArtifactService) QueryArtifact(ctx context.Context, slug string, teamId string, hashes []string) (*QueryArtifactResponse, error) {
-	path := "/v8/artifacts"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &QueryArtifactResponse{}
-	request := struct {
-		Hashes []string `json:"hashes"`
-	}{
-		Hashes: hashes,
-	}
-	err := v.client.http.Post(ctx, path, request, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ArtifactService) DownloadArtifact(ctx context.Context, slug string, teamId string, hash string) (*string, error) {
-	path := fmt.Sprintf("/v8/artifacts/%s", hash)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ArtifactService) RecordArtifactEvent(ctx context.Context, teamId string, hash string, request ArtifactEventRequest) (*string, error) {
-	path := "/v8/artifacts/events"
-	queryParams := url.Values{}
-
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Post(ctx, path, request, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ArtifactService) GetCachingStatus(ctx context.Context, slug string, teamId string) (*CachingStatus, error) {
-	path := "/v8/artifacts/status"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &CachingStatus{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 type ArtifactService service
 
-func (v *ArtifactService) UploadArtifact(ctx context.Context, hash string, slug string, teamId string) (*UploadArtifactResponse, error) {
-	path := "/v8/artifacts/status"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &UploadArtifactResponse{}
-	//TODO Header Params Content-Length Required
-	err := v.client.http.Put(ctx, path, nil, result)
+type CheckArtifactParameter struct {
+	Hash             string
+	BaseUrlParameter `json:"-"`
+}
 
-	if err != nil {
+func (v *ArtifactService) CheckArtifactExists(ctx context.Context, request CheckArtifactParameter) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v8/artifacts/%s", request.Hash),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return &response, nil
+}
+
+type QueryArtifactParameter struct {
+	Hashes           []string `json:"hashes"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ArtifactService) QueryArtifact(ctx context.Context, request QueryArtifactParameter) (*QueryArtifactResponse, error) {
+	u := &url.URL{
+		Path: "/v8/artifacts",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &QueryArtifactResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type DownloadArtifactParameter struct {
+	Hash             string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ArtifactService) DownloadArtifact(ctx context.Context, request DownloadArtifactParameter) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v8/artifacts/%s", request.Hash),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (v *ArtifactService) RecordArtifactEvent(ctx context.Context, request ArtifactEventRequest) (*string, error) {
+	u := &url.URL{
+		Path: "/v8/artifacts/events",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Post(ctx, path, request, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type GetCachingStatusParameter struct {
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ArtifactService) GetCachingStatus(ctx context.Context, request GetCachingStatusParameter) (*CachingStatus, error) {
+	u := &url.URL{
+		Path: "/v8/artifacts/status",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &CachingStatus{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type UploadArtifactRequest struct {
+	Hash             string
+	BaseUrlParameter `json:"-"`
+	// Required head: Content-Length
+	// Allowed heads: x-artifact-client-ci, x-artifact-client-interactive, x-artifact-duration, x-artifact-tag
+	CustomeHeader map[string]string
+}
+
+func (v *ArtifactService) UploadArtifact(ctx context.Context, request UploadArtifactRequest) (*UploadArtifactResponse, error) {
+	if _, ok := request.CustomeHeader["Content-Length"]; !ok {
+		return nil, fmt.Errorf("UploadArtifact request MUST have Content-Length parameter in CustomeHeader")
+	}
+
+	u := &url.URL{
+		Path: "/v8/artifacts/status",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &UploadArtifactResponse{}
+	client := NewClientWithHeader(request.CustomeHeader)
+	if err := client.http.Put(ctx, path, nil, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type ArtifactEventRequest struct {
-	Event     string `json:"event"`
-	Hash      string `json:"hash"`
-	SessionId string `json:"sessionId"`
-	Source    string `json:"source"`
-	Duration  int    `json:"duration"`
+	Event            string `json:"event"`
+	Hash             string `json:"hash"`
+	SessionId        string `json:"sessionId"`
+	Source           string `json:"source"`
+	Duration         int    `json:"duration"`
+	BaseUrlParameter `json:"-"`
 }
 
 type QueryArtifactResponse struct {
