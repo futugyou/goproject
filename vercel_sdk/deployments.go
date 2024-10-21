@@ -318,6 +318,11 @@ func (v *DeploymentService) ListDeploymentFile(ctx context.Context, request List
 	return response, nil
 }
 
+// TODO: need common http file upload method first.
+func (v *DeploymentService) UploadDeploymentFiles(ctx context.Context, request interface{}) ([]interface{}, error) {
+	return nil, nil
+}
+
 type ListDeploymentResponse struct {
 	Deployments []DeploymentInfo `json:"deployments,omitempty"`
 	Pagination  Pagination       `json:"pagination,omitempty"`

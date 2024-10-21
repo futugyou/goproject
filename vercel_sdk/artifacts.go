@@ -132,39 +132,40 @@ func (v *ArtifactService) GetCachingStatus(ctx context.Context, request GetCachi
 	return response, nil
 }
 
-type UploadArtifactRequest struct {
-	Hash             string
-	BaseUrlParameter `json:"-"`
-	// Required head: Content-Length
-	// Allowed heads: x-artifact-client-ci, x-artifact-client-interactive, x-artifact-duration, x-artifact-tag
-	CustomeHeader map[string]string
-}
+// TODO: need common http file upload method first.
+// type UploadArtifactRequest struct {
+// 	Hash             string
+// 	BaseUrlParameter `json:"-"`
+// 	// Required head: Content-Length
+// 	// Allowed heads: x-artifact-client-ci, x-artifact-client-interactive, x-artifact-duration, x-artifact-tag
+// 	CustomeHeader map[string]string
+// }
 
-func (v *ArtifactService) UploadArtifact(ctx context.Context, request UploadArtifactRequest) (*UploadArtifactResponse, error) {
-	if _, ok := request.CustomeHeader["Content-Length"]; !ok {
-		return nil, fmt.Errorf("UploadArtifact request MUST have Content-Length parameter in CustomeHeader")
-	}
+// func (v *ArtifactService) UploadArtifact(ctx context.Context, request UploadArtifactRequest) (*UploadArtifactResponse, error) {
+// 	if _, ok := request.CustomeHeader["Content-Length"]; !ok {
+// 		return nil, fmt.Errorf("UploadArtifact request MUST have Content-Length parameter in CustomeHeader")
+// 	}
 
-	u := &url.URL{
-		Path: "/v8/artifacts/status",
-	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
-	u.RawQuery = params.Encode()
-	path := u.String()
+// 	u := &url.URL{
+// 		Path: "/v8/artifacts/status",
+// 	}
+// 	params := url.Values{}
+// 	if request.TeamId != nil {
+// 		params.Add("teamId", *request.TeamId)
+// 	}
+// 	if request.TeamSlug != nil {
+// 		params.Add("slug", *request.TeamSlug)
+// 	}
+// 	u.RawQuery = params.Encode()
+// 	path := u.String()
 
-	response := &UploadArtifactResponse{}
-	client := NewClientWithHeader(request.CustomeHeader)
-	if err := client.http.Put(ctx, path, nil, response); err != nil {
-		return nil, err
-	}
-	return response, nil
-}
+// 	response := &UploadArtifactResponse{}
+// 	client := NewClientWithHeader(request.CustomeHeader)
+// 	if err := client.http.Put(ctx, path, nil, response); err != nil {
+// 		return nil, err
+// 	}
+// 	return response, nil
+// }
 
 type ArtifactEventRequest struct {
 	Event            string `json:"event"`

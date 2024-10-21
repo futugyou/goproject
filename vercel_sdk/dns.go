@@ -8,97 +8,124 @@ import (
 
 type DNSService service
 
-func (v *DNSService) CreateDNSRecord(ctx context.Context, domain string, slug string, teamId string, req UpsertDNSRecordRequest) (*CreateDNSRecordResponse, error) {
-	path := fmt.Sprintf("/v2/domains/%s/records", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &CreateDNSRecordResponse{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type UpsertDNSRecordRequest struct {
+	Name             string `json:"name"`
+	Type             string `json:"type"`
+	Ttl              int    `json:"ttl"`
+	Value            string `json:"value,omitempty"`
+	Comment          string `json:"comment"`
+	MxPriority       int    `json:"mxPriority,omitempty"`
+	SRV              *SRV   `json:"srv,omitempty"`
+	Https            *Https `json:"https,omitempty"`
+	DomainOrRecordId string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DNSService) ListDNSRecords(ctx context.Context, domain string, slug string, teamId string, limit string, since string, until string) (*ListDNSRecordResponse, error) {
-	path := fmt.Sprintf("/v4/domains/%s/records", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DNSService) CreateDNSRecord(ctx context.Context, request UpsertDNSRecordRequest) (*CreateDNSRecordResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/domains/%s/records", request.DomainOrRecordId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListDNSRecordResponse{}
-	err := v.client.http.Get(ctx, path, result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &CreateDNSRecordResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DNSService) DeleteDNSRecords(ctx context.Context, domain string, recordId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v2/domains/%s/records/%s", domain, recordId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type ListDNSRecordsParameter struct {
+	Domain           string  `json:"-"`
+	Limit            *string `json:"-"`
+	Since            *string `json:"-"`
+	Until            *string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DNSService) UpdatesDNSRecords(ctx context.Context, recordId string, slug string, teamId string, req UpsertDNSRecordRequest) (*UpdateDNSRecordResponse, error) {
-	path := fmt.Sprintf("/v1/domains/records/%s", recordId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DNSService) ListDNSRecords(ctx context.Context, request ListDNSRecordsParameter) (*ListDNSRecordResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v4/domains/%s/records", request.Domain),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	result := &UpdateDNSRecordResponse{}
-	err := v.client.http.Patch(ctx, path, req, result)
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &ListDNSRecordResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
+}
+
+type DeleteDNSRecordsRequest struct {
+	Domain           string `json:"-"`
+	RecordId         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DNSService) DeleteDNSRecords(ctx context.Context, request DeleteDNSRecordsRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/domains/%s/records/%s", request.Domain, request.RecordId),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (v *DNSService) UpdateDNSRecords(ctx context.Context, request UpsertDNSRecordRequest) (*UpdateDNSRecordResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/domains/records/%s", request.DomainOrRecordId),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &UpdateDNSRecordResponse{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type UpdateDNSRecordResponse struct {
@@ -125,17 +152,6 @@ type CreateDNSRecordResponse struct {
 	Uid     string       `json:"uid"`
 	Updated int          `json:"updated,omitempty"`
 	Error   *VercelError `json:"error,omitempty"`
-}
-
-type UpsertDNSRecordRequest struct {
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	Ttl        int    `json:"ttl"`
-	Value      string `json:"value,omitempty"`
-	Comment    string `json:"comment"`
-	MxPriority int    `json:"mxPriority,omitempty"`
-	SRV        *SRV   `json:"srv,omitempty"`
-	Https      *Https `json:"https,omitempty"`
 }
 
 type SRV struct {
