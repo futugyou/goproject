@@ -8,245 +8,314 @@ import (
 
 type DeploymentService service
 
-func (v *DeploymentService) CancelDeployment(ctx context.Context, id string, slug string, teamId string) (*DeploymentInfo, error) {
-	path := fmt.Sprintf("/v12/deployments/%s/cancel", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DeploymentInfo{}
-	err := v.client.http.Patch(ctx, path, nil, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type CancelDeploymentRequest struct {
+	DeploymentId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DeploymentService) CreateDeployment(ctx context.Context, forceNew string, skipAutoDetectionConfirmation string,
-	slug string, teamId string, req CreateDeploymentRequest) (*DeploymentInfo, error) {
-	path := "/v13/deployments"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DeploymentService) CancelDeployment(ctx context.Context, request CancelDeploymentRequest) (*DeploymentInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v12/deployments/%s/cancel", request.DeploymentId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(forceNew) > 0 {
-		queryParams.Add("forceNew", forceNew)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	if len(skipAutoDetectionConfirmation) > 0 {
-		queryParams.Add("skipAutoDetectionConfirmation", skipAutoDetectionConfirmation)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DeploymentInfo{}
-	err := v.client.http.Post(ctx, path, req, result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &DeploymentInfo{}
+	if err := v.client.http.Patch(ctx, path, nil, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DeploymentService) DeleteDeployment(ctx context.Context, id string, deploymentUrl string, slug string, teamId string) (*DeleteDeploymentResponse, error) {
-	path := fmt.Sprintf("/v13/deployments/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(deploymentUrl) > 0 {
-		queryParams.Add("url", deploymentUrl)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DeleteDeploymentResponse{}
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type CreateDeploymentRequest struct {
+	Name                          string          `json:"name,omitempty"`
+	DeploymentID                  string          `json:"deploymentId,omitempty"`
+	Files                         []File          `json:"files,omitempty"`
+	GitMetadata                   GitMetadata     `json:"gitMetadata,omitempty"`
+	GitSource                     GitSource       `json:"gitSource,omitempty"`
+	Meta                          string          `json:"meta,omitempty"`
+	MonorepoManager               string          `json:"monorepoManager,omitempty"`
+	Project                       string          `json:"project,omitempty"`
+	ProjectSettings               ProjectSettings `json:"projectSettings,omitempty"`
+	Target                        string          `json:"target,omitempty"`
+	WithLatestCommit              bool            `json:"withLatestCommit,omitempty"`
+	ForceNew                      *string         `json:"-"`
+	SkipAutoDetectionConfirmation *string         `json:"-"`
+	BaseUrlParameter              `json:"-"`
 }
 
-func (v *DeploymentService) GetDeployment(ctx context.Context, idOrUrl string, slug string, teamId string, withGitRepoInfo string) (*DeploymentInfo, error) {
-	path := fmt.Sprintf("/v13/deployments/%s", idOrUrl)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DeploymentService) CreateDeployment(ctx context.Context, request CreateDeploymentRequest) (*DeploymentInfo, error) {
+	u := &url.URL{
+		Path: "/v13/deployments",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(withGitRepoInfo) > 0 {
-		queryParams.Add("withGitRepoInfo", withGitRepoInfo)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.SkipAutoDetectionConfirmation != nil {
+		params.Add("skipAutoDetectionConfirmation", *request.SkipAutoDetectionConfirmation)
 	}
-	result := &DeploymentInfo{}
-	err := v.client.http.Get(ctx, path, result)
+	if request.ForceNew != nil {
+		params.Add("forceNew", *request.ForceNew)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &DeploymentInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DeploymentService) GetDeploymentEvent(ctx context.Context, idOrUrl string, slug string, teamId string,
-	builds string, delimiter string, direction string, follow string, limit string, name string,
-	since string, statusCode string, until string) ([]DeploymentEvent, error) {
-	path := fmt.Sprintf("/v3/deployments/%s/events", idOrUrl)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(builds) > 0 {
-		queryParams.Add("builds", builds)
-	}
-	if len(delimiter) > 0 {
-		queryParams.Add("delimiter", delimiter)
-	}
-	if len(direction) > 0 {
-		queryParams.Add("direction", direction)
-	}
-	if len(follow) > 0 {
-		queryParams.Add("follow", follow)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
-	}
-	if len(name) > 0 {
-		queryParams.Add("name", name)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(statusCode) > 0 {
-		queryParams.Add("statusCode", statusCode)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []DeploymentEvent{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type DeleteDeploymentRequest struct {
+	DeploymentID     string  `json:"deploymentId"`
+	Url              *string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DeploymentService) GetDeploymentFile(ctx context.Context, id string, fileId string, slug string, teamId string, filePath string) (*FileTree, error) {
-	path := fmt.Sprintf("/v7/deployments/%s/files/%s", id, fileId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DeploymentService) DeleteDeployment(ctx context.Context, request DeleteDeploymentRequest) (*DeleteDeploymentResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v13/deployments/%s", request.DeploymentID),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(filePath) > 0 {
-		queryParams.Add("path", filePath)
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.Url != nil {
+		params.Add("url", *request.Url)
 	}
-	result := &FileTree{}
-	err := v.client.http.Get(ctx, path, result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &DeleteDeploymentResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DeploymentService) ListDeployment(ctx context.Context, app string, until string, slug string, teamId string, limit string,
-	projectId string, rollbackCandidate string, since string, state string, target string, users string) (*ListDeploymentResponse, error) {
-	path := "/v6/deployments"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(app) > 0 {
-		queryParams.Add("app", app)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
-	}
-	if len(projectId) > 0 {
-		queryParams.Add("projectId", projectId)
-	}
-	if len(rollbackCandidate) > 0 {
-		queryParams.Add("rollbackCandidate", rollbackCandidate)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(state) > 0 {
-		queryParams.Add("state", state)
-	}
-	if len(target) > 0 {
-		queryParams.Add("target", target)
-	}
-	if len(users) > 0 {
-		queryParams.Add("users", users)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListDeploymentResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type GetDeploymentParameter struct {
+	IdOrUrl          string
+	WithGitRepoInfo  *string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DeploymentService) ListDeploymentFile(ctx context.Context, id string, slug string, teamId string) ([]FileTree, error) {
-	path := fmt.Sprintf("/v6/deployments/%s/files", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DeploymentService) GetDeployment(ctx context.Context, request GetDeploymentParameter) (*DeploymentInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v13/deployments/%s", request.IdOrUrl),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	result := []FileTree{}
-	err := v.client.http.Get(ctx, path, &result)
+	if request.WithGitRepoInfo != nil {
+		params.Add("withGitRepoInfo", *request.WithGitRepoInfo)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &DeploymentInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
+}
+
+type GetDeploymentEventParameter struct {
+	IdOrUrl          string
+	Builds           *string // Allowed value: 1
+	Delimiter        *string // Allowed value: 1
+	Direction        *string // Allowed value: backward forward
+	Follow           *string // Allowed value: 1
+	Limit            *string
+	Name             *string
+	Since            *string
+	StatusCode       *string
+	Until            *string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DeploymentService) GetDeploymentEvent(ctx context.Context, request GetDeploymentEventParameter) ([]DeploymentEvent, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v13/deployments/%s/events", request.IdOrUrl),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	if request.Builds != nil {
+		params.Add("builds", *request.Builds)
+	}
+	if request.Delimiter != nil {
+		params.Add("delimiter", *request.Delimiter)
+	}
+	if request.Direction != nil {
+		params.Add("direction", *request.Direction)
+	}
+	if request.Follow != nil {
+		params.Add("follow", *request.Follow)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Name != nil {
+		params.Add("name", *request.Name)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.StatusCode != nil {
+		params.Add("statusCode", *request.StatusCode)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []DeploymentEvent{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetDeploymentFileParameter struct {
+	DeploymentID     string
+	FileId           string
+	Path             *string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DeploymentService) GetDeploymentFile(ctx context.Context, request GetDeploymentFileParameter) (*FileTree, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v7/deployments/%s/files/%s", request.DeploymentID, request.FileId),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	if request.Path != nil {
+		params.Add("path", *request.Path)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &FileTree{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListDeploymentParameter struct {
+	App               *string
+	Limit             *string
+	ProjectId         *string
+	RollbackCandidate *string // Allowed value: true false
+	Since             *string
+	State             *string
+	Target            *string
+	Until             *string
+	Users             *string
+	BaseUrlParameter  `json:"-"`
+}
+
+func (v *DeploymentService) ListDeployment(ctx context.Context, request ListDeploymentParameter) (*ListDeploymentResponse, error) {
+	u := &url.URL{
+		Path: "/v6/deployments",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	if request.App != nil {
+		params.Add("app", *request.App)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.ProjectId != nil {
+		params.Add("projectId", *request.ProjectId)
+	}
+	if request.RollbackCandidate != nil {
+		params.Add("rollbackCandidate", *request.RollbackCandidate)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.State != nil {
+		params.Add("state", *request.State)
+	}
+	if request.Target != nil {
+		params.Add("target", *request.Target)
+	}
+	if request.Users != nil {
+		params.Add("users", *request.Users)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListDeploymentResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListDeploymentFileParameter struct {
+	DeploymentID     string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DeploymentService) ListDeploymentFile(ctx context.Context, request ListDeploymentFileParameter) ([]FileTree, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v6/deployments/%s/files", request.DeploymentID),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []FileTree{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type ListDeploymentResponse struct {
@@ -350,21 +419,6 @@ type Team struct {
 	Slug   string `json:"slug,omitempty"`
 }
 
-type CreateDeploymentRequest struct {
-	Name                      string          `json:"name,omitempty"`
-	CustomEnvironmentSlugOrID string          `json:"customEnvironmentSlugOrId,omitempty"`
-	DeploymentID              string          `json:"deploymentId,omitempty"`
-	Files                     []File          `json:"files,omitempty"`
-	GitMetadata               GitMetadata     `json:"gitMetadata,omitempty"`
-	GitSource                 GitSource       `json:"gitSource,omitempty"`
-	Meta                      string          `json:"meta,omitempty"`
-	MonorepoManager           string          `json:"monorepoManager,omitempty"`
-	Project                   string          `json:"project,omitempty"`
-	ProjectSettings           ProjectSettings `json:"projectSettings,omitempty"`
-	Target                    string          `json:"target,omitempty"`
-	WithLatestCommit          bool            `json:"withLatestCommit,omitempty"`
-}
-
 type File struct {
 	InlinedFile InlinedFile `json:"InlinedFile,omitempty"`
 }
@@ -373,6 +427,8 @@ type InlinedFile struct {
 	Data     string `json:"data,omitempty"`
 	Encoding string `json:"encoding,omitempty"`
 	File     string `json:"file,omitempty"`
+	Sha      string `json:"sha,omitempty"`
+	Size     int    `json:"size,omitempty"`
 }
 
 type GitMetadata struct {
@@ -385,10 +441,16 @@ type GitMetadata struct {
 }
 
 type GitSource struct {
-	Ref    string `json:"ref,omitempty"`
-	RepoID string `json:"repoId,omitempty"`
-	SHA    string `json:"sha,omitempty"`
-	Type   string `json:"type,omitempty"`
+	Ref           string      `json:"ref,omitempty"`
+	RepoID        string      `json:"repoId,omitempty"`
+	Repo          string      `json:"repo,omitempty"`
+	SHA           string      `json:"sha,omitempty"`
+	Type          string      `json:"type,omitempty"`
+	Org           string      `json:"org,omitempty"`
+	ProjectId     interface{} `json:"projectId,omitempty"`
+	RepoUuid      string      `json:"repoUuid,omitempty"`
+	WorkspaceUuid string      `json:"workspaceUuid,omitempty"`
+	Owner         string      `json:"owner,omitempty"`
 }
 
 type ProjectSettings struct {
