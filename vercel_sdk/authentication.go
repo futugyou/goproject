@@ -8,49 +8,47 @@ import (
 
 type AuthService service
 
-func (v *AuthService) CreateAuthToken(ctx context.Context, slug string, teamId string, name string) (*CreateAuthTokenResponse, error) {
-	path := "/v3/user/tokens"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &CreateAuthTokenResponse{}
-	request := struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
-	}{
-		Name: name,
-		Type: "oauth2-token",
-	}
-	err := v.client.http.Post(ctx, path, request, result)
+type CreateAuthTokenRequest struct {
+	Name             string `json:"name"`
+	ExpiresAt        int    `json:"expiresAt"`
+	BaseUrlParameter `json:"-"`
+}
 
-	if err != nil {
+func (v *AuthService) CreateAuthToken(ctx context.Context, request CreateAuthTokenRequest) (*CreateAuthTokenResponse, error) {
+	u := &url.URL{
+		Path: "/v3/user/tokens",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &CreateAuthTokenResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 func (v *AuthService) DeleteAuthToken(ctx context.Context, tokenId string) (*DeleteAuthTokenResponse, error) {
 	path := fmt.Sprintf("/v3/user/tokens/%s", tokenId)
-	result := &DeleteAuthTokenResponse{}
+	response := &DeleteAuthTokenResponse{}
 
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
+// Deprecated
 func (v *AuthService) LoginWithEmail(ctx context.Context, email string, tokenName string) (*LoginWithEmailResponse, error) {
 	path := "/registration"
-	result := &LoginWithEmailResponse{}
+	response := &LoginWithEmailResponse{}
 	request := struct {
 		Email     string `json:"email"`
 		TokenName string `json:"tokenName"`
@@ -58,36 +56,31 @@ func (v *AuthService) LoginWithEmail(ctx context.Context, email string, tokenNam
 		Email:     email,
 		TokenName: tokenName,
 	}
-	err := v.client.http.Post(ctx, path, request, result)
 
-	if err != nil {
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 func (v *AuthService) GetAuthTokenMetadata(ctx context.Context, tokenId string) (*TokenInfo, error) {
 	path := fmt.Sprintf("/v5/user/tokens/%s", tokenId)
-	result := &TokenInfo{}
+	response := &TokenInfo{}
 
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 func (v *AuthService) ListAuthTokens(ctx context.Context) (*ListAuthTokensResponse, error) {
 	path := "/v5/user/tokens"
-	result := &ListAuthTokensResponse{}
+	response := &ListAuthTokensResponse{}
 
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 func (v *AuthService) VerifyAuthToken(ctx context.Context, token string, email string) (*VerifyAuthTokenResponse, error) {
@@ -97,14 +90,14 @@ func (v *AuthService) VerifyAuthToken(ctx context.Context, token string, email s
 	queryParams.Add("email", email)
 	path += "?" + queryParams.Encode()
 
-	result := &VerifyAuthTokenResponse{}
+	response := &VerifyAuthTokenResponse{}
 
-	err := v.client.http.Get(ctx, path, result)
+	err := v.client.http.Get(ctx, path, response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 type VerifyAuthTokenResponse struct {
