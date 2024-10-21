@@ -36,7 +36,7 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 
 		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
 
-		vercelProject, err := g.client.Project.CreateProject(ctx, team_slug, team_id, req)
+		vercelProject, err := g.client.Projects.CreateProject(ctx, team_slug, team_id, req)
 		if err != nil {
 			errorChan <- err
 			return
@@ -69,7 +69,7 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 
 		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
 
-		vercelProjects, err := g.client.Project.ListProject(ctx, team_slug, team_id)
+		vercelProjects, err := g.client.Projects.ListProject(ctx, team_slug, team_id)
 		if err != nil {
 			errorChan <- err
 			return
@@ -105,7 +105,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
 
-		vercelProject, err := g.client.Project.GetProject(ctx, filter.Name, team_slug, team_id)
+		vercelProject, err := g.client.Projects.GetProject(ctx, filter.Name, team_slug, team_id)
 		if err != nil {
 			errorChan <- err
 			return
@@ -116,7 +116,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
 		}
 
-		vercelHooks, err := g.client.Webhook.ListWebhook(ctx, vercelProject.Id, team_slug, team_id)
+		vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, vercelProject.Id, team_slug, team_id)
 		if err != nil {
 			errorChan <- err
 			return
@@ -168,7 +168,7 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			Url:        request.WebHook.Url,
 			ProjectIds: []string{request.ProjectId},
 		}
-		vercelHook, err := g.client.Webhook.CreateWebhook(ctx, team_slug, team_id, req)
+		vercelHook, err := g.client.Webhooks.CreateWebhook(ctx, team_slug, team_id, req)
 		if err != nil {
 			errorChan <- err
 			return
@@ -223,7 +223,7 @@ func (g *VercelClient) getDefaultTeam(ctx context.Context) (<-chan *VercelTeam, 
 		defer close(errorChan)
 
 		team := new(VercelTeam)
-		teams, err := g.client.Team.ListTeam(ctx, "", "", "")
+		teams, err := g.client.Teams.ListTeam(ctx, "", "", "")
 		if err != nil {
 			errorChan <- err
 			return

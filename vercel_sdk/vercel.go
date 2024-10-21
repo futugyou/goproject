@@ -7,24 +7,24 @@ type VercelClient struct {
 	http   *httpClient
 	common service
 
-	AccessGroups *AccessGroupService
-	Alias        *AliasService
-	Artifact     *ArtifactService
-	Auth         *AuthService
-	Cert         *CertService
-	Check        *CheckService
-	Deployment   *DeploymentService
-	DNS          *DNSService
-	Domain       *DomainService
-	Edge         *EdgeService
-	Integration  *IntegrationService
-	LogDrain     *LogDrainService
-	Member       *MemberService
-	Project      *ProjectService
-	Secret       *SecretService
-	Team         *TeamService
-	User         *UserService
-	Webhook      *WebhookService
+	AccessGroups   *AccessGroupService
+	Aliases        *AliasService
+	Artifacts      *ArtifactService
+	Authentication *AuthService
+	Certs          *CertService
+	Checks         *CheckService
+	Deployments    *DeploymentService
+	DNS            *DNSService
+	Domains        *DomainService
+	EdgeConfig     *EdgeService
+	Integrations   *IntegrationService
+	LogDrains      *LogDrainService
+	ProjectMembers *MemberService
+	Projects       *ProjectService
+	Secrets        *SecretService
+	Teams          *TeamService
+	User           *UserService
+	Webhooks       *WebhookService
 }
 
 type service struct {
@@ -61,23 +61,23 @@ func NewClientWithHttp(client *http.Client) *VercelClient {
 func (c *VercelClient) initialize() {
 	c.common.client = c
 	c.AccessGroups = (*AccessGroupService)(&c.common)
-	c.Alias = (*AliasService)(&c.common)
-	c.Artifact = (*ArtifactService)(&c.common)
-	c.Auth = (*AuthService)(&c.common)
-	c.Cert = (*CertService)(&c.common)
-	c.Check = (*CheckService)(&c.common)
-	c.Deployment = (*DeploymentService)(&c.common)
+	c.Aliases = (*AliasService)(&c.common)
+	c.Artifacts = (*ArtifactService)(&c.common)
+	c.Authentication = (*AuthService)(&c.common)
+	c.Certs = (*CertService)(&c.common)
+	c.Checks = (*CheckService)(&c.common)
+	c.Deployments = (*DeploymentService)(&c.common)
 	c.DNS = (*DNSService)(&c.common)
-	c.Domain = (*DomainService)(&c.common)
-	c.Edge = (*EdgeService)(&c.common)
-	c.Integration = (*IntegrationService)(&c.common)
-	c.LogDrain = (*LogDrainService)(&c.common)
-	c.Member = (*MemberService)(&c.common)
-	c.Project = (*ProjectService)(&c.common)
-	c.Secret = (*SecretService)(&c.common)
-	c.Team = (*TeamService)(&c.common)
+	c.Domains = (*DomainService)(&c.common)
+	c.EdgeConfig = (*EdgeService)(&c.common)
+	c.Integrations = (*IntegrationService)(&c.common)
+	c.LogDrains = (*LogDrainService)(&c.common)
+	c.ProjectMembers = (*MemberService)(&c.common)
+	c.Projects = (*ProjectService)(&c.common)
+	c.Secrets = (*SecretService)(&c.common)
+	c.Teams = (*TeamService)(&c.common)
 	c.User = (*UserService)(&c.common)
-	c.Webhook = (*WebhookService)(&c.common)
+	c.Webhooks = (*WebhookService)(&c.common)
 }
 
 type VercelError struct {
