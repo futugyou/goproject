@@ -8,134 +8,140 @@ import (
 
 type IntegrationService service
 
-func (v *IntegrationService) DeleteIntegrationConfiguration(ctx context.Context, id string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/integrations/configuration/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type DeleteIntegrationConfigurationRequest struct {
+	Id               string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *IntegrationService) RetrieveIntegrationConfiguration(ctx context.Context, id string, slug string, teamId string) (*IntegrationConfigurationInfo, error) {
-	path := fmt.Sprintf("/v1/integrations/configuration/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *IntegrationService) DeleteIntegrationConfiguration(ctx context.Context, request DeleteIntegrationConfigurationRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/integrations/configuration/%s", request.Id),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &IntegrationConfigurationInfo{}
-	err := v.client.http.Get(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return &response, nil
 }
 
-func (v *IntegrationService) GetConfiguration(ctx context.Context, view string, slug string, teamId string) (*string, error) {
-	path := "/v1/integrations/configurations"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(view) > 0 {
-		queryParams.Add("view", view)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type RetrieveIntegrationConfigurationParameter struct {
+	Id               string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *IntegrationService) ListGitByProvider(ctx context.Context, host string, provider string, slug string, teamId string) ([]ListGitByProviderResponse, error) {
-	path := "/v1/integrations/git-namespaces"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *IntegrationService) RetrieveIntegrationConfiguration(ctx context.Context, request RetrieveIntegrationConfigurationParameter) (*IntegrationConfigurationInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/integrations/configuration/%s", request.Id),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(host) > 0 {
-		queryParams.Add("host", host)
-	}
-	if len(provider) > 0 {
-		queryParams.Add("provider", provider)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []ListGitByProviderResponse{}
-	err := v.client.http.Get(ctx, path, &result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &IntegrationConfigurationInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *IntegrationService) ListGitLinkedByProvider(ctx context.Context, host string, installationId string, namespaceId string, query string,
-	provider string, slug string, teamId string) (*ListGitLinkedByProviderResponse, error) {
-	path := "/v1/integrations/search-repo"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(host) > 0 {
-		queryParams.Add("host", host)
-	}
-	if len(provider) > 0 {
-		queryParams.Add("provider", provider)
-	}
-	if len(installationId) > 0 {
-		queryParams.Add("installationId", installationId)
-	}
-	if len(namespaceId) > 0 {
-		queryParams.Add("namespaceId", namespaceId)
-	}
-	if len(query) > 0 {
-		queryParams.Add("query", query)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListGitLinkedByProviderResponse{}
-	err := v.client.http.Get(ctx, path, result)
+type GetConfigurationParameter struct {
+	View                *string `json:"-"`
+	InstallationType    *string `json:"-"`
+	IntegrationIdOrSlug *string `json:"-"`
+	BaseUrlParameter    `json:"-"`
+}
 
-	if err != nil {
+func (v *IntegrationService) GetConfiguration(ctx context.Context, request GetConfigurationParameter) (*string, error) {
+	u := &url.URL{
+		Path: "/v1/integrations/configurations",
+	}
+	params := request.GetUrlValues()
+	if request.View != nil {
+		params.Add("view", *request.View)
+	}
+	if request.InstallationType != nil {
+		params.Add("installationType", *request.InstallationType)
+	}
+	if request.IntegrationIdOrSlug != nil {
+		params.Add("integrationIdOrSlug", *request.IntegrationIdOrSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return &response, nil
+}
+
+type ListGitByProviderParameter struct {
+	Host     *string
+	Provider *string
+}
+
+func (v *IntegrationService) ListGitByProvider(ctx context.Context, request ListGitByProviderParameter) ([]ListGitByProviderResponse, error) {
+	u := &url.URL{
+		Path: "/v1/integrations/git-namespaces",
+	}
+	params := url.Values{}
+	if request.Host != nil {
+		params.Add("host", *request.Host)
+	}
+	if request.Provider != nil {
+		params.Add("provider", *request.Provider)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []ListGitByProviderResponse{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListGitLinkedByProviderParameter struct {
+	Host             *string
+	Provider         *string //Allowed values:	github	github-custom-host	gitlab	bitbucket
+	InstallationId   *string
+	NamespaceId      *string
+	Query            *string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *IntegrationService) ListGitLinkedByProvider(ctx context.Context, request ListGitLinkedByProviderParameter) (*ListGitLinkedByProviderResponse, error) {
+	u := &url.URL{
+		Path: "/v1/integrations/search-repo",
+	}
+	params := request.GetUrlValues()
+	if request.Host != nil {
+		params.Add("host", *request.Host)
+	}
+	if request.Provider != nil {
+		params.Add("provider", *request.Provider)
+	}
+	if request.InstallationId != nil {
+		params.Add("installationId", *request.InstallationId)
+	}
+	if request.NamespaceId != nil {
+		params.Add("namespaceId", *request.NamespaceId)
+	}
+	if request.Query != nil {
+		params.Add("query", *request.Query)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListGitLinkedByProviderResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type ListGitLinkedByProviderResponse struct {
