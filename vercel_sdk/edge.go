@@ -8,311 +8,390 @@ import (
 
 type EdgeService service
 
-func (v *EdgeService) CreateEdgeConfig(ctx context.Context, slug string, teamId string, req UpsertEdgeConfigRequest) (*EdgeConfigInfo, error) {
-	path := "/v1/edge-config"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &EdgeConfigInfo{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type UpsertEdgeConfigRequest struct {
+	EdgeConfigId     string      `json:"-"`
+	Slug             string      `json:"slug"`
+	Items            interface{} `json:"items,omitempty"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *EdgeService) CreateEdgeConfigToken(ctx context.Context, edgeConfigId string, slug string, teamId string, label string) (*CreateEdgeConfigTokenResponse, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/token", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) CreateEdgeConfig(ctx context.Context, request UpsertEdgeConfigRequest) (*EdgeConfigInfo, error) {
+	u := &url.URL{
+		Path: "/v1/edge-config",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	req := struct {
-		Label string `json:"label"`
-	}{
-		Label: label,
-	}
-	result := &CreateEdgeConfigTokenResponse{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
+	response := &EdgeConfigInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *EdgeService) DeleteEdgeConfig(ctx context.Context, edgeConfigId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type CreateEdgeConfigTokenRequest struct {
+	Label            string `json:"label"`
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *EdgeService) DeleteEdgeConfigSchema(ctx context.Context, edgeConfigId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/schema", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) CreateEdgeConfigToken(ctx context.Context, request CreateEdgeConfigTokenRequest) (*CreateEdgeConfigTokenResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/token", request.EdgeConfigId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
+	response := &CreateEdgeConfigTokenResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return response, nil
 }
 
-func (v *EdgeService) DeleteEdgeConfigTokens(ctx context.Context, edgeConfigId string, slug string, teamId string, tokens []string) (*string, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/tokens", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	req := struct {
-		Tokens []string `json:"tokens"`
-	}{
-		Tokens: tokens,
-	}
-	result := ""
-	err := v.client.http.DeleteWithBody(ctx, path, req, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type DeleteEdgeConfigRequest struct {
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *EdgeService) GetEdgeConfig(ctx context.Context, edgeConfigId string, slug string, teamId string) (*EdgeConfigInfo, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) DeleteEdgeConfig(ctx context.Context, request DeleteEdgeConfigRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s", request.EdgeConfigId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &EdgeConfigInfo{}
-	err := v.client.http.Get(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return &response, nil
 }
 
-func (v *EdgeService) GetEdgeConfigItems(ctx context.Context, edgeConfigId string, slug string, teamId string) ([]EdgeConfigItemInfo, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/items", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []EdgeConfigItemInfo{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type DeleteEdgeConfigSchemaRequest struct {
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *EdgeService) GetEdgeConfigSchema(ctx context.Context, edgeConfigId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/schema", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) DeleteEdgeConfigSchema(ctx context.Context, request DeleteEdgeConfigSchemaRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/schema", request.EdgeConfigId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Get(ctx, path, &result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return &response, nil
 }
 
-func (v *EdgeService) GetEdgeConfigToken(ctx context.Context, edgeConfigId string, token string, slug string, teamId string) (*EdgeConfigTokennfo, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/token/%s", edgeConfigId, token)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &EdgeConfigTokennfo{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type DeleteEdgeConfigTokensRequest struct {
+	EdgeConfigId     string   `json:"-"`
+	Tokens           []string `json:"tokens"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *EdgeService) GetEdgeConfigTokens(ctx context.Context, edgeConfigId string, slug string, teamId string) ([]EdgeConfigTokennfo, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/tokens", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) DeleteEdgeConfigTokens(ctx context.Context, request DeleteEdgeConfigTokensRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/tokens", request.EdgeConfigId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []EdgeConfigTokennfo{}
-	err := v.client.http.Get(ctx, path, &result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return &response, nil
 }
 
-func (v *EdgeService) GetEdgeConfigs(ctx context.Context, slug string, teamId string) ([]EdgeConfigInfo, error) {
-	path := "/v1/edge-config"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []EdgeConfigInfo{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type GetEdgeConfigParameter struct {
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *EdgeService) UpdateEdgeConfigItems(ctx context.Context, edgeConfigId string, slug string, teamId string, items []UpdateEdgeConfigItemRequest) ([]UpdateEdgeConfigItemResponse, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/items", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) GetEdgeConfig(ctx context.Context, request GetEdgeConfigParameter) (*EdgeConfigInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s", request.EdgeConfigId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []UpdateEdgeConfigItemResponse{}
-	err := v.client.http.Patch(ctx, path, items, &result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &EdgeConfigInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *EdgeService) UpdateEdgeConfigSchema(ctx context.Context, edgeConfigId string, slug string, teamId string, req interface{}) (*string, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s/schema", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Post(ctx, path, req, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type GetEdgeConfigBackupParameter struct {
+	EdgeConfigId              string `json:"-"`
+	EdgeConfigBackupVersionId string `json:"-"`
+	BaseUrlParameter          `json:"-"`
 }
 
-func (v *EdgeService) UpdateEdgeConfig(ctx context.Context, edgeConfigId string, slug string, teamId string, req UpsertEdgeConfigRequest) (*EdgeConfigTokennfo, error) {
-	path := fmt.Sprintf("/v1/edge-config/%s", edgeConfigId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *EdgeService) GetEdgeConfigBackup(ctx context.Context, request GetEdgeConfigBackupParameter) (*EdgeConfigBackupInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/backups/%s", request.EdgeConfigId, request.EdgeConfigBackupVersionId),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &EdgeConfigBackupInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	return response, nil
+}
+
+type ListEdgeConfigBackupsParameter struct {
+	EdgeConfigId     string  `json:"-"`
+	Limit            *string `json:"-"`
+	Metadata         *string `json:"-"`
+	Next             *string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+type ListEdgeConfigBackupsResponse struct {
+	Backups    []ListEdgeConfigBackupItem `json:"backups"`
+	Pagination Pagination                 `json:"pagination,omitempty"`
+	Error      *VercelError               `json:"error,omitempty"`
+}
+
+type ListEdgeConfigBackupItem struct {
+	Id           string       `json:"id"`
+	LastModified int          `json:"lastModified"`
+	Metadata     EdgeMetadata `json:"metadata"`
+}
+
+func (v *EdgeService) ListEdgeConfigBackups(ctx context.Context, request ListEdgeConfigBackupsParameter) (*ListEdgeConfigBackupsResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/backups", request.EdgeConfigId),
 	}
-	result := &EdgeConfigTokennfo{}
-	err := v.client.http.Put(ctx, path, req, result)
+	params := request.GetUrlValues()
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Metadata != nil {
+		params.Add("metadata", *request.Metadata)
+	}
+	if request.Next != nil {
+		params.Add("next", *request.Next)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListEdgeConfigBackupsResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetEdgeConfigItemParameter struct {
+	EdgeConfigId      string `json:"-"`
+	EdgeConfigItemKey string `json:"-"`
+	BaseUrlParameter  `json:"-"`
+}
+
+func (v *EdgeService) GetEdgeConfigItem(ctx context.Context, request GetEdgeConfigItemParameter) (*EdgeConfigItemInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/item/%s", request.EdgeConfigId, request.EdgeConfigItemKey),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &EdgeConfigItemInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListEdgeConfigItemsParameter struct {
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *EdgeService) ListEdgeConfigItems(ctx context.Context, request ListEdgeConfigItemsParameter) ([]EdgeConfigItemInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/items", request.EdgeConfigId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []EdgeConfigItemInfo{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetEdgeConfigSchemaParameter struct {
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *EdgeService) GetEdgeConfigSchema(ctx context.Context, request GetEdgeConfigSchemaParameter) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/schema", request.EdgeConfigId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type GetEdgeConfigTokenParameter struct {
+	EdgeConfigId     string `json:"-"`
+	Token            string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *EdgeService) GetEdgeConfigToken(ctx context.Context, request GetEdgeConfigTokenParameter) (*EdgeConfigTokenInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/token/%s", request.EdgeConfigId, request.Token),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &EdgeConfigTokenInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListEdgeConfigTokensParameter struct {
+	EdgeConfigId     string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *EdgeService) ListEdgeConfigTokens(ctx context.Context, request ListEdgeConfigTokensParameter) ([]EdgeConfigTokenInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/tokens", request.EdgeConfigId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []EdgeConfigTokenInfo{}
+	err := v.client.http.Get(ctx, path, &response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
+}
+
+type ListEdgeConfigsParameter struct {
+	BaseUrlParameter `json:"-"`
+}
+
+// TODO: The document shows that an object is returned, I guess it may be a list
+// https://vercel.com/docs/rest-api/endpoints/edge-config#get-edge-configs
+func (v *EdgeService) ListEdgeConfigs(ctx context.Context, request ListEdgeConfigsParameter) ([]EdgeConfigInfo, error) {
+	u := &url.URL{
+		Path: "/v1/edge-config",
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []EdgeConfigInfo{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type UpdateEdgeConfigItemsRequest struct {
+	EdgeConfigId     string                 `json:"-"`
+	DryRun           *string                `json:"-"`
+	Items            []UpdateEdgeConfigItem `json:"items"`
+	BaseUrlParameter `json:"-"`
+}
+
+type UpdateEdgeConfigItem struct {
+	Description string      `json:"description"`
+	Key         string      `json:"key"`
+	Operation   string      `json:"operation"`
+	Value       interface{} `json:"value"`
+}
+
+func (v *EdgeService) UpdateEdgeConfigItems(ctx context.Context, request UpdateEdgeConfigItemsRequest) (*UpdateEdgeConfigItemResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/items", request.EdgeConfigId),
+	}
+	params := request.GetUrlValues()
+	if request.DryRun != nil {
+		params.Add("dryRun", *request.DryRun)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &UpdateEdgeConfigItemResponse{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type UpdateEdgeConfigSchemaRequest struct {
+	EdgeConfigId     string      `json:"-"`
+	DryRun           *string     `json:"-"`
+	Definition       interface{} `json:"definition"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *EdgeService) UpdateEdgeConfigSchema(ctx context.Context, request UpdateEdgeConfigSchemaRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s/schema", request.EdgeConfigId),
+	}
+	params := request.GetUrlValues()
+	if request.DryRun != nil {
+		params.Add("dryRun", *request.DryRun)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Post(ctx, path, request, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (v *EdgeService) UpdateEdgeConfig(ctx context.Context, request UpsertEdgeConfigRequest) (*EdgeConfigTokenInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/edge-config/%s", request.EdgeConfigId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &EdgeConfigTokenInfo{}
+	if err := v.client.http.Put(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type UpdateEdgeConfigItemResponse struct {
@@ -320,19 +399,7 @@ type UpdateEdgeConfigItemResponse struct {
 	Error  *VercelError `json:"error,omitempty"`
 }
 
-type UpdateEdgeConfigItemRequest struct {
-	Description string      `json:"description"`
-	Key         string      `json:"key"`
-	Operation   string      `json:"operation"`
-	Value       interface{} `json:"value"`
-}
-
-type UpsertEdgeConfigRequest struct {
-	Slug  string      `json:"slug"`
-	Items interface{} `json:"items,omitempty"`
-}
-
-type EdgeConfigTokennfo struct {
+type EdgeConfigTokenInfo struct {
 	Token        string       `json:"token"`
 	Id           string       `json:"id"`
 	Label        string       `json:"label"`
@@ -353,6 +420,29 @@ type EdgeConfigInfo struct {
 	UpdatedAt   int          `json:"updatedAt"`
 	Transfer    EdgeTransfer `json:"transfer"`
 	Error       *VercelError `json:"error,omitempty"`
+}
+
+type EdgeConfigBackupInfo struct {
+	Backup       int          `json:"backup"`
+	Id           string       `json:"id"`
+	LastModified int          `json:"lastModified"`
+	Metadata     EdgeMetadata `json:"metadata"`
+	User         EdgeUser     `json:"user"`
+	Error        *VercelError `json:"error,omitempty"`
+}
+
+type EdgeUser struct {
+	ItemsCount int    `json:"itemsCount"`
+	ItemsBytes int    `json:"itemsBytes"`
+	UpdatedAt  string `json:"updatedAt"`
+	UpdatedBy  string `json:"updatedBy"`
+}
+
+type EdgeMetadata struct {
+	ItemsCount int    `json:"itemsCount"`
+	ItemsBytes int    `json:"itemsBytes"`
+	UpdatedAt  string `json:"updatedAt"`
+	UpdatedBy  string `json:"updatedBy"`
 }
 
 type EdgeConfigItemInfo struct {

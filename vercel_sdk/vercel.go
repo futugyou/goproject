@@ -94,8 +94,8 @@ type Pagination struct {
 }
 
 type BaseUrlParameter struct {
-	TeamSlug *string `json:"slug"`
-	TeamId   *string `json:"teamId"`
+	TeamSlug *string `json:"-"`
+	TeamId   *string `json:"-"`
 }
 
 func (u *BaseUrlParameter) GetUrlValues() url.Values {
