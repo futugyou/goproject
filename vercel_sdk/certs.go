@@ -8,83 +8,103 @@ import (
 
 type CertService service
 
-func (v *CertService) GetCertById(ctx context.Context, id string) (*CertInfo, error) {
-	path := fmt.Sprintf("/v7/certs/%s", id)
-	result := &CertInfo{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type GetCertParameter struct {
+	Id               string
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *CertService) CreateCert(ctx context.Context, slug string, teamId string, cns []string) (*CertInfo, error) {
-	path := "/v7/certs"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *CertService) GetCertById(ctx context.Context, request GetCertParameter) (*CertInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v7/certs/%s", request.Id),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	request := struct {
-		Cns []string `json:"cns"`
-	}{
-		Cns: cns,
-	}
-	result := &CertInfo{}
-	err := v.client.http.Post(ctx, path, request, result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &CertInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *CertService) RemoveCert(ctx context.Context, slug string, teamId string, id string) (*string, error) {
-	path := fmt.Sprintf("/v7/certs/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
+type CreateCertRequest struct {
+	Cns              []string `json:"cns"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *CertService) UploadCert(ctx context.Context, slug string, teamId string, req UploadCertRequest) (*CertInfo, error) {
-	path := "/v7/certs"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *CertService) CreateCert(ctx context.Context, request CreateCertRequest) (*CertInfo, error) {
+	u := &url.URL{
+		Path: "/v7/certs",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
 	}
-	result := &CertInfo{}
-	err := v.client.http.Put(ctx, path, req, result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &CertInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
+}
+
+type RemoveCertRequest struct {
+	Id               string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *CertService) RemoveCert(ctx context.Context, request RemoveCertRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v7/certs/%s", request.Id),
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (v *CertService) UploadCert(ctx context.Context, request UploadCertRequest) (*CertInfo, error) {
+	u := &url.URL{
+		Path: "/v7/certs",
+	}
+	params := url.Values{}
+	if request.TeamId != nil {
+		params.Add("teamId", *request.TeamId)
+	}
+	if request.TeamSlug != nil {
+		params.Add("slug", *request.TeamSlug)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &CertInfo{}
+	if err := v.client.http.Put(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type CertInfo struct {
@@ -97,8 +117,9 @@ type CertInfo struct {
 }
 
 type UploadCertRequest struct {
-	Ca             string `json:"ca"`
-	Cert           string `json:"cert"`
-	Key            string `json:"key"`
-	SkipValidation bool   `json:"skipValidation"`
+	Ca               string `json:"ca"`
+	Cert             string `json:"cert"`
+	Key              string `json:"key"`
+	SkipValidation   bool   `json:"skipValidation"`
+	BaseUrlParameter `json:"-"`
 }
