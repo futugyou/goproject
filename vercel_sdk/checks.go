@@ -23,13 +23,7 @@ func (v *CheckService) CreatesCheck(ctx context.Context, request CreateCheckRequ
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/deployments/%s/checks", request.DeploymentId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -49,13 +43,7 @@ func (v *CheckService) ListAllChecks(ctx context.Context, request ListChecksPara
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/deployments/%s/checks", request.DeploymentId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -76,13 +64,7 @@ func (v *CheckService) GetSingleCheck(ctx context.Context, request SingleCheckPa
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/deployments/%s/checks/%s", request.DeploymentId, request.CheckId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -103,13 +85,7 @@ func (v *CheckService) RerequestCheck(ctx context.Context, request RerequestChec
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/deployments/%s/checks/%s/rerequest", request.DeploymentId, request.CheckId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -137,13 +113,7 @@ func (v *CheckService) UpdateCheck(ctx context.Context, request UpdateCheckReque
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/deployments/%s/checks/%s", request.DeploymentId, request.CheckId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 

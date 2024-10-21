@@ -12,13 +12,7 @@ func (v *AccessGroupService) CreateAccessGroup(ctx context.Context, request Acce
 	u := &url.URL{
 		Path: "/v1/access-groups",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -39,13 +33,7 @@ func (v *AccessGroupService) DeleteAccessGroup(ctx context.Context, request Dele
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s", request.IdOrName),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -66,13 +54,7 @@ func (v *AccessGroupService) ListMembersOfAccessGroup(ctx context.Context, reque
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s/members", request.IdOrName),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -93,13 +75,7 @@ func (v *AccessGroupService) ListProjectsOfAccessGroup(ctx context.Context, requ
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s/projects", request.IdOrName),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -121,13 +97,7 @@ func (v *AccessGroupService) ListAccessGroup(ctx context.Context, request ListAc
 	u := &url.URL{
 		Path: "/v1/access-groups/",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.Search != nil {
 		params.Add("search", *request.Search)
 	}
@@ -154,13 +124,7 @@ func (v *AccessGroupService) GetAccessGroup(ctx context.Context, request GetAcce
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s", request.IdOrName),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -176,13 +140,7 @@ func (v *AccessGroupService) UpdateAccessGroup(ctx context.Context, request Acce
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/access-groups/%s", *request.IdOrName),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 

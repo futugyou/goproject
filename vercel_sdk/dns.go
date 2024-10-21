@@ -25,13 +25,7 @@ func (v *DNSService) CreateDNSRecord(ctx context.Context, request UpsertDNSRecor
 	u := &url.URL{
 		Path: fmt.Sprintf("/v2/domains/%s/records", request.DomainOrRecordId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -54,13 +48,7 @@ func (v *DNSService) ListDNSRecords(ctx context.Context, request ListDNSRecordsP
 	u := &url.URL{
 		Path: fmt.Sprintf("/v4/domains/%s/records", request.Domain),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.Limit != nil {
 		params.Add("limit", *request.Limit)
 	}
@@ -90,13 +78,7 @@ func (v *DNSService) DeleteDNSRecords(ctx context.Context, request DeleteDNSReco
 	u := &url.URL{
 		Path: fmt.Sprintf("/v2/domains/%s/records/%s", request.Domain, request.RecordId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -111,13 +93,7 @@ func (v *DNSService) UpdateDNSRecords(ctx context.Context, request UpsertDNSReco
 	u := &url.URL{
 		Path: fmt.Sprintf("/v1/domains/records/%s", request.DomainOrRecordId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 

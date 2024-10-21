@@ -1,6 +1,9 @@
 package vercel
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
 type VercelClient struct {
 	token  string
@@ -93,4 +96,15 @@ type Pagination struct {
 type BaseUrlParameter struct {
 	TeamSlug *string `json:"slug"`
 	TeamId   *string `json:"teamId"`
+}
+
+func (u *BaseUrlParameter) GetUrlValues() url.Values {
+	params := url.Values{}
+	if u.TeamId != nil {
+		params.Add("teamId", *u.TeamId)
+	}
+	if u.TeamSlug != nil {
+		params.Add("slug", *u.TeamSlug)
+	}
+	return params
 }

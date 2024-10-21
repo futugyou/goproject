@@ -17,13 +17,7 @@ func (v *CertService) GetCertById(ctx context.Context, request GetCertParameter)
 	u := &url.URL{
 		Path: fmt.Sprintf("/v7/certs/%s", request.Id),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -43,13 +37,7 @@ func (v *CertService) CreateCert(ctx context.Context, request CreateCertRequest)
 	u := &url.URL{
 		Path: "/v7/certs",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -69,13 +57,7 @@ func (v *CertService) RemoveCert(ctx context.Context, request RemoveCertRequest)
 	u := &url.URL{
 		Path: fmt.Sprintf("/v7/certs/%s", request.Id),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -90,13 +72,7 @@ func (v *CertService) UploadCert(ctx context.Context, request UploadCertRequest)
 	u := &url.URL{
 		Path: "/v7/certs",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 

@@ -16,13 +16,7 @@ func (v *AliasService) AssignAlias(ctx context.Context, request AssignAliasReque
 	u := &url.URL{
 		Path: fmt.Sprintf("/v2/deployments/%s/aliases", *request.Id),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -43,13 +37,7 @@ func (v *AliasService) DeleteAlias(ctx context.Context, request DeleteAliasReque
 	u := &url.URL{
 		Path: fmt.Sprintf("/v2/aliases/%s/", request.Id),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -73,13 +61,7 @@ func (v *AliasService) GetAlias(ctx context.Context, request GetAliasParameter) 
 	u := &url.URL{
 		Path: fmt.Sprintf("/v4/aliases/%s/", request.Id),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.ProjectId != nil {
 		params.Add("projectId", *request.ProjectId)
 	}
@@ -111,13 +93,7 @@ func (v *AliasService) ListAlias(ctx context.Context, request ListAliasParameter
 	u := &url.URL{
 		Path: "/v4/aliases",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.ProjectId != nil {
 		params.Add("projectId", *request.ProjectId)
 	}
@@ -147,13 +123,7 @@ func (v *AliasService) ListDeploymentsAlias(ctx context.Context, request ListDep
 	u := &url.URL{
 		Path: fmt.Sprintf("/v2/deployments/%s/aliases", request.DeploymentId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 

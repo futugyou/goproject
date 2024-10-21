@@ -18,13 +18,7 @@ func (v *AuthService) CreateAuthToken(ctx context.Context, request CreateAuthTok
 	u := &url.URL{
 		Path: "/v3/user/tokens",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -83,6 +77,7 @@ func (v *AuthService) ListAuthTokens(ctx context.Context) (*ListAuthTokensRespon
 	return response, nil
 }
 
+// Deprecated
 func (v *AuthService) VerifyAuthToken(ctx context.Context, token string, email string) (*VerifyAuthTokenResponse, error) {
 	path := "/registration/verify"
 	queryParams := url.Values{}

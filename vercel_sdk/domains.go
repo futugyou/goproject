@@ -8,235 +8,222 @@ import (
 
 type DomainService service
 
-func (v *DomainService) PurchaseDomain(ctx context.Context, slug string, teamId string, req PurchaseDomainRequest) (*PurchaseDomainResponse, error) {
-	path := "/v5/domains/buy"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &PurchaseDomainResponse{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type PurchaseDomainRequest struct {
+	Address1         string `json:"address1"`
+	City             string `json:"city"`
+	Country          string `json:"country"`
+	Email            string `json:"email"`
+	FirstName        string `json:"firstName"`
+	LastName         string `json:"lastName"`
+	Name             string `json:"name"`
+	Phone            string `json:"phone"`
+	PostalCode       string `json:"postalCode"`
+	State            string `json:"state"`
+	OrgName          string `json:"orgName"`
+	ExpectedPrice    int    `json:"expectedPrice"`
+	Renew            bool   `json:"renew"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DomainService) CheckDomainPrice(ctx context.Context, slug string, teamId string, name string, domainType string) (*CheckDomainPriceResponse, error) {
-	path := "/v4/domains/price"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DomainService) PurchaseDomain(ctx context.Context, request PurchaseDomainRequest) (*PurchaseDomainResponse, error) {
+	u := &url.URL{
+		Path: "/v5/domains/buy",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(domainType) > 0 {
-		queryParams.Add("type", domainType)
-	}
-	if len(name) > 0 {
-		queryParams.Add("name", name)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &CheckDomainPriceResponse{}
-	err := v.client.http.Get(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &PurchaseDomainResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DomainService) CheckDomainAvailability(ctx context.Context, slug string, teamId string, name string) (*CheckDomainAvailabilityResponse, error) {
-	path := "/v4/domains/status"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(name) > 0 {
-		queryParams.Add("name", name)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &CheckDomainAvailabilityResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type CheckDomainPriceParameter struct {
+	Name             string
+	Type             *string // allowed value: new	renewal	transfer
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DomainService) RegisterDomain(ctx context.Context, slug string, teamId string, req RegisterDomainRequest) (*RegisterDomainResponse, error) {
-	path := "/v5/domains"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DomainService) CheckDomainPrice(ctx context.Context, request CheckDomainPriceParameter) (*CheckDomainPriceResponse, error) {
+	u := &url.URL{
+		Path: "/v4/domains/price",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
+	params := request.GetUrlValues()
+	params.Add("name", request.Name)
+	if request.Type != nil {
+		params.Add("type", *request.Type)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &RegisterDomainResponse{}
-	err := v.client.http.Post(ctx, path, req, result)
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &CheckDomainPriceResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DomainService) RemoveDomain(ctx context.Context, slug string, teamId string, domain string) (*RemoveDomainResponse, error) {
-	path := fmt.Sprintf("/v6/domains/%s", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &RemoveDomainResponse{}
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type CheckDomainAvailabilityParameter struct {
+	Name             string
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DomainService) GetDomain(ctx context.Context, slug string, teamId string, domain string) (*DomainInfo, error) {
-	path := fmt.Sprintf("/v5/domains/%s", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DomainService) CheckDomainAvailability(ctx context.Context, request CheckDomainAvailabilityParameter) (*CheckDomainAvailabilityResponse, error) {
+	u := &url.URL{
+		Path: "/v4/domains/status",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DomainInfo{}
-	err := v.client.http.Get(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &CheckDomainAvailabilityResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DomainService) GetDomainConfiguration(ctx context.Context, slug string, teamId string, domain string, strict string) (*DomainConfiguration, error) {
-	path := fmt.Sprintf("/v6/domains/%s/config", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(strict) > 0 {
-		queryParams.Add("strict", strict)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DomainConfiguration{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type RegisterDomainRequest struct {
+	Name             string `json:"name"`
+	CdnEnabled       bool   `json:"cdnEnabled,omitempty"`
+	Zone             bool   `json:"zone,omitempty"`
+	Mthod            string `json:"method"`
+	Token            string `json:"token,omitempty"`
+	AuthCode         string `json:"authCode,omitempty"`
+	ExpectedPrice    int    `json:"expectedPrice,omitempty"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DomainService) GetDomainTransfer(ctx context.Context, slug string, teamId string, domain string) (*DomainTransfer, error) {
-	path := fmt.Sprintf("/v1/domains/%s/registry", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DomainService) RegisterDomain(ctx context.Context, request RegisterDomainRequest) (*RegisterDomainResponse, error) {
+	u := &url.URL{
+		Path: "/v5/domains",
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DomainTransfer{}
-	err := v.client.http.Get(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &RegisterDomainResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *DomainService) ListDomains(ctx context.Context, slug string, teamId string, limit string, since string, until string) (*ListDomainsResponse, error) {
-	path := "/v5/domains"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListDomainsResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type RemoveDomainRequest struct {
+	Domain           string
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *DomainService) UpdateDomain(ctx context.Context, domain string, slug string, teamId string, req UpdateDomainRequest) (*UpdateDomainResponse, error) {
-	path := fmt.Sprintf("/v3/domains/%s", domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *DomainService) RemoveDomain(ctx context.Context, request RemoveDomainRequest) (*RemoveDomainResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v6/domains/%s", request.Domain),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &UpdateDomainResponse{}
-	err := v.client.http.Patch(ctx, path, req, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &RemoveDomainResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
+}
+
+type GetDomainParameter struct {
+	Domain           string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DomainService) GetDomain(ctx context.Context, request GetDomainParameter) (*DomainInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v5/domains/%s", request.Domain),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &DomainInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetDomainConfigurationParameter struct {
+	Domain           string
+	Strict           *string //Allowed values:	true	false
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DomainService) GetDomainConfiguration(ctx context.Context, request GetDomainConfigurationParameter) (*DomainConfiguration, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v6/domains/%s/config", request.Domain),
+	}
+	params := request.GetUrlValues()
+	if request.Strict != nil {
+		params.Add("strict", *request.Strict)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &DomainConfiguration{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetDomainTransferParameter struct {
+	Domain           string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DomainService) GetDomainTransfer(ctx context.Context, request GetDomainTransferParameter) (*DomainTransfer, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/domains/%s/registry", request.Domain),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &DomainTransfer{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListDomainsParameter struct {
+	Limit            *string
+	Since            *string
+	Until            *string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *DomainService) ListDomains(ctx context.Context, request ListDomainsParameter) (*ListDomainsResponse, error) {
+	u := &url.URL{
+		Path: "/v5/domains",
+	}
+	params := request.GetUrlValues()
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListDomainsResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type UpdateDomainRequest struct {
@@ -245,6 +232,24 @@ type UpdateDomainRequest struct {
 	Renew             bool     `json:"renew,omitempty"`
 	Zone              bool     `json:"zone,omitempty"`
 	Destination       string   `json:"destination,omitempty"`
+	Domain            string   `json:"-"`
+	BaseUrlParameter  `json:"-"`
+}
+
+func (v *DomainService) UpdateDomain(ctx context.Context, request UpdateDomainRequest) (*UpdateDomainResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v3/domains/%s", request.Domain),
+	}
+
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &UpdateDomainResponse{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type UpdateDomainResponse struct {
@@ -282,22 +287,6 @@ type RemoveDomainResponse struct {
 	Error *VercelError `json:"error,omitempty"`
 }
 
-type PurchaseDomainRequest struct {
-	Address1      string `json:"address1"`
-	City          string `json:"city"`
-	Country       string `json:"country"`
-	Email         string `json:"email"`
-	FirstName     string `json:"firstName"`
-	LastName      string `json:"lastName"`
-	Name          string `json:"name"`
-	Phone         string `json:"phone"`
-	PostalCode    string `json:"postalCode"`
-	State         string `json:"state"`
-	OrgName       string `json:"orgName"`
-	ExpectedPrice int    `json:"expectedPrice"`
-	Renew         bool   `json:"renew"`
-}
-
 type PurchaseDomainResponse struct {
 	Created  int          `json:"created"`
 	Ns       []string     `json:"ns"`
@@ -316,16 +305,6 @@ type CheckDomainPriceResponse struct {
 type CheckDomainAvailabilityResponse struct {
 	Available bool         `json:"available"`
 	Error     *VercelError `json:"error,omitempty"`
-}
-
-type RegisterDomainRequest struct {
-	Name          string `json:"name"`
-	CdnEnabled    bool   `json:"cdnEnabled,omitempty"`
-	Zone          bool   `json:"zone,omitempty"`
-	Mthod         string `json:"method"`
-	Token         string `json:"token,omitempty"`
-	AuthCode      string `json:"authCode,omitempty"`
-	ExpectedPrice int    `json:"expectedPrice,omitempty"`
 }
 
 type RegisterDomainResponse struct {

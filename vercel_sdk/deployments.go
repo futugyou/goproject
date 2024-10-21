@@ -17,13 +17,7 @@ func (v *DeploymentService) CancelDeployment(ctx context.Context, request Cancel
 	u := &url.URL{
 		Path: fmt.Sprintf("/v12/deployments/%s/cancel", request.DeploymentId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -55,13 +49,7 @@ func (v *DeploymentService) CreateDeployment(ctx context.Context, request Create
 	u := &url.URL{
 		Path: "/v13/deployments",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.SkipAutoDetectionConfirmation != nil {
 		params.Add("skipAutoDetectionConfirmation", *request.SkipAutoDetectionConfirmation)
 	}
@@ -88,13 +76,7 @@ func (v *DeploymentService) DeleteDeployment(ctx context.Context, request Delete
 	u := &url.URL{
 		Path: fmt.Sprintf("/v13/deployments/%s", request.DeploymentID),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.Url != nil {
 		params.Add("url", *request.Url)
 	}
@@ -118,13 +100,7 @@ func (v *DeploymentService) GetDeployment(ctx context.Context, request GetDeploy
 	u := &url.URL{
 		Path: fmt.Sprintf("/v13/deployments/%s", request.IdOrUrl),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.WithGitRepoInfo != nil {
 		params.Add("withGitRepoInfo", *request.WithGitRepoInfo)
 	}
@@ -156,13 +132,7 @@ func (v *DeploymentService) GetDeploymentEvent(ctx context.Context, request GetD
 	u := &url.URL{
 		Path: fmt.Sprintf("/v13/deployments/%s/events", request.IdOrUrl),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.Builds != nil {
 		params.Add("builds", *request.Builds)
 	}
@@ -211,13 +181,7 @@ func (v *DeploymentService) GetDeploymentFile(ctx context.Context, request GetDe
 	u := &url.URL{
 		Path: fmt.Sprintf("/v7/deployments/%s/files/%s", request.DeploymentID, request.FileId),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.Path != nil {
 		params.Add("path", *request.Path)
 	}
@@ -248,13 +212,7 @@ func (v *DeploymentService) ListDeployment(ctx context.Context, request ListDepl
 	u := &url.URL{
 		Path: "/v6/deployments",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	if request.App != nil {
 		params.Add("app", *request.App)
 	}
@@ -301,13 +259,7 @@ func (v *DeploymentService) ListDeploymentFile(ctx context.Context, request List
 	u := &url.URL{
 		Path: fmt.Sprintf("/v6/deployments/%s/files", request.DeploymentID),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 

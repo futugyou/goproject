@@ -17,13 +17,7 @@ func (v *ArtifactService) CheckArtifactExists(ctx context.Context, request Check
 	u := &url.URL{
 		Path: fmt.Sprintf("/v8/artifacts/%s", request.Hash),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -43,13 +37,7 @@ func (v *ArtifactService) QueryArtifact(ctx context.Context, request QueryArtifa
 	u := &url.URL{
 		Path: "/v8/artifacts",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -69,13 +57,7 @@ func (v *ArtifactService) DownloadArtifact(ctx context.Context, request Download
 	u := &url.URL{
 		Path: fmt.Sprintf("/v8/artifacts/%s", request.Hash),
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -90,13 +72,7 @@ func (v *ArtifactService) RecordArtifactEvent(ctx context.Context, request Artif
 	u := &url.URL{
 		Path: "/v8/artifacts/events",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
@@ -115,13 +91,7 @@ func (v *ArtifactService) GetCachingStatus(ctx context.Context, request GetCachi
 	u := &url.URL{
 		Path: "/v8/artifacts/status",
 	}
-	params := url.Values{}
-	if request.TeamId != nil {
-		params.Add("teamId", *request.TeamId)
-	}
-	if request.TeamSlug != nil {
-		params.Add("slug", *request.TeamSlug)
-	}
+	params := request.GetUrlValues()
 	u.RawQuery = params.Encode()
 	path := u.String()
 
