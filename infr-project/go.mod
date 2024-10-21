@@ -25,7 +25,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
-	github.com/swaggo/swag v1.16.3
+	github.com/swaggo/swag v1.16.4
 	go.mongodb.org/mongo-driver v1.17.1
 	golang.org/x/oauth2 v0.23.0
 )
