@@ -30,13 +30,16 @@ func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreatePro
 		defer close(resultChan)
 		defer close(errorChan)
 
-		req := vercel.CreateProjectRequest{
+		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
+		req := vercel.UpsertProjectRequest{
 			Name: request.Name,
+			BaseUrlParameter: vercel.BaseUrlParameter{
+				TeamSlug: &team_slug,
+				TeamId:   &team_id,
+			},
 		}
 
-		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
-
-		vercelProject, err := g.client.Projects.CreateProject(ctx, team_slug, team_id, req)
+		vercelProject, err := g.client.Projects.CreateProject(ctx, req)
 		if err != nil {
 			errorChan <- err
 			return
@@ -68,8 +71,13 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 		defer close(errorChan)
 
 		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
-
-		vercelProjects, err := g.client.Projects.ListProject(ctx, team_slug, team_id)
+		request := vercel.ListProjectParameter{
+			BaseUrlParameter: vercel.BaseUrlParameter{
+				TeamSlug: &team_slug,
+				TeamId:   &team_id,
+			},
+		}
+		vercelProjects, err := g.client.Projects.ListProject(ctx, request)
 		if err != nil {
 			errorChan <- err
 			return
@@ -104,8 +112,14 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		defer close(errorChan)
 
 		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
-
-		vercelProject, err := g.client.Projects.GetProject(ctx, filter.Name, team_slug, team_id)
+		request := vercel.GetProjectParameter{
+			IdOrName: filter.Name,
+			BaseUrlParameter: vercel.BaseUrlParameter{
+				TeamSlug: &team_slug,
+				TeamId:   &team_id,
+			},
+		}
+		vercelProject, err := g.client.Projects.GetProject(ctx, request)
 		if err != nil {
 			errorChan <- err
 			return

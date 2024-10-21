@@ -8,456 +8,31 @@ import (
 
 type ProjectService service
 
-func (v *ProjectService) AddDomainToProject(ctx context.Context, idOrName string, slug string, teamId string, req AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
-	path := fmt.Sprintf("/v10/projects/%s/domains", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ProjectDomainInfo{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type AddDomainToProjectRequest struct {
+	Name               string `json:"name,omitempty"`
+	GitBranch          string `json:"gitBranch,omitempty"`
+	Redirect           string `json:"redirect,omitempty"`
+	RedirectStatusCode int    `json:"redirectStatusCode,omitempty"`
+	IdOrName           string `json:"-"`
+	BaseUrlParameter   `json:"-"`
 }
 
-func (v *ProjectService) CreateProject(ctx context.Context, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
-	path := "/v10/projects"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *ProjectService) AddDomainToProject(ctx context.Context, request AddDomainToProjectRequest) (*ProjectDomainInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v10/projects/%s/domains", request.IdOrName),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	result := &ProjectInfo{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
+	response := &ProjectDomainInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *ProjectService) CreateEnvironmentVariables(ctx context.Context, idOrName string, slug string, teamId string, req []ProjectEnv) (*CreateProjectEnvResponse, error) {
-	path := fmt.Sprintf("/v10/projects/%s/env", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-
-	result := &CreateProjectEnvResponse{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) DeleteProject(ctx context.Context, idOrName string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v9/projects/%s", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) EditEnvironmentVariable(ctx context.Context, idOrName string, id string, slug string, teamId string, req ProjectEnv) (*ProjectEnv, error) {
-	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-
-	result := &ProjectEnv{}
-	err := v.client.http.Patch(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) ListEnvironmentVariable(ctx context.Context, idOrName string, slug string, teamId string, decrypt string,
-	gitBranch string, source string) ([]ProjectEnv, error) {
-	path := fmt.Sprintf("/v9/projects/%s/env", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(decrypt) > 0 {
-		queryParams.Add("decrypt", decrypt)
-	}
-	if len(gitBranch) > 0 {
-		queryParams.Add("gitBranch", gitBranch)
-	}
-	if len(source) > 0 {
-		queryParams.Add("source", source)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-
-	result := []ProjectEnv{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) GetProject(ctx context.Context, idOrName string, slug string, teamId string) (*ProjectInfo, error) {
-	path := fmt.Sprintf("/v9/projects/%s", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ProjectInfo{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) GetProjectDomain(ctx context.Context, idOrName string, domain string, slug string, teamId string) (*ProjectDomainInfo, error) {
-	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ProjectDomainInfo{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) ListProjectDomain(ctx context.Context, idOrName string, slug string, teamId string) (*ListProjectDomainResponse, error) {
-	path := fmt.Sprintf("/v9/projects/%s/domains", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ListProjectDomainResponse{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) GetEnvironmentVariable(ctx context.Context, idOrName string, id string, slug string, teamId string) (*ProjectEnv, error) {
-	path := fmt.Sprintf("/v1/projects/%s/env/%s", idOrName, id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ProjectEnv{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) ListProject(ctx context.Context, slug string, teamId string) (*ListProjectResponse, error) {
-	path := "/v9/projects"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ListProjectResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) ListProjectAlias(ctx context.Context, projectId string, slug string, teamId string) (*ListProjectAliasResponse, error) {
-	path := fmt.Sprintf("/v1/projects/%s/promote/aliases", projectId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ListProjectAliasResponse{}
-	err := v.client.http.Get(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) PauseProject(ctx context.Context, projectId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/projects/%s/pause", projectId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := ""
-	err := v.client.http.Post(ctx, path, nil, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) RemoveDomainFromProject(ctx context.Context, idOrName string, domain string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) RemoveEnvironmentVariable(ctx context.Context, idOrName string, id string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v9/projects/%s/env/%s", idOrName, id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) PointsProductionDomains(ctx context.Context, projectId string, deploymentId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v10/projects/%s/promote/%s", projectId, deploymentId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := ""
-	err := v.client.http.Post(ctx, path, nil, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) UnpauseProject(ctx context.Context, projectId string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/projects/%s/unpause", projectId)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := ""
-	err := v.client.http.Post(ctx, path, nil, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) UpdateProject(ctx context.Context, idOrName string, slug string, teamId string, req CreateProjectRequest) (*ProjectInfo, error) {
-	path := fmt.Sprintf("/v9/projects/%s", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-
-	result := &ProjectInfo{}
-	err := v.client.http.Patch(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) UpdateProjectDataCache(ctx context.Context, idOrName string, slug string, teamId string, disabled bool) (*ProjectInfo, error) {
-	path := fmt.Sprintf("/v1/data-cache/projects/%s", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	req := struct {
-		Disabled bool `json:"disabled"`
-	}{
-		Disabled: disabled,
-	}
-	result := &ProjectInfo{}
-	err := v.client.http.Patch(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) UpdateProjectDomain(ctx context.Context, idOrName string, domain string,
-	slug string, teamId string, req UpdateProjectDomainRequest) (*ProjectDomainInfo, error) {
-	path := fmt.Sprintf("/v9/projects/%s/domains/%s", idOrName, domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	result := &ProjectDomainInfo{}
-	err := v.client.http.Patch(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *ProjectService) UpdateProtectionBypass(ctx context.Context, idOrName string, slug string, teamId string, req UpdateProtectionBypassRequest,
-) (*string, error) {
-	path := fmt.Sprintf("/v1/projects/%s/protection-bypass", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	result := ""
-	err := v.client.http.Patch(ctx, path, req, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *ProjectService) VerifyProjectDomain(ctx context.Context, idOrName string, domain string,
-	slug string, teamId string) (*ProjectDomainInfo, error) {
-	path := fmt.Sprintf("/v9/projects/%s/domains/%s/verify", idOrName, domain)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	result := &ProjectDomainInfo{}
-	err := v.client.http.Post(ctx, path, nil, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-type CreateProjectRequest struct {
+type UpsertProjectRequest struct {
 	Name                                 string                `json:"name"`
 	BuildCommand                         string                `json:"buildCommand,omitempty"`
 	CommandForIgnoringBuildStep          string                `json:"commandForIgnoringBuildStep,omitempty"`
@@ -472,6 +47,552 @@ type CreateProjectRequest struct {
 	ServerlessFunctionRegion             string                `json:"serverlessFunctionRegion,omitempty"`
 	ServerlessFunctionZeroConfigFailover string                `json:"serverlessFunctionZeroConfigFailover,omitempty"`
 	SkipGitConnectDuringLink             bool                  `json:"skipGitConnectDuringLink,omitempty"`
+	IdOrName                             string                `json:"-"`
+	BaseUrlParameter                     `json:"-"`
+}
+
+func (v *ProjectService) CreateProject(ctx context.Context, request UpsertProjectRequest) (*ProjectInfo, error) {
+	u := &url.URL{
+		Path: "/v10/projects",
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type CreateEnvRequest struct {
+	IdOrName         string  `json:"-"`
+	Upsert           *string `json:"-"`
+	BaseUrlParameter `json:"-"`
+	Envs             []ProjectEnv
+}
+
+func (v *ProjectService) CreateEnvironmentVariables(ctx context.Context, request CreateEnvRequest) (*CreateProjectEnvResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v10/projects/%s/env", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	if request.Upsert != nil {
+		params.Add("upsert", *request.Upsert)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &CreateProjectEnvResponse{}
+	if err := v.client.http.Post(ctx, path, request.Envs, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type DeleteProjectRequest struct {
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) DeleteProject(ctx context.Context, request DeleteProjectRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type EditEnvRequest struct {
+	Id                   string `json:"-"`
+	IdOrName             string `json:"-"`
+	BaseUrlParameter     `json:"-"`
+	Key                  string   `json:"key,omitempty"`
+	Target               string   `json:"target,omitempty"`
+	Type                 string   `json:"type,omitempty"`
+	Value                string   `json:"value,omitempty"`
+	GitBranch            string   `json:"gitBranch,omitempty"`
+	Comment              string   `json:"comment,omitempty"`
+	CustomEnvironmentIds []string `json:"customEnvironmentIds,omitempty"`
+}
+
+func (v *ProjectService) EditEnvironmentVariable(ctx context.Context, request EditEnvRequest) (*ProjectEnv, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/env/%s", request.IdOrName, request.Id),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectEnv{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListEnvParameter struct {
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+	GitBranch        *string
+	Source           *string
+}
+
+func (v *ProjectService) ListEnvironmentVariable(ctx context.Context, request ListEnvParameter) ([]ProjectEnv, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/env", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	if request.GitBranch != nil {
+		params.Add("gitBranch", *request.GitBranch)
+	}
+	if request.Source != nil {
+		params.Add("source", *request.Source)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []ProjectEnv{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetProjectParameter struct {
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) GetProject(ctx context.Context, request GetProjectParameter) (*ProjectInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectInfo{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetProjectDomainParameter struct {
+	IdOrName         string `json:"-"`
+	Domain           string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) GetProjectDomain(ctx context.Context, request GetProjectDomainParameter) (*ProjectDomainInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/domains/%s", request.IdOrName, request.Domain),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectDomainInfo{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListProjectDomainParameter struct {
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+	GitBranch        *string
+	Limit            *string
+	Order            *string // ASC DESC
+	Production       *string // true false
+	Redirect         *string
+	Redirects        *string // true false
+	Since            *string
+	Target           *string // production preview
+	Until            *string
+	Verified         *string // true false
+}
+
+func (v *ProjectService) ListProjectDomain(ctx context.Context, request ListProjectDomainParameter) (*ListProjectDomainResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/domains", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	if request.GitBranch != nil {
+		params.Add("gitBranch", *request.GitBranch)
+	}
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Order != nil {
+		params.Add("order", *request.Order)
+	}
+	if request.Production != nil {
+		params.Add("production", *request.Production)
+	}
+	if request.Redirect != nil {
+		params.Add("redirect", *request.Redirect)
+	}
+	if request.Redirects != nil {
+		params.Add("redirects", *request.Redirects)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Target != nil {
+		params.Add("target", *request.Target)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	if request.Verified != nil {
+		params.Add("verified", *request.Verified)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListProjectDomainResponse{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type GetEnvParameter struct {
+	Id               string `json:"-"`
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) GetEnvironmentVariable(ctx context.Context, request GetEnvParameter) (*ProjectEnv, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/env/%s", request.IdOrName, request.Id),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectEnv{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListProjectParameter struct {
+	IdOrName          string `json:"-"`
+	BaseUrlParameter  `json:"-"`
+	Deprecated        *string
+	EdgeConfigId      *string
+	EdgeConfigTokenId *string
+	ExcludeRepos      *string
+	From              *string
+	GitForkProtection *string
+	Limit             *string
+	Repo              *string
+	RepoId            *string
+	RepoUrl           *string
+	Search            *string
+}
+
+func (v *ProjectService) ListProject(ctx context.Context, request ListProjectParameter) (*ListProjectResponse, error) {
+	u := &url.URL{
+		Path: "/v9/projects",
+	}
+	params := request.GetUrlValues()
+	if request.Deprecated != nil {
+		params.Add("deprecated", *request.Deprecated)
+	}
+	if request.EdgeConfigId != nil {
+		params.Add("edgeConfigId", *request.EdgeConfigId)
+	}
+	if request.EdgeConfigTokenId != nil {
+		params.Add("edgeConfigTokenId", *request.EdgeConfigTokenId)
+	}
+	if request.ExcludeRepos != nil {
+		params.Add("excludeRepos", *request.ExcludeRepos)
+	}
+	if request.From != nil {
+		params.Add("from", *request.From)
+	}
+	if request.GitForkProtection != nil {
+		params.Add("gitForkProtection", *request.GitForkProtection)
+	}
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Repo != nil {
+		params.Add("repo", *request.Repo)
+	}
+	if request.RepoId != nil {
+		params.Add("repoId", *request.RepoId)
+	}
+	if request.RepoUrl != nil {
+		params.Add("repoUrl", *request.RepoUrl)
+	}
+	if request.Search != nil {
+		params.Add("search", *request.Search)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListProjectResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListProjectAliasParameter struct {
+	projectId        string `json:"-"`
+	BaseUrlParameter `json:"-"`
+	FailedOnly       *string
+	Limit            *string
+	Since            *string
+	Until            *string
+}
+
+func (v *ProjectService) ListProjectAlias(ctx context.Context, request ListProjectAliasParameter) (*ListProjectAliasResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/promote/aliases", request.projectId),
+	}
+	params := request.GetUrlValues()
+	if request.FailedOnly != nil {
+		params.Add("failedOnly", *request.FailedOnly)
+	}
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListProjectAliasResponse{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type PauseProjectRequest struct {
+	ProjectId        string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) PauseProject(ctx context.Context, request PauseProjectRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/pause", request.ProjectId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Post(ctx, path, nil, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type RemoveDomainFromProjectRequest struct {
+	ProjectId        string `json:"-"`
+	Domain           string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) RemoveDomainFromProject(ctx context.Context, request RemoveDomainFromProjectRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/domains/%s", request.ProjectId, request.Domain),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type RemoveEnvRequest struct {
+	IdOrName         string
+	Id               string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) RemoveEnvironmentVariable(ctx context.Context, request RemoveEnvRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/env/%s", request.IdOrName, request.Id),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type PointsProductionDomainsRequest struct {
+	ProjectId        string `json:"projectId"`
+	DeploymentId     string `json:"deploymentId"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) PointsProductionDomains(ctx context.Context, request PointsProductionDomainsRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v10/projects/%s/promote/%s", request.ProjectId, request.DeploymentId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Post(ctx, path, nil, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type UnpauseProjectRequest struct {
+	ProjectId        string `json:"projectId"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) UnpauseProject(ctx context.Context, request UnpauseProjectRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v10/projects/%s/unpause", request.ProjectId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Post(ctx, path, nil, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (v *ProjectService) UpdateProject(ctx context.Context, request UpsertProjectRequest) (*ProjectInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectInfo{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type UpdateProjectDataCacheRequest struct {
+	ProjectId        string `json:""`
+	Disabled         string `json:"disabled"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) UpdateProjectDataCache(ctx context.Context, request UpdateProjectDataCacheRequest) (*ProjectInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/data-cache/projects/%s", request.ProjectId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectInfo{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type UpdateProjectDomainRequest struct {
+	GitBranch          string `json:"gitBranch,omitempty"`
+	Redirect           string `json:"redirect,omitempty"`
+	RedirectStatusCode int    `json:"redirectStatusCode,omitempty"`
+	Domain             string `json:"-"`
+	IdOrName           string `json:"-"`
+	BaseUrlParameter   `json:"-"`
+}
+
+func (v *ProjectService) UpdateProjectDomain(ctx context.Context, request UpdateProjectDomainRequest) (*ProjectDomainInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/domains/%s", request.IdOrName, request.Domain),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectDomainInfo{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type UpdateProtectionBypassRequest struct {
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+	Revoke           ProtectionBypass   `json:"revoke,omitempty"`
+	Generate         ProtectionGenerate `json:"generate,omitempty"`
+}
+
+func (v *ProjectService) UpdateProtectionBypass(ctx context.Context, request UpdateProtectionBypassRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/protection-bypass", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Patch(ctx, path, request, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type VerifyProjectDomainRequest struct {
+	IdOrName         string `json:"-"`
+	Domain           string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *ProjectService) VerifyProjectDomain(ctx context.Context, request VerifyProjectDomainRequest) (*ProjectDomainInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v9/projects/%s/domains/%s/verify", request.IdOrName, request.Domain),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ProjectDomainInfo{}
+	if err := v.client.http.Post(ctx, path, nil, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type EnvironmentVariable struct {
@@ -485,13 +606,6 @@ type EnvironmentVariable struct {
 type GitRepository struct {
 	Repo string `json:"repo,omitempty"`
 	Type string `json:"type,omitempty"`
-}
-
-type AddDomainToProjectRequest struct {
-	Name               string `json:"name,omitempty"`
-	GitBranch          string `json:"gitBranch,omitempty"`
-	Redirect           string `json:"redirect,omitempty"`
-	RedirectStatusCode int    `json:"redirectStatusCode,omitempty"`
 }
 
 type ProjectDomainInfo struct {
@@ -584,18 +698,11 @@ type ListProjectAliasResponse struct {
 	Error      *VercelError `json:"error,omitempty"`
 }
 
-type UpdateProjectDomainRequest struct {
-	GitBranch           string `json:"gitBranch,omitempty"`
-	Redirect            string `json:"redirect,omitempty"`
-	RedirectStatusCode  int    `json:"redirectStatusCode,omitempty"`
-	CustomEnvironmentId string `json:"customEnvironmentId,omitempty"`
-}
-
-type UpdateProtectionBypassRequest struct {
-	Revoke ProtectionBypass `json:"revoke,omitempty"`
-}
-
 type ProtectionBypass struct {
 	Regenerate bool   `json:"regenerate,omitempty"`
 	Ssecret    string `json:"secret,omitempty"`
+}
+
+type ProtectionGenerate struct {
+	Ssecret string `json:"secret,omitempty"`
 }
