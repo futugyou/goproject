@@ -8,86 +8,85 @@ import (
 
 type MemberService service
 
-func (v *MemberService) AddMember(ctx context.Context, idOrName string, slug string, teamId string, req AddMemberRequest) (*OperateMemberResponse, error) {
-	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &OperateMemberResponse{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *MemberService) ListProjectMember(ctx context.Context, idOrName string, slug string, teamId string, search string, limit string, since string, until string) (*ListProjectMemberrResponse, error) {
-	path := fmt.Sprintf("/v1/projects/%s/members", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(search) > 0 {
-		queryParams.Add("search", search)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListProjectMemberrResponse{}
-	err := v.client.http.Get(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *MemberService) RemoveProjectMember(ctx context.Context, idOrName string, uid string, slug string, teamId string) (*OperateMemberResponse, error) {
-	path := fmt.Sprintf("/v1/projects/%s/members/%s", idOrName, uid)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &OperateMemberResponse{}
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 type AddMemberRequest struct {
-	Role     string `json:"role,omitempty"`
-	Email    string `json:"email,omitempty"`
-	Uid      string `json:"uid,omitempty"`
-	Username string `json:"username,omitempty"`
+	Role             string `json:"role,omitempty"`
+	Email            string `json:"email,omitempty"`
+	Uid              string `json:"uid,omitempty"`
+	Username         string `json:"username,omitempty"`
+	IdOrName         string `json:"-"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *MemberService) AddMember(ctx context.Context, request AddMemberRequest) (*OperateMemberResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/members", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &OperateMemberResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListProjectMemberParameter struct {
+	IdOrName         string `json:"-"`
+	Limit            *string
+	Search           *string
+	Since            *string
+	Until            *string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *MemberService) ListProjectMember(ctx context.Context, request ListProjectMemberParameter) (*ListProjectMemberrResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/members", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	if request.Search != nil {
+		params.Add("search", *request.Search)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListProjectMemberrResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type RemoveProjectMemberRequest struct {
+	IdOrName         string
+	Uid              string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *MemberService) RemoveProjectMember(ctx context.Context, request RemoveProjectMemberRequest) (*OperateMemberResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/projects/%s/members/%s", request.IdOrName, request.Uid),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &OperateMemberResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type OperateMemberResponse struct {
