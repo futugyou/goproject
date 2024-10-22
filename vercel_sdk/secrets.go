@@ -8,112 +8,118 @@ import (
 
 type SecretService service
 
-func (v *SecretService) CreateSecret(ctx context.Context, slug string, teamId string, req CreateSecretRequest) (*SecretInfo, error) {
-	path := fmt.Sprintf("/v2/secrets/%s", req.Name)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &SecretInfo{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type CreateSecretRequest struct {
+	Name             string `json:"name,omitempty"`
+	Value            string `json:"value,omitempty"`
+	Decryptable      bool   `json:"decryptable,omitempty"`
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *SecretService) DeleteSecret(ctx context.Context, idOrName string, slug string, teamId string) (*DeleteSecretResponse, error) {
-	path := fmt.Sprintf("/v2/secrets/%s", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *SecretService) CreateSecret(ctx context.Context, request CreateSecretRequest) (*SecretInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/secrets/%s", request.Name),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DeleteSecretResponse{}
-	err := v.client.http.Delete(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &SecretInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *SecretService) GetSecret(ctx context.Context, idOrName string, slug string, teamId string, decrypt string) (*SecretInfo, error) {
-	path := fmt.Sprintf("/v3/secrets/%s", idOrName)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(decrypt) > 0 {
-		queryParams.Add("decrypt", decrypt)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &SecretInfo{}
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+type DeleteSecretRequest struct {
+	IdOrName         string
+	BaseUrlParameter `json:"-"`
 }
 
-func (v *SecretService) ListSecret(ctx context.Context, slug string, teamId string) (*ListSecretResponse, error) {
-	path := "/v3/secrets"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+func (v *SecretService) DeleteSecret(ctx context.Context, request DeleteSecretRequest) (*DeleteSecretResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/secrets/%s", request.IdOrName),
 	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListSecretResponse{}
-	err := v.client.http.Delete(ctx, path, result)
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
 
-	if err != nil {
+	response := &DeleteSecretResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *SecretService) ChangeSecretName(ctx context.Context, name string, slug string, teamId string, req CreateSecretRequest) (*string, error) {
-	path := fmt.Sprintf("/v2/secrets/%s", name)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Patch(ctx, path, req, &result)
+type GetSecretParameter struct {
+	IdOrName         string
+	Decrypt          *string
+	BaseUrlParameter `json:"-"`
+}
 
-	if err != nil {
+func (v *SecretService) GetSecret(ctx context.Context, request GetSecretParameter) (*SecretInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v3/secrets/%s", request.IdOrName),
+	}
+	params := request.GetUrlValues()
+	if request.Decrypt != nil {
+		params.Add("decrypt", *request.Decrypt)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &SecretInfo{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return response, nil
+}
+
+type ListSecretParameter struct {
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *SecretService) ListSecret(ctx context.Context, request ListSecretParameter) (*ListSecretResponse, error) {
+	u := &url.URL{
+		Path: "/v3/secrets",
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ListSecretResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ChangeSecretNameRequest struct {
+	OldName          string `json:"-"`
+	NewName          string `json:"name"`
+	BaseUrlParameter `json:"-"`
+}
+
+type ChangeSecretNameResponse struct {
+	Created string       `json:"created"`
+	Name    string       `json:"name"`
+	OldName string       `json:"oldName"`
+	Uid     string       `json:"uid"`
+	Error   *VercelError `json:"error,omitempty"`
+}
+
+func (v *SecretService) ChangeSecretName(ctx context.Context, request ChangeSecretNameRequest) (*ChangeSecretNameResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/secrets/%s", request.OldName),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &ChangeSecretNameResponse{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type ListSecretResponse struct {
@@ -127,12 +133,6 @@ type DeleteSecretResponse struct {
 	Name    string       `json:"name,omitempty"`
 	Uid     string       `json:"uid,omitempty"`
 	Error   *VercelError `json:"error,omitempty"`
-}
-
-type CreateSecretRequest struct {
-	Name        string `json:"name,omitempty"`
-	Value       string `json:"value,omitempty"`
-	Decryptable bool   `json:"decryptable,omitempty"`
 }
 
 type SecretInfo struct {
