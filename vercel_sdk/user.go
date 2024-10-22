@@ -9,64 +9,65 @@ type UserService service
 
 func (v *UserService) GetUser(ctx context.Context) (*AuthUser, error) {
 	path := "/v2/user"
-	result := &AuthUser{}
-	err := v.client.http.Get(ctx, path, result)
+	response := &AuthUser{}
+	err := v.client.http.Get(ctx, path, response)
 
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *UserService) ListUserEvent(ctx context.Context, slug string, teamId string, limit string, since string, until string,
-	types string, userId string, withPayload string) ([]UserEvent, error) {
-	path := "/v3/events"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(types) > 0 {
-		queryParams.Add("types", types)
-	}
-	if len(userId) > 0 {
-		queryParams.Add("userId", userId)
-	}
-	if len(withPayload) > 0 {
-		queryParams.Add("withPayload", withPayload)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []UserEvent{}
-	err := v.client.http.Get(ctx, path, &result)
+type ListUserEventParameter struct {
+	Limit            *string
+	Since            *string
+	Until            *string
+	Types            *string
+	UserId           *string
+	WithPayload      *string
+	BaseUrlParameter `json:"-"`
+}
 
-	if err != nil {
+func (v *UserService) ListUserEvent(ctx context.Context, request ListUserEventParameter) ([]UserEvent, error) {
+	u := &url.URL{
+		Path: "/v3/events",
+	}
+	params := request.GetUrlValues()
+	if request.Limit != nil {
+		params.Add("limit", *request.Limit)
+	}
+	if request.Since != nil {
+		params.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		params.Add("until", *request.Until)
+	}
+	if request.Types != nil {
+		params.Add("types", *request.Types)
+	}
+	if request.UserId != nil {
+		params.Add("userId", *request.UserId)
+	}
+	if request.WithPayload != nil {
+		params.Add("withPayload", *request.WithPayload)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []UserEvent{}
+	if err := v.client.http.Get(ctx, path, &response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 func (v *UserService) DeleteUserAccount(ctx context.Context, req DeleteUserRequest) (*DeleteUserResponse, error) {
 	path := "/v1/user"
-	result := &DeleteUserResponse{}
-	err := v.client.http.DeleteWithBody(ctx, path, req, result)
-
-	if err != nil {
+	response := &DeleteUserResponse{}
+	if err := v.client.http.DeleteWithBody(ctx, path, req, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
 type DeleteUserResponse struct {
