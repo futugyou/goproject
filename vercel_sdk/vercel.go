@@ -25,6 +25,7 @@ type VercelClient struct {
 	ProjectMembers *MemberService
 	Projects       *ProjectService
 	Secrets        *SecretService
+	Security       *SecurityService
 	Teams          *TeamService
 	User           *UserService
 	Webhooks       *WebhookService
@@ -78,6 +79,7 @@ func (c *VercelClient) initialize() {
 	c.ProjectMembers = (*MemberService)(&c.common)
 	c.Projects = (*ProjectService)(&c.common)
 	c.Secrets = (*SecretService)(&c.common)
+	c.Security = (*SecurityService)(&c.common)
 	c.Teams = (*TeamService)(&c.common)
 	c.User = (*UserService)(&c.common)
 	c.Webhooks = (*WebhookService)(&c.common)
