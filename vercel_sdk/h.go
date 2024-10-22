@@ -46,30 +46,30 @@ func newClientWithHttp(baseUrl string, client *http.Client) *httpClient {
 }
 
 func (c *httpClient) Post(ctx context.Context, path string, request, response interface{}) error {
-	return c.doRequest(ctx, path, "POST", request, response)
+	return c.DoRequest(ctx, path, "POST", request, response)
 }
 
 func (c *httpClient) Put(ctx context.Context, path string, request, response interface{}) error {
-	return c.doRequest(ctx, path, "PUT", request, response)
+	return c.DoRequest(ctx, path, "PUT", request, response)
 }
 
 func (c *httpClient) Patch(ctx context.Context, path string, request, response interface{}) error {
-	return c.doRequest(ctx, path, "PATCH", request, response)
+	return c.DoRequest(ctx, path, "PATCH", request, response)
 }
 
 func (c *httpClient) Get(ctx context.Context, path string, response interface{}) error {
-	return c.doRequest(ctx, path, "GET", nil, response)
+	return c.DoRequest(ctx, path, "GET", nil, response)
 }
 
 func (c *httpClient) Delete(ctx context.Context, path string, response interface{}) error {
-	return c.doRequest(ctx, path, "DELETE", nil, response)
+	return c.DoRequest(ctx, path, "DELETE", nil, response)
 }
 
 func (c *httpClient) DeleteWithBody(ctx context.Context, path string, request, response interface{}) error {
-	return c.doRequest(ctx, path, "DELETE", request, response)
+	return c.DoRequest(ctx, path, "DELETE", request, response)
 }
 
-func (c *httpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) error {
+func (c *httpClient) DoRequest(ctx context.Context, path, method string, request, response interface{}) error {
 	path = c.createSubpath(path)
 	var body io.Reader
 

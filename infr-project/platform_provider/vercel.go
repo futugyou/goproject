@@ -237,7 +237,8 @@ func (g *VercelClient) getDefaultTeam(ctx context.Context) (<-chan *VercelTeam, 
 		defer close(errorChan)
 
 		team := new(VercelTeam)
-		teams, err := g.client.Teams.ListTeam(ctx, "", "", "")
+		request := vercel.ListTeamParameter{}
+		teams, err := g.client.Teams.ListTeam(ctx, request)
 		if err != nil {
 			errorChan <- err
 			return

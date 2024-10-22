@@ -10,208 +10,267 @@ type TeamService service
 
 func (v *TeamService) CreateTeam(ctx context.Context, req CreateTeamRequest) (*TeamInfo, error) {
 	path := "/v1/teams"
-	result := &TeamInfo{}
-	if err := v.client.http.Post(ctx, path, req, result); err != nil {
+	response := &TeamInfo{}
+	if err := v.client.http.Post(ctx, path, req, response); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) DeleteTeam(ctx context.Context, teamId string, slug string, newDefaultTeamId string) (*DeleteTeamResponse, error) {
-	path := fmt.Sprintf("/v1/teams/%s", teamId)
+type DeleteTeamRequest struct {
+	TeamId           string         `json:"-"`
+	NewDefaultTeamId *string        `json:"-"`
+	Slug             *string        `json:"-"`
+	Reasons          []DeleteReason `json:"reasons"`
+}
+
+type DeleteReason struct {
+	Description string `json:"description"`
+	Slug        string `json:"slug"`
+}
+
+func (v *TeamService) DeleteTeam(ctx context.Context, request DeleteTeamRequest) (*DeleteTeamResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/teams/%s", request.TeamId),
+	}
+	params := url.Values{}
+	if request.Slug != nil {
+		params.Add("slug", *request.Slug)
+	}
+	if request.NewDefaultTeamId != nil {
+		params.Add("newDefaultTeamId", *request.NewDefaultTeamId)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &DeleteTeamResponse{}
+	if err := v.client.http.DoRequest(ctx, path, "DELETE", request, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type DeleteTeamInviteCodeRequest struct {
+	TeamId   string
+	InviteId string
+}
+
+func (v *TeamService) DeleteTeamInviteCode(ctx context.Context, request DeleteTeamInviteCodeRequest) (*DeleteTeamInviteCodeResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/invites/%s", request.TeamId, request.InviteId)
+
+	response := &DeleteTeamInviteCodeResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type GetTeamParameter struct {
+	TeamId string
+	Slug   *string
+}
+
+func (v *TeamService) GetTeam(ctx context.Context, request GetTeamParameter) (*TeamInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/teams/%s", request.TeamId),
+	}
 	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+	if request.Slug != nil {
+		queryParams.Add("slug", *request.Slug)
 	}
-	if len(newDefaultTeamId) > 0 {
-		queryParams.Add("newDefaultTeamId", newDefaultTeamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &DeleteTeamResponse{}
-	if err := v.client.http.Delete(ctx, path, result); err != nil {
+	u.RawQuery = queryParams.Encode()
+	path := u.String()
+
+	response := &TeamInfo{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) DeleteTeamInviteCode(ctx context.Context, teamId string, inviteId string) (*DeleteTeamInviteCodeResponse, error) {
-	path := fmt.Sprintf("/v1/teams/%s/invites/%s", teamId, inviteId)
+type GetAccessRequestStatusParameter struct {
+	TeamId string
+	UserId string
+}
 
-	result := &DeleteTeamInviteCodeResponse{}
-	if err := v.client.http.Delete(ctx, path, result); err != nil {
+func (v *TeamService) GetAccessRequestStatus(ctx context.Context, request GetAccessRequestStatusParameter) (*AccessRequestStatus, error) {
+	path := fmt.Sprintf("/v1/teams/%s/request/%s", request.TeamId, request.UserId)
+	response := &AccessRequestStatus{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) GetTeam(ctx context.Context, teamId string, slug string) (*TeamInfo, error) {
-	path := fmt.Sprintf("/v2/teams/%s", teamId)
+type ListTeamMembersParameter struct {
+	TeamId                      string
+	EligibleMembersForProjectId *string
+	ExcludeProject              *string
+	Limit                       *string
+	Role                        *string
+	Search                      *string
+	Since                       *string
+	Until                       *string
+}
+
+func (v *TeamService) ListTeamMembers(ctx context.Context, request ListTeamMembersParameter) (*ListTeamMembersResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/teams/%s/members", request.TeamId),
+	}
 	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+	if request.EligibleMembersForProjectId != nil {
+		queryParams.Add("eligibleMembersForProjectId", *request.EligibleMembersForProjectId)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
+	if request.ExcludeProject != nil {
+		queryParams.Add("excludeProject", *request.ExcludeProject)
 	}
-	result := &TeamInfo{}
-	if err := v.client.http.Get(ctx, path, result); err != nil {
+	if request.Limit != nil {
+		queryParams.Add("limit", *request.Limit)
+	}
+	if request.Role != nil {
+		queryParams.Add("role", *request.Role)
+	}
+	if request.Search != nil {
+		queryParams.Add("search", *request.Search)
+	}
+	if request.Since != nil {
+		queryParams.Add("since", *request.Since)
+	}
+	if request.Until != nil {
+		queryParams.Add("until", *request.Until)
+	}
+	u.RawQuery = queryParams.Encode()
+	path := u.String()
+
+	response := &ListTeamMembersResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) GetAccessRequestStatus(ctx context.Context, teamId string, userId string) (*AccessRequestStatus, error) {
-	path := fmt.Sprintf("/v1/teams/%s/request/%s", teamId, userId)
-	result := &AccessRequestStatus{}
-	if err := v.client.http.Get(ctx, path, result); err != nil {
-		return nil, err
+type ListTeamParameter struct {
+	Limit *string
+	Since *string
+	Until *string
+}
+
+func (v *TeamService) ListTeam(ctx context.Context, request ListTeamParameter) (*ListTeamResponse, error) {
+	u := &url.URL{
+		Path: "/v2/teams",
 	}
-
-	return result, nil
-}
-
-func (v *TeamService) ListTeamMembers(ctx context.Context, teamId string, eligibleMembersForProjectId string, excludeProject string,
-	limit string, role string, search string, since string, until string) (*ListTeamMembersResponse, error) {
-	path := fmt.Sprintf("/v2/teams/%s/members", teamId)
 	queryParams := url.Values{}
-	if len(eligibleMembersForProjectId) > 0 {
-		queryParams.Add("eligibleMembersForProjectId", eligibleMembersForProjectId)
+	if request.Limit != nil {
+		queryParams.Add("limit", *request.Limit)
 	}
-	if len(excludeProject) > 0 {
-		queryParams.Add("excludeProject", excludeProject)
+	if request.Since != nil {
+		queryParams.Add("since", *request.Since)
 	}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
+	if request.Until != nil {
+		queryParams.Add("until", *request.Until)
 	}
-	if len(role) > 0 {
-		queryParams.Add("role", role)
-	}
-	if len(search) > 0 {
-		queryParams.Add("search", search)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
+	u.RawQuery = queryParams.Encode()
+	path := u.String()
 
-	result := &ListTeamMembersResponse{}
-	if err := v.client.http.Get(ctx, path, result); err != nil {
+	response := &ListTeamResponse{}
+	if err := v.client.http.Get(ctx, path, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) ListTeam(ctx context.Context, limit string, since string, until string) (*ListTeamResponse, error) {
-	path := "/v2/teams"
+func (v *TeamService) InviteUser(ctx context.Context, req InviteUserRequest) (*InviteUserResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members", req.TeamId)
+	response := &InviteUserResponse{}
+	if err := v.client.http.Post(ctx, path, req, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type JoinTeamRequest struct {
+	TeamId     string `json:"-"`
+	InviteCode string `json:"inviteCode,omitempty"`
+}
+
+func (v *TeamService) JoinTeam(ctx context.Context, request JoinTeamRequest) (*JoinTeamResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members/teams/join", request.TeamId)
+
+	response := &JoinTeamResponse{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (v *TeamService) UpdateTeam(ctx context.Context, request UpdateTeamInfo) (*TeamInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v2/teams/%s", request.TeamId),
+	}
 	queryParams := url.Values{}
-	if len(limit) > 0 {
-		queryParams.Add("limit", limit)
-	}
-	if len(since) > 0 {
-		queryParams.Add("since", since)
-	}
-	if len(until) > 0 {
-		queryParams.Add("until", until)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &ListTeamResponse{}
-	if err := v.client.http.Get(ctx, path, result); err != nil {
+	queryParams.Add("slug", request.Slug)
+	u.RawQuery = queryParams.Encode()
+	path := u.String()
+
+	response := &TeamInfo{}
+	if err := v.client.http.Patch(ctx, path, request, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) InviteUser(ctx context.Context, teamId string, req InviteUserRequest) (*InviteUserResponse, error) {
-	path := fmt.Sprintf("/v1/teams/%s/members", teamId)
-	result := &InviteUserResponse{}
-	if err := v.client.http.Post(ctx, path, req, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+type RemoveTeamMemberRequest struct {
+	TeamId           string  `json:"-"`
+	Uid              string  `json:"-"`
+	NewDefaultTeamId *string `json:"-"`
 }
 
-func (v *TeamService) JoinTeam(ctx context.Context, teamId string, inviteCode string) (*JoinTeamResponse, error) {
-	path := fmt.Sprintf("/v1/teams/%s/members/teams/join", teamId)
-	req := struct {
-		InviteCode string `json:"inviteCode,omitempty"`
-	}{
-		InviteCode: inviteCode,
+func (v *TeamService) RemoveTeamMember(ctx context.Context, request RemoveTeamMemberRequest) (*RemoveTeamMemberResponse, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/teams/%s/members/%s", request.TeamId, request.Uid),
 	}
-	result := &JoinTeamResponse{}
-	if err := v.client.http.Post(ctx, path, req, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (v *TeamService) UpdateTeam(ctx context.Context, teamId string, slug string, req UpdateTeamInfo) (*TeamInfo, error) {
-	path := fmt.Sprintf("/v2/teams/%s", teamId)
 	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
+	if request.NewDefaultTeamId != nil {
+		queryParams.Add("newDefaultTeamId", *request.NewDefaultTeamId)
 	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &TeamInfo{}
-	if err := v.client.http.Patch(ctx, path, req, result); err != nil {
+	u.RawQuery = queryParams.Encode()
+	path := u.String()
+
+	response := &RemoveTeamMemberResponse{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) RemoveTeamMember(ctx context.Context, teamId string, uid string, newDefaultTeamId string) (*RemoveTeamMemberResponse, error) {
-	path := fmt.Sprintf("/v1/teams/%s/members/%s", teamId, uid)
-	queryParams := url.Values{}
-	if len(newDefaultTeamId) > 0 {
-		queryParams.Add("newDefaultTeamId", newDefaultTeamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &RemoveTeamMemberResponse{}
-	if err := v.client.http.Delete(ctx, path, result); err != nil {
+func (v *TeamService) RequestAccessToTeam(ctx context.Context, req JoinedFrom) (*AccessRequestStatus, error) {
+	path := fmt.Sprintf("/v1/teams/%s/request", req.TeamId)
+	response := &AccessRequestStatus{}
+	if err := v.client.http.Post(ctx, path, req, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return response, nil
 }
 
-func (v *TeamService) RequestAccessToTeam(ctx context.Context, teamId string, req JoinedFrom) (*AccessRequestStatus, error) {
-	path := fmt.Sprintf("/v1/teams/%s/request", teamId)
-	result := &AccessRequestStatus{}
-	if err := v.client.http.Post(ctx, path, req, result); err != nil {
+func (v *TeamService) UpdateTeamMember(ctx context.Context, req UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error) {
+	path := fmt.Sprintf("/v1/teams/%s/members/%s", req.TeamId, req.Uid)
+	response := &UpdateTeamMemberResponse{}
+	if err := v.client.http.Patch(ctx, path, req, response); err != nil {
 		return nil, err
 	}
 
-	return result, nil
-}
-
-func (v *TeamService) UpdateTeamMember(ctx context.Context, teamId string, uid string, req UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error) {
-	path := fmt.Sprintf("/v1/teams/%s/members/%s", teamId, uid)
-	result := &UpdateTeamMemberResponse{}
-	if err := v.client.http.Patch(ctx, path, req, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return response, nil
 }
 
 type UpdateTeamMemberResponse struct {
@@ -220,6 +279,8 @@ type UpdateTeamMemberResponse struct {
 }
 
 type UpdateTeamMemberRequest struct {
+	TeamId     string          `json:"-"`
+	Uid        string          `json:"-"`
 	Confirmed  bool            `json:"confirmed,omitempty"`
 	JoinedFrom JoinedFrom      `json:"joinedFrom,omitempty"`
 	Role       string          `json:"role,omitempty"`
@@ -232,6 +293,7 @@ type RemoveTeamMemberResponse struct {
 }
 
 type UpdateTeamInfo struct {
+	TeamId                             string        `json:"-"`
 	Avatar                             string        `json:"avatar,omitempty"`
 	Description                        string        `json:"description,omitempty"`
 	EmailDomain                        string        `json:"emailDomain,omitempty"`
@@ -264,6 +326,7 @@ type JoinTeamResponse struct {
 }
 
 type InviteUserRequest struct {
+	TeamId   string          `json:"-"`
 	Email    string          `json:"email,omitempty"`
 	Role     string          `json:"role,omitempty"`
 	Uid      string          `json:"uid,omitempty"`
@@ -353,6 +416,7 @@ type RepoState struct {
 }
 
 type JoinedFrom struct {
+	TeamId           string `json:"-"`
 	CommitId         string `json:"commitId,omitempty"`
 	DsyncConnectedAt int    `json:"dsyncConnectedAt,omitempty"`
 	DsyncUserId      string `json:"dsyncUserId,omitempty"`
