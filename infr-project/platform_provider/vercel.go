@@ -129,8 +129,14 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		if len(team_slug) > 0 {
 			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
 		}
-
-		vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, vercelProject.Id, team_slug, team_id)
+		req := vercel.ListWebhookParameter{
+			ProjectId: &vercelProject.Id,
+			BaseUrlParameter: vercel.BaseUrlParameter{
+				TeamSlug: &team_slug,
+				TeamId:   &team_id,
+			},
+		}
+		vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, req)
 		if err != nil {
 			errorChan <- err
 			return
@@ -181,8 +187,12 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			Events:     events,
 			Url:        request.WebHook.Url,
 			ProjectIds: []string{request.ProjectId},
+			BaseUrlParameter: vercel.BaseUrlParameter{
+				TeamSlug: &team_slug,
+				TeamId:   &team_id,
+			},
 		}
-		vercelHook, err := g.client.Webhooks.CreateWebhook(ctx, team_slug, team_id, req)
+		vercelHook, err := g.client.Webhooks.CreateWebhook(ctx, req)
 		if err != nil {
 			errorChan <- err
 			return

@@ -24,97 +24,89 @@ var WebHookEvent []string = []string{
 	"domain.created",
 }
 
-func (v *WebhookService) CreateWebhook(ctx context.Context, slug string, teamId string, req CreateWebhookRequest) (*WebhookInfo, error) {
-	path := "/v1/webhooks"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &WebhookInfo{}
-	err := v.client.http.Post(ctx, path, req, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *WebhookService) DeleteWebhook(ctx context.Context, id string, slug string, teamId string) (*string, error) {
-	path := fmt.Sprintf("/v1/webhooks/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := ""
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (v *WebhookService) GetWebhook(ctx context.Context, id string, slug string, teamId string) (*WebhookInfo, error) {
-	path := fmt.Sprintf("/v1/webhooks/%s", id)
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := &WebhookInfo{}
-	err := v.client.http.Delete(ctx, path, result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (v *WebhookService) ListWebhook(ctx context.Context, projectId string, slug string, teamId string) ([]WebhookInfo, error) {
-	path := "/v1/webhooks"
-	queryParams := url.Values{}
-	if len(slug) > 0 {
-		queryParams.Add("slug", slug)
-	}
-	if len(teamId) > 0 {
-		queryParams.Add("teamId", teamId)
-	}
-	if len(projectId) > 0 {
-		queryParams.Add("projectId", projectId)
-	}
-	if len(queryParams) > 0 {
-		path += "?" + queryParams.Encode()
-	}
-	result := []WebhookInfo{}
-	err := v.client.http.Delete(ctx, path, &result)
-
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 type CreateWebhookRequest struct {
-	Events     []string `json:"events,omitempty"`
-	Url        string   `json:"url,omitempty"`
-	ProjectIds []string `json:"projectIds,omitempty"`
+	Events           []string `json:"events,omitempty"`
+	Url              string   `json:"url,omitempty"`
+	ProjectIds       []string `json:"projectIds,omitempty"`
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *WebhookService) CreateWebhook(ctx context.Context, request CreateWebhookRequest) (*WebhookInfo, error) {
+	u := &url.URL{
+		Path: "/v1/webhooks",
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &WebhookInfo{}
+	if err := v.client.http.Post(ctx, path, request, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type DeleteWebhookRequest struct {
+	WebhookId        string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *WebhookService) DeleteWebhook(ctx context.Context, request DeleteWebhookRequest) (*string, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/webhooks/%s", request.WebhookId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := ""
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+type GetWebhookParameter struct {
+	WebhookId        string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *WebhookService) GetWebhook(ctx context.Context, request GetWebhookParameter) (*WebhookInfo, error) {
+	u := &url.URL{
+		Path: fmt.Sprintf("/v1/webhooks/%s", request.WebhookId),
+	}
+	params := request.GetUrlValues()
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := &WebhookInfo{}
+	if err := v.client.http.Delete(ctx, path, response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+type ListWebhookParameter struct {
+	ProjectId        *string
+	BaseUrlParameter `json:"-"`
+}
+
+func (v *WebhookService) ListWebhook(ctx context.Context, request ListWebhookParameter) ([]WebhookInfo, error) {
+	u := &url.URL{
+		Path: "/v1/webhooks",
+	}
+	params := request.GetUrlValues()
+	if request.ProjectId != nil {
+		params.Add("projectId", *request.ProjectId)
+	}
+	u.RawQuery = params.Encode()
+	path := u.String()
+
+	response := []WebhookInfo{}
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 type WebhookInfo struct {
