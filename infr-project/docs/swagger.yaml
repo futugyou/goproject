@@ -1363,6 +1363,23 @@ paths:
       summary: ping
       tags:
       - Test
+  /v1/test/redis:
+    get:
+      consumes:
+      - application/json
+      description: redis
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: redis
+      tags:
+      - Test
   /v1/test/tf:
     get:
       consumes:

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/futugyou/circleci"
 	"github.com/futugyou/vercel"
@@ -30,6 +31,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
 	v1.GET("/test/vault", vaultSecret)
 	v1.GET("/test/tf", terraformWS)
 	v1.GET("/test/cqrs", cqrstest)
+	v1.GET("/test/redis", redisget)
 }
 
 // @Summary ping
@@ -195,5 +197,50 @@ func cqrstest(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"message": "ok",
+	})
+}
+
+// @Summary redis
+// @Description redis
+// @Tags Test
+// @Accept json
+// @Produce json
+// @Success 200 {object}  map[string]string
+// @Router /v1/test/redis [get]
+func redisget(c *gin.Context) {
+	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	if err != nil {
+		c.JSON(500, gin.H{
+			"linkMsg": err.Error(),
+		})
+		return
+	}
+	opt.MaxRetries = 3
+	opt.DialTimeout = 10 * time.Second
+	opt.ReadTimeout = -1
+	opt.WriteTimeout = -1
+	opt.DB = 0
+
+	client := redis.NewClient(opt)
+
+	ctx := c.Request.Context()
+
+	// err = client.Set(ctx, "foo", "bar", 0).Err()
+	// if err != nil {
+	// 	c.JSON(500, gin.H{
+	// 		"WriteMsg": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	val, err := client.Get(ctx, "foo").Result()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"ReadMsg": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"ResultMsg": val,
 	})
 }

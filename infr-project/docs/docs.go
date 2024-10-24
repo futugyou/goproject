@@ -1014,6 +1014,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/test/redis": {
+            "get": {
+                "description": "redis",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "redis",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/test/tf": {
             "get": {
                 "description": "terraform",
