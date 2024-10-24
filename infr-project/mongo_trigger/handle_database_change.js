@@ -1,9 +1,4 @@
 exports = async function (changeEvent) {
-    if (!changeEvent.fullDocument) {
-        console.error("No fullDocument in changeEvent");
-        return;
-    }
-
     const axios = require("axios").default;
 
     const data = {
@@ -14,6 +9,10 @@ exports = async function (changeEvent) {
         data: changeEvent.fullDocument
     };
 
+    if (data.data == undefined) {
+        data.data = changeEvent.documentKey
+    }
+
     const config = {
         headers: {
             'Content-Type': 'application/json',
@@ -21,7 +20,7 @@ exports = async function (changeEvent) {
         }
     };
 
-    axios.post('https://example.com/api/event', data, config)
+    axios.post('https://example.com/api/v1/event', data, config)
         .then(response => {
             console.log('Response data:', response.data);
         })

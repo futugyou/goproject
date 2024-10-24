@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -12,6 +14,7 @@ import (
 	"github.com/futugyou/extensions"
 
 	"github.com/futugyou/infr-project/controller"
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 func ToolsDispatch(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +28,8 @@ func ToolsDispatch(w http.ResponseWriter, r *http.Request) {
 	switch op {
 	case "redis":
 		redistool(ctrl, r, w)
+	case "event":
+		eventHandler(ctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
@@ -64,5 +69,23 @@ func redistool(_ *controller.Controller, r *http.Request, w http.ResponseWriter)
 	}
 
 	w.Write([]byte("ResultMsg:" + val))
+	w.WriteHeader(200)
+}
+
+func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	bearer := r.Header.Get("Authorization")
+	if bearer != os.Getenv("TRIGGER_AUTH_KEY") {
+		w.Write([]byte("Authorization code error"))
+		w.WriteHeader(500)
+		return
+	}
+	var aux models.TriggerEvent
+	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(500)
+		return
+	}
+	fmt.Println(aux)
+	w.Write([]byte("ok"))
 	w.WriteHeader(200)
 }
