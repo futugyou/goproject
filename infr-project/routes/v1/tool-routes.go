@@ -32,6 +32,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
 	v1.GET("/test/tf", terraformWS)
 	v1.GET("/test/cqrs", cqrstest)
 	v1.GET("/test/redis", redisget)
+	v1.GET("/test/redishash", redisHash)
 }
 
 // @Summary ping
@@ -225,13 +226,13 @@ func redisget(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	// err = client.Set(ctx, "foo", "bar", 0).Err()
-	// if err != nil {
-	// 	c.JSON(500, gin.H{
-	// 		"WriteMsg": err.Error(),
-	// 	})
-	// 	return
-	// }
+	err = client.Set(ctx, "foo", "bar", 10*time.Second).Err()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"WriteMsg": err.Error(),
+		})
+		return
+	}
 
 	val, err := client.Get(ctx, "foo").Result()
 	if err != nil {
@@ -243,4 +244,75 @@ func redisget(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"ResultMsg": val,
 	})
+}
+
+// @Summary redis hash
+// @Description redis hash
+// @Tags Test
+// @Accept json
+// @Produce json
+// @Success 200 {object}  map[string]string
+// @Router /v1/test/redishash [get]
+func redisHash(c *gin.Context) {
+	ctx := c.Request.Context()
+	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	if err != nil {
+		c.JSON(500, gin.H{
+			"ParseURL": err.Error(),
+		})
+		return
+	}
+	opt.MaxRetries = 3
+	opt.DialTimeout = 10 * time.Second
+	// opt.ReadTimeout = -1
+	// opt.WriteTimeout = -1
+	opt.DB = 0
+
+	client := redis.NewClient(opt)
+
+	hashFields := []string{
+		"model", "Deimos",
+		"brand", "Ergonom",
+		"type", "Enduro bikes",
+		"price", "4972",
+	}
+
+	res1, err := client.HSet(ctx, "bike:1", hashFields).Result()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"HSet": err.Error(),
+		})
+		return
+	}
+
+	// redis could may not support this method
+	// res2, err := client.HExpire(ctx, "bike:1", 10*time.Second, []string{"model", "brand", "type", "price"}...).Result()
+	// if err != nil {
+	// 	c.JSON(500, gin.H{
+	// 		"HExpire": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	var res4a BikeInfo
+	err = client.HGetAll(ctx, "bike:1").Scan(&res4a)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"HGetAll": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"ResultMsg":   res4a,
+		"ResultCount": res1,
+		// "HExpire":     res2,
+	})
+}
+
+type BikeInfo struct {
+	Model string `redis:"model" json:"model"`
+	Brand string `redis:"brand" json:"brand"`
+	Type  string `redis:"type" json:"type"`
+	Price int    `redis:"price" json:"price"`
 }

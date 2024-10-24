@@ -1040,6 +1040,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/test/redishash": {
+            "get": {
+                "description": "redis hash",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "redis hash",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/test/tf": {
             "get": {
                 "description": "terraform",

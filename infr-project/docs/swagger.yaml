@@ -1380,6 +1380,23 @@ paths:
       summary: redis
       tags:
       - Test
+  /v1/test/redishash:
+    get:
+      consumes:
+      - application/json
+      description: redis hash
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: redis hash
+      tags:
+      - Test
   /v1/test/tf:
     get:
       consumes:
