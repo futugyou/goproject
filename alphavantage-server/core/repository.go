@@ -140,8 +140,8 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filte
 	return result, nil
 }
 
-func (s *MongoRepository[E, K]) Paging(ctx context.Context, page Paging) ([]*E, error) {
-	result := make([]*E, 0)
+func (s *MongoRepository[E, K]) Paging(ctx context.Context, page Paging) ([]E, error) {
+	result := make([]E, 0)
 	entity := new(E)
 	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
 
