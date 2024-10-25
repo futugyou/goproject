@@ -32,8 +32,9 @@ type IRepository[E IEntity, K any] interface {
 	GetOne(ctx context.Context, filter []DataFilterItem) (*E, error)
 	Update(ctx context.Context, obj E, filter []DataFilterItem) error
 	GetAll(ctx context.Context) ([]E, error)
-	GetAllByFilter(ctx context.Context, filter []DataFilterItem) ([]E, error)
-	Paging(ctx context.Context, page Paging) ([]E, error)
+	GetWithFilter(ctx context.Context, filter []DataFilterItem) ([]E, error)
+	GetWithPaging(ctx context.Context, page *Paging) ([]E, error)
+	GetWithFilterAndPaging(ctx context.Context, filter []DataFilterItem, page *Paging) ([]E, error)
 	InsertMany(ctx context.Context, items []E, filter DataFilter[E]) (*InsertManyResult, error)
 }
 
@@ -56,10 +57,18 @@ func NewMongoRepository[E IEntity, K any](config DBConfig) *MongoRepository[E, K
 }
 
 func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]E, error) {
-	return s.GetAllByFilter(ctx, []DataFilterItem{})
+	return s.GetWithFilterAndPaging(ctx, []DataFilterItem{}, nil)
 }
 
-func (s *MongoRepository[E, K]) GetAllByFilter(ctx context.Context, filter []DataFilterItem) ([]E, error) {
+func (s *MongoRepository[E, K]) GetWithFilter(ctx context.Context, filter []DataFilterItem) ([]E, error) {
+	return s.GetWithFilterAndPaging(ctx, filter, nil)
+}
+
+func (s *MongoRepository[E, K]) GetWithPaging(ctx context.Context, page *Paging) ([]E, error) {
+	return s.GetWithFilterAndPaging(ctx, []DataFilterItem{}, page)
+}
+
+func (s *MongoRepository[E, K]) GetWithFilterAndPaging(ctx context.Context, filter []DataFilterItem, page *Paging) ([]E, error) {
 	result := make([]E, 0)
 	entity := new(E)
 	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
@@ -68,7 +77,21 @@ func (s *MongoRepository[E, K]) GetAllByFilter(ctx context.Context, filter []Dat
 	for _, val := range filter {
 		ff = append(ff, bson.E(val))
 	}
-	cursor, err := c.Find(ctx, ff)
+
+	op := options.Find()
+	if page != nil {
+		var skip int64 = (page.Page - 1) * page.Limit
+		op.SetLimit(page.Limit).SetSkip(skip)
+		if len(page.SortField) > 0 {
+			if page.Direct == ASC {
+				op.SetSort(bson.D{{Key: page.SortField, Value: 1}})
+			} else {
+				op.SetSort(bson.D{{Key: page.SortField, Value: -1}})
+			}
+		}
+	}
+
+	cursor, err := c.Find(ctx, ff, op)
 	if err != nil {
 		log.Println(err)
 		return result, err
@@ -137,40 +160,6 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E, filte
 		DeletedCount:  results.DeletedCount,
 		UpsertedCount: results.UpsertedCount,
 	}
-	return result, nil
-}
-
-func (s *MongoRepository[E, K]) Paging(ctx context.Context, page Paging) ([]E, error) {
-	result := make([]E, 0)
-	entity := new(E)
-	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
-
-	filter := bson.D{}
-	var skip int64 = (page.Page - 1) * page.Limit
-	op := options.Find().SetLimit(page.Limit).SetSkip(skip)
-	if len(page.SortField) > 0 {
-		if page.Direct == ASC {
-			op.SetSort(bson.D{{Key: page.SortField, Value: 1}})
-		} else {
-			op.SetSort(bson.D{{Key: page.SortField, Value: -1}})
-		}
-	}
-
-	cursor, err := c.Find(ctx, filter, op)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
-	if err = cursor.All(ctx, &result); err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
-	for _, data := range result {
-		cursor.Decode(&data)
-	}
-
 	return result, nil
 }
 

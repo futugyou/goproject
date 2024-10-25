@@ -36,9 +36,9 @@ func News(w http.ResponseWriter, r *http.Request) {
 			SortField: "time_published",
 			Direct:    "DESC",
 		}
-		datas, err = repository.Paging(ctx, page)
+		datas, err = repository.GetWithPaging(ctx, &page)
 	} else {
-		datas, err = repository.GetAllByFilter(ctx, []core.DataFilterItem{{
+		datas, err = repository.GetWithFilter(ctx, []core.DataFilterItem{{
 			Key:   "ticker_sentiment",
 			Value: map[string]interface{}{"$elemMatch": map[string]interface{}{"$eq": ticker}},
 		}})

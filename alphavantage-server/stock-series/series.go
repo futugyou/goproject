@@ -103,7 +103,7 @@ func StockSeriesData(ctx context.Context, symbol string, year string) ([]StockSe
 	repository := NewStockSeriesRepository(config)
 	start, _ := time.Parse("2006", year)
 	end := start.AddDate(1, 0, 0)
-	return repository.GetAllByFilter(ctx, []core.DataFilterItem{{
+	return repository.GetWithFilter(ctx, []core.DataFilterItem{{
 		Key:   "symbol",
 		Value: symbol,
 	}, {
