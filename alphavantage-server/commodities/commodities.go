@@ -10,19 +10,19 @@ import (
 	"github.com/futugyou/alphavantage/enums"
 )
 
-func CreateCommoditiesIndex() {
+func CreateCommoditiesIndex(ctx context.Context) {
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
 	repository := NewCommoditiesRepository(config)
-	if err := repository.CreateIndex(context.Background()); err != nil {
+	if err := repository.CreateIndex(ctx); err != nil {
 		log.Println(err)
 	}
 }
 
-func SyncDailyCommoditiesData() {
+func SyncDailyCommoditiesData(ctx context.Context) {
 	log.Println("commodities daily data sync start")
 	// get commodities data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -40,7 +40,7 @@ func SyncDailyCommoditiesData() {
 	}
 
 	repository := NewCommoditiesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	r, err := repository.InsertMany(ctx, data, CommoditiesFilter)
 	if err != nil {
 		log.Println(err)
 		return
@@ -50,7 +50,7 @@ func SyncDailyCommoditiesData() {
 	log.Println("commodities daily data sync finish")
 }
 
-func SyncMonthlyCommoditiesData() {
+func SyncMonthlyCommoditiesData(ctx context.Context) {
 	log.Println("commodities monthly data sync start")
 	// get commodities data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -74,7 +74,7 @@ func SyncMonthlyCommoditiesData() {
 	}
 
 	repository := NewCommoditiesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	r, err := repository.InsertMany(ctx, data, CommoditiesFilter)
 	if err != nil {
 		log.Println(err)
 		return
@@ -244,7 +244,7 @@ func all(client *alphavantage.CommoditiesClient) []CommoditiesEntity {
 	return convertData(s.Name, s.Interval, s.Unit, "all", s.Data)
 }
 
-func SyncDailyEconomicData() {
+func SyncDailyEconomicData(ctx context.Context) {
 	log.Println("economic daily data sync start")
 	// get economic data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -261,7 +261,7 @@ func SyncDailyEconomicData() {
 	}
 
 	repository := NewCommoditiesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	r, err := repository.InsertMany(ctx, data, CommoditiesFilter)
 	if err != nil {
 		log.Println(err)
 		return
@@ -271,7 +271,7 @@ func SyncDailyEconomicData() {
 	log.Println("economic daily data sync finish")
 }
 
-func SyncMonthlyEconomicData() {
+func SyncMonthlyEconomicData(ctx context.Context) {
 	log.Println("economic monthly data sync start")
 	// get economic data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -291,7 +291,7 @@ func SyncMonthlyEconomicData() {
 	}
 
 	repository := NewCommoditiesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	r, err := repository.InsertMany(ctx, data, CommoditiesFilter)
 	if err != nil {
 		log.Println(err)
 		return
@@ -301,7 +301,7 @@ func SyncMonthlyEconomicData() {
 	log.Println("economic monthly data sync finish")
 }
 
-func SyncQuarterlyEconomicData() {
+func SyncQuarterlyEconomicData(ctx context.Context) {
 	log.Println("economic quarterly data sync start")
 	// get economic data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -318,7 +318,7 @@ func SyncQuarterlyEconomicData() {
 	}
 
 	repository := NewCommoditiesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	r, err := repository.InsertMany(ctx, data, CommoditiesFilter)
 	if err != nil {
 		log.Println(err)
 		return
@@ -328,7 +328,7 @@ func SyncQuarterlyEconomicData() {
 	log.Println("economic quarterly data sync finish")
 }
 
-func SyncAnnualEconomicData() {
+func SyncAnnualEconomicData(ctx context.Context) {
 	log.Println("economic annual data sync start")
 	// get economic data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -344,7 +344,7 @@ func SyncAnnualEconomicData() {
 	}
 
 	repository := NewCommoditiesRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, CommoditiesFilter)
+	r, err := repository.InsertMany(ctx, data, CommoditiesFilter)
 	if err != nil {
 		log.Println(err)
 		return

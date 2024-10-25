@@ -9,7 +9,7 @@ import (
 	"github.com/futugyou/alphavantage-server/core"
 )
 
-func SyncBalanceSheetData(symbol string) {
+func SyncBalanceSheetData(ctx context.Context, symbol string) {
 	log.Printf("%s balance sentiment data sync start. \n", symbol)
 	// get Balance data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -41,7 +41,7 @@ func SyncBalanceSheetData(symbol string) {
 	}
 
 	repository := NewBalanceRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, BalanceFilter)
+	r, err := repository.InsertMany(ctx, data, BalanceFilter)
 	if err != nil {
 		log.Println(err)
 		return

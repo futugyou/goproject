@@ -3,7 +3,6 @@ package api
 import (
 	_ "github.com/joho/godotenv/autoload"
 
-	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -19,6 +18,7 @@ func Commodities(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
 	datatype := r.URL.Query().Get("type")
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -28,9 +28,9 @@ func Commodities(w http.ResponseWriter, r *http.Request) {
 	var datas []commodities.CommoditiesEntity
 	var err error
 	if len(datatype) > 0 && datatype != "ALL" {
-		datas, err = repository.GetCommoditiesByType(context.Background(), datatype)
+		datas, err = repository.GetCommoditiesByType(ctx, datatype)
 	} else {
-		datas, err = repository.GetAll(context.Background())
+		datas, err = repository.GetAll(ctx)
 	}
 	if err != nil {
 		w.Write([]byte(err.Error()))

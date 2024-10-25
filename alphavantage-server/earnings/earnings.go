@@ -9,7 +9,7 @@ import (
 	"github.com/futugyou/alphavantage-server/core"
 )
 
-func SyncEarningsData(symbol string) {
+func SyncEarningsData(ctx context.Context, symbol string) {
 	log.Printf("%s earnings sentiment data sync start. \n", symbol)
 	// get earnings data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -41,7 +41,7 @@ func SyncEarningsData(symbol string) {
 	}
 
 	repository := NewEarningsRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, EarningsFilter)
+	r, err := repository.InsertMany(ctx, data, EarningsFilter)
 	if err != nil {
 		log.Println(err)
 		return

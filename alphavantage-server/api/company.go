@@ -3,7 +3,6 @@ package api
 import (
 	_ "github.com/joho/godotenv/autoload"
 
-	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -28,8 +27,9 @@ func getAllCompany(w http.ResponseWriter, r *http.Request) {
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
+	ctx := r.Context()
 	repository := stock.NewStockRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAll(ctx)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

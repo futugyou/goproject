@@ -10,7 +10,7 @@ import (
 	"github.com/futugyou/alphavantage/enums"
 )
 
-func SyncExpectedData(symbol string) {
+func SyncExpectedData(ctx context.Context, symbol string) {
 	log.Printf("%s expected sentiment data sync start. \n", symbol)
 	// get expected data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -46,7 +46,7 @@ func SyncExpectedData(symbol string) {
 	}
 
 	repository := NewExpectedRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, ExpectedFilter)
+	r, err := repository.InsertMany(ctx, data, ExpectedFilter)
 	if err != nil {
 		log.Println(err)
 		return

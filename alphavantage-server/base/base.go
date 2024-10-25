@@ -11,7 +11,7 @@ import (
 	"github.com/futugyou/alphavantage-server/stock"
 )
 
-func AddNewStock(symbol string) {
+func AddNewStock(ctx context.Context, symbol string) {
 	log.Printf("begin to add %s to db. \n", symbol)
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -26,16 +26,16 @@ func AddNewStock(symbol string) {
 	}
 
 	repository := NewBaseDataRepository(config)
-	err := repository.Update(context.Background(), data, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
+	err := repository.Update(ctx, data, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	stock.SyncStockSymbolData(symbol)
+	stock.SyncStockSymbolData(ctx, symbol)
 }
 
-func UpdateStockRunningData(symbol string) {
+func UpdateStockRunningData(ctx context.Context, symbol string) {
 	log.Printf("begin to update %s running data. \n", symbol)
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -50,12 +50,12 @@ func UpdateStockRunningData(symbol string) {
 	}
 
 	repository := NewBaseDataRepository(config)
-	r, _ := repository.GetOne(context.Background(), []core.DataFilterItem{{Key: "symbol", Value: symbol}})
+	r, _ := repository.GetOne(ctx, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
 	if r != nil {
 		data.RunCount = r.RunCount + 1
 	}
 
-	err := repository.Update(context.Background(), data, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
+	err := repository.Update(ctx, data, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
 	if err != nil {
 		log.Println(err)
 	}
@@ -63,13 +63,13 @@ func UpdateStockRunningData(symbol string) {
 	log.Printf("update %s running data finish. \n", symbol)
 }
 
-func GetCurrentStock() (string, error) {
+func GetCurrentStock(ctx context.Context) (string, error) {
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 	repository := NewBaseDataRepository(config)
-	data, err := repository.GetAll(context.Background())
+	data, err := repository.GetAll(ctx)
 	if err != nil || len(data) == 0 {
 		log.Println(err)
 		return "", err
@@ -82,7 +82,7 @@ func GetCurrentStock() (string, error) {
 	return data[0].Symbol, nil
 }
 
-func InitAllStock() (bool, []string, error) {
+func InitAllStock(ctx context.Context) (bool, []string, error) {
 	result := make([]string, 0)
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -90,7 +90,7 @@ func InitAllStock() (bool, []string, error) {
 	}
 
 	repository := NewBaseDataRepository(config)
-	data, err := repository.GetAll(context.Background())
+	data, err := repository.GetAll(ctx)
 	if err != nil {
 		log.Println(err)
 		return false, result, err
@@ -105,7 +105,7 @@ func InitAllStock() (bool, []string, error) {
 
 	for i := 0; i < len(stock.StockList); i++ {
 		symbol := stock.StockList[i]
-		AddNewStock(symbol)
+		AddNewStock(ctx, symbol)
 		result = append(result, symbol)
 	}
 

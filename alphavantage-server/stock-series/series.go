@@ -12,10 +12,10 @@ import (
 	"github.com/futugyou/alphavantage/enums"
 )
 
-func SyncStockSeriesData(symbol string) bool {
+func SyncStockSeriesData(ctx context.Context, symbol string) bool {
 	log.Println("stock series data sync start.")
 	// get sync month
-	month := GetStaockMonth(symbol)
+	month := GetStaockMonth(ctx, symbol)
 
 	log.Printf("start to get %s data, month %s \n", symbol, month)
 
@@ -65,7 +65,7 @@ func SyncStockSeriesData(symbol string) bool {
 		}
 
 		repository := NewStockSeriesRepository(config)
-		r, err := repository.InsertMany(context.Background(), data, StockFilter)
+		r, err := repository.InsertMany(ctx, data, StockFilter)
 		if err != nil {
 			log.Println(err)
 			return false
@@ -77,7 +77,7 @@ func SyncStockSeriesData(symbol string) bool {
 	// update month
 	needUpdate := checkTime(month)
 	if needUpdate {
-		UpdateStaockMonth(month, symbol)
+		UpdateStaockMonth(ctx, month, symbol)
 	}
 
 	log.Println("stock series data sync finish")
@@ -94,7 +94,7 @@ func checkTime(month string) bool {
 	return t.Before(tt)
 }
 
-func StockSeriesData(symbol string, year string) ([]StockSeriesEntity, error) {
+func StockSeriesData(ctx context.Context, symbol string, year string) ([]StockSeriesEntity, error) {
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
@@ -103,7 +103,7 @@ func StockSeriesData(symbol string, year string) ([]StockSeriesEntity, error) {
 	repository := NewStockSeriesRepository(config)
 	start, _ := time.Parse("2006", year)
 	end := start.AddDate(1, 0, 0)
-	return repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
+	return repository.GetAllByFilter(ctx, []core.DataFilterItem{{
 		Key:   "symbol",
 		Value: symbol,
 	}, {

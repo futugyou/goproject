@@ -10,7 +10,7 @@ import (
 	"github.com/futugyou/alphavantage-server/core"
 )
 
-func SyncStockSymbolData(symbol string) {
+func SyncStockSymbolData(ctx context.Context, symbol string) {
 	log.Printf("%s company data sync start. \n", symbol)
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -19,7 +19,7 @@ func SyncStockSymbolData(symbol string) {
 
 	// get data from db
 	repository := NewStockRepository(config)
-	stock, _ := repository.GetOne(context.Background(), []core.DataFilterItem{{Key: "symbol", Value: symbol}})
+	stock, _ := repository.GetOne(ctx, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
 	if stock == nil {
 		log.Printf("no org %s company data \n", symbol)
@@ -125,7 +125,7 @@ func SyncStockSymbolData(symbol string) {
 	stock.DividendDate = result.DividendDate
 	stock.ExDividendDate = result.ExDividendDate
 
-	repository.Update(context.Background(), *stock, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
+	repository.Update(ctx, *stock, []core.DataFilterItem{{Key: "symbol", Value: symbol}})
 
 	log.Printf("%s company data sync end. \n", symbol)
 }

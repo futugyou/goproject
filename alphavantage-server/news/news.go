@@ -10,7 +10,7 @@ import (
 	"github.com/futugyou/alphavantage-server/core"
 )
 
-func SyncNewsSentimentData(symbol string) {
+func SyncNewsSentimentData(ctx context.Context, symbol string) {
 	log.Printf("%s news sentiment data sync start. \n", symbol)
 	// get news data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
@@ -62,7 +62,7 @@ func SyncNewsSentimentData(symbol string) {
 	}
 
 	repository := NewNewsRepository(config)
-	r, err := repository.InsertMany(context.Background(), data, NewsFilter)
+	r, err := repository.InsertMany(ctx, data, NewsFilter)
 	if err != nil {
 		log.Println(err)
 		return

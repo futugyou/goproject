@@ -1,12 +1,12 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"html"
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -26,6 +26,7 @@ func Fundamentals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
 	datatype := r.URL.Query().Get("type")
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -33,15 +34,15 @@ func Fundamentals(w http.ResponseWriter, r *http.Request) {
 	}
 	switch datatype {
 	case "balance":
-		balanceData(config, w)
+		balanceData(ctx, config, w)
 	case "cash":
-		cashData(config, w)
+		cashData(ctx, config, w)
 	case "earnings":
-		earningsData(config, w)
+		earningsData(ctx, config, w)
 	case "expected":
-		expectedData(config, w)
+		expectedData(ctx, config, w)
 	case "income":
-		incomeData(config, w)
+		incomeData(ctx, config, w)
 	default:
 		fmt.Fprintf(w, "datatype %q is not support", html.EscapeString(datatype))
 		w.WriteHeader(500)
@@ -50,9 +51,9 @@ func Fundamentals(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func balanceData(config core.DBConfig, w http.ResponseWriter) {
+func balanceData(ctx context.Context, config core.DBConfig, w http.ResponseWriter) {
 	repository := balance.NewBalanceRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAll(ctx)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -63,9 +64,9 @@ func balanceData(config core.DBConfig, w http.ResponseWriter) {
 	w.WriteHeader(200)
 }
 
-func cashData(config core.DBConfig, w http.ResponseWriter) {
+func cashData(ctx context.Context, config core.DBConfig, w http.ResponseWriter) {
 	repository := cash.NewCashRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAll(ctx)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -76,9 +77,9 @@ func cashData(config core.DBConfig, w http.ResponseWriter) {
 	w.WriteHeader(200)
 }
 
-func earningsData(config core.DBConfig, w http.ResponseWriter) {
+func earningsData(ctx context.Context, config core.DBConfig, w http.ResponseWriter) {
 	repository := earnings.NewEarningsRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAll(ctx)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -89,9 +90,9 @@ func earningsData(config core.DBConfig, w http.ResponseWriter) {
 	w.WriteHeader(200)
 }
 
-func expectedData(config core.DBConfig, w http.ResponseWriter) {
+func expectedData(ctx context.Context, config core.DBConfig, w http.ResponseWriter) {
 	repository := expected.NewExpectedRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAll(ctx)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)
@@ -102,9 +103,9 @@ func expectedData(config core.DBConfig, w http.ResponseWriter) {
 	w.WriteHeader(200)
 }
 
-func incomeData(config core.DBConfig, w http.ResponseWriter) {
+func incomeData(ctx context.Context, config core.DBConfig, w http.ResponseWriter) {
 	repository := income.NewIncomeRepository(config)
-	datas, err := repository.GetAll(context.Background())
+	datas, err := repository.GetAll(ctx)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		w.WriteHeader(500)

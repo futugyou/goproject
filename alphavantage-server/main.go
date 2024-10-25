@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"time"
@@ -27,8 +28,9 @@ func main() {
 }
 
 func ProcessToRun() {
+	ctx := context.Background()
 	// only init data when first time
-	init, stockList, err := InitBaseData()
+	init, stockList, err := InitBaseData(ctx)
 	if init || err != nil {
 		return
 	}
@@ -42,10 +44,10 @@ func ProcessToRun() {
 	// 1. Runs on the 2nd of every month
 	// This will consume 17 tokens, so return.
 	if d == 2 {
-		commodities.SyncMonthlyCommoditiesData()
-		commodities.SyncMonthlyEconomicData()
-		commodities.SyncQuarterlyEconomicData()
-		commodities.SyncAnnualEconomicData()
+		commodities.SyncMonthlyCommoditiesData(ctx)
+		commodities.SyncMonthlyEconomicData(ctx)
+		commodities.SyncQuarterlyEconomicData(ctx)
+		commodities.SyncAnnualEconomicData(ctx)
 		return
 	}
 
@@ -54,11 +56,11 @@ func ProcessToRun() {
 	for i := 0; i < len(stockList); i++ {
 		if d == i+3 {
 			symbol := stockList[i]
-			income.SyncIncomeStatementData(symbol)
-			balance.SyncBalanceSheetData(symbol)
-			cash.SyncCashSheetData(symbol)
-			earnings.SyncEarningsData(symbol)
-			expected.SyncExpectedData(symbol)
+			income.SyncIncomeStatementData(ctx, symbol)
+			balance.SyncBalanceSheetData(ctx, symbol)
+			cash.SyncCashSheetData(ctx, symbol)
+			earnings.SyncEarningsData(ctx, symbol)
+			expected.SyncExpectedData(ctx, symbol)
 			count += 5
 		}
 	}
@@ -66,48 +68,48 @@ func ProcessToRun() {
 	// Runs every Saturday or (3 of month and Sunday)
 	// This will consume 5 tokens, so go on.
 	if w == time.Saturday || (w == time.Sunday && d == 3) {
-		commodities.SyncDailyCommoditiesData()
-		commodities.SyncDailyEconomicData()
+		commodities.SyncDailyCommoditiesData(ctx)
+		commodities.SyncDailyEconomicData(ctx)
 		count += 5
 	}
 
-	symbol, err := base.GetCurrentStock()
+	symbol, err := base.GetCurrentStock(ctx)
 	if err != nil || len(symbol) == 0 {
 		log.Println(err)
 		return
 	}
 
 	// This will consume 2 tokens
-	stock.SyncStockSymbolData(symbol)
+	stock.SyncStockSymbolData(ctx, symbol)
 	// This will consume 1 tokens
-	news.SyncNewsSentimentData(symbol)
+	news.SyncNewsSentimentData(ctx, symbol)
 	count += 3
 
 	for i := count; i < totalCount; i++ {
-		if stockSeries.SyncStockSeriesData(symbol) {
+		if stockSeries.SyncStockSeriesData(ctx, symbol) {
 			break
 		}
 	}
 
-	base.UpdateStockRunningData(symbol)
+	base.UpdateStockRunningData(ctx, symbol)
 }
 
-func CommoditiesData() {
-	commodities.SyncDailyCommoditiesData()
-	commodities.SyncMonthlyCommoditiesData()
+func CommoditiesData(ctx context.Context) {
+	commodities.SyncDailyCommoditiesData(ctx)
+	commodities.SyncMonthlyCommoditiesData(ctx)
 }
 
-func EconomicIndicatorsData() {
-	commodities.SyncDailyEconomicData()
-	commodities.SyncMonthlyEconomicData()
-	commodities.SyncQuarterlyEconomicData()
-	commodities.SyncAnnualEconomicData()
+func EconomicIndicatorsData(ctx context.Context) {
+	commodities.SyncDailyEconomicData(ctx)
+	commodities.SyncMonthlyEconomicData(ctx)
+	commodities.SyncQuarterlyEconomicData(ctx)
+	commodities.SyncAnnualEconomicData(ctx)
 }
 
-func InitBaseData() (bool, []string, error) {
-	init, list, err := base.InitAllStock()
+func InitBaseData(ctx context.Context) (bool, []string, error) {
+	init, list, err := base.InitAllStock(ctx)
 	if init && err == nil {
-		commodities.CreateCommoditiesIndex()
+		commodities.CreateCommoditiesIndex(ctx)
 	}
 	return init, list, err
 }
