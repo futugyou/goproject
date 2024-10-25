@@ -3,7 +3,6 @@ package api
 import (
 	_ "github.com/joho/godotenv/autoload"
 
-	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -19,6 +18,7 @@ func News(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
 	ticker := r.URL.Query().Get("ticker")
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -30,9 +30,15 @@ func News(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if ticker == "" {
-		datas, err = repository.GetAll(context.Background())
+		page := core.Paging{
+			Page:      1,
+			Limit:     1000,
+			SortField: "time_published",
+			Direct:    "DESC",
+		}
+		datas, err = repository.Paging(ctx, page)
 	} else {
-		datas, err = repository.GetAllByFilter(context.Background(), []core.DataFilterItem{{
+		datas, err = repository.GetAllByFilter(ctx, []core.DataFilterItem{{
 			Key:   "ticker_sentiment",
 			Value: map[string]interface{}{"$elemMatch": map[string]interface{}{"$eq": ticker}},
 		}})
