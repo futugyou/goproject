@@ -1,10 +1,12 @@
 package config
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/configservice"
+	"github.com/aws/aws-sdk-go-v2/service/configservice/types"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 )
 
@@ -82,4 +84,84 @@ func DeleteConfigurationRecorder() {
 		return
 	}
 
+}
+
+func StartConfigurationRecorder() {
+	input := &configservice.StartConfigurationRecorderInput{
+		ConfigurationRecorderName: aws.String("default"),
+	}
+
+	_, err := svc.StartConfigurationRecorder(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("StartConfigurationRecorder ok")
+}
+
+func PutConfigurationRecorder() {
+	input := &configservice.PutConfigurationRecorderInput{
+		ConfigurationRecorder: &types.ConfigurationRecorder{
+			Name:    aws.String("default"),
+			RoleARN: aws.String(" "),
+		},
+	}
+
+	_, err := svc.PutConfigurationRecorder(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("PutConfigurationRecorder ok")
+}
+
+func GetAwsConfigData() {
+	ctx := context.Background()
+	var nextToken *string = nil
+	results := make([]string, 0)
+	for {
+		input := &configservice.SelectResourceConfigInput{
+			Expression: aws.String(`
+	SELECT
+		version,
+		accountId,
+		configurationItemCaptureTime,
+		configurationItemStatus,
+		configurationStateId,
+		arn,
+		resourceType,
+		resourceId,
+		resourceName,
+		awsRegion,
+		availabilityZone,
+		tags,
+		relatedEvents,
+		relationships,
+		configuration,
+		supplementaryConfiguration,
+		resourceTransitionStatus,
+		resourceCreationTime
+	WHERE
+		resourceType <> 'AWS::Backup::RecoveryPoint'
+		and resourceType <> 'AWS::CodeDeploy::DeploymentConfig'
+		and resourceType <> 'AWS::RDS::DBSnapshot'
+  `),
+			Limit:     100,
+			NextToken: nextToken,
+		}
+		fmt.Println(1)
+		output, err := svc.SelectResourceConfig(ctx, input)
+		if err != nil {
+			fmt.Println("select aws config resource error")
+			return
+		}
+		fmt.Println(2)
+		results = append(results, output.Results...)
+		nextToken = output.NextToken
+
+		if output.NextToken == nil {
+			break
+		}
+	}
+	fmt.Println(results)
 }

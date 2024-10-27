@@ -174,11 +174,13 @@ func Route53() {
 }
 
 func AConfig() {
-	config.DeliverConfigSnapshot()
+	// config.DeliverConfigSnapshot()
 	// config.DescribeConfigRules()
 	// config.DescribeConfigurationRecorders()
 	// config.DeleteConfigurationRecorder()
-
+	// config.StartConfigurationRecorder()
+	// config.PutConfigurationRecorder()
+	config.GetAwsConfigData()
 }
 
 func Efs() {
@@ -273,7 +275,7 @@ func Ecs() {
 }
 
 func Iam() {
-	iam.ListUsers()
+	// iam.ListUsers()
 	// iam.ListAccessKeys("")
 	// iam.ListGroups()
 	// iam.ListAccountAliases()
@@ -281,7 +283,7 @@ func Iam() {
 	// iam.DeleteAccountAlias()
 	// iam.ListInstanceProfiles()
 	// iam.ListPolicies()
-	// iam.ListRoles()
+	iam.ListRoles()
 	// iam.CreateGroup()
 	// iam.DeleteGroup()
 	// iam.CreateUser()

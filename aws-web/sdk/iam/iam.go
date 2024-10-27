@@ -31,7 +31,7 @@ func ListUsers() {
 	// this will be nil
 	//fmt.Println("Marker:", *output.Marker)
 	for _, user := range output.Users {
-		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path, user.PasswordLastUsed)
+		fmt.Println("UserName:", *user.UserName, "\tUserId:", *user.UserId, "\tPath:", *user.Path, *user.Arn, user.PasswordLastUsed)
 		fmt.Println("\tTags:", user.Tags)
 		input := &iam.ListUserPoliciesInput{
 			UserName: user.UserName,
@@ -203,7 +203,7 @@ func ListRoles() {
 		return
 	}
 	for _, role := range output.Roles {
-		fmt.Println("RoleName:", *role.RoleName, "\tPath:", *role.Path)
+		fmt.Println("RoleName:", *role.RoleName, "\tPath:", *role.Path, *role.Arn)
 		input := &iam.ListRolePoliciesInput{
 			RoleName: role.RoleName,
 		}
