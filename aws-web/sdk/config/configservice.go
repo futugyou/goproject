@@ -103,7 +103,7 @@ func PutConfigurationRecorder() {
 	input := &configservice.PutConfigurationRecorderInput{
 		ConfigurationRecorder: &types.ConfigurationRecorder{
 			Name:    aws.String("default"),
-			RoleARN: aws.String(" "),
+			RoleARN: aws.String(" "), //roles: AWSServiceRoleForConfig, Policy: AWSConfigServiceRolePolicy
 		},
 	}
 
@@ -113,6 +113,22 @@ func PutConfigurationRecorder() {
 		return
 	}
 	fmt.Println("PutConfigurationRecorder ok")
+}
+
+func PutDeliveryChannel() {
+	input := &configservice.PutDeliveryChannelInput{
+		DeliveryChannel: &types.DeliveryChannel{
+			Name:         aws.String("default"),
+			S3BucketName: aws.String("s3_name"),
+		},
+	}
+
+	_, err := svc.PutDeliveryChannel(awsenv.EmptyContext, input)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("PutDeliveryChannel ok")
 }
 
 func GetAwsConfigData() {
