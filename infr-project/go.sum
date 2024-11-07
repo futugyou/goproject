@@ -5,13 +5,13 @@ github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.8.0/go.mod h1:fiPSssYvltE08H
 github.com/Azure/azure-sdk-for-go/sdk/azidentity/cache v0.3.0 h1:+m0M/LFxN43KvULkDNfdXOgrjtg6UYJPFBJyuEcRCAw=
 github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 h1:ywEEhmNahHBihViHepv3xPBn1663uRv2t2q/ESv9seY=
 github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0/go.mod h1:iZDifYGJTIgIIkYRNWPENUnqx6bJ2xnSDFI2tjwZNuY=
-github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets v1.2.0 h1:TkNl6WlpHdZSMt0Zngw8y0c9ZMi3GwmYl0kKNbW9PvU=
-github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets v1.2.0/go.mod h1:ukmL56lWl275SgNFijuwx0Wv6n6HmzzpPWW4kMoy/wY=
+github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets v1.3.0 h1:WLUIpeyv04H0RCcQHaA4TNoyrQ39Ox7V+re+iaqzTe0=
+github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets v1.3.0/go.mod h1:hd8hTTIY3VmUVPRHNH7GVCHO3SHgXkJKZHReby/bnUQ=
 github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/internal v1.1.0 h1:eXnN9kaS8TiDwXjoie3hMRLuwdUBUMW9KRgOqB3mCaw=
 github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/internal v1.1.0/go.mod h1:XIpam8wumeZ5rVMuhdDQLMfIPDf1WO3IzrCRO3e3e3o=
 github.com/AzureAD/microsoft-authentication-extensions-for-go/cache v0.1.1 h1:WJTmL004Abzc5wDB5VtZG2PJk5ndYDgVacGqfirKxjM=
-github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2 h1:XHOnouVk1mxXfQidrMEnLlPk9UMeRtyBTnEFtxkV0kU=
-github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2/go.mod h1:wP83P5OoQ5p6ip3ScPr0BAq0BvuPAvacpEuSzyouqAI=
+github.com/AzureAD/microsoft-authentication-library-for-go v1.3.1 h1:gUDtaZk8heteyfdmv+pcfHvhR9llnh7c7GMwZ8RVG04=
+github.com/AzureAD/microsoft-authentication-library-for-go v1.3.1/go.mod h1:wP83P5OoQ5p6ip3ScPr0BAq0BvuPAvacpEuSzyouqAI=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
