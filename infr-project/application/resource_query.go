@@ -25,7 +25,7 @@ func NewResourceQueryService(repository resourcequery.IResourceRepository, clien
 }
 
 func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.ResourceView, error) {
-	resourceViews, _ := extensions.RedisScanHashAll[models.ResourceView](ctx, "ResourceView:", s.client)
+	resourceViews, _ := extensions.RedisListHashWithLua[models.ResourceView](ctx, s.client, "ResourceView:", 100)
 
 	if len(resourceViews) > 0 {
 		return resourceViews, nil
