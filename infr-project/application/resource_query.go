@@ -32,28 +32,32 @@ func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.Re
 
 	result := make([]models.ResourceView, 0)
 	for _, data := range datas {
-		t := s.convertData(&data)
-		result = append(result, *t)
+		result = append(result, s.convertData(data))
 	}
 
 	return result, nil
 }
 
 func (s *ResourceQueryService) CurrentResource(ctx context.Context, id string) (*models.ResourceView, error) {
+	var viewData models.ResourceView
+	s.client.HGetAll(ctx, "ResourceView:"+id).Scan(&viewData)
+	if len(viewData.Id) > 0 {
+		return &viewData, nil
+	}
+
 	data, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.convertData(data), nil
+	viewData = s.convertData(*data)
+	s.client.HSet(ctx, "ResourceView:"+id, viewData).Result()
+
+	return &viewData, nil
 }
 
-func (s *ResourceQueryService) convertData(data *resourcequery.Resource) *models.ResourceView {
-	if data == nil {
-		return nil
-	}
-
-	return &models.ResourceView{
+func (s *ResourceQueryService) convertData(data resourcequery.Resource) models.ResourceView {
+	return models.ResourceView{
 		Id:        data.Id,
 		Name:      data.Name,
 		Type:      data.Type,
@@ -109,6 +113,9 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data R
 		case "ResourceTagsChanged":
 			res.Type = data.Type
 		}
+
+		s.client.Del(ctx, "ResourceView:"+data.Id).Result()
+
 		return s.repository.Update(ctx, *res)
 	}
 
