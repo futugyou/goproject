@@ -186,7 +186,7 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 		return nil, err
 	}
 
-	client, err := extensions.RedisClient()
+	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		return nil, err
 	}

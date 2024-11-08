@@ -41,7 +41,7 @@ func ToolsDispatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func redistool(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	client, err := tool.RedisClient()
+	client, err := tool.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		w.Write([]byte("linkMsg:" + err.Error()))
 		w.WriteHeader(500)
@@ -130,7 +130,7 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 		return nil, err
 	}
 
-	client, err := tool.RedisClient()
+	client, err := tool.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		return nil, err
 	}

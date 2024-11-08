@@ -209,7 +209,7 @@ func cqrstest(c *gin.Context) {
 // @Success 200 {object}  map[string]string
 // @Router /v1/test/redis [get]
 func redisget(c *gin.Context) {
-	client, err := extensions.RedisClient()
+	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"linkMsg": err.Error(),
@@ -249,7 +249,7 @@ func redisget(c *gin.Context) {
 func redisHash(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	client, err := extensions.RedisClient()
+	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"ParseURL": err.Error(),

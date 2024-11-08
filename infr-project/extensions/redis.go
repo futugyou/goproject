@@ -2,15 +2,14 @@ package extensions
 
 import (
 	"context"
-	"os"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/redis/go-redis/v9"
 )
 
-func RedisClient() (*redis.Client, error) {
-	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+func RedisClient(url string) (*redis.Client, error) {
+	opt, err := redis.ParseURL(url)
 	if err != nil {
 		return nil, err
 	}
