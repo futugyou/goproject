@@ -9,15 +9,18 @@ import (
 	"github.com/futugyou/infr-project/extensions"
 	resourcequery "github.com/futugyou/infr-project/resource_query"
 	models "github.com/futugyou/infr-project/view_models"
+	"github.com/redis/go-redis/v9"
 )
 
 type ResourceQueryService struct {
 	repository resourcequery.IResourceRepository
+	client     *redis.Client
 }
 
-func NewResourceQueryService(repository resourcequery.IResourceRepository) *ResourceQueryService {
+func NewResourceQueryService(repository resourcequery.IResourceRepository, client *redis.Client) *ResourceQueryService {
 	return &ResourceQueryService{
 		repository: repository,
+		client:     client,
 	}
 }
 

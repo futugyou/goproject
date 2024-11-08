@@ -6,18 +6,16 @@ import (
 	"net/http"
 	"os"
 	"reflect"
-	"time"
 
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/redis/go-redis/v9"
-
 	"github.com/futugyou/extensions"
 
 	"github.com/futugyou/infr-project/application"
 	"github.com/futugyou/infr-project/controller"
+	tool "github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -43,19 +41,12 @@ func ToolsDispatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func redistool(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	client, err := tool.RedisClient()
 	if err != nil {
 		w.Write([]byte("linkMsg:" + err.Error()))
 		w.WriteHeader(500)
 		return
 	}
-	opt.MaxRetries = 3
-	opt.DialTimeout = 10 * time.Second
-	opt.ReadTimeout = -1
-	opt.WriteTimeout = -1
-	opt.DB = 0
-
-	client := redis.NewClient(opt)
 
 	ctx := r.Context()
 
@@ -138,7 +129,9 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 	if err != nil {
 		return nil, err
 	}
-	return application.NewResourceQueryService(queryRepo), nil
+
+	// HandleResourceChanged do not need redis client, so send it to nil
+	return application.NewResourceQueryService(queryRepo, nil), nil
 }
 
 func createResourceQueryRepository(ctx context.Context) (*infra.ResourceQueryRepository, error) {

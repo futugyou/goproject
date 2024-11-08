@@ -185,7 +185,13 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 	if err != nil {
 		return nil, err
 	}
-	return application.NewResourceQueryService(queryRepo), nil
+
+	client, err := extensions.RedisClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return application.NewResourceQueryService(queryRepo, client), nil
 }
 
 func createResourceQueryRepository(ctx context.Context) (*infra.ResourceQueryRepository, error) {
