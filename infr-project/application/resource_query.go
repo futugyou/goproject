@@ -4,25 +4,60 @@ import (
 	"context"
 	"time"
 
+	resourcequery "github.com/futugyou/infr-project/resource_query"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
 type ResourceQueryService struct {
-	repository IResourceViewRepository
+	repository resourcequery.IResourceRepository
 }
 
-func NewResourceQueryService(repository IResourceViewRepository) *ResourceQueryService {
+func NewResourceQueryService(repository resourcequery.IResourceRepository) *ResourceQueryService {
 	return &ResourceQueryService{
 		repository: repository,
 	}
 }
 
 func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.ResourceView, error) {
-	return s.repository.GetAll(ctx)
+	datas, err := s.repository.GetAllResource(ctx, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.ResourceView, 0)
+	for _, data := range datas {
+		t := s.convertData(&data)
+		result = append(result, *t)
+	}
+
+	return result, nil
 }
 
 func (s *ResourceQueryService) CurrentResource(ctx context.Context, id string) (*models.ResourceView, error) {
-	return s.repository.Get(ctx, id)
+	data, err := s.repository.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.convertData(data), nil
+}
+
+func (s *ResourceQueryService) convertData(data *resourcequery.Resource) *models.ResourceView {
+	if data == nil {
+		return nil
+	}
+
+	return &models.ResourceView{
+		Id:        data.Id,
+		Name:      data.Name,
+		Type:      data.Type,
+		Data:      data.Data,
+		Version:   data.Version,
+		IsDelete:  data.IsDelete,
+		CreatedAt: data.CreatedAt,
+		UpdatedAt: data.UpdatedAt,
+		Tags:      data.Tags,
+	}
 }
 
 func (s *ResourceQueryService) HandleResourceChaged(ctx context.Context, data ResourceChangeData) error {
