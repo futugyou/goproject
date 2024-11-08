@@ -2,8 +2,11 @@ package application
 
 import (
 	"context"
+	"strings"
 	"time"
 
+	domain "github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/extensions"
 	resourcequery "github.com/futugyou/infr-project/resource_query"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -60,7 +63,52 @@ func (s *ResourceQueryService) convertData(data *resourcequery.Resource) *models
 	}
 }
 
-func (s *ResourceQueryService) HandleResourceChaged(ctx context.Context, data ResourceChangeData) error {
+func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data ResourceChangeData) error {
+	res, err := s.repository.Get(ctx, data.Id)
+	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+		return err
+	}
+
+	if res == nil {
+		if data.EventType == "ResourceCreated" {
+			aggregate := resourcequery.Resource{
+				Aggregate: domain.Aggregate{
+					Id: data.Id,
+				},
+				Name:      data.Name,
+				Type:      data.Type,
+				Data:      data.Data,
+				Version:   data.ResourceVersion,
+				IsDelete:  false,
+				CreatedAt: data.CreatedAt,
+				UpdatedAt: data.CreatedAt,
+				Tags:      data.Tags,
+			}
+			return s.repository.Insert(ctx, aggregate)
+		}
+	} else if res.Version < data.ResourceVersion {
+		res.Version = data.ResourceVersion
+		res.UpdatedAt = data.CreatedAt
+		switch data.EventType {
+		case "ResourceCreated":
+			res.IsDelete = true
+		case "ResourceUpdated":
+			res.Name = data.Name
+			res.Type = data.Type
+			res.Data = data.Data
+			res.Tags = data.Tags
+		case "ResourceNameChanged":
+			res.Name = data.Name
+		case "ResourceDataChanged":
+			res.Data = data.Data
+		case "ResourceTypeChanged":
+			res.Tags = data.Tags
+		case "ResourceTagsChanged":
+			res.Type = data.Type
+		}
+		return s.repository.Update(ctx, *res)
+	}
+
 	return nil
 }
 

@@ -122,7 +122,7 @@ func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 	}
 
 	if resourceData, ok := dataInstance.(*application.ResourceChangeData); ok {
-		if err = service.HandleResourceChaged(ctx, *resourceData); err != nil {
+		if err = service.HandleResourceChanged(ctx, *resourceData); err != nil {
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(500)
 			return
