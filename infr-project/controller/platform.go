@@ -16,7 +16,14 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func (c *Controller) DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+type PlatformController struct {
+}
+
+func NewPlatformController() *PlatformController {
+	return &PlatformController{}
+}
+
+func (c *PlatformController) DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -34,7 +41,7 @@ func (c *Controller) DeletePlatformProject(id string, projectId string, w http.R
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -62,7 +69,7 @@ func (c *Controller) CreatePlatformProject(id string, projectId string, w http.R
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) CreatePlatform(w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) CreatePlatform(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -90,7 +97,7 @@ func (c *Controller) CreatePlatform(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 
@@ -108,7 +115,7 @@ func (c *Controller) GetPlatform(id string, w http.ResponseWriter, r *http.Reque
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) SearchPlatforms(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
+func (c *PlatformController) SearchPlatforms(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 
@@ -126,7 +133,7 @@ func (c *Controller) SearchPlatforms(w http.ResponseWriter, r *http.Request, req
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -154,7 +161,7 @@ func (c *Controller) UpdatePlatformHook(id string, projectId string, w http.Resp
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) DeletePlatformHook(id string, projectId string, hookName string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) DeletePlatformHook(id string, projectId string, hookName string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -171,7 +178,7 @@ func (c *Controller) DeletePlatformHook(id string, projectId string, hookName st
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -199,7 +206,7 @@ func (c *Controller) UpdatePlatform(id string, w http.ResponseWriter, r *http.Re
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) DeletePlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) DeletePlatform(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -239,7 +246,7 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 	return application.NewPlatformService(unitOfWork, repo, vaultService), nil
 }
 
-func (c *Controller) CreatePlatformV2(cqrsRoute *command.Router, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) CreatePlatformV2(cqrsRoute *command.Router, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var aux command.CreatePlatformCommand
 	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {

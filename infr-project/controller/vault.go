@@ -16,7 +16,14 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func (c *Controller) CreateVaults(w http.ResponseWriter, r *http.Request) {
+type VaultController struct {
+}
+
+func NewVaultController() *VaultController {
+	return &VaultController{}
+}
+
+func (c *VaultController) CreateVaults(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
@@ -44,7 +51,7 @@ func (c *Controller) CreateVaults(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) SearchVaults(w http.ResponseWriter, r *http.Request, aux models.SearchVaultsRequest) {
+func (c *VaultController) SearchVaults(w http.ResponseWriter, r *http.Request, aux models.SearchVaultsRequest) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 
@@ -80,7 +87,7 @@ func (c *Controller) SearchVaults(w http.ResponseWriter, r *http.Request, aux mo
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) ShowVaultRawValue(w http.ResponseWriter, r *http.Request, vaultId string) {
+func (c *VaultController) ShowVaultRawValue(w http.ResponseWriter, r *http.Request, vaultId string) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 
@@ -98,7 +105,7 @@ func (c *Controller) ShowVaultRawValue(w http.ResponseWriter, r *http.Request, v
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId string) {
+func (c *VaultController) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId string) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 
@@ -121,7 +128,7 @@ func (c *Controller) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId string) {
+func (c *VaultController) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId string) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 
@@ -139,7 +146,7 @@ func (c *Controller) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) ImportVaults(w http.ResponseWriter, r *http.Request) {
+func (c *VaultController) ImportVaults(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {

@@ -25,7 +25,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {array} viewmodels.ResourceView
 // @Router /v1/resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceController()
 	ctrl.GetResourceHistory(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -38,7 +38,7 @@ func getResourceHistory(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /v1/resource/{id} [delete]
 func deleteResource(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceController()
 	ctrl.DeleteResource(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -52,7 +52,7 @@ func deleteResource(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /v1/resource/{id} [put]
 func updateResource(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceController()
 	ctrl.UpdateResource(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -65,7 +65,7 @@ func updateResource(c *gin.Context) {
 // @Success 200 {object} viewmodels.CreateResourceResponse
 // @Router /v1/resource [post]
 func createResource(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceController()
 	ctrl.CreateResource(c.Writer, c.Request)
 }
 
@@ -78,7 +78,7 @@ func createResource(c *gin.Context) {
 // @Success 200 {object} viewmodels.ResourceView
 // @Router /v1/resource/{id} [get]
 func getResource(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceQueryController()
 	ctrl.GetResource(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -90,6 +90,6 @@ func getResource(c *gin.Context) {
 // @Success 200 {array} viewmodels.ResourceView
 // @Router /v1/resource [get]
 func getAllResource(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceQueryController()
 	ctrl.GetAllResource(c.Writer, c.Request)
 }

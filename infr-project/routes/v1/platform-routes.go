@@ -39,7 +39,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id}/hook/{hook_name} [delete]
 func deletePlatformHook(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.DeletePlatformHook(c.Param("id"), c.Param("project_id"), c.Param("hook_name"), c.Writer, c.Request)
 }
 
@@ -54,7 +54,7 @@ func deletePlatformHook(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id}/hook [put]
 func updatePlatformHook(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.UpdatePlatformHook(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
@@ -68,7 +68,7 @@ func updatePlatformHook(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id} [delete]
 func deletePlatformProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.DeletePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
@@ -83,7 +83,7 @@ func deletePlatformProject(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project/{project_id} [put]
 func updatePlatformProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
@@ -97,7 +97,7 @@ func updatePlatformProject(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id}/project [post]
 func createPlatformProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.CreatePlatformProject(c.Param("id"), "", c.Writer, c.Request)
 }
 
@@ -110,7 +110,7 @@ func createPlatformProject(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id} [delete]
 func deletePlatform(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.DeletePlatform(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -124,7 +124,7 @@ func deletePlatform(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id} [put]
 func updatePlatform(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.UpdatePlatform(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -137,7 +137,7 @@ func updatePlatform(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform [post]
 func createPlatform(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.CreatePlatform(c.Writer, c.Request)
 }
 
@@ -154,7 +154,7 @@ func createPlatform(c *gin.Context) {
 // @Success 200 {array} viewmodels.PlatformView
 // @Router /v1/platform [get]
 func searchPlatforms(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 
 	name := c.Query("name")
 	tags := strings.FieldsFunc(c.Query("tags"), func(r rune) bool {
@@ -193,6 +193,6 @@ func searchPlatforms(c *gin.Context) {
 // @Success 200 {object} viewmodels.PlatformDetailView
 // @Router /v1/platform/{id} [get]
 func getPlatform(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.GetPlatform(c.Param("id"), c.Writer, c.Request)
 }

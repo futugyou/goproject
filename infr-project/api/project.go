@@ -20,7 +20,7 @@ func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	switch op {
 	case "create":
 		createProject(ctrl, r, w)
@@ -41,7 +41,7 @@ func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func allProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func allProject(ctrl *controller.ProjectController, r *http.Request, w http.ResponseWriter) {
 	pageStr := r.URL.Query().Get("page")
 	sizeStr := r.URL.Query().Get("size")
 	var page *int
@@ -55,7 +55,7 @@ func allProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWri
 	ctrl.GetAllProject(w, r, page, size)
 }
 
-func updateProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updateProject(ctrl *controller.ProjectController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -64,12 +64,12 @@ func updateProject(ctrl *controller.Controller, r *http.Request, w http.Response
 	ctrl.UpdateProject(id, w, r)
 }
 
-func getProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func getProject(ctrl *controller.ProjectController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	ctrl.GetProject(id, w, r)
 }
 
-func createProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func createProject(ctrl *controller.ProjectController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -77,7 +77,7 @@ func createProject(ctrl *controller.Controller, r *http.Request, w http.Response
 	ctrl.CreateProject(w, r)
 }
 
-func updateProjectPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updateProjectPlatform(ctrl *controller.ProjectController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -86,7 +86,7 @@ func updateProjectPlatform(ctrl *controller.Controller, r *http.Request, w http.
 	ctrl.UpdateProjectPlatform(id, w, r)
 }
 
-func updateProjectDesign(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updateProjectDesign(ctrl *controller.ProjectController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}

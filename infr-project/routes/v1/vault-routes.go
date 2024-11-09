@@ -28,7 +28,7 @@ func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {object} viewmodels.CreateVaultsResponse
 // @Router /v1/vault [post]
 func createVault(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	ctrl.CreateVaults(c.Writer, c.Request)
 }
 
@@ -41,7 +41,7 @@ func createVault(c *gin.Context) {
 // @Success 200 string string
 // @Router /v1/vault/{id}/show [post]
 func showVaultRawValue(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	ctrl.ShowVaultRawValue(c.Writer, c.Request, c.Param("id"))
 }
 
@@ -92,7 +92,7 @@ func getVault(c *gin.Context) {
 		Page:         pageInt,
 		Size:         sizeInt,
 	}
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	ctrl.SearchVaults(c.Writer, c.Request, request)
 }
 
@@ -106,7 +106,7 @@ func getVault(c *gin.Context) {
 // @Success 200 {object} viewmodels.VaultView
 // @Router /v1/vault/{id} [put]
 func updateVault(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	ctrl.ChangeVault(c.Writer, c.Request, c.Param("id"))
 }
 
@@ -119,7 +119,7 @@ func updateVault(c *gin.Context) {
 // @Success 200 boolean boolean
 // @Router /v1/vault/{id} [delete]
 func deleteVault(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	ctrl.DeleteVault(c.Writer, c.Request, c.Param("id"))
 }
 
@@ -132,6 +132,6 @@ func deleteVault(c *gin.Context) {
 // @Success 200 {object} viewmodels.ImportVaultsResponse
 // @Router /v1/import_vault [post]
 func importVault(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	ctrl.ImportVaults(c.Writer, c.Request)
 }

@@ -18,12 +18,13 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
-	ctrl := controller.NewController()
+	ctrl := controller.NewResourceController()
+	queryctrl := controller.NewResourceQueryController()
 	switch op {
 	case "create":
 		createResource(ctrl, r, w)
 	case "get":
-		getResource(ctrl, r, w)
+		getResource(queryctrl, r, w)
 	case "update":
 		updateResource(ctrl, r, w)
 	case "delete":
@@ -31,7 +32,7 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	case "history":
 		historyResource(ctrl, r, w)
 	case "all":
-		allResource(ctrl, r, w)
+		allResource(queryctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
@@ -39,16 +40,16 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func historyResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func historyResource(ctrl *controller.ResourceController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	ctrl.GetResourceHistory(id, w, r)
 }
 
-func allResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func allResource(ctrl *controller.ResourceQueryController, r *http.Request, w http.ResponseWriter) {
 	ctrl.GetAllResource(w, r)
 }
 
-func deleteResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func deleteResource(ctrl *controller.ResourceController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -57,7 +58,7 @@ func deleteResource(ctrl *controller.Controller, r *http.Request, w http.Respons
 	ctrl.DeleteResource(id, w, r)
 }
 
-func updateResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updateResource(ctrl *controller.ResourceController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -66,12 +67,12 @@ func updateResource(ctrl *controller.Controller, r *http.Request, w http.Respons
 	ctrl.UpdateResource(id, w, r)
 }
 
-func getResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func getResource(ctrl *controller.ResourceQueryController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	ctrl.GetResource(id, w, r)
 }
 
-func createResource(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func createResource(ctrl *controller.ResourceController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}

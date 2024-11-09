@@ -15,7 +15,14 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func (c *Controller) CreateProject(w http.ResponseWriter, r *http.Request) {
+type ProjectController struct {
+}
+
+func NewProjectController() *ProjectController {
+	return &ProjectController{}
+}
+
+func (c *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
@@ -43,7 +50,7 @@ func (c *Controller) CreateProject(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Request) {
+func (c *ProjectController) GetProject(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createProjectService(ctx)
 
@@ -61,7 +68,7 @@ func (c *Controller) GetProject(id string, w http.ResponseWriter, r *http.Reques
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request, page *int, size *int) {
+func (c *ProjectController) GetAllProject(w http.ResponseWriter, r *http.Request, page *int, size *int) {
 	ctx := r.Context()
 	service, err := createProjectService(ctx)
 
@@ -79,7 +86,7 @@ func (c *Controller) GetAllProject(w http.ResponseWriter, r *http.Request, page 
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
+func (c *ProjectController) UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
@@ -107,7 +114,7 @@ func (c *Controller) UpdateProject(id string, w http.ResponseWriter, r *http.Req
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *ProjectController) UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
@@ -135,7 +142,7 @@ func (c *Controller) UpdateProjectPlatform(id string, w http.ResponseWriter, r *
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) UpdateProjectDesign(id string, w http.ResponseWriter, r *http.Request) {
+func (c *ProjectController) UpdateProjectDesign(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {

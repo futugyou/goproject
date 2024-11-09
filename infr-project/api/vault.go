@@ -22,7 +22,7 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
-	ctrl := controller.NewController()
+	ctrl := controller.NewVaultController()
 	switch op {
 	case "create":
 		createVault(ctrl, r, w)
@@ -43,7 +43,7 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func getVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	key := r.URL.Query().Get("key")
 	storageMedia := r.URL.Query().Get("storage_media")
 	tags := strings.FieldsFunc(r.URL.Query().Get("tags"), func(r rune) bool {
@@ -79,7 +79,7 @@ func getVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWrite
 	ctrl.SearchVaults(w, r, request)
 }
 
-func deleteVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func deleteVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -88,7 +88,7 @@ func deleteVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 	ctrl.DeleteVault(w, r, id)
 }
 
-func updateVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updateVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -97,7 +97,7 @@ func updateVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 	ctrl.ChangeVault(w, r, id)
 }
 
-func showVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func showVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -106,7 +106,7 @@ func showVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWrit
 	ctrl.ShowVaultRawValue(w, r, id)
 }
 
-func createVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func createVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -114,7 +114,7 @@ func createVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 	ctrl.CreateVaults(w, r)
 }
 
-func importVault(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func importVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}

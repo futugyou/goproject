@@ -22,7 +22,7 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	switch op {
 	case "create":
 		createPlatform(ctrl, r, w)
@@ -51,13 +51,13 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updatePlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updatePlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
 	ctrl.CreatePlatformProject(id, projectId, w, r)
 }
 
-func deletePlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func deletePlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -67,7 +67,7 @@ func deletePlatformProject(ctrl *controller.Controller, r *http.Request, w http.
 	ctrl.DeletePlatformProject(id, projectId, w, r)
 }
 
-func createPlatformProject(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func createPlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -76,7 +76,7 @@ func createPlatformProject(ctrl *controller.Controller, r *http.Request, w http.
 	ctrl.CreatePlatformProject(id, "", w, r)
 }
 
-func hookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func hookPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -86,7 +86,7 @@ func hookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseW
 	ctrl.UpdatePlatformHook(id, projectId, w, r)
 }
 
-func deleteHookPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func deleteHookPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -97,7 +97,7 @@ func deleteHookPlatform(ctrl *controller.Controller, r *http.Request, w http.Res
 	ctrl.DeletePlatformHook(id, projectId, hookName, w, r)
 }
 
-func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func allPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	name := r.URL.Query().Get("name")
 	tags := strings.FieldsFunc(r.URL.Query().Get("tags"), func(r rune) bool {
 		return r == ','
@@ -126,7 +126,7 @@ func allPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWr
 	ctrl.SearchPlatforms(w, r, request)
 }
 
-func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func deletePlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -135,7 +135,7 @@ func deletePlatform(ctrl *controller.Controller, r *http.Request, w http.Respons
 	ctrl.DeletePlatform(id, w, r)
 }
 
-func updatePlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func updatePlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
@@ -144,12 +144,12 @@ func updatePlatform(ctrl *controller.Controller, r *http.Request, w http.Respons
 	ctrl.UpdatePlatform(id, w, r)
 }
 
-func getPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func getPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	ctrl.GetPlatform(id, w, r)
 }
 
-func createPlatform(ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+func createPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}

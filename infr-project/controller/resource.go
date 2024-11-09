@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -20,7 +19,14 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func (c *Controller) GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
+type ResourceController struct {
+}
+
+func NewResourceController() *ResourceController {
+	return &ResourceController{}
+}
+
+func (c *ResourceController) GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
@@ -37,7 +43,7 @@ func (c *Controller) GetResourceHistory(id string, w http.ResponseWriter, r *htt
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
+func (c *ResourceController) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
@@ -54,7 +60,7 @@ func (c *Controller) DeleteResource(id string, w http.ResponseWriter, r *http.Re
 	writeJSONResponse(w, "ok", 200)
 }
 
-func (c *Controller) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
+func (c *ResourceController) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
@@ -82,7 +88,7 @@ func (c *Controller) UpdateResource(id string, w http.ResponseWriter, r *http.Re
 	writeJSONResponse(w, "ok", 200)
 }
 
-func (c *Controller) CreateResource(w http.ResponseWriter, r *http.Request) {
+func (c *ResourceController) CreateResource(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
@@ -110,50 +116,6 @@ func (c *Controller) CreateResource(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *Controller) GetResource(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceQueryService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.CurrentResource(ctx, id)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	if res == nil || res.Id == "" {
-		handleError(w, fmt.Errorf("resource not found"), 400)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
-}
-
-func (c *Controller) GetAllResource(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceQueryService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetAllResources(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	if len(res) == 0 {
-		handleError(w, fmt.Errorf("resource not found"), 400)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
-}
-
 func createResourceService(ctx context.Context) (*application.ResourceService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -173,30 +135,4 @@ func createResourceService(ctx context.Context) (*application.ResourceService, e
 	}
 
 	return application.NewResourceService(eventStore, snapshotStore, unitOfWork), nil
-}
-
-func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("query_db_name"),
-		ConnectString: os.Getenv("query_mongodb_url"),
-	}
-
-	mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
-	if err != nil {
-		return nil, err
-	}
-
-	queryRepo := infra.NewResourceQueryRepository(mongoclient, config)
-
-	unitOfWork, err := infra.NewMongoUnitOfWork(mongoclient)
-	if err != nil {
-		return nil, err
-	}
-
-	return application.NewResourceQueryService(queryRepo, client, unitOfWork), nil
 }

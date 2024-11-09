@@ -23,6 +23,6 @@ func ConfigPlatformRoutes(v2 *gin.RouterGroup, route *command.Router) {
 // @Success 200
 // @Router /v2/platform [post]
 func createPlatform(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewPlatformController()
 	ctrl.CreatePlatformV2(cqrsRoute, c.Writer, c.Request)
 }

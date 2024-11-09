@@ -28,7 +28,7 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 // @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	ctrl.UpdateProjectDesign(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -42,7 +42,7 @@ func updateProjectDesign(c *gin.Context) {
 // @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id}/platform [put]
 func updateProjectPlatform(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	ctrl.UpdateProjectPlatform(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -56,7 +56,7 @@ func updateProjectPlatform(c *gin.Context) {
 // @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id} [put]
 func updateProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	ctrl.UpdateProject(c.Param("id"), c.Writer, c.Request)
 }
 
@@ -69,7 +69,7 @@ func updateProject(c *gin.Context) {
 // @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project [post]
 func createProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	ctrl.CreateProject(c.Writer, c.Request)
 }
 
@@ -81,7 +81,7 @@ func createProject(c *gin.Context) {
 // @Success 200 {array} viewmodels.ProjectView
 // @Router /v1/project [get]
 func getAllProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	pageStr := c.Query("page")
 	sizeStr := c.Query("size")
 	var page *int
@@ -104,6 +104,6 @@ func getAllProject(c *gin.Context) {
 // @Success 200 {object} viewmodels.ProjectView
 // @Router /v1/project/{id} [get]
 func getProject(c *gin.Context) {
-	ctrl := controller.NewController()
+	ctrl := controller.NewProjectController()
 	ctrl.GetProject(c.Param("id"), c.Writer, c.Request)
 }
