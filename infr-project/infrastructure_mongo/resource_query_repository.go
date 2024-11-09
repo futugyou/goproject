@@ -7,23 +7,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/futugyou/infr-project/extensions"
-	models "github.com/futugyou/infr-project/view_models"
+	resourcequery "github.com/futugyou/infr-project/resource_query"
 )
 
 type ResourceQueryRepository struct {
-	BaseQueryRepository[models.ResourceView]
+	BaseRepository[resourcequery.Resource]
 }
 
-func NewResourceQueryRepository(client *mongo.Client, config QueryDBConfig) *ResourceQueryRepository {
+func NewResourceQueryRepository(client *mongo.Client, config DBConfig) *ResourceQueryRepository {
 	return &ResourceQueryRepository{
-		BaseQueryRepository: *NewBaseQueryRepository[models.ResourceView](client, config),
+		BaseRepository: *NewBaseRepository[resourcequery.Resource](client, config),
 	}
 }
 
-func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*models.ResourceView, error) {
+func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*resourcequery.Resource, error) {
 	var page, size int = 1, 1
 	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
-	ent, err := r.BaseQueryRepository.GetWithCondition(ctx, condition)
+	ent, err := r.BaseRepository.GetWithCondition(ctx, condition)
 	if err != nil {
 		return nil, err
 	}
@@ -33,18 +33,18 @@ func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name st
 	return &ent[0], nil
 }
 
-func (r *ResourceQueryRepository) GetResourceByNameAsync(ctx context.Context, name string) (<-chan *models.ResourceView, <-chan error) {
+func (r *ResourceQueryRepository) GetResourceByNameAsync(ctx context.Context, name string) (<-chan *resourcequery.Resource, <-chan error) {
 	var page, size int = 1, 1
 	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
 
-	resultChan := make(chan *models.ResourceView, 1)
+	resultChan := make(chan *resourcequery.Resource, 1)
 	errorChan := make(chan error, 1)
 
 	go func() {
 		defer close(resultChan)
 		defer close(errorChan)
 
-		result, err := r.BaseQueryRepository.GetWithConditionAsync(ctx, condition)
+		result, err := r.BaseRepository.GetWithConditionAsync(ctx, condition)
 		select {
 		case datas := <-result:
 			if len(datas) == 0 {
@@ -60,4 +60,9 @@ func (r *ResourceQueryRepository) GetResourceByNameAsync(ctx context.Context, na
 	}()
 
 	return resultChan, errorChan
+}
+
+func (r *ResourceQueryRepository) GetAllResource(ctx context.Context, page *int, size *int) ([]resourcequery.Resource, error) {
+	condition := extensions.NewSearch(page, size, nil, nil)
+	return r.BaseRepository.GetWithCondition(ctx, condition)
 }

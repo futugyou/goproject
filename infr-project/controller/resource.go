@@ -185,11 +185,17 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 	if err != nil {
 		return nil, err
 	}
-	return application.NewResourceQueryService(queryRepo), nil
+
+	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
+	if err != nil {
+		return nil, err
+	}
+
+	return application.NewResourceQueryService(queryRepo, client), nil
 }
 
 func createResourceQueryRepository(ctx context.Context) (*infra.ResourceQueryRepository, error) {
-	config := infra.QueryDBConfig{
+	config := infra.DBConfig{
 		DBName:        os.Getenv("query_db_name"),
 		ConnectString: os.Getenv("query_mongodb_url"),
 	}

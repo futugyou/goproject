@@ -8,12 +8,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
-	"github.com/redis/go-redis/v9"
 
 	"github.com/futugyou/circleci"
 	"github.com/futugyou/vercel"
 
 	"github.com/futugyou/infr-project/command"
+	"github.com/futugyou/infr-project/extensions"
 	sdk "github.com/futugyou/infr-project/platform_sdk"
 	"github.com/futugyou/infr-project/services"
 )
@@ -209,20 +209,13 @@ func cqrstest(c *gin.Context) {
 // @Success 200 {object}  map[string]string
 // @Router /v1/test/redis [get]
 func redisget(c *gin.Context) {
-	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"linkMsg": err.Error(),
 		})
 		return
 	}
-	opt.MaxRetries = 3
-	opt.DialTimeout = 10 * time.Second
-	opt.ReadTimeout = -1
-	opt.WriteTimeout = -1
-	opt.DB = 0
-
-	client := redis.NewClient(opt)
 
 	ctx := c.Request.Context()
 
@@ -255,20 +248,14 @@ func redisget(c *gin.Context) {
 // @Router /v1/test/redishash [get]
 func redisHash(c *gin.Context) {
 	ctx := c.Request.Context()
-	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+
+	client, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"ParseURL": err.Error(),
 		})
 		return
 	}
-	opt.MaxRetries = 3
-	opt.DialTimeout = 10 * time.Second
-	// opt.ReadTimeout = -1
-	// opt.WriteTimeout = -1
-	opt.DB = 0
-
-	client := redis.NewClient(opt)
 
 	hashFields := []string{
 		"model", "Deimos",
