@@ -125,7 +125,12 @@ func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 }
 
 func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
-	queryRepo, err := createResourceQueryRepository(ctx)
+	config := infra.DBConfig{
+		DBName:        os.Getenv("query_db_name"),
+		ConnectString: os.Getenv("query_mongodb_url"),
+	}
+
+	mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}
@@ -135,21 +140,14 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 		return nil, err
 	}
 
-	return application.NewResourceQueryService(queryRepo, client), nil
-}
+	queryRepo := infra.NewResourceQueryRepository(mongoclient, config)
 
-func createResourceQueryRepository(ctx context.Context) (*infra.ResourceQueryRepository, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("query_db_name"),
-		ConnectString: os.Getenv("query_mongodb_url"),
-	}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
+	unitOfWork, err := infra.NewMongoUnitOfWork(mongoclient)
 	if err != nil {
 		return nil, err
 	}
 
-	return infra.NewResourceQueryRepository(client, config), nil
+	return application.NewResourceQueryService(queryRepo, client, unitOfWork), nil
 }
 
 func getDataType(tableName string) reflect.Type {

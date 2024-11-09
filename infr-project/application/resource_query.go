@@ -14,14 +14,17 @@ import (
 )
 
 type ResourceQueryService struct {
-	repository resourcequery.IResourceRepository
-	client     *redis.Client
+	innerService *AppService
+	repository   resourcequery.IResourceRepository
+	client       *redis.Client
 }
 
-func NewResourceQueryService(repository resourcequery.IResourceRepository, client *redis.Client) *ResourceQueryService {
+func NewResourceQueryService(repository resourcequery.IResourceRepository, client *redis.Client,
+	unitOfWork domain.IUnitOfWork) *ResourceQueryService {
 	return &ResourceQueryService{
-		repository: repository,
-		client:     client,
+		repository:   repository,
+		client:       client,
+		innerService: NewAppService(unitOfWork),
 	}
 }
 
@@ -127,27 +130,22 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data R
 		return fmt.Errorf("resource can not find, ID is %s", data.Id)
 	}
 
-	// TODO: maybe we need a transaction
-	switch data.EventType {
-	case "ResourceCreated":
-		err = s.repository.Insert(ctx, *res)
-	default:
-		err = s.repository.Update(ctx, *res)
-	}
+	return s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		switch data.EventType {
+		case "ResourceCreated":
+			err = s.repository.Insert(ctx, *res)
+		default:
+			err = s.repository.Update(ctx, *res)
+		}
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	switch data.EventType {
-	case "ResourceDeleted":
-		s.client.Del(ctx, "ResourceView:"+data.Id).Result()
-	default:
 		viewData := s.convertData(*res)
-		s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
-	}
-
-	return nil
+		_, err = s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
+		return err
+	})
 }
 
 type ResourceChangeData struct {
