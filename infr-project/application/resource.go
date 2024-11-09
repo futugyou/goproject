@@ -3,22 +3,18 @@ package application
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	tool "github.com/futugyou/extensions"
 
 	domain "github.com/futugyou/infr-project/domain"
-	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
-	resourcequery "github.com/futugyou/infr-project/resource_query"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
 type ResourceService struct {
 	service    *ApplicationService[resource.IResourceEvent, *resource.Resource]
 	unitOfWork domain.IUnitOfWork
-	queryRepo  resourcequery.IResourceRepository
 }
 
 func needStoreSnapshot(aggregate *resource.Resource) bool {
@@ -29,12 +25,10 @@ func NewResourceService(
 	eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
-	queryRepo resourcequery.IResourceRepository,
 ) *ResourceService {
 	return &ResourceService{
 		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot),
 		unitOfWork: unitOfWork,
-		queryRepo:  queryRepo,
 	}
 }
 
@@ -70,15 +64,6 @@ func (s *ResourceService) UpdateResource(ctx context.Context, id string, aux mod
 	}
 
 	if source.Name != aux.Name {
-		res, err := s.queryRepo.GetResourceByName(ctx, aux.Name)
-		if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-			return err
-		}
-
-		if res != nil && len(res.Id) > 0 && res.Id != id {
-			return fmt.Errorf("name: %s is existed", aux.Name)
-		}
-
 		if aggregate, err = source.ChangeName(aux.Name); err != nil {
 			return err
 		}

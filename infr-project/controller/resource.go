@@ -172,12 +172,7 @@ func createResourceService(ctx context.Context) (*application.ResourceService, e
 		return nil, err
 	}
 
-	queryRepo, err := createResourceQueryRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return application.NewResourceService(eventStore, snapshotStore, unitOfWork, queryRepo), nil
+	return application.NewResourceService(eventStore, snapshotStore, unitOfWork), nil
 }
 
 func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
@@ -204,18 +199,4 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 	}
 
 	return application.NewResourceQueryService(queryRepo, client, unitOfWork), nil
-}
-
-func createResourceQueryRepository(ctx context.Context) (*infra.ResourceQueryRepository, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("query_db_name"),
-		ConnectString: os.Getenv("query_mongodb_url"),
-	}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	return infra.NewResourceQueryRepository(client, config), nil
 }
