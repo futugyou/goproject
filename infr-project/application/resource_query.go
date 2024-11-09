@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -51,6 +52,8 @@ func (s *ResourceQueryService) CurrentResource(ctx context.Context, id string) (
 		return &viewData, nil
 	}
 
+	// Since redis is operated in HandleResourceChanged, the general program does not run here
+	// BUT, redis may have cleared the data, or an error occurred during handling HandleResourceChanged
 	data, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -84,7 +87,7 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data R
 
 	if res == nil {
 		if data.EventType == "ResourceCreated" {
-			aggregate := resourcequery.Resource{
+			res = &resourcequery.Resource{
 				Aggregate: domain.Aggregate{
 					Id: data.Id,
 				},
@@ -97,13 +100,12 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data R
 				UpdatedAt: data.CreatedAt,
 				Tags:      data.Tags,
 			}
-			return s.repository.Insert(ctx, aggregate)
 		}
 	} else if res.Version < data.ResourceVersion {
 		res.Version = data.ResourceVersion
 		res.UpdatedAt = data.CreatedAt
 		switch data.EventType {
-		case "ResourceCreated":
+		case "ResourceDeleted":
 			res.IsDelete = true
 		case "ResourceUpdated":
 			res.Name = data.Name
@@ -119,10 +121,30 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data R
 		case "ResourceTagsChanged":
 			res.Type = data.Type
 		}
+	}
 
+	if res == nil {
+		return fmt.Errorf("resource can not find, ID is %s", data.Id)
+	}
+
+	// TODO: maybe we need a transaction
+	switch data.EventType {
+	case "ResourceCreated":
+		err = s.repository.Insert(ctx, *res)
+	default:
+		err = s.repository.Update(ctx, *res)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	switch data.EventType {
+	case "ResourceDeleted":
 		s.client.Del(ctx, "ResourceView:"+data.Id).Result()
-
-		return s.repository.Update(ctx, *res)
+	default:
+		viewData := s.convertData(*res)
+		s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
 	}
 
 	return nil
