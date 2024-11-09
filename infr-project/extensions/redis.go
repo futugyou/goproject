@@ -2,25 +2,36 @@ package extensions
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/redis/go-redis/v9"
 )
 
+var (
+	redisClient *redis.Client
+	once        sync.Once
+)
+
 func RedisClient(url string) (*redis.Client, error) {
-	opt, err := redis.ParseURL(url)
-	if err != nil {
-		return nil, err
-	}
+	var err error
+	once.Do(func() {
+		opt, err := redis.ParseURL(url)
+		if err != nil {
+			return
+		}
 
-	opt.MaxRetries = 3
-	opt.DialTimeout = 10 * time.Second
-	opt.ReadTimeout = -1
-	opt.WriteTimeout = -1
-	opt.DB = 0
+		opt.MaxRetries = 3
+		opt.DialTimeout = 10 * time.Second
+		opt.ReadTimeout = -1
+		opt.WriteTimeout = -1
+		opt.DB = 0
 
-	return redis.NewClient(opt), nil
+		redisClient = redis.NewClient(opt)
+	})
+
+	return redisClient, err
 }
 
 func RedisScanHashAll[T any](ctx context.Context, client *redis.Client, prefix string, count int64) ([]T, error) {
