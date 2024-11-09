@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	tool "github.com/futugyou/extensions"
+
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	resourcequery "github.com/futugyou/infr-project/resource_query"
@@ -29,7 +31,7 @@ func NewResourceQueryService(repository resourcequery.IResourceRepository, clien
 }
 
 func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.ResourceView, error) {
-	resourceViews, _ := extensions.RedisListHashWithLua[models.ResourceView](ctx, s.client, "ResourceView:", 100)
+	resourceViews, _ := tool.RedisListHashWithLua[models.ResourceView](ctx, s.client, "ResourceView:", 100)
 
 	if len(resourceViews) > 0 {
 		return resourceViews, nil
