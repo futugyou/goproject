@@ -10,7 +10,7 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
-	"github.com/futugyou/infr-project/platform_provider"
+	platformProvider "github.com/futugyou/infr-project/platform_provider"
 	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -426,17 +426,19 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		})
 	}
 
-	providerProjects, _ := s.getProviderProjects(ctx, src)
-	for _, p := range providerProjects {
-		has := false
-		for _, pp := range platformProjects {
-			if pp.Id == p.Id {
-				has = true
-				break
+	if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+		providerProjects, _ := s.getProviderProjects(ctx, provider)
+		for _, p := range providerProjects {
+			has := false
+			for _, pp := range platformProjects {
+				if pp.Id == p.Id {
+					has = true
+					break
+				}
 			}
-		}
-		if !has {
-			platformProjects = append(platformProjects, p)
+			if !has {
+				platformProjects = append(platformProjects, p)
+			}
 		}
 	}
 
@@ -508,11 +510,7 @@ func (s *PlatformService) convertToEntitySecrets(ctx context.Context, secrets []
 	return secretInfos, nil
 }
 
-func (s *PlatformService) getProviderProjects(ctx context.Context, src *platform.Platform) ([]models.PlatformProject, error) {
-	if src == nil {
-		return nil, fmt.Errorf("no platform data found")
-	}
-
+func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
 	var provider string
 	var vaultId string
 	var token string
@@ -537,14 +535,15 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, src *platform
 		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
 	}
 
-	platformProvider, err := platform_provider.PlatformProviderFatory(provider, token)
-	if err != nil {
-		return nil, err
-	}
+	return platformProvider.PlatformProviderFatory(provider, token)
+}
 
-	filter := platform_provider.ProjectFilter{}
-	resCh, errCh := platformProvider.ListProjectAsync(ctx, filter)
-	var projects []platform_provider.Project
+func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync) ([]models.PlatformProject, error) {
+	var projects []platformProvider.Project
+	var err error
+
+	filter := platformProvider.ProjectFilter{}
+	resCh, errCh := provider.ListProjectAsync(ctx, filter)
 	select {
 	case projects = <-resCh:
 	case err = <-errCh:
@@ -568,5 +567,6 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, src *platform
 			Followed:   false,
 		})
 	}
+
 	return result, nil
 }
