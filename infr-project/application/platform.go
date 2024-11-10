@@ -10,6 +10,7 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
+	"github.com/futugyou/infr-project/platform_provider"
 	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -425,6 +426,20 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		})
 	}
 
+	providerProjects, _ := s.getProviderProjects(ctx, src)
+	for _, p := range providerProjects {
+		has := false
+		for _, pp := range platformProjects {
+			if pp.Id == p.Id {
+				has = true
+				break
+			}
+		}
+		if !has {
+			platformProjects = append(platformProjects, p)
+		}
+	}
+
 	properties := make([]models.Property, 0)
 	for _, v := range src.Properties {
 		properties = append(properties, models.Property(v))
@@ -491,4 +506,67 @@ func (s *PlatformService) convertToEntitySecrets(ctx context.Context, secrets []
 	}
 
 	return secretInfos, nil
+}
+
+func (s *PlatformService) getProviderProjects(ctx context.Context, src *platform.Platform) ([]models.PlatformProject, error) {
+	if src == nil {
+		return nil, fmt.Errorf("no platform data found")
+	}
+
+	var provider string
+	var vaultId string
+	var token string
+	var err error
+
+	switch src.Provider {
+	case platform.PlatformProviderCircleci:
+		provider = platform.PlatformProviderCircleci.String()
+		vaultId = src.Secrets["CIRCLECI_TOKEN"].Value
+	case platform.PlatformProviderVercel:
+		provider = platform.PlatformProviderVercel.String()
+		vaultId = src.Secrets["VERCEL_TOKEN"].Value
+	case platform.PlatformProviderGithub:
+		provider = platform.PlatformProviderGithub.String()
+		vaultId = src.Secrets["GITHUB_TOKEN"].Value
+	default:
+		return nil, fmt.Errorf("%s not supported", src.Provider.String())
+	}
+
+	token, err = s.vaultService.ShowVaultRawValue(ctx, vaultId)
+	if err != nil {
+		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
+	}
+
+	platformProvider, err := platform_provider.PlatformProviderFatory(provider, token)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := platform_provider.ProjectFilter{}
+	resCh, errCh := platformProvider.ListProjectAsync(ctx, filter)
+	var projects []platform_provider.Project
+	select {
+	case projects = <-resCh:
+	case err = <-errCh:
+	case <-ctx.Done():
+		err = fmt.Errorf("getProviderProjects timeout")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.PlatformProject, 0)
+	for _, project := range projects {
+		result = append(result, models.PlatformProject{
+			Id:         project.ID,
+			Name:       project.Name,
+			Url:        project.Url,
+			Properties: []models.Property{},
+			Secrets:    []models.Secret{},
+			Webhooks:   []models.Webhook{},
+			Followed:   false,
+		})
+	}
+	return result, nil
 }
