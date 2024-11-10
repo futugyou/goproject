@@ -148,11 +148,18 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 		}
 	}
 
+	secrets, err := s.convertToEntitySecrets(ctx, hook.Secrets)
+	if err != nil {
+		return nil, err
+	}
+
 	newhook := platform.NewWebhook(hook.Name, hook.Url,
 		platform.WithWebhookProperties(properties),
 		platform.WithWebhookActivate(hook.Activate),
 		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
+		platform.WithWebhookSecrets(secrets),
 	)
+
 	if plat, err = plat.UpdateWebhook(projectId, *newhook); err != nil {
 		return nil, err
 	}
@@ -233,7 +240,20 @@ func (s *PlatformService) AddProject(ctx context.Context, id string, projectId s
 			Value: value,
 		}
 	}
-	proj := platform.NewPlatformProject(projectId, project.Name, project.Url, platform.WithProjectProperties(properties))
+
+	secrets, err := s.convertToEntitySecrets(ctx, project.Secrets)
+	if err != nil {
+		return nil, err
+	}
+
+	proj := platform.NewPlatformProject(
+		projectId,
+		project.Name,
+		project.Url,
+		platform.WithProjectProperties(properties),
+		platform.WithProjectSecrets(secrets),
+	)
+
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}
@@ -341,13 +361,11 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		}
 	}
 
-	newSecrets := make(map[string]platform.Secret)
-	for _, v := range data.Secrets {
-		newSecrets[v.Key] = platform.Secret{
-			Key:   v.Key,
-			Value: v.VaultId,
-		}
+	newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
+	if err != nil {
+		return nil, err
 	}
+
 	if !tool.MapsCompareCommon(plat.Secrets, newSecrets) {
 		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
 			return nil, err
