@@ -75,6 +75,7 @@ type PlatformProject struct {
 	Properties []Property `json:"properties"`
 	Secrets    []Secret   `json:"secrets"`
 	Webhooks   []Webhook  `json:"webhooks"`
+	Followed   bool       `json:"followed"`
 }
 
 type Webhook struct {

@@ -12,15 +12,15 @@ import (
 // The difference between Property and Secrets is like ConfigMap and Secrets in k8s
 type Platform struct {
 	domain.Aggregate `json:"-"`
-	Name             string                     `json:"name"`
-	Activate         bool                       `json:"activate"`
-	Url              string                     `json:"url"`
-	Provider         PlatformProvider           `json:"provider"`
-	Properties       map[string]Property        `json:"properties"`
-	Secrets          map[string]Secret          `json:"secrets"`
-	Projects         map[string]PlatformProject `json:"projects"`
-	Tags             []string                   `json:"tags"`
-	IsDeleted        bool                       `json:"is_deleted"`
+	Name             string                     `json:"name" bson:"name"`
+	Activate         bool                       `json:"activate" bson:"activate"`
+	Url              string                     `json:"url" bson:"url"`
+	Provider         PlatformProvider           `json:"provider" bson:"provider"`
+	Properties       map[string]Property        `json:"properties" bson:"properties"`
+	Secrets          map[string]Secret          `json:"secrets" bson:"secrets"`
+	Projects         map[string]PlatformProject `json:"projects" bson:"projects"`
+	Tags             []string                   `json:"tags" bson:"tags"`
+	IsDeleted        bool                       `json:"is_deleted" bson:"is_deleted"`
 }
 
 type PlatformOption func(*Platform)

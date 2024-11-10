@@ -407,6 +407,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		platformProjects = append(platformProjects, models.PlatformProject{
 			Id:         v.Id,
 			Name:       v.Name,
+			Followed:   v.Followed,
 			Url:        v.Url,
 			Properties: props,
 			Secrets:    filterSecrets(secrets, v.Secrets),
@@ -433,8 +434,6 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	}, nil
 }
 
-// TODO: need event driven
-// But now there is no deployment environment that can run MQ
 func (s *PlatformService) convertSecrets(ctx context.Context, form platform.Platform) ([]models.Secret, error) {
 	secretInfos := make([]models.Secret, 0)
 	secretsMap := map[string]string{}
