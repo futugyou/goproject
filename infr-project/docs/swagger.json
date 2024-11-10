@@ -1683,6 +1683,7 @@
                     ]
                 },
                 "secrets": {
+                    "description": "only Key and VaultId in request",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.Secret"
@@ -1947,6 +1948,9 @@
         "viewmodels.PlatformProject": {
             "type": "object",
             "properties": {
+                "followed": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -2159,6 +2163,13 @@
                         "type": "string"
                     }
                 },
+                "secrets": {
+                    "description": "only Key and VaultId in request",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
+                    }
+                },
                 "url": {
                     "type": "string",
                     "maxLength": 150,
@@ -2197,6 +2208,7 @@
                     ]
                 },
                 "secrets": {
+                    "description": "only Key and VaultId in request",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.Secret"
@@ -2235,6 +2247,13 @@
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
+                    }
+                },
+                "secrets": {
+                    "description": "only Key and VaultId in request",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
                 "state": {

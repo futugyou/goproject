@@ -188,6 +188,7 @@ definitions:
         - other
         type: string
       secrets:
+        description: only Key and VaultId in request
         items:
           $ref: '#/definitions/viewmodels.Secret'
         type: array
@@ -376,6 +377,8 @@ definitions:
     type: object
   viewmodels.PlatformProject:
     properties:
+      followed:
+        type: boolean
       id:
         type: string
       name:
@@ -513,6 +516,11 @@ definitions:
         additionalProperties:
           type: string
         type: object
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
+        type: array
       url:
         maxLength: 150
         minLength: 3
@@ -541,6 +549,7 @@ definitions:
         - other
         type: string
       secrets:
+        description: only Key and VaultId in request
         items:
           $ref: '#/definitions/viewmodels.Secret'
         type: array
@@ -568,6 +577,11 @@ definitions:
         additionalProperties:
           type: string
         type: object
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/viewmodels.Secret'
+        type: array
       state:
         enum:
         - Init
