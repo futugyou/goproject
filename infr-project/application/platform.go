@@ -10,6 +10,7 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
+	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -56,12 +57,9 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 		}
 	}
 
-	secrets := make(map[string]platform.Secret)
-	for _, v := range aux.Secrets {
-		secrets[v.Key] = platform.Secret{
-			Key:   v.Key,
-			Value: v.VaultId,
-		}
+	secrets, err := s.convertToEntitySecrets(ctx, aux.Secrets)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -390,7 +388,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 				Activate:   v.Webhooks[i].Activate,
 				State:      v.Webhooks[i].State.String(),
 				Properties: wps,
-				Secrets:    convertSecret(v.Webhooks[i].Secrets),
+				Secrets:    convertToModelSecret(v.Webhooks[i].Secrets),
 			})
 		}
 		props := []models.Property{}
@@ -404,7 +402,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 			Followed:   v.Followed,
 			Url:        v.Url,
 			Properties: props,
-			Secrets:    convertSecret(v.Secrets),
+			Secrets:    convertToModelSecret(v.Secrets),
 			Webhooks:   webhooks,
 		})
 	}
@@ -420,7 +418,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		Activate:   src.Activate,
 		Url:        src.Url,
 		Properties: properties,
-		Secrets:    convertSecret(src.Secrets),
+		Secrets:    convertToModelSecret(src.Secrets),
 		Projects:   platformProjects,
 		Tags:       src.Tags,
 		IsDeleted:  src.IsDeleted,
@@ -428,7 +426,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	}, nil
 }
 
-func convertSecret(secretMap map[string]platform.Secret) []models.Secret {
+func convertToModelSecret(secretMap map[string]platform.Secret) []models.Secret {
 	secrets := []models.Secret{}
 	for _, v := range secretMap {
 		secrets = append(secrets, models.Secret{
@@ -440,4 +438,39 @@ func convertSecret(secretMap map[string]platform.Secret) []models.Secret {
 	}
 
 	return secrets
+}
+
+func (s *PlatformService) convertToEntitySecrets(ctx context.Context, secrets []models.Secret) (map[string]platform.Secret, error) {
+	secretInfos := make(map[string]platform.Secret)
+	if len(secrets) == 0 {
+		return secretInfos, nil
+	}
+
+	filter := []vault.VaultSearch{}
+	for _, secret := range secrets {
+		filter = append(filter, vault.VaultSearch{
+			ID: secret.VaultId,
+		})
+	}
+
+	query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
+	if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
+		for _, secret := range secrets {
+			for i := 0; i < len(vaults); i++ {
+				if vaults[i].Id == secret.VaultId {
+					secretInfos[secret.Key] = platform.Secret{
+						Key:            secret.Key,
+						Value:          vaults[i].Id,
+						VaultKey:       vaults[i].Key,
+						VaultMaskValue: vaults[i].MaskValue,
+					}
+					break
+				}
+			}
+		}
+	} else {
+		return nil, err
+	}
+
+	return secretInfos, nil
 }
