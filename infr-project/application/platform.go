@@ -222,9 +222,16 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectI
 }
 
 func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	if err := <-s.repository.SoftDeleteAsync(ctx, id); err != nil {
-		return nil, err
+	errCh := s.repository.SoftDeleteAsync(ctx, id)
+	select {
+	case err := <-errCh:
+		if err != nil {
+			return nil, err
+		}
+	case <-ctx.Done():
+		return nil, fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
 	}
+
 	srcCh, errCh := s.repository.GetAsync(ctx, id)
 	select {
 	case src := <-srcCh:
