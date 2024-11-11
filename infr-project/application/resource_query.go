@@ -50,7 +50,7 @@ func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.Re
 	return result, nil
 }
 
-func (s *ResourceQueryService) CurrentResource(ctx context.Context, id string) (*models.ResourceView, error) {
+func (s *ResourceQueryService) GetResource(ctx context.Context, id string) (*models.ResourceView, error) {
 	var viewData models.ResourceView
 	s.client.HGetAll(ctx, "ResourceView:"+id).Scan(&viewData)
 	if len(viewData.Id) > 0 {

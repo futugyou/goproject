@@ -28,7 +28,7 @@ func (c *ResourceQueryController) GetResource(id string, w http.ResponseWriter, 
 		return
 	}
 
-	res, err := service.CurrentResource(ctx, id)
+	res, err := service.GetResource(ctx, id)
 	if err != nil {
 		handleError(w, err, 500)
 		return

@@ -107,27 +107,30 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		return <-s.repository.InsertMultipleVaultAsync(ctx, entities)
+		if err := <-s.repository.InsertMultipleVaultAsync(ctx, entities); err == nil {
+			// Although the code is grouped by StorageMedia, in reality there is only one StorageMedia per request.
+			providerDatas := map[string]map[string]string{}
+			for _, item := range entities {
+				if item.StorageMedia != vault.StorageMediaLocal {
+					if _, exists := providerDatas[item.StorageMedia.String()]; !exists {
+						providerDatas[item.StorageMedia.String()] = make(map[string]string)
+					}
+					providerDatas[item.StorageMedia.String()][item.GetIdentityKey()] = item.Value
+				}
+			}
+
+			for key, value := range providerDatas {
+				// If an error occurs, you can force an 'ForceInsert' operation
+				if err := s.upsertVaultInProvider(ctx, key, value); err != nil {
+					return err
+				}
+			}
+			return nil
+		} else {
+			return err
+		}
 	}); err != nil {
 		return nil, err
-	}
-
-	// Although the code is grouped by StorageMedia, in reality there is only one StorageMedia per request.
-	providerDatas := map[string]map[string]string{}
-	for _, item := range entities {
-		if item.StorageMedia != vault.StorageMediaLocal {
-			if _, exists := providerDatas[item.StorageMedia.String()]; !exists {
-				providerDatas[item.StorageMedia.String()] = make(map[string]string)
-			}
-			providerDatas[item.StorageMedia.String()][item.GetIdentityKey()] = item.Value
-		}
-	}
-
-	for key, value := range providerDatas {
-		// If an error occurs, you can force an 'ForceInsert' operation
-		if err := s.upsertVaultInProvider(ctx, key, value); err != nil {
-			return nil, err
-		}
 	}
 
 	response := models.CreateVaultsResponse{
