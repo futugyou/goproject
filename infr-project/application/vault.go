@@ -46,7 +46,7 @@ func (s *VaultService) SearchVaults(ctx context.Context, query VaultSearchQuery)
 	case errM := <-err:
 		return nil, errM
 	case <-ctx.Done():
-		return nil, fmt.Errorf("SearchVaults timeout")
+		return nil, fmt.Errorf("SearchVaults timeout: %w", ctx.Err())
 	}
 }
 
@@ -61,7 +61,7 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 	case errM := <-err:
 		return "", errM
 	case <-ctx.Done():
-		return "", fmt.Errorf("ShowVaultRawValue timeout")
+		return "", fmt.Errorf("ShowVaultRawValue timeout: %w", ctx.Err())
 	}
 }
 
@@ -116,13 +116,19 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 		case errM := <-errCh:
 			return nil, errM
 		case <-ctx.Done():
-			return nil, fmt.Errorf("CreateVaults timeout")
+			return nil, fmt.Errorf("CreateVaults timeout: %w", ctx.Err())
 		}
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		if err := <-s.repository.InsertMultipleVaultAsync(ctx, entities); err != nil {
-			return err
+		errCh := s.repository.InsertMultipleVaultAsync(ctx, entities)
+		select {
+		case err := <-errCh:
+			if err != nil {
+				return err
+			}
+		case <-ctx.Done():
+			return fmt.Errorf("CreateVaults timeout: %w", ctx.Err())
 		}
 
 		if storageMedia == vault.StorageMediaLocal.String() {
@@ -174,7 +180,7 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 	case errM := <-errCh:
 		return nil, errM
 	case <-ctx.Done():
-		return nil, fmt.Errorf("CreateVaults timeout")
+		return nil, fmt.Errorf("ChangeVault timeout: %w", ctx.Err())
 	}
 
 	if data == nil {
@@ -185,8 +191,14 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 
 	if data.HasChange() {
 		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-			if err := <-s.repository.UpdateAsync(ctx, *data); err != nil {
-				return err
+			errCh = s.repository.UpdateAsync(ctx, *data)
+			select {
+			case err := <-errCh:
+				if err != nil {
+					return err
+				}
+			case <-ctx.Done():
+				return fmt.Errorf("ChangeVault timeout: %w", ctx.Err())
 			}
 
 			if data.StorageMedia == vault.StorageMediaLocal {
@@ -214,28 +226,34 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 		}
 	case va = <-vaCh:
 	case <-ctx.Done():
-		return false, fmt.Errorf("DeleteVault timeout")
+		return false, fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
 	}
 
 	if va == nil {
 		return false, fmt.Errorf("vault with id: %s is not exist", vaultId)
 	}
 
-	errCh = s.repository.DeleteAsync(ctx, vaultId)
-	select {
-	case err := <-errCh:
-		if err == nil {
-			if err = s.deleteVaultInProvider(ctx, va.VaultType.String(), va.GetIdentityKey()); err != nil {
-				return true, nil
-			} else {
-				return false, err
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		errCh := s.repository.DeleteAsync(ctx, vaultId)
+		select {
+		case err := <-errCh:
+			if err != nil {
+				return err
 			}
-		} else {
-			return false, err
+		case <-ctx.Done():
+			return fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
 		}
-	case <-ctx.Done():
-		return false, fmt.Errorf("DeleteVault timeout")
+
+		if va.StorageMedia == vault.StorageMediaLocal {
+			return nil
+		}
+
+		return s.deleteVaultInProvider(ctx, va.VaultType.String(), va.GetIdentityKey())
+	}); err != nil {
+		return false, err
 	}
+
+	return true, nil
 }
 
 func (s *VaultService) ImportVaults(ctx context.Context, aux models.ImportVaultsRequest) (*models.ImportVaultsResponse, error) {
@@ -270,7 +288,13 @@ func (s *VaultService) ImportVaults(ctx context.Context, aux models.ImportVaults
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		return <-s.repository.InsertMultipleVaultAsync(ctx, entities)
+		errCh := s.repository.InsertMultipleVaultAsync(ctx, entities)
+		select {
+		case err := <-errCh:
+			return err
+		case <-ctx.Done():
+			return fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
+		}
 	}); err != nil {
 		return nil, err
 	}
