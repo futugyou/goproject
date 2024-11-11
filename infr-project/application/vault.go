@@ -185,15 +185,17 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 
 	if data.HasChange() {
 		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-			return <-s.repository.UpdateAsync(ctx, *data)
+			if err := <-s.repository.UpdateAsync(ctx, *data); err != nil {
+				return err
+			}
+
+			if data.StorageMedia == vault.StorageMediaLocal {
+				return nil
+			}
+
+			return s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value})
 		}); err != nil {
 			return nil, err
-		}
-
-		if data.StorageMedia != vault.StorageMediaLocal {
-			if err := s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value}); err != nil {
-				return nil, err
-			}
 		}
 	}
 
