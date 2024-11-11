@@ -66,7 +66,13 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 }
 
 func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaultsRequest) (*models.CreateVaultsResponse, error) {
+	if len(aux.Vaults) == 0 {
+		return nil, fmt.Errorf("no vaults need to create")
+	}
+
 	entities := make([]vault.Vault, 0)
+	storageMediaList := make(map[string]struct{})
+	storageMedia := ""
 
 	for i := 0; i < len(aux.Vaults); i++ {
 		va := aux.Vaults[i]
@@ -78,6 +84,14 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 			vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
 		)
 		entities = append(entities, *entity)
+		if _, ok := storageMediaList[va.StorageMedia]; !ok {
+			storageMediaList[va.StorageMedia] = struct{}{}
+			storageMedia = va.StorageMedia
+		}
+	}
+
+	if len(storageMediaList) > 1 {
+		return nil, fmt.Errorf("StorageMedia can only contain one type per request")
 	}
 
 	if !aux.ForceInsert {
@@ -107,28 +121,21 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		if err := <-s.repository.InsertMultipleVaultAsync(ctx, entities); err == nil {
-			// Although the code is grouped by StorageMedia, in reality there is only one StorageMedia per request.
-			providerDatas := map[string]map[string]string{}
-			for _, item := range entities {
-				if item.StorageMedia != vault.StorageMediaLocal {
-					if _, exists := providerDatas[item.StorageMedia.String()]; !exists {
-						providerDatas[item.StorageMedia.String()] = make(map[string]string)
-					}
-					providerDatas[item.StorageMedia.String()][item.GetIdentityKey()] = item.Value
-				}
-			}
-
-			for key, value := range providerDatas {
-				// If an error occurs, you can force an 'ForceInsert' operation
-				if err := s.upsertVaultInProvider(ctx, key, value); err != nil {
-					return err
-				}
-			}
-			return nil
-		} else {
+		if err := <-s.repository.InsertMultipleVaultAsync(ctx, entities); err != nil {
 			return err
 		}
+
+		if storageMedia == vault.StorageMediaLocal.String() {
+			return nil
+		}
+
+		vaultDatas := map[string]string{}
+		for _, item := range entities {
+			vaultDatas[item.GetIdentityKey()] = item.Value
+		}
+
+		// If an error occurs, you can force an 'ForceInsert' operation
+		return s.upsertVaultInProvider(ctx, storageMedia, vaultDatas)
 	}); err != nil {
 		return nil, err
 	}
