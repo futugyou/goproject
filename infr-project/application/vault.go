@@ -220,13 +220,11 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 	vaCh, errCh := s.repository.GetAsync(ctx, vaultId)
 	var va *vault.Vault
 	select {
-	case err := <-errCh:
-		if err != nil {
-			return false, err
-		}
-	case va = <-vaCh:
 	case <-ctx.Done():
 		return false, fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
+	case err := <-errCh:
+		return false, err
+	case va = <-vaCh:
 	}
 
 	if va == nil {
