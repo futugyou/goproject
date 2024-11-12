@@ -344,7 +344,7 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 		data.UpdateStorageMedia(storageMedia)
 	}
 
-	if aux.VaultType != nil || aux.TypeIdentity != nil {
+	if aux.VaultType != nil && aux.TypeIdentity != nil {
 		vaultType := vault.GetVaultType(*aux.VaultType)
 		data.UpdateVaultType(vaultType, *aux.TypeIdentity)
 	}

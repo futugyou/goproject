@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	tool "github.com/futugyou/extensions"
-
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
@@ -144,6 +142,10 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
 	}
 
+	if plat.IsDeleted {
+		return nil, fmt.Errorf("id: %s was alrealdy deleted", plat.Id)
+	}
+
 	if plat.Name != data.Name {
 		resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, data.Name)
 		var res *platform.Platform
@@ -166,34 +168,26 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		}
 	}
 
-	if plat.Url != data.Url {
-		if _, err := plat.UpdateUrl(data.Url); err != nil {
+	if _, err := plat.UpdateUrl(data.Url); err != nil {
+		return nil, err
+	}
+
+	if _, err := plat.UpdateTags(data.Tags); err != nil {
+		return nil, err
+	}
+
+	if data.Activate {
+		if _, err := plat.Enable(); err != nil {
+			return nil, err
+		}
+	} else {
+		if _, err := plat.Disable(); err != nil {
 			return nil, err
 		}
 	}
 
-	if !tool.StringArrayCompare(plat.Tags, data.Tags) {
-		if _, err := plat.UpdateTags(data.Tags); err != nil {
-			return nil, err
-		}
-	}
-
-	if plat.Activate != data.Activate {
-		if data.Activate {
-			if _, err := plat.Enable(); err != nil {
-				return nil, err
-			}
-		} else {
-			if _, err := plat.Disable(); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	if !tool.MapsCompareCommon(plat.Properties, newProperty) {
-		if _, err := plat.UpdateProperties(newProperty); err != nil {
-			return nil, err
-		}
+	if _, err := plat.UpdateProperties(newProperty); err != nil {
+		return nil, err
 	}
 
 	newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
@@ -201,16 +195,12 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		return nil, err
 	}
 
-	if !tool.MapsCompareCommon(plat.Secrets, newSecrets) {
-		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
-			return nil, err
-		}
+	if _, err := plat.UpdateSecrets(newSecrets); err != nil {
+		return nil, err
 	}
 
-	if plat.Provider.String() != data.Provider {
-		if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
-			return nil, err
-		}
+	if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
+		return nil, err
 	}
 
 	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {

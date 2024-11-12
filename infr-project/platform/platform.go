@@ -68,10 +68,20 @@ func NewPlatform(name string, url string, provider PlatformProvider, opts ...Pla
 
 func (r *Platform) stateCheck() error {
 	if r.IsDeleted {
-		return fmt.Errorf("id: %s is alrealdy deleted", r.Id)
+		return fmt.Errorf("id: %s was alrealdy deleted", r.Id)
 	}
 
 	return nil
+}
+
+func (w *Platform) Delete() (*Platform, error) {
+	w.IsDeleted = true
+	return w, nil
+}
+
+func (w *Platform) Recovery() (*Platform, error) {
+	w.IsDeleted = false
+	return w, nil
 }
 
 func (w *Platform) Enable() (*Platform, error) {
