@@ -52,13 +52,12 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 	}
 
 	// check name
-
 	resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, aux.Name)
 	select {
 	case <-resCh:
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	case err := <-errCh:
-		if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 			return nil, err
 		}
 	case <-ctx.Done():
@@ -94,7 +93,7 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 	select {
 	case src = <-srcCh:
 	case err := <-errCh:
-		if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 			return nil, err
 		}
 	case <-ctx.Done():
@@ -129,6 +128,93 @@ func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.P
 }
 
 func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, id, "UpdatePlatform", func(plat *platform.Platform) error {
+		if plat.IsDeleted {
+			return fmt.Errorf("id: %s was alrealdy deleted", plat.Id)
+		}
+
+		if plat.Name != data.Name {
+			resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, data.Name)
+			var res *platform.Platform
+			select {
+			case res = <-resCh:
+				if res.Id != id {
+					return fmt.Errorf("name: %s is existed", data.Name)
+				}
+			case err := <-errCh:
+				if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+					return err
+				}
+			case <-ctx.Done():
+				return fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
+			}
+
+			if _, err := plat.UpdateName(data.Name); err != nil {
+				return err
+			}
+		}
+
+		if _, err := plat.UpdateUrl(data.Url); err != nil {
+			return err
+		}
+
+		if _, err := plat.UpdateTags(data.Tags); err != nil {
+			return err
+		}
+
+		if data.Activate {
+			if _, err := plat.Enable(); err != nil {
+				return err
+			}
+		} else {
+			if _, err := plat.Disable(); err != nil {
+				return err
+			}
+		}
+
+		if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
+			return err
+		}
+
+		newProperty := convertPlatformProperties(data.Properties)
+		if _, err := plat.UpdateProperties(newProperty); err != nil {
+			return err
+		}
+
+		newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
+		if err != nil {
+			return err
+		}
+
+		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, id, "DeletePlatform", func(plat *platform.Platform) error {
+		if _, err := plat.Delete(); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *PlatformService) RecoveryPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, id, "RecoveryPlatform", func(plat *platform.Platform) error {
+		if _, err := plat.Recovery(); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *PlatformService) updatePlatform(ctx context.Context, id string, operation string, fn func(*platform.Platform) error) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetAsync(ctx, id)
 	var plat *platform.Platform
 	select {
@@ -136,98 +222,10 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 	case err := <-errCh:
 		return nil, err
 	case <-ctx.Done():
-		return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
+		return nil, fmt.Errorf("%s timeout: %w", operation, ctx.Err())
 	}
 
-	if plat.IsDeleted {
-		return nil, fmt.Errorf("id: %s was alrealdy deleted", plat.Id)
-	}
-
-	if plat.Name != data.Name {
-		resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, data.Name)
-		var res *platform.Platform
-		select {
-		case res = <-resCh:
-		case err := <-errCh:
-			if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-				return nil, err
-			}
-		case <-ctx.Done():
-			return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
-		}
-
-		if res != nil && len(res.Id) > 0 && res.Id != id {
-			return nil, fmt.Errorf("name: %s is existed", data.Name)
-		}
-
-		if _, err := plat.UpdateName(data.Name); err != nil {
-			return nil, err
-		}
-	}
-
-	if _, err := plat.UpdateUrl(data.Url); err != nil {
-		return nil, err
-	}
-
-	if _, err := plat.UpdateTags(data.Tags); err != nil {
-		return nil, err
-	}
-
-	if data.Activate {
-		if _, err := plat.Enable(); err != nil {
-			return nil, err
-		}
-	} else {
-		if _, err := plat.Disable(); err != nil {
-			return nil, err
-		}
-	}
-
-	if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
-		return nil, err
-	}
-
-	newProperty := convertPlatformProperties(data.Properties)
-	if _, err := plat.UpdateProperties(newProperty); err != nil {
-		return nil, err
-	}
-
-	newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := plat.UpdateSecrets(newSecrets); err != nil {
-		return nil, err
-	}
-
-	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
-		}
-	}); err != nil {
-		return nil, err
-	}
-
-	return s.convertPlatformEntityToViewModel(ctx, plat)
-}
-
-func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	srcCh, errCh := s.repository.GetAsync(ctx, id)
-	var plat *platform.Platform
-	select {
-	case plat = <-srcCh:
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
-	}
-
-	if _, err := plat.Delete(); err != nil {
+	if err := fn(plat); err != nil {
 		return nil, err
 	}
 
@@ -237,37 +235,7 @@ func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*model
 		case err := <-errCh:
 			return err
 		case <-ctx.Done():
-			return fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
-		}
-	}); err != nil {
-		return nil, err
-	}
-
-	return s.convertPlatformEntityToViewModel(ctx, plat)
-}
-
-func (s *PlatformService) RecoveryPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	srcCh, errCh := s.repository.GetAsync(ctx, id)
-	var plat *platform.Platform
-	select {
-	case plat = <-srcCh:
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("RecoveryPlatform timeout: %w", ctx.Err())
-	}
-
-	if _, err := plat.Recovery(); err != nil {
-		return nil, err
-	}
-
-	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("RecoveryPlatform timeout: %w", ctx.Err())
+			return fmt.Errorf("%s timeout: %w", operation, ctx.Err())
 		}
 	}); err != nil {
 		return nil, err
