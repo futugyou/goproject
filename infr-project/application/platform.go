@@ -33,23 +33,30 @@ func NewPlatformService(
 
 func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreatePlatformRequest) (*models.PlatformDetailView, error) {
 	properties := convertPlatformProperties(aux.Properties)
-	if err := checkPlatformProviderProperties(aux.Provider, properties); err != nil {
-		return nil, err
-	}
-
 	secrets, err := s.convertToEntitySecrets(ctx, aux.Secrets)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := checkPlatformProviderSecret(aux.Provider, secrets); err != nil {
+	res, err := platform.NewPlatform(
+		aux.Name,
+		aux.Url,
+		platform.GetPlatformProvider(aux.Provider),
+		platform.WithPlatformProperties(properties),
+		platform.WithPlatformTags(aux.Tags),
+		platform.WithPlatformSecrets(secrets),
+	)
+
+	if err != nil {
 		return nil, err
 	}
 
+	// check name
+
 	resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, aux.Name)
-	var res *platform.Platform
 	select {
-	case res = <-resCh:
+	case <-resCh:
+		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	case err := <-errCh:
 		if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 			return nil, err
@@ -58,16 +65,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 		return nil, fmt.Errorf("CreatePlatform timeout: %w", ctx.Err())
 	}
 
-	if res != nil && res.Name == aux.Name {
-		return nil, fmt.Errorf("name: %s is existed", aux.Name)
-	}
-
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, platform.GetPlatformProvider(aux.Provider),
-			platform.WithPlatformProperties(properties),
-			platform.WithPlatformTags(aux.Tags),
-			platform.WithPlatformSecrets(secrets),
-		)
 		errCh := s.repository.InsertAsync(ctx, *res)
 		select {
 		case err := <-errCh:
@@ -131,11 +129,6 @@ func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.P
 }
 
 func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
-	newProperty := convertPlatformProperties(data.Properties)
-	if err := checkPlatformProviderProperties(data.Provider, newProperty); err != nil {
-		return nil, err
-	}
-
 	platCh, errCh := s.repository.GetAsync(ctx, id)
 	var plat *platform.Platform
 	select {
@@ -190,6 +183,11 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		}
 	}
 
+	if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
+		return nil, err
+	}
+
+	newProperty := convertPlatformProperties(data.Properties)
 	if _, err := plat.UpdateProperties(newProperty); err != nil {
 		return nil, err
 	}
@@ -199,15 +197,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 		return nil, err
 	}
 
-	if err := checkPlatformProviderSecret(data.Provider, newSecrets); err != nil {
-		return nil, err
-	}
-
 	if _, err := plat.UpdateSecrets(newSecrets); err != nil {
-		return nil, err
-	}
-
-	if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
 		return nil, err
 	}
 
@@ -650,40 +640,4 @@ func convertPlatformProperties(propertyList []models.Property) map[string]platfo
 	}
 
 	return properties
-}
-
-func checkPlatformProviderSecret(provider string, secretMap map[string]platform.Secret) error {
-	switch provider {
-	case platform.PlatformProviderCircleci.String():
-		if _, ok := secretMap["CIRCLECI_TOKEN"]; !ok {
-			return fmt.Errorf("%s provider MUST have CIRCLECI_TOKEN in Secret", provider)
-		}
-	case platform.PlatformProviderVercel.String():
-		if _, ok := secretMap["VERCEL_TOKEN"]; !ok {
-			return fmt.Errorf("%s provider MUST have VERCEL_TOKEN in Secret", provider)
-		}
-	case platform.PlatformProviderGithub.String():
-		if _, ok := secretMap["GITHUB_TOKEN"]; !ok {
-			return fmt.Errorf("%s provider MUST have GITHUB_TOKEN in Secret", provider)
-		}
-	}
-
-	return nil
-}
-
-func checkPlatformProviderProperties(provider string, properties map[string]platform.Property) error {
-	switch provider {
-	case platform.PlatformProviderOther.String():
-	case platform.PlatformProviderVercel.String():
-	case platform.PlatformProviderCircleci.String():
-		if _, ok := properties["org_slug"]; !ok {
-			return fmt.Errorf("%s provider MUST have org_slug in Property", provider)
-		}
-	case platform.PlatformProviderGithub.String():
-		if _, ok := properties["GITHUB_OWNER"]; !ok {
-			return fmt.Errorf("%s provider MUST have GITHUB_OWNER in Property", provider)
-		}
-	}
-
-	return nil
 }

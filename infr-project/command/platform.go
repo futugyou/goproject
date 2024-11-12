@@ -65,17 +65,15 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 	property := make(map[string]platform.Property)
 	for _, v := range aux.Properties {
 		property[v.Key] = platform.Property(v)
-		// {
-		// 	Key:      v.Key,
-		// 	Value:    v.Value,
-		// 	NeedMask: v.NeedMask,
-		// }
 	}
 	err = commonHandler.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = platform.NewPlatform(aux.Name, aux.Url, nil,
+		res, err = platform.NewPlatform(aux.Name, aux.Url, nil,
 			platform.WithPlatformProperties(property),
 			platform.WithPlatformTags(aux.Tags),
 		)
+		if err != nil {
+			return err
+		}
 		return repository.Insert(ctx, *res)
 	})
 	if err != nil {

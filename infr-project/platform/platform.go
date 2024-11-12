@@ -43,7 +43,7 @@ func WithPlatformProperties(properties map[string]Property) PlatformOption {
 	}
 }
 
-func NewPlatform(name string, url string, provider PlatformProvider, opts ...PlatformOption) *Platform {
+func NewPlatform(name string, url string, provider PlatformProvider, opts ...PlatformOption) (*Platform, error) {
 	platform := &Platform{
 		Aggregate: domain.Aggregate{
 			Id: uuid.New().String(),
@@ -63,7 +63,17 @@ func NewPlatform(name string, url string, provider PlatformProvider, opts ...Pla
 		opt(platform)
 	}
 
-	return platform
+	// check property
+	if err := platform.checkPlatformProviderProperties(platform.Properties); err != nil {
+		return nil, err
+	}
+
+	// check secret
+	if err := platform.checkPlatformProviderSecrets(platform.Secrets); err != nil {
+		return nil, err
+	}
+
+	return platform, nil
 }
 
 func (r *Platform) stateCheck() error {
@@ -116,6 +126,7 @@ func (w *Platform) UpdateUrl(url string) (*Platform, error) {
 	return w, nil
 }
 
+// update secret and propert need after update provider
 func (w *Platform) UpdateProvider(provider PlatformProvider) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
@@ -136,6 +147,11 @@ func (w *Platform) UpdateProperties(properties map[string]Property) (*Platform, 
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
+
+	if err := w.checkPlatformProviderProperties(properties); err != nil {
+		return nil, err
+	}
+
 	w.Properties = properties
 	return w, nil
 }
@@ -144,6 +160,11 @@ func (w *Platform) UpdateSecrets(secrets map[string]Secret) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
+
+	if err := w.checkPlatformProviderSecrets(secrets); err != nil {
+		return nil, err
+	}
+
 	w.Secrets = secrets
 	return w, nil
 }
@@ -209,4 +230,40 @@ func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, 
 
 func (r Platform) AggregateName() string {
 	return "platforms"
+}
+
+func (w *Platform) checkPlatformProviderSecrets(secretMap map[string]Secret) error {
+	switch w.Provider {
+	case PlatformProviderCircleci:
+		if _, ok := secretMap["CIRCLECI_TOKEN"]; !ok {
+			return fmt.Errorf("%s provider MUST have CIRCLECI_TOKEN in Secret", w.Provider.String())
+		}
+	case PlatformProviderVercel:
+		if _, ok := secretMap["VERCEL_TOKEN"]; !ok {
+			return fmt.Errorf("%s provider MUST have VERCEL_TOKEN in Secret", w.Provider.String())
+		}
+	case PlatformProviderGithub:
+		if _, ok := secretMap["GITHUB_TOKEN"]; !ok {
+			return fmt.Errorf("%s provider MUST have GITHUB_TOKEN in Secret", w.Provider.String())
+		}
+	}
+
+	return nil
+}
+
+func (w *Platform) checkPlatformProviderProperties(properties map[string]Property) error {
+	switch w.Provider {
+	case PlatformProviderOther:
+	case PlatformProviderVercel:
+	case PlatformProviderCircleci:
+		if _, ok := properties["org_slug"]; !ok {
+			return fmt.Errorf("%s provider MUST have org_slug in Property", w.Provider.String())
+		}
+	case PlatformProviderGithub:
+		if _, ok := properties["GITHUB_OWNER"]; !ok {
+			return fmt.Errorf("%s provider MUST have GITHUB_OWNER in Property", w.Provider.String())
+		}
+	}
+
+	return nil
 }
