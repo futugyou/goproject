@@ -85,7 +85,7 @@ func deletePlatformProject(c *gin.Context) {
 // @Router /v1/platform/{id}/project/{project_id} [put]
 func updatePlatformProject(c *gin.Context) {
 	ctrl := controller.NewPlatformController()
-	ctrl.CreatePlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+	ctrl.UpsertPlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }
 
 // @Summary create platform project
@@ -99,7 +99,7 @@ func updatePlatformProject(c *gin.Context) {
 // @Router /v1/platform/{id}/project [post]
 func createPlatformProject(c *gin.Context) {
 	ctrl := controller.NewPlatformController()
-	ctrl.CreatePlatformProject(c.Param("id"), "", c.Writer, c.Request)
+	ctrl.UpsertPlatformProject(c.Param("id"), "", c.Writer, c.Request)
 }
 
 // @Summary recovery platform

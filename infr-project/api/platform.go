@@ -64,7 +64,7 @@ func recoveryPlatform(ctrl *controller.PlatformController, r *http.Request, w ht
 func updatePlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
-	ctrl.CreatePlatformProject(id, projectId, w, r)
+	ctrl.UpsertPlatformProject(id, projectId, w, r)
 }
 
 func deletePlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
@@ -83,7 +83,7 @@ func createPlatformProject(ctrl *controller.PlatformController, r *http.Request,
 	}
 
 	id := r.URL.Query().Get("id")
-	ctrl.CreatePlatformProject(id, "", w, r)
+	ctrl.UpsertPlatformProject(id, "", w, r)
 }
 
 func hookPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {

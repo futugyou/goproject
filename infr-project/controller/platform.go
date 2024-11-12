@@ -41,7 +41,7 @@ func (c *PlatformController) DeletePlatformProject(id string, projectId string, 
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) CreatePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) UpsertPlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *PlatformController) CreatePlatformProject(id string, projectId string, 
 		return
 	}
 
-	res, err := service.AddProject(ctx, id, projectId, aux)
+	res, err := service.UpsertProject(ctx, id, projectId, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return

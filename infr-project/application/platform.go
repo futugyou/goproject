@@ -32,8 +32,17 @@ func NewPlatformService(
 }
 
 func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreatePlatformRequest) (*models.PlatformDetailView, error) {
-	properties, err := convertPlatformProperties(aux.Provider, aux.Properties)
+	properties := convertPlatformProperties(aux.Properties)
+	if err := checkPlatformProviderProperties(aux.Provider, properties); err != nil {
+		return nil, err
+	}
+
+	secrets, err := s.convertToEntitySecrets(ctx, aux.Secrets)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := checkPlatformProviderSecret(aux.Provider, secrets); err != nil {
 		return nil, err
 	}
 
@@ -51,11 +60,6 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 
 	if res != nil && res.Name == aux.Name {
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
-	}
-
-	secrets, err := s.convertToEntitySecrets(ctx, aux.Secrets)
-	if err != nil {
-		return nil, err
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
@@ -127,8 +131,8 @@ func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.P
 }
 
 func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
-	newProperty, err := convertPlatformProperties(data.Provider, data.Properties)
-	if err != nil {
+	newProperty := convertPlatformProperties(data.Properties)
+	if err := checkPlatformProviderProperties(data.Provider, newProperty); err != nil {
 		return nil, err
 	}
 
@@ -136,7 +140,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 	var plat *platform.Platform
 	select {
 	case plat = <-platCh:
-	case err = <-errCh:
+	case err := <-errCh:
 		return nil, err
 	case <-ctx.Done():
 		return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
@@ -192,6 +196,10 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 
 	newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := checkPlatformProviderSecret(data.Provider, newSecrets); err != nil {
 		return nil, err
 	}
 
@@ -368,7 +376,7 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectI
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) AddProject(ctx context.Context, id string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
+func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetAsync(ctx, id)
 	var plat *platform.Platform
 	var err error
@@ -377,7 +385,7 @@ func (s *PlatformService) AddProject(ctx context.Context, id string, projectId s
 	case err = <-errCh:
 		return nil, err
 	case <-ctx.Done():
-		return nil, fmt.Errorf("AddProject timeout: %w", ctx.Err())
+		return nil, fmt.Errorf("UpsertProject timeout: %w", ctx.Err())
 	}
 
 	if len(projectId) == 0 {
@@ -415,7 +423,7 @@ func (s *PlatformService) AddProject(ctx context.Context, id string, projectId s
 		case err := <-errCh:
 			return err
 		case <-ctx.Done():
-			return fmt.Errorf("AddProject timeout: %w", ctx.Err())
+			return fmt.Errorf("UpsertProject timeout: %w", ctx.Err())
 		}
 	}); err != nil {
 		return nil, err
@@ -451,6 +459,63 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 		return nil, err
 	}
 	return s.convertPlatformEntityToViewModel(ctx, plat)
+}
+
+func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
+	var provider string
+	var vaultId string
+	var token string
+	var err error
+
+	switch src.Provider {
+	case platform.PlatformProviderCircleci:
+		provider = platform.PlatformProviderCircleci.String()
+		vaultId = src.Secrets["CIRCLECI_TOKEN"].Value
+	case platform.PlatformProviderVercel:
+		provider = platform.PlatformProviderVercel.String()
+		vaultId = src.Secrets["VERCEL_TOKEN"].Value
+	case platform.PlatformProviderGithub:
+		provider = platform.PlatformProviderGithub.String()
+		vaultId = src.Secrets["GITHUB_TOKEN"].Value
+	default:
+		return nil, fmt.Errorf("%s not supported", src.Provider.String())
+	}
+
+	token, err = s.vaultService.ShowVaultRawValue(ctx, vaultId)
+	if err != nil {
+		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
+	}
+
+	return platformProvider.PlatformProviderFatory(provider, token)
+}
+
+func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync) ([]models.PlatformProject, error) {
+	var projects []platformProvider.Project
+
+	filter := platformProvider.ProjectFilter{}
+	resCh, errCh := provider.ListProjectAsync(ctx, filter)
+	select {
+	case projects = <-resCh:
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("getProviderProjects timeout: %w", ctx.Err())
+	}
+
+	result := make([]models.PlatformProject, 0)
+	for _, project := range projects {
+		result = append(result, models.PlatformProject{
+			Id:         project.ID,
+			Name:       project.Name,
+			Url:        project.Url,
+			Properties: []models.Property{},
+			Secrets:    []models.Secret{},
+			Webhooks:   []models.Webhook{},
+			Followed:   false,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, src *platform.Platform) (*models.PlatformDetailView, error) {
@@ -575,64 +640,7 @@ func (s *PlatformService) convertToEntitySecrets(ctx context.Context, secrets []
 	return secretInfos, nil
 }
 
-func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
-	var provider string
-	var vaultId string
-	var token string
-	var err error
-
-	switch src.Provider {
-	case platform.PlatformProviderCircleci:
-		provider = platform.PlatformProviderCircleci.String()
-		vaultId = src.Secrets["CIRCLECI_TOKEN"].Value
-	case platform.PlatformProviderVercel:
-		provider = platform.PlatformProviderVercel.String()
-		vaultId = src.Secrets["VERCEL_TOKEN"].Value
-	case platform.PlatformProviderGithub:
-		provider = platform.PlatformProviderGithub.String()
-		vaultId = src.Secrets["GITHUB_TOKEN"].Value
-	default:
-		return nil, fmt.Errorf("%s not supported", src.Provider.String())
-	}
-
-	token, err = s.vaultService.ShowVaultRawValue(ctx, vaultId)
-	if err != nil {
-		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
-	}
-
-	return platformProvider.PlatformProviderFatory(provider, token)
-}
-
-func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync) ([]models.PlatformProject, error) {
-	var projects []platformProvider.Project
-
-	filter := platformProvider.ProjectFilter{}
-	resCh, errCh := provider.ListProjectAsync(ctx, filter)
-	select {
-	case projects = <-resCh:
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderProjects timeout: %w", ctx.Err())
-	}
-
-	result := make([]models.PlatformProject, 0)
-	for _, project := range projects {
-		result = append(result, models.PlatformProject{
-			Id:         project.ID,
-			Name:       project.Name,
-			Url:        project.Url,
-			Properties: []models.Property{},
-			Secrets:    []models.Secret{},
-			Webhooks:   []models.Webhook{},
-			Followed:   false,
-		})
-	}
-
-	return result, nil
-}
-
-func convertPlatformProperties(provider string, propertyList []models.Property) (map[string]platform.Property, error) {
+func convertPlatformProperties(propertyList []models.Property) map[string]platform.Property {
 	properties := make(map[string]platform.Property)
 	for _, v := range propertyList {
 		properties[v.Key] = platform.Property{
@@ -641,19 +649,41 @@ func convertPlatformProperties(provider string, propertyList []models.Property) 
 		}
 	}
 
+	return properties
+}
+
+func checkPlatformProviderSecret(provider string, secretMap map[string]platform.Secret) error {
 	switch provider {
+	case platform.PlatformProviderCircleci.String():
+		if _, ok := secretMap["CIRCLECI_TOKEN"]; !ok {
+			return fmt.Errorf("%s provider MUST have CIRCLECI_TOKEN in Secret", provider)
+		}
+	case platform.PlatformProviderVercel.String():
+		if _, ok := secretMap["VERCEL_TOKEN"]; !ok {
+			return fmt.Errorf("%s provider MUST have VERCEL_TOKEN in Secret", provider)
+		}
+	case platform.PlatformProviderGithub.String():
+		if _, ok := secretMap["GITHUB_TOKEN"]; !ok {
+			return fmt.Errorf("%s provider MUST have GITHUB_TOKEN in Secret", provider)
+		}
+	}
+
+	return nil
+}
+
+func checkPlatformProviderProperties(provider string, properties map[string]platform.Property) error {
+	switch provider {
+	case platform.PlatformProviderOther.String():
 	case platform.PlatformProviderVercel.String():
 	case platform.PlatformProviderCircleci.String():
 		if _, ok := properties["org_slug"]; !ok {
-			return nil, fmt.Errorf("%s provider MUST have org_slug in Property", provider)
+			return fmt.Errorf("%s provider MUST have org_slug in Property", provider)
 		}
 	case platform.PlatformProviderGithub.String():
 		if _, ok := properties["GITHUB_OWNER"]; !ok {
-			return nil, fmt.Errorf("%s provider MUST have GITHUB_OWNER in Property", provider)
+			return fmt.Errorf("%s provider MUST have GITHUB_OWNER in Property", provider)
 		}
-	case platform.PlatformProviderOther.String():
-
 	}
 
-	return properties, nil
+	return nil
 }
