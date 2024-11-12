@@ -218,6 +218,66 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
+func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
+	srcCh, errCh := s.repository.GetAsync(ctx, id)
+	var plat *platform.Platform
+	select {
+	case plat = <-srcCh:
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
+	}
+
+	if _, err := plat.Delete(); err != nil {
+		return nil, err
+	}
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		errCh := s.repository.UpdateAsync(ctx, *plat)
+		select {
+		case err := <-errCh:
+			return err
+		case <-ctx.Done():
+			return fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
+		}
+	}); err != nil {
+		return nil, err
+	}
+
+	return s.convertPlatformEntityToViewModel(ctx, plat)
+}
+
+func (s *PlatformService) RecoveryPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
+	srcCh, errCh := s.repository.GetAsync(ctx, id)
+	var plat *platform.Platform
+	select {
+	case plat = <-srcCh:
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("RecoveryPlatform timeout: %w", ctx.Err())
+	}
+
+	if _, err := plat.Recovery(); err != nil {
+		return nil, err
+	}
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		errCh := s.repository.UpdateAsync(ctx, *plat)
+		select {
+		case err := <-errCh:
+			return err
+		case <-ctx.Done():
+			return fmt.Errorf("RecoveryPlatform timeout: %w", ctx.Err())
+		}
+	}); err != nil {
+		return nil, err
+	}
+
+	return s.convertPlatformEntityToViewModel(ctx, plat)
+}
+
 func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetAsync(ctx, id)
 	var plat *platform.Platform
@@ -306,28 +366,6 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectI
 	}
 
 	return s.convertPlatformEntityToViewModel(ctx, plat)
-}
-
-func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	errCh := s.repository.SoftDeleteAsync(ctx, id)
-	select {
-	case err := <-errCh:
-		if err != nil {
-			return nil, err
-		}
-	case <-ctx.Done():
-		return nil, fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
-	}
-
-	srcCh, errCh := s.repository.GetAsync(ctx, id)
-	select {
-	case src := <-srcCh:
-		return s.convertPlatformEntityToViewModel(ctx, src)
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("DeletePlatform timeout: %w", ctx.Err())
-	}
 }
 
 func (s *PlatformService) AddProject(ctx context.Context, id string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {

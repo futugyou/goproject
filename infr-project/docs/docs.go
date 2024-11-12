@@ -466,6 +466,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/platform/{id}/recovery": {
+            "post": {
+                "description": "recovery platform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "recovery platform",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/project": {
             "get": {
                 "description": "get all project",

@@ -224,6 +224,24 @@ func (c *PlatformController) DeletePlatform(id string, w http.ResponseWriter, r 
 	writeJSONResponse(w, res, 200)
 }
 
+func (c *PlatformController) RecoveryPlatform(id string, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	service, err := createPlatformService(ctx)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	res, err := service.RecoveryPlatform(ctx, id)
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
+}
+
 func createPlatformService(ctx context.Context) (*application.PlatformService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),

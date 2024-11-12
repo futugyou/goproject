@@ -19,6 +19,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform", createPlatform)
 	v1.PUT("/platform/:id", updatePlatform)
 	v1.DELETE("/platform/:id", deletePlatform)
+	v1.POST("/platform/:id/recovery", recoveryPlatform)
 	// platform project
 	v1.POST("/platform/:id/project", createPlatformProject)
 	v1.PUT("/platform/:id/project/:project_id", updatePlatformProject)
@@ -99,6 +100,19 @@ func updatePlatformProject(c *gin.Context) {
 func createPlatformProject(c *gin.Context) {
 	ctrl := controller.NewPlatformController()
 	ctrl.CreatePlatformProject(c.Param("id"), "", c.Writer, c.Request)
+}
+
+// @Summary recovery platform
+// @Description recovery platform
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Success 200 {object} viewmodels.PlatformDetailView
+// @Router /v1/platform/{id}/recovery [post]
+func recoveryPlatform(c *gin.Context) {
+	ctrl := controller.NewPlatformController()
+	ctrl.RecoveryPlatform(c.Param("id"), c.Writer, c.Request)
 }
 
 // @Summary delete platform

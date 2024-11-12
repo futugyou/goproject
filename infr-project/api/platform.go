@@ -44,11 +44,21 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 		deletePlatformProject(ctrl, r, w)
 	case "proup":
 		updatePlatformProject(ctrl, r, w)
+	case "recovery":
+		recoveryPlatform(ctrl, r, w)
 	default:
 		w.Write([]byte("system error"))
 		w.WriteHeader(500)
 		return
 	}
+}
+func recoveryPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+	ctrl.RecoveryPlatform(id, w, r)
 }
 
 func updatePlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
