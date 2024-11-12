@@ -34,6 +34,11 @@ func NewPlatformService(
 }
 
 func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreatePlatformRequest) (*models.PlatformDetailView, error) {
+	properties, err := convertPlatformProperties(aux.Provider, aux.Properties)
+	if err != nil {
+		return nil, err
+	}
+
 	resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, aux.Name)
 	var res *platform.Platform
 	select {
@@ -48,14 +53,6 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 
 	if res != nil && res.Name == aux.Name {
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
-	}
-
-	properties := make(map[string]platform.Property)
-	for _, v := range aux.Properties {
-		properties[v.Key] = platform.Property{
-			Key:   v.Key,
-			Value: v.Value,
-		}
 	}
 
 	secrets, err := s.convertToEntitySecrets(ctx, aux.Secrets)
@@ -129,6 +126,106 @@ func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.P
 	case <-ctx.Done():
 		return nil, fmt.Errorf("GetPlatform timeout: %w", ctx.Err())
 	}
+}
+
+func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
+	newProperty, err := convertPlatformProperties(data.Provider, data.Properties)
+	if err != nil {
+		return nil, err
+	}
+
+	platCh, errCh := s.repository.GetAsync(ctx, id)
+	var plat *platform.Platform
+	select {
+	case plat = <-platCh:
+	case err = <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
+	}
+
+	if plat.Name != data.Name {
+		resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, data.Name)
+		var res *platform.Platform
+		select {
+		case res = <-resCh:
+		case err := <-errCh:
+			if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+				return nil, err
+			}
+		case <-ctx.Done():
+			return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
+		}
+
+		if res != nil && len(res.Id) > 0 && res.Id != id {
+			return nil, fmt.Errorf("name: %s is existed", data.Name)
+		}
+
+		if _, err := plat.UpdateName(data.Name); err != nil {
+			return nil, err
+		}
+	}
+
+	if plat.Url != data.Url {
+		if _, err := plat.UpdateUrl(data.Url); err != nil {
+			return nil, err
+		}
+	}
+
+	if !tool.StringArrayCompare(plat.Tags, data.Tags) {
+		if _, err := plat.UpdateTags(data.Tags); err != nil {
+			return nil, err
+		}
+	}
+
+	if plat.Activate != data.Activate {
+		if data.Activate {
+			if _, err := plat.Enable(); err != nil {
+				return nil, err
+			}
+		} else {
+			if _, err := plat.Disable(); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if !tool.MapsCompareCommon(plat.Properties, newProperty) {
+		if _, err := plat.UpdateProperties(newProperty); err != nil {
+			return nil, err
+		}
+	}
+
+	newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
+	if err != nil {
+		return nil, err
+	}
+
+	if !tool.MapsCompareCommon(plat.Secrets, newSecrets) {
+		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
+			return nil, err
+		}
+	}
+
+	if plat.Provider.String() != data.Provider {
+		if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		errCh := s.repository.UpdateAsync(ctx, *plat)
+		select {
+		case err := <-errCh:
+			return err
+		case <-ctx.Done():
+			return fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
+		}
+	}); err != nil {
+		return nil, err
+	}
+
+	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
 func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
@@ -328,109 +425,6 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, id)
-	var plat *platform.Platform
-	var err error
-	select {
-	case plat = <-platCh:
-	case err = <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
-	}
-
-	if plat.Name != data.Name {
-		resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, data.Name)
-		var res *platform.Platform
-		select {
-		case res = <-resCh:
-		case err := <-errCh:
-			if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-				return nil, err
-			}
-		case <-ctx.Done():
-			return nil, fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
-		}
-
-		if res != nil && len(res.Id) > 0 && res.Id != id {
-			return nil, fmt.Errorf("name: %s is existed", data.Name)
-		}
-
-		if _, err := plat.UpdateName(data.Name); err != nil {
-			return nil, err
-		}
-	}
-
-	if plat.Url != data.Url {
-		if _, err := plat.UpdateUrl(data.Url); err != nil {
-			return nil, err
-		}
-	}
-
-	if !tool.StringArrayCompare(plat.Tags, data.Tags) {
-		if _, err := plat.UpdateTags(data.Tags); err != nil {
-			return nil, err
-		}
-	}
-
-	if data.Activate != nil && plat.Activate != *data.Activate {
-		if *data.Activate {
-			if _, err := plat.Enable(); err != nil {
-				return nil, err
-			}
-		} else {
-			if _, err := plat.Disable(); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	newProperty := make(map[string]platform.Property)
-	for _, v := range data.Properties {
-		newProperty[v.Key] = platform.Property{
-			Key:   v.Key,
-			Value: v.Value,
-		}
-	}
-	if !tool.MapsCompareCommon(plat.Properties, newProperty) {
-		if _, err := plat.UpdateProperties(newProperty); err != nil {
-			return nil, err
-		}
-	}
-
-	newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
-	if err != nil {
-		return nil, err
-	}
-
-	if !tool.MapsCompareCommon(plat.Secrets, newSecrets) {
-		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
-			return nil, err
-		}
-	}
-
-	if plat.Provider.String() != data.Provider {
-		if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
-			return nil, err
-		}
-	}
-
-	if err = s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
-		}
-	}); err != nil {
-		return nil, err
-	}
-
-	return s.convertPlatformEntityToViewModel(ctx, plat)
-}
-
 func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, src *platform.Platform) (*models.PlatformDetailView, error) {
 	if src == nil {
 		return nil, fmt.Errorf("no platform data found")
@@ -608,4 +602,30 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, provider plat
 	}
 
 	return result, nil
+}
+
+func convertPlatformProperties(provider string, propertyList []models.Property) (map[string]platform.Property, error) {
+	properties := make(map[string]platform.Property)
+	for _, v := range propertyList {
+		properties[v.Key] = platform.Property{
+			Key:   v.Key,
+			Value: v.Value,
+		}
+	}
+
+	switch provider {
+	case platform.PlatformProviderVercel.String():
+	case platform.PlatformProviderCircleci.String():
+		if _, ok := properties["org_slug"]; !ok {
+			return nil, fmt.Errorf("%s provider MUST have org_slug in Property", provider)
+		}
+	case platform.PlatformProviderGithub.String():
+		if _, ok := properties["GITHUB_OWNER"]; !ok {
+			return nil, fmt.Errorf("%s provider MUST have GITHUB_OWNER in Property", provider)
+		}
+	case platform.PlatformProviderOther.String():
+
+	}
+
+	return properties, nil
 }

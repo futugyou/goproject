@@ -1670,6 +1670,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
+                "properties",
+                "secrets",
+                "tags",
                 "url"
             ],
             "properties": {
@@ -2160,6 +2163,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
+                "secrets",
                 "url"
             ],
             "properties": {
@@ -2191,7 +2195,11 @@ const docTemplate = `{
         "viewmodels.UpdatePlatformRequest": {
             "type": "object",
             "required": [
+                "activate",
                 "name",
+                "properties",
+                "secrets",
+                "tags",
                 "url"
             ],
             "properties": {
@@ -2243,6 +2251,8 @@ const docTemplate = `{
             "required": [
                 "activate",
                 "name",
+                "properties",
+                "secrets",
                 "url"
             ],
             "properties": {

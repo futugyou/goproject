@@ -8,26 +8,26 @@ type Property struct {
 type CreatePlatformRequest struct {
 	Name       string     `json:"name" validate:"required,min=3,max=50"`
 	Url        string     `json:"url" validate:"required,min=3,max=150"`
-	Tags       []string   `json:"tags"`
-	Properties []Property `json:"properties"`
-	Secrets    []Secret   `json:"secrets"` // only Key and VaultId in request
+	Tags       []string   `json:"tags" validate:"required"`
+	Properties []Property `json:"properties" validate:"required"`
+	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Provider   string     `json:"provider" validate:"oneof=vercel github circleci other"`
 }
 
 type UpdatePlatformRequest struct {
 	Name       string     `json:"name" validate:"required,min=3,max=50"`
 	Url        string     `json:"url" validate:"required,min=3,max=150"`
-	Properties []Property `json:"properties,omitempty"`
-	Secrets    []Secret   `json:"secrets"` // only Key and VaultId in request
-	Tags       []string   `json:"tags"`
-	Activate   *bool      `json:"activate,omitempty"`
+	Properties []Property `json:"properties" validate:"required"`
+	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
+	Tags       []string   `json:"tags" validate:"required"`
+	Activate   bool       `json:"activate" validate:"required"`
 	Provider   string     `json:"provider" validate:"oneof=vercel github circleci other"`
 }
 
 type UpdatePlatformProjectRequest struct {
 	Name       string            `json:"name" validate:"required,min=3,max=50"`
 	Url        string            `json:"url" validate:"required,min=3,max=150"`
-	Secrets    []Secret          `json:"secrets"` // only Key and VaultId in request
+	Secrets    []Secret          `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Properties map[string]string `json:"properties,omitempty"`
 }
 
@@ -36,8 +36,8 @@ type UpdatePlatformWebhookRequest struct {
 	Url        string            `json:"url" validate:"required,min=3,max=150"`
 	Activate   bool              `json:"activate" validate:"required"`
 	State      string            `json:"state" validate:"oneof=Init Creating Ready"`
-	Secrets    []Secret          `json:"secrets"` // only Key and VaultId in request
-	Properties map[string]string `json:"properties"`
+	Secrets    []Secret          `json:"secrets" validate:"required"` // only Key and VaultId in request
+	Properties map[string]string `json:"properties" validate:"required"`
 }
 
 type PlatformView struct {

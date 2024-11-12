@@ -1659,6 +1659,9 @@
             "type": "object",
             "required": [
                 "name",
+                "properties",
+                "secrets",
+                "tags",
                 "url"
             ],
             "properties": {
@@ -2149,6 +2152,7 @@
             "type": "object",
             "required": [
                 "name",
+                "secrets",
                 "url"
             ],
             "properties": {
@@ -2180,7 +2184,11 @@
         "viewmodels.UpdatePlatformRequest": {
             "type": "object",
             "required": [
+                "activate",
                 "name",
+                "properties",
+                "secrets",
+                "tags",
                 "url"
             ],
             "properties": {
@@ -2232,6 +2240,8 @@
             "required": [
                 "activate",
                 "name",
+                "properties",
+                "secrets",
                 "url"
             ],
             "properties": {

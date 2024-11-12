@@ -202,6 +202,9 @@ definitions:
         type: string
     required:
     - name
+    - properties
+    - secrets
+    - tags
     - url
     type: object
   viewmodels.CreateProjectRequest:
@@ -527,6 +530,7 @@ definitions:
         type: string
     required:
     - name
+    - secrets
     - url
     type: object
   viewmodels.UpdatePlatformRequest:
@@ -562,7 +566,11 @@ definitions:
         minLength: 3
         type: string
     required:
+    - activate
     - name
+    - properties
+    - secrets
+    - tags
     - url
     type: object
   viewmodels.UpdatePlatformWebhookRequest:
@@ -595,6 +603,8 @@ definitions:
     required:
     - activate
     - name
+    - properties
+    - secrets
     - url
     type: object
   viewmodels.UpdateProjectDesignRequest:
