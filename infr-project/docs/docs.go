@@ -2009,6 +2009,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
+                "provider_project_id": {
+                    "type": "string"
+                },
                 "secrets": {
                     "type": "array",
                     "items": {

@@ -71,13 +71,14 @@ type Secret struct {
 }
 
 type PlatformProject struct {
-	Id         string     `json:"id"`
-	Name       string     `json:"name"`
-	Url        string     `json:"url"`
-	Properties []Property `json:"properties"`
-	Secrets    []Secret   `json:"secrets"`
-	Webhooks   []Webhook  `json:"webhooks"`
-	Followed   bool       `json:"followed"`
+	Id                string     `json:"id"`
+	Name              string     `json:"name"`
+	Url               string     `json:"url"`
+	Properties        []Property `json:"properties"`
+	Secrets           []Secret   `json:"secrets"`
+	Webhooks          []Webhook  `json:"webhooks"`
+	Followed          bool       `json:"followed"`
+	ProviderProjectId string     `json:"provider_project_id"`
 }
 
 type Webhook struct {

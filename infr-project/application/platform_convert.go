@@ -38,20 +38,51 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 func (s *PlatformService) convertToPlatformModelProjects(projects map[string]platform.PlatformProject, providerProjects []platformProvider.Project) []models.PlatformProject {
 	platformProjects := make([]models.PlatformProject, 0)
 
+	providerMap := map[string]models.PlatformProject{}
 	if len(providerProjects) > 0 {
-		//TODO:
+		for _, project := range providerProjects {
+			providerMap[project.ID] = models.PlatformProject{
+				Id:                project.ID,
+				Name:              project.Name,
+				Url:               project.Url,
+				Properties:        []models.Property{},
+				Secrets:           []models.Secret{},
+				Webhooks:          []models.Webhook{},
+				Followed:          false,
+				ProviderProjectId: project.ID,
+			}
+		}
 	}
 
+	// convert db project to model project
 	for _, v := range projects {
+		// followed == false && providerProjectId == "", means need create project to provider
+		// followed == true && providerProjectId != "", means need provider project was already followed
+		followed := false
+		providerProjectId := ""
+		if _, ok := providerMap[v.ProviderProjectId]; ok {
+			followed = true
+			providerProjectId = v.ProviderProjectId
+			// remove already followed project
+			delete(providerMap, v.ProviderProjectId)
+		}
+
 		platformProjects = append(platformProjects, models.PlatformProject{
-			Id:         v.Id,
-			Name:       v.Name,
-			Followed:   false,
-			Url:        v.Url,
-			Properties: s.convertToPlatformModelProperties(v.Properties),
-			Secrets:    s.convertToPlatformModelSecrets(v.Secrets),
-			Webhooks:   s.convertToPlatformModelWebhooks(v.Webhooks),
+			Id:                v.Id,
+			Name:              v.Name,
+			Url:               v.Url,
+			Properties:        s.convertToPlatformModelProperties(v.Properties),
+			Secrets:           s.convertToPlatformModelSecrets(v.Secrets),
+			Webhooks:          s.convertToPlatformModelWebhooks(v.Webhooks),
+			Followed:          followed,
+			ProviderProjectId: providerProjectId,
 		})
+	}
+
+	// add project from provider which was not followed
+	// followed == false && providerProjectId != "", means need follow the provider project
+	for _, v := range providerMap {
+		platformProjects = append(platformProjects, v)
 	}
 
 	return platformProjects

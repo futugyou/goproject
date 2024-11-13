@@ -390,6 +390,8 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      provider_project_id:
+        type: string
       secrets:
         items:
           $ref: '#/definitions/viewmodels.Secret'
