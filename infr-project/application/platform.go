@@ -346,11 +346,39 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 		platform.WithProjectSecrets(secrets),
 	)
 
-	if _, err = plat.UpdateProject(*proj); err != nil {
-		return nil, err
-	}
-
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		providerProjectId := project.ProviderProjectId
+		if project.Operate == "sync" {
+			provider, err := s.getPlatfromProvider(ctx, *plat)
+			if err != nil {
+				return err
+			}
+
+			shouldCreate := len(providerProjectId) == 0
+			if !shouldCreate {
+				projects, _ := s.getProviderProjects(ctx, provider)
+				shouldCreate = true
+
+				for _, v := range projects {
+					if v.ID == providerProjectId {
+						shouldCreate = false
+						break
+					}
+				}
+			}
+
+			if shouldCreate {
+				if p, err := s.createProviderProject(ctx, provider, proj.Name, proj.Properties); err == nil {
+					providerProjectId = p.ID
+				}
+			}
+		}
+
+		proj.UpdateProviderProjectId(providerProjectId)
+		if _, err = plat.UpdateProject(*proj); err != nil {
+			return err
+		}
+
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
 		case err := <-errCh:

@@ -2208,11 +2208,21 @@ const docTemplate = `{
                     "maxLength": 50,
                     "minLength": 3
                 },
+                "operate": {
+                    "type": "string",
+                    "enum": [
+                        "upsert",
+                        "sync"
+                    ]
+                },
                 "properties": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.Property"
                     }
+                },
+                "provider_project_id": {
+                    "type": "string"
                 },
                 "secrets": {
                     "description": "only Key and VaultId in request",

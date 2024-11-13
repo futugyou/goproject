@@ -199,7 +199,7 @@ func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.
 
 	token, err := s.vaultService.ShowVaultRawValue(ctx, vaultId)
 	if err != nil {
-		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
+		return nil, fmt.Errorf("get platfrom provider token error, vaultId is %s, message %s", vaultId, err.Error())
 	}
 
 	return platformProvider.PlatformProviderFatory(src.Provider.String(), token)
@@ -215,5 +215,26 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, provider plat
 		return nil, err
 	case <-ctx.Done():
 		return nil, fmt.Errorf("getProviderProjects timeout: %w", ctx.Err())
+	}
+}
+
+func (s *PlatformService) createProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, properties map[string]platform.Property) (*platformProvider.Project, error) {
+	request := platformProvider.CreateProjectRequest{
+		Name:       name,
+		Parameters: map[string]string{},
+	}
+
+	for _, v := range properties {
+		request.Parameters[v.Key] = v.Value
+	}
+
+	resCh, errCh := provider.CreateProjectAsync(ctx, request)
+	select {
+	case project := <-resCh:
+		return project, nil
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
 	}
 }

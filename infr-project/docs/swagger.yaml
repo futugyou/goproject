@@ -517,10 +517,17 @@ definitions:
         maxLength: 50
         minLength: 3
         type: string
+      operate:
+        enum:
+        - upsert
+        - sync
+        type: string
       properties:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      provider_project_id:
+        type: string
       secrets:
         description: only Key and VaultId in request
         items:
