@@ -4,13 +4,13 @@ import "fmt"
 
 // entity
 type PlatformProject struct {
-	Id         string              `json:"id" bson:"id"`
-	Name       string              `json:"name" bson:"name"`
-	Url        string              `json:"url" bson:"url"`
-	Properties map[string]Property `json:"properties" bson:"properties"`
-	Secrets    map[string]Secret   `json:"secrets" bson:"secrets"`
-	Webhooks   []Webhook           `json:"webhooks" bson:"webhooks"`
-	Followed   bool                `json:"followed" bson:"followed"`
+	Id                string              `json:"id" bson:"id"`
+	Name              string              `json:"name" bson:"name"`
+	Url               string              `json:"url" bson:"url"`
+	Properties        map[string]Property `json:"properties" bson:"properties"`
+	Secrets           map[string]Secret   `json:"secrets" bson:"secrets"`
+	Webhooks          []Webhook           `json:"webhooks" bson:"webhooks"`
+	ProviderProjectId string              `json:"provider_project_id" bson:"provider_project_id"`
 }
 
 func (s PlatformProject) GetKey() string {
@@ -33,10 +33,9 @@ func WithProjectSecrets(secrets map[string]Secret) ProjectOption {
 
 func NewPlatformProject(id string, name string, url string, opts ...ProjectOption) *PlatformProject {
 	project := &PlatformProject{
-		Id:       id,
-		Name:     name,
-		Followed: false,
-		Url:      url, Properties: make(map[string]Property),
+		Id:   id,
+		Name: name,
+		Url:  url, Properties: make(map[string]Property),
 		Secrets: make(map[string]Secret),
 	}
 
@@ -57,8 +56,8 @@ func (w *PlatformProject) UpdateUrl(url string) *PlatformProject {
 	return w
 }
 
-func (w *PlatformProject) UpdateFollowed(followed bool) *PlatformProject {
-	w.Followed = followed
+func (w *PlatformProject) UpdateProviderProjectId(id string) *PlatformProject {
+	w.ProviderProjectId = id
 	return w
 }
 

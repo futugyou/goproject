@@ -9,7 +9,6 @@ import (
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
 	platformProvider "github.com/futugyou/infr-project/platform_provider"
-	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -32,8 +31,8 @@ func NewPlatformService(
 }
 
 func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreatePlatformRequest) (*models.PlatformDetailView, error) {
-	properties := convertPlatformProperties(aux.Properties)
-	secrets, err := s.convertToEntitySecrets(ctx, aux.Secrets)
+	properties := s.convertPlatformProperties(aux.Properties)
+	secrets, err := s.convertToPlatformSecrets(ctx, aux.Secrets)
 	if err != nil {
 		return nil, err
 	}
@@ -176,12 +175,12 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 			return err
 		}
 
-		newProperty := convertPlatformProperties(data.Properties)
+		newProperty := s.convertPlatformProperties(data.Properties)
 		if _, err := plat.UpdateProperties(newProperty); err != nil {
 			return err
 		}
 
-		newSecrets, err := s.convertToEntitySecrets(ctx, data.Secrets)
+		newSecrets, err := s.convertToPlatformSecrets(ctx, data.Secrets)
 		if err != nil {
 			return err
 		}
@@ -268,7 +267,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 		}
 	}
 
-	secrets, err := s.convertToEntitySecrets(ctx, hook.Secrets)
+	secrets, err := s.convertToPlatformSecrets(ctx, hook.Secrets)
 	if err != nil {
 		return nil, err
 	}
@@ -358,7 +357,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 		}
 	}
 
-	secrets, err := s.convertToEntitySecrets(ctx, project.Secrets)
+	secrets, err := s.convertToPlatformSecrets(ctx, project.Secrets)
 	if err != nil {
 		return nil, err
 	}
@@ -474,138 +473,4 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, provider plat
 	}
 
 	return result, nil
-}
-
-func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, src *platform.Platform) (*models.PlatformDetailView, error) {
-	if src == nil {
-		return nil, fmt.Errorf("no platform data found")
-	}
-
-	platformProjects := make([]models.PlatformProject, 0)
-	for _, v := range src.Projects {
-		webhooks := make([]models.Webhook, 0)
-		for i := 0; i < len(v.Webhooks); i++ {
-			wps := []models.Property{}
-			for _, v := range v.Webhooks[i].Properties {
-				wps = append(wps, models.Property(v))
-			}
-			webhooks = append(webhooks, models.Webhook{
-				Name:       v.Webhooks[i].Name,
-				Url:        v.Webhooks[i].Url,
-				Activate:   v.Webhooks[i].Activate,
-				State:      v.Webhooks[i].State.String(),
-				Properties: wps,
-				Secrets:    convertToModelSecret(v.Webhooks[i].Secrets),
-			})
-		}
-		props := []models.Property{}
-		for _, v := range v.Properties {
-			props = append(props, models.Property(v))
-		}
-
-		platformProjects = append(platformProjects, models.PlatformProject{
-			Id:         v.Id,
-			Name:       v.Name,
-			Followed:   v.Followed,
-			Url:        v.Url,
-			Properties: props,
-			Secrets:    convertToModelSecret(v.Secrets),
-			Webhooks:   webhooks,
-		})
-	}
-
-	if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
-		providerProjects, _ := s.getProviderProjects(ctx, provider)
-		for _, p := range providerProjects {
-			has := false
-			for _, pp := range platformProjects {
-				if pp.Id == p.Id {
-					has = true
-					break
-				}
-			}
-			if !has {
-				platformProjects = append(platformProjects, p)
-			}
-		}
-	}
-
-	properties := make([]models.Property, 0)
-	for _, v := range src.Properties {
-		properties = append(properties, models.Property(v))
-	}
-
-	return &models.PlatformDetailView{
-		Id:         src.Id,
-		Name:       src.Name,
-		Activate:   src.Activate,
-		Url:        src.Url,
-		Properties: properties,
-		Secrets:    convertToModelSecret(src.Secrets),
-		Projects:   platformProjects,
-		Tags:       src.Tags,
-		IsDeleted:  src.IsDeleted,
-		Provider:   src.Provider.String(),
-	}, nil
-}
-
-func convertToModelSecret(secretMap map[string]platform.Secret) []models.Secret {
-	secrets := []models.Secret{}
-	for _, v := range secretMap {
-		secrets = append(secrets, models.Secret{
-			Key:       v.Key,
-			VaultId:   v.Value,
-			VaultKey:  v.VaultKey,
-			MaskValue: v.VaultMaskValue,
-		})
-	}
-
-	return secrets
-}
-
-func (s *PlatformService) convertToEntitySecrets(ctx context.Context, secrets []models.Secret) (map[string]platform.Secret, error) {
-	secretInfos := make(map[string]platform.Secret)
-	if len(secrets) == 0 {
-		return secretInfos, nil
-	}
-
-	filter := []vault.VaultSearch{}
-	for _, secret := range secrets {
-		filter = append(filter, vault.VaultSearch{
-			ID: secret.VaultId,
-		})
-	}
-
-	query := VaultSearchQuery{Filters: filter, Page: 0, Size: 0}
-	if vaults, err := s.vaultService.SearchVaults(ctx, query); err == nil {
-		for _, secret := range secrets {
-			for i := 0; i < len(vaults); i++ {
-				if vaults[i].Id == secret.VaultId {
-					secretInfos[secret.Key] = platform.Secret{
-						Key:            secret.Key,
-						Value:          vaults[i].Id,
-						VaultKey:       vaults[i].Key,
-						VaultMaskValue: vaults[i].MaskValue,
-					}
-					break
-				}
-			}
-		}
-	} else {
-		return nil, err
-	}
-
-	return secretInfos, nil
-}
-
-func convertPlatformProperties(propertyList []models.Property) map[string]platform.Property {
-	properties := make(map[string]platform.Property)
-	for _, v := range propertyList {
-		properties[v.Key] = platform.Property{
-			Key:   v.Key,
-			Value: v.Value,
-		}
-	}
-
-	return properties
 }

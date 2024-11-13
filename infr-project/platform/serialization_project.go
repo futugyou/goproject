@@ -48,6 +48,10 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.Url = value
 	}
 
+	if value, ok := m["provider_project_id"].(string); ok {
+		r.ProviderProjectId = value
+	}
+
 	if value, ok := m["properties"].(primitive.A); ok {
 		properties, err := parseArrayToMap[Property](value, marshal, unmarshal)
 		if err != nil {
@@ -96,12 +100,13 @@ func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
 		secrets = append(secrets, k)
 	}
 	m := map[string]interface{}{
-		"id":         r.Id,
-		"name":       r.Name,
-		"url":        r.Url,
-		"properties": properties,
-		"secrets":    secrets,
-		"webhooks":   r.Webhooks,
+		"id":                  r.Id,
+		"name":                r.Name,
+		"url":                 r.Url,
+		"properties":          properties,
+		"secrets":             secrets,
+		"webhooks":            r.Webhooks,
+		"provider_project_id": r.ProviderProjectId,
 	}
 
 	return m
