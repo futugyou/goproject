@@ -8,7 +8,6 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
-	platformProvider "github.com/futugyou/infr-project/platform_provider"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -31,7 +30,7 @@ func NewPlatformService(
 }
 
 func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreatePlatformRequest) (*models.PlatformDetailView, error) {
-	properties := s.convertPlatformProperties(aux.Properties)
+	properties := s.convertToPlatformProperties(aux.Properties)
 	secrets, err := s.convertToPlatformSecrets(ctx, aux.Secrets)
 	if err != nil {
 		return nil, err
@@ -87,6 +86,7 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 		Page:      request.Page,
 		Size:      request.Size,
 	}
+
 	srcCh, errCh := s.repository.SearchPlatformsAsync(ctx, filter)
 	var src []platform.Platform
 	select {
@@ -99,19 +99,7 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 		return nil, fmt.Errorf("SearchPlatforms timeout: %w", ctx.Err())
 	}
 
-	result := make([]models.PlatformView, len(src))
-	for i := 0; i < len(src); i++ {
-		result[i] = models.PlatformView{
-			Id:        src[i].Id,
-			Name:      src[i].Name,
-			Activate:  src[i].Activate,
-			Url:       src[i].Url,
-			Tags:      src[i].Tags,
-			IsDeleted: src[i].IsDeleted,
-			Provider:  src[i].Provider.String(),
-		}
-	}
-	return result, nil
+	return s.convertToPlatformView(src), nil
 }
 
 func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
@@ -175,7 +163,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 			return err
 		}
 
-		newProperty := s.convertPlatformProperties(data.Properties)
+		newProperty := s.convertToPlatformProperties(data.Properties)
 		if _, err := plat.UpdateProperties(newProperty); err != nil {
 			return err
 		}
@@ -404,6 +392,7 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 	if _, err := plat.RemoveProject(projectId); err != nil {
 		return nil, err
 	}
+
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
@@ -415,62 +404,6 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 	}); err != nil {
 		return nil, err
 	}
+
 	return s.convertPlatformEntityToViewModel(ctx, plat)
-}
-
-func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
-	var provider string
-	var vaultId string
-	var token string
-	var err error
-
-	switch src.Provider {
-	case platform.PlatformProviderCircleci:
-		provider = platform.PlatformProviderCircleci.String()
-		vaultId = src.Secrets["CIRCLECI_TOKEN"].Value
-	case platform.PlatformProviderVercel:
-		provider = platform.PlatformProviderVercel.String()
-		vaultId = src.Secrets["VERCEL_TOKEN"].Value
-	case platform.PlatformProviderGithub:
-		provider = platform.PlatformProviderGithub.String()
-		vaultId = src.Secrets["GITHUB_TOKEN"].Value
-	default:
-		return nil, fmt.Errorf("%s not supported", src.Provider.String())
-	}
-
-	token, err = s.vaultService.ShowVaultRawValue(ctx, vaultId)
-	if err != nil {
-		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
-	}
-
-	return platformProvider.PlatformProviderFatory(provider, token)
-}
-
-func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync) ([]models.PlatformProject, error) {
-	var projects []platformProvider.Project
-
-	filter := platformProvider.ProjectFilter{}
-	resCh, errCh := provider.ListProjectAsync(ctx, filter)
-	select {
-	case projects = <-resCh:
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderProjects timeout: %w", ctx.Err())
-	}
-
-	result := make([]models.PlatformProject, 0)
-	for _, project := range projects {
-		result = append(result, models.PlatformProject{
-			Id:         project.ID,
-			Name:       project.Name,
-			Url:        project.Url,
-			Properties: []models.Property{},
-			Secrets:    []models.Secret{},
-			Webhooks:   []models.Webhook{},
-			Followed:   false,
-		})
-	}
-
-	return result, nil
 }

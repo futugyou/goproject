@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	platform "github.com/futugyou/infr-project/platform"
+	platformProvider "github.com/futugyou/infr-project/platform_provider"
 	vault "github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -14,8 +15,34 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		return nil, fmt.Errorf("no platform data found")
 	}
 
+	providerProjects := []platformProvider.Project{}
+	if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+		projects, _ := s.getProviderProjects(ctx, provider)
+		providerProjects = projects
+	}
+
+	return &models.PlatformDetailView{
+		Id:         src.Id,
+		Name:       src.Name,
+		Activate:   src.Activate,
+		Url:        src.Url,
+		Properties: s.convertToPlatformModelProperty(src.Properties),
+		Secrets:    s.convertToPlatformModelSecret(src.Secrets),
+		Projects:   s.convertToPlatformModelProjects(src.Projects, providerProjects),
+		Tags:       src.Tags,
+		IsDeleted:  src.IsDeleted,
+		Provider:   src.Provider.String(),
+	}, nil
+}
+
+func (s *PlatformService) convertToPlatformModelProjects(projects map[string]platform.PlatformProject, providerProjects []platformProvider.Project) []models.PlatformProject {
 	platformProjects := make([]models.PlatformProject, 0)
-	for _, v := range src.Projects {
+
+	if len(providerProjects) > 0 {
+		//TODO:
+	}
+
+	for _, v := range projects {
 		platformProjects = append(platformProjects, models.PlatformProject{
 			Id:         v.Id,
 			Name:       v.Name,
@@ -27,39 +54,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		})
 	}
 
-	if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
-		providerProjects, _ := s.getProviderProjects(ctx, provider)
-		for _, p := range providerProjects {
-			has := false
-			for _, pp := range platformProjects {
-				if pp.Id == p.Id {
-					has = true
-					break
-				}
-			}
-			if !has {
-				platformProjects = append(platformProjects, p)
-			}
-		}
-	}
-
-	properties := make([]models.Property, 0)
-	for _, v := range src.Properties {
-		properties = append(properties, models.Property(v))
-	}
-
-	return &models.PlatformDetailView{
-		Id:         src.Id,
-		Name:       src.Name,
-		Activate:   src.Activate,
-		Url:        src.Url,
-		Properties: properties,
-		Secrets:    s.convertToPlatformModelSecret(src.Secrets),
-		Projects:   platformProjects,
-		Tags:       src.Tags,
-		IsDeleted:  src.IsDeleted,
-		Provider:   src.Provider.String(),
-	}, nil
+	return platformProjects
 }
 
 func (s *PlatformService) convertToPlatformModelWebhook(hooks []platform.Webhook) []models.Webhook {
@@ -74,6 +69,7 @@ func (s *PlatformService) convertToPlatformModelWebhook(hooks []platform.Webhook
 			Secrets:    s.convertToPlatformModelSecret(hooks[i].Secrets),
 		})
 	}
+
 	return webhooks
 }
 
@@ -82,6 +78,7 @@ func (s *PlatformService) convertToPlatformModelProperty(properties map[string]p
 	for _, v := range properties {
 		wps = append(wps, models.Property(v))
 	}
+
 	return wps
 }
 
@@ -134,7 +131,7 @@ func (s *PlatformService) convertToPlatformSecrets(ctx context.Context, secrets 
 	return secretInfos, nil
 }
 
-func (s *PlatformService) convertPlatformProperties(propertyList []models.Property) map[string]platform.Property {
+func (s *PlatformService) convertToPlatformProperties(propertyList []models.Property) map[string]platform.Property {
 	properties := make(map[string]platform.Property)
 	for _, v := range propertyList {
 		properties[v.Key] = platform.Property{
@@ -144,4 +141,62 @@ func (s *PlatformService) convertPlatformProperties(propertyList []models.Proper
 	}
 
 	return properties
+}
+
+func (s *PlatformService) convertToPlatformView(src []platform.Platform) []models.PlatformView {
+	result := make([]models.PlatformView, len(src))
+	for i := 0; i < len(src); i++ {
+		result[i] = models.PlatformView{
+			Id:        src[i].Id,
+			Name:      src[i].Name,
+			Activate:  src[i].Activate,
+			Url:       src[i].Url,
+			Tags:      src[i].Tags,
+			IsDeleted: src[i].IsDeleted,
+			Provider:  src[i].Provider.String(),
+		}
+	}
+
+	return result
+}
+
+func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
+	var provider string
+	var vaultId string
+	var token string
+	var err error
+
+	switch src.Provider {
+	case platform.PlatformProviderCircleci:
+		provider = platform.PlatformProviderCircleci.String()
+		vaultId = src.Secrets["CIRCLECI_TOKEN"].Value
+	case platform.PlatformProviderVercel:
+		provider = platform.PlatformProviderVercel.String()
+		vaultId = src.Secrets["VERCEL_TOKEN"].Value
+	case platform.PlatformProviderGithub:
+		provider = platform.PlatformProviderGithub.String()
+		vaultId = src.Secrets["GITHUB_TOKEN"].Value
+	default:
+		return nil, fmt.Errorf("%s not supported", src.Provider.String())
+	}
+
+	token, err = s.vaultService.ShowVaultRawValue(ctx, vaultId)
+	if err != nil {
+		return nil, fmt.Errorf("get platfrom provider token err, vaultId is %s, message %s", vaultId, err.Error())
+	}
+
+	return platformProvider.PlatformProviderFatory(provider, token)
+}
+
+func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync) ([]platformProvider.Project, error) {
+	filter := platformProvider.ProjectFilter{}
+	resCh, errCh := provider.ListProjectAsync(ctx, filter)
+	select {
+	case projects := <-resCh:
+		return projects, nil
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("getProviderProjects timeout: %w", ctx.Err())
+	}
 }
