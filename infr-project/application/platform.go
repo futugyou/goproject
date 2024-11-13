@@ -99,7 +99,7 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 		return nil, fmt.Errorf("SearchPlatforms timeout: %w", ctx.Err())
 	}
 
-	return s.convertToPlatformView(src), nil
+	return s.convertToPlatformViews(src), nil
 }
 
 func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
@@ -247,13 +247,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
 	}
 
-	properties := make(map[string]platform.Property)
-	for key, value := range hook.Properties {
-		properties[key] = platform.Property{
-			Key:   key,
-			Value: value,
-		}
-	}
+	properties := s.convertToPlatformProperties(hook.Properties)
 
 	secrets, err := s.convertToPlatformSecrets(ctx, hook.Secrets)
 	if err != nil {
@@ -337,13 +331,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 		projectId = project.Name
 	}
 
-	properties := make(map[string]platform.Property)
-	for key, value := range project.Properties {
-		properties[key] = platform.Property{
-			Key:   key,
-			Value: value,
-		}
-	}
+	properties := s.convertToPlatformProperties(project.Properties)
 
 	secrets, err := s.convertToPlatformSecrets(ctx, project.Secrets)
 	if err != nil {

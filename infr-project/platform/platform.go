@@ -228,6 +228,22 @@ func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, 
 	}
 }
 
+func (w *Platform) ProviderVaultInfo() (string, error) {
+	vaultId := ""
+	switch w.Provider {
+	case PlatformProviderCircleci:
+		vaultId = w.Secrets["CIRCLECI_TOKEN"].Value
+	case PlatformProviderVercel:
+		vaultId = w.Secrets["VERCEL_TOKEN"].Value
+	case PlatformProviderGithub:
+		vaultId = w.Secrets["GITHUB_TOKEN"].Value
+	default:
+		return "", fmt.Errorf("%s not supported", w.Provider.String())
+	}
+
+	return vaultId, nil
+}
+
 func (r Platform) AggregateName() string {
 	return "platforms"
 }

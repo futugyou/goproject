@@ -2184,6 +2184,7 @@
             "type": "object",
             "required": [
                 "name",
+                "properties",
                 "secrets",
                 "url"
             ],
@@ -2194,9 +2195,9 @@
                     "minLength": 3
                 },
                 "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {
@@ -2286,9 +2287,9 @@
                     "minLength": 3
                 },
                 "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {

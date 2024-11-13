@@ -2195,6 +2195,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
+                "properties",
                 "secrets",
                 "url"
             ],
@@ -2205,9 +2206,9 @@ const docTemplate = `{
                     "minLength": 3
                 },
                 "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {
@@ -2297,9 +2298,9 @@ const docTemplate = `{
                     "minLength": 3
                 },
                 "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
                 "secrets": {

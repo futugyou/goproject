@@ -516,9 +516,9 @@ definitions:
         minLength: 3
         type: string
       properties:
-        additionalProperties:
-          type: string
-        type: object
+        items:
+          $ref: '#/definitions/viewmodels.Property'
+        type: array
       secrets:
         description: only Key and VaultId in request
         items:
@@ -530,6 +530,7 @@ definitions:
         type: string
     required:
     - name
+    - properties
     - secrets
     - url
     type: object
@@ -582,9 +583,9 @@ definitions:
         minLength: 3
         type: string
       properties:
-        additionalProperties:
-          type: string
-        type: object
+        items:
+          $ref: '#/definitions/viewmodels.Property'
+        type: array
       secrets:
         description: only Key and VaultId in request
         items:
