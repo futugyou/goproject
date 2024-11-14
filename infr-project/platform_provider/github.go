@@ -216,6 +216,8 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 	return resultChan, errorChan
 }
 
+// Need GITHUB_OWNER in DeleteWebHookRequest 'Parameters'
+// Need GITHUB_REPO in DeleteWebHookRequest 'Parameters',
 func (g *GithubClient) DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error {
 	errorChan := make(chan error, 1)
 
@@ -227,7 +229,23 @@ func (g *GithubClient) DeleteWebHookAsync(ctx context.Context, request DeleteWeb
 			return
 		}
 
-		_, err = g.client.Repositories.DeleteHook(ctx, request.PlatformId, request.ProjectId, webHookId)
+		owner := ""
+		if value, ok := request.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
+			owner = value
+		} else {
+			errorChan <- fmt.Errorf("github DeleteHook need GITHUB_OWNER")
+			return
+		}
+
+		repo := ""
+		if value, ok := request.Parameters["GITHUB_REPO"]; ok && len(value) > 0 {
+			repo = value
+		} else {
+			errorChan <- fmt.Errorf("github DeleteHook need GITHUB_REPO")
+			return
+		}
+
+		_, err = g.client.Repositories.DeleteHook(ctx, owner, repo, webHookId)
 		errorChan <- err
 	}()
 

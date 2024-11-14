@@ -37,8 +37,7 @@ type CreateWebHookRequest struct {
 }
 
 type DeleteWebHookRequest struct {
-	PlatformId string
-	ProjectId  string
+	Parameters map[string]string
 	WebHookId  string
 }
 
