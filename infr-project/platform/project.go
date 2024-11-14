@@ -92,3 +92,13 @@ func (w *PlatformProject) RemoveWebhook(hookName string) error {
 
 	return fmt.Errorf("webhook name: %s does not exist", hookName)
 }
+
+func (w *PlatformProject) GetWebhook(hookName string) *Webhook {
+	for i := len(w.Webhooks) - 1; i >= 0; i-- {
+		if w.Webhooks[i].Name == hookName {
+			return &w.Webhooks[i]
+		}
+	}
+
+	return nil
+}

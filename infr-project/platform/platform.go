@@ -228,6 +228,20 @@ func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, 
 	}
 }
 
+func (w *Platform) GetWebhook(projectId string, hookName string) (*Webhook, error) {
+	project, exists := w.Projects[projectId]
+	if !exists {
+		return nil, fmt.Errorf("project id: %s does not exist", projectId)
+	}
+
+	hook := project.GetWebhook(hookName)
+	if hook == nil {
+		return nil, fmt.Errorf("hook name: %s does not exist", hookName)
+	}
+
+	return hook, nil
+}
+
 func (w *Platform) ProviderVaultInfo() (string, error) {
 	vaultId := ""
 	switch w.Provider {
