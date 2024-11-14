@@ -257,3 +257,25 @@ func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider pl
 		return fmt.Errorf("deleteProviderWebhook timeout: %w", ctx.Err())
 	}
 }
+
+func (s *PlatformService) createProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync,
+	platformId string, projectId string, url string, name string) (*platformProvider.WebHook, error) {
+	request := platformProvider.CreateWebHookRequest{
+		PlatformId: platformId,
+		ProjectId:  projectId,
+		WebHook: platformProvider.WebHook{
+			Name: name,
+			Url:  url,
+		},
+	}
+
+	resCh, errCh := provider.CreateWebHookAsync(ctx, request)
+	select {
+	case webhook := <-resCh:
+		return webhook, nil
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
+	}
+}

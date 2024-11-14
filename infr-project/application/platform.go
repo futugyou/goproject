@@ -244,9 +244,13 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 		return nil, fmt.Errorf("UpsertWebhook timeout: %w", ctx.Err())
 	}
 
-	if _, exists := plat.Projects[projectId]; !exists {
+	project, exists := plat.Projects[projectId]
+	if !exists {
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
 	}
+
+	webhook, _ := project.GetWebhook(hook.Name)
+	needInsert := webhook == nil
 
 	properties := s.convertToPlatformProperties(hook.Properties)
 
@@ -267,6 +271,24 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		if needInsert {
+			// Regardless of whether sync is successful, the program will continue
+			if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
+				platformId := ""
+				if plat.Provider == platform.PlatformProviderGithub {
+					if prop, ok := plat.Properties["GITHUB_OWNER"]; ok {
+						platformId = prop.Value
+					}
+				}
+
+				if providerHook, err := s.createProviderWebhook(ctx, provider, platformId,
+					project.ProviderProjectId, hook.Url, hook.Name); err == nil {
+					newhook.UpdateProviderHookId(providerHook.ID)
+					plat.UpdateWebhook(projectId, *newhook)
+				}
+			}
+		}
+
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
 		case err := <-errCh:
