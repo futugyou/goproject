@@ -293,8 +293,14 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectI
 		return nil, fmt.Errorf("RemoveWebhook timeout: %w", ctx.Err())
 	}
 
-	if _, exists := plat.Projects[projectId]; !exists {
+	project, exists := plat.Projects[projectId]
+	if !exists {
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
+	}
+
+	hook, err := project.GetWebhook(hookName)
+	if err != nil {
+		return nil, err
 	}
 
 	if plat, err = plat.RemoveWebhook(projectId, hookName); err != nil {
@@ -302,6 +308,18 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectI
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
+			properties := plat.Properties
+			if plat.Provider == platform.PlatformProviderGithub {
+				properties["GITHUB_REPO"] = platform.Property{Key: "GITHUB_REPO", Value: project.Name}
+			}
+
+			err := s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties)
+			if err != nil {
+				return err
+			}
+		}
+
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
 		case err := <-errCh:

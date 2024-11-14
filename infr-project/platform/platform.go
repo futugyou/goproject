@@ -234,12 +234,7 @@ func (w *Platform) GetWebhook(projectId string, hookName string) (*Webhook, erro
 		return nil, fmt.Errorf("project id: %s does not exist", projectId)
 	}
 
-	hook := project.GetWebhook(hookName)
-	if hook == nil {
-		return nil, fmt.Errorf("hook name: %s does not exist", hookName)
-	}
-
-	return hook, nil
+	return project.GetWebhook(hookName)
 }
 
 func (w *Platform) ProviderVaultInfo() (string, error) {
