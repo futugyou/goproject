@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	domain "github.com/futugyou/infr-project/domain"
@@ -328,7 +329,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 	}
 
 	if len(projectId) == 0 {
-		projectId = project.Name
+		projectId = replaceSpecialChars(strings.ToLower(project.Name))
 	}
 
 	properties := s.convertToPlatformProperties(project.Properties)
@@ -423,4 +424,9 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 	}
 
 	return s.convertPlatformEntityToViewModel(ctx, plat)
+}
+
+func replaceSpecialChars(str string) string {
+	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
+	return re.ReplaceAllString(str, "_")
 }
