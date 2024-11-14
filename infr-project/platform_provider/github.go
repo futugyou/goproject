@@ -215,3 +215,21 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 	}()
 	return resultChan, errorChan
 }
+
+func (g *GithubClient) DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+		webHookId, err := strconv.ParseInt(request.WebHookId, 10, 64)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		_, err = g.client.Repositories.DeleteHook(ctx, request.PlatformId, request.ProjectId, webHookId)
+		errorChan <- err
+	}()
+
+	return errorChan
+}

@@ -271,3 +271,18 @@ type VercelTeam struct {
 	Slug string
 	Name string
 }
+
+func (g *VercelClient) DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error {
+	errorChan := make(chan error, 1)
+	req := vercel.DeleteWebhookRequest{
+		WebhookId: request.WebHookId,
+	}
+
+	go func() {
+		defer close(errorChan)
+		_, err := g.client.Webhooks.DeleteWebhook(ctx, req)
+		errorChan <- err
+	}()
+
+	return errorChan
+}

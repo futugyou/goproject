@@ -255,3 +255,15 @@ func (g *CircleClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 
 	return resultChan, errorChan
 }
+
+func (g *CircleClient) DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error {
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(errorChan)
+		_, err := g.client.Webhook.DeleteWebhook(ctx, request.WebHookId)
+		errorChan <- err
+	}()
+
+	return errorChan
+}

@@ -36,6 +36,12 @@ type CreateWebHookRequest struct {
 	WebHook    WebHook
 }
 
+type DeleteWebHookRequest struct {
+	PlatformId string
+	ProjectId  string
+	WebHookId  string
+}
+
 type IPlatformProviderAsync interface {
 	CreateProjectAsync(ctx context.Context, request CreateProjectRequest) (<-chan *Project, <-chan error)
 	// no webhook info
@@ -43,6 +49,7 @@ type IPlatformProviderAsync interface {
 	// include webhook info
 	GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error)
 	CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error)
+	DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error
 }
 
 func Intersect(setA, setB []string) []string {
