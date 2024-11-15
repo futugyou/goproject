@@ -2084,6 +2084,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "platform_id": {
+                    "type": "string"
+                },
                 "project_id": {
                     "type": "string"
                 }
@@ -2371,6 +2374,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
+                "platform_id",
                 "project_id"
             ],
             "properties": {
@@ -2380,6 +2384,11 @@ const docTemplate = `{
                     "minLength": 3
                 },
                 "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "platform_id": {
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3

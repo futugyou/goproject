@@ -5,5 +5,6 @@ type ProjectPlatform struct {
 	Name        string `json:"name" bson:"name"`
 	Description string `json:"description" bson:"description"`
 	// ref platform.PlatformProject
-	ProjectId string `json:"project_id" bson:"project_id"`
+	PlatformId string `json:"platform_id" bson:"platform_id"`
+	ProjectId  string `json:"project_id" bson:"project_id"`
 }

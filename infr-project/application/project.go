@@ -105,6 +105,7 @@ func (s *ProjectService) UpdateProjectPlatform(ctx context.Context, id string, d
 		platforms = append(platforms, project.ProjectPlatform{
 			Name:        data.Name,
 			Description: data.Description,
+			PlatformId:  data.PlatformId,
 			ProjectId:   data.ProjectId,
 		})
 	}
