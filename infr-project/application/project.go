@@ -125,10 +125,17 @@ func (s *ProjectService) UpdateProjectDesign(ctx context.Context, id string, dat
 
 	designes := make([]project.ProjectDesign, 0)
 	for _, data := range datas {
+		resources := []project.ProjectResource{}
+		for _, res := range data.Resources {
+			resources = append(resources, project.ProjectResource{
+				Name:       res.Name,
+				ResourceId: res.ResourceId,
+			})
+		}
 		designes = append(designes, project.ProjectDesign{
 			Name:        data.Name,
 			Description: data.Description,
-			Resources:   data.Resources,
+			Resources:   resources,
 		})
 	}
 	proj.UpdateDesign(designes)
@@ -151,7 +158,18 @@ func convertProjectEntityToViewModel(src *project.Project) *models.ProjectView {
 
 	design := make([]models.ProjectDesign, len(src.Designs))
 	for i := 0; i < len(src.Designs); i++ {
-		design[i] = models.ProjectDesign(src.Designs[i])
+		resources := []models.ProjectResource{}
+		for _, res := range src.Designs[i].Resources {
+			resources = append(resources, models.ProjectResource{
+				Name:       res.Name,
+				ResourceId: res.ResourceId,
+			})
+		}
+		design[i] = models.ProjectDesign{
+			Name:        src.Designs[i].Name,
+			Description: src.Designs[i].Description,
+			Resources:   resources,
+		}
 	}
 	return &models.ProjectView{
 		Id:          src.Id,
