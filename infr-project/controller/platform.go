@@ -161,7 +161,7 @@ func (c *PlatformController) UpdatePlatformHook(id string, projectId string, w h
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) DeletePlatformHook(id string, projectId string, hookName string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) DeletePlatformHook(request models.RemoveWebhookRequest, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -169,7 +169,7 @@ func (c *PlatformController) DeletePlatformHook(id string, projectId string, hoo
 		return
 	}
 
-	res, err := service.RemoveWebhook(ctx, id, projectId, hookName)
+	res, err := service.RemoveWebhook(ctx, request)
 	if err != nil {
 		handleError(w, err, 500)
 		return

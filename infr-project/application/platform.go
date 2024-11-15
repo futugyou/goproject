@@ -250,7 +250,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 	}
 
 	webhook, _ := project.GetWebhook(hook.Name)
-	needInsert := webhook == nil
+	needInsert := webhook == nil && hook.Sync
 
 	properties := s.convertToPlatformProperties(hook.Properties)
 
@@ -270,25 +270,25 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 		return nil, err
 	}
 
-	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		if needInsert {
-			// Regardless of whether sync is successful, the program will continue
-			if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
-				platformId := ""
-				if plat.Provider == platform.PlatformProviderGithub {
-					if prop, ok := plat.Properties["GITHUB_OWNER"]; ok {
-						platformId = prop.Value
-					}
-				}
-
-				if providerHook, err := s.createProviderWebhook(ctx, provider, platformId,
-					project.ProviderProjectId, hook.Url, hook.Name); err == nil {
-					newhook.UpdateProviderHookId(providerHook.ID)
-					plat.UpdateWebhook(projectId, *newhook)
+	if needInsert {
+		// Regardless of whether sync is successful, the program will continue
+		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
+			platformId := ""
+			if plat.Provider == platform.PlatformProviderGithub {
+				if prop, ok := plat.Properties["GITHUB_OWNER"]; ok {
+					platformId = prop.Value
 				}
 			}
-		}
 
+			if providerHook, err := s.createProviderWebhook(ctx, provider, platformId,
+				project.ProviderProjectId, hook.Url, hook.Name); err == nil {
+				newhook.UpdateProviderHookId(providerHook.ID)
+				plat.UpdateWebhook(projectId, *newhook)
+			}
+		}
+	}
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
 		case err := <-errCh:
@@ -303,8 +303,8 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectId string, hookName string) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, id)
+func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.RemoveWebhookRequest) (*models.PlatformDetailView, error) {
+	platCh, errCh := s.repository.GetAsync(ctx, request.PlatformId)
 	var plat *platform.Platform
 	var err error
 	select {
@@ -315,32 +315,32 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, id string, projectI
 		return nil, fmt.Errorf("RemoveWebhook timeout: %w", ctx.Err())
 	}
 
-	project, exists := plat.Projects[projectId]
+	project, exists := plat.Projects[request.ProjectId]
 	if !exists {
-		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
+		return nil, fmt.Errorf("projectId: %s is not existed in %s", request.ProjectId, request.PlatformId)
 	}
 
-	hook, err := project.GetWebhook(hookName)
+	hook, err := project.GetWebhook(request.HookName)
 	if err != nil {
 		return nil, err
 	}
 
-	if plat, err = plat.RemoveWebhook(projectId, hookName); err != nil {
+	if plat, err = plat.RemoveWebhook(request.ProjectId, request.HookName); err != nil {
 		return nil, err
 	}
 
-	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+	if request.Sync {
 		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
 			properties := plat.Properties
 			if plat.Provider == platform.PlatformProviderGithub {
 				properties["GITHUB_REPO"] = platform.Property{Key: "GITHUB_REPO", Value: project.Name}
 			}
 
-			err := s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties)
-			if err != nil {
-				return err
-			}
+			s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties)
 		}
+	}
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
@@ -391,36 +391,36 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 		return nil, err
 	}
 
-	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		providerProjectId := project.ProviderProjectId
-		// Regardless of whether sync is successful, the program will continue
-		if project.Operate == "sync" {
-			if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
-				shouldCreate := len(providerProjectId) == 0
-				if !shouldCreate {
-					projects, _ := s.getProviderProjects(ctx, provider)
-					shouldCreate = true
+	providerProjectId := project.ProviderProjectId
+	// Regardless of whether sync is successful, the program will continue
+	if project.Operate == "sync" {
+		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
+			shouldCreate := len(providerProjectId) == 0
+			if !shouldCreate {
+				projects, _ := s.getProviderProjects(ctx, provider)
+				shouldCreate = true
 
-					for _, v := range projects {
-						if v.ID == providerProjectId {
-							shouldCreate = false
-							break
-						}
-					}
-				}
-
-				if shouldCreate {
-					if p, err := s.createProviderProject(ctx, provider, proj.Name, proj.Properties); err == nil {
-						providerProjectId = p.ID
+				for _, v := range projects {
+					if v.ID == providerProjectId {
+						shouldCreate = false
+						break
 					}
 				}
 			}
+
+			if shouldCreate {
+				if p, err := s.createProviderProject(ctx, provider, proj.Name, proj.Properties); err == nil {
+					providerProjectId = p.ID
+				}
+			}
 		}
+	}
 
-		proj.UpdateProviderProjectId(providerProjectId)
-		// The status of PlatformProject has been checked before.
-		plat.UpdateProject(*proj)
+	proj.UpdateProviderProjectId(providerProjectId)
+	// The status of PlatformProject has been checked before.
+	plat.UpdateProject(*proj)
 
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
 		case err := <-errCh:

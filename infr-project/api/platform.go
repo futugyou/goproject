@@ -104,7 +104,15 @@ func deleteHookPlatform(ctrl *controller.PlatformController, r *http.Request, w 
 	id := r.URL.Query().Get("id")
 	projectId := r.URL.Query().Get("project_id")
 	hookName := r.URL.Query().Get("hook_name")
-	ctrl.DeletePlatformHook(id, projectId, hookName, w, r)
+	sync, _ := strconv.ParseBool(r.URL.Query().Get("sync"))
+
+	request := viewmodels.RemoveWebhookRequest{
+		PlatformId: id,
+		ProjectId:  projectId,
+		HookName:   hookName,
+		Sync:       sync,
+	}
+	ctrl.DeletePlatformHook(request, w, r)
 }
 
 func allPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {

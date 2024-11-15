@@ -2288,6 +2288,7 @@
                 "name",
                 "properties",
                 "secrets",
+                "sync",
                 "url"
             ],
             "properties": {
@@ -2319,6 +2320,9 @@
                         "Creating",
                         "Ready"
                     ]
+                },
+                "sync": {
+                    "type": "boolean"
                 },
                 "url": {
                     "type": "string",

@@ -2299,6 +2299,7 @@ const docTemplate = `{
                 "name",
                 "properties",
                 "secrets",
+                "sync",
                 "url"
             ],
             "properties": {
@@ -2330,6 +2331,9 @@ const docTemplate = `{
                         "Creating",
                         "Ready"
                     ]
+                },
+                "sync": {
+                    "type": "boolean"
                 },
                 "url": {
                     "type": "string",

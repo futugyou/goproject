@@ -41,7 +41,15 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Router /v1/platform/{id}/project/{project_id}/hook/{hook_name} [delete]
 func deletePlatformHook(c *gin.Context) {
 	ctrl := controller.NewPlatformController()
-	ctrl.DeletePlatformHook(c.Param("id"), c.Param("project_id"), c.Param("hook_name"), c.Writer, c.Request)
+	sync, _ := strconv.ParseBool(c.Query("sync"))
+
+	request := viewmodels.RemoveWebhookRequest{
+		PlatformId: c.Param("id"),
+		ProjectId:  c.Param("project_id"),
+		HookName:   c.Param("hook_name"),
+		Sync:       sync,
+	}
+	ctrl.DeletePlatformHook(request, c.Writer, c.Request)
 }
 
 // @Summary update platform webhook

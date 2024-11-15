@@ -40,6 +40,14 @@ type UpdatePlatformWebhookRequest struct {
 	State      string     `json:"state" validate:"oneof=Init Creating Ready"`
 	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Properties []Property `json:"properties" validate:"required"`
+	Sync       bool       `json:"sync" validate:"required"`
+}
+
+type RemoveWebhookRequest struct {
+	PlatformId string `json:"-"`
+	ProjectId  string `json:"-"`
+	HookName   string `json:"-"`
+	Sync       bool   `json:"sync" validate:"required"`
 }
 
 type PlatformView struct {

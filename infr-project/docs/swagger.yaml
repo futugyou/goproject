@@ -606,6 +606,8 @@ definitions:
         - Creating
         - Ready
         type: string
+      sync:
+        type: boolean
       url:
         maxLength: 150
         minLength: 3
@@ -615,6 +617,7 @@ definitions:
     - name
     - properties
     - secrets
+    - sync
     - url
     type: object
   viewmodels.UpdateProjectDesignRequest:
