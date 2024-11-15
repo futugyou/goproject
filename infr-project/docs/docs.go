@@ -2070,7 +2070,7 @@ const docTemplate = `{
                 "resources": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/viewmodels.ProjectResource"
                     }
                 }
             }
@@ -2088,6 +2088,22 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "project_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "viewmodels.ProjectResource": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "resource_id": {
                     "type": "string"
                 }
             }
@@ -2348,8 +2364,7 @@ const docTemplate = `{
         "viewmodels.UpdateProjectDesignRequest": {
             "type": "object",
             "required": [
-                "name",
-                "resources"
+                "name"
             ],
             "properties": {
                 "description": {
@@ -2365,7 +2380,7 @@ const docTemplate = `{
                 "resources": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/viewmodels.ProjectResource"
                     }
                 }
             }
