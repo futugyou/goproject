@@ -16,7 +16,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	}
 
 	providerProjects := []platformProvider.Project{}
-	if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+	if provider, err := s.getPlatfromProvider(ctx, *src); err == nil {
 		projects, _ := s.getProviderProjects(ctx, provider)
 		providerProjects = projects
 	}
