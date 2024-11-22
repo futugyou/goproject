@@ -19,12 +19,12 @@ type ExampleController struct {
 func (c *ExampleController) Examples() {
 	typestring := c.GetString("type")
 
-	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
+	exampleService := services.NewExampleService(createMongoDbCLient(c.Ctx.Request.Context()), createRedisICLient())
 	var result []services.ExampleModel
 	if typestring == "custom" {
-		result = exampleService.GetCustomExamples()
+		result = exampleService.GetCustomExamples(c.Ctx.Request.Context())
 	} else {
-		result = exampleService.GetSystemExamples()
+		result = exampleService.GetSystemExamples(c.Ctx.Request.Context())
 	}
 	c.Ctx.JSONResp(result)
 }
@@ -35,7 +35,7 @@ func (c *ExampleController) Examples() {
 // @router / [post]
 func (c *ExampleController) CreateExample() {
 	typestring := c.GetString("type")
-	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
+	exampleService := services.NewExampleService(createMongoDbCLient(c.Ctx.Request.Context()), createRedisICLient())
 	var request services.ExampleModel
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
 	if len(request.Key) == 0 {
@@ -44,9 +44,9 @@ func (c *ExampleController) CreateExample() {
 	}
 
 	if typestring == "custom" {
-		exampleService.CreateCustomExample(request)
+		exampleService.CreateCustomExample(c.Ctx.Request.Context(), request)
 	} else {
-		exampleService.CreateSystemExample(request)
+		exampleService.CreateSystemExample(c.Ctx.Request.Context(), request)
 	}
 
 	c.Ctx.WriteString("ok")
@@ -56,8 +56,8 @@ func (c *ExampleController) CreateExample() {
 // @Success 200 {string}
 // @router /init [post]
 func (c *ExampleController) InitExamples() {
-	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
-	exampleService.InitExamples()
+	exampleService := services.NewExampleService(createMongoDbCLient(c.Ctx.Request.Context()), createRedisICLient())
+	exampleService.InitExamples(c.Ctx.Request.Context())
 	c.Ctx.WriteString("ok")
 }
 
@@ -65,7 +65,7 @@ func (c *ExampleController) InitExamples() {
 // @Success 200 {string}
 // @router /reset [post]
 func (c *ExampleController) ResetExamples() {
-	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
-	exampleService.Reset()
+	exampleService := services.NewExampleService(createMongoDbCLient(c.Ctx.Request.Context()), createRedisICLient())
+	exampleService.Reset(c.Ctx.Request.Context())
 	c.Ctx.WriteString("ok")
 }

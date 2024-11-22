@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -46,17 +47,17 @@ type permission struct {
 
 type ModelService service
 
-func (c *ModelService) ListModels() *ListModelResponse {
+func (c *ModelService) ListModels(ctx context.Context) *ListModelResponse {
 	result := &ListModelResponse{}
-	if err := c.client.httpClient.Get(listModelsPath, result); err != nil {
+	if err := c.client.httpClient.Get(ctx, listModelsPath, result); err != nil {
 		result.Error = err
 	}
 	return result
 }
 
-func (c *ModelService) RetrieveModel(model string) *ModelResponse {
+func (c *ModelService) RetrieveModel(ctx context.Context, model string) *ModelResponse {
 	result := &ModelResponse{}
-	if err := c.client.httpClient.Get(fmt.Sprintf(retrieveModelPath, model), result); err != nil {
+	if err := c.client.httpClient.Get(ctx, fmt.Sprintf(retrieveModelPath, model), result); err != nil {
 		result.Error = err
 	}
 	return result

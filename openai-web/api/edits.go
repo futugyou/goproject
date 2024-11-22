@@ -27,7 +27,7 @@ func Edits(w http.ResponseWriter, r *http.Request) {
 	}
 
 	completionService := services.NewEditService(createOpenAICLient())
-	result := completionService.CreateEdit(editsRequest)
+	result := completionService.CreateEdit(r.Context(), editsRequest)
 	body, _ := json.Marshal(result)
 	w.Write(body)
 	w.WriteHeader(200)

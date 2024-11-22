@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"context"
 	"os"
 	"strings"
 
@@ -63,7 +64,7 @@ type CreateAudioTranslationResponse struct {
 	Text  string       `json:"text,omitempty"`
 }
 
-func (c *AudioService) CreateAudioTranscription(request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
+func (c *AudioService) CreateAudioTranscription(ctx context.Context, request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
 	result := &CreateAudioTranscriptionResponse{}
 
 	err := validateAudioModel(request.Model)
@@ -85,9 +86,9 @@ func (c *AudioService) CreateAudioTranscription(request CreateAudioTranscription
 	}
 
 	if request.ResponseFormat == "verbose_json" || request.ResponseFormat == "json" {
-		c.client.httpClient.PostWithFile(audioTranscriptionPath, &request, result)
+		c.client.httpClient.PostWithFile(ctx, audioTranscriptionPath, &request, result)
 	} else {
-		if err := c.client.httpClient.PostWithFile(audioTranscriptionPath, &request, &result.Text); err != nil {
+		if err := c.client.httpClient.PostWithFile(ctx, audioTranscriptionPath, &request, &result.Text); err != nil {
 			result.Error = systemError(err.Error())
 		}
 	}
@@ -95,7 +96,7 @@ func (c *AudioService) CreateAudioTranscription(request CreateAudioTranscription
 	return result
 }
 
-func (c *AudioService) CreateAudioTranslation(request CreateAudioTranslationRequest) *CreateAudioTranslationResponse {
+func (c *AudioService) CreateAudioTranslation(ctx context.Context, request CreateAudioTranslationRequest) *CreateAudioTranslationResponse {
 	result := &CreateAudioTranslationResponse{}
 
 	err := validateAudioModel(request.Model)
@@ -117,9 +118,9 @@ func (c *AudioService) CreateAudioTranslation(request CreateAudioTranslationRequ
 	}
 
 	if request.ResponseFormat == "verbose_json" || request.ResponseFormat == "json" {
-		c.client.httpClient.PostWithFile(audioTranslationPath, &request, result)
+		c.client.httpClient.PostWithFile(ctx, audioTranslationPath, &request, result)
 	} else {
-		if err := c.client.httpClient.PostWithFile(audioTranslationPath, &request, &result.Text); err != nil {
+		if err := c.client.httpClient.PostWithFile(ctx, audioTranslationPath, &request, &result.Text); err != nil {
 			result.Error = systemError(err.Error())
 		}
 	}

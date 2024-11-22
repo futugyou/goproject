@@ -1,6 +1,8 @@
 package openai
 
 import (
+	"context"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -30,7 +32,7 @@ type CreateEditsResponse struct {
 
 type EditService service
 
-func (c *EditService) CreateEdits(request CreateEditsRequest) *CreateEditsResponse {
+func (c *EditService) CreateEdits(ctx context.Context, request CreateEditsRequest) *CreateEditsResponse {
 	result := &CreateEditsResponse{}
 
 	err := validateEditModel(request.Model)
@@ -39,7 +41,7 @@ func (c *EditService) CreateEdits(request CreateEditsRequest) *CreateEditsRespon
 		return result
 	}
 
-	c.client.httpClient.Post(editsPath, request, result)
+	c.client.httpClient.Post(ctx, editsPath, request, result)
 	return result
 }
 

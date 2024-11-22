@@ -1,14 +1,12 @@
 package services
 
 import (
-	"context"
 	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var ctx = context.Background()
 var (
 	redisClient *redis.Client
 	once        sync.Once

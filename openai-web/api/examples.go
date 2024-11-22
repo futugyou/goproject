@@ -9,12 +9,12 @@ import (
 
 func Examples(w http.ResponseWriter, r *http.Request) {
 	typestring := r.URL.Query().Get("type")
-	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
+	exampleService := services.NewExampleService(createMongoDbCLient(r.Context()), createRedisICLient())
 	var result []services.ExampleModel
 	if typestring == "custom" {
-		result = exampleService.GetCustomExamples()
+		result = exampleService.GetCustomExamples(r.Context())
 	} else {
-		result = exampleService.GetSystemExamples()
+		result = exampleService.GetSystemExamples(r.Context())
 	}
 
 	body, _ := json.Marshal(result)

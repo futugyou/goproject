@@ -3,6 +3,7 @@ package openai
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -40,19 +41,19 @@ func (c *HttpClient) SetBaseUrl(baseurl string) {
 	c.baseurl = baseurl
 }
 
-func (c *HttpClient) Post(path string, request, response interface{}) *OpenaiError {
-	return c.doRequest(path, "POST", request, response)
+func (c *HttpClient) Post(ctx context.Context, path string, request, response interface{}) *OpenaiError {
+	return c.doRequest(ctx, path, "POST", request, response)
 }
 
-func (c *HttpClient) Get(path string, response interface{}) *OpenaiError {
-	return c.doRequest(path, "GET", nil, response)
+func (c *HttpClient) Get(ctx context.Context, path string, response interface{}) *OpenaiError {
+	return c.doRequest(ctx, path, "GET", nil, response)
 }
 
-func (c *HttpClient) Delete(path string, response interface{}) *OpenaiError {
-	return c.doRequest(path, "DELETE", nil, response)
+func (c *HttpClient) Delete(ctx context.Context, path string, response interface{}) *OpenaiError {
+	return c.doRequest(ctx, path, "DELETE", nil, response)
 }
 
-func (c *HttpClient) doRequest(path, method string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) *OpenaiError {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -69,10 +70,11 @@ func (c *HttpClient) doRequest(path, method string, request, response interface{
 		req.Header.Set("organization", c.organization)
 	}
 
-	return c.readHttpResponse(req, response)
+	return c.readHttpResponse(ctx, req, response)
 }
 
-func (c *HttpClient) readHttpResponse(req *http.Request, response interface{}) *OpenaiError {
+func (c *HttpClient) readHttpResponse(ctx context.Context, req *http.Request, response interface{}) *OpenaiError {
+	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 
 	if err != nil {
@@ -112,13 +114,13 @@ func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 			return systemError(err.Error())
 		}
 
-		var apiError *OpenaiError
+		apiError := &OpenaiError{}
 		if jsonError := json.Unmarshal(all, apiError); jsonError != nil {
 			// raw error message
 			return systemError(string(all))
 		}
 
-		if apiError == nil || len(apiError.ErrorMessage) == 0 {
+		if len(apiError.ErrorMessage) == 0 {
 			// raw error message
 			return systemError(string(all))
 		}
@@ -129,7 +131,7 @@ func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 	return nil
 }
 
-func (c *HttpClient) PostWithFile(path string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) PostWithFile(ctx context.Context, path string, request, response interface{}) *OpenaiError {
 	path = c.createSubpath(path)
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -192,18 +194,18 @@ func (c *HttpClient) PostWithFile(path string, request, response interface{}) *O
 		req.Header.Set("organization", c.organization)
 	}
 
-	return c.readHttpResponse(req, response)
+	return c.readHttpResponse(ctx, req, response)
 }
 
-func (c *HttpClient) PostStream(path string, request interface{}) (*StreamResponse, *OpenaiError) {
-	return c.doStreamRequest(path, "POST", request)
+func (c *HttpClient) PostStream(ctx context.Context, path string, request interface{}) (*StreamResponse, *OpenaiError) {
+	return c.doStreamRequest(ctx, path, "POST", request)
 }
 
-func (c *HttpClient) GetStream(path string) (*StreamResponse, *OpenaiError) {
-	return c.doStreamRequest(path, "GET", nil)
+func (c *HttpClient) GetStream(ctx context.Context, path string) (*StreamResponse, *OpenaiError) {
+	return c.doStreamRequest(ctx, path, "GET", nil)
 }
 
-func (c *HttpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) doStreamRequest(ctx context.Context, path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -223,6 +225,7 @@ func (c *HttpClient) doStreamRequest(path, method string, request interface{}) (
 		req.Header.Set("organization", c.organization)
 	}
 
+	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, systemError(err.Error())

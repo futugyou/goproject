@@ -28,7 +28,7 @@ func (c *AudioController) CreateAudioTranscription(request lib.CreateAudioTransc
 	chatService := services.NewAudioService(createOpenAICLient())
 	var audio lib.CreateAudioTranscriptionRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &audio)
-	result := chatService.CreateAudioTranscription(audio)
+	result := chatService.CreateAudioTranscription(c.Ctx.Request.Context(), audio)
 	c.Ctx.JSONResp(result)
 }
 
@@ -41,7 +41,7 @@ func (c *AudioController) CreateAudioTranslation(request lib.CreateAudioTranslat
 	chatService := services.NewAudioService(createOpenAICLient())
 	var audio lib.CreateAudioTranslationRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &audio)
-	result := chatService.CreateAudioTranslation(audio)
+	result := chatService.CreateAudioTranslation(c.Ctx.Request.Context(), audio)
 	c.Ctx.JSONResp(result)
 }
 
@@ -61,8 +61,8 @@ func createRedisICLient() *redis.Client {
 	return client
 }
 
-func createMongoDbCLient() *mongo.Client {
+func createMongoDbCLient(ctx context.Context) *mongo.Client {
 	uri := os.Getenv("mongodb_url")
-	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	client, _ := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	return client
 }

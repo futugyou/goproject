@@ -1,6 +1,8 @@
 package openai
 
 import (
+	"context"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -33,7 +35,7 @@ type EmbeddingsData struct {
 
 type EmbeddingService service
 
-func (c *EmbeddingService) CreateEmbeddings(request CreateEmbeddingsRequest) *CreateEmbeddingsResponse {
+func (c *EmbeddingService) CreateEmbeddings(ctx context.Context, request CreateEmbeddingsRequest) *CreateEmbeddingsResponse {
 	result := &CreateEmbeddingsResponse{}
 	err := validateEmbeddingsModel(request.Model)
 	if err != nil {
@@ -41,7 +43,7 @@ func (c *EmbeddingService) CreateEmbeddings(request CreateEmbeddingsRequest) *Cr
 		return result
 	}
 
-	c.client.httpClient.Post(embeddingsPath, request, result)
+	c.client.httpClient.Post(ctx, embeddingsPath, request, result)
 	return result
 }
 

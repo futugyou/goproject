@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -42,7 +43,7 @@ func NewModelService(client *openai.OpenaiClient, redisDb *redis.Client) *ModelS
 
 const GetAllModelsKey string = "GetAllModelsKey"
 
-func (s *ModelService) GetAllModels() []ModelListResponse {
+func (s *ModelService) GetAllModels(ctx context.Context) []ModelListResponse {
 	result := make([]ModelListResponse, 0)
 	rmap, _ := s.redisDb.HGetAll(ctx, GetAllModelsKey).Result()
 
@@ -56,7 +57,7 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 		return result
 	}
 
-	models := s.client.Model.ListModels()
+	models := s.client.Model.ListModels(ctx)
 	rset := make(map[string]interface{})
 	if len(models.Datas) > 0 {
 		for _, model := range models.Datas {

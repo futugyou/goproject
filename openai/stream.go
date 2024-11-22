@@ -3,6 +3,7 @@ package openai
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 )
@@ -17,47 +18,43 @@ type StreamResponse struct {
 	StreamEnd bool
 }
 
-func (c *StreamResponse) ReadStream(response interface{}) (e *OpenaiError) {
-	reader := c.Reader
-	if reader == nil {
+func (c *StreamResponse) ReadStream(ctx context.Context, response interface{}) *OpenaiError {
+	if c.Reader == nil {
 		c.StreamEnd = true
-		return systemError("stream reader is nil.")
+		return systemError("stream reader is nil")
 	}
 
-	line, err := reader.ReadBytes('\n')
-	responseStr := ""
-
-	// for loop is for skip the row which is not start with 'data:'
 	for {
-		if err != nil {
+		select {
+		case <-ctx.Done():
 			c.StreamEnd = true
-			return systemError(err.Error())
-		}
-
-		line = bytes.TrimSpace(line)
-		if bytes.HasPrefix(line, headerData) {
-			line = bytes.TrimPrefix(line, headerData)
-			responseStr = string(line)
-			break
-		} else {
-			if line, err = reader.ReadBytes('\n'); err != nil {
+			return systemError("context canceled: " + ctx.Err().Error())
+		default:
+			line, err := c.Reader.ReadBytes('\n')
+			if err != nil {
 				c.StreamEnd = true
-				return systemError(err.Error())
+				return systemError("failed to read from stream: " + err.Error())
+			}
+
+			line = bytes.TrimSpace(line)
+			if bytes.HasPrefix(line, headerData) {
+				line = bytes.TrimPrefix(line, headerData)
+				responseStr := string(line)
+
+				if responseStr == endTag {
+					c.StreamEnd = true
+					return nil
+				}
+
+				if err := json.Unmarshal(line, response); err != nil {
+					c.StreamEnd = true
+					return systemError("failed to unmarshal JSON: " + err.Error())
+				}
+
+				return nil
 			}
 		}
 	}
-
-	if responseStr == endTag {
-		c.StreamEnd = true
-		return
-	}
-
-	if err = json.Unmarshal(line, response); err != nil {
-		c.StreamEnd = true
-		return systemError(err.Error())
-	}
-
-	return
 }
 
 func (c *StreamResponse) Close() {

@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"context"
 	"os"
 	"strings"
 
@@ -67,7 +68,7 @@ type VariationImagesResponse struct {
 
 type ImageService service
 
-func (c *ImageService) CreateImages(request CreateImagesRequest) *CreateImagesResponse {
+func (c *ImageService) CreateImages(ctx context.Context, request CreateImagesRequest) *CreateImagesResponse {
 	result := &CreateImagesResponse{}
 
 	err := validateImageSize(request.Size)
@@ -82,11 +83,11 @@ func (c *ImageService) CreateImages(request CreateImagesRequest) *CreateImagesRe
 		return result
 	}
 
-	c.client.httpClient.Post(createImagesPath, request, result)
+	c.client.httpClient.Post(ctx, createImagesPath, request, result)
 	return result
 }
 
-func (c *ImageService) EditImages(request EditImagesRequest) *EditImagesResponse {
+func (c *ImageService) EditImages(ctx context.Context, request EditImagesRequest) *EditImagesResponse {
 	result := &EditImagesResponse{}
 
 	err := validateImageSize(request.Size)
@@ -118,11 +119,11 @@ func (c *ImageService) EditImages(request EditImagesRequest) *EditImagesResponse
 		return result
 	}
 
-	c.client.httpClient.PostWithFile(editImagesPath, &request, result)
+	c.client.httpClient.PostWithFile(ctx, editImagesPath, &request, result)
 	return result
 }
 
-func (c *ImageService) VariationImages(request VariationImagesRequest) *VariationImagesResponse {
+func (c *ImageService) VariationImages(ctx context.Context, request VariationImagesRequest) *VariationImagesResponse {
 	result := &VariationImagesResponse{}
 
 	err := validateImageSize(request.Size)
@@ -148,7 +149,7 @@ func (c *ImageService) VariationImages(request VariationImagesRequest) *Variatio
 		return result
 	}
 
-	c.client.httpClient.PostWithFile(variationImagesPath, &request, result)
+	c.client.httpClient.PostWithFile(ctx, variationImagesPath, &request, result)
 	return result
 }
 

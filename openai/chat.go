@@ -1,6 +1,8 @@
 package openai
 
 import (
+	"context"
+
 	"golang.org/x/exp/slices"
 
 	role "github.com/futugyousuzu/go-openai/chatrole"
@@ -82,7 +84,7 @@ type CreateChatCompletionResponse struct {
 	Usage   *Usage       `json:"usage,omitempty"`
 }
 
-func (c *ChatService) CreateChatCompletion(request CreateChatCompletionRequest) *CreateChatCompletionResponse {
+func (c *ChatService) CreateChatCompletion(ctx context.Context, request CreateChatCompletionRequest) *CreateChatCompletionResponse {
 	result := &CreateChatCompletionResponse{}
 
 	err := validateChatModel(request.Model)
@@ -102,7 +104,7 @@ func (c *ChatService) CreateChatCompletion(request CreateChatCompletionRequest) 
 		Stream:                      false,
 	}
 
-	c.client.httpClient.Post(chatCompletionPath, newRequest, result)
+	c.client.httpClient.Post(ctx, chatCompletionPath, newRequest, result)
 	return result
 }
 
@@ -150,7 +152,7 @@ func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
 //				result = append(result, response)
 //			}
 //		}
-func (c *ChatService) CreateChatStreamCompletion(request CreateChatCompletionRequest) (*StreamResponse, *OpenaiError) {
+func (c *ChatService) CreateChatStreamCompletion(ctx context.Context, request CreateChatCompletionRequest) (*StreamResponse, *OpenaiError) {
 	err := validateChatModel(request.Model)
 	if err != nil {
 		return nil, err
@@ -166,5 +168,5 @@ func (c *ChatService) CreateChatStreamCompletion(request CreateChatCompletionReq
 		Stream:                      true,
 	}
 
-	return c.client.httpClient.PostStream(chatCompletionPath, newRequest)
+	return c.client.httpClient.PostStream(ctx, chatCompletionPath, newRequest)
 }

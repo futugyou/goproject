@@ -66,7 +66,7 @@ const ExampleRawTableName string = "examples_raw"
 const ExampleTableName string = "examples"
 const ExampleCustomeTableName string = "examples_custome"
 
-func (s *ExampleService) GetSystemExamples() []ExampleModel {
+func (s *ExampleService) GetSystemExamples(ctx context.Context) []ExampleModel {
 	result := make([]ExampleModel, 0)
 	// get data from redis,
 	// it is not necessary at the moment, but examples.json data will migrate to db in the future
@@ -85,7 +85,7 @@ func (s *ExampleService) GetSystemExamples() []ExampleModel {
 		return result
 	}
 
-	result = s.getExamples(ExampleTableName)
+	result = s.getExamples(ctx, ExampleTableName)
 
 	examplesCache := make(map[string]interface{})
 	for _, example := range result {
@@ -108,19 +108,19 @@ func (s *ExampleService) GetSystemExamples() []ExampleModel {
 	return result
 }
 
-func (s *ExampleService) CreateSystemExample(model ExampleModel) {
-	s.createExample(model, ExampleTableName)
+func (s *ExampleService) CreateSystemExample(ctx context.Context, model ExampleModel) {
+	s.createExample(ctx, model, ExampleTableName)
 }
 
-func (s *ExampleService) GetCustomExamples() []ExampleModel {
-	return s.getExamples(ExampleCustomeTableName)
+func (s *ExampleService) GetCustomExamples(ctx context.Context) []ExampleModel {
+	return s.getExamples(ctx, ExampleCustomeTableName)
 }
 
-func (s *ExampleService) CreateCustomExample(model ExampleModel) {
-	s.createExample(model, ExampleCustomeTableName)
+func (s *ExampleService) CreateCustomExample(ctx context.Context, model ExampleModel) {
+	s.createExample(ctx, model, ExampleCustomeTableName)
 }
 
-func (s *ExampleService) createExample(model ExampleModel, tableName string) {
+func (s *ExampleService) createExample(ctx context.Context, model ExampleModel, tableName string) {
 	coll := s.db.Collection(tableName)
 	var example ExampleModel
 	upsert := true
@@ -128,7 +128,7 @@ func (s *ExampleService) createExample(model ExampleModel, tableName string) {
 		Upsert: &upsert,
 	}
 
-	err := coll.FindOneAndReplace(context.TODO(), bson.D{{Key: "key", Value: model.Key}}, model, &option).Decode(&example)
+	err := coll.FindOneAndReplace(ctx, bson.D{{Key: "key", Value: model.Key}}, model, &option).Decode(&example)
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
 			panic(err)
@@ -136,16 +136,16 @@ func (s *ExampleService) createExample(model ExampleModel, tableName string) {
 	}
 }
 
-func (s *ExampleService) getExamples(tableName string) []ExampleModel {
+func (s *ExampleService) getExamples(ctx context.Context, tableName string) []ExampleModel {
 	result := make([]ExampleModel, 0)
 	coll := s.db.Collection(tableName)
 	filter := bson.D{}
-	cursor, err := coll.Find(context.TODO(), filter)
+	cursor, err := coll.Find(ctx, filter)
 	if err != nil {
 		panic(err)
 	}
 
-	if err = cursor.All(context.TODO(), &result); err != nil {
+	if err = cursor.All(ctx, &result); err != nil {
 		panic(err)
 	}
 
@@ -156,7 +156,7 @@ func (s *ExampleService) getExamples(tableName string) []ExampleModel {
 	return result
 }
 
-func (s *ExampleService) InitExamples() {
+func (s *ExampleService) InitExamples(ctx context.Context) {
 	result := make([]ExampleModel, 0)
 
 	// get data from file
@@ -173,31 +173,31 @@ func (s *ExampleService) InitExamples() {
 		return
 	}
 
-	s.insertManyExample(ExampleRawTableName, result)
+	s.insertManyExample(ctx, ExampleRawTableName, result)
 }
 
-func (s *ExampleService) deleteAllExample(tableName string) {
+func (s *ExampleService) deleteAllExample(ctx context.Context, tableName string) {
 	coll := s.db.Collection(tableName)
 	filter := bson.D{}
-	if _, err := coll.DeleteMany(context.TODO(), filter); err != nil {
+	if _, err := coll.DeleteMany(ctx, filter); err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (s *ExampleService) insertManyExample(tableName string, datas []ExampleModel) {
+func (s *ExampleService) insertManyExample(ctx context.Context, tableName string, datas []ExampleModel) {
 	coll := s.db.Collection(tableName)
 	newResults := make([]interface{}, len(datas))
 	for i, v := range datas {
 		newResults[i] = v
 	}
 
-	if _, err := coll.InsertMany(context.TODO(), newResults); err != nil {
+	if _, err := coll.InsertMany(ctx, newResults); err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (s *ExampleService) Reset() {
-	s.deleteAllExample(ExampleTableName)
-	datas := s.getExamples(ExampleRawTableName)
-	s.insertManyExample(ExampleTableName, datas)
+func (s *ExampleService) Reset(ctx context.Context) {
+	s.deleteAllExample(ctx, ExampleTableName)
+	datas := s.getExamples(ctx, ExampleRawTableName)
+	s.insertManyExample(ctx, ExampleTableName, datas)
 }

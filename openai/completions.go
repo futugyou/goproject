@@ -1,5 +1,7 @@
 package openai
 
+import "context"
+
 const completionsPath string = "completions"
 
 type CreateCompletionRequest struct {
@@ -39,14 +41,14 @@ type CreateCompletionResponse struct {
 
 type CompletionService service
 
-func (c *CompletionService) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
+func (c *CompletionService) CreateCompletion(ctx context.Context, request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  false,
 	}
 
-	c.client.httpClient.Post(completionsPath, newRequest, result)
+	c.client.httpClient.Post(ctx, completionsPath, newRequest, result)
 	return result
 }
 
@@ -73,11 +75,11 @@ func (c *CompletionService) CreateCompletion(request CreateCompletionRequest) *C
 //				result = append(result, response)
 //			}
 //		}
-func (c *CompletionService) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, *OpenaiError) {
+func (c *CompletionService) CreateStreamCompletion(ctx context.Context, request CreateCompletionRequest) (*StreamResponse, *OpenaiError) {
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  true,
 	}
 
-	return c.client.httpClient.PostStream(completionsPath, newRequest)
+	return c.client.httpClient.PostStream(ctx, completionsPath, newRequest)
 }

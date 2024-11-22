@@ -26,7 +26,7 @@ func (c *ChatController) CreateChat(request lib.CreateChatCompletionRequest) {
 	chatService := services.NewChatService(createOpenAICLient())
 	var chat lib.CreateChatCompletionRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &chat)
-	result := chatService.CreateChatCompletion(chat)
+	result := chatService.CreateChatCompletion(c.Ctx.Request.Context(), chat)
 	c.Ctx.JSONResp(result)
 }
 
@@ -39,7 +39,7 @@ func (c *ChatController) CreateChatWithSSE() {
 	var request services.CreateChatRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
 
-	result := chatService.CreateChatSSE(request)
+	result := chatService.CreateChatSSE(c.Ctx.Request.Context(), request)
 
 	var rw = c.Ctx.ResponseWriter
 	rw.Header().Set("Access-Control-Allow-Origin", "*")

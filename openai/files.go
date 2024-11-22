@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"context"
 	"fmt"
 	"os"
 )
@@ -46,35 +47,35 @@ type DeleteFileResponse struct {
 
 type FileService service
 
-func (c *FileService) ListFiles() *ListFilesResponse {
+func (c *FileService) ListFiles(ctx context.Context) *ListFilesResponse {
 	result := &ListFilesResponse{}
-	c.client.httpClient.Get(listFilesPath, result)
+	c.client.httpClient.Get(ctx, listFilesPath, result)
 	return result
 }
 
-func (c *FileService) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
+func (c *FileService) UploadFiles(ctx context.Context, request UploadFilesRequest) *UploadFilesResponse {
 	result := &UploadFilesResponse{}
-	c.client.httpClient.PostWithFile(uploadFilesPath, &request, result)
+	c.client.httpClient.PostWithFile(ctx, uploadFilesPath, &request, result)
 	return result
 }
 
-func (c *FileService) RetrieveFile(file_id string) *RetrieveFileResponse {
+func (c *FileService) RetrieveFile(ctx context.Context, file_id string) *RetrieveFileResponse {
 	result := &RetrieveFileResponse{}
-	c.client.httpClient.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
+	c.client.httpClient.Get(ctx, fmt.Sprintf(retrieveFilePath, file_id), result)
 	return result
 }
 
 // To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts
 // so i do not know the response type
 // And saw some other lib, and i think it is a FileModel type.
-func (c *FileService) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
+func (c *FileService) RetrieveFileContent(ctx context.Context, file_id string) *RetrieveFileContentResponse {
 	result := &RetrieveFileContentResponse{}
-	c.client.httpClient.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
+	c.client.httpClient.Get(ctx, fmt.Sprintf(retrieveFileContentPath, file_id), result)
 	return result
 }
 
-func (c *FileService) DeleteFile(file_id string) *DeleteFileResponse {
+func (c *FileService) DeleteFile(ctx context.Context, file_id string) *DeleteFileResponse {
 	result := &DeleteFileResponse{}
-	c.client.httpClient.Delete(fmt.Sprintf(deleteFilePath, file_id), result)
+	c.client.httpClient.Delete(ctx, fmt.Sprintf(deleteFilePath, file_id), result)
 	return result
 }

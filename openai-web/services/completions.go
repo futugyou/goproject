@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -49,12 +50,10 @@ type CreateCompletionResponse struct {
 	Texts            []string `json:"texts,omitempty"`
 }
 
-func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) CreateCompletionResponse {
-	openaikey := os.Getenv("openaikey")
-	client := openai.NewClient(openaikey)
+func (s *CompletionService) CreateCompletion(ctx context.Context, request CreateCompletionRequest) CreateCompletionResponse {
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
-	apiresult := client.Completion.CreateCompletion(req)
+	apiresult := s.client.Completion.CreateCompletion(ctx, req)
 
 	result := CreateCompletionResponse{}
 	if apiresult != nil {
@@ -84,21 +83,15 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) Cr
 
 	return result
 }
-
-func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest) <-chan CreateCompletionResponse {
-	openaikey := os.Getenv("openaikey")
-	client := openai.NewClient(openaikey)
+func (s *CompletionService) CreateCompletionSSE(ctx context.Context, request CreateCompletionRequest) <-chan CreateCompletionResponse {
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
-	stream, err := client.Completion.CreateStreamCompletion(req)
+
 	result := make(chan CreateCompletionResponse)
-
+	stream, err := s.client.Completion.CreateStreamCompletion(ctx, req)
 	if err != nil {
-		go func() {
-			defer close(result)
-			result <- CreateCompletionResponse{ErrorMessage: err.Error()}
-		}()
-
+		result <- CreateCompletionResponse{ErrorMessage: err.Error()}
+		close(result)
 		return result
 	}
 
@@ -107,6 +100,13 @@ func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest)
 		defer stream.Close()
 
 		for {
+			select {
+			case <-ctx.Done():
+				result <- CreateCompletionResponse{ErrorMessage: ctx.Err().Error()}
+				return
+			default:
+			}
+
 			if !stream.CanReadStream() {
 				break
 			}
@@ -114,11 +114,11 @@ func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest)
 			response := &openai.CreateCompletionResponse{}
 			ch := CreateCompletionResponse{}
 
-			if err = stream.ReadStream(response); err != nil {
+			if err := stream.ReadStream(ctx, response); err != nil {
 				ch.ErrorMessage = err.Error()
 			} else {
 				if response.Created != 0 {
-					ch.Created = time.Unix((int64)(response.Created), 0).Format("2006-01-02 15:04:05")
+					ch.Created = time.Unix(int64(response.Created), 0).Format("2006-01-02 15:04:05")
 				}
 
 				if response.Usage != nil {
@@ -128,16 +128,20 @@ func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest)
 				}
 
 				if response.Choices != nil {
-					texts := make([]string, 0)
-					for i := 0; i < len(response.Choices); i++ {
-						texts = append(texts, response.Choices[i].Text)
+					texts := make([]string, len(response.Choices))
+					for i, choice := range response.Choices {
+						texts[i] = choice.Text
 					}
-
 					ch.Texts = texts
 				}
 			}
 
-			result <- ch
+			select {
+			case result <- ch:
+			case <-ctx.Done():
+				result <- CreateCompletionResponse{ErrorMessage: ctx.Err().Error()}
+				return
+			}
 		}
 	}()
 

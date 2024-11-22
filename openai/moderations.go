@@ -1,6 +1,8 @@
 package openai
 
 import (
+	"context"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -51,7 +53,7 @@ type ModerationResult struct {
 
 type ModerationService service
 
-func (c *ModerationService) CreateModeration(request CreateModerationRequest) *CreateModerationResponse {
+func (c *ModerationService) CreateModeration(ctx context.Context, request CreateModerationRequest) *CreateModerationResponse {
 	result := &CreateModerationResponse{}
 
 	err := validateModerationModel(request.Model)
@@ -60,7 +62,7 @@ func (c *ModerationService) CreateModeration(request CreateModerationRequest) *C
 		return result
 	}
 
-	c.client.httpClient.Post(createModerationPath, request, result)
+	c.client.httpClient.Post(ctx, createModerationPath, request, result)
 	return result
 }
 

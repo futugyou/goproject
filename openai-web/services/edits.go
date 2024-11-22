@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -40,11 +41,11 @@ type CreateEditsResponse struct {
 	Texts            []string `json:"texts,omitempty"`
 }
 
-func (s *EditService) CreateEdit(request CreateEditsRequest) CreateEditsResponse {
+func (s *EditService) CreateEdit(ctx context.Context, request CreateEditsRequest) CreateEditsResponse {
 	req := openai.CreateEditsRequest{}
 	mapper.AutoMapper(&request, &req)
 
-	response := s.client.Edit.CreateEdits(req)
+	response := s.client.Edit.CreateEdits(ctx, req)
 	result := CreateEditsResponse{}
 	if response != nil {
 		if response.Error != nil {

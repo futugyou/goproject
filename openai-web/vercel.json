@@ -6,6 +6,20 @@
 	},
   "routes": [
     {
+      "src": "/",
+      "dest": "/api/examples",
+      "methods": [
+        "GET",
+        "OPTIONS"
+      ],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Expose-Headers": "*"
+      }
+    },
+    {
       "src": "/api/v1/examples",
       "dest": "/api/examples",
       "methods": [

@@ -55,7 +55,7 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 		CompletionModel: co,
 	}
 
-	result := completionService.CreateCompletionSSE(re)
+	result := completionService.CreateCompletionSSE(c.Ctx.Request.Context(), re)
 
 	var rw = c.Ctx.ResponseWriter
 	rw.Header().Set("Access-Control-Allow-Origin", "*")
@@ -111,6 +111,6 @@ func (c *CompletionController) CreateCompletion() {
 		CompletionModel: co,
 	}
 
-	result := completionService.CreateCompletion(re)
+	result := completionService.CreateCompletion(c.Ctx.Request.Context(), re)
 	c.Ctx.JSONResp(result)
 }

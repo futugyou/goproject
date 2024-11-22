@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"os"
 	"strings"
 	"time"
@@ -46,13 +47,12 @@ func NewChatService(client *openai.OpenaiClient) *ChatService {
 	}
 }
 
-func (s *ChatService) CreateChatCompletion(request openai.CreateChatCompletionRequest) *openai.CreateChatCompletionResponse {
-	response := s.client.Chat.CreateChatCompletion(request)
+func (s *ChatService) CreateChatCompletion(ctx context.Context, request openai.CreateChatCompletionRequest) *openai.CreateChatCompletionResponse {
+	response := s.client.Chat.CreateChatCompletion(ctx, request)
 	return response
 }
 
-func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChatResponse {
-
+func (s *ChatService) CreateChatSSE(ctx context.Context, request CreateChatRequest) <-chan CreateChatResponse {
 	messages := make([]openai.ChatCompletionMessage, 0)
 	for i := 0; i < len(request.Messages); i++ {
 		switch strings.ToLower(request.Messages[i].Role) {
@@ -75,15 +75,11 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 		FrequencyPenalty: request.FrequencyPenalty,
 	}
 
-	stream, err := s.client.Chat.CreateChatStreamCompletion(chatRequest)
+	stream, err := s.client.Chat.CreateChatStreamCompletion(ctx, chatRequest)
 	result := make(chan CreateChatResponse)
-
 	if err != nil {
-		go func() {
-			defer close(result)
-			result <- CreateChatResponse{ErrorMessage: err.Error()}
-		}()
-
+		result <- CreateChatResponse{ErrorMessage: err.Error()}
+		close(result)
 		return result
 	}
 
@@ -92,6 +88,13 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 		defer stream.Close()
 
 		for {
+			select {
+			case <-ctx.Done():
+				result <- CreateChatResponse{ErrorMessage: ctx.Err().Error()}
+				return
+			default:
+			}
+
 			if !stream.CanReadStream() {
 				break
 			}
@@ -99,7 +102,7 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 			response := &openai.CreateChatCompletionResponse{}
 			ch := CreateChatResponse{}
 
-			if err = stream.ReadStream(response); err != nil {
+			if err = stream.ReadStream(ctx, response); err != nil {
 				ch.ErrorMessage = err.Error()
 			} else {
 				if response.Created != 0 {
@@ -126,7 +129,12 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 				}
 			}
 
-			result <- ch
+			select {
+			case result <- ch:
+			case <-ctx.Done():
+				result <- CreateChatResponse{ErrorMessage: ctx.Err().Error()}
+				return
+			}
 		}
 	}()
 

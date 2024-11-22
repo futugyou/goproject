@@ -60,7 +60,7 @@ func Completions_Sse(w http.ResponseWriter, r *http.Request) {
 		CompletionModel: co,
 	}
 
-	result := completionService.CreateCompletionSSE(re)
+	result := completionService.CreateCompletionSSE(r.Context(), re)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set(`Content-Type`, `text/event-stream;charset-utf-8`)

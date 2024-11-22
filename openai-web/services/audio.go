@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"os"
 
 	openai "github.com/futugyousuzu/go-openai"
@@ -20,12 +21,12 @@ func NewAudioService(client *openai.OpenaiClient) *AudioService {
 	}
 }
 
-func (s *AudioService) CreateAudioTranscription(request openai.CreateAudioTranscriptionRequest) *openai.CreateAudioTranscriptionResponse {
-	response := s.client.Audio.CreateAudioTranscription(request)
+func (s *AudioService) CreateAudioTranscription(ctx context.Context, request openai.CreateAudioTranscriptionRequest) *openai.CreateAudioTranscriptionResponse {
+	response := s.client.Audio.CreateAudioTranscription(ctx, request)
 	return response
 }
 
-func (s *AudioService) CreateAudioTranslation(request openai.CreateAudioTranslationRequest) *openai.CreateAudioTranslationResponse {
-	response := s.client.Audio.CreateAudioTranslation(request)
+func (s *AudioService) CreateAudioTranslation(ctx context.Context, request openai.CreateAudioTranslationRequest) *openai.CreateAudioTranslationResponse {
+	response := s.client.Audio.CreateAudioTranslation(ctx, request)
 	return response
 }

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"os"
 
 	openai "github.com/futugyousuzu/go-openai"
@@ -20,7 +21,7 @@ func NewFineTuneService(client *openai.OpenaiClient) *FineTuneService {
 	}
 }
 
-func (s *FineTuneService) ListFinetuneEvents(fine_tune_id string) *openai.ListFinetuneEventResponse {
-	result := s.client.Finetune.ListFinetuneEvents(fine_tune_id)
+func (s *FineTuneService) ListFinetuneEvents(ctx context.Context, fine_tune_id string) *openai.ListFinetuneEventResponse {
+	result := s.client.Finetune.ListFinetuneEvents(ctx, fine_tune_id)
 	return result
 }

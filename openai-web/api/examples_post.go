@@ -26,7 +26,7 @@ func ExamplesPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
+	exampleService := services.NewExampleService(createMongoDbCLient(r.Context()), createRedisICLient())
 	if len(request.Key) == 0 {
 		w.Write([]byte("errors"))
 		w.WriteHeader(500)
@@ -35,9 +35,9 @@ func ExamplesPost(w http.ResponseWriter, r *http.Request) {
 
 	typestring := r.URL.Query().Get("type")
 	if typestring == "custom" {
-		exampleService.CreateCustomExample(request)
+		exampleService.CreateCustomExample(r.Context(), request)
 	} else {
-		exampleService.CreateSystemExample(request)
+		exampleService.CreateSystemExample(r.Context(), request)
 	}
 
 	w.Write([]byte("ok"))

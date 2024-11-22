@@ -34,7 +34,7 @@ func Chatsse(w http.ResponseWriter, r *http.Request) {
 	var request services.CreateChatRequest
 	json.Unmarshal(buf, &request)
 
-	result := chatService.CreateChatSSE(request)
+	result := chatService.CreateChatSSE(r.Context(), request)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set(`Content-Type`, `text/event-stream;charset-utf-8`)
@@ -84,8 +84,8 @@ func createRedisICLient() *redis.Client {
 	return client
 }
 
-func createMongoDbCLient() *mongo.Client {
+func createMongoDbCLient(ctx context.Context) *mongo.Client {
 	uri := os.Getenv("mongodb_url")
-	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	client, _ := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	return client
 }

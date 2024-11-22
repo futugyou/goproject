@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -82,7 +83,7 @@ func CreateCompletionLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Completion.CreateCompletion(request)
+	return client.Completion.CreateCompletion(context.Background(), request)
 }
 
 func ListModels() string {
@@ -112,7 +113,7 @@ func ListModels() string {
 func ListModelsLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Model.ListModels()
+	return client.Model.ListModels(context.Background())
 }
 
 func RetrieveModel() string {
@@ -142,7 +143,7 @@ func RetrieveModel() string {
 func RetrieveModelLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Model.RetrieveModel("text-davinci-003")
+	return client.Model.RetrieveModel(context.Background(), "text-davinci-003")
 }
 
 type CreateEditsModel struct {
@@ -197,7 +198,7 @@ func CreateEditsLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Edit.CreateEdits(request)
+	return client.Edit.CreateEdits(context.Background(), request)
 }
 
 func CreateImages() string {
@@ -247,7 +248,7 @@ func CreateImagesLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Image.CreateImages(data)
+	return client.Image.CreateImages(context.Background(), data)
 }
 
 func EditImages() string {
@@ -327,7 +328,7 @@ func EditImageslib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Image.EditImages(data)
+	return client.Image.EditImages(context.Background(), data)
 }
 
 func VariationImagesLib() interface{} {
@@ -343,7 +344,7 @@ func VariationImagesLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Image.VariationImages(data)
+	return client.Image.VariationImages(context.Background(), data)
 }
 
 func CreateEmbeddings() string {
@@ -390,7 +391,7 @@ func CreateEmbeddingslib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Embedding.CreateEmbeddings(data)
+	return client.Embedding.CreateEmbeddings(context.Background(), data)
 }
 
 func ListFiles() string {
@@ -420,7 +421,7 @@ func ListFiles() string {
 func ListFilesLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.File.ListFiles()
+	return client.File.ListFiles(context.Background())
 }
 
 func UploadFiles() string {
@@ -478,7 +479,7 @@ func UploadFileslib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.File.UploadFiles(data)
+	return client.File.UploadFiles(context.Background(), data)
 }
 
 func RetrieveFile() string {
@@ -508,7 +509,7 @@ func RetrieveFile() string {
 func RetrieveFileLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.File.RetrieveFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
+	return client.File.RetrieveFile(context.Background(), "file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
 
 func RetrieveFileContent() string {
@@ -562,7 +563,7 @@ func DeleteFile() string {
 func DeleteFileLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.File.DeleteFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
+	return client.File.DeleteFile(context.Background(), "file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
 
 func CreateFinetune() string {
@@ -609,7 +610,7 @@ func CreateFinetunelib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Finetune.CreateFinetune(data)
+	return client.Finetune.CreateFinetune(context.Background(), data)
 }
 
 func CancelFinetune() string {
@@ -640,7 +641,7 @@ func CancelFinetune() string {
 func CancelFinetunelib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Finetune.CancelFinetune("ft-wVjb6K7ngTeYeW6QT1eDQikZ")
+	return client.Finetune.CancelFinetune(context.Background(), "ft-wVjb6K7ngTeYeW6QT1eDQikZ")
 }
 
 func ListFinetunes() string {
@@ -670,25 +671,25 @@ func ListFinetunes() string {
 func ListFinetunesLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Finetune.ListFinetune()
+	return client.Finetune.ListFinetune(context.Background())
 }
 
 func RetrieveFinetunelib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Finetune.RetrieveFinetune("ft-W0GCdkAnSKNIoyWhfbe86zzv")
+	return client.Finetune.RetrieveFinetune(context.Background(), "ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
 
 func ListFinetuneEventslib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Finetune.ListFinetuneEvents("ft-W0GCdkAnSKNIoyWhfbe86zzv")
+	return client.Finetune.ListFinetuneEvents(context.Background(), "ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
 
 func DeleteFinetuneMdelLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Finetune.DeleteFinetuneMdel("curie:ft-personal-2023-02-28-05-52-07")
+	return client.Finetune.DeleteFinetuneMdel(context.Background(), "curie:ft-personal-2023-02-28-05-52-07")
 }
 
 func CreateModeration() string {
@@ -735,7 +736,7 @@ func CreateModerationLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Moderation.CreateModeration(request)
+	return client.Moderation.CreateModeration(context.Background(), request)
 }
 
 func CreateAudioTranscriptionLib() interface{} {
@@ -754,7 +755,7 @@ func CreateAudioTranscriptionLib() interface{} {
 	}
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.Audio.CreateAudioTranscription(data)
+	return client.Audio.CreateAudioTranscription(context.Background(), data)
 }
 
 func CreateAudioTranscription() string {
