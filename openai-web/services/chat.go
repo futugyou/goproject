@@ -38,7 +38,7 @@ type ChatService struct {
 func (s *ChatService) CreateChatCompletion(request openai.CreateChatCompletionRequest) *openai.CreateChatCompletionResponse {
 	openaikey := os.Getenv("openaikey")
 	client := openai.NewClient(openaikey)
-	response := client.CreateChatCompletion(request)
+	response := client.Chat.CreateChatCompletion(request)
 	return response
 }
 
@@ -68,7 +68,7 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 		FrequencyPenalty: request.FrequencyPenalty,
 	}
 
-	stream, err := client.CreateChatStreamCompletion(chatRequest)
+	stream, err := client.Chat.CreateChatStreamCompletion(chatRequest)
 	result := make(chan CreateChatResponse)
 
 	if err != nil {

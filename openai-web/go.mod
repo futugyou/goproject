@@ -10,7 +10,7 @@ require (
 	github.com/futugyousuzu/go-openai v0.0.0
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
-	github.com/redis/go-redis/v9 v9.6.1
+	github.com/redis/go-redis/v9 v9.7.0
 	github.com/smartystreets/goconvey v1.6.4
 )
 
@@ -30,13 +30,13 @@ require (
 	golang.org/x/mod v0.20.0 // indirect
 )
 
-replace github.com/futugyousuzu/go-openai v0.0.0 => github.com/futugyou/goproject/openai v0.0.0-20230504105143-00ca81260dbf
-
 replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => github.com/futugyou/goproject/openai-tokenizer v0.0.0-20230504105143-00ca81260dbf
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
 
 replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
+
+replace github.com/futugyousuzu/go-openai v0.0.0 => ../openai
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

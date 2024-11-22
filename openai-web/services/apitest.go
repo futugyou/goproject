@@ -82,7 +82,7 @@ func CreateCompletionLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateCompletion(request)
+	return client.Completion.CreateCompletion(request)
 }
 
 func ListModels() string {
@@ -112,7 +112,7 @@ func ListModels() string {
 func ListModelsLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.ListModels()
+	return client.Model.ListModels()
 }
 
 func RetrieveModel() string {
@@ -142,7 +142,7 @@ func RetrieveModel() string {
 func RetrieveModelLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.RetrieveModel("text-davinci-003")
+	return client.Model.RetrieveModel("text-davinci-003")
 }
 
 type CreateEditsModel struct {
@@ -197,7 +197,7 @@ func CreateEditsLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateEdits(request)
+	return client.Edit.CreateEdits(request)
 }
 
 func CreateImages() string {
@@ -247,7 +247,7 @@ func CreateImagesLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateImages(data)
+	return client.Image.CreateImages(data)
 }
 
 func EditImages() string {
@@ -327,7 +327,7 @@ func EditImageslib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.EditImages(data)
+	return client.Image.EditImages(data)
 }
 
 func VariationImagesLib() interface{} {
@@ -343,7 +343,7 @@ func VariationImagesLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.VariationImages(data)
+	return client.Image.VariationImages(data)
 }
 
 func CreateEmbeddings() string {
@@ -390,7 +390,7 @@ func CreateEmbeddingslib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateEmbeddings(data)
+	return client.Embedding.CreateEmbeddings(data)
 }
 
 func ListFiles() string {
@@ -420,7 +420,7 @@ func ListFiles() string {
 func ListFilesLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.ListFiles()
+	return client.File.ListFiles()
 }
 
 func UploadFiles() string {
@@ -478,7 +478,7 @@ func UploadFileslib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.UploadFiles(data)
+	return client.File.UploadFiles(data)
 }
 
 func RetrieveFile() string {
@@ -508,7 +508,7 @@ func RetrieveFile() string {
 func RetrieveFileLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.RetrieveFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
+	return client.File.RetrieveFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
 
 func RetrieveFileContent() string {
@@ -562,7 +562,7 @@ func DeleteFile() string {
 func DeleteFileLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.DeleteFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
+	return client.File.DeleteFile("file-Be1Itkt0E2SinfiOnxYRPjVx")
 }
 
 func CreateFinetune() string {
@@ -609,7 +609,7 @@ func CreateFinetunelib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateFinetune(data)
+	return client.Finetune.CreateFinetune(data)
 }
 
 func CancelFinetune() string {
@@ -640,7 +640,7 @@ func CancelFinetune() string {
 func CancelFinetunelib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CancelFinetune("ft-wVjb6K7ngTeYeW6QT1eDQikZ")
+	return client.Finetune.CancelFinetune("ft-wVjb6K7ngTeYeW6QT1eDQikZ")
 }
 
 func ListFinetunes() string {
@@ -670,25 +670,25 @@ func ListFinetunes() string {
 func ListFinetunesLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.ListFinetune()
+	return client.Finetune.ListFinetune()
 }
 
 func RetrieveFinetunelib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.RetrieveFinetune("ft-W0GCdkAnSKNIoyWhfbe86zzv")
+	return client.Finetune.RetrieveFinetune("ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
 
 func ListFinetuneEventslib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.ListFinetuneEvents("ft-W0GCdkAnSKNIoyWhfbe86zzv")
+	return client.Finetune.ListFinetuneEvents("ft-W0GCdkAnSKNIoyWhfbe86zzv")
 }
 
 func DeleteFinetuneMdelLib() interface{} {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.DeleteFinetuneMdel("curie:ft-personal-2023-02-28-05-52-07")
+	return client.Finetune.DeleteFinetuneMdel("curie:ft-personal-2023-02-28-05-52-07")
 }
 
 func CreateModeration() string {
@@ -735,7 +735,7 @@ func CreateModerationLib() interface{} {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateModeration(request)
+	return client.Moderation.CreateModeration(request)
 }
 
 func CreateAudioTranscriptionLib() interface{} {
@@ -754,7 +754,7 @@ func CreateAudioTranscriptionLib() interface{} {
 	}
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	return client.CreateAudioTranscription(data)
+	return client.Audio.CreateAudioTranscription(data)
 }
 
 func CreateAudioTranscription() string {

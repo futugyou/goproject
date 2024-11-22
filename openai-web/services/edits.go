@@ -35,7 +35,7 @@ func (s *EditService) CreateEdit(request CreateEditsRequest) CreateEditsResponse
 	req := openai.CreateEditsRequest{}
 	mapper.AutoMapper(&request, &req)
 
-	response := client.CreateEdits(req)
+	response := client.Edit.CreateEdits(req)
 	result := CreateEditsResponse{}
 	if response != nil {
 		if response.Error != nil {

@@ -12,6 +12,6 @@ type FineTuneService struct {
 func (s *FineTuneService) ListFinetuneEvents(fine_tune_id string) *lib.ListFinetuneEventResponse {
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	result := client.ListFinetuneEvents(fine_tune_id)
+	result := client.Finetune.ListFinetuneEvents(fine_tune_id)
 	return result
 }

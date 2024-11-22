@@ -35,7 +35,7 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 
 	openaikey := os.Getenv("openaikey")
 	client := lib.NewClient(openaikey)
-	models := client.ListModels()
+	models := client.Model.ListModels()
 	rset := make(map[string]interface{})
 	if len(models.Datas) > 0 {
 		for _, model := range models.Datas {

@@ -43,7 +43,7 @@ func (s *CompletionService) CreateCompletion(request CreateCompletionRequest) Cr
 	client := openai.NewClient(openaikey)
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
-	apiresult := client.CreateCompletion(req)
+	apiresult := client.Completion.CreateCompletion(req)
 
 	result := CreateCompletionResponse{}
 	if apiresult != nil {
@@ -79,7 +79,7 @@ func (s *CompletionService) CreateCompletionSSE(request CreateCompletionRequest)
 	client := openai.NewClient(openaikey)
 	req := openai.CreateCompletionRequest{}
 	mapper.AutoMapper(&request.CompletionModel, &req)
-	stream, err := client.CreateStreamCompletion(req)
+	stream, err := client.Completion.CreateStreamCompletion(req)
 	result := make(chan CreateCompletionResponse)
 
 	if err != nil {
