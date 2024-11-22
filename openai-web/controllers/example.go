@@ -19,7 +19,7 @@ type ExampleController struct {
 func (c *ExampleController) Examples() {
 	typestring := c.GetString("type")
 
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	var result []services.ExampleModel
 	if typestring == "custom" {
 		result = exampleService.GetCustomExamples()
@@ -35,7 +35,7 @@ func (c *ExampleController) Examples() {
 // @router / [post]
 func (c *ExampleController) CreateExample() {
 	typestring := c.GetString("type")
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	var request services.ExampleModel
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
 	if len(request.Key) == 0 {
@@ -56,7 +56,7 @@ func (c *ExampleController) CreateExample() {
 // @Success 200 {string}
 // @router /init [post]
 func (c *ExampleController) InitExamples() {
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	exampleService.InitExamples()
 	c.Ctx.WriteString("ok")
 }
@@ -65,7 +65,7 @@ func (c *ExampleController) InitExamples() {
 // @Success 200 {string}
 // @router /reset [post]
 func (c *ExampleController) ResetExamples() {
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	exampleService.Reset()
 	c.Ctx.WriteString("ok")
 }

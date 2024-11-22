@@ -18,7 +18,7 @@ func ExamplesReset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	exampleService.Reset()
 
 	w.Write([]byte("ok"))

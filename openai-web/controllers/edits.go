@@ -22,7 +22,7 @@ func (c *EditController) CreateEdit() {
 	var r services.CreateEditsRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &r)
 
-	completionService := services.EditService{}
+	completionService := services.NewEditService(createOpenAICLient())
 	result := completionService.CreateEdit(r)
 	c.Ctx.JSONResp(result)
 }

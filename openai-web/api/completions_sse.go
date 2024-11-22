@@ -52,7 +52,7 @@ func Completions_Sse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	completionService := services.CompletionService{}
+	completionService := services.NewCompletionService(createOpenAICLient())
 	co := services.CompletionModel{}
 	mapper.AutoMapper(&completionModel, &co)
 

@@ -47,7 +47,7 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 		return
 	}
 
-	completionService := services.CompletionService{}
+	completionService := services.NewCompletionService(createOpenAICLient())
 	co := services.CompletionModel{}
 	mapper.AutoMapper(&r, &co)
 
@@ -103,7 +103,7 @@ func (c *CompletionController) CreateCompletion() {
 		return
 	}
 
-	completionService := services.CompletionService{}
+	completionService := services.NewCompletionService(createOpenAICLient())
 	co := services.CompletionModel{}
 	mapper.AutoMapper(&r, &co)
 

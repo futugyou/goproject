@@ -8,7 +8,7 @@ import (
 )
 
 func Models(w http.ResponseWriter, r *http.Request) {
-	modelService := services.ModelService{}
+	modelService := services.NewModelService(createOpenAICLient(), createRedisICLient())
 	result := modelService.GetAllModels()
 	body, _ := json.Marshal(result)
 	w.Write(body)

@@ -19,7 +19,7 @@ type FineTuneController struct {
 // @router /:fine_tune_id/events [get]
 func (c *FineTuneController) ListFineTuneEvent() {
 	fine_tune_id := c.GetString("fine_tune_id")
-	modelService := services.FineTuneService{}
+	modelService := services.NewFineTuneService(createOpenAICLient())
 	result := modelService.ListFinetuneEvents(fine_tune_id)
 	c.Ctx.JSONResp(result)
 }

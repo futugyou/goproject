@@ -9,6 +9,17 @@ import (
 )
 
 type EditService struct {
+	client *openai.OpenaiClient
+}
+
+func NewEditService(client *openai.OpenaiClient) *EditService {
+	if client == nil {
+		openaikey := os.Getenv("openaikey")
+		client = openai.NewClient(openaikey)
+	}
+	return &EditService{
+		client: client,
+	}
 }
 
 type CreateEditsRequest struct {
@@ -30,12 +41,10 @@ type CreateEditsResponse struct {
 }
 
 func (s *EditService) CreateEdit(request CreateEditsRequest) CreateEditsResponse {
-	openaikey := os.Getenv("openaikey")
-	client := openai.NewClient(openaikey)
 	req := openai.CreateEditsRequest{}
 	mapper.AutoMapper(&request, &req)
 
-	response := client.Edit.CreateEdits(req)
+	response := s.client.Edit.CreateEdits(req)
 	result := CreateEditsResponse{}
 	if response != nil {
 		if response.Error != nil {

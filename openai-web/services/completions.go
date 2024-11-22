@@ -10,6 +10,17 @@ import (
 )
 
 type CompletionService struct {
+	client *openai.OpenaiClient
+}
+
+func NewCompletionService(client *openai.OpenaiClient) *CompletionService {
+	if client == nil {
+		openaikey := os.Getenv("openaikey")
+		client = openai.NewClient(openaikey)
+	}
+	return &CompletionService{
+		client: client,
+	}
 }
 
 type CompletionModel struct {

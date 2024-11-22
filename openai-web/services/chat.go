@@ -33,18 +33,25 @@ type Chat struct {
 }
 
 type ChatService struct {
+	client *openai.OpenaiClient
+}
+
+func NewChatService(client *openai.OpenaiClient) *ChatService {
+	if client == nil {
+		openaikey := os.Getenv("openaikey")
+		client = openai.NewClient(openaikey)
+	}
+	return &ChatService{
+		client: client,
+	}
 }
 
 func (s *ChatService) CreateChatCompletion(request openai.CreateChatCompletionRequest) *openai.CreateChatCompletionResponse {
-	openaikey := os.Getenv("openaikey")
-	client := openai.NewClient(openaikey)
-	response := client.Chat.CreateChatCompletion(request)
+	response := s.client.Chat.CreateChatCompletion(request)
 	return response
 }
 
 func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChatResponse {
-	openaikey := os.Getenv("openaikey")
-	client := openai.NewClient(openaikey)
 
 	messages := make([]openai.ChatCompletionMessage, 0)
 	for i := 0; i < len(request.Messages); i++ {
@@ -68,7 +75,7 @@ func (s *ChatService) CreateChatSSE(request CreateChatRequest) <-chan CreateChat
 		FrequencyPenalty: request.FrequencyPenalty,
 	}
 
-	stream, err := client.Chat.CreateChatStreamCompletion(chatRequest)
+	stream, err := s.client.Chat.CreateChatStreamCompletion(chatRequest)
 	result := make(chan CreateChatResponse)
 
 	if err != nil {

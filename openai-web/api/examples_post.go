@@ -26,7 +26,7 @@ func ExamplesPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	if len(request.Key) == 0 {
 		w.Write([]byte("errors"))
 		w.WriteHeader(500)

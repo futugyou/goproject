@@ -2,23 +2,34 @@ package services
 
 import (
 	"context"
-	"os"
-	"strconv"
+	"sync"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var Rbd *redis.Client
 var ctx = context.Background()
+var (
+	redisClient *redis.Client
+	once        sync.Once
+)
 
-func init() {
-	redisAddress := os.Getenv("redisAddress")
-	redisPassword := os.Getenv("redisPassword")
-	redisDBString := os.Getenv("redisDB")
-	redisDB, _ := strconv.Atoi(redisDBString)
-	Rbd = redis.NewClient(&redis.Options{
-		Addr:     redisAddress,
-		Password: redisPassword,
-		DB:       redisDB,
+func RedisClient(url string) (*redis.Client, error) {
+	var err error
+	once.Do(func() {
+		opt, err := redis.ParseURL(url)
+		if err != nil {
+			return
+		}
+
+		opt.MaxRetries = 3
+		opt.DialTimeout = 10 * time.Second
+		opt.ReadTimeout = -1
+		opt.WriteTimeout = -1
+		opt.DB = 0
+
+		redisClient = redis.NewClient(opt)
 	})
+
+	return redisClient, err
 }

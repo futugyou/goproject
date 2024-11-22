@@ -9,7 +9,7 @@ import (
 
 func Examples(w http.ResponseWriter, r *http.Request) {
 	typestring := r.URL.Query().Get("type")
-	exampleService := services.ExampleService{}
+	exampleService := services.NewExampleService(createMongoDbCLient(), createRedisICLient())
 	var result []services.ExampleModel
 	if typestring == "custom" {
 		result = exampleService.GetCustomExamples()

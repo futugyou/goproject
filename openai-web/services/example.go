@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -31,6 +32,33 @@ type ExampleModel struct {
 }
 
 type ExampleService struct {
+	db      *mongo.Database
+	redisDb *redis.Client
+}
+
+func NewExampleService(client *mongo.Client, redisDb *redis.Client) *ExampleService {
+	db_name := os.Getenv("db_name")
+	if client == nil {
+		uri := os.Getenv("mongodb_url")
+		var err error
+		client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if redisDb == nil {
+		client, err := RedisClient(os.Getenv("REDIS_URL"))
+		if err != nil {
+			panic(err)
+		}
+		redisDb = client
+	}
+
+	return &ExampleService{
+		db:      client.Database(db_name),
+		redisDb: redisDb,
+	}
 }
 
 const GetAllExamplesKey string = "GetAllExamplesKey"
@@ -42,7 +70,7 @@ func (s *ExampleService) GetSystemExamples() []ExampleModel {
 	result := make([]ExampleModel, 0)
 	// get data from redis,
 	// it is not necessary at the moment, but examples.json data will migrate to db in the future
-	rmap, e := Rbd.HGetAll(ctx, GetAllExamplesKey).Result()
+	rmap, e := s.redisDb.HGetAll(ctx, GetAllExamplesKey).Result()
 
 	if e != nil {
 		fmt.Println(e)
@@ -65,11 +93,11 @@ func (s *ExampleService) GetSystemExamples() []ExampleModel {
 		examplesCache[example.Key] = examplestring
 	}
 
-	count, err := Rbd.HSet(ctx, GetAllExamplesKey, examplesCache).Result()
+	count, err := s.redisDb.HSet(ctx, GetAllExamplesKey, examplesCache).Result()
 	if err != nil {
 		logs.Error(err)
 	} else {
-		_, err := Rbd.Expire(ctx, GetAllExamplesKey, time.Hour).Result()
+		_, err := s.redisDb.Expire(ctx, GetAllExamplesKey, time.Hour).Result()
 		if err != nil {
 			logs.Error(err)
 		} else {
@@ -93,27 +121,14 @@ func (s *ExampleService) CreateCustomExample(model ExampleModel) {
 }
 
 func (s *ExampleService) createExample(model ExampleModel, tableName string) {
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database(db_name).Collection(tableName)
+	coll := s.db.Collection(tableName)
 	var example ExampleModel
 	upsert := true
 	option := options.FindOneAndReplaceOptions{
 		Upsert: &upsert,
 	}
 
-	err = coll.FindOneAndReplace(context.TODO(), bson.D{{Key: "key", Value: model.Key}}, model, &option).Decode(&example)
+	err := coll.FindOneAndReplace(context.TODO(), bson.D{{Key: "key", Value: model.Key}}, model, &option).Decode(&example)
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
 			panic(err)
@@ -123,27 +138,12 @@ func (s *ExampleService) createExample(model ExampleModel, tableName string) {
 
 func (s *ExampleService) getExamples(tableName string) []ExampleModel {
 	result := make([]ExampleModel, 0)
-
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database(db_name).Collection(tableName)
+	coll := s.db.Collection(tableName)
 	filter := bson.D{}
 	cursor, err := coll.Find(context.TODO(), filter)
 	if err != nil {
 		panic(err)
 	}
-	// end find
 
 	if err = cursor.All(context.TODO(), &result); err != nil {
 		panic(err)
@@ -177,47 +177,21 @@ func (s *ExampleService) InitExamples() {
 }
 
 func (s *ExampleService) deleteAllExample(tableName string) {
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database(db_name).Collection(tableName)
+	coll := s.db.Collection(tableName)
 	filter := bson.D{}
-	if _, err = coll.DeleteMany(context.TODO(), filter); err != nil {
+	if _, err := coll.DeleteMany(context.TODO(), filter); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func (s *ExampleService) insertManyExample(tableName string, datas []ExampleModel) {
-	uri := os.Getenv("mongodb_url")
-	db_name := os.Getenv("db_name")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-
-	coll := client.Database(db_name).Collection(tableName)
+	coll := s.db.Collection(tableName)
 	newResults := make([]interface{}, len(datas))
 	for i, v := range datas {
 		newResults[i] = v
 	}
 
-	if _, err = coll.InsertMany(context.TODO(), newResults); err != nil {
+	if _, err := coll.InsertMany(context.TODO(), newResults); err != nil {
 		fmt.Println(err)
 	}
 }

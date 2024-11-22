@@ -1,16 +1,22 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 
+	"github.com/futugyou/extensions"
+	openai "github.com/futugyousuzu/go-openai"
 	"github.com/futugyousuzu/go-openai-web/services"
 	verceltool "github.com/futugyousuzu/go-openai-web/vercel"
 
-	"github.com/futugyou/extensions"
+	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func Chatsse(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +30,7 @@ func Chatsse(w http.ResponseWriter, r *http.Request) {
 
 	var buf []byte
 	buf, _ = io.ReadAll(r.Body)
-	chatService := services.ChatService{}
+	chatService := services.NewChatService(createOpenAICLient())
 	var request services.CreateChatRequest
 	json.Unmarshal(buf, &request)
 
@@ -60,4 +66,26 @@ func Chatsse(w http.ResponseWriter, r *http.Request) {
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
 	}
+}
+
+func createOpenAICLient() *openai.OpenaiClient {
+	openaikey := os.Getenv("openaikey")
+	openaiurl := os.Getenv("openaiurl")
+	client := openai.NewClient(openaikey)
+	if len(openaiurl) > 0 {
+		client.SetBaseUrl(openaiurl)
+	}
+
+	return client
+}
+
+func createRedisICLient() *redis.Client {
+	client, _ := services.RedisClient(os.Getenv("REDIS_URL"))
+	return client
+}
+
+func createMongoDbCLient() *mongo.Client {
+	uri := os.Getenv("mongodb_url")
+	client, _ := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	return client
 }

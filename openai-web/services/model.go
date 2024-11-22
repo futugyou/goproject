@@ -6,7 +6,8 @@ import (
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
-	lib "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyousuzu/go-openai"
+	"github.com/redis/go-redis/v9"
 )
 
 type ModelListResponse struct {
@@ -15,17 +16,39 @@ type ModelListResponse struct {
 }
 
 type ModelService struct {
+	redisDb *redis.Client
+	client  *openai.OpenaiClient
+}
+
+func NewModelService(client *openai.OpenaiClient, redisDb *redis.Client) *ModelService {
+	if client == nil {
+		openaikey := os.Getenv("openaikey")
+		client = openai.NewClient(openaikey)
+	}
+
+	if redisDb == nil {
+		client, err := RedisClient(os.Getenv("REDIS_URL"))
+		if err != nil {
+			panic(err)
+		}
+		redisDb = client
+	}
+
+	return &ModelService{
+		client:  client,
+		redisDb: redisDb,
+	}
 }
 
 const GetAllModelsKey string = "GetAllModelsKey"
 
 func (s *ModelService) GetAllModels() []ModelListResponse {
 	result := make([]ModelListResponse, 0)
-	rmap, _ := Rbd.HGetAll(ctx, GetAllModelsKey).Result()
+	rmap, _ := s.redisDb.HGetAll(ctx, GetAllModelsKey).Result()
 
 	if len(rmap) > 0 {
 		for _, r := range rmap {
-			m := lib.Model{}
+			m := openai.Model{}
 			json.Unmarshal([]byte(r), &m)
 			result = append(result, ModelListResponse{Name: m.ID})
 		}
@@ -33,9 +56,7 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 		return result
 	}
 
-	openaikey := os.Getenv("openaikey")
-	client := lib.NewClient(openaikey)
-	models := client.Model.ListModels()
+	models := s.client.Model.ListModels()
 	rset := make(map[string]interface{})
 	if len(models.Datas) > 0 {
 		for _, model := range models.Datas {
@@ -45,7 +66,7 @@ func (s *ModelService) GetAllModels() []ModelListResponse {
 		}
 	}
 
-	count, err := Rbd.HSet(ctx, GetAllModelsKey, rset).Result()
+	count, err := s.redisDb.HSet(ctx, GetAllModelsKey, rset).Result()
 	if err != nil {
 		logs.Error(err)
 	} else {

@@ -23,7 +23,7 @@ type ChatController struct {
 // @Success 200 {object} 	lib.CreateChatCompletionResponse
 // @router / [post]
 func (c *ChatController) CreateChat(request lib.CreateChatCompletionRequest) {
-	chatService := services.ChatService{}
+	chatService := services.NewChatService(createOpenAICLient())
 	var chat lib.CreateChatCompletionRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &chat)
 	result := chatService.CreateChatCompletion(chat)
@@ -35,7 +35,7 @@ func (c *ChatController) CreateChat(request lib.CreateChatCompletionRequest) {
 // @Param	body		body 	services.CreateChatRequest	true		"body for create Chat content"
 // @router /sse [post]
 func (c *ChatController) CreateChatWithSSE() {
-	chatService := services.ChatService{}
+	chatService := services.NewChatService(createOpenAICLient())
 	var request services.CreateChatRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &request)
 

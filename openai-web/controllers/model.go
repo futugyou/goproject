@@ -16,7 +16,7 @@ type ModelController struct {
 // @Success 200 {list model} 	[]string
 // @router / [get]
 func (c *ModelController) ListModel() {
-	modelService := services.ModelService{}
+	modelService := services.NewModelService(createOpenAICLient(), createRedisICLient())
 	result := modelService.GetAllModels()
 	c.Ctx.JSONResp(result)
 }
