@@ -2249,7 +2249,6 @@
         "viewmodels.UpdatePlatformRequest": {
             "type": "object",
             "required": [
-                "activate",
                 "name",
                 "properties",
                 "secrets",
@@ -2303,11 +2302,9 @@
         "viewmodels.UpdatePlatformWebhookRequest": {
             "type": "object",
             "required": [
-                "activate",
                 "name",
                 "properties",
                 "secrets",
-                "sync",
                 "url"
             ],
             "properties": {

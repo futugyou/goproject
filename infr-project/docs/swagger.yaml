@@ -589,7 +589,6 @@ definitions:
         minLength: 3
         type: string
     required:
-    - activate
     - name
     - properties
     - secrets
@@ -626,11 +625,9 @@ definitions:
         minLength: 3
         type: string
     required:
-    - activate
     - name
     - properties
     - secrets
-    - sync
     - url
     type: object
   viewmodels.UpdateProjectDesignRequest:

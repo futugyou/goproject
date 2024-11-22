@@ -2260,7 +2260,6 @@ const docTemplate = `{
         "viewmodels.UpdatePlatformRequest": {
             "type": "object",
             "required": [
-                "activate",
                 "name",
                 "properties",
                 "secrets",
@@ -2314,11 +2313,9 @@ const docTemplate = `{
         "viewmodels.UpdatePlatformWebhookRequest": {
             "type": "object",
             "required": [
-                "activate",
                 "name",
                 "properties",
                 "secrets",
-                "sync",
                 "url"
             ],
             "properties": {

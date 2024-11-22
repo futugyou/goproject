@@ -20,7 +20,7 @@ type UpdatePlatformRequest struct {
 	Properties []Property `json:"properties" validate:"required"`
 	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Tags       []string   `json:"tags" validate:"required"`
-	Activate   bool       `json:"activate" validate:"required"`
+	Activate   bool       `json:"activate"`
 	Provider   string     `json:"provider" validate:"oneof=vercel github circleci other"`
 }
 
@@ -36,18 +36,18 @@ type UpdatePlatformProjectRequest struct {
 type UpdatePlatformWebhookRequest struct {
 	Name       string     `json:"name" validate:"required,min=3,max=50"`
 	Url        string     `json:"url" validate:"required,min=3,max=150"`
-	Activate   bool       `json:"activate" validate:"required"`
+	Activate   bool       `json:"activate"`
 	State      string     `json:"state" validate:"oneof=Init Creating Ready"`
 	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Properties []Property `json:"properties" validate:"required"`
-	Sync       bool       `json:"sync" validate:"required"`
+	Sync       bool       `json:"sync"`
 }
 
 type RemoveWebhookRequest struct {
 	PlatformId string `json:"-"`
 	ProjectId  string `json:"-"`
 	HookName   string `json:"-"`
-	Sync       bool   `json:"sync" validate:"required"`
+	Sync       bool   `json:"sync"`
 }
 
 type PlatformView struct {
