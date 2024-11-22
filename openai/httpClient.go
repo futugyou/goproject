@@ -14,28 +14,17 @@ import (
 	"strings"
 )
 
-type IHttpClient interface {
-	SetOrganization(organization string)
-	SetBaseUrl(baseurl string)
-	Get(path string, response interface{}) *OpenaiError
-	Post(path string, request, response interface{}) *OpenaiError
-	Delete(path string, response interface{}) *OpenaiError
-	PostWithFile(path string, request, response interface{}) *OpenaiError
-	PostStream(path string, request interface{}) (*StreamResponse, *OpenaiError)
-	GetStream(path string) (*StreamResponse, *OpenaiError)
-}
-
 const baseUrl string = "https://api.openai.com/v1/"
 
-type httpClient struct {
+type HttpClient struct {
 	http         *http.Client
 	apikey       string
 	organization string
 	baseurl      string
 }
 
-func newHttpClient(apikey string) *httpClient {
-	return &httpClient{
+func NewHttpClient(apikey string) *HttpClient {
+	return &HttpClient{
 		apikey:       apikey,
 		organization: "",
 		baseurl:      baseUrl,
@@ -43,27 +32,27 @@ func newHttpClient(apikey string) *httpClient {
 	}
 }
 
-func (c *httpClient) SetOrganization(organization string) {
+func (c *HttpClient) SetOrganization(organization string) {
 	c.organization = organization
 }
 
-func (c *httpClient) SetBaseUrl(baseurl string) {
+func (c *HttpClient) SetBaseUrl(baseurl string) {
 	c.baseurl = baseurl
 }
 
-func (c *httpClient) Post(path string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) Post(path string, request, response interface{}) *OpenaiError {
 	return c.doRequest(path, "POST", request, response)
 }
 
-func (c *httpClient) Get(path string, response interface{}) *OpenaiError {
+func (c *HttpClient) Get(path string, response interface{}) *OpenaiError {
 	return c.doRequest(path, "GET", nil, response)
 }
 
-func (c *httpClient) Delete(path string, response interface{}) *OpenaiError {
+func (c *HttpClient) Delete(path string, response interface{}) *OpenaiError {
 	return c.doRequest(path, "DELETE", nil, response)
 }
 
-func (c *httpClient) doRequest(path, method string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) doRequest(path, method string, request, response interface{}) *OpenaiError {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -83,7 +72,7 @@ func (c *httpClient) doRequest(path, method string, request, response interface{
 	return c.readHttpResponse(req, response)
 }
 
-func (c *httpClient) readHttpResponse(req *http.Request, response interface{}) *OpenaiError {
+func (c *HttpClient) readHttpResponse(req *http.Request, response interface{}) *OpenaiError {
 	resp, err := c.http.Do(req)
 
 	if err != nil {
@@ -140,7 +129,7 @@ func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 	return nil
 }
 
-func (c *httpClient) PostWithFile(path string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) PostWithFile(path string, request, response interface{}) *OpenaiError {
 	path = c.createSubpath(path)
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -206,15 +195,15 @@ func (c *httpClient) PostWithFile(path string, request, response interface{}) *O
 	return c.readHttpResponse(req, response)
 }
 
-func (c *httpClient) PostStream(path string, request interface{}) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) PostStream(path string, request interface{}) (*StreamResponse, *OpenaiError) {
 	return c.doStreamRequest(path, "POST", request)
 }
 
-func (c *httpClient) GetStream(path string) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) GetStream(path string) (*StreamResponse, *OpenaiError) {
 	return c.doStreamRequest(path, "GET", nil)
 }
 
-func (c *httpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) doStreamRequest(path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -252,6 +241,6 @@ func (c *httpClient) doStreamRequest(path, method string, request interface{}) (
 	return streamResponse, nil
 }
 
-func (c *httpClient) createSubpath(path string) string {
+func (c *HttpClient) createSubpath(path string) string {
 	return c.baseurl + path
 }

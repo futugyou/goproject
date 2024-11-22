@@ -44,35 +44,37 @@ type DeleteFileResponse struct {
 	Deleted bool         `json:"deleted,omitempty"`
 }
 
-func (c *openaiClient) ListFiles() *ListFilesResponse {
+type FileService service
+
+func (c *FileService) ListFiles() *ListFilesResponse {
 	result := &ListFilesResponse{}
-	c.httpClient.Get(listFilesPath, result)
+	c.client.httpClient.Get(listFilesPath, result)
 	return result
 }
 
-func (c *openaiClient) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
+func (c *FileService) UploadFiles(request UploadFilesRequest) *UploadFilesResponse {
 	result := &UploadFilesResponse{}
-	c.httpClient.PostWithFile(uploadFilesPath, &request, result)
+	c.client.httpClient.PostWithFile(uploadFilesPath, &request, result)
 	return result
 }
 
-func (c *openaiClient) RetrieveFile(file_id string) *RetrieveFileResponse {
+func (c *FileService) RetrieveFile(file_id string) *RetrieveFileResponse {
 	result := &RetrieveFileResponse{}
-	c.httpClient.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
+	c.client.httpClient.Get(fmt.Sprintf(retrieveFilePath, file_id), result)
 	return result
 }
 
 // To help mitigate abuse, downloading of fine-tune training files is disabled for free accounts
 // so i do not know the response type
 // And saw some other lib, and i think it is a FileModel type.
-func (c *openaiClient) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
+func (c *FileService) RetrieveFileContent(file_id string) *RetrieveFileContentResponse {
 	result := &RetrieveFileContentResponse{}
-	c.httpClient.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
+	c.client.httpClient.Get(fmt.Sprintf(retrieveFileContentPath, file_id), result)
 	return result
 }
 
-func (c *openaiClient) DeleteFile(file_id string) *DeleteFileResponse {
+func (c *FileService) DeleteFile(file_id string) *DeleteFileResponse {
 	result := &DeleteFileResponse{}
-	c.httpClient.Delete(fmt.Sprintf(deleteFilePath, file_id), result)
+	c.client.httpClient.Delete(fmt.Sprintf(deleteFilePath, file_id), result)
 	return result
 }

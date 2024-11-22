@@ -37,14 +37,16 @@ type CreateCompletionResponse struct {
 	Usage   *Usage       `json:"usage,omitempty"`
 }
 
-func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
+type CompletionService service
+
+func (c *CompletionService) CreateCompletion(request CreateCompletionRequest) *CreateCompletionResponse {
 	result := &CreateCompletionResponse{}
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  false,
 	}
 
-	c.httpClient.Post(completionsPath, newRequest, result)
+	c.client.httpClient.Post(completionsPath, newRequest, result)
 	return result
 }
 
@@ -71,11 +73,11 @@ func (c *openaiClient) CreateCompletion(request CreateCompletionRequest) *Create
 //				result = append(result, response)
 //			}
 //		}
-func (c *openaiClient) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, *OpenaiError) {
+func (c *CompletionService) CreateStreamCompletion(request CreateCompletionRequest) (*StreamResponse, *OpenaiError) {
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  true,
 	}
 
-	return c.httpClient.PostStream(completionsPath, newRequest)
+	return c.client.httpClient.PostStream(completionsPath, newRequest)
 }
