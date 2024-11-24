@@ -87,13 +87,13 @@ type CreateChatCompletionResponse struct {
 func (c *ChatService) CreateChatCompletion(ctx context.Context, request CreateChatCompletionRequest) *CreateChatCompletionResponse {
 	result := &CreateChatCompletionResponse{}
 
-	err := validateChatModel(request.Model)
-	if err != nil {
-		result.Error = err
-		return result
-	}
+	// err := validateChatModel(request.Model)
+	// if err != nil {
+	// 	result.Error = err
+	// 	return result
+	// }
 
-	err = validateChatRole(request.Messages)
+	err := validateChatRole(request.Messages)
 	if err != nil {
 		result.Error = err
 		return result
@@ -153,12 +153,12 @@ func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
 //			}
 //		}
 func (c *ChatService) CreateChatStreamCompletion(ctx context.Context, request CreateChatCompletionRequest) (*StreamResponse, *OpenaiError) {
-	err := validateChatModel(request.Model)
-	if err != nil {
-		return nil, err
-	}
+	// err := validateChatModel(request.Model)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	err = validateChatRole(request.Messages)
+	err := validateChatRole(request.Messages)
 	if err != nil {
 		return nil, err
 	}
