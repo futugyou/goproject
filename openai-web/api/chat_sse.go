@@ -42,7 +42,7 @@ func Chatsse(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 
 	for response := range result {
-		if response.Messages == nil || len(response.Messages) == 0 {
+		if len(response.Messages) == 0 {
 			continue
 		}
 

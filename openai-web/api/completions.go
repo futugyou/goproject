@@ -30,7 +30,7 @@ func Completions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	valid := validation.Validation{}
-	b, err := valid.Valid(&r)
+	b, err := valid.Valid(&completionModel)
 
 	if err != nil {
 		w.Write([]byte(err.Error()))
@@ -45,7 +45,7 @@ func Completions(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write([]byte(errString))
-		w.WriteHeader(500)
+		w.WriteHeader(400)
 		return
 	}
 
