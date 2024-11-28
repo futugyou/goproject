@@ -19,7 +19,7 @@ require (
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.1
-	github.com/hashicorp/go-tfe v1.70.0
+	github.com/hashicorp/go-tfe v1.71.0
 	github.com/hashicorp/hcp-sdk-go v0.125.0
 	github.com/joho/godotenv v1.5.1
 	github.com/opentracing/opentracing-go v1.2.0
