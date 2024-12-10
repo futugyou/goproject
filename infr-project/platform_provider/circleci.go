@@ -112,13 +112,14 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 
 		projects := []Project{}
 		for _, pro := range circleciProjects {
-			if pro.Followed {
-				projects = append(projects, Project{
-					ID:   pro.Reponame,
-					Name: pro.Reponame,
-					Url:  pro.VcsURL,
-				})
-			}
+			// if pro.Followed {
+			// ListProject API can only get followed projects, and the field is 'following' not 'followed'
+			projects = append(projects, Project{
+				ID:   pro.Reponame,
+				Name: pro.Reponame,
+				Url:  pro.VcsURL,
+			})
+			// }
 		}
 
 		resultChan <- projects
