@@ -220,6 +220,7 @@ type ProjectListItem struct {
 	Followed bool                  `json:"followed"`
 	Username string                `json:"username"`
 	Reponame string                `json:"reponame"`
+	VcsType  string                `json:"vcs_type"`
 	Branches map[string]BranchInfo `json:"branches"`
 }
 
