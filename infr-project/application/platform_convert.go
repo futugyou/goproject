@@ -39,18 +39,16 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 	platformProjects := make([]models.PlatformProject, 0)
 
 	providerMap := map[string]models.PlatformProject{}
-	if len(providerProjects) > 0 {
-		for _, project := range providerProjects {
-			providerMap[project.ID] = models.PlatformProject{
-				Id:                project.ID,
-				Name:              project.Name,
-				Url:               project.Url,
-				Properties:        []models.Property{},
-				Secrets:           []models.Secret{},
-				Webhooks:          []models.Webhook{},
-				Followed:          false,
-				ProviderProjectId: project.ID,
-			}
+	for _, project := range providerProjects {
+		providerMap[project.ID] = models.PlatformProject{
+			Id:                project.ID,
+			Name:              project.Name,
+			Url:               project.Url,
+			Properties:        []models.Property{},
+			Secrets:           []models.Secret{},
+			Webhooks:          []models.Webhook{},
+			Followed:          false,
+			ProviderProjectId: project.ID,
 		}
 	}
 
@@ -81,8 +79,10 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 
 	// add project from provider which was not followed
 	// followed == false && providerProjectId != "", means need follow the provider project
-	for _, v := range providerMap {
-		platformProjects = append(platformProjects, v)
+	for _, project := range providerProjects {
+		if pro, ok := providerMap[project.ID]; ok {
+			platformProjects = append(platformProjects, pro)
+		}
 	}
 
 	return platformProjects
