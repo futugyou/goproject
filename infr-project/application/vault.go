@@ -336,7 +336,11 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 	}
 
 	if aux.Value != nil {
-		data.UpdateValue(*aux.Value)
+		value := *aux.Value
+		maskValue := tool.MaskString(data.Value, 5, 0.5)
+		if value != maskValue {
+			data.UpdateValue(value)
+		}
 	}
 
 	if aux.StorageMedia != nil {
