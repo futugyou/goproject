@@ -110,6 +110,11 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 			return
 		}
 
+		circleciProjectUrl := CircleciProjectUrl
+		if url, ok := filter.Parameters["circleci_project_url"]; ok {
+			circleciProjectUrl = url
+		}
+
 		projects := []Project{}
 		for _, pro := range circleciProjects {
 			// if pro.Followed {
@@ -117,7 +122,7 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 			projects = append(projects, Project{
 				ID:   pro.Reponame,
 				Name: pro.Reponame,
-				Url:  pro.VcsURL,
+				Url:  fmt.Sprintf(circleciProjectUrl, pro.VcsType, pro.Username, pro.Reponame),
 			})
 			// }
 		}
