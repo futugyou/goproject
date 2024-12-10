@@ -17,7 +17,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 
 	providerProjects := []platformProvider.Project{}
 	if provider, err := s.getPlatfromProvider(ctx, *src); err == nil {
-		projects, _ := s.getProviderProjects(ctx, provider)
+		projects, _ := s.getProviderProjects(ctx, provider, *src)
 		providerProjects = projects
 	}
 
@@ -205,8 +205,14 @@ func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.
 	return platformProvider.PlatformProviderFatory(src.Provider.String(), token)
 }
 
-func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync) ([]platformProvider.Project, error) {
-	filter := platformProvider.ProjectFilter{}
+func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync, src platform.Platform) ([]platformProvider.Project, error) {
+	parameters := make(map[string]string)
+	for _, v := range src.Properties {
+		parameters[v.Key] = v.Value
+	}
+	filter := platformProvider.ProjectFilter{
+		Parameters: parameters,
+	}
 	resCh, errCh := provider.ListProjectAsync(ctx, filter)
 	select {
 	case projects := <-resCh:

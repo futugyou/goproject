@@ -79,18 +79,40 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 		defer close(resultChan)
 		defer close(errorChan)
 
-		opts := &github.RepositoryListByAuthenticatedUserOptions{
-			Sort: "pushed",
-			ListOptions: github.ListOptions{
-				PerPage: 1000,
-			},
+		if value, ok := filter.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
+			GITHUB_OWNER = value
 		}
 
-		repos, _, err := g.client.Repositories.ListByAuthenticatedUser(ctx, opts)
+		var repos []*github.Repository
+		var err error
+		if len(GITHUB_OWNER) > 0 {
+			opts := &github.RepositoryListByUserOptions{
+				Type:      "owner",
+				Sort:      "pushed",
+				Direction: "desc",
+				ListOptions: github.ListOptions{
+					PerPage: 1000,
+				},
+			}
+			repos, _, err = g.client.Repositories.ListByUser(ctx, GITHUB_OWNER, opts)
+		} else {
+			opts := &github.RepositoryListByAuthenticatedUserOptions{
+				Type:      "all",
+				Sort:      "pushed",
+				Direction: "desc",
+				ListOptions: github.ListOptions{
+					PerPage: 1000,
+				},
+			}
+
+			repos, _, err = g.client.Repositories.ListByAuthenticatedUser(ctx, opts)
+		}
+
 		if err != nil {
 			errorChan <- err
 			return
 		}
+
 		result := []Project{}
 		for _, repo := range repos {
 			result = append(result, Project{

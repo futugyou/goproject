@@ -397,7 +397,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
 			shouldCreate := len(providerProjectId) == 0
 			if !shouldCreate {
-				projects, _ := s.getProviderProjects(ctx, provider)
+				projects, _ := s.getProviderProjects(ctx, provider, *plat)
 				shouldCreate = true
 
 				for _, v := range projects {
