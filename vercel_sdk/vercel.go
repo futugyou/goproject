@@ -91,8 +91,9 @@ type VercelError struct {
 }
 
 type Pagination struct {
-	Count int    `json:"count"`
-	Next  string `json:"next"`
+	Count int `json:"count"`
+	Next  int `json:"next"`
+	Prev  int `json:"prev"`
 }
 
 type BaseUrlParameter struct {

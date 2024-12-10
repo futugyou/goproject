@@ -389,12 +389,11 @@ type CreateTeamRequest struct {
 }
 
 type TeamInfo struct {
-	Billing interface{}  `json:"billing,omitempty"`
-	Id      string       `json:"id,omitempty"`
-	Slug    string       `json:"slug,omitempty"`
-	Name    string       `json:"name,omitempty"`
-	Avatar  string       `json:"avatar,omitempty"`
-	Error   *VercelError `json:"error,omitempty"`
+	Id        string       `json:"id,omitempty"`
+	Slug      string       `json:"slug,omitempty"`
+	Name      string       `json:"name,omitempty"`
+	CreatorId string       `json:"creatorId,omitempty"`
+	Error     *VercelError `json:"error,omitempty"`
 }
 
 type Attribution struct {
