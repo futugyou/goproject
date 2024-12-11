@@ -33,10 +33,11 @@ func WithProjectSecrets(secrets map[string]Secret) ProjectOption {
 
 func NewPlatformProject(id string, name string, url string, opts ...ProjectOption) *PlatformProject {
 	project := &PlatformProject{
-		Id:   id,
-		Name: name,
-		Url:  url, Properties: make(map[string]Property),
-		Secrets: make(map[string]Secret),
+		Id:         id,
+		Name:       name,
+		Url:        url,
+		Properties: make(map[string]Property),
+		Secrets:    make(map[string]Secret),
 	}
 
 	for _, opt := range opts {

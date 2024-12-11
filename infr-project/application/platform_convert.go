@@ -245,14 +245,10 @@ func (s *PlatformService) createProviderProject(ctx context.Context, provider pl
 	}
 }
 
-func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync, webhookId string, properties map[string]platform.Property) error {
+func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync, webhookId string, properties map[string]string) error {
 	request := platformProvider.DeleteWebHookRequest{
 		WebHookId:  webhookId,
-		Parameters: map[string]string{},
-	}
-
-	for _, v := range properties {
-		request.Parameters[v.Key] = v.Value
+		Parameters: properties,
 	}
 
 	errCh := provider.DeleteWebHookAsync(ctx, request)
@@ -284,4 +280,21 @@ func (s *PlatformService) createProviderWebhook(ctx context.Context, provider pl
 	case <-ctx.Done():
 		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
 	}
+}
+
+func mergePlatfromProjectProperties(property1 map[string]platform.Property, property2 map[string]platform.Property) map[string]string {
+	properties := make(map[string]string)
+	for _, v := range property1 {
+		if _, ok := properties[v.Key]; !ok {
+			properties[v.Key] = v.Value
+		}
+	}
+
+	for _, v := range property2 {
+		if _, ok := properties[v.Key]; !ok {
+			properties[v.Key] = v.Value
+		}
+	}
+
+	return properties
 }

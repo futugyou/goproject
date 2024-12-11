@@ -335,12 +335,10 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 
 	if request.Sync {
 		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
-			properties := plat.Properties
-			if plat.Provider == platform.PlatformProviderGithub {
-				properties["GITHUB_REPO"] = platform.Property{Key: "GITHUB_REPO", Value: project.Name}
+			properties := mergePlatfromProjectProperties(plat.Properties, project.Properties)
+			if err = s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties); err != nil {
+				log.Println(err.Error())
 			}
-
-			s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties)
 		} else {
 			log.Println(err.Error())
 		}

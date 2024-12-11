@@ -174,12 +174,21 @@ func (w *Platform) UpdateProject(project PlatformProject) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
+
 	if w.Projects == nil {
 		w.Projects = map[string]PlatformProject{}
 	}
+
 	if pro, exists := w.Projects[project.Id]; exists {
 		project.Webhooks = pro.Webhooks
 	}
+
+	if w.Provider == PlatformProviderGithub {
+		if _, ok := project.Properties["GITHUB_REPO"]; !ok {
+			project.Properties["GITHUB_REPO"] = Property{Key: "GITHUB_REPO", Value: project.Name}
+		}
+	}
+
 	w.Projects[project.Id] = project
 	return w, nil
 }
