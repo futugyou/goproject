@@ -28,23 +28,30 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 		Url:        src.Url,
 		Properties: s.convertToPlatformModelProperties(src.Properties),
 		Secrets:    s.convertToPlatformModelSecrets(src.Secrets),
-		Projects:   s.convertToPlatformModelProjects(src.Projects, providerProjects),
+		Projects:   s.convertToPlatformModelProjects(src.Projects, providerProjects, src.Provider),
 		Tags:       src.Tags,
 		IsDeleted:  src.IsDeleted,
 		Provider:   src.Provider.String(),
 	}, nil
 }
 
-func (s *PlatformService) convertToPlatformModelProjects(projects map[string]platform.PlatformProject, providerProjects []platformProvider.Project) []models.PlatformProject {
-	platformProjects := make([]models.PlatformProject, 0)
+func (s *PlatformService) convertToPlatformModelProjects(projects map[string]platform.PlatformProject,
+	providerProjects []platformProvider.Project,
+	provider platform.PlatformProvider) []models.PlatformProject {
 
+	platformProjects := make([]models.PlatformProject, 0)
 	providerMap := map[string]models.PlatformProject{}
 	for _, project := range providerProjects {
+		properties := []models.Property{}
+		if provider == platform.PlatformProviderGithub {
+			properties = append(properties, models.Property{Key: "GITHUB_REPO", Value: project.Name})
+		}
+
 		providerMap[project.ID] = models.PlatformProject{
 			Id:                project.ID,
 			Name:              project.Name,
 			Url:               project.Url,
-			Properties:        []models.Property{},
+			Properties:        properties,
 			Secrets:           []models.Secret{},
 			Webhooks:          []models.Webhook{},
 			Followed:          false,
