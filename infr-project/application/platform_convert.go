@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"log"
 
 	platform "github.com/futugyou/infr-project/platform"
 	platformProvider "github.com/futugyou/infr-project/platform_provider"
@@ -19,6 +20,8 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	if provider, err := s.getPlatfromProvider(ctx, *src); err == nil {
 		projects, _ := s.getProviderProjects(ctx, provider, *src)
 		providerProjects = projects
+	} else {
+		log.Println(err.Error())
 	}
 
 	return &models.PlatformDetailView{
@@ -303,4 +306,37 @@ func mergePlatfromProjectProperties(property1 map[string]platform.Property, prop
 	}
 
 	return properties
+}
+
+func (s *PlatformService) getProviderUser(ctx context.Context, provider platformProvider.IPlatformProviderAsync) (*platformProvider.User, error) {
+	resCh, errCh := provider.GetUserAsync(ctx)
+	select {
+	case user := <-resCh:
+		return user, nil
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("getProviderUser timeout: %w", ctx.Err())
+	}
+}
+
+func (s *PlatformService) determineProviderStatus(ctx context.Context, res *platform.Platform) bool {
+	provider, err := s.getPlatfromProvider(ctx, *res)
+	if err != nil {
+		log.Println(err.Error())
+		return false
+	}
+
+	user, err := s.getProviderUser(ctx, provider)
+	if err != nil {
+		log.Println(err.Error())
+		return false
+	}
+
+	if user == nil || len(user.ID) == 0 {
+		log.Printf("no user found for %s provider\n", res.Provider.String())
+		return false
+	}
+
+	return true
 }

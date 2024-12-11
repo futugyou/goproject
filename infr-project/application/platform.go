@@ -65,6 +65,15 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 		return nil, fmt.Errorf("CreatePlatform timeout: %w", ctx.Err())
 	}
 
+	if res.Provider != platform.PlatformProviderOther {
+		status := s.determineProviderStatus(ctx, res)
+		if status {
+			res.Enable()
+		} else {
+			res.Disable()
+		}
+	}
+
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.InsertAsync(ctx, *res)
 		select {
@@ -152,18 +161,17 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 			return err
 		}
 
-		if data.Activate {
-			if _, err := plat.Enable(); err != nil {
-				return err
-			}
-		} else {
-			if _, err := plat.Disable(); err != nil {
-				return err
-			}
-		}
-
 		if _, err := plat.UpdateProvider(platform.GetPlatformProvider(data.Provider)); err != nil {
 			return err
+		}
+
+		if plat.Provider != platform.PlatformProviderOther {
+			status := s.determineProviderStatus(ctx, plat)
+			if status {
+				plat.Enable()
+			} else {
+				plat.Disable()
+			}
 		}
 
 		newProperty := s.convertToPlatformProperties(data.Properties)
