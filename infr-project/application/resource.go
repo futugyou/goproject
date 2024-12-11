@@ -35,11 +35,10 @@ func NewResourceService(
 func (s *ResourceService) CreateResource(ctx context.Context, aux models.CreateResourceRequest) (*models.CreateResourceResponse, error) {
 	var res *resource.Resource
 	resourceType := resource.GetResourceType(aux.Type)
-	err := s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
+	if err := s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
 		res = resource.NewResource(aux.Name, resourceType, aux.Data, aux.Tags)
 		return s.service.SaveSnapshotAndEvent(ctx, res)
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
@@ -129,6 +128,7 @@ func convertResourceEntityToViewModel(src *resource.Resource) *models.ResourceVi
 	if src == nil {
 		return nil
 	}
+
 	return &models.ResourceView{
 		Id:        src.Id,
 		Name:      src.Name,

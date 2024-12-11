@@ -2,17 +2,17 @@ package command
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"log"
+
 	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/platform"
-	"github.com/opentracing/opentracing-go/log"
 )
 
 type CreatePlatformCommand struct {
@@ -47,18 +47,18 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 
 	repository, commonHandler, err := createCommonInfra(ctx)
 	if err != nil {
-		log.Error(err)
+		log.Println(err.Error())
 		return nil
 	}
 
 	res, err := repository.GetPlatformByName(ctx, aux.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-		log.Error(err)
+		log.Println(err.Error())
 		return nil
 	}
 
 	if res != nil && res.Name == aux.Name {
-		log.Error(fmt.Errorf("name: %s is existed", aux.Name))
+		log.Printf("name: %s is existed\n", aux.Name)
 		return nil
 	}
 
@@ -77,7 +77,7 @@ func (b CreatePlatformHandler) Handle(ctx context.Context, c interface{}) error 
 		return repository.Insert(ctx, *res)
 	})
 	if err != nil {
-		log.Error(err)
+		log.Println(err.Error())
 		return nil
 	}
 

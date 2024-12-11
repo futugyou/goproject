@@ -22,7 +22,6 @@ require (
 	github.com/hashicorp/go-tfe v1.71.0
 	github.com/hashicorp/hcp-sdk-go v0.126.0
 	github.com/joho/godotenv v1.5.1
-	github.com/opentracing/opentracing-go v1.2.0
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
@@ -107,6 +106,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect

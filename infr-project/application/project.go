@@ -87,10 +87,10 @@ func (s *ProjectService) UpdateProject(ctx context.Context, id string, data mode
 	}
 
 	proj.ChangeTags(data.Tags)
-	err = s.repository.Update(ctx, *proj)
-	if err != nil {
+	if err = s.repository.Update(ctx, *proj); err != nil {
 		return nil, err
 	}
+
 	return convertProjectEntityToViewModel(proj), nil
 }
 
@@ -109,11 +109,12 @@ func (s *ProjectService) UpdateProjectPlatform(ctx context.Context, id string, d
 			ProjectId:   data.ProjectId,
 		})
 	}
+
 	proj.UpdatePlatform(platforms)
-	err = s.repository.Update(ctx, *proj)
-	if err != nil {
+	if err = s.repository.Update(ctx, *proj); err != nil {
 		return nil, err
 	}
+
 	return convertProjectEntityToViewModel(proj), nil
 }
 
@@ -138,11 +139,12 @@ func (s *ProjectService) UpdateProjectDesign(ctx context.Context, id string, dat
 			Resources:   resources,
 		})
 	}
+
 	proj.UpdateDesign(designes)
-	err = s.repository.Update(ctx, *proj)
-	if err != nil {
+	if err = s.repository.Update(ctx, *proj); err != nil {
 		return nil, err
 	}
+
 	return convertProjectEntityToViewModel(proj), nil
 }
 
@@ -171,6 +173,7 @@ func convertProjectEntityToViewModel(src *project.Project) *models.ProjectView {
 			Resources:   resources,
 		}
 	}
+
 	return &models.ProjectView{
 		Id:          src.Id,
 		Name:        src.Name,

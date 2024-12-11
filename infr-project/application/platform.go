@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 
+	"log"
+
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
@@ -285,6 +287,8 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 				newhook.UpdateProviderHookId(providerHook.ID)
 				plat.UpdateWebhook(projectId, *newhook)
 			}
+		} else {
+			log.Println(err.Error())
 		}
 	}
 
@@ -337,11 +341,12 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 			}
 
 			s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties)
+		} else {
+			log.Println(err.Error())
 		}
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		select {
 		case err := <-errCh:
@@ -413,6 +418,8 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 					providerProjectId = p.ID
 				}
 			}
+		} else {
+			log.Println(err.Error())
 		}
 	}
 
