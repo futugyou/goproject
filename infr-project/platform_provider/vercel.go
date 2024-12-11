@@ -3,6 +3,7 @@ package platform_provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/futugyou/vercel"
 )
@@ -90,10 +91,17 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				url = fmt.Sprintf(VercelProjectUrl, team_slug, project.Name)
 			}
 
+			properties := map[string]string{}
+			for key, v := range project.Targets {
+				k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
+				properties[k] = strings.Join(v.Alias, ",")
+			}
+
 			projects = append(projects, Project{
-				ID:   project.Id,
-				Name: project.Name,
-				Url:  url,
+				ID:         project.Id,
+				Name:       project.Name,
+				Url:        url,
+				Properties: properties,
 			})
 		}
 
@@ -154,11 +162,19 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				Parameters: paras,
 			})
 		}
+
+		properties := map[string]string{}
+		for key, v := range vercelProject.Targets {
+			k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
+			properties[k] = strings.Join(v.Alias, ",")
+		}
+
 		project := &Project{
-			ID:    vercelProject.Id,
-			Name:  vercelProject.Name,
-			Url:   url,
-			Hooks: hooks,
+			ID:         vercelProject.Id,
+			Name:       vercelProject.Name,
+			Url:        url,
+			Properties: properties,
+			Hooks:      hooks,
 		}
 
 		resultChan <- project

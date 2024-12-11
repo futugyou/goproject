@@ -123,6 +123,10 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				ID:   pro.Reponame,
 				Name: pro.Reponame,
 				Url:  fmt.Sprintf(circleciProjectUrl, pro.VcsType, pro.Username, pro.Reponame),
+				Properties: map[string]string{
+					"VCS_TYPE": pro.VcsType,
+					"VCS_URL":  pro.VcsURL,
+				},
 			})
 			// }
 		}
@@ -190,11 +194,16 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				Parameters: paras,
 			})
 		}
+
 		project := &Project{
 			ID:    circleciProject.ID,
 			Name:  circleciProject.Name,
 			Url:   url,
 			Hooks: webHooks,
+			Properties: map[string]string{
+				"VCS_TYPE": circleciProject.VcsInfo.Provider,
+				"VCS_URL":  circleciProject.VcsInfo.VcsURL,
+			},
 		}
 
 		resultChan <- project

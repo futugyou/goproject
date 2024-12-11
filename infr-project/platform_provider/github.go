@@ -119,6 +119,10 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				ID:   repo.GetName(),
 				Name: repo.GetName(),
 				Url:  repo.GetURL(),
+				Properties: map[string]string{
+					"GITHUB_REPO":           repo.GetName(),
+					"GITHUB_DETAULT_BRANCH": repo.GetDefaultBranch(),
+				},
 			})
 		}
 		resultChan <- result
@@ -174,9 +178,13 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 		resultChan <- &Project{
-			ID:    repository.GetName(),
-			Name:  repository.GetName(),
-			Url:   repository.GetURL(),
+			ID:   repository.GetName(),
+			Name: repository.GetName(),
+			Url:  repository.GetURL(),
+			Properties: map[string]string{
+				"GITHUB_REPO":           repository.GetName(),
+				"GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch(),
+			},
 			Hooks: hooks,
 		}
 	}()
