@@ -20,7 +20,6 @@ type UpdatePlatformRequest struct {
 	Properties []Property `json:"properties" validate:"required"`
 	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Tags       []string   `json:"tags" validate:"required"`
-	Activate   bool       `json:"activate"`
 	Provider   string     `json:"provider" validate:"oneof=vercel github circleci other"`
 }
 

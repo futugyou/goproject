@@ -2267,9 +2267,6 @@ const docTemplate = `{
                 "url"
             ],
             "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
                 "name": {
                     "type": "string",
                     "maxLength": 50,

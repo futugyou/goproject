@@ -558,8 +558,6 @@ definitions:
     type: object
   viewmodels.UpdatePlatformRequest:
     properties:
-      activate:
-        type: boolean
       name:
         maxLength: 50
         minLength: 3
