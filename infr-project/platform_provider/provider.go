@@ -42,6 +42,11 @@ type DeleteWebHookRequest struct {
 	WebHookId  string
 }
 
+type User struct {
+	Name string
+	ID   string
+}
+
 // Although the CreateProject method is provided, it is best not to use it.
 // The DeleteProject method is not provided because it is more dangerous.
 // The DeleteWebHook method is provided because it is less dangerous
@@ -53,6 +58,7 @@ type IPlatformProviderAsync interface {
 	GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error)
 	CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error)
 	DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error
+	GetUserAsync(ctx context.Context) (<-chan *User, <-chan error)
 }
 
 func Intersect(setA, setB []string) []string {

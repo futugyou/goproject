@@ -281,3 +281,28 @@ func (g *GithubClient) DeleteWebHookAsync(ctx context.Context, request DeleteWeb
 
 	return errorChan
 }
+
+func (g *GithubClient) GetUserAsync(ctx context.Context) (<-chan *User, <-chan error) {
+	resultChan := make(chan *User, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		githubUser, _, err := g.client.Users.Get(ctx, "")
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		user := &User{
+			ID:   fmt.Sprintf("%d", githubUser.GetID()),
+			Name: githubUser.GetName(),
+		}
+
+		resultChan <- user
+	}()
+
+	return resultChan, errorChan
+}

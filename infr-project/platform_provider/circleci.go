@@ -282,3 +282,28 @@ func (g *CircleClient) DeleteWebHookAsync(ctx context.Context, request DeleteWeb
 
 	return errorChan
 }
+
+func (g *CircleClient) GetUserAsync(ctx context.Context) (<-chan *User, <-chan error) {
+	resultChan := make(chan *User, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		circleUser, err := g.client.User.GetUserInfo(ctx)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		user := &User{
+			ID:   circleUser.ID,
+			Name: circleUser.Name,
+		}
+
+		resultChan <- user
+	}()
+
+	return resultChan, errorChan
+}

@@ -302,3 +302,28 @@ func (g *VercelClient) DeleteWebHookAsync(ctx context.Context, request DeleteWeb
 
 	return errorChan
 }
+
+func (g *VercelClient) GetUserAsync(ctx context.Context) (<-chan *User, <-chan error) {
+	resultChan := make(chan *User, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		vercelUser, err := g.client.User.GetUser(ctx)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		user := &User{
+			ID:   vercelUser.Id,
+			Name: vercelUser.Name,
+		}
+
+		resultChan <- user
+	}()
+
+	return resultChan, errorChan
+}
