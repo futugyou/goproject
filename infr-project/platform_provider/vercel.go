@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
+
+	tool "github.com/futugyou/extensions"
 
 	"github.com/futugyou/vercel"
 )
@@ -97,11 +100,37 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				properties[k] = strings.Join(v.Alias, ",")
 			}
 
+			envs := map[string]Env{}
+			for _, v := range project.Env {
+				envs[v.ID] = Env{
+					ID:        v.ID,
+					Key:       v.Key,
+					CreatedAt: tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
+					UpdatedAt: tool.Int64ToTime(v.UpdatedAt).Format(time.RFC3339Nano),
+					Type:      v.Type,
+					Value:     v.Value,
+				}
+			}
+
+			deployments := map[string]Deployment{}
+			for _, v := range project.LatestDeployments {
+				deployments[v.ID] = Deployment{
+					ID:            v.ID,
+					Name:          v.Name,
+					Plan:          v.Plan,
+					ReadyState:    v.ReadyState,
+					ReadySubstate: v.ReadySubstate,
+					CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
+				}
+			}
+
 			projects = append(projects, Project{
-				ID:         project.Id,
-				Name:       project.Name,
-				Url:        url,
-				Properties: properties,
+				ID:          project.Id,
+				Name:        project.Name,
+				Url:         url,
+				Properties:  properties,
+				Envs:        envs,
+				Deployments: deployments,
 			})
 		}
 
