@@ -216,25 +216,42 @@ type VcsInfo struct {
 }
 
 type ProjectListItem struct {
-	VcsURL   string                `json:"vcs_url"`
-	Followed bool                  `json:"followed"`
-	Username string                `json:"username"`
-	Reponame string                `json:"reponame"`
-	VcsType  string                `json:"vcs_type"`
-	Branches map[string]BranchInfo `json:"branches"`
+	OSS           bool                  `json:"oss"`
+	Reponame      string                `json:"reponame"`
+	Username      string                `json:"username"`
+	HasUsableKey  bool                  `json:"has_usable_key"`
+	VcsType       string                `json:"vcs_type"`
+	Language      interface{}           `json:"language"`
+	VcsURL        string                `json:"vcs_url"`
+	Following     bool                  `json:"following"`
+	DefaultBranch string                `json:"default_branch"`
+	Branches      map[string]BranchInfo `json:"branches"`
 }
 
 type BranchInfo struct {
-	PusherLogins   []string            `json:"pusher_logins"`
-	LastNonSuccess BranchRunningInfo   `json:"last_non_success"`
-	LastSuccess    BranchRunningInfo   `json:"last_success"`
-	RecentBuilds   []BranchRunningInfo `json:"recent_builds"`
-	RunningBuilds  []interface{}       `json:"running_builds"`
+	RunningBuilds            []BranchBuildInfo             `json:"running_builds"`
+	RecentBuilds             []BranchBuildInfo             `json:"recent_builds"`
+	IsUsingWorkflows         bool                          `json:"is_using_workflows"`
+	PusherLogins             []string                      `json:"pusher_logins"`
+	LastSuccess              BranchBuildInfo               `json:"last_success"`
+	LastNonSuccess           BranchBuildInfo               `json:"last_non_success"`
+	LatestWorkflows          map[string]BranchWorkflowInfo `json:"latest_workflows"`
+	LatestCompletedWorkflows map[string]BranchWorkflowInfo `json:"latest_completed_workflows"`
 }
 
-type BranchRunningInfo struct {
-	PushedAt    string `json:"pushed_at"`
-	VcsRevision string `json:"vcs_revision"`
-	BuildNum    int64  `json:"build_num"`
-	Outcome     string `json:"outcome"`
+type BranchBuildInfo struct {
+	Status        string `json:"status"`
+	Outcome       string `json:"outcome"`
+	BuildNum      int64  `json:"build_num"`
+	VcsRevision   string `json:"vcs_revision"`
+	PushedAt      string `json:"pushed_at"`
+	AddedAt       string `json:"added_at"`
+	IsWorkflowJob bool   `json:"is_workflow_job"`
+	Is2_0_Job     bool   `json:"is_2_0_job"`
+}
+
+type BranchWorkflowInfo struct {
+	ID        string `json:"id"`
+	Status    string `json:"status"`
+	CreatedAt string `json:"created_at"`
 }
