@@ -117,24 +117,38 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 
 		projects := []Project{}
 		for _, pro := range circleciProjects {
-			// if pro.Followed {
-			// ListProject API can only get followed projects, and the field is 'following' not 'followed'
-			projects = append(projects, Project{
-				ID:   pro.Reponame,
-				Name: pro.Reponame,
-				Url:  fmt.Sprintf(circleciProjectUrl, pro.VcsType, pro.Username, pro.Reponame),
-				Properties: map[string]string{
-					"VCS_TYPE": pro.VcsType,
-					"VCS_URL":  pro.VcsURL,
-				},
-			})
-			// }
+			projects = append(projects, g.BuildProject(pro, fmt.Sprintf(circleciProjectUrl, pro.VcsType, pro.Username, pro.Reponame)))
 		}
 
 		resultChan <- projects
 	}()
 
 	return resultChan, errorChan
+}
+
+func (g *CircleClient) BuildProject(pro circleci.ProjectListItem, url string) Project {
+	default_branch := pro.DefaultBranch
+	branchInfo := pro.Branches[default_branch]
+	workflows := map[string]Workflow{}
+	for k, v := range branchInfo.LatestWorkflows {
+		workflows[k] = Workflow{
+			ID:        v.ID,
+			Name:      k,
+			Status:    v.Status,
+			CreatedAt: v.CreatedAt,
+		}
+	}
+
+	return Project{
+		ID:   pro.Reponame,
+		Name: pro.Reponame,
+		Url:  url,
+		Properties: map[string]string{
+			"VCS_TYPE": pro.VcsType,
+			"VCS_URL":  pro.VcsURL,
+		},
+		Workflows: workflows,
+	}
 }
 
 // Need org_slug in ProjectFilter 'Parameters'
@@ -180,6 +194,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			errorChan <- err
 			return
 		}
+
 		webHooks := []WebHook{}
 		for _, hook := range circleciWebhooks.Items {
 			paras := map[string]string{}
