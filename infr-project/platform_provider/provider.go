@@ -11,11 +11,39 @@ type CreateProjectRequest struct {
 }
 
 type Project struct {
-	ID         string
-	Name       string
-	Url        string
-	Hooks      []WebHook
-	Properties map[string]string
+	ID          string
+	Name        string
+	Url         string
+	Hooks       []WebHook
+	Properties  map[string]string
+	Envs        map[string]Env
+	Workflows   map[string]Workflow
+	Deployments map[string]Deployment
+}
+
+type Env struct {
+	ID        string `json:"id"`
+	Key       string `json:"key"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+	Type      string `json:"type"`
+	Value     string `json:"value"`
+}
+
+type Workflow struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Status    string `json:"status"`
+	CreatedAt string `json:"createdAt"`
+}
+
+type Deployment struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Plan          string `json:"plan"`
+	ReadyState    string `json:"readyState"`
+	ReadySubstate string `json:"readySubstate"`
+	CreatedAt     string `json:"createdAt"`
 }
 
 type WebHook struct {
