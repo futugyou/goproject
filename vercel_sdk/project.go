@@ -631,37 +631,153 @@ type Verification struct {
 }
 
 type ProjectInfo struct {
-	AccountId                         string                `json:"accountId,omitempty"`
-	AutoAssignCustomDomains           bool                  `json:"autoAssignCustomDomains,omitempty"`
-	AutoAssignCustomDomainsUpdatedBy  string                `json:"autoAssignCustomDomainsUpdatedBy,omitempty"`
-	AutoExposeSystemEnvs              bool                  `json:"autoExposeSystemEnvs,omitempty"`
-	BuildCommand                      string                `json:"buildCommand,omitempty"`
-	CommandForIgnoringBuildStep       string                `json:"commandForIgnoringBuildStep,omitempty"`
-	ConcurrencyBucketName             string                `json:"concurrencyBucketName,omitempty"`
-	ConnectBuildsEnabled              bool                  `json:"connectBuildsEnabled,omitempty"`
-	ConnectConfigurationId            string                `json:"connectConfigurationId,omitempty"`
-	CreatedAt                         int                   `json:"createdAt,omitempty"`
-	CustomerSupportCodeVisibility     bool                  `json:"customerSupportCodeVisibility,omitempty"`
-	DevCommand                        string                `json:"devCommand,omitempty"`
-	DirectoryListing                  bool                  `json:"directoryListing,omitempty"`
-	EnableAffectedProjectsDeployments bool                  `json:"enableAffectedProjectsDeployments,omitempty"`
-	EnablePreviewFeedback             bool                  `json:"enablePreviewFeedback,omitempty"`
-	Crons                             interface{}           `json:"crons,omitempty"`
-	DataCache                         interface{}           `json:"dataCache,omitempty"`
-	DeploymentExpiration              interface{}           `json:"deploymentExpiration,omitempty"`
-	Env                               interface{}           `json:"env,omitempty"`
-	Framework                         string                `json:"framework,omitempty"`
-	GitComments                       interface{}           `json:"gitComments,omitempty"`
-	GitForkProtection                 bool                  `json:"gitForkProtection,omitempty"`
-	GitLFS                            bool                  `json:"gitLFS,omitempty"`
-	HasActiveBranches                 bool                  `json:"hasActiveBranches,omitempty"`
-	HasFloatingAliases                bool                  `json:"hasFloatingAliases,omitempty"`
-	Id                                string                `json:"id,omitempty"`
-	Name                              string                `json:"name,omitempty"`
-	NodeVersion                       string                `json:"nodeVersion,omitempty"`
-	OutputDirectory                   string                `json:"outputDirectory,omitempty"`
-	Targets                           map[string]TargetInfo `json:"targets"`
-	Error                             *VercelError          `json:"error,omitempty"`
+	AccountId                         string                 `json:"accountId,omitempty"`
+	AutoAssignCustomDomains           bool                   `json:"autoAssignCustomDomains,omitempty"`
+	AutoAssignCustomDomainsUpdatedBy  string                 `json:"autoAssignCustomDomainsUpdatedBy,omitempty"`
+	AutoExposeSystemEnvs              bool                   `json:"autoExposeSystemEnvs,omitempty"`
+	BuildCommand                      string                 `json:"buildCommand,omitempty"`
+	CommandForIgnoringBuildStep       string                 `json:"commandForIgnoringBuildStep,omitempty"`
+	ConcurrencyBucketName             string                 `json:"concurrencyBucketName,omitempty"`
+	ConnectBuildsEnabled              bool                   `json:"connectBuildsEnabled,omitempty"`
+	ConnectConfigurationId            string                 `json:"connectConfigurationId,omitempty"`
+	CreatedAt                         int                    `json:"createdAt,omitempty"`
+	CustomerSupportCodeVisibility     bool                   `json:"customerSupportCodeVisibility,omitempty"`
+	DevCommand                        string                 `json:"devCommand,omitempty"`
+	DirectoryListing                  bool                   `json:"directoryListing,omitempty"`
+	EnableAffectedProjectsDeployments bool                   `json:"enableAffectedProjectsDeployments,omitempty"`
+	EnablePreviewFeedback             bool                   `json:"enablePreviewFeedback,omitempty"`
+	DataCache                         interface{}            `json:"dataCache,omitempty"`
+	DeploymentExpiration              interface{}            `json:"deploymentExpiration,omitempty"`
+	Framework                         string                 `json:"framework,omitempty"`
+	GitForkProtection                 bool                   `json:"gitForkProtection,omitempty"`
+	GitLFS                            bool                   `json:"gitLFS,omitempty"`
+	HasActiveBranches                 bool                   `json:"hasActiveBranches,omitempty"`
+	HasFloatingAliases                bool                   `json:"hasFloatingAliases,omitempty"`
+	Id                                string                 `json:"id,omitempty"`
+	Name                              string                 `json:"name,omitempty"`
+	NodeVersion                       string                 `json:"nodeVersion,omitempty"`
+	OutputDirectory                   string                 `json:"outputDirectory,omitempty"`
+	Targets                           map[string]TargetInfo  `json:"targets"`
+	SpeedInsights                     *SpeedInsights         `json:"speedInsights,omitempty"`
+	Crons                             *Crons                 `json:"crons,omitempty"`
+	Env                               []Env                  `json:"env,omitempty"`
+	InstallCommand                    string                 `json:"installCommand"`
+	LastRollbackTarget                interface{}            `json:"lastRollbackTarget"`
+	LastAliasRequest                  interface{}            `json:"lastAliasRequest"`
+	PasswordProtection                interface{}            `json:"passwordProtection"`
+	PublicSource                      interface{}            `json:"publicSource"`
+	ResourceConfig                    map[string]interface{} `json:"resourceConfig"`
+	RootDirectory                     string                 `json:"rootDirectory"`
+	ServerlessFunctionRegion          string                 `json:"serverlessFunctionRegion"`
+	SourceFilesOutsideRootDirectory   bool                   `json:"sourceFilesOutsideRootDirectory"`
+	UpdatedAt                         int64                  `json:"updatedAt"`
+	Live                              bool                   `json:"live"`
+	GitComments                       *GitComments           `json:"gitComments,omitempty"`
+	WebAnalytics                      *WebAnalytics          `json:"webAnalytics,omitempty"`
+	Link                              *Link                  `json:"link,omitempty"`
+	LatestDeployments                 []LatestDeployment     `json:"latestDeployments"`
+	TransferStartedAt                 *int64                 `json:"transferStartedAt,omitempty"`
+	TransferCompletedAt               *int64                 `json:"transferCompletedAt,omitempty"`
+	TransferredFromAccountID          string                 `json:"transferredFromAccountId,omitempty"`
+	SsoProtection                     map[string]interface{} `json:"ssoProtection,omitempty"`
+	Error                             *VercelError           `json:"error,omitempty"`
+}
+
+type LatestDeployment struct {
+	Alias                  []string          `json:"alias"`
+	AliasAssigned          int64             `json:"aliasAssigned"`
+	AliasError             interface{}       `json:"aliasError"`
+	AutomaticAliases       []string          `json:"automaticAliases"`
+	Builds                 []interface{}     `json:"builds"`
+	CreatedAt              int64             `json:"createdAt"`
+	CreatedIn              string            `json:"createdIn"`
+	Creator                Creator           `json:"creator"`
+	DeploymentHostname     string            `json:"deploymentHostname"`
+	Forced                 bool              `json:"forced"`
+	ID                     string            `json:"id"`
+	Name                   string            `json:"name"`
+	Plan                   string            `json:"plan"`
+	Private                bool              `json:"private"`
+	ReadyState             string            `json:"readyState"`
+	ReadySubstate          string            `json:"readySubstate"`
+	TeamID                 string            `json:"teamId"`
+	Type                   string            `json:"type"`
+	URL                    string            `json:"url"`
+	UserID                 string            `json:"userId"`
+	WithCache              bool              `json:"withCache"`
+	BuildingAt             int64             `json:"buildingAt"`
+	ReadyAt                int64             `json:"readyAt"`
+	PreviewCommentsEnabled bool              `json:"previewCommentsEnabled"`
+	Meta                   map[string]string `json:"meta"`
+	Target                 string            `json:"target"`
+}
+
+type Creator struct {
+	Uid         string `json:"uid"`
+	Email       string `json:"email"`
+	Username    string `json:"username"`
+	GithubLogin string `json:"githubLogin,omitempty"`
+}
+
+type Link struct {
+	Type             string        `json:"type"`
+	Repo             string        `json:"repo"`
+	RepoID           int64         `json:"repoId"`
+	Org              string        `json:"org"`
+	GitCredentialID  string        `json:"gitCredentialId"`
+	ProductionBranch string        `json:"productionBranch"`
+	Sourceless       bool          `json:"sourceless"`
+	CreatedAt        int64         `json:"createdAt"`
+	UpdatedAt        int64         `json:"updatedAt"`
+	DeployHooks      []interface{} `json:"deployHooks"`
+}
+type WebAnalytics struct {
+	ID        string `json:"id"`
+	EnabledAt *int64 `json:"enabledAt,omitempty"`
+	HasData   *bool  `json:"hasData,omitempty"`
+}
+type Env struct {
+	Target          []string     `json:"target"`
+	ConfigurationID string       `json:"configurationId"`
+	ID              string       `json:"id"`
+	Key             string       `json:"key"`
+	CreatedAt       int64        `json:"createdAt"`
+	UpdatedAt       int64        `json:"updatedAt"`
+	CreatedBy       string       `json:"createdBy"`
+	UpdatedBy       string       `json:"updatedBy"`
+	Type            string       `json:"type"`
+	Value           string       `json:"value"`
+	Comment         string       `json:"comment,omitempty"`
+	ContentHint     *ContentHint `json:"contentHint"`
+}
+
+type ContentHint struct {
+	Type                       string `json:"type"`
+	StoreID                    string `json:"storeId"`
+	IntegrationID              string `json:"integrationId"`
+	IntegrationProductID       string `json:"integrationProductId"`
+	IntegrationConfigurationID string `json:"integrationConfigurationId"`
+}
+
+type GitComments struct {
+	OnCommit      bool `json:"onCommit"`
+	OnPullRequest bool `json:"onPullRequest"`
+}
+
+type Crons struct {
+	EnabledAt    int64    `json:"enabledAt"`
+	DisabledAt   int64    `json:"disabledAt"`
+	UpdatedAt    int64    `json:"updatedAt"`
+	DeploymentID *string  `json:"deploymentId"`
+	Definitions  []string `json:"definitions"`
+}
+
+type SpeedInsights struct {
+	ID         string `json:"id"`
+	HasData    bool   `json:"hasData"`
+	EnabledAt  *int64 `json:"enabledAt,omitempty"`
+	DisabledAt *int64 `json:"disabledAt,omitempty"`
+	CanceledAt *int64 `json:"canceledAt,omitempty"`
 }
 
 type TargetInfo struct {
