@@ -29,3 +29,16 @@ func ParseTimeWithFormat(value string, format string) (time.Time, error) {
 
 	return time.Parse(format, value)
 }
+
+func Int64ToTime(ts int64) time.Time {
+	switch {
+	case ts > 1e18: // 纳秒级
+		return time.Unix(0, ts)
+	case ts > 1e15: // 微秒级
+		return time.Unix(0, ts*int64(time.Microsecond))
+	case ts > 1e12: // 毫秒级
+		return time.Unix(0, ts*int64(time.Millisecond))
+	default: // 秒级
+		return time.Unix(ts, 0)
+	}
+}
