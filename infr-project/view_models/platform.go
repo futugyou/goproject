@@ -107,6 +107,7 @@ type Workflow struct {
 	Name      string `json:"name"`
 	Status    string `json:"status"`
 	CreatedAt string `json:"createdAt"`
+	BadgeURL  string `json:"badge_url"`
 }
 
 type Deployment struct {

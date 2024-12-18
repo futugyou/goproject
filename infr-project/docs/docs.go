@@ -2593,6 +2593,9 @@ const docTemplate = `{
         "viewmodels.Workflow": {
             "type": "object",
             "properties": {
+                "badge_url": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },

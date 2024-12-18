@@ -35,6 +35,7 @@ type Workflow struct {
 	Name      string
 	Status    string
 	CreatedAt string
+	BadgeURL  string
 }
 
 type Deployment struct {

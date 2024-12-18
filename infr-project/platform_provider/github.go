@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/google/go-github/v66/github"
 	"golang.org/x/oauth2"
@@ -151,12 +152,30 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			return
 		}
 
-		opts := &github.ListOptions{PerPage: 1000}
+		opts := &github.ListOptions{Page: 1, PerPage: 1000}
+		workflows, _, err := g.client.Actions.ListWorkflows(ctx, GITHUB_OWNER, filter.Name, opts)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		wfs := map[string]Workflow{}
+		for _, v := range workflows.Workflows {
+			wfs[strconv.FormatInt(v.GetID(), 10)] = Workflow{
+				ID:        strconv.FormatInt(v.GetID(), 10),
+				Name:      v.GetName(),
+				Status:    v.GetState(),
+				CreatedAt: v.GetCreatedAt().Format(time.RFC3339Nano),
+				BadgeURL:  v.GetBadgeURL(),
+			}
+		}
+
 		githooks, _, err := g.client.Repositories.ListHooks(ctx, GITHUB_OWNER, filter.Name, opts)
 		if err != nil {
 			errorChan <- err
 			return
 		}
+
 		hooks := []WebHook{}
 		for _, hook := range githooks {
 			if hook.GetActive() {
@@ -177,6 +196,28 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				})
 			}
 		}
+
+		gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, GITHUB_OWNER, filter.Name, opts)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		envs := map[string]Env{}
+		for _, v := range gitSecrets.Secrets {
+			if v == nil {
+				continue
+			}
+			envs[v.Name] = Env{
+				ID:        v.Name,
+				Key:       v.Name,
+				CreatedAt: v.CreatedAt.Format(time.RFC3339Nano),
+				UpdatedAt: v.UpdatedAt.Format(time.RFC3339Nano),
+				Type:      v.Visibility,
+				Value:     "",
+			}
+		}
+
 		resultChan <- &Project{
 			ID:   repository.GetName(),
 			Name: repository.GetName(),
@@ -185,7 +226,9 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				"GITHUB_REPO":           repository.GetName(),
 				"GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch(),
 			},
-			Hooks: hooks,
+			Hooks:     hooks,
+			Workflows: wfs,
+			Envs:      envs,
 		}
 	}()
 	return resultChan, errorChan

@@ -792,6 +792,8 @@ definitions:
     type: object
   viewmodels.Workflow:
     properties:
+      badge_url:
+        type: string
       createdAt:
         type: string
       id:
