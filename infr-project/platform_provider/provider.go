@@ -22,28 +22,28 @@ type Project struct {
 }
 
 type Env struct {
-	ID        string `json:"id"`
-	Key       string `json:"key"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
-	Type      string `json:"type"`
-	Value     string `json:"value"`
+	ID        string
+	Key       string
+	CreatedAt string
+	UpdatedAt string
+	Type      string
+	Value     string
 }
 
 type Workflow struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"createdAt"`
+	ID        string
+	Name      string
+	Status    string
+	CreatedAt string
 }
 
 type Deployment struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	Plan          string `json:"plan"`
-	ReadyState    string `json:"readyState"`
-	ReadySubstate string `json:"readySubstate"`
-	CreatedAt     string `json:"createdAt"`
+	ID            string
+	Name          string
+	Plan          string
+	ReadyState    string
+	ReadySubstate string
+	CreatedAt     string
 }
 
 type WebHook struct {
