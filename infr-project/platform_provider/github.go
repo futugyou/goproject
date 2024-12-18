@@ -161,8 +161,8 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		wfs := map[string]Workflow{}
 		for _, v := range workflows.Workflows {
-			wfs[strconv.FormatInt(v.GetID(), 10)] = Workflow{
-				ID:        strconv.FormatInt(v.GetID(), 10),
+			wfs[fmt.Sprintf("%d", v.GetID())] = Workflow{
+				ID:        fmt.Sprintf("%d", v.GetID()),
 				Name:      v.GetName(),
 				Status:    v.GetState(),
 				CreatedAt: v.GetCreatedAt().Format(time.RFC3339Nano),
@@ -218,6 +218,28 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
+		gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
+			Branch:      repository.GetDefaultBranch(),
+			ListOptions: *opts,
+		})
+
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		runs := map[string]Deployment{}
+		for _, v := range gitRuns.WorkflowRuns {
+			runs[fmt.Sprintf("%d", v.GetID())] = Deployment{
+				ID:            fmt.Sprintf("%d", v.GetID()),
+				Name:          v.GetName(),
+				Plan:          "",
+				ReadyState:    v.GetStatus(),
+				ReadySubstate: v.GetStatus(),
+				CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
+			}
+		}
+
 		resultChan <- &Project{
 			ID:   repository.GetName(),
 			Name: repository.GetName(),
@@ -226,9 +248,10 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				"GITHUB_REPO":           repository.GetName(),
 				"GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch(),
 			},
-			Hooks:     hooks,
-			Workflows: wfs,
-			Envs:      envs,
+			Hooks:       hooks,
+			Workflows:   wfs,
+			Envs:        envs,
+			Deployments: runs,
 		}
 	}()
 	return resultChan, errorChan
