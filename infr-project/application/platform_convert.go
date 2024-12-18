@@ -58,6 +58,9 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 			Webhooks:          []models.Webhook{},
 			Followed:          false,
 			ProviderProjectId: project.ID,
+			Environments:      s.convertToPlatformModelEnvironments(project.Envs),
+			Workflows:         s.convertToPlatformModelWorkflows(project.Workflows),
+			Deployments:       s.convertToPlatformModelDeployments(project.Deployments),
 		}
 	}
 
@@ -66,15 +69,7 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 		// followed == false && providerProjectId == "", means need create project to provider
 		// followed == true && providerProjectId != "", means need provider project was already followed
 		followed := false
-		providerProjectId := ""
-		if _, ok := providerMap[v.ProviderProjectId]; ok {
-			followed = true
-			providerProjectId = v.ProviderProjectId
-			// remove already followed project
-			delete(providerMap, v.ProviderProjectId)
-		}
-
-		platformProjects = append(platformProjects, models.PlatformProject{
+		platformProject := models.PlatformProject{
 			Id:                v.Id,
 			Name:              v.Name,
 			Url:               v.Url,
@@ -82,8 +77,23 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 			Secrets:           s.convertToPlatformModelSecrets(v.Secrets),
 			Webhooks:          s.convertToPlatformModelWebhooks(v.Webhooks),
 			Followed:          followed,
-			ProviderProjectId: providerProjectId,
-		})
+			ProviderProjectId: "",
+			Environments:      []models.ProjectEnv{},
+			Workflows:         []models.Workflow{},
+			Deployments:       []models.Deployment{},
+		}
+
+		if p, ok := providerMap[v.ProviderProjectId]; ok {
+			followed = true
+			// remove already followed project
+			delete(providerMap, v.ProviderProjectId)
+			platformProject.Deployments = p.Deployments
+			platformProject.Environments = p.Environments
+			platformProject.Workflows = p.Workflows
+			platformProject.ProviderProjectId = v.ProviderProjectId
+		}
+
+		platformProjects = append(platformProjects, platformProject)
 	}
 
 	// add project from provider which was not followed
@@ -95,6 +105,33 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 	}
 
 	return platformProjects
+}
+
+func (s *PlatformService) convertToPlatformModelEnvironments(values map[string]platformProvider.Env) []models.ProjectEnv {
+	wps := []models.ProjectEnv{}
+	for _, v := range values {
+		wps = append(wps, models.ProjectEnv(v))
+	}
+
+	return wps
+}
+
+func (s *PlatformService) convertToPlatformModelWorkflows(values map[string]platformProvider.Workflow) []models.Workflow {
+	wps := []models.Workflow{}
+	for _, v := range values {
+		wps = append(wps, models.Workflow(v))
+	}
+
+	return wps
+}
+
+func (s *PlatformService) convertToPlatformModelDeployments(values map[string]platformProvider.Deployment) []models.Deployment {
+	wps := []models.Deployment{}
+	for _, v := range values {
+		wps = append(wps, models.Deployment(v))
+	}
+
+	return wps
 }
 
 func (s *PlatformService) convertToPlatformModelWebhooks(hooks []platform.Webhook) []models.Webhook {

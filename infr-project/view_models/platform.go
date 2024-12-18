@@ -80,14 +80,42 @@ type Secret struct {
 }
 
 type PlatformProject struct {
-	Id                string     `json:"id"`
-	Name              string     `json:"name"`
-	Url               string     `json:"url"`
-	Properties        []Property `json:"properties"`
-	Secrets           []Secret   `json:"secrets"`
-	Webhooks          []Webhook  `json:"webhooks"`
-	Followed          bool       `json:"followed"`
-	ProviderProjectId string     `json:"provider_project_id"`
+	Id                string       `json:"id"`
+	Name              string       `json:"name"`
+	Url               string       `json:"url"`
+	Properties        []Property   `json:"properties"`
+	Secrets           []Secret     `json:"secrets"`
+	Webhooks          []Webhook    `json:"webhooks"`
+	Followed          bool         `json:"followed"`
+	ProviderProjectId string       `json:"provider_project_id"`
+	Environments      []ProjectEnv `json:"environments"`
+	Workflows         []Workflow   `json:"workflows"`
+	Deployments       []Deployment `json:"deployments"`
+}
+
+type ProjectEnv struct {
+	ID        string `json:"id"`
+	Key       string `json:"key"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+	Type      string `json:"type"`
+	Value     string `json:"value"`
+}
+
+type Workflow struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Status    string `json:"status"`
+	CreatedAt string `json:"createdAt"`
+}
+
+type Deployment struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Plan          string `json:"plan"`
+	ReadyState    string `json:"readyState"`
+	ReadySubstate string `json:"readySubstate"`
+	CreatedAt     string `json:"createdAt"`
 }
 
 type Webhook struct {
