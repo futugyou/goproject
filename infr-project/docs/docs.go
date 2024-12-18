@@ -1905,6 +1905,29 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.Deployment": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "plan": {
+                    "type": "string"
+                },
+                "readyState": {
+                    "type": "string"
+                },
+                "readySubstate": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.ImportVaultsRequest": {
             "type": "object",
             "properties": {
@@ -1994,6 +2017,18 @@ const docTemplate = `{
         "viewmodels.PlatformProject": {
             "type": "object",
             "properties": {
+                "deployments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Deployment"
+                    }
+                },
+                "environments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.ProjectEnv"
+                    }
+                },
                 "followed": {
                     "type": "boolean"
                 },
@@ -2025,6 +2060,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/viewmodels.Webhook"
+                    }
+                },
+                "workflows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.Workflow"
                     }
                 }
             }
@@ -2072,6 +2113,29 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/viewmodels.ProjectResource"
                     }
+                }
+            }
+        },
+        "viewmodels.ProjectEnv": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -2522,6 +2586,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "viewmodels.Workflow": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

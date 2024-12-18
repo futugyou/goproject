@@ -319,6 +319,21 @@ definitions:
           $ref: '#/definitions/viewmodels.VaultView'
         type: array
     type: object
+  viewmodels.Deployment:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      plan:
+        type: string
+      readyState:
+        type: string
+      readySubstate:
+        type: string
+    type: object
   viewmodels.ImportVaultsRequest:
     properties:
       storage_media:
@@ -380,6 +395,14 @@ definitions:
     type: object
   viewmodels.PlatformProject:
     properties:
+      deployments:
+        items:
+          $ref: '#/definitions/viewmodels.Deployment'
+        type: array
+      environments:
+        items:
+          $ref: '#/definitions/viewmodels.ProjectEnv'
+        type: array
       followed:
         type: boolean
       id:
@@ -401,6 +424,10 @@ definitions:
       webhooks:
         items:
           $ref: '#/definitions/viewmodels.Webhook'
+        type: array
+      workflows:
+        items:
+          $ref: '#/definitions/viewmodels.Workflow'
         type: array
     type: object
   viewmodels.PlatformView:
@@ -432,6 +459,21 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.ProjectResource'
         type: array
+    type: object
+  viewmodels.ProjectEnv:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
     type: object
   viewmodels.ProjectPlatform:
     properties:
@@ -746,6 +788,17 @@ definitions:
       state:
         type: string
       url:
+        type: string
+    type: object
+  viewmodels.Workflow:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
         type: string
     type: object
 info:
