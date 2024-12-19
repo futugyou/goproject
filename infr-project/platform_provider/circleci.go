@@ -32,10 +32,12 @@ func NewCircleClientV1(token string) (*CircleClient, error) {
 
 const CircleciProjectUrl = "https://app.circleci.com/pipelines/%s/%s/%s"
 const CircleciProjectBadge = "https://dl.circleci.com/status-badge/img/%s/%s/%s/tree/%s.svg?style=svg"
+const CircleciProjectBadgeFull = "[![CircleCI](https://dl.circleci.com/status-badge/img/%s/%s/%s/tree/%s.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/%s/%s/%s/tree/%s)"
+const CircleciWorkflowBadge = "https://dl.circleci.com/insights-snapshot/%s/%s/%s/%s/%s/badge.svg?window=30d"
+const CircleciWorkflowBadgeFull = "[![CircleCI](https://dl.circleci.com/insights-snapshot/%s/%s/%s/%s/%s/badge.svg?window=30d)](https://app.circleci.com/insights/%s/%s/%s/workflows/%s/overview?branch=%s&reporting-window=last-30-days&insights-snapshot=true)"
 
-// TODO: add all vcs mapping
-var CircleciVCSMapping = map[string]string{"gh": "github"}
-var CircleciBadgeVCSMapping = map[string]string{"github": "gh"}
+var CircleciVCSMapping = map[string]string{"gh": "github", "bb": "bitbucket"}
+var CircleciBadgeVCSMapping = map[string]string{"github": "gh", "bitbucket": "bb"}
 
 // Parameters MUST include org_slug. eg. gh/demo
 // Parameters can set circleci_project_url. eg. https://app.circleci.com/pipelines/%s/%s/%s
@@ -69,15 +71,12 @@ func (g *CircleClient) CreateProjectAsync(ctx context.Context, request CreatePro
 		orgSplit := strings.Split(org_slug, "/")
 		url := ""
 		if len(orgSplit) == 2 {
-			vsc := "github"
-			if vcs_slug, ok := CircleciVCSMapping[orgSplit[0]]; ok {
-				vsc = vcs_slug
-			}
+			_, vcs_full := g.getCircleciVCS(orgSplit[0])
 			circleciProjectUrl := CircleciProjectUrl
 			if url, ok := request.Parameters["circleci_project_url"]; ok {
 				circleciProjectUrl = url
 			}
-			url = fmt.Sprintf(circleciProjectUrl, vsc, orgSplit[1], project.Name)
+			url = fmt.Sprintf(circleciProjectUrl, vcs_full, orgSplit[1], project.Name)
 		}
 
 		resultChan <- &Project{
@@ -112,49 +111,20 @@ func (g *CircleClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 			return
 		}
 
-		circleciProjectUrl := CircleciProjectUrl
-		if url, ok := filter.Parameters["circleci_project_url"]; ok {
-			circleciProjectUrl = url
+		url := CircleciProjectUrl
+		if u, ok := filter.Parameters["circleci_project_url"]; ok {
+			url = u
 		}
 
 		projects := []Project{}
 		for _, pro := range circleciProjects {
-			projects = append(projects, g.BuildProject(pro, fmt.Sprintf(circleciProjectUrl, pro.VcsType, pro.Username, pro.Reponame)))
+			projects = append(projects, g.buildProject(pro, url))
 		}
 
 		resultChan <- projects
 	}()
 
 	return resultChan, errorChan
-}
-
-func (g *CircleClient) BuildProject(pro circleci.ProjectListItem, url string) Project {
-	default_branch := pro.DefaultBranch
-	branchInfo := pro.Branches[default_branch]
-	workflows := map[string]Workflow{}
-	for k, v := range branchInfo.LatestWorkflows {
-		workflows[k] = Workflow{
-			ID:        v.ID,
-			Name:      k,
-			Status:    v.Status,
-			CreatedAt: v.CreatedAt,
-			BadgeURL:  "",
-		}
-	}
-
-	vcs_type := pro.VcsType
-	if v, ok := CircleciBadgeVCSMapping[vcs_type]; ok {
-		vcs_type = v
-	}
-
-	return Project{
-		ID:         pro.Reponame,
-		Name:       pro.Reponame,
-		Url:        url,
-		Properties: map[string]string{"VCS_TYPE": pro.VcsType, "VCS_URL": pro.VcsURL},
-		Workflows:  workflows,
-		BadgeURL:   fmt.Sprintf(CircleciProjectBadge, vcs_type, pro.Username, pro.Reponame, pro.DefaultBranch),
-	}
 }
 
 // Need org_slug in ProjectFilter 'Parameters'
@@ -181,19 +151,14 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			return
 		}
 
-		orgSplit := strings.Split(org_slug, "/")
-		url := ""
-		if len(orgSplit) == 2 {
-			vsc := "github"
-			if vcs_slug, ok := CircleciVCSMapping[orgSplit[0]]; ok {
-				vsc = vcs_slug
-			}
-			circleciProjectUrl := CircleciProjectUrl
-			if url, ok := filter.Parameters["circleci_project_url"]; ok {
-				circleciProjectUrl = url
-			}
-			url = fmt.Sprintf(circleciProjectUrl, vsc, orgSplit[1], circleciProject.Name)
+		vcs, vcs_full := g.getCircleciVCS(circleciProject.VcsInfo.Provider)
+
+		url_format := CircleciProjectUrl
+		if url, ok := filter.Parameters["circleci_project_url"]; ok {
+			url_format = url
 		}
+
+		url := g.buildProjectUrl(org_slug, url_format, vcs_full, circleciProject.Name)
 
 		circleciWebhooks, err := g.client.Webhook.ListWebhook(ctx, circleciProject.ID)
 		if err != nil {
@@ -216,32 +181,23 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			})
 		}
 
+		badgeURL, badgeMarkdown := "", ""
 		vcsurlinfos := strings.Split(circleciProject.VcsInfo.VcsURL, "/")
-		badgeURL := ""
 		if len(vcsurlinfos) >= 2 {
-			vcs_type := circleciProject.VcsInfo.Provider
-			if v, ok := CircleciBadgeVCSMapping[vcs_type]; ok {
-				vcs_type = v
-			}
-
-			badgeURL = fmt.Sprintf(CircleciProjectBadge,
-				vcs_type,
-				vcsurlinfos[len(vcsurlinfos)-2],
-				vcsurlinfos[len(vcsurlinfos)-1],
-				circleciProject.VcsInfo.DefaultBranch,
-			)
+			badgeURL, badgeMarkdown = g.buildProjectBadge(vcs, vcsurlinfos[len(vcsurlinfos)-2], vcsurlinfos[len(vcsurlinfos)-1], circleciProject.VcsInfo.DefaultBranch)
 		}
 
 		project := &Project{
-			ID:    circleciProject.ID,
-			Name:  circleciProject.Name,
-			Url:   url,
-			Hooks: webHooks,
-			Properties: map[string]string{
-				"VCS_TYPE": circleciProject.VcsInfo.Provider,
-				"VCS_URL":  circleciProject.VcsInfo.VcsURL,
-			},
-			BadgeURL: badgeURL,
+			ID:            circleciProject.ID,
+			Name:          circleciProject.Name,
+			Url:           url,
+			Hooks:         webHooks,
+			Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
+			Envs:          map[string]Env{},
+			Workflows:     map[string]Workflow{},
+			Deployments:   map[string]Deployment{},
+			BadgeURL:      badgeURL,
+			BadgeMarkDown: badgeMarkdown,
 		}
 
 		resultChan <- project
@@ -344,4 +300,91 @@ func (g *CircleClient) GetUserAsync(ctx context.Context) (<-chan *User, <-chan e
 	}()
 
 	return resultChan, errorChan
+}
+
+func (g *CircleClient) getCircleciVCS(vcsString string) (vcs string, vcs_full string) {
+	if v, ok := CircleciVCSMapping[vcsString]; ok {
+		vcs = vcsString
+		vcs_full = v
+	}
+
+	if v, ok := CircleciBadgeVCSMapping[vcsString]; ok {
+		vcs = v
+		vcs_full = vcsString
+	}
+
+	return vcs, vcs_full
+}
+
+func (*CircleClient) buildProjectBadge(vcs string, user string, repo string, branch string) (badgeUrl string, badgeMarkDown string) {
+	badgeUrl = fmt.Sprintf(CircleciProjectBadge, vcs, user, repo, branch)
+	badgeMarkDown = fmt.Sprintf(CircleciProjectBadgeFull, vcs, user, repo, branch, vcs, user, repo, branch)
+	return
+}
+
+func (*CircleClient) buildWorkflowBadge(vcs string, vcs_full string, org_name string, project_name string, workflow_name string, branch string) (badgeUrl string, badgeMarkDown string) {
+	badgeUrl = fmt.Sprintf(CircleciWorkflowBadge,
+		vcs,
+		org_name,
+		project_name,
+		branch,
+		workflow_name,
+	)
+	badgeMarkDown = fmt.Sprintf(CircleciWorkflowBadgeFull, vcs,
+		org_name,
+		project_name,
+		branch,
+		workflow_name,
+		vcs_full,
+		org_name,
+		project_name,
+		workflow_name,
+		branch,
+	)
+	return
+}
+
+func (*CircleClient) buildProjectUrl(org_slug string, url_format string, vcs_full string, name string) string {
+	url := ""
+	orgSplit := strings.Split(org_slug, "/")
+	if len(orgSplit) == 2 {
+		url = fmt.Sprintf(url_format, vcs_full, orgSplit[1], name)
+	}
+
+	return url
+}
+
+func (g *CircleClient) buildProject(pro circleci.ProjectListItem, url string) Project {
+	vcs, vcs_full := g.getCircleciVCS(pro.VcsType)
+	badgeURL, badgeMarkdown := g.buildProjectBadge(vcs, pro.Username, pro.Reponame, pro.DefaultBranch)
+
+	return Project{
+		ID:            pro.Reponame,
+		Name:          pro.Reponame,
+		Url:           fmt.Sprintf(url, vcs_full, pro.Username, pro.Reponame),
+		Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": pro.VcsURL},
+		Workflows:     g.buildWrokflow(vcs, vcs_full, pro),
+		BadgeURL:      badgeURL,
+		BadgeMarkDown: badgeMarkdown,
+	}
+}
+
+func (g *CircleClient) buildWrokflow(vcs string, vcs_full string, pro circleci.ProjectListItem) map[string]Workflow {
+	default_branch := pro.DefaultBranch
+	branchInfo := pro.Branches[default_branch]
+
+	workflows := map[string]Workflow{}
+	for k, v := range branchInfo.LatestWorkflows {
+		badgeURL, badgeMarkdown := g.buildWorkflowBadge(vcs, vcs_full, pro.Username, pro.Reponame, k, default_branch)
+		workflows[k] = Workflow{
+			ID:            v.ID,
+			Name:          k,
+			Status:        v.Status,
+			CreatedAt:     v.CreatedAt,
+			BadgeURL:      badgeURL,
+			BadgeMarkDown: badgeMarkdown,
+		}
+	}
+
+	return workflows
 }
