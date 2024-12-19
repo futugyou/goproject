@@ -104,14 +104,17 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 			if target, ok := project.Targets["production"]; ok {
 				readState = target.ReadyState
 			}
+
+			badgeURL, badgeMarkdown := g.buildVercelProjectBadge("Deployment", url, readState)
 			projects = append(projects, Project{
-				ID:          project.Id,
-				Name:        project.Name,
-				Url:         url,
-				Properties:  properties,
-				Envs:        g.buildVercelEnv(project.Env),
-				Deployments: g.buildVercelDeployment(project.LatestDeployments, url),
-				BadgeURL:    g.buildVercelProjectBadge(url, readState),
+				ID:            project.Id,
+				Name:          project.Name,
+				Url:           url,
+				Properties:    properties,
+				Envs:          g.buildVercelEnv(project.Env),
+				Deployments:   g.buildVercelDeployment(project.LatestDeployments, url),
+				BadgeURL:      badgeURL,
+				BadgeMarkDown: badgeMarkdown,
 			})
 		}
 
@@ -184,15 +187,17 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			readState = target.ReadyState
 		}
 
+		badgeURL, badgeMarkdown := g.buildVercelProjectBadge("Deployment", url, readState)
 		project := &Project{
-			ID:          vercelProject.Id,
-			Name:        vercelProject.Name,
-			Url:         url,
-			Hooks:       hooks,
-			Properties:  properties,
-			Envs:        g.buildVercelEnv(vercelProject.Env),
-			Deployments: g.buildVercelDeployment(vercelProject.LatestDeployments, url),
-			BadgeURL:    g.buildVercelProjectBadge(url, readState),
+			ID:            vercelProject.Id,
+			Name:          vercelProject.Name,
+			Url:           url,
+			Hooks:         hooks,
+			Properties:    properties,
+			Envs:          g.buildVercelEnv(vercelProject.Env),
+			Deployments:   g.buildVercelDeployment(vercelProject.LatestDeployments, url),
+			BadgeURL:      badgeURL,
+			BadgeMarkDown: badgeMarkdown,
 		}
 
 		resultChan <- project
@@ -201,15 +206,16 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 	return resultChan, errorChan
 }
 
-func (*VercelClient) buildVercelProjectBadge(url string, readyState string) string {
-	badgeUrl := fmt.Sprintf(CommonProjectBadge, "Deployment", "Norecord", "red", "vercel", url)
+func (*VercelClient) buildVercelProjectBadge(lable string, url string, readyState string) (badgeUrl string, badgeMarkDown string) {
+	badgeUrl = fmt.Sprintf(CommonProjectBadge, lable, "Norecord", "red", "vercel", url)
 	if readyState == "READY" {
-		badgeUrl = fmt.Sprintf(CommonProjectBadge, "Deployment", readyState, "brightgreen", "vercel", url)
+		badgeUrl = fmt.Sprintf(CommonProjectBadge, lable, readyState, "brightgreen", "vercel", url)
 	} else if len(readyState) > 0 {
-		badgeUrl = fmt.Sprintf(CommonProjectBadge, "Deployment", readyState, "red", "vercel", url)
+		badgeUrl = fmt.Sprintf(CommonProjectBadge, lable, readyState, "red", "vercel", url)
 	}
 
-	return badgeUrl
+	badgeMarkDown = fmt.Sprintf("![%s](%s)", lable, badgeUrl)
+	return
 }
 
 func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Env {
@@ -230,6 +236,7 @@ func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Env {
 func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
 	deployments := map[string]Deployment{}
 	for _, v := range vercelDeployments {
+		badgeURL, badgeMarkdown := g.buildVercelProjectBadge(v.Name, url, v.ReadyState)
 		deployments[v.ID] = Deployment{
 			ID:            v.ID,
 			Name:          v.Name,
@@ -237,7 +244,8 @@ func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDe
 			ReadyState:    v.ReadyState,
 			ReadySubstate: v.ReadySubstate,
 			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
-			BadgeURL:      g.buildVercelProjectBadge(url, v.ReadyState),
+			BadgeURL:      badgeURL,
+			BadgeMarkDown: badgeMarkdown,
 		}
 	}
 	return deployments
