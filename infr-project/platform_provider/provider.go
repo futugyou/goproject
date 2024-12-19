@@ -19,6 +19,7 @@ type Project struct {
 	Envs        map[string]Env
 	Workflows   map[string]Workflow
 	Deployments map[string]Deployment
+	BadgeURL    string
 }
 
 type Env struct {
