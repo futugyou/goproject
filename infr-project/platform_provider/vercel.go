@@ -100,14 +100,18 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				properties[k] = strings.Join(v.Alias, ",")
 			}
 
+			readState := ""
+			if target, ok := project.Targets["production"]; ok {
+				readState = target.ReadyState
+			}
 			projects = append(projects, Project{
 				ID:          project.Id,
 				Name:        project.Name,
 				Url:         url,
 				Properties:  properties,
 				Envs:        g.buildVercelEnv(project.Env),
-				Deployments: g.buildVercelDeployment(project.LatestDeployments),
-				BadgeURL:    g.buildVercelProjectBadge(project.Targets, url),
+				Deployments: g.buildVercelDeployment(project.LatestDeployments, url),
+				BadgeURL:    g.buildVercelProjectBadge(url, readState),
 			})
 		}
 
@@ -175,6 +179,11 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			properties[k] = strings.Join(v.Alias, ",")
 		}
 
+		readState := ""
+		if target, ok := vercelProject.Targets["production"]; ok {
+			readState = target.ReadyState
+		}
+
 		project := &Project{
 			ID:          vercelProject.Id,
 			Name:        vercelProject.Name,
@@ -182,8 +191,8 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			Hooks:       hooks,
 			Properties:  properties,
 			Envs:        g.buildVercelEnv(vercelProject.Env),
-			Deployments: g.buildVercelDeployment(vercelProject.LatestDeployments),
-			BadgeURL:    g.buildVercelProjectBadge(vercelProject.Targets, url),
+			Deployments: g.buildVercelDeployment(vercelProject.LatestDeployments, url),
+			BadgeURL:    g.buildVercelProjectBadge(url, readState),
 		}
 
 		resultChan <- project
@@ -192,10 +201,12 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 	return resultChan, errorChan
 }
 
-func (*VercelClient) buildVercelProjectBadge(targets map[string]vercel.TargetInfo, url string) string {
+func (*VercelClient) buildVercelProjectBadge(url string, readyState string) string {
 	badgeUrl := fmt.Sprintf(CommonProjectBadge, "Deployment", "Norecord", "red", "vercel", url)
-	if target, ok := targets["production"]; ok {
-		badgeUrl = fmt.Sprintf(CommonProjectBadge, "Deployment", target.ReadyState, "brightgreen", "vercel", url)
+	if readyState == "READY" {
+		badgeUrl = fmt.Sprintf(CommonProjectBadge, "Deployment", readyState, "brightgreen", "vercel", url)
+	} else if len(readyState) > 0 {
+		badgeUrl = fmt.Sprintf(CommonProjectBadge, "Deployment", readyState, "red", "vercel", url)
 	}
 
 	return badgeUrl
@@ -216,7 +227,7 @@ func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Env {
 	return envs
 }
 
-func (*VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDeployment) map[string]Deployment {
+func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
 	deployments := map[string]Deployment{}
 	for _, v := range vercelDeployments {
 		deployments[v.ID] = Deployment{
@@ -226,6 +237,7 @@ func (*VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDepl
 			ReadyState:    v.ReadyState,
 			ReadySubstate: v.ReadySubstate,
 			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
+			BadgeURL:      g.buildVercelProjectBadge(url, v.ReadyState),
 		}
 	}
 	return deployments

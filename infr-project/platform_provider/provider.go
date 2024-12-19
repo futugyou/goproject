@@ -48,6 +48,7 @@ type Deployment struct {
 	ReadyState    string
 	ReadySubstate string
 	CreatedAt     string
+	BadgeURL      string
 }
 
 type WebHook struct {
