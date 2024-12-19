@@ -178,7 +178,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 
 			if len(path) > 0 {
-				workflow.BadgeMarkDown = fmt.Sprintf("[![%s](%s)](https://github.com/%s/%s/actions/workflows/%s)",
+				workflow.BadgeMarkdown = fmt.Sprintf("[![%s](%s)](https://github.com/%s/%s/actions/workflows/%s)",
 					v.GetName(),
 					v.GetBadgeURL(),
 					GITHUB_OWNER,

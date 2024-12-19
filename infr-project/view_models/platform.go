@@ -91,6 +91,8 @@ type PlatformProject struct {
 	Environments      []ProjectEnv `json:"environments"`
 	Workflows         []Workflow   `json:"workflows"`
 	Deployments       []Deployment `json:"deployments"`
+	BadgeURL          string       `json:"badge_url"`
+	BadgeMarkdown     string       `json:"badge_markdown"`
 }
 
 type ProjectEnv struct {
@@ -103,11 +105,12 @@ type ProjectEnv struct {
 }
 
 type Workflow struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"createdAt"`
-	BadgeURL  string `json:"badge_url"`
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Status        string `json:"status"`
+	CreatedAt     string `json:"createdAt"`
+	BadgeURL      string `json:"badge_url"`
+	BadgeMarkdown string `json:"badge_markdown"`
 }
 
 type Deployment struct {
@@ -117,6 +120,8 @@ type Deployment struct {
 	ReadyState    string `json:"readyState"`
 	ReadySubstate string `json:"readySubstate"`
 	CreatedAt     string `json:"createdAt"`
+	BadgeURL      string `json:"badge_url"`
+	BadgeMarkdown string `json:"badge_markdown"`
 }
 
 type Webhook struct {

@@ -245,7 +245,7 @@ func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDe
 			ReadySubstate: v.ReadySubstate,
 			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
 			BadgeURL:      badgeURL,
-			BadgeMarkDown: badgeMarkdown,
+			BadgeMarkdown: badgeMarkdown,
 		}
 	}
 	return deployments

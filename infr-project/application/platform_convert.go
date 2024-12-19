@@ -54,13 +54,13 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 			Name:              project.Name,
 			Url:               project.Url,
 			Properties:        properties,
-			Secrets:           []models.Secret{},
-			Webhooks:          []models.Webhook{},
 			Followed:          false,
 			ProviderProjectId: project.ID,
 			Environments:      s.convertToPlatformModelEnvironments(project.Envs),
 			Workflows:         s.convertToPlatformModelWorkflows(project.Workflows),
 			Deployments:       s.convertToPlatformModelDeployments(project.Deployments),
+			BadgeURL:          project.BadgeURL,
+			BadgeMarkdown:     project.BadgeMarkDown,
 		}
 	}
 
@@ -70,17 +70,13 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 		// followed == true && providerProjectId != "", means need provider project was already followed
 		followed := false
 		platformProject := models.PlatformProject{
-			Id:                v.Id,
-			Name:              v.Name,
-			Url:               v.Url,
-			Properties:        s.convertToPlatformModelProperties(v.Properties),
-			Secrets:           s.convertToPlatformModelSecrets(v.Secrets),
-			Webhooks:          s.convertToPlatformModelWebhooks(v.Webhooks),
-			Followed:          followed,
-			ProviderProjectId: "",
-			Environments:      []models.ProjectEnv{},
-			Workflows:         []models.Workflow{},
-			Deployments:       []models.Deployment{},
+			Id:         v.Id,
+			Name:       v.Name,
+			Url:        v.Url,
+			Properties: s.convertToPlatformModelProperties(v.Properties),
+			Secrets:    s.convertToPlatformModelSecrets(v.Secrets),
+			Webhooks:   s.convertToPlatformModelWebhooks(v.Webhooks),
+			Followed:   followed,
 		}
 
 		if p, ok := providerMap[v.ProviderProjectId]; ok {

@@ -321,6 +321,10 @@ definitions:
     type: object
   viewmodels.Deployment:
     properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
       createdAt:
         type: string
       id:
@@ -395,6 +399,10 @@ definitions:
     type: object
   viewmodels.PlatformProject:
     properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
       deployments:
         items:
           $ref: '#/definitions/viewmodels.Deployment'
@@ -792,6 +800,8 @@ definitions:
     type: object
   viewmodels.Workflow:
     properties:
+      badge_markdown:
+        type: string
       badge_url:
         type: string
       createdAt:

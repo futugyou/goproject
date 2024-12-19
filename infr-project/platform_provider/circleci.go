@@ -382,7 +382,7 @@ func (g *CircleClient) buildWrokflow(vcs string, vcs_full string, pro circleci.P
 			Status:        v.Status,
 			CreatedAt:     v.CreatedAt,
 			BadgeURL:      badgeURL,
-			BadgeMarkDown: badgeMarkdown,
+			BadgeMarkdown: badgeMarkdown,
 		}
 	}
 

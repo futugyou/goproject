@@ -1908,6 +1908,12 @@ const docTemplate = `{
         "viewmodels.Deployment": {
             "type": "object",
             "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2017,6 +2023,12 @@ const docTemplate = `{
         "viewmodels.PlatformProject": {
             "type": "object",
             "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
                 "deployments": {
                     "type": "array",
                     "items": {
@@ -2593,6 +2605,9 @@ const docTemplate = `{
         "viewmodels.Workflow": {
             "type": "object",
             "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
                 "badge_url": {
                     "type": "string"
                 },

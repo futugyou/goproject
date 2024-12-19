@@ -40,7 +40,7 @@ type Workflow struct {
 	Status        string
 	CreatedAt     string
 	BadgeURL      string
-	BadgeMarkDown string
+	BadgeMarkdown string
 }
 
 type Deployment struct {
@@ -51,7 +51,7 @@ type Deployment struct {
 	ReadySubstate string
 	CreatedAt     string
 	BadgeURL      string
-	BadgeMarkDown string
+	BadgeMarkdown string
 }
 
 type WebHook struct {
