@@ -100,37 +100,14 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				properties[k] = strings.Join(v.Alias, ",")
 			}
 
-			envs := map[string]Env{}
-			for _, v := range project.Env {
-				envs[v.ID] = Env{
-					ID:        v.ID,
-					Key:       v.Key,
-					CreatedAt: tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
-					UpdatedAt: tool.Int64ToTime(v.UpdatedAt).Format(time.RFC3339Nano),
-					Type:      v.Type,
-					Value:     v.Value,
-				}
-			}
-
-			deployments := map[string]Deployment{}
-			for _, v := range project.LatestDeployments {
-				deployments[v.ID] = Deployment{
-					ID:            v.ID,
-					Name:          v.Name,
-					Plan:          v.Plan,
-					ReadyState:    v.ReadyState,
-					ReadySubstate: v.ReadySubstate,
-					CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
-				}
-			}
-
 			projects = append(projects, Project{
 				ID:          project.Id,
 				Name:        project.Name,
 				Url:         url,
 				Properties:  properties,
-				Envs:        envs,
-				Deployments: deployments,
+				Envs:        g.buildVercelEnv(project.Env),
+				Deployments: g.buildVercelDeployment(project.LatestDeployments),
+				BadgeURL:    g.buildVercelProjectBadge(project.Targets, url),
 			})
 		}
 
@@ -199,17 +176,59 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 
 		project := &Project{
-			ID:         vercelProject.Id,
-			Name:       vercelProject.Name,
-			Url:        url,
-			Properties: properties,
-			Hooks:      hooks,
+			ID:          vercelProject.Id,
+			Name:        vercelProject.Name,
+			Url:         url,
+			Hooks:       hooks,
+			Properties:  properties,
+			Envs:        g.buildVercelEnv(vercelProject.Env),
+			Deployments: g.buildVercelDeployment(vercelProject.LatestDeployments),
+			BadgeURL:    g.buildVercelProjectBadge(vercelProject.Targets, url),
 		}
 
 		resultChan <- project
 	}()
 
 	return resultChan, errorChan
+}
+
+func (*VercelClient) buildVercelProjectBadge(targets map[string]vercel.TargetInfo, url string) string {
+	badgeUrl := fmt.Sprintf(CommonProjectBadge, "Deployment", "Norecord", "red", "vercel", url)
+	if target, ok := targets["production"]; ok {
+		badgeUrl = fmt.Sprintf(CommonProjectBadge, "Deployment", target.ReadyState, "brightgreen", "vercel", url)
+	}
+
+	return badgeUrl
+}
+
+func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Env {
+	envs := map[string]Env{}
+	for _, v := range vercelEnvs {
+		envs[v.ID] = Env{
+			ID:        v.ID,
+			Key:       v.Key,
+			CreatedAt: tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
+			UpdatedAt: tool.Int64ToTime(v.UpdatedAt).Format(time.RFC3339Nano),
+			Type:      v.Type,
+			Value:     v.Value,
+		}
+	}
+	return envs
+}
+
+func (*VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDeployment) map[string]Deployment {
+	deployments := map[string]Deployment{}
+	for _, v := range vercelDeployments {
+		deployments[v.ID] = Deployment{
+			ID:            v.ID,
+			Name:          v.Name,
+			Plan:          v.Plan,
+			ReadyState:    v.ReadyState,
+			ReadySubstate: v.ReadySubstate,
+			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
+		}
+	}
+	return deployments
 }
 
 func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
