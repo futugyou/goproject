@@ -13,15 +13,16 @@ type CreateProjectRequest struct {
 }
 
 type Project struct {
-	ID          string
-	Name        string
-	Url         string
-	Hooks       []WebHook
-	Properties  map[string]string
-	Envs        map[string]Env
-	Workflows   map[string]Workflow
-	Deployments map[string]Deployment
-	BadgeURL    string
+	ID            string
+	Name          string
+	Url           string
+	Hooks         []WebHook
+	Properties    map[string]string
+	Envs          map[string]Env
+	Workflows     map[string]Workflow
+	Deployments   map[string]Deployment
+	BadgeURL      string
+	BadgeMarkDown string
 }
 
 type Env struct {
@@ -34,11 +35,12 @@ type Env struct {
 }
 
 type Workflow struct {
-	ID        string
-	Name      string
-	Status    string
-	CreatedAt string
-	BadgeURL  string
+	ID            string
+	Name          string
+	Status        string
+	CreatedAt     string
+	BadgeURL      string
+	BadgeMarkDown string
 }
 
 type Deployment struct {
@@ -49,6 +51,7 @@ type Deployment struct {
 	ReadySubstate string
 	CreatedAt     string
 	BadgeURL      string
+	BadgeMarkDown string
 }
 
 type WebHook struct {
