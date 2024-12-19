@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v66/github"
@@ -116,13 +117,15 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 
 		result := []Project{}
 		for _, repo := range repos {
+			badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetURL())
 			result = append(result, Project{
-				ID:         repo.GetName(),
-				Name:       repo.GetName(),
-				Url:        repo.GetURL(),
-				Hooks:      []WebHook{},
-				Properties: map[string]string{"GITHUB_REPO": repo.GetName(), "GITHUB_DETAULT_BRANCH": repo.GetDefaultBranch()},
-				BadgeURL:   g.buildGithubProjectBadge(repo.GetArchived(), repo.GetURL()),
+				ID:            repo.GetName(),
+				Name:          repo.GetName(),
+				Url:           repo.GetURL(),
+				Hooks:         []WebHook{},
+				Properties:    map[string]string{"GITHUB_REPO": repo.GetName(), "GITHUB_DETAULT_BRANCH": repo.GetDefaultBranch()},
+				BadgeURL:      badgeURL,
+				BadgeMarkDown: badgeMarkdown,
 			})
 		}
 		resultChan <- result
@@ -160,13 +163,30 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		wfs := map[string]Workflow{}
 		for _, v := range workflows.Workflows {
-			wfs[fmt.Sprintf("%d", v.GetID())] = Workflow{
+			workflow := Workflow{
 				ID:        fmt.Sprintf("%d", v.GetID()),
 				Name:      v.GetName(),
 				Status:    v.GetState(),
 				CreatedAt: v.GetCreatedAt().Format(time.RFC3339Nano),
 				BadgeURL:  v.GetBadgeURL(),
 			}
+
+			paths := strings.Split(v.GetHTMLURL(), "/")
+			path := ""
+			if len(paths) > 0 {
+				path = paths[len(paths)-1]
+			}
+
+			if len(path) > 0 {
+				workflow.BadgeMarkDown = fmt.Sprintf("[![%s](%s)](https://github.com/%s/%s/actions/workflows/%s)",
+					v.GetName(),
+					v.GetBadgeURL(),
+					GITHUB_OWNER,
+					filter.Name,
+					path,
+				)
+			}
+			wfs[fmt.Sprintf("%d", v.GetID())] = workflow
 		}
 
 		githooks, _, err := g.client.Repositories.ListHooks(ctx, GITHUB_OWNER, filter.Name, opts)
@@ -239,28 +259,31 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
+		badgeUrl, badgeMarkdown := g.buildGithubProjectBadge(repository.GetArchived(), repository.GetURL())
 		resultChan <- &Project{
-			ID:          repository.GetName(),
-			Name:        repository.GetName(),
-			Url:         repository.GetURL(),
-			Hooks:       hooks,
-			Properties:  map[string]string{"GITHUB_REPO": repository.GetName(), "GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch()},
-			Envs:        envs,
-			Workflows:   wfs,
-			Deployments: runs,
-			BadgeURL:    g.buildGithubProjectBadge(repository.GetArchived(), repository.GetURL()),
+			ID:            repository.GetName(),
+			Name:          repository.GetName(),
+			Url:           repository.GetURL(),
+			Hooks:         hooks,
+			Properties:    map[string]string{"GITHUB_REPO": repository.GetName(), "GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch()},
+			Envs:          envs,
+			Workflows:     wfs,
+			Deployments:   runs,
+			BadgeURL:      badgeUrl,
+			BadgeMarkDown: badgeMarkdown,
 		}
 	}()
 	return resultChan, errorChan
 }
 
-func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) string {
-	badgeUrl := fmt.Sprintf(CommonProjectBadge, "status", "Unarchived", "brightgreen", "github", url)
+func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) (badgeUrl string, badgeMarkDown string) {
+	badgeUrl = fmt.Sprintf(CommonProjectBadge, "status", "Unarchived", "brightgreen", "github", url)
 	if archived {
 		badgeUrl = fmt.Sprintf(CommonProjectBadge, "status", "Archived", "red", "github", url)
 	}
 
-	return badgeUrl
+	badgeMarkDown = fmt.Sprintf("![%s](%s)", "status", badgeUrl)
+	return
 }
 
 // if need webhook secret, set it in WebHook.Parameters with key 'WEBHOOK_SECRET'
