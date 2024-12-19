@@ -4,6 +4,8 @@ import "context"
 
 //TODO: fill field
 
+const CommonProjectBadge = "https://img.shields.io/badge/%s-%s-%s?logo=%s&link=%s"
+
 type CreateProjectRequest struct {
 	PlatformId string
 	Name       string

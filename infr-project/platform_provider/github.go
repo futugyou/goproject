@@ -117,13 +117,12 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 		result := []Project{}
 		for _, repo := range repos {
 			result = append(result, Project{
-				ID:   repo.GetName(),
-				Name: repo.GetName(),
-				Url:  repo.GetURL(),
-				Properties: map[string]string{
-					"GITHUB_REPO":           repo.GetName(),
-					"GITHUB_DETAULT_BRANCH": repo.GetDefaultBranch(),
-				},
+				ID:         repo.GetName(),
+				Name:       repo.GetName(),
+				Url:        repo.GetURL(),
+				Hooks:      []WebHook{},
+				Properties: map[string]string{"GITHUB_REPO": repo.GetName(), "GITHUB_DETAULT_BRANCH": repo.GetDefaultBranch()},
+				BadgeURL:   g.buildGithubProjectBadge(repo.GetArchived(), repo.GetURL()),
 			})
 		}
 		resultChan <- result
@@ -241,20 +240,27 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 
 		resultChan <- &Project{
-			ID:   repository.GetName(),
-			Name: repository.GetName(),
-			Url:  repository.GetURL(),
-			Properties: map[string]string{
-				"GITHUB_REPO":           repository.GetName(),
-				"GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch(),
-			},
+			ID:          repository.GetName(),
+			Name:        repository.GetName(),
+			Url:         repository.GetURL(),
 			Hooks:       hooks,
-			Workflows:   wfs,
+			Properties:  map[string]string{"GITHUB_REPO": repository.GetName(), "GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch()},
 			Envs:        envs,
+			Workflows:   wfs,
 			Deployments: runs,
+			BadgeURL:    g.buildGithubProjectBadge(repository.GetArchived(), repository.GetURL()),
 		}
 	}()
 	return resultChan, errorChan
+}
+
+func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) string {
+	badgeUrl := fmt.Sprintf(CommonProjectBadge, "status", "Unarchived", "brightgreen", "github", url)
+	if archived {
+		badgeUrl = fmt.Sprintf(CommonProjectBadge, "status", "Archived", "red", "github", url)
+	}
+
+	return badgeUrl
 }
 
 // if need webhook secret, set it in WebHook.Parameters with key 'WEBHOOK_SECRET'
