@@ -35,6 +35,7 @@ const CircleciProjectBadge = "https://dl.circleci.com/status-badge/img/%s/%s/%s/
 
 // TODO: add all vcs mapping
 var CircleciVCSMapping = map[string]string{"gh": "github"}
+var CircleciBadgeVCSMapping = map[string]string{"github": "gh"}
 
 // Parameters MUST include org_slug. eg. gh/demo
 // Parameters can set circleci_project_url. eg. https://app.circleci.com/pipelines/%s/%s/%s
@@ -141,13 +142,18 @@ func (g *CircleClient) BuildProject(pro circleci.ProjectListItem, url string) Pr
 		}
 	}
 
+	vcs_type := pro.VcsType
+	if v, ok := CircleciBadgeVCSMapping[vcs_type]; ok {
+		vcs_type = v
+	}
+
 	return Project{
 		ID:         pro.Reponame,
 		Name:       pro.Reponame,
 		Url:        url,
 		Properties: map[string]string{"VCS_TYPE": pro.VcsType, "VCS_URL": pro.VcsURL},
 		Workflows:  workflows,
-		BadgeURL:   fmt.Sprintf(CircleciProjectBadge, pro.VcsType, pro.Username, pro.Reponame, pro.DefaultBranch),
+		BadgeURL:   fmt.Sprintf(CircleciProjectBadge, vcs_type, pro.Username, pro.Reponame, pro.DefaultBranch),
 	}
 }
 
@@ -213,8 +219,13 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		vcsurlinfos := strings.Split(circleciProject.VcsInfo.VcsURL, "/")
 		badgeURL := ""
 		if len(vcsurlinfos) >= 2 {
+			vcs_type := circleciProject.VcsInfo.Provider
+			if v, ok := CircleciBadgeVCSMapping[vcs_type]; ok {
+				vcs_type = v
+			}
+
 			badgeURL = fmt.Sprintf(CircleciProjectBadge,
-				circleciProject.VcsInfo.Provider,
+				vcs_type,
 				vcsurlinfos[len(vcsurlinfos)-2],
 				vcsurlinfos[len(vcsurlinfos)-1],
 				circleciProject.VcsInfo.DefaultBranch,
