@@ -62,7 +62,7 @@ type QstashHeader struct {
 func (q QstashHeader) BuilderHeader() map[string]string {
 	header := map[string]string{
 		"Upstash-Method":  "POST",
-		"Upstash-Timeout": "30s",
+		"Upstash-Timeout": "15m",
 		"Upstash-Retries": "3",
 	}
 
