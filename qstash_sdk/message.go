@@ -12,16 +12,8 @@ var validProtocol = []string{"http://", "https://"}
 type MessageService service
 
 func (s *MessageService) Publish(ctx context.Context, request PublishRequest) (*PublishResponse, error) {
-	valid := false
-	for _, v := range validProtocol {
-		if strings.HasSuffix(request.Destination, v) {
-			valid = true
-			break
-		}
-	}
-
-	if !valid {
-		return nil, fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+	if err := verify(request.Destination); err != nil {
+		return nil, err
 	}
 
 	path := fmt.Sprintf("/publish/%s", request.Destination)
@@ -34,16 +26,8 @@ func (s *MessageService) Publish(ctx context.Context, request PublishRequest) (*
 }
 
 func (s *MessageService) Enqueue(ctx context.Context, request EnqueueRequest) (*EnqueueResponse, error) {
-	valid := false
-	for _, v := range validProtocol {
-		if strings.HasSuffix(request.Destination, v) {
-			valid = true
-			break
-		}
-	}
-
-	if !valid {
-		return nil, fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+	if err := verify(request.Destination); err != nil {
+		return nil, err
 	}
 
 	path := fmt.Sprintf("/enqueue/%s/%s", request.QueueName, request.Destination)
@@ -56,16 +40,9 @@ func (s *MessageService) Enqueue(ctx context.Context, request EnqueueRequest) (*
 }
 
 func (s *MessageService) Batch(ctx context.Context, request BatchRequest) (*BatchResponse, error) {
-	valid := false
-	for _, vv := range request {
-		for _, v := range validProtocol {
-			if !strings.HasSuffix(vv.Destination, v) {
-				valid = true
-				break
-			}
-		}
-		if !valid {
-			return nil, fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+	for _, req := range request {
+		if err := verify(req.Destination); err != nil {
+			return nil, err
 		}
 	}
 
@@ -127,6 +104,21 @@ type PublishRequest struct {
 	Destination string `json:"-"`
 	// The raw request message passed to the endpoints as is
 	Body string
+}
+
+func verify(destination string) error {
+	valid := false
+	for _, v := range validProtocol {
+		if strings.HasSuffix(destination, v) {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		return fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+	}
+	return nil
 }
 
 func (r PublishRequest) GetPayload() string {
