@@ -38,6 +38,32 @@ func (s *MessageService) Batch(ctx context.Context, request []BatchRequest) (*Ba
 	return result, nil
 }
 
+func (s *MessageService) GetMessage(ctx context.Context, messageId string) (*MessageResponse, error) {
+	path := fmt.Sprintf("/messages/%s", messageId)
+	result := &MessageResponse{}
+	if err := s.client.http.Get(ctx, path, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *MessageService) CancelMessage(ctx context.Context, messageId string) error {
+	path := fmt.Sprintf("/messages/%s", messageId)
+	result := ""
+	return s.client.http.Delete(ctx, path, nil, &result)
+}
+
+func (s *MessageService) CancelBatchMessage(ctx context.Context, request CancelBatchRequest) (*CancelBatchResponse, error) {
+	path := "/messages"
+	result := &CancelBatchResponse{}
+	if err := s.client.http.Delete(ctx, path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 type EnqueueRequest struct {
 	*QstashHeader `json:"-"`
 	// Destination can either be a topic name or id that you configured in the Upstash console,
@@ -93,4 +119,37 @@ type BatchResponseItem struct {
 	MessageId    string `json:"messageId"`
 	Url          string `json:"url"`
 	Deduplicated bool   `json:"deduplicated"`
+}
+
+type MessageResponse struct {
+	MessageId       string              `json:"messageId"`
+	TopicName       string              `json:"topicName"`
+	EndpointName    string              `json:"endpointName"`
+	Url             string              `json:"url"`
+	Method          string              `json:"method"`
+	Header          map[string][]string `json:"header"`
+	Body            string              `json:"body"`
+	BodyBase64      string              `json:"bodyBase64"`
+	MaxRetries      int                 `json:"maxRetries"`
+	NotBefore       int                 `json:"notBefore"`
+	CreatedAt       int                 `json:"createdAt"`
+	Callback        string              `json:"callback"`
+	FailureCallback string              `json:"failureCallback"`
+	ScheduleId      string              `json:"scheduleId"`
+	CallerIP        string              `json:"callerIP"`
+}
+
+type CancelBatchRequest struct {
+	MessageIds []string `json:"messageIds"`
+	QueueName  string   `json:"queueName"`
+	TopicName  string   `json:"topicName"`
+	Url        string   `json:"url"`
+	FromDate   int      `json:"fromDate"`
+	ToDate     int      `json:"toDate"`
+	ScheduleId string   `json:"scheduleId"`
+	CallerIP   string   `json:"callerIP"`
+}
+
+type CancelBatchResponse struct {
+	Cancelled int `json:"cancelled"`
 }

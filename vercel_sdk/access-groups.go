@@ -38,7 +38,7 @@ func (v *AccessGroupService) DeleteAccessGroup(ctx context.Context, request Dele
 	path := u.String()
 
 	response := ""
-	if err := v.client.http.Delete(ctx, path, response); err != nil {
+	if err := v.client.http.Delete(ctx, path, &response); err != nil {
 		return nil, err
 	}
 

@@ -42,7 +42,7 @@ func (c *httpClient) Get(ctx context.Context, path string, response interface{})
 	return c.doRequest(ctx, path, "GET", nil, response)
 }
 
-func (c *httpClient) Delete(ctx context.Context, path string, response interface{}) error {
+func (c *httpClient) Delete(ctx context.Context, path string, request, response interface{}) error {
 	return c.doRequest(ctx, path, "DELETE", nil, response)
 }
 
