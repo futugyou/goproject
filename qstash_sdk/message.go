@@ -185,3 +185,39 @@ type CancelBatchRequest struct {
 type CancelBatchResponse struct {
 	Cancelled int `json:"cancelled"`
 }
+
+func (s *MessageService) PublishUrlGroup(ctx context.Context, request PublishRequest) (*PublishUrlGroupResponse, error) {
+	path := fmt.Sprintf("/publish/%s", request.Destination)
+	result := &PublishUrlGroupResponse{}
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *MessageService) EnqueueUrlGroup(ctx context.Context, request EnqueueRequest) (*EnqueueUrlGroupResponse, error) {
+	path := fmt.Sprintf("/enqueue/%s/%s", request.QueueName, request.Destination)
+	result := &EnqueueUrlGroupResponse{}
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *MessageService) BatchUrlGroup(ctx context.Context, request BatchRequest) (*BatchUrlGroupResponse, error) {
+	path := "/batch"
+	result := &BatchUrlGroupResponse{}
+	if err := s.client.http.Post(ctx, path, request, result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+type PublishUrlGroupResponse []PublishResponse
+
+type EnqueueUrlGroupResponse []EnqueueResponse
+
+type BatchUrlGroupResponse []BatchResponse
