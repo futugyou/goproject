@@ -3,12 +3,27 @@ package qstash
 import (
 	"context"
 	"fmt"
+	"strings"
 )
 
-// Only single URL is supported, not URL groups.
+var validProtocol = []string{"http://", "https://"}
+
+// Mixing url groups with single urls is not supported.
 type MessageService service
 
 func (s *MessageService) Publish(ctx context.Context, request PublishRequest) (*PublishResponse, error) {
+	valid := false
+	for _, v := range validProtocol {
+		if strings.HasSuffix(request.Destination, v) {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		return nil, fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+	}
+
 	path := fmt.Sprintf("/publish/%s", request.Destination)
 	result := &PublishResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
@@ -19,6 +34,18 @@ func (s *MessageService) Publish(ctx context.Context, request PublishRequest) (*
 }
 
 func (s *MessageService) Enqueue(ctx context.Context, request EnqueueRequest) (*EnqueueResponse, error) {
+	valid := false
+	for _, v := range validProtocol {
+		if strings.HasSuffix(request.Destination, v) {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		return nil, fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+	}
+
 	path := fmt.Sprintf("/enqueue/%s/%s", request.QueueName, request.Destination)
 	result := &EnqueueResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
@@ -28,7 +55,20 @@ func (s *MessageService) Enqueue(ctx context.Context, request EnqueueRequest) (*
 	return result, nil
 }
 
-func (s *MessageService) Batch(ctx context.Context, request []BatchRequest) (*BatchResponse, error) {
+func (s *MessageService) Batch(ctx context.Context, request BatchRequest) (*BatchResponse, error) {
+	valid := false
+	for _, vv := range request {
+		for _, v := range validProtocol {
+			if !strings.HasSuffix(vv.Destination, v) {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return nil, fmt.Errorf("destination MUST start with 'http://' or 'https://'")
+		}
+	}
+
 	path := "/batch"
 	result := &BatchResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
