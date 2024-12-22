@@ -97,10 +97,26 @@ type QstashEventResponse struct {
 }
 
 type QstashEvent struct {
-	Time      string              `json:"time"`
-	MessageId string              `json:"messageId"`
-	State     string              `json:"state"`
-	Url       string              `json:"url"`
-	Header    map[string][]string `json:"header"`
-	Body      string              `json:"body"`
+	Time                   int                 `json:"time"`
+	MessageId              string              `json:"messageId"`
+	Header                 map[string][]string `json:"header"`
+	Body                   string              `json:"body"`
+	State                  string              `json:"state"`
+	Error                  string              `json:"error,omitempty"`
+	NextDeliveryTime       int                 `json:"nextDeliveryTime,omitempty"`
+	Url                    string              `json:"url,omitempty"`
+	TopicName              string              `json:"topicName,omitempty"`
+	EndpointName           string              `json:"endpointName,omitempty"`
+	ScheduleId             string              `json:"scheduleId,omitempty"`
+	QueueName              string              `json:"queueName,omitempty"`
+	ResponseStatus         int                 `json:"responseStatus,omitempty"`
+	ResponseBody           string              `json:"responseBody,omitempty"`
+	ResponseHeaders        map[string][]string `json:"responseHeaders,omitempty"`
+	Timeout                int                 `json:"timeout,omitempty"`
+	Method                 string              `json:"method,omitempty"`
+	Callback               string              `json:"callback,omitempty"`
+	CallbackHeaders        map[string][]string `json:"callbackHeaders,omitempty"`
+	FailureCallback        string              `json:"failureCallback,omitempty"`
+	FailureCallbackHeaders map[string][]string `json:"failureCallbackHeaders,omitempty"`
+	MaxRetries             int                 `json:"maxRetries,omitempty"`
 }
