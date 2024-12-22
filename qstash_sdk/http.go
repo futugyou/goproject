@@ -55,7 +55,9 @@ func (c *httpClient) doRequest(ctx context.Context, path, method string, request
 		if qstashReq, ok := request.(QstashRequest); ok {
 			customeHeader = qstashReq.BuilderHeader()
 			payload := qstashReq.GetPayload()
-			body = strings.NewReader(payload)
+			if len(payload) > 0 {
+				body = strings.NewReader(payload)
+			}
 		} else {
 			payloadBytes, _ := json.Marshal(request)
 			body = bytes.NewReader(payloadBytes)

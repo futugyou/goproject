@@ -33,6 +33,18 @@ func (s *URLGroups) ListURLGroup(ctx context.Context) (*ListURLGroup, error) {
 	return result, nil
 }
 
+func (s *URLGroups) RemoveEndpoints(ctx context.Context, request RemoveEndpointsRequest) error {
+	path := fmt.Sprintf("/topics/%s", request.UrlGroupName)
+	result := ""
+	return s.client.http.Delete(ctx, path, request, &result)
+}
+
+func (s *URLGroups) RemoveURLGroup(ctx context.Context, urlGroupName string) error {
+	path := fmt.Sprintf("/topics/%s", urlGroupName)
+	result := ""
+	return s.client.http.Delete(ctx, path, nil, &result)
+}
+
 type UpsertURLGroupRequest struct {
 	UrlGroupName string     `json:"-"`
 	Endpoints    []Endpoint `json:"endpoints"`
@@ -51,3 +63,8 @@ type URLGroup struct {
 }
 
 type ListURLGroup []URLGroup
+
+type RemoveEndpointsRequest struct {
+	UrlGroupName string     `json:"-"`
+	Endpoints    []Endpoint `json:"endpoints"`
+}
