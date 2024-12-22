@@ -3,9 +3,11 @@ package qstash
 import "fmt"
 
 type QstashClient struct {
-	http    *httpClient
-	common  service
-	Message *MessageService
+	http      *httpClient
+	common    service
+	Message   *MessageService
+	URLGroups *URLGroupsService
+	Queues    *QueuesService
 }
 
 type service struct {
@@ -25,6 +27,8 @@ func NewClientV2(token string) *QstashClient {
 func (c *QstashClient) initialize() {
 	c.common.client = c
 	c.Message = (*MessageService)(&c.common)
+	c.URLGroups = (*URLGroupsService)(&c.common)
+	c.Queues = (*QueuesService)(&c.common)
 }
 
 type BaseResponse struct {

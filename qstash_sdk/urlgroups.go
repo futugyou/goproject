@@ -5,15 +5,15 @@ import (
 	"fmt"
 )
 
-type URLGroups service
+type URLGroupsService service
 
-func (s *URLGroups) UpsertURLGroupAndEndpoint(ctx context.Context, request UpsertURLGroupRequest) error {
+func (s *URLGroupsService) UpsertURLGroupAndEndpoint(ctx context.Context, request UpsertURLGroupRequest) error {
 	path := fmt.Sprintf("/topics/%s/endpoints", request.UrlGroupName)
 	result := ""
 	return s.client.http.Post(ctx, path, request, &result)
 }
 
-func (s *URLGroups) GetURLGroup(ctx context.Context, urlGroupName string) (*URLGroup, error) {
+func (s *URLGroupsService) GetURLGroup(ctx context.Context, urlGroupName string) (*URLGroup, error) {
 	path := fmt.Sprintf("/topics/%s", urlGroupName)
 	result := &URLGroup{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
@@ -23,9 +23,9 @@ func (s *URLGroups) GetURLGroup(ctx context.Context, urlGroupName string) (*URLG
 	return result, nil
 }
 
-func (s *URLGroups) ListURLGroup(ctx context.Context) (*ListURLGroup, error) {
+func (s *URLGroupsService) ListURLGroup(ctx context.Context) (*URLGroupList, error) {
 	path := "/topics"
-	result := &ListURLGroup{}
+	result := &URLGroupList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
 	}
@@ -33,13 +33,13 @@ func (s *URLGroups) ListURLGroup(ctx context.Context) (*ListURLGroup, error) {
 	return result, nil
 }
 
-func (s *URLGroups) RemoveEndpoints(ctx context.Context, request RemoveEndpointsRequest) error {
+func (s *URLGroupsService) RemoveEndpoints(ctx context.Context, request RemoveEndpointsRequest) error {
 	path := fmt.Sprintf("/topics/%s", request.UrlGroupName)
 	result := ""
 	return s.client.http.Delete(ctx, path, request, &result)
 }
 
-func (s *URLGroups) RemoveURLGroup(ctx context.Context, urlGroupName string) error {
+func (s *URLGroupsService) RemoveURLGroup(ctx context.Context, urlGroupName string) error {
 	path := fmt.Sprintf("/topics/%s", urlGroupName)
 	result := ""
 	return s.client.http.Delete(ctx, path, nil, &result)
@@ -62,7 +62,7 @@ type URLGroup struct {
 	UpdatedAt int        `json:"updatedAt"`
 }
 
-type ListURLGroup []URLGroup
+type URLGroupList []URLGroup
 
 type RemoveEndpointsRequest struct {
 	UrlGroupName string     `json:"-"`
