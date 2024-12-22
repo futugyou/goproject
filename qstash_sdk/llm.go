@@ -16,6 +16,41 @@ func (s *LLMService) CreateChatCompletion(ctx context.Context, request ChatReque
 	return result, nil
 }
 
+// stream,err:= qstashClient.LLM.CreateChatStreamCompletion(ctx, request)
+//
+//	if err!=nil {
+//		doSomething()
+//	}
+//
+// defer stream.Close()
+//
+// result := make([]ChatCompletionResponse, 0)
+//
+//	for {
+//			if !stream.CanReadStream() {
+//				break
+//			}
+//			response := ChatCompletionResponse{}
+//			if err=stream.ReadStream(&response);err!=nil {
+//				doSomething()
+//			}else{
+//				result = append(result, response)
+//			}
+//		}
+func (s *LLMService) CreateChatStreamCompletion(ctx context.Context, request ChatRequest) (*StreamResponse, error) {
+	path := "/llm/v1/chat/completions"
+	type Alias ChatRequest
+	inner := &struct {
+		Stream bool `json:"stream"`
+		Alias
+	}{
+		Stream: true,
+		Alias:  (Alias)(request),
+	}
+
+	return s.client.http.PostStream(ctx, path, inner)
+}
+
 type ChatRequest struct {
 	Model            string             `json:"model"`
 	Messages         []ChatMessage      `json:"messages"`

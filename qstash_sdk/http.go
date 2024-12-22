@@ -1,6 +1,7 @@
 package qstash
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -44,6 +45,45 @@ func (c *httpClient) Get(ctx context.Context, path string, response interface{})
 
 func (c *httpClient) Delete(ctx context.Context, path string, request, response interface{}) error {
 	return c.doRequest(ctx, path, "DELETE", nil, response)
+}
+
+func (c *httpClient) PostStream(ctx context.Context, path string, request interface{}) (*StreamResponse, error) {
+	return c.doStreamRequest(ctx, path, "POST", request)
+}
+
+func (c *httpClient) doStreamRequest(ctx context.Context, path, method string, request interface{}) (*StreamResponse, error) {
+	path = c.createSubpath(path)
+	var body io.Reader
+
+	if request != nil {
+		payloadBytes, _ := json.Marshal(request)
+		body = bytes.NewReader(payloadBytes)
+	}
+
+	req, _ := http.NewRequest(method, path, body)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", "Bearer", c.token))
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Connection", "keep-alive")
+
+	req = req.WithContext(ctx)
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if er := checkResponseStatusCode(resp); er != nil {
+		return nil, er
+	}
+
+	streamResponse := &StreamResponse{
+		Reader:    bufio.NewReader(resp.Body),
+		Response:  resp,
+		StreamEnd: false,
+	}
+
+	return streamResponse, nil
 }
 
 func (c *httpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) error {
