@@ -8,19 +8,19 @@ import (
 type QueuesService service
 
 func (s *QueuesService) UpsertQueue(ctx context.Context, request UpsertQueueRequest) error {
-	path := "/queues"
+	path := "/v2/queues"
 	result := ""
 	return s.client.http.Post(ctx, path, request, &result)
 }
 
 func (s *QueuesService) RemoveQueue(ctx context.Context, queueName string) error {
-	path := fmt.Sprintf("/queues/%s", queueName)
+	path := fmt.Sprintf("/v2/queues/%s", queueName)
 	result := ""
 	return s.client.http.Delete(ctx, path, nil, &result)
 }
 
 func (s *QueuesService) ListQueue(ctx context.Context) (*QueueList, error) {
-	path := "/queues"
+	path := "/v2/queues"
 	result := &QueueList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (s *QueuesService) ListQueue(ctx context.Context) (*QueueList, error) {
 }
 
 func (s *QueuesService) GetQueue(ctx context.Context, queueName string) (*Queue, error) {
-	path := fmt.Sprintf("/queues/%s", queueName)
+	path := fmt.Sprintf("/v2/queues/%s", queueName)
 	result := &Queue{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -40,13 +40,13 @@ func (s *QueuesService) GetQueue(ctx context.Context, queueName string) (*Queue,
 }
 
 func (s *QueuesService) PauseQueue(ctx context.Context, queueName string) error {
-	path := fmt.Sprintf("/queues/%s/pause", queueName)
+	path := fmt.Sprintf("/v2/queues/%s/pause", queueName)
 	result := ""
 	return s.client.http.Post(ctx, path, nil, &result)
 }
 
 func (s *QueuesService) ResumeQueue(ctx context.Context, queueName string) error {
-	path := fmt.Sprintf("/queues/%s/resume", queueName)
+	path := fmt.Sprintf("/v2/queues/%s/resume", queueName)
 	result := ""
 	return s.client.http.Post(ctx, path, nil, &result)
 }

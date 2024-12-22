@@ -7,7 +7,7 @@ import (
 type SigningKeysService service
 
 func (s *SigningKeysService) GetSigningKeys(ctx context.Context) (*SigningKeys, error) {
-	path := "/keys"
+	path := "/v2/keys"
 	result := &SigningKeys{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func (s *SigningKeysService) GetSigningKeys(ctx context.Context) (*SigningKeys, 
 }
 
 func (s *SigningKeysService) RotateSigningKeys(ctx context.Context) (*SigningKeys, error) {
-	path := "/keys/rotate"
+	path := "/v2/keys/rotate"
 	result := &SigningKeys{}
 	if err := s.client.http.Post(ctx, path, nil, result); err != nil {
 		return nil, err

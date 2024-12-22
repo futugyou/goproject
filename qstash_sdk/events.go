@@ -10,7 +10,7 @@ type EventsService service
 
 func (s *EventsService) ListEvents(ctx context.Context, query ListEventsQuery) (*QstashEventResponse, error) {
 	u := &url.URL{
-		Path: "/events",
+		Path: "/v2/events",
 	}
 
 	params := url.Values{}

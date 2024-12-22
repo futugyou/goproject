@@ -8,7 +8,7 @@ import (
 type SchedulesService service
 
 func (s *SchedulesService) CreateSchedule(ctx context.Context, request CreateScheduleRequest) (*CreateScheduleResponse, error) {
-	path := fmt.Sprintf("/schedules/%s", request.Destination)
+	path := fmt.Sprintf("/v2/schedules/%s", request.Destination)
 	result := &CreateScheduleResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func (s *SchedulesService) CreateSchedule(ctx context.Context, request CreateSch
 }
 
 func (s *SchedulesService) GetSchedule(ctx context.Context, scheduleId string) (*Schedule, error) {
-	path := fmt.Sprintf("/schedules/%s", scheduleId)
+	path := fmt.Sprintf("/v2/schedules/%s", scheduleId)
 	result := &Schedule{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (s *SchedulesService) GetSchedule(ctx context.Context, scheduleId string) (
 }
 
 func (s *SchedulesService) ListSchedule(ctx context.Context) (*ScheduleList, error) {
-	path := "/schedules"
+	path := "/v2/schedules"
 	result := &ScheduleList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -38,19 +38,19 @@ func (s *SchedulesService) ListSchedule(ctx context.Context) (*ScheduleList, err
 }
 
 func (s *SchedulesService) DeleteSchedule(ctx context.Context, scheduleId string) error {
-	path := fmt.Sprintf("/schedules/%s", scheduleId)
+	path := fmt.Sprintf("/v2/schedules/%s", scheduleId)
 	result := ""
 	return s.client.http.Delete(ctx, path, nil, &result)
 }
 
 func (s *SchedulesService) PauseQueue(ctx context.Context, scheduleId string) error {
-	path := fmt.Sprintf("/schedules/%s/pause", scheduleId)
+	path := fmt.Sprintf("/v2/schedules/%s/pause", scheduleId)
 	result := ""
 	return s.client.http.Post(ctx, path, nil, &result)
 }
 
 func (s *SchedulesService) ResumeQueue(ctx context.Context, scheduleId string) error {
-	path := fmt.Sprintf("/schedules/%s/resume", scheduleId)
+	path := fmt.Sprintf("/v2/schedules/%s/resume", scheduleId)
 	result := ""
 	return s.client.http.Post(ctx, path, nil, &result)
 }

@@ -12,15 +12,16 @@ type QstashClient struct {
 	SigningKeys      *SigningKeysService
 	Events           *EventsService
 	DeadLetterQueues *DeadLetterQueuesService
+	LLM              *LLMService
 }
 
 type service struct {
 	client *QstashClient
 }
 
-const qstash_url string = "https://qstash.upstash.io/v2"
+const qstash_url string = "https://qstash.upstash.io"
 
-func NewClientV2(token string) *QstashClient {
+func NewClient(token string) *QstashClient {
 	c := &QstashClient{
 		http: NewHttpClient(qstash_url, token),
 	}
@@ -37,6 +38,7 @@ func (c *QstashClient) initialize() {
 	c.SigningKeys = (*SigningKeysService)(&c.common)
 	c.Events = (*EventsService)(&c.common)
 	c.DeadLetterQueues = (*DeadLetterQueuesService)(&c.common)
+	c.LLM = (*LLMService)(&c.common)
 }
 
 type BaseResponse struct {

@@ -10,7 +10,7 @@ type DeadLetterQueuesService service
 
 func (s *DeadLetterQueuesService) ListMessages(ctx context.Context, query ListMessagesQuery) (*ListDLQResponse, error) {
 	u := &url.URL{
-		Path: "/dlq",
+		Path: "/v2/dlq",
 	}
 
 	params := url.Values{}
@@ -73,7 +73,7 @@ func (s *DeadLetterQueuesService) ListMessages(ctx context.Context, query ListMe
 }
 
 func (s *DeadLetterQueuesService) GetMessage(ctx context.Context, dlqId string) (*DLQMessage, error) {
-	path := fmt.Sprintf("/dlq/%s", dlqId)
+	path := fmt.Sprintf("/v2/dlq/%s", dlqId)
 	result := &DLQMessage{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -83,13 +83,13 @@ func (s *DeadLetterQueuesService) GetMessage(ctx context.Context, dlqId string) 
 }
 
 func (s *DeadLetterQueuesService) DeleteMessage(ctx context.Context, dlqId string) error {
-	path := fmt.Sprintf("/dlq/%s", dlqId)
+	path := fmt.Sprintf("/v2/dlq/%s", dlqId)
 	result := ""
 	return s.client.http.Delete(ctx, path, nil, &result)
 }
 
 func (s *DeadLetterQueuesService) DeleteMultipleMessage(ctx context.Context, dlqIds []string) (*MultipleDeleteResponse, error) {
-	path := "/dlq"
+	path := "/v2/dlq"
 	request := struct {
 		DlqIds []string `json:"dlqIds"`
 	}{

@@ -16,7 +16,7 @@ func (s *MessageService) Publish(ctx context.Context, request PublishRequest) (*
 		return nil, err
 	}
 
-	path := fmt.Sprintf("/publish/%s", request.Destination)
+	path := fmt.Sprintf("/v2/publish/%s", request.Destination)
 	result := &PublishResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (s *MessageService) Enqueue(ctx context.Context, request EnqueueRequest) (*
 		return nil, err
 	}
 
-	path := fmt.Sprintf("/enqueue/%s/%s", request.QueueName, request.Destination)
+	path := fmt.Sprintf("/v2/enqueue/%s/%s", request.QueueName, request.Destination)
 	result := &EnqueueResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (s *MessageService) Batch(ctx context.Context, request BatchRequest) (*Batc
 		}
 	}
 
-	path := "/batch"
+	path := "/v2/batch"
 	result := &BatchResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (s *MessageService) Batch(ctx context.Context, request BatchRequest) (*Batc
 }
 
 func (s *MessageService) GetMessage(ctx context.Context, messageId string) (*MessageResponse, error) {
-	path := fmt.Sprintf("/messages/%s", messageId)
+	path := fmt.Sprintf("/v2/messages/%s", messageId)
 	result := &MessageResponse{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -66,13 +66,13 @@ func (s *MessageService) GetMessage(ctx context.Context, messageId string) (*Mes
 }
 
 func (s *MessageService) CancelMessage(ctx context.Context, messageId string) error {
-	path := fmt.Sprintf("/messages/%s", messageId)
+	path := fmt.Sprintf("/v2/messages/%s", messageId)
 	result := ""
 	return s.client.http.Delete(ctx, path, nil, &result)
 }
 
 func (s *MessageService) CancelBatchMessage(ctx context.Context, request CancelBatchRequest) (*CancelBatchResponse, error) {
-	path := "/messages"
+	path := "/v2/messages"
 	result := &CancelBatchResponse{}
 	if err := s.client.http.Delete(ctx, path, request, result); err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ type CancelBatchResponse struct {
 }
 
 func (s *MessageService) PublishUrlGroup(ctx context.Context, request PublishRequest) (*PublishUrlGroupResponse, error) {
-	path := fmt.Sprintf("/publish/%s", request.Destination)
+	path := fmt.Sprintf("/v2/publish/%s", request.Destination)
 	result := &PublishUrlGroupResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -197,7 +197,7 @@ func (s *MessageService) PublishUrlGroup(ctx context.Context, request PublishReq
 }
 
 func (s *MessageService) EnqueueUrlGroup(ctx context.Context, request EnqueueRequest) (*EnqueueUrlGroupResponse, error) {
-	path := fmt.Sprintf("/enqueue/%s/%s", request.QueueName, request.Destination)
+	path := fmt.Sprintf("/v2/enqueue/%s/%s", request.QueueName, request.Destination)
 	result := &EnqueueUrlGroupResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func (s *MessageService) EnqueueUrlGroup(ctx context.Context, request EnqueueReq
 }
 
 func (s *MessageService) BatchUrlGroup(ctx context.Context, request BatchRequest) (*BatchUrlGroupResponse, error) {
-	path := "/batch"
+	path := "/v2/batch"
 	result := &BatchUrlGroupResponse{}
 	if err := s.client.http.Post(ctx, path, request, result); err != nil {
 		return nil, err

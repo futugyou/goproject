@@ -8,13 +8,13 @@ import (
 type URLGroupsService service
 
 func (s *URLGroupsService) UpsertURLGroupAndEndpoint(ctx context.Context, request UpsertURLGroupRequest) error {
-	path := fmt.Sprintf("/topics/%s/endpoints", request.UrlGroupName)
+	path := fmt.Sprintf("/v2/topics/%s/endpoints", request.UrlGroupName)
 	result := ""
 	return s.client.http.Post(ctx, path, request, &result)
 }
 
 func (s *URLGroupsService) GetURLGroup(ctx context.Context, urlGroupName string) (*URLGroup, error) {
-	path := fmt.Sprintf("/topics/%s", urlGroupName)
+	path := fmt.Sprintf("/v2/topics/%s", urlGroupName)
 	result := &URLGroup{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (s *URLGroupsService) GetURLGroup(ctx context.Context, urlGroupName string)
 }
 
 func (s *URLGroupsService) ListURLGroup(ctx context.Context) (*URLGroupList, error) {
-	path := "/topics"
+	path := "/v2/topics"
 	result := &URLGroupList{}
 	if err := s.client.http.Get(ctx, path, result); err != nil {
 		return nil, err
@@ -34,13 +34,13 @@ func (s *URLGroupsService) ListURLGroup(ctx context.Context) (*URLGroupList, err
 }
 
 func (s *URLGroupsService) RemoveEndpoints(ctx context.Context, request RemoveEndpointsRequest) error {
-	path := fmt.Sprintf("/topics/%s", request.UrlGroupName)
+	path := fmt.Sprintf("/v2/topics/%s", request.UrlGroupName)
 	result := ""
 	return s.client.http.Delete(ctx, path, request, &result)
 }
 
 func (s *URLGroupsService) RemoveURLGroup(ctx context.Context, urlGroupName string) error {
-	path := fmt.Sprintf("/topics/%s", urlGroupName)
+	path := fmt.Sprintf("/v2/topics/%s", urlGroupName)
 	result := ""
 	return s.client.http.Delete(ctx, path, nil, &result)
 }
