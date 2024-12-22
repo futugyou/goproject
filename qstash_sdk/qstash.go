@@ -13,6 +13,7 @@ type QstashClient struct {
 	Events           *EventsService
 	DeadLetterQueues *DeadLetterQueuesService
 	LLM              *LLMService
+	Verify           *VerifyService
 }
 
 type service struct {
@@ -39,6 +40,7 @@ func (c *QstashClient) initialize() {
 	c.Events = (*EventsService)(&c.common)
 	c.DeadLetterQueues = (*DeadLetterQueuesService)(&c.common)
 	c.LLM = (*LLMService)(&c.common)
+	c.Verify = (*VerifyService)(&c.common)
 }
 
 type BaseResponse struct {
