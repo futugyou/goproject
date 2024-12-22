@@ -8,6 +8,7 @@ type QstashClient struct {
 	Message   *MessageService
 	URLGroups *URLGroupsService
 	Queues    *QueuesService
+	Schedules *SchedulesService
 }
 
 type service struct {
@@ -29,6 +30,7 @@ func (c *QstashClient) initialize() {
 	c.Message = (*MessageService)(&c.common)
 	c.URLGroups = (*URLGroupsService)(&c.common)
 	c.Queues = (*QueuesService)(&c.common)
+	c.Schedules = (*SchedulesService)(&c.common)
 }
 
 type BaseResponse struct {
@@ -61,6 +63,8 @@ type QstashHeader struct {
 	FailureCallbackDelay      *string           `json:"-"`
 	FailureCallbackMethod     *string           `json:"-"`
 	FailureCallbackForward    map[string]string `json:"-"`
+	Cron                      *string           `json:"-"`
+	ScheduleId                *string           `json:"-"`
 }
 
 func (q QstashHeader) BuilderHeader() map[string]string {
@@ -131,6 +135,13 @@ func (q QstashHeader) BuilderHeader() map[string]string {
 	}
 	for key, value := range q.FailureCallbackForward {
 		header[fmt.Sprintf("Upstash-Failure-Callback-Forward-%s", key)] = value
+	}
+	//schedules
+	if q.Cron != nil {
+		header["Upstash-Cron"] = *q.Cron
+	}
+	if q.ScheduleId != nil {
+		header["Upstash-Schedule-Id"] = *q.ScheduleId
 	}
 
 	return header
