@@ -3,12 +3,13 @@ package qstash
 import "fmt"
 
 type QstashClient struct {
-	http      *httpClient
-	common    service
-	Message   *MessageService
-	URLGroups *URLGroupsService
-	Queues    *QueuesService
-	Schedules *SchedulesService
+	http        *httpClient
+	common      service
+	Message     *MessageService
+	URLGroups   *URLGroupsService
+	Queues      *QueuesService
+	Schedules   *SchedulesService
+	SigningKeys *SigningKeysService
 }
 
 type service struct {
@@ -31,6 +32,7 @@ func (c *QstashClient) initialize() {
 	c.URLGroups = (*URLGroupsService)(&c.common)
 	c.Queues = (*QueuesService)(&c.common)
 	c.Schedules = (*SchedulesService)(&c.common)
+	c.SigningKeys = (*SigningKeysService)(&c.common)
 }
 
 type BaseResponse struct {
