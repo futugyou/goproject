@@ -115,6 +115,24 @@ func (c *PlatformController) GetPlatform(id string, w http.ResponseWriter, r *ht
 	writeJSONResponse(w, res, 200)
 }
 
+func (c *PlatformController) GetPlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	service, err := createPlatformService(ctx)
+
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	res, err := service.GetPlatformProject(ctx, id, projectId)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
+}
+
 func (c *PlatformController) SearchPlatforms(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)

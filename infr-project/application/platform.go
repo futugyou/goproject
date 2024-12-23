@@ -483,3 +483,19 @@ func replaceSpecialChars(str string) string {
 	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
 	return re.ReplaceAllString(str, "_")
 }
+
+func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromId string, projectId string) (*models.PlatformProject, error) {
+	srcCh, errCh := s.repository.GetAsync(ctx, platfromId)
+	select {
+	case src := <-srcCh:
+		if project, ok := src.Projects[projectId]; ok {
+			return s.convertProjectEntityToViewModel(ctx, *src, project)
+		} else {
+			return nil, fmt.Errorf("can not find project with id: %s", projectId)
+		}
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("GetPlatformProject timeout: %w", ctx.Err())
+	}
+}
