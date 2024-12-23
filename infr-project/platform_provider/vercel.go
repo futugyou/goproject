@@ -3,6 +3,7 @@ package platform_provider
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -146,10 +147,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			return
 		}
 
-		url := ""
-		if len(team_slug) > 0 {
-			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
-		}
+		hooks := []WebHook{}
 		req := vercel.ListWebhookParameter{
 			ProjectId: &vercelProject.Id,
 			BaseUrlParameter: vercel.BaseUrlParameter{
@@ -157,23 +155,20 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				TeamId:   &team_id,
 			},
 		}
-		vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, req)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		hooks := []WebHook{}
-		for _, hook := range vercelHooks {
-			paras := map[string]string{}
-			paras["Secret"] = hook.Secret
-			hooks = append(hooks, WebHook{
-				ID:         hook.Id,
-				Name:       hook.Id,
-				Url:        hook.Url,
-				Events:     hook.Events,
-				Parameters: paras,
-			})
+		if vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, req); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, hook := range vercelHooks {
+				paras := map[string]string{}
+				paras["Secret"] = hook.Secret
+				hooks = append(hooks, WebHook{
+					ID:         hook.Id,
+					Name:       hook.Id,
+					Url:        hook.Url,
+					Events:     hook.Events,
+					Parameters: paras,
+				})
+			}
 		}
 
 		properties := map[string]string{}
@@ -185,6 +180,11 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		readState := ""
 		if target, ok := vercelProject.Targets["production"]; ok {
 			readState = target.ReadyState
+		}
+
+		url := ""
+		if len(team_slug) > 0 {
+			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
 		}
 
 		badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
@@ -207,6 +207,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 }
 
 func (*VercelClient) buildVercelBadge(lable string, url string, readyState string) (badgeUrl string, badgeMarkDown string) {
+	lable = strings.ReplaceAll(lable, "-", "%20")
 	badgeUrl = fmt.Sprintf(CommonProjectBadge, lable, "Norecord", "red", "vercel", url)
 	if readyState == "READY" {
 		badgeUrl = fmt.Sprintf(CommonProjectBadge, lable, readyState, "brightgreen", "vercel", url)
