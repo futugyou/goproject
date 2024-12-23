@@ -22,6 +22,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/platform/:id/recovery", recoveryPlatform)
 	// platform project
 	v1.POST("/platform/:id/project", createPlatformProject)
+	v1.GET("/platform/:id/project/:project_id", getPlatformProject)
 	v1.PUT("/platform/:id/project/:project_id", updatePlatformProject)
 	v1.DELETE("/platform/:id/project/:project_id", deletePlatformProject)
 	// platform project webhook
@@ -217,4 +218,18 @@ func searchPlatforms(c *gin.Context) {
 func getPlatform(c *gin.Context) {
 	ctrl := controller.NewPlatformController()
 	ctrl.GetPlatform(c.Param("id"), c.Writer, c.Request)
+}
+
+// @Summary get platform project by id
+// @Description get platform project by id
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID"
+// @Param project_id path string true "Platform Project ID"
+// @Success 200 {object} viewmodels.PlatformProject
+// @Router /v1/platform/{id}/project/{project_id} [get]
+func getPlatformProject(c *gin.Context) {
+	ctrl := controller.NewPlatformController()
+	ctrl.GetPlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
 }

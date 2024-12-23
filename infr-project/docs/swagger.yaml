@@ -1022,6 +1022,31 @@ paths:
       summary: delete platform project
       tags:
       - Platform
+    get:
+      consumes:
+      - application/json
+      description: get platform project by id
+      parameters:
+      - description: Platform ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodels.PlatformProject'
+      summary: get platform project by id
+      tags:
+      - Platform
     put:
       consumes:
       - application/json

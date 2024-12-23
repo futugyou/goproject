@@ -277,6 +277,43 @@
             }
         },
         "/v1/platform/{id}/project/{project_id}": {
+            "get": {
+                "description": "get platform project by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "get platform project by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Platform Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.PlatformProject"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "update platform project",
                 "consumes": [
