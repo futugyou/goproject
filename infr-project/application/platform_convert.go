@@ -385,13 +385,14 @@ func (s *PlatformService) determineProviderStatus(ctx context.Context, res *plat
 	return true
 }
 
-func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, properties map[string]platform.Property) (*platformProvider.Project, error) {
+func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, properties map[string]platform.Property) (*platformProvider.Project, error) {
 	parameters := make(map[string]string)
 	for _, v := range properties {
 		parameters[v.Key] = v.Value
 	}
 	filter := platformProvider.ProjectFilter{
 		Parameters: parameters,
+		Name:       name,
 	}
 	resCh, errCh := provider.GetProjectAsync(ctx, filter)
 	select {
@@ -414,7 +415,7 @@ func (s *PlatformService) convertProjectEntityToViewModel(ctx context.Context, s
 		for k, v := range src.Properties {
 			properties[k] = v
 		}
-		if project, err := s.getProviderProject(ctx, provider, properties); err != nil {
+		if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, properties); err != nil {
 			log.Println(err.Error())
 		} else {
 			providerProject = project
