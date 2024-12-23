@@ -405,48 +405,42 @@ func (s *PlatformService) getProviderProject(ctx context.Context, provider platf
 	}
 }
 
-func (s *PlatformService) convertProjectEntityToViewModel(ctx context.Context, src platform.Platform, project platform.PlatformProject) (*models.PlatformProject, error) {
-	followed := false
-	providerProject := &platformProvider.Project{}
-	if provider, err := s.getPlatfromProvider(ctx, src); err != nil {
-		log.Println(err.Error())
-	} else {
-		properties := project.Properties
-		for k, v := range src.Properties {
-			properties[k] = v
-		}
-		if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, properties); err != nil {
-			log.Println(err.Error())
-		} else {
-			providerProject = project
-			followed = true
-		}
+func (s *PlatformService) mergeProject(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProject {
+	modelProject := models.PlatformProject{}
+	if project != nil {
+		modelProject.Id = project.Id
+		modelProject.Name = project.Name
+		modelProject.Secrets = s.convertToPlatformModelSecrets(project.Secrets)
+		modelProject.Webhooks = s.convertToPlatformModelWebhooks(project.Webhooks)
 	}
 
 	properties := []models.Property{}
-	for k, v := range providerProject.Properties {
-		properties = append(properties, models.Property{Key: k, Value: v})
-	}
-
-	for _, v := range project.Properties {
-		if _, ok := providerProject.Properties[v.Key]; !ok {
-			properties = append(properties, models.Property{Key: v.Key, Value: v.Value})
+	if providerProject != nil {
+		modelProject.Url = providerProject.Url
+		modelProject.ProviderProjectId = providerProject.ID
+		modelProject.Environments = s.convertToPlatformModelEnvironments(providerProject.Envs)
+		modelProject.Workflows = s.convertToPlatformModelWorkflows(providerProject.Workflows)
+		modelProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
+		modelProject.BadgeURL = providerProject.BadgeURL
+		modelProject.BadgeMarkdown = providerProject.BadgeMarkDown
+		for k, v := range providerProject.Properties {
+			properties = append(properties, models.Property{Key: k, Value: v})
 		}
 	}
 
-	return &models.PlatformProject{
-		Id:                project.Id,
-		Name:              project.Name,
-		Url:               providerProject.Url,
-		Properties:        properties,
-		Secrets:           s.convertToPlatformModelSecrets(project.Secrets),
-		Webhooks:          s.convertToPlatformModelWebhooks(project.Webhooks),
-		Followed:          followed,
-		ProviderProjectId: providerProject.ID,
-		Environments:      s.convertToPlatformModelEnvironments(providerProject.Envs),
-		Workflows:         s.convertToPlatformModelWorkflows(providerProject.Workflows),
-		Deployments:       s.convertToPlatformModelDeployments(providerProject.Deployments),
-		BadgeURL:          providerProject.BadgeURL,
-		BadgeMarkdown:     providerProject.BadgeMarkDown,
-	}, nil
+	if providerProject != nil && project != nil {
+		modelProject.Followed = true
+	}
+
+	if project != nil {
+		for _, v := range project.Properties {
+			if _, ok := providerProject.Properties[v.Key]; !ok {
+				properties = append(properties, models.Property{Key: v.Key, Value: v.Value})
+			}
+		}
+	}
+
+	modelProject.Properties = properties
+
+	return modelProject
 }

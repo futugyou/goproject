@@ -11,6 +11,7 @@ import (
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
 	platform "github.com/futugyou/infr-project/platform"
+	platformProvider "github.com/futugyou/infr-project/platform_provider"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -489,7 +490,23 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromId str
 	select {
 	case src := <-srcCh:
 		if project, ok := src.Projects[projectId]; ok {
-			return s.convertProjectEntityToViewModel(ctx, *src, project)
+			providerProject := &platformProvider.Project{}
+			if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+				log.Println(err.Error())
+			} else {
+				properties := project.Properties
+				for k, v := range src.Properties {
+					properties[k] = v
+				}
+				if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, properties); err != nil {
+					log.Println(err.Error())
+				} else {
+					providerProject = project
+				}
+			}
+
+			modelProject := s.mergeProject(providerProject, &project)
+			return &modelProject, nil
 		} else {
 			return nil, fmt.Errorf("can not find project with id: %s", projectId)
 		}
