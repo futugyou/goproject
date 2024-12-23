@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"log"
+
 	"github.com/google/go-github/v66/github"
 	"golang.org/x/oauth2"
 )
@@ -154,112 +156,104 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			return
 		}
 
-		opts := &github.ListOptions{Page: 1, PerPage: 1000}
-		workflows, _, err := g.client.Actions.ListWorkflows(ctx, GITHUB_OWNER, filter.Name, opts)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
 		wfs := map[string]Workflow{}
-		for _, v := range workflows.Workflows {
-			workflow := Workflow{
-				ID:        fmt.Sprintf("%d", v.GetID()),
-				Name:      v.GetName(),
-				Status:    v.GetState(),
-				CreatedAt: v.GetCreatedAt().Format(time.RFC3339Nano),
-				BadgeURL:  v.GetBadgeURL(),
-			}
+		opts := &github.ListOptions{Page: 1, PerPage: 1000}
+		if workflows, _, err := g.client.Actions.ListWorkflows(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, v := range workflows.Workflows {
+				workflow := Workflow{
+					ID:        fmt.Sprintf("%d", v.GetID()),
+					Name:      v.GetName(),
+					Status:    v.GetState(),
+					CreatedAt: v.GetCreatedAt().Format(time.RFC3339Nano),
+					BadgeURL:  v.GetBadgeURL(),
+				}
 
-			paths := strings.Split(v.GetHTMLURL(), "/")
-			path := ""
-			if len(paths) > 0 {
-				path = paths[len(paths)-1]
-			}
+				paths := strings.Split(v.GetHTMLURL(), "/")
+				path := ""
+				if len(paths) > 0 {
+					path = paths[len(paths)-1]
+				}
 
-			if len(path) > 0 {
-				workflow.BadgeMarkdown = fmt.Sprintf("[![%s](%s)](https://github.com/%s/%s/actions/workflows/%s)",
-					v.GetName(),
-					v.GetBadgeURL(),
-					GITHUB_OWNER,
-					filter.Name,
-					path,
-				)
+				if len(path) > 0 {
+					workflow.BadgeMarkdown = fmt.Sprintf("[![%s](%s)](https://github.com/%s/%s/actions/workflows/%s)",
+						v.GetName(),
+						v.GetBadgeURL(),
+						GITHUB_OWNER,
+						filter.Name,
+						path,
+					)
+				}
+				wfs[fmt.Sprintf("%d", v.GetID())] = workflow
 			}
-			wfs[fmt.Sprintf("%d", v.GetID())] = workflow
-		}
-
-		githooks, _, err := g.client.Repositories.ListHooks(ctx, GITHUB_OWNER, filter.Name, opts)
-		if err != nil {
-			errorChan <- err
-			return
 		}
 
 		hooks := []WebHook{}
-		for _, hook := range githooks {
-			if hook.GetActive() {
-				paras := map[string]string{}
-				githookconfig := hook.Config
-				if githookconfig != nil {
-					paras["ContentType"] = githookconfig.GetContentType()
-					paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
-					paras["Secret"] = githookconfig.GetSecret()
-					paras["URL"] = githookconfig.GetURL()
+		if githooks, _, err := g.client.Repositories.ListHooks(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, hook := range githooks {
+				if hook.GetActive() {
+					paras := map[string]string{}
+					githookconfig := hook.Config
+					if githookconfig != nil {
+						paras["ContentType"] = githookconfig.GetContentType()
+						paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
+						paras["Secret"] = githookconfig.GetSecret()
+						paras["URL"] = githookconfig.GetURL()
+					}
+					hooks = append(hooks, WebHook{
+						ID:         fmt.Sprintf("%d", hook.GetID()),
+						Name:       hook.GetName(),
+						Url:        hook.GetURL(),
+						Events:     hook.Events,
+						Parameters: paras,
+					})
 				}
-				hooks = append(hooks, WebHook{
-					ID:         fmt.Sprintf("%d", hook.GetID()),
-					Name:       hook.GetName(),
-					Url:        hook.GetURL(),
-					Events:     hook.Events,
-					Parameters: paras,
-				})
 			}
-		}
-
-		gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, GITHUB_OWNER, filter.Name, opts)
-		if err != nil {
-			errorChan <- err
-			return
 		}
 
 		envs := map[string]Env{}
-		for _, v := range gitSecrets.Secrets {
-			if v == nil {
-				continue
+		if gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, v := range gitSecrets.Secrets {
+				if v == nil {
+					continue
+				}
+				envs[v.Name] = Env{
+					ID:        v.Name,
+					Key:       v.Name,
+					CreatedAt: v.CreatedAt.Format(time.RFC3339Nano),
+					UpdatedAt: v.UpdatedAt.Format(time.RFC3339Nano),
+					Type:      v.Visibility,
+					Value:     "",
+				}
 			}
-			envs[v.Name] = Env{
-				ID:        v.Name,
-				Key:       v.Name,
-				CreatedAt: v.CreatedAt.Format(time.RFC3339Nano),
-				UpdatedAt: v.UpdatedAt.Format(time.RFC3339Nano),
-				Type:      v.Visibility,
-				Value:     "",
-			}
-		}
-
-		gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
-			Branch:      repository.GetDefaultBranch(),
-			ListOptions: *opts,
-		})
-
-		if err != nil {
-			errorChan <- err
-			return
 		}
 
 		runs := map[string]Deployment{}
-		for _, v := range gitRuns.WorkflowRuns {
-			runs[fmt.Sprintf("%d", v.GetID())] = Deployment{
-				ID:            fmt.Sprintf("%d", v.GetID()),
-				Name:          v.GetName(),
-				Plan:          "",
-				ReadyState:    v.GetStatus(),
-				ReadySubstate: v.GetStatus(),
-				CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
+		if gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
+			Branch:      repository.GetDefaultBranch(),
+			ListOptions: github.ListOptions{Page: 1, PerPage: 20},
+		}); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, v := range gitRuns.WorkflowRuns {
+				runs[fmt.Sprintf("%d", v.GetID())] = Deployment{
+					ID:            fmt.Sprintf("%d", v.GetID()),
+					Name:          v.GetName(),
+					Plan:          "",
+					ReadyState:    v.GetStatus(),
+					ReadySubstate: v.GetStatus(),
+					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
+				}
 			}
 		}
 
 		badgeUrl, badgeMarkdown := g.buildGithubProjectBadge(repository.GetArchived(), repository.GetURL())
+
 		resultChan <- &Project{
 			ID:            repository.GetName(),
 			Name:          repository.GetName(),
