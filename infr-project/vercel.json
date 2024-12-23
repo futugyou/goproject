@@ -245,6 +245,20 @@
         },
         {
             "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proget",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
+            "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
             "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proup",
             "methods": [
                 "PUT",
