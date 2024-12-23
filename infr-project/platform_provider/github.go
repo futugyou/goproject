@@ -9,6 +9,8 @@ import (
 
 	"log"
 
+	"github.com/futugyou/extensions"
+
 	"github.com/google/go-github/v66/github"
 	"golang.org/x/oauth2"
 )
@@ -241,6 +243,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			log.Println(err.Error())
 		} else {
 			for _, v := range gitRuns.WorkflowRuns {
+				badgeUrl, badgeMarkdown := g.buildGithubWorkflowBadge(v.GetName(), v.GetStatus(), v.GetURL())
 				runs[fmt.Sprintf("%d", v.GetID())] = Deployment{
 					ID:            fmt.Sprintf("%d", v.GetID()),
 					Name:          v.GetName(),
@@ -248,6 +251,8 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					ReadyState:    v.GetStatus(),
 					ReadySubstate: v.GetStatus(),
 					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
+					BadgeURL:      badgeUrl,
+					BadgeMarkdown: badgeMarkdown,
 				}
 			}
 		}
@@ -268,6 +273,22 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 	}()
 	return resultChan, errorChan
+}
+
+func (g *GithubClient) buildGithubWorkflowBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {
+	name = extensions.Sanitize2String(name)
+	color := "red"
+	switch status {
+	case "in_progress", "queued", "neutral", "skipped", "waiting", "pending", "action_required":
+		color = "yellow"
+	case "completed", "success":
+		color = "brightgreen"
+	}
+
+	status = strings.ReplaceAll(status, "-", "%20")
+	badgeUrl = fmt.Sprintf(CommonProjectBadge, name, status, color, "github", url)
+	badgeMarkDown = fmt.Sprintf("![%s](%s)", "status", badgeUrl)
+	return
 }
 
 func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) (badgeUrl string, badgeMarkDown string) {
