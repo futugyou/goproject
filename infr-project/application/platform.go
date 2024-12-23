@@ -3,10 +3,11 @@ package application
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"log"
+
+	tool "github.com/futugyou/extensions"
 
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
@@ -344,8 +345,8 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 
 	if request.Sync {
 		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
-			properties := mergePlatfromProjectProperties(plat.Properties, project.Properties)
-			if err = s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, properties); err != nil {
+			parameters := mergePropertiesToMap(plat.Properties, project.Properties)
+			if err = s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, parameters); err != nil {
 				log.Println(err.Error())
 			}
 		} else {
@@ -381,7 +382,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 	}
 
 	if len(projectId) == 0 {
-		projectId = replaceSpecialChars(strings.ToLower(project.Name))
+		projectId = tool.Sanitize2String(strings.ToLower(project.Name), "_")
 	}
 
 	properties := s.convertToPlatformProperties(project.Properties)
@@ -480,11 +481,6 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func replaceSpecialChars(str string) string {
-	re := regexp.MustCompile(`[^a-zA-Z0-9]`)
-	return re.ReplaceAllString(str, "_")
-}
-
 func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromId string, projectId string) (*models.PlatformProject, error) {
 	srcCh, errCh := s.repository.GetAsync(ctx, platfromId)
 	select {
@@ -494,11 +490,8 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromId str
 			if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
 				log.Println(err.Error())
 			} else {
-				properties := project.Properties
-				for k, v := range src.Properties {
-					properties[k] = v
-				}
-				if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, properties); err != nil {
+				parameters := mergePropertiesToMap(project.Properties, src.Properties)
+				if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
 					log.Println(err.Error())
 				} else {
 					providerProject = project

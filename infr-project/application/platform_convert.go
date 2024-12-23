@@ -40,75 +40,24 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 
 func (s *PlatformService) convertToPlatformModelProjects(projects map[string]platform.PlatformProject,
 	providerProjects []platformProvider.Project) []models.PlatformProject {
-
 	platformProjects := make([]models.PlatformProject, 0)
-	providerMap := map[string]models.PlatformProject{}
 	for _, project := range providerProjects {
-		properties := []models.Property{}
-		for k, v := range project.Properties {
-			properties = append(properties, models.Property{Key: k, Value: v})
-		}
-
+		var dbProject *platform.PlatformProject
 		for _, v := range projects {
 			if v.ProviderProjectId == project.ID {
-				for k, v := range v.Properties {
-					if _, ok := project.Properties[k]; !ok {
-						properties = append(properties, models.Property{Key: k, Value: v.Value})
-					}
-				}
+				dbProject = &v
+				delete(projects, v.Id)
 				break
 			}
 		}
 
-		providerMap[project.ID] = models.PlatformProject{
-			Id:                project.ID,
-			Name:              project.Name,
-			Url:               project.Url,
-			Properties:        properties,
-			Followed:          false,
-			ProviderProjectId: project.ID,
-			Environments:      s.convertToPlatformModelEnvironments(project.Envs),
-			Workflows:         s.convertToPlatformModelWorkflows(project.Workflows),
-			Deployments:       s.convertToPlatformModelDeployments(project.Deployments),
-			BadgeURL:          project.BadgeURL,
-			BadgeMarkdown:     project.BadgeMarkDown,
-		}
+		modelProject := s.mergeProject(&project, dbProject)
+		platformProjects = append(platformProjects, modelProject)
 	}
 
-	// convert db project to model project
 	for _, v := range projects {
-		// followed == false && providerProjectId == "", means need create project to provider
-		// followed == true && providerProjectId != "", means need provider project was already followed
-		platformProject := models.PlatformProject{
-			Id:         v.Id,
-			Name:       v.Name,
-			Url:        v.Url,
-			Properties: s.convertToPlatformModelProperties(v.Properties),
-			Secrets:    s.convertToPlatformModelSecrets(v.Secrets),
-			Webhooks:   s.convertToPlatformModelWebhooks(v.Webhooks),
-			Followed:   false,
-		}
-
-		if p, ok := providerMap[v.ProviderProjectId]; ok {
-			// remove already followed project
-			delete(providerMap, v.ProviderProjectId)
-			platformProject.Deployments = p.Deployments
-			platformProject.Environments = p.Environments
-			platformProject.Workflows = p.Workflows
-			platformProject.ProviderProjectId = v.ProviderProjectId
-			platformProject.Properties = p.Properties
-			platformProject.Followed = true
-		}
-
-		platformProjects = append(platformProjects, platformProject)
-	}
-
-	// add project from provider which was not followed
-	// followed == false && providerProjectId != "", means need follow the provider project
-	for _, project := range providerProjects {
-		if pro, ok := providerMap[project.ID]; ok {
-			platformProjects = append(platformProjects, pro)
-		}
+		modelProject := s.mergeProject(nil, &v)
+		platformProjects = append(platformProjects, modelProject)
 	}
 
 	return platformProjects
@@ -335,20 +284,15 @@ func (s *PlatformService) createProviderWebhook(ctx context.Context, provider pl
 	}
 }
 
-func mergePlatfromProjectProperties(property1 map[string]platform.Property, property2 map[string]platform.Property) map[string]string {
+func mergePropertiesToMap(propertiesList ...map[string]platform.Property) map[string]string {
 	properties := make(map[string]string)
-	for _, v := range property1 {
-		if _, ok := properties[v.Key]; !ok {
-			properties[v.Key] = v.Value
+	for _, propertyMap := range propertiesList {
+		for _, v := range propertyMap {
+			if _, ok := properties[v.Key]; !ok {
+				properties[v.Key] = v.Value
+			}
 		}
 	}
-
-	for _, v := range property2 {
-		if _, ok := properties[v.Key]; !ok {
-			properties[v.Key] = v.Value
-		}
-	}
-
 	return properties
 }
 
@@ -385,11 +329,7 @@ func (s *PlatformService) determineProviderStatus(ctx context.Context, res *plat
 	return true
 }
 
-func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, properties map[string]platform.Property) (*platformProvider.Project, error) {
-	parameters := make(map[string]string)
-	for _, v := range properties {
-		parameters[v.Key] = v.Value
-	}
+func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, parameters map[string]string) (*platformProvider.Project, error) {
 	filter := platformProvider.ProjectFilter{
 		Parameters: parameters,
 		Name:       name,
@@ -405,6 +345,9 @@ func (s *PlatformService) getProviderProject(ctx context.Context, provider platf
 	}
 }
 
+// followed == false && providerProjectId == "", means need create project to provider
+// followed == true && providerProjectId != "", means need provider project was already followed
+// followed == false && providerProjectId != "", means need follow the provider project
 func (s *PlatformService) mergeProject(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProject {
 	modelProject := models.PlatformProject{}
 	if project != nil {
@@ -416,6 +359,12 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 
 	properties := []models.Property{}
 	if providerProject != nil {
+		if len(modelProject.Id) == 0 {
+			modelProject.Id = providerProject.ID
+		}
+		if len(modelProject.Name) == 0 {
+			modelProject.Name = providerProject.Name
+		}
 		modelProject.Url = providerProject.Url
 		modelProject.ProviderProjectId = providerProject.ID
 		modelProject.Environments = s.convertToPlatformModelEnvironments(providerProject.Envs)
@@ -423,6 +372,8 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		modelProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
 		modelProject.BadgeURL = providerProject.BadgeURL
 		modelProject.BadgeMarkdown = providerProject.BadgeMarkDown
+		// TODO redesign hook
+		// modelProject.Webhooks = providerProject.Hooks
 		for k, v := range providerProject.Properties {
 			properties = append(properties, models.Property{Key: k, Value: v})
 		}
@@ -430,13 +381,16 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 
 	if providerProject != nil && project != nil {
 		modelProject.Followed = true
-	}
-
-	if project != nil {
 		for _, v := range project.Properties {
 			if _, ok := providerProject.Properties[v.Key]; !ok {
 				properties = append(properties, models.Property{Key: v.Key, Value: v.Value})
 			}
+		}
+	}
+
+	if project != nil && providerProject == nil {
+		for _, v := range project.Properties {
+			properties = append(properties, models.Property{Key: v.Key, Value: v.Value})
 		}
 	}
 
