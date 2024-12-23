@@ -276,7 +276,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 }
 
 func (g *GithubClient) buildGithubWorkflowBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {
-	name = extensions.Sanitize2String(name)
+	name = extensions.Sanitize2String(name, " ")
 	color := "red"
 	switch status {
 	case "in_progress", "queued", "neutral", "skipped", "waiting", "pending", "action_required":
