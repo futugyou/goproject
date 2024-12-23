@@ -3,6 +3,7 @@ package platform_provider
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -160,25 +161,23 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		url := g.buildProjectUrl(org_slug, url_format, vcs_full, circleciProject.Name)
 
-		circleciWebhooks, err := g.client.Webhook.ListWebhook(ctx, circleciProject.ID)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
 		webHooks := []WebHook{}
-		for _, hook := range circleciWebhooks.Items {
-			paras := map[string]string{}
-			paras["Scope"] = hook.Scope.Type
-			paras["SigningSecret"] = hook.SigningSecret
-			paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
-			webHooks = append(webHooks, WebHook{
-				ID:         hook.Id,
-				Name:       hook.Name,
-				Url:        hook.Url,
-				Events:     hook.Events,
-				Parameters: paras,
-			})
+		if circleciWebhooks, err := g.client.Webhook.ListWebhook(ctx, circleciProject.ID); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, hook := range circleciWebhooks.Items {
+				paras := map[string]string{}
+				paras["Scope"] = hook.Scope.Type
+				paras["SigningSecret"] = hook.SigningSecret
+				paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
+				webHooks = append(webHooks, WebHook{
+					ID:         hook.Id,
+					Name:       hook.Name,
+					Url:        hook.Url,
+					Events:     hook.Events,
+					Parameters: paras,
+				})
+			}
 		}
 
 		badgeURL, badgeMarkdown := "", ""
@@ -188,7 +187,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 
 		project := &Project{
-			ID:            circleciProject.ID,
+			ID:            circleciProject.Name,
 			Name:          circleciProject.Name,
 			Url:           url,
 			Hooks:         webHooks,
@@ -303,6 +302,7 @@ func (g *CircleClient) GetUserAsync(ctx context.Context) (<-chan *User, <-chan e
 }
 
 func (g *CircleClient) getCircleciVCS(vcsString string) (vcs string, vcs_full string) {
+	vcsString = strings.ToLower(vcsString)
 	if v, ok := CircleciVCSMapping[vcsString]; ok {
 		vcs = vcsString
 		vcs_full = v
