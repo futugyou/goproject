@@ -49,6 +49,17 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 			properties = append(properties, models.Property{Key: k, Value: v})
 		}
 
+		for _, v := range projects {
+			if v.ProviderProjectId == project.ID {
+				for k, v := range v.Properties {
+					if _, ok := project.Properties[k]; !ok {
+						properties = append(properties, models.Property{Key: k, Value: v.Value})
+					}
+				}
+				break
+			}
+		}
+
 		providerMap[project.ID] = models.PlatformProject{
 			Id:                project.ID,
 			Name:              project.Name,
@@ -68,7 +79,6 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 	for _, v := range projects {
 		// followed == false && providerProjectId == "", means need create project to provider
 		// followed == true && providerProjectId != "", means need provider project was already followed
-		followed := false
 		platformProject := models.PlatformProject{
 			Id:         v.Id,
 			Name:       v.Name,
@@ -76,17 +86,18 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 			Properties: s.convertToPlatformModelProperties(v.Properties),
 			Secrets:    s.convertToPlatformModelSecrets(v.Secrets),
 			Webhooks:   s.convertToPlatformModelWebhooks(v.Webhooks),
-			Followed:   followed,
+			Followed:   false,
 		}
 
 		if p, ok := providerMap[v.ProviderProjectId]; ok {
-			followed = true
 			// remove already followed project
 			delete(providerMap, v.ProviderProjectId)
 			platformProject.Deployments = p.Deployments
 			platformProject.Environments = p.Environments
 			platformProject.Workflows = p.Workflows
 			platformProject.ProviderProjectId = v.ProviderProjectId
+			platformProject.Properties = p.Properties
+			platformProject.Followed = true
 		}
 
 		platformProjects = append(platformProjects, platformProject)
@@ -283,7 +294,7 @@ func (s *PlatformService) createProviderProject(ctx context.Context, provider pl
 	case err := <-errCh:
 		return nil, err
 	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
+		return nil, fmt.Errorf("createProviderProject timeout: %w", ctx.Err())
 	}
 }
 
@@ -320,7 +331,7 @@ func (s *PlatformService) createProviderWebhook(ctx context.Context, provider pl
 	case err := <-errCh:
 		return nil, err
 	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
+		return nil, fmt.Errorf("createProviderWebhook timeout: %w", ctx.Err())
 	}
 }
 
@@ -372,4 +383,69 @@ func (s *PlatformService) determineProviderStatus(ctx context.Context, res *plat
 	}
 
 	return true
+}
+
+func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, properties map[string]platform.Property) (*platformProvider.Project, error) {
+	parameters := make(map[string]string)
+	for _, v := range properties {
+		parameters[v.Key] = v.Value
+	}
+	filter := platformProvider.ProjectFilter{
+		Parameters: parameters,
+	}
+	resCh, errCh := provider.GetProjectAsync(ctx, filter)
+	select {
+	case project := <-resCh:
+		return project, nil
+	case err := <-errCh:
+		return nil, err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
+	}
+}
+
+func (s *PlatformService) convertProjectEntityToViewModel(ctx context.Context, src platform.Platform, project platform.PlatformProject) (*models.PlatformProject, error) {
+	followed := false
+	providerProject := &platformProvider.Project{}
+	if provider, err := s.getPlatfromProvider(ctx, src); err != nil {
+		log.Println(err.Error())
+	} else {
+		properties := project.Properties
+		for k, v := range src.Properties {
+			properties[k] = v
+		}
+		if project, err := s.getProviderProject(ctx, provider, properties); err != nil {
+			log.Println(err.Error())
+		} else {
+			providerProject = project
+			followed = true
+		}
+	}
+
+	properties := []models.Property{}
+	for k, v := range providerProject.Properties {
+		properties = append(properties, models.Property{Key: k, Value: v})
+	}
+
+	for _, v := range project.Properties {
+		if _, ok := providerProject.Properties[v.Key]; !ok {
+			properties = append(properties, models.Property{Key: v.Key, Value: v.Value})
+		}
+	}
+
+	return &models.PlatformProject{
+		Id:                project.Id,
+		Name:              project.Name,
+		Url:               providerProject.Url,
+		Properties:        properties,
+		Secrets:           s.convertToPlatformModelSecrets(project.Secrets),
+		Webhooks:          s.convertToPlatformModelWebhooks(project.Webhooks),
+		Followed:          followed,
+		ProviderProjectId: providerProject.ID,
+		Environments:      s.convertToPlatformModelEnvironments(providerProject.Envs),
+		Workflows:         s.convertToPlatformModelWorkflows(providerProject.Workflows),
+		Deployments:       s.convertToPlatformModelDeployments(providerProject.Deployments),
+		BadgeURL:          providerProject.BadgeURL,
+		BadgeMarkdown:     providerProject.BadgeMarkDown,
+	}, nil
 }

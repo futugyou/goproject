@@ -141,7 +141,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		if org, ok := filter.Parameters["org_slug"]; ok {
 			org_slug = org
 		} else {
-			errorChan <- fmt.Errorf("create project request need 'org_slug' in parameters")
+			errorChan <- fmt.Errorf("get project request need 'org_slug' in parameters")
 			return
 		}
 
