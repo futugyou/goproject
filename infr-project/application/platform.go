@@ -194,8 +194,8 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, d
 	})
 }
 
-func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	return s.updatePlatform(ctx, id, "DeletePlatform", func(plat *platform.Platform) error {
+func (s *PlatformService) DeletePlatform(ctx context.Context, idOrName string) (*models.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, idOrName, "DeletePlatform", func(plat *platform.Platform) error {
 		if _, err := plat.Delete(); err != nil {
 			return err
 		}
@@ -204,8 +204,8 @@ func (s *PlatformService) DeletePlatform(ctx context.Context, id string) (*model
 	})
 }
 
-func (s *PlatformService) RecoveryPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	return s.updatePlatform(ctx, id, "RecoveryPlatform", func(plat *platform.Platform) error {
+func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string) (*models.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, idOrName, "RecoveryPlatform", func(plat *platform.Platform) error {
 		if _, err := plat.Recovery(); err != nil {
 			return err
 		}

@@ -43,7 +43,7 @@ type UpdatePlatformWebhookRequest struct {
 }
 
 type RemoveWebhookRequest struct {
-	PlatformId string `json:"-"`
+	PlatformId string `json:"-"` // Platform Id or Name
 	ProjectId  string `json:"-"`
 	HookName   string `json:"-"`
 	Sync       bool   `json:"sync"`

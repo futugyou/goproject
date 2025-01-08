@@ -23,7 +23,7 @@ func NewPlatformController() *PlatformController {
 	return &PlatformController{}
 }
 
-func (c *PlatformController) DeletePlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) DeletePlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -31,7 +31,7 @@ func (c *PlatformController) DeletePlatformProject(id string, projectId string, 
 		return
 	}
 
-	res, err := service.DeleteProject(ctx, id, projectId)
+	res, err := service.DeleteProject(ctx, idOrName, projectId)
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -41,7 +41,7 @@ func (c *PlatformController) DeletePlatformProject(id string, projectId string, 
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) UpsertPlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) UpsertPlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *PlatformController) UpsertPlatformProject(id string, projectId string, 
 		return
 	}
 
-	res, err := service.UpsertProject(ctx, id, projectId, aux)
+	res, err := service.UpsertProject(ctx, idOrName, projectId, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -97,7 +97,7 @@ func (c *PlatformController) CreatePlatform(w http.ResponseWriter, r *http.Reque
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) GetPlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) GetPlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 
@@ -106,7 +106,7 @@ func (c *PlatformController) GetPlatform(id string, w http.ResponseWriter, r *ht
 		return
 	}
 
-	res, err := service.GetPlatform(ctx, id)
+	res, err := service.GetPlatform(ctx, idOrName)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -115,7 +115,7 @@ func (c *PlatformController) GetPlatform(id string, w http.ResponseWriter, r *ht
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) GetPlatformProject(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) GetPlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 
@@ -124,7 +124,7 @@ func (c *PlatformController) GetPlatformProject(id string, projectId string, w h
 		return
 	}
 
-	res, err := service.GetPlatformProject(ctx, id, projectId)
+	res, err := service.GetPlatformProject(ctx, idOrName, projectId)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -151,7 +151,7 @@ func (c *PlatformController) SearchPlatforms(w http.ResponseWriter, r *http.Requ
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) UpdatePlatformHook(id string, projectId string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) UpdatePlatformHook(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -170,7 +170,7 @@ func (c *PlatformController) UpdatePlatformHook(id string, projectId string, w h
 		return
 	}
 
-	res, err := service.UpsertWebhook(ctx, id, projectId, aux)
+	res, err := service.UpsertWebhook(ctx, idOrName, projectId, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -196,7 +196,7 @@ func (c *PlatformController) DeletePlatformHook(request models.RemoveWebhookRequ
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) UpdatePlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) UpdatePlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -215,7 +215,7 @@ func (c *PlatformController) UpdatePlatform(id string, w http.ResponseWriter, r 
 		return
 	}
 
-	res, err := service.UpdatePlatform(ctx, id, aux)
+	res, err := service.UpdatePlatform(ctx, idOrName, aux)
 	if err != nil {
 		handleError(w, err, 500)
 		return
@@ -224,7 +224,7 @@ func (c *PlatformController) UpdatePlatform(id string, w http.ResponseWriter, r 
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) DeletePlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) DeletePlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -232,7 +232,7 @@ func (c *PlatformController) DeletePlatform(id string, w http.ResponseWriter, r 
 		return
 	}
 
-	res, err := service.DeletePlatform(ctx, id)
+	res, err := service.DeletePlatform(ctx, idOrName)
 
 	if err != nil {
 		handleError(w, err, 500)
@@ -242,7 +242,7 @@ func (c *PlatformController) DeletePlatform(id string, w http.ResponseWriter, r 
 	writeJSONResponse(w, res, 200)
 }
 
-func (c *PlatformController) RecoveryPlatform(id string, w http.ResponseWriter, r *http.Request) {
+func (c *PlatformController) RecoveryPlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createPlatformService(ctx)
 	if err != nil {
@@ -250,7 +250,7 @@ func (c *PlatformController) RecoveryPlatform(id string, w http.ResponseWriter, 
 		return
 	}
 
-	res, err := service.RecoveryPlatform(ctx, id)
+	res, err := service.RecoveryPlatform(ctx, idOrName)
 
 	if err != nil {
 		handleError(w, err, 500)

@@ -147,7 +147,7 @@ const docTemplate = `{
         },
         "/v1/platform/{id}": {
             "get": {
-                "description": "get platform by id",
+                "description": "get platform by id or name",
                 "consumes": [
                     "application/json"
                 ],
@@ -157,11 +157,11 @@ const docTemplate = `{
                 "tags": [
                     "Platform"
                 ],
-                "summary": "get platform by id",
+                "summary": "get platform by id or name",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -191,7 +191,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -230,7 +230,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -262,7 +262,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -303,7 +303,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -340,7 +340,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -386,7 +386,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -425,7 +425,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -473,7 +473,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -519,7 +519,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Platform ID",
+                        "description": "Platform ID or Name",
                         "name": "id",
                         "in": "path",
                         "required": true

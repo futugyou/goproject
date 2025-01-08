@@ -908,7 +908,7 @@ paths:
       - application/json
       description: delete platform
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -926,9 +926,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: get platform by id
+      description: get platform by id or name
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -940,7 +940,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/viewmodels.PlatformDetailView'
-      summary: get platform by id
+      summary: get platform by id or name
       tags:
       - Platform
     put:
@@ -948,7 +948,7 @@ paths:
       - application/json
       description: update platform
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -975,7 +975,7 @@ paths:
       - application/json
       description: create platform project
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -1002,7 +1002,7 @@ paths:
       - application/json
       description: delete platform project
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -1027,7 +1027,7 @@ paths:
       - application/json
       description: get platform project by id
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -1052,7 +1052,7 @@ paths:
       - application/json
       description: update platform project
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -1084,7 +1084,7 @@ paths:
       - application/json
       description: update platform webhook
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -1116,7 +1116,7 @@ paths:
       - application/json
       description: delete platform webhook
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
@@ -1147,7 +1147,7 @@ paths:
       - application/json
       description: recovery platform
       parameters:
-      - description: Platform ID
+      - description: Platform ID or Name
         in: path
         name: id
         required: true
