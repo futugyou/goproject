@@ -117,23 +117,12 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 }
 
 func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*models.PlatformDetailView, error) {
-	srcCh, errCh := s.repository.GetAsync(ctx, idOrName)
+	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	select {
 	case src := <-srcCh:
 		return s.convertPlatformEntityToViewModel(ctx, src)
 	case err := <-errCh:
-		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-			return nil, err
-		}
-		srcCh, errCh = s.repository.GetPlatformByNameAsync(ctx, idOrName)
-		select {
-		case src := <-srcCh:
-			return s.convertPlatformEntityToViewModel(ctx, src)
-		case err := <-errCh:
-			return nil, err
-		case <-ctx.Done():
-			return nil, fmt.Errorf("GetPlatform timeout: %w", ctx.Err())
-		}
+		return nil, err
 	case <-ctx.Done():
 		return nil, fmt.Errorf("GetPlatform timeout: %w", ctx.Err())
 	}
@@ -225,8 +214,8 @@ func (s *PlatformService) RecoveryPlatform(ctx context.Context, id string) (*mod
 	})
 }
 
-func (s *PlatformService) updatePlatform(ctx context.Context, id string, operation string, fn func(*platform.Platform) error) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, id)
+func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, operation string, fn func(*platform.Platform) error) (*models.PlatformDetailView, error) {
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	var plat *platform.Platform
 	select {
 	case plat = <-platCh:
@@ -255,8 +244,8 @@ func (s *PlatformService) updatePlatform(ctx context.Context, id string, operati
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, id)
+func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	var plat *platform.Platform
 	var err error
 	select {
@@ -269,7 +258,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 
 	project, exists := plat.Projects[projectId]
 	if !exists {
-		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, id)
+		return nil, fmt.Errorf("projectId: %s is not existed in %s", projectId, idOrName)
 	}
 
 	webhook, _ := project.GetWebhook(hook.Name)
@@ -329,7 +318,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, id string, projectI
 }
 
 func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.RemoveWebhookRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, request.PlatformId)
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, request.PlatformId)
 	var plat *platform.Platform
 	var err error
 	select {
@@ -380,8 +369,8 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, id)
+func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	var plat *platform.Platform
 	var err error
 	select {
@@ -461,8 +450,8 @@ func (s *PlatformService) UpsertProject(ctx context.Context, id string, projectI
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectId string) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetAsync(ctx, id)
+func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) (*models.PlatformDetailView, error) {
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	var plat *platform.Platform
 	var err error
 	select {
@@ -492,8 +481,8 @@ func (s *PlatformService) DeleteProject(ctx context.Context, id string, projectI
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromId string, projectId string) (*models.PlatformProject, error) {
-	srcCh, errCh := s.repository.GetAsync(ctx, platfromId)
+func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrName string, projectId string) (*models.PlatformProject, error) {
+	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platfromIdOrName)
 	select {
 	case src := <-srcCh:
 		if project, ok := src.Projects[projectId]; ok {
