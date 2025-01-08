@@ -3,6 +3,7 @@ package infrastructure_mongo
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -94,4 +95,36 @@ func (s *PlatformRepository) buildSearchFilter(search platform.PlatformSearch) m
 	}
 
 	return filter
+}
+
+func (s *PlatformRepository) GetPlatformByIdOrName(ctx context.Context, idOrName string) (*platform.Platform, error) {
+	src, err := s.Get(ctx, idOrName)
+	if err != nil {
+		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+			return nil, err
+		}
+
+		return s.GetPlatformByName(ctx, idOrName)
+	}
+
+	return src, nil
+}
+
+func (s *PlatformRepository) GetPlatformByIdOrNameAsync(ctx context.Context, idOrName string) (<-chan *platform.Platform, <-chan error) {
+	resultChan := make(chan *platform.Platform, 1)
+	errorChan := make(chan error, 1)
+
+	go func() {
+		defer close(resultChan)
+		defer close(errorChan)
+
+		result, err := s.GetPlatformByIdOrName(ctx, idOrName)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		resultChan <- result
+	}()
+
+	return resultChan, errorChan
 }
