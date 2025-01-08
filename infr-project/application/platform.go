@@ -116,13 +116,24 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 	return s.convertToPlatformViews(src), nil
 }
 
-func (s *PlatformService) GetPlatform(ctx context.Context, id string) (*models.PlatformDetailView, error) {
-	srcCh, errCh := s.repository.GetAsync(ctx, id)
+func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*models.PlatformDetailView, error) {
+	srcCh, errCh := s.repository.GetAsync(ctx, idOrName)
 	select {
 	case src := <-srcCh:
 		return s.convertPlatformEntityToViewModel(ctx, src)
 	case err := <-errCh:
-		return nil, err
+		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+			return nil, err
+		}
+		srcCh, errCh = s.repository.GetPlatformByNameAsync(ctx, idOrName)
+		select {
+		case src := <-srcCh:
+			return s.convertPlatformEntityToViewModel(ctx, src)
+		case err := <-errCh:
+			return nil, err
+		case <-ctx.Done():
+			return nil, fmt.Errorf("GetPlatform timeout: %w", ctx.Err())
+		}
 	case <-ctx.Done():
 		return nil, fmt.Errorf("GetPlatform timeout: %w", ctx.Err())
 	}
