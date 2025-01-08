@@ -128,8 +128,8 @@ func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*mo
 	}
 }
 
-func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
-	return s.updatePlatform(ctx, id, "UpdatePlatform", func(plat *platform.Platform) error {
+func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, idOrName, "UpdatePlatform", func(plat *platform.Platform) error {
 		if plat.IsDeleted {
 			return fmt.Errorf("id: %s was alrealdy deleted", plat.Id)
 		}
@@ -139,7 +139,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, id string, data mo
 			var res *platform.Platform
 			select {
 			case res = <-resCh:
-				if res.Id != id {
+				if res.Id != plat.Id {
 					return fmt.Errorf("name: %s is existed", data.Name)
 				}
 			case err := <-errCh:
