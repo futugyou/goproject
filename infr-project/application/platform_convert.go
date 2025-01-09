@@ -109,17 +109,14 @@ func (s *PlatformService) convertToPlatformModelWebhooks(hooks []platform.Webhoo
 }
 
 func (s *PlatformService) convertToPlatformModelSecrets(secretMap map[string]platform.Secret) []models.Secret {
-	secrets := []models.Secret{}
-	for _, v := range secretMap {
-		secrets = append(secrets, models.Secret{
+	return tool.MapToSlice(secretMap, func(key string, v platform.Secret) models.Secret {
+		return models.Secret{
 			Key:       v.Key,
 			VaultId:   v.Value,
 			VaultKey:  v.VaultKey,
 			MaskValue: v.VaultMaskValue,
-		})
-	}
-
-	return secrets
+		}
+	})
 }
 
 func (s *PlatformService) convertToPlatformSecrets(ctx context.Context, secrets []models.Secret) (map[string]platform.Secret, error) {
@@ -158,24 +155,19 @@ func (s *PlatformService) convertToPlatformSecrets(ctx context.Context, secrets 
 }
 
 func (s *PlatformService) convertToPlatformModelProperties(properties map[string]platform.Property) []models.Property {
-	wps := []models.Property{}
-	for _, v := range properties {
-		wps = append(wps, models.Property(v))
-	}
-
-	return wps
+	return tool.MapToSlice(properties, func(key string, env platform.Property) models.Property {
+		return models.Property(env)
+	})
 }
 
 func (s *PlatformService) convertToPlatformProperties(propertyList []models.Property) map[string]platform.Property {
-	properties := make(map[string]platform.Property)
-	for _, v := range propertyList {
-		properties[v.Key] = platform.Property{
-			Key:   v.Key,
-			Value: v.Value,
-		}
-	}
-
-	return properties
+	return tool.SliceToMapWithTransform(propertyList, func(v models.Property) string { return v.Key },
+		func(v models.Property) platform.Property {
+			return platform.Property{
+				Key:   v.Key,
+				Value: v.Value,
+			}
+		})
 }
 
 func (s *PlatformService) convertToPlatformViews(src []platform.Platform) []models.PlatformView {

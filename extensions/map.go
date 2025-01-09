@@ -10,19 +10,15 @@ func GetMapKeys[Key comparable, Value any](m map[Key]Value) []Key {
 }
 
 // wo golang verison is 1.20, can not use slices lib.
-func MapToSlice[T any, K comparable](m map[K]T, transform func(T) any) []any {
-	result := make([]any, 0, len(m))
+func MapToSliceDirect[T any, K comparable](m map[K]T) []T {
+	result := make([]T, 0, len(m))
 	for _, v := range m {
-		if transform != nil {
-			result = append(result, transform(v))
-		} else {
-			result = append(result, v)
-		}
+		result = append(result, v)
 	}
 	return result
 }
 
-func MapToSlice2[K comparable, V any, R any](m map[K]V, transform func(K, V) R) []R {
+func MapToSlice[K comparable, V any, R any](m map[K]V, transform func(K, V) R) []R {
 	result := make([]R, 0, len(m))
 	for k, v := range m {
 		if transform != nil {
