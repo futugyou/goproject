@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	tool "github.com/futugyou/extensions"
+
 	platform "github.com/futugyou/infr-project/platform"
 	platformProvider "github.com/futugyou/infr-project/platform_provider"
 	vault "github.com/futugyou/infr-project/vault"
@@ -215,15 +217,9 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, provider plat
 	filter := platformProvider.ProjectFilter{
 		Parameters: parameters,
 	}
+
 	resCh, errCh := provider.ListProjectAsync(ctx, filter)
-	select {
-	case projects := <-resCh:
-		return projects, nil
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderProjects timeout: %w", ctx.Err())
-	}
+	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
 func (s *PlatformService) createProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, properties map[string]platform.Property) (*platformProvider.Project, error) {
@@ -237,14 +233,7 @@ func (s *PlatformService) createProviderProject(ctx context.Context, provider pl
 	}
 
 	resCh, errCh := provider.CreateProjectAsync(ctx, request)
-	select {
-	case project := <-resCh:
-		return project, nil
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("createProviderProject timeout: %w", ctx.Err())
-	}
+	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
 func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync, webhookId string, properties map[string]string) error {
@@ -254,12 +243,7 @@ func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider pl
 	}
 
 	errCh := provider.DeleteWebHookAsync(ctx, request)
-	select {
-	case err := <-errCh:
-		return err
-	case <-ctx.Done():
-		return fmt.Errorf("deleteProviderWebhook timeout: %w", ctx.Err())
-	}
+	return tool.HandleErrorAsync(ctx, errCh)
 }
 
 func (s *PlatformService) createProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync,
@@ -274,14 +258,7 @@ func (s *PlatformService) createProviderWebhook(ctx context.Context, provider pl
 	}
 
 	resCh, errCh := provider.CreateWebHookAsync(ctx, request)
-	select {
-	case webhook := <-resCh:
-		return webhook, nil
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("createProviderWebhook timeout: %w", ctx.Err())
-	}
+	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
 func mergePropertiesToMap(propertiesList ...map[string]platform.Property) map[string]string {
@@ -298,14 +275,7 @@ func mergePropertiesToMap(propertiesList ...map[string]platform.Property) map[st
 
 func (s *PlatformService) getProviderUser(ctx context.Context, provider platformProvider.IPlatformProviderAsync) (*platformProvider.User, error) {
 	resCh, errCh := provider.GetUserAsync(ctx)
-	select {
-	case user := <-resCh:
-		return user, nil
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderUser timeout: %w", ctx.Err())
-	}
+	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
 func (s *PlatformService) determineProviderStatus(ctx context.Context, res *platform.Platform) bool {
@@ -335,14 +305,7 @@ func (s *PlatformService) getProviderProject(ctx context.Context, provider platf
 		Name:       name,
 	}
 	resCh, errCh := provider.GetProjectAsync(ctx, filter)
-	select {
-	case project := <-resCh:
-		return project, nil
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("getProviderProject timeout: %w", ctx.Err())
-	}
+	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
 // followed == false && providerProjectId == "", means need create project to provider
@@ -373,7 +336,7 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		modelProject.BadgeURL = providerProject.BadgeURL
 		modelProject.BadgeMarkdown = providerProject.BadgeMarkDown
 		// TODO redesign hook
-		// modelProject.Webhooks = providerProject.Hooks
+		// modelProject.Webhooks = providerProject.WebHooks
 		for k, v := range providerProject.Properties {
 			properties = append(properties, models.Property{Key: k, Value: v})
 		}

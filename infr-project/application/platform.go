@@ -56,15 +56,13 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 
 	// check name
 	resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, aux.Name)
-	select {
-	case <-resCh:
+	resdb, err := tool.HandleAsync(ctx, resCh, errCh)
+	if resdb != nil {
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
-	case err := <-errCh:
-		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-			return nil, err
-		}
-	case <-ctx.Done():
-		return nil, fmt.Errorf("CreatePlatform timeout: %w", ctx.Err())
+	}
+
+	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+		return nil, err
 	}
 
 	if res.Provider != platform.PlatformProviderOther {
@@ -78,12 +76,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.InsertAsync(ctx, *res)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("CreatePlatform timeout: %w", ctx.Err())
-		}
+		return tool.HandleErrorAsync(ctx, errCh)
 	}); err != nil {
 		return nil, err
 	}
@@ -102,15 +95,10 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 	}
 
 	srcCh, errCh := s.repository.SearchPlatformsAsync(ctx, filter)
-	var src []platform.Platform
-	select {
-	case src = <-srcCh:
-	case err := <-errCh:
-		if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-			return nil, err
-		}
-	case <-ctx.Done():
-		return nil, fmt.Errorf("SearchPlatforms timeout: %w", ctx.Err())
+	src, err := tool.HandleAsync(ctx, srcCh, errCh)
+
+	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+		return nil, err
 	}
 
 	return s.convertToPlatformViews(src), nil
@@ -118,13 +106,10 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 
 func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*models.PlatformDetailView, error) {
 	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	select {
-	case src := <-srcCh:
-		return s.convertPlatformEntityToViewModel(ctx, src)
-	case err := <-errCh:
+	if src, err := tool.HandleAsync(ctx, srcCh, errCh); err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("GetPlatform timeout: %w", ctx.Err())
+	} else {
+		return s.convertPlatformEntityToViewModel(ctx, src)
 	}
 }
 
@@ -214,15 +199,11 @@ func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string)
 	})
 }
 
-func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, operation string, fn func(*platform.Platform) error) (*models.PlatformDetailView, error) {
+func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _ string, fn func(*platform.Platform) error) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	var plat *platform.Platform
-	select {
-	case plat = <-platCh:
-	case err := <-errCh:
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("%s timeout: %w", operation, ctx.Err())
 	}
 
 	if err := fn(plat); err != nil {
@@ -231,12 +212,7 @@ func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, o
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("%s timeout: %w", operation, ctx.Err())
-		}
+		return tool.HandleErrorAsync(ctx, errCh)
 	}); err != nil {
 		return nil, err
 	}
@@ -246,14 +222,9 @@ func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, o
 
 func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	var plat *platform.Platform
-	var err error
-	select {
-	case plat = <-platCh:
-	case err = <-errCh:
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("UpsertWebhook timeout: %w", ctx.Err())
 	}
 
 	project, exists := plat.Projects[projectId]
@@ -304,12 +275,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("UpsertWebhook timeout: %w", ctx.Err())
-		}
+		return tool.HandleErrorAsync(ctx, errCh)
 	}); err != nil {
 		return nil, err
 	}
@@ -319,14 +285,9 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 
 func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.RemoveWebhookRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, request.PlatformId)
-	var plat *platform.Platform
-	var err error
-	select {
-	case plat = <-platCh:
-	case err = <-errCh:
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("RemoveWebhook timeout: %w", ctx.Err())
 	}
 
 	project, exists := plat.Projects[request.ProjectId]
@@ -356,12 +317,7 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("RemoveWebhook timeout: %w", ctx.Err())
-		}
+		return tool.HandleErrorAsync(ctx, errCh)
 	}); err != nil {
 		return nil, err
 	}
@@ -371,14 +327,9 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 
 func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	var plat *platform.Platform
-	var err error
-	select {
-	case plat = <-platCh:
-	case err = <-errCh:
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("UpsertProject timeout: %w", ctx.Err())
 	}
 
 	if len(projectId) == 0 {
@@ -437,12 +388,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("UpsertProject timeout: %w", ctx.Err())
-		}
+		return tool.HandleErrorAsync(ctx, errCh)
 	}); err != nil {
 		return nil, err
 	}
@@ -452,14 +398,9 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 
 func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	var plat *platform.Platform
-	var err error
-	select {
-	case plat = <-platCh:
-	case err = <-errCh:
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
 		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("DeleteProject timeout: %w", ctx.Err())
 	}
 
 	if _, err := plat.RemoveProject(projectId); err != nil {
@@ -468,12 +409,7 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("DeleteProject timeout: %w", ctx.Err())
-		}
+		return tool.HandleErrorAsync(ctx, errCh)
 	}); err != nil {
 		return nil, err
 	}
@@ -483,29 +419,27 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 
 func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrName string, projectId string) (*models.PlatformProject, error) {
 	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platfromIdOrName)
-	select {
-	case src := <-srcCh:
-		if project, ok := src.Projects[projectId]; ok {
-			providerProject := &platformProvider.Project{}
-			if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+	src, err := tool.HandleAsync(ctx, srcCh, errCh)
+	if err != nil {
+		return nil, err
+	}
+
+	if project, ok := src.Projects[projectId]; ok {
+		providerProject := &platformProvider.Project{}
+		if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+			log.Println(err.Error())
+		} else {
+			parameters := mergePropertiesToMap(project.Properties, src.Properties)
+			if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
 				log.Println(err.Error())
 			} else {
-				parameters := mergePropertiesToMap(project.Properties, src.Properties)
-				if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
-					log.Println(err.Error())
-				} else {
-					providerProject = project
-				}
+				providerProject = project
 			}
-
-			modelProject := s.mergeProject(providerProject, &project)
-			return &modelProject, nil
-		} else {
-			return nil, fmt.Errorf("can not find project with id: %s", projectId)
 		}
-	case err := <-errCh:
-		return nil, err
-	case <-ctx.Done():
-		return nil, fmt.Errorf("GetPlatformProject timeout: %w", ctx.Err())
+
+		modelProject := s.mergeProject(providerProject, &project)
+		return &modelProject, nil
+	} else {
+		return nil, fmt.Errorf("can not find project with id: %s", projectId)
 	}
 }
