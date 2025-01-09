@@ -160,12 +160,13 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		} else {
 			for _, hook := range vercelHooks {
 				paras := map[string]string{}
-				paras["Secret"] = hook.Secret
+				paras["SigningSecret"] = hook.Secret
 				hooks = append(hooks, WebHook{
 					ID:         hook.Id,
 					Name:       hook.Id,
 					Url:        hook.Url,
 					Events:     hook.Events,
+					Active:     true,
 					Parameters: paras,
 				})
 			}
@@ -192,7 +193,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			ID:            vercelProject.Id,
 			Name:          vercelProject.Name,
 			Url:           url,
-			Hooks:         hooks,
+			WebHooks:      hooks,
 			Properties:    properties,
 			Envs:          g.buildVercelEnv(vercelProject.Env),
 			Deployments:   g.buildVercelDeployment(vercelProject.LatestDeployments, url),
@@ -284,7 +285,7 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 		}
 
 		paras := map[string]string{}
-		paras["Secret"] = vercelHook.Secret
+		paras["SigningSecret"] = vercelHook.Secret
 		hook := &WebHook{
 			ID:         vercelHook.Id,
 			Name:       vercelHook.Id,

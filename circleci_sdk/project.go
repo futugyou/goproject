@@ -209,6 +209,13 @@ type ProjectInfo struct {
 	Message          *string `json:"message,omitempty"`
 }
 
+func (r *ProjectInfo) GetMessage() string {
+	if r == nil || r.Message == nil {
+		return ""
+	}
+	return *r.Message
+}
+
 type VcsInfo struct {
 	VcsURL        string `json:"vcs_url"`
 	Provider      string `json:"provider"`

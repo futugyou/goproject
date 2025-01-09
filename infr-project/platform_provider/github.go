@@ -121,20 +121,31 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 
 		result := []Project{}
 		for _, repo := range repos {
-			badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetURL())
-			result = append(result, Project{
-				ID:            repo.GetName(),
-				Name:          repo.GetName(),
-				Url:           repo.GetURL(),
-				Hooks:         []WebHook{},
-				Properties:    map[string]string{"GITHUB_REPO": repo.GetName(), "GITHUB_DETAULT_BRANCH": repo.GetDefaultBranch()},
-				BadgeURL:      badgeURL,
-				BadgeMarkDown: badgeMarkdown,
-			})
+			project := g.buildGithubProject(repo)
+			result = append(result, project)
 		}
 		resultChan <- result
 	}()
 	return resultChan, errorChan
+}
+
+func (g *GithubClient) buildGithubProject(repo *github.Repository) Project {
+	badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetURL())
+	paras := map[string]string{}
+	paras["GITHUB_REPO"] = repo.GetName()
+	paras["GITHUB_DETAULT_BRANCH"] = repo.GetDefaultBranch()
+	paras["ISSUES"] = fmt.Sprintf("%d", repo.GetOpenIssuesCount())
+	paras["FORKS"] = fmt.Sprintf("%d", repo.GetForksCount())
+	paras["WATCHS"] = fmt.Sprintf("%d", repo.GetStargazersCount())
+	return Project{
+		ID:            repo.GetName(),
+		Name:          repo.GetName(),
+		Url:           repo.GetURL(),
+		Description:   repo.GetDescription(),
+		Properties:    paras,
+		BadgeURL:      badgeURL,
+		BadgeMarkDown: badgeMarkdown,
+	}
 }
 
 // Need GITHUB_OWNER in ProjectFilter 'Parameters',
@@ -196,23 +207,26 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			log.Println(err.Error())
 		} else {
 			for _, hook := range githooks {
-				if hook.GetActive() {
-					paras := map[string]string{}
-					githookconfig := hook.Config
-					if githookconfig != nil {
-						paras["ContentType"] = githookconfig.GetContentType()
-						paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
-						paras["Secret"] = githookconfig.GetSecret()
-						paras["URL"] = githookconfig.GetURL()
-					}
-					hooks = append(hooks, WebHook{
-						ID:         fmt.Sprintf("%d", hook.GetID()),
-						Name:       hook.GetName(),
-						Url:        hook.GetURL(),
-						Events:     hook.Events,
-						Parameters: paras,
-					})
+				paras := map[string]string{}
+				paras["TestURL"] = hook.GetTestURL()
+				paras["PingURL"] = hook.GetPingURL()
+				var tls = "true"
+				if hook.GetConfig().GetInsecureSSL() == "1" {
+					tls = "false"
 				}
+				paras["ContentType"] = hook.GetConfig().GetContentType()
+				paras["VerifyTLS"] = tls
+				paras["SigningSecret"] = hook.GetConfig().GetSecret()
+				paras["URL"] = hook.GetConfig().GetURL()
+
+				hooks = append(hooks, WebHook{
+					ID:         fmt.Sprintf("%d", hook.GetID()),
+					Name:       hook.GetName(),
+					Url:        hook.GetURL(),
+					Events:     hook.Events,
+					Active:     hook.GetActive(),
+					Parameters: paras,
+				})
 			}
 		}
 
@@ -257,20 +271,12 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
-		badgeUrl, badgeMarkdown := g.buildGithubProjectBadge(repository.GetArchived(), repository.GetURL())
-
-		resultChan <- &Project{
-			ID:            repository.GetName(),
-			Name:          repository.GetName(),
-			Url:           repository.GetURL(),
-			Hooks:         hooks,
-			Properties:    map[string]string{"GITHUB_REPO": repository.GetName(), "GITHUB_DETAULT_BRANCH": repository.GetDefaultBranch()},
-			Envs:          envs,
-			Workflows:     wfs,
-			Deployments:   runs,
-			BadgeURL:      badgeUrl,
-			BadgeMarkDown: badgeMarkdown,
-		}
+		project := g.buildGithubProject(repository)
+		project.WebHooks = hooks
+		project.Envs = envs
+		project.Workflows = wfs
+		project.Deployments = runs
+		resultChan <- &project
 	}()
 	return resultChan, errorChan
 }

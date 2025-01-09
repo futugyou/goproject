@@ -16,7 +16,8 @@ type Project struct {
 	ID            string
 	Name          string
 	Url           string
-	Hooks         []WebHook
+	Description   string
+	WebHooks      []WebHook
 	Properties    map[string]string
 	Envs          map[string]Env
 	Workflows     map[string]Workflow
@@ -59,6 +60,7 @@ type WebHook struct {
 	Name       string
 	Url        string
 	Events     []string
+	Active     bool
 	Parameters map[string]string
 }
 

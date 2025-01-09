@@ -168,6 +168,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			for _, hook := range circleciWebhooks.Items {
 				paras := map[string]string{}
 				paras["Scope"] = hook.Scope.Type
+				paras["ScopeId"] = hook.Scope.Id
 				paras["SigningSecret"] = hook.SigningSecret
 				paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
 				webHooks = append(webHooks, WebHook{
@@ -175,6 +176,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					Name:       hook.Name,
 					Url:        hook.Url,
 					Events:     hook.Events,
+					Active:     true,
 					Parameters: paras,
 				})
 			}
@@ -190,7 +192,8 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			ID:            circleciProject.Name,
 			Name:          circleciProject.Name,
 			Url:           url,
-			Hooks:         webHooks,
+			Description:   circleciProject.GetMessage(),
+			WebHooks:      webHooks,
 			Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
 			Envs:          map[string]Env{},
 			Workflows:     map[string]Workflow{},
