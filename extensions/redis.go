@@ -159,6 +159,6 @@ func ReleaseLock(ctx context.Context, client *redis.Client, lockKey string, lock
 	if success, ok := result.(int64); ok {
 		return success, nil
 	} else {
-		return 0, errors.New("redis data type error, check script and code.")
+		return 0, errors.New("redis data type error, check script and code")
 	}
 }
