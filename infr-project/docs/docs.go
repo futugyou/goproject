@@ -2072,6 +2072,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Deployment"
                     }
                 },
+                "description": {
+                    "type": "string"
+                },
                 "environments": {
                     "type": "array",
                     "items": {

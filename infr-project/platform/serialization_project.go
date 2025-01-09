@@ -48,6 +48,10 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.Url = value
 	}
 
+	if value, ok := m["description"].(string); ok {
+		r.Description = value
+	}
+
 	if value, ok := m["provider_project_id"].(string); ok {
 		r.ProviderProjectId = value
 	}
@@ -107,6 +111,7 @@ func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
 		"secrets":             secrets,
 		"webhooks":            r.Webhooks,
 		"provider_project_id": r.ProviderProjectId,
+		"description":         r.Description,
 	}
 
 	return m

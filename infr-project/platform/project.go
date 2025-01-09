@@ -7,6 +7,7 @@ type PlatformProject struct {
 	Id                string              `json:"id" bson:"id"`
 	Name              string              `json:"name" bson:"name"`
 	Url               string              `json:"url" bson:"url"`
+	Description       string              `json:"description" bson:"description"`
 	Properties        map[string]Property `json:"properties" bson:"properties"`
 	Secrets           map[string]Secret   `json:"secrets" bson:"secrets"`
 	Webhooks          []Webhook           `json:"webhooks" bson:"webhooks"`
@@ -31,6 +32,12 @@ func WithProjectSecrets(secrets map[string]Secret) ProjectOption {
 	}
 }
 
+func WithProjectDescription(description string) ProjectOption {
+	return func(w *PlatformProject) {
+		w.Description = description
+	}
+}
+
 func NewPlatformProject(id string, name string, url string, opts ...ProjectOption) *PlatformProject {
 	project := &PlatformProject{
 		Id:         id,
@@ -49,6 +56,11 @@ func NewPlatformProject(id string, name string, url string, opts ...ProjectOptio
 
 func (w *PlatformProject) UpdateName(name string) *PlatformProject {
 	w.Name = name
+	return w
+}
+
+func (w *PlatformProject) UpdateDescription(description string) *PlatformProject {
+	w.Description = description
 	return w
 }
 

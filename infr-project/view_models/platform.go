@@ -83,6 +83,7 @@ type PlatformProject struct {
 	Id                string       `json:"id"`
 	Name              string       `json:"name"`
 	Url               string       `json:"url"`
+	Description       string       `json:"description"`
 	Properties        []Property   `json:"properties"`
 	Secrets           []Secret     `json:"secrets"`
 	Webhooks          []Webhook    `json:"webhooks"`

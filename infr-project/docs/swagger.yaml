@@ -407,6 +407,8 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Deployment'
         type: array
+      description:
+        type: string
       environments:
         items:
           $ref: '#/definitions/viewmodels.ProjectEnv'
