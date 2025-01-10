@@ -19,7 +19,7 @@ require (
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.3
-	github.com/hashicorp/go-tfe v1.72.0
+	github.com/hashicorp/go-tfe v1.73.0
 	github.com/hashicorp/hcp-sdk-go v0.129.0
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.7.0
@@ -83,7 +83,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/hashicorp/jsonapi v1.3.1 // indirect
+	github.com/hashicorp/jsonapi v1.3.2 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
