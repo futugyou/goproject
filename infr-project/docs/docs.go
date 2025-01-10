@@ -2619,6 +2619,18 @@ const docTemplate = `{
                 "activate": {
                     "type": "boolean"
                 },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "followed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },

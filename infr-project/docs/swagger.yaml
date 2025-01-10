@@ -785,6 +785,14 @@ definitions:
     properties:
       activate:
         type: boolean
+      events:
+        items:
+          type: string
+        type: array
+      followed:
+        type: boolean
+      id:
+        type: string
       name:
         type: string
       properties:
