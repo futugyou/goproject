@@ -25,6 +25,16 @@ func ArrayFilter[T any](raws []T, filter func(T) bool) (ret []T) {
 	return
 }
 
+func ArrayFirst[T any](raws []T, filter func(T) bool) *T {
+	for i := 0; i < len(raws); i++ {
+		if filter(raws[i]) {
+			return &raws[i]
+		}
+	}
+
+	return nil
+}
+
 func SplitArray[T any](arr []T, size int) [][]T {
 	var result [][]T
 

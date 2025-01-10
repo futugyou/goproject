@@ -9,6 +9,15 @@ func GetMapKeys[Key comparable, Value any](m map[Key]Value) []Key {
 	return keys
 }
 
+func GetMapValues[Key comparable, Value any](m map[Key]Value) []Value {
+	values := make([]Value, 0, len(m))
+	for k := range m {
+		values = append(values, m[k])
+	}
+
+	return values
+}
+
 // wo golang verison is 1.20, can not use slices lib.
 func MapToSliceDirect[T any, K comparable](m map[K]T) []T {
 	result := make([]T, 0, len(m))
