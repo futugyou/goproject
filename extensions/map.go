@@ -57,3 +57,14 @@ func SliceToMapWithTransform[T any, K comparable, V any](slice []T, keySelector 
 	}
 	return result
 }
+
+func SliceToMapWithTransform2[T any, K comparable, V any](slice []T, keySelector func(T) K, valueTransform func(T) (*V, bool)) map[K]V {
+	result := make(map[K]V)
+	for _, v := range slice {
+		key := keySelector(v)
+		if value, ok := valueTransform(v); ok {
+			result[key] = *value
+		}
+	}
+	return result
+}

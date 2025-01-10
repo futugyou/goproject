@@ -44,13 +44,11 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 	providerProjects []platformProvider.Project) []models.PlatformProject {
 	platformProjects := make([]models.PlatformProject, 0)
 	for _, project := range providerProjects {
-		var dbProject *platform.PlatformProject
-		for _, v := range projects {
-			if v.ProviderProjectId == project.ID {
-				dbProject = &v
-				delete(projects, v.Id)
-				break
-			}
+		dbProject := tool.ArrayFirst(tool.GetMapValues(projects), func(p platform.PlatformProject) bool {
+			return p.ProviderProjectId == project.ID
+		})
+		if dbProject != nil {
+			delete(projects, dbProject.Id)
 		}
 
 		modelProject := s.mergeProject(&project, dbProject)
@@ -66,30 +64,21 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 }
 
 func (s *PlatformService) convertToPlatformModelEnvironments(values map[string]platformProvider.Env) []models.ProjectEnv {
-	wps := []models.ProjectEnv{}
-	for _, v := range values {
-		wps = append(wps, models.ProjectEnv(v))
-	}
-
-	return wps
+	return tool.MapToSlice(values, func(key string, v platformProvider.Env) models.ProjectEnv {
+		return models.ProjectEnv(v)
+	})
 }
 
 func (s *PlatformService) convertToPlatformModelWorkflows(values map[string]platformProvider.Workflow) []models.Workflow {
-	wps := []models.Workflow{}
-	for _, v := range values {
-		wps = append(wps, models.Workflow(v))
-	}
-
-	return wps
+	return tool.MapToSlice(values, func(key string, v platformProvider.Workflow) models.Workflow {
+		return models.Workflow(v)
+	})
 }
 
 func (s *PlatformService) convertToPlatformModelDeployments(values map[string]platformProvider.Deployment) []models.Deployment {
-	wps := []models.Deployment{}
-	for _, v := range values {
-		wps = append(wps, models.Deployment(v))
-	}
-
-	return wps
+	return tool.MapToSlice(values, func(key string, v platformProvider.Deployment) models.Deployment {
+		return models.Deployment(v)
+	})
 }
 
 func (s *PlatformService) convertToPlatformModelWebhooks(hooks []platform.Webhook) []models.Webhook {
