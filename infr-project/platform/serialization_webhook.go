@@ -28,12 +28,13 @@ func (r Webhook) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byt
 		secrets = append(secrets, k)
 	}
 	m := map[string]interface{}{
-		"name":             r.Name,
-		"url":              r.Url,
-		"activate":         r.Activate,
-		"provider_hook_id": r.ProviderHookId,
-		"properties":       properties,
-		"secrets":          secrets,
+		"name":       r.Name,
+		"url":        r.Url,
+		"activate":   r.Activate,
+		"id":         r.ID,
+		"properties": properties,
+		"secrets":    secrets,
+		"events":     r.Events,
 	}
 	if r.State != nil {
 		m["state"] = r.State.String()
@@ -62,8 +63,8 @@ func (w *Webhook) commonUnmarshal(data []byte, marshal func(interface{}) ([]byte
 		w.Name = value
 	}
 
-	if value, ok := m["provider_hook_id"].(string); ok {
-		w.ProviderHookId = value
+	if value, ok := m["id"].(string); ok {
+		w.ID = value
 	}
 
 	if value, ok := m["url"].(string); ok {
@@ -92,6 +93,18 @@ func (w *Webhook) commonUnmarshal(data []byte, marshal func(interface{}) ([]byte
 
 	state, _ := m["state"].(string)
 	w.State = GetWebhookState(state)
+
+	if value, ok := m["events"].([]string); ok {
+		w.Events = value
+	} else if value, ok := m["events"].(primitive.A); ok {
+		events := make([]string, 0)
+		for _, item := range value {
+			if event, ok := item.(string); ok {
+				events = append(events, event)
+			}
+		}
+		w.Events = events
+	}
 
 	return nil
 }

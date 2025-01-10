@@ -85,12 +85,15 @@ func (s *PlatformService) convertToPlatformModelWebhooks(hooks []platform.Webhoo
 	webhooks := make([]models.Webhook, 0)
 	for i := 0; i < len(hooks); i++ {
 		webhooks = append(webhooks, models.Webhook{
+			ID:         hooks[i].ID,
 			Name:       hooks[i].Name,
 			Url:        hooks[i].Url,
+			Events:     hooks[i].Events,
 			Activate:   hooks[i].Activate,
 			State:      hooks[i].State.String(),
 			Properties: s.convertToPlatformModelProperties(hooks[i].Properties),
 			Secrets:    s.convertToPlatformModelSecrets(hooks[i].Secrets),
+			Followed:   false,
 		})
 	}
 

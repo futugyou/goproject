@@ -126,12 +126,15 @@ type Deployment struct {
 }
 
 type Webhook struct {
+	ID         string     `json:"id"`
 	Name       string     `json:"name"`
 	Url        string     `json:"url"`
+	Events     []string   `json:"events"`
 	Activate   bool       `json:"activate"`
 	State      string     `json:"state"`
 	Properties []Property `json:"properties"`
 	Secrets    []Secret   `json:"secrets"`
+	Followed   bool       `json:"followed"`
 }
 
 type SearchPlatformsRequest struct {

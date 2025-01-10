@@ -1,13 +1,14 @@
 package platform
 
 type Webhook struct {
-	Name           string              `json:"name"`
-	Url            string              `json:"url"`
-	Activate       bool                `json:"activate"`
-	State          WebhookState        `json:"state"`
-	Properties     map[string]Property `json:"properties"`
-	Secrets        map[string]Secret   `json:"secrets"`
-	ProviderHookId string              `json:"provider_hook_id"`
+	ID         string              `json:"id"`
+	Name       string              `json:"name"`
+	Url        string              `json:"url"`
+	Events     []string            `json:"events"`
+	Activate   bool                `json:"activate"`
+	State      WebhookState        `json:"state"`
+	Properties map[string]Property `json:"properties"`
+	Secrets    map[string]Secret   `json:"secrets"`
 }
 
 type WebhookOption func(*Webhook)
@@ -26,7 +27,13 @@ func WithWebhookState(state WebhookState) WebhookOption {
 
 func WithWebhookId(id string) WebhookOption {
 	return func(w *Webhook) {
-		w.ProviderHookId = id
+		w.ID = id
+	}
+}
+
+func WithWebhookEvents(evens []string) WebhookOption {
+	return func(w *Webhook) {
+		w.Events = evens
 	}
 }
 
@@ -60,6 +67,6 @@ func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
 }
 
 func (w *Webhook) UpdateProviderHookId(id string) *Webhook {
-	w.ProviderHookId = id
+	w.ID = id
 	return w
 }

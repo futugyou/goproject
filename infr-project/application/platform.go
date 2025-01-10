@@ -307,7 +307,7 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 	if request.Sync {
 		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
 			parameters := mergePropertiesToMap(plat.Properties, project.Properties)
-			if err = s.deleteProviderWebhook(ctx, provider, hook.ProviderHookId, parameters); err != nil {
+			if err = s.deleteProviderWebhook(ctx, provider, hook.ID, parameters); err != nil {
 				log.Println(err.Error())
 			}
 		} else {
