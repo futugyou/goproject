@@ -115,3 +115,59 @@ func (w *PlatformProject) GetWebhook(hookName string) (*Webhook, error) {
 
 	return nil, fmt.Errorf("webhook name: %s does not exist", hookName)
 }
+
+func (w *PlatformProject) GetId() string {
+	if w == nil {
+		return ""
+	}
+	return w.Id
+}
+
+func (w *PlatformProject) GetName() string {
+	if w == nil {
+		return ""
+	}
+	return w.Name
+}
+
+func (w *PlatformProject) GetUrl() string {
+	if w == nil {
+		return ""
+	}
+	return w.Url
+}
+
+func (w *PlatformProject) GetDescription() string {
+	if w == nil {
+		return ""
+	}
+	return w.Description
+}
+
+func (w *PlatformProject) GeProviderProjectId() string {
+	if w == nil {
+		return ""
+	}
+	return w.ProviderProjectId
+}
+
+func (w *PlatformProject) GetProperties() map[string]Property {
+	if w == nil {
+		return map[string]Property{}
+	}
+	return w.Properties
+}
+
+func (w *PlatformProject) GetSecrets() map[string]Secret {
+	if w == nil {
+		return map[string]Secret{}
+	}
+	return w.Secrets
+}
+
+func (w *PlatformProject) GetWebhooks() []Webhook {
+	if w == nil {
+		return []Webhook{}
+	}
+	return w.Webhooks
+}

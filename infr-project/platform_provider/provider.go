@@ -26,6 +26,13 @@ type Project struct {
 	BadgeMarkDown string
 }
 
+func (w *Project) GetWebhooks() []WebHook {
+	if w == nil {
+		return []WebHook{}
+	}
+	return w.WebHooks
+}
+
 type Env struct {
 	ID        string
 	Key       string
