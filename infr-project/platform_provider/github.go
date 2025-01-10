@@ -224,7 +224,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					Name:       hook.GetName(),
 					Url:        hook.GetURL(),
 					Events:     hook.Events,
-					Active:     hook.GetActive(),
+					Activate:   hook.GetActive(),
 					Parameters: paras,
 				})
 			}

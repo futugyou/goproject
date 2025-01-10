@@ -166,7 +166,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					Name:       hook.Id,
 					Url:        hook.Url,
 					Events:     hook.Events,
-					Active:     true,
+					Activate:   true,
 					Parameters: paras,
 				})
 			}

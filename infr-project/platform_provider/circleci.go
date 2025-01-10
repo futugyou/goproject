@@ -176,7 +176,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					Name:       hook.Name,
 					Url:        hook.Url,
 					Events:     hook.Events,
-					Active:     true,
+					Activate:   true,
 					Parameters: paras,
 				})
 			}

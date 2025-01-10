@@ -60,7 +60,7 @@ type WebHook struct {
 	Name       string
 	Url        string
 	Events     []string
-	Active     bool
+	Activate   bool
 	Parameters map[string]string
 }
 
