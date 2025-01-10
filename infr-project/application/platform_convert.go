@@ -302,7 +302,6 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		modelProject.Description = project.Description
 		modelProject.Name = project.Name
 		modelProject.Secrets = s.convertToPlatformModelSecrets(project.Secrets)
-		modelProject.Webhooks = s.convertToPlatformModelWebhooks(project.Webhooks)
 	}
 
 	properties := []models.Property{}
@@ -324,12 +323,13 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		modelProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
 		modelProject.BadgeURL = providerProject.BadgeURL
 		modelProject.BadgeMarkdown = providerProject.BadgeMarkDown
-		// TODO redesign hook
-		// modelProject.Webhooks = providerProject.WebHooks
+
 		for k, v := range providerProject.Properties {
 			properties = append(properties, models.Property{Key: k, Value: v})
 		}
 	}
+
+	modelProject.Webhooks = s.mergeWebhooks(project.GetWebhooks(), providerProject.GetWebhooks())
 
 	if providerProject != nil && project != nil {
 		modelProject.Followed = true
@@ -349,4 +349,68 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 	modelProject.Properties = properties
 
 	return modelProject
+}
+
+func (s *PlatformService) mergeWebhooks(platformWebhooks []platform.Webhook, providerWebHooks []platformProvider.WebHook) []models.Webhook {
+	webhooks := []models.Webhook{}
+	for _, hook := range platformWebhooks {
+		mw := models.Webhook{
+			ID:         hook.ID,
+			Name:       hook.Name,
+			Url:        hook.Url,
+			Events:     hook.Events,
+			Activate:   hook.Activate,
+			State:      hook.State.String(),
+			Properties: s.convertToPlatformModelProperties(hook.Properties),
+			Secrets:    s.convertToPlatformModelSecrets(hook.Secrets),
+			Followed:   false,
+		}
+		prow := tool.ArrayFirst(providerWebHooks, func(t platformProvider.WebHook) bool { return t.ID == hook.ID })
+		if prow != nil {
+			mw.Name = prow.Name
+			mw.Url = prow.Url
+			mw.Activate = prow.Activate
+			mw.Followed = true
+			mw.Properties = s.mergeWebhookProperty(*prow, mw.Properties)
+			mw.Events = prow.Events
+		}
+
+		webhooks = append(webhooks, mw)
+	}
+
+	for _, prow := range providerWebHooks {
+		hook := tool.ArrayFirst(platformWebhooks, func(t platform.Webhook) bool { return t.ID == prow.ID })
+		if hook == nil {
+			webhooks = append(webhooks, models.Webhook{
+				Name:       prow.Name,
+				Url:        prow.Url,
+				Activate:   prow.Activate,
+				State:      "Ready",
+				Properties: s.mergeWebhookProperty(prow, nil),
+				Secrets:    []models.Secret{},
+				Followed:   true,
+				ID:         prow.ID,
+			})
+		}
+	}
+
+	return webhooks
+}
+
+func (*PlatformService) mergeWebhookProperty(prow platformProvider.WebHook, properties []models.Property) []models.Property {
+	if properties == nil {
+		properties = []models.Property{}
+	}
+
+	for key, v := range prow.Parameters {
+		if f := tool.ArrayFirst(properties, func(p models.Property) bool {
+			return p.Key == key
+		}); f == nil {
+			properties = append(properties, models.Property{
+				Key:   key,
+				Value: v,
+			})
+		}
+	}
+	return properties
 }
