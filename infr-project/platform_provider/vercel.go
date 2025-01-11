@@ -96,7 +96,9 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 			}
 
 			properties := map[string]string{}
+			environments := []string{}
 			for key, v := range project.Targets {
+				environments = append(environments, key)
 				k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
 				properties[k] = strings.Join(v.Alias, ",")
 			}
@@ -113,6 +115,7 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				Url:                  url,
 				Properties:           properties,
 				EnvironmentVariables: g.buildVercelEnv(project.Env),
+				Environments:         environments,
 				Deployments:          g.buildVercelDeployment(project.LatestDeployments, url),
 				BadgeURL:             badgeURL,
 				BadgeMarkDown:        badgeMarkdown,
@@ -173,7 +176,9 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 
 		properties := map[string]string{}
+		environments := []string{}
 		for key, v := range vercelProject.Targets {
+			environments = append(environments, key)
 			k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
 			properties[k] = strings.Join(v.Alias, ",")
 		}
@@ -198,6 +203,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
 			Deployments:          g.buildVercelDeployment(vercelProject.LatestDeployments, url),
 			BadgeURL:             badgeURL,
+			Environments:         environments,
 			BadgeMarkDown:        badgeMarkdown,
 		}
 

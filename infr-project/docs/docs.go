@@ -1971,6 +1971,29 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodels.EnvironmentVariable": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodels.ImportVaultsRequest": {
             "type": "object",
             "properties": {
@@ -2078,7 +2101,13 @@ const docTemplate = `{
                 "environment_variables": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.ProjectEnvironmentVariable"
+                        "$ref": "#/definitions/viewmodels.EnvironmentVariable"
+                    }
+                },
+                "environments": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 },
                 "followed": {
@@ -2165,29 +2194,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/viewmodels.ProjectResource"
                     }
-                }
-            }
-        },
-        "viewmodels.ProjectEnvironmentVariable": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
                 }
             }
         },

@@ -20,6 +20,7 @@ type Project struct {
 	WebHooks             []WebHook
 	Properties           map[string]string
 	EnvironmentVariables map[string]EnvironmentVariable
+	Environments         []string
 	Workflows            map[string]Workflow
 	Deployments          map[string]Deployment
 	BadgeURL             string

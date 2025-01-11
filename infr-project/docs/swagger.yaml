@@ -338,6 +338,21 @@ definitions:
       readySubstate:
         type: string
     type: object
+  viewmodels.EnvironmentVariable:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
+    type: object
   viewmodels.ImportVaultsRequest:
     properties:
       storage_media:
@@ -411,7 +426,11 @@ definitions:
         type: string
       environment_variables:
         items:
-          $ref: '#/definitions/viewmodels.ProjectEnvironmentVariable'
+          $ref: '#/definitions/viewmodels.EnvironmentVariable'
+        type: array
+      environments:
+        items:
+          type: string
         type: array
       followed:
         type: boolean
@@ -469,21 +488,6 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.ProjectResource'
         type: array
-    type: object
-  viewmodels.ProjectEnvironmentVariable:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: string
-      key:
-        type: string
-      type:
-        type: string
-      updatedAt:
-        type: string
-      value:
-        type: string
     type: object
   viewmodels.ProjectPlatform:
     properties:

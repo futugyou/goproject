@@ -271,11 +271,23 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
+		environments := []string{}
+		if gitRuns, _, err := g.client.Repositories.ListEnvironments(ctx, GITHUB_OWNER, filter.Name, &github.EnvironmentListOptions{
+			ListOptions: github.ListOptions{Page: 1, PerPage: 20},
+		}); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, v := range gitRuns.Environments {
+				environments = append(environments, v.GetEnvironmentName())
+			}
+		}
+
 		project := g.buildGithubProject(repository)
 		project.WebHooks = hooks
 		project.EnvironmentVariables = envs
 		project.Workflows = wfs
 		project.Deployments = runs
+		project.Environments = environments
 		resultChan <- &project
 	}()
 	return resultChan, errorChan

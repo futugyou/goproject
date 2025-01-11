@@ -63,9 +63,9 @@ func (s *PlatformService) convertToPlatformModelProjects(projects map[string]pla
 	return platformProjects
 }
 
-func (s *PlatformService) convertToPlatformModelEnvironments(values map[string]platformProvider.EnvironmentVariable) []models.ProjectEnvironmentVariable {
-	return tool.MapToSlice(values, func(key string, v platformProvider.EnvironmentVariable) models.ProjectEnvironmentVariable {
-		return models.ProjectEnvironmentVariable(v)
+func (s *PlatformService) convertToPlatformModelEnvironments(values map[string]platformProvider.EnvironmentVariable) []models.EnvironmentVariable {
+	return tool.MapToSlice(values, func(key string, v platformProvider.EnvironmentVariable) models.EnvironmentVariable {
+		return models.EnvironmentVariable(v)
 	})
 }
 
@@ -299,7 +299,8 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 
 		modelProject.Url = providerProject.Url
 		modelProject.ProviderProjectId = providerProject.ID
-		modelProject.Environments = s.convertToPlatformModelEnvironments(providerProject.EnvironmentVariables)
+		modelProject.EnvironmentVariables = s.convertToPlatformModelEnvironments(providerProject.EnvironmentVariables)
+		modelProject.Environments = providerProject.Environments
 		modelProject.Workflows = s.convertToPlatformModelWorkflows(providerProject.Workflows)
 		modelProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
 		modelProject.BadgeURL = providerProject.BadgeURL

@@ -80,23 +80,24 @@ type Secret struct {
 }
 
 type PlatformProject struct {
-	Id                string                       `json:"id"`
-	Name              string                       `json:"name"`
-	Url               string                       `json:"url"`
-	Description       string                       `json:"description"`
-	Properties        []Property                   `json:"properties"`
-	Secrets           []Secret                     `json:"secrets"`
-	Webhooks          []Webhook                    `json:"webhooks"`
-	Followed          bool                         `json:"followed"`
-	ProviderProjectId string                       `json:"provider_project_id"`
-	Environments      []ProjectEnvironmentVariable `json:"environment_variables"`
-	Workflows         []Workflow                   `json:"workflows"`
-	Deployments       []Deployment                 `json:"deployments"`
-	BadgeURL          string                       `json:"badge_url"`
-	BadgeMarkdown     string                       `json:"badge_markdown"`
+	Id                   string                `json:"id"`
+	Name                 string                `json:"name"`
+	Url                  string                `json:"url"`
+	Description          string                `json:"description"`
+	Properties           []Property            `json:"properties"`
+	Secrets              []Secret              `json:"secrets"`
+	Webhooks             []Webhook             `json:"webhooks"`
+	Followed             bool                  `json:"followed"`
+	ProviderProjectId    string                `json:"provider_project_id"`
+	EnvironmentVariables []EnvironmentVariable `json:"environment_variables"`
+	Environments         []string              `json:"environments"`
+	Workflows            []Workflow            `json:"workflows"`
+	Deployments          []Deployment          `json:"deployments"`
+	BadgeURL             string                `json:"badge_url"`
+	BadgeMarkdown        string                `json:"badge_markdown"`
 }
 
-type ProjectEnvironmentVariable struct {
+type EnvironmentVariable struct {
 	ID        string `json:"id"`
 	Key       string `json:"key"`
 	CreatedAt string `json:"createdAt"`
