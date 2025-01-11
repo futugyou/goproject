@@ -118,7 +118,7 @@ type Workflow struct {
 type Deployment struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
-	Plan          string `json:"plan"`
+	Environment   string `json:"environment"`
 	ReadyState    string `json:"readyState"`
 	ReadySubstate string `json:"readySubstate"`
 	CreatedAt     string `json:"createdAt"`

@@ -248,7 +248,7 @@ func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDe
 		deployments[v.ID] = Deployment{
 			ID:            v.ID,
 			Name:          v.Name,
-			Plan:          v.Plan,
+			Environment:   v.Target,
 			ReadyState:    v.ReadyState,
 			ReadySubstate: v.ReadySubstate,
 			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),

@@ -1954,13 +1954,13 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "environment": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "plan": {
                     "type": "string"
                 },
                 "readyState": {

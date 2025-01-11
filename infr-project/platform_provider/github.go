@@ -249,24 +249,18 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
-		runs := map[string]Deployment{}
-		if gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
-			Branch:      repository.GetDefaultBranch(),
+		deployments := map[string]Deployment{}
+		if gitDeployments, _, err := g.client.Repositories.ListDeployments(ctx, GITHUB_OWNER, filter.Name, &github.DeploymentsListOptions{
 			ListOptions: github.ListOptions{Page: 1, PerPage: 20},
 		}); err != nil {
 			log.Println(err.Error())
 		} else {
-			for _, v := range gitRuns.WorkflowRuns {
-				badgeUrl, badgeMarkdown := g.buildGithubWorkflowBadge(v.GetName(), v.GetStatus(), v.GetURL())
-				runs[fmt.Sprintf("%d", v.GetID())] = Deployment{
-					ID:            fmt.Sprintf("%d", v.GetID()),
-					Name:          v.GetName(),
-					Plan:          "",
-					ReadyState:    v.GetStatus(),
-					ReadySubstate: v.GetStatus(),
-					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
-					BadgeURL:      badgeUrl,
-					BadgeMarkdown: badgeMarkdown,
+			for _, v := range gitDeployments {
+				deployments[fmt.Sprintf("%d", v.GetID())] = Deployment{
+					ID:          fmt.Sprintf("%d", v.GetID()),
+					Name:        v.GetTask(),
+					Environment: v.GetEnvironment(),
+					CreatedAt:   v.GetCreatedAt().Format(time.RFC3339Nano),
 				}
 			}
 		}
@@ -286,7 +280,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		project.WebHooks = hooks
 		project.EnvironmentVariables = envs
 		project.Workflows = wfs
-		project.Deployments = runs
+		project.Deployments = deployments
 		project.Environments = environments
 		resultChan <- &project
 	}()

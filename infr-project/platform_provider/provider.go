@@ -55,7 +55,7 @@ type Workflow struct {
 type Deployment struct {
 	ID            string
 	Name          string
-	Plan          string
+	Environment   string
 	ReadyState    string
 	ReadySubstate string
 	CreatedAt     string
