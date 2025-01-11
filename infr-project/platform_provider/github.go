@@ -230,7 +230,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
-		envs := map[string]Env{}
+		envs := map[string]EnvironmentVariable{}
 		if gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
 			log.Println(err.Error())
 		} else {
@@ -238,7 +238,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				if v == nil {
 					continue
 				}
-				envs[v.Name] = Env{
+				envs[v.Name] = EnvironmentVariable{
 					ID:        v.Name,
 					Key:       v.Name,
 					CreatedAt: v.CreatedAt.Format(time.RFC3339Nano),
@@ -273,7 +273,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		project := g.buildGithubProject(repository)
 		project.WebHooks = hooks
-		project.Envs = envs
+		project.EnvironmentVariables = envs
 		project.Workflows = wfs
 		project.Deployments = runs
 		resultChan <- &project

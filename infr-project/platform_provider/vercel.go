@@ -108,14 +108,14 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 
 			badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
 			projects = append(projects, Project{
-				ID:            project.Id,
-				Name:          project.Name,
-				Url:           url,
-				Properties:    properties,
-				Envs:          g.buildVercelEnv(project.Env),
-				Deployments:   g.buildVercelDeployment(project.LatestDeployments, url),
-				BadgeURL:      badgeURL,
-				BadgeMarkDown: badgeMarkdown,
+				ID:                   project.Id,
+				Name:                 project.Name,
+				Url:                  url,
+				Properties:           properties,
+				EnvironmentVariables: g.buildVercelEnv(project.Env),
+				Deployments:          g.buildVercelDeployment(project.LatestDeployments, url),
+				BadgeURL:             badgeURL,
+				BadgeMarkDown:        badgeMarkdown,
 			})
 		}
 
@@ -190,15 +190,15 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
 		project := &Project{
-			ID:            vercelProject.Id,
-			Name:          vercelProject.Name,
-			Url:           url,
-			WebHooks:      hooks,
-			Properties:    properties,
-			Envs:          g.buildVercelEnv(vercelProject.Env),
-			Deployments:   g.buildVercelDeployment(vercelProject.LatestDeployments, url),
-			BadgeURL:      badgeURL,
-			BadgeMarkDown: badgeMarkdown,
+			ID:                   vercelProject.Id,
+			Name:                 vercelProject.Name,
+			Url:                  url,
+			WebHooks:             hooks,
+			Properties:           properties,
+			EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
+			Deployments:          g.buildVercelDeployment(vercelProject.LatestDeployments, url),
+			BadgeURL:             badgeURL,
+			BadgeMarkDown:        badgeMarkdown,
 		}
 
 		resultChan <- project
@@ -220,10 +220,10 @@ func (*VercelClient) buildVercelBadge(lable string, url string, readyState strin
 	return
 }
 
-func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Env {
-	envs := map[string]Env{}
+func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]EnvironmentVariable {
+	envs := map[string]EnvironmentVariable{}
 	for _, v := range vercelEnvs {
-		envs[v.ID] = Env{
+		envs[v.ID] = EnvironmentVariable{
 			ID:        v.ID,
 			Key:       v.Key,
 			CreatedAt: tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),

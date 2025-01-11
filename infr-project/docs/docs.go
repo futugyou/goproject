@@ -2075,10 +2075,10 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "environments": {
+                "environment_variables": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.ProjectEnv"
+                        "$ref": "#/definitions/viewmodels.ProjectEnvironmentVariable"
                     }
                 },
                 "followed": {
@@ -2168,7 +2168,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.ProjectEnv": {
+        "viewmodels.ProjectEnvironmentVariable": {
             "type": "object",
             "properties": {
                 "createdAt": {

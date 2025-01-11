@@ -13,17 +13,17 @@ type CreateProjectRequest struct {
 }
 
 type Project struct {
-	ID            string
-	Name          string
-	Url           string
-	Description   string
-	WebHooks      []WebHook
-	Properties    map[string]string
-	Envs          map[string]Env
-	Workflows     map[string]Workflow
-	Deployments   map[string]Deployment
-	BadgeURL      string
-	BadgeMarkDown string
+	ID                   string
+	Name                 string
+	Url                  string
+	Description          string
+	WebHooks             []WebHook
+	Properties           map[string]string
+	EnvironmentVariables map[string]EnvironmentVariable
+	Workflows            map[string]Workflow
+	Deployments          map[string]Deployment
+	BadgeURL             string
+	BadgeMarkDown        string
 }
 
 func (w *Project) GetWebhooks() []WebHook {
@@ -33,7 +33,7 @@ func (w *Project) GetWebhooks() []WebHook {
 	return w.WebHooks
 }
 
-type Env struct {
+type EnvironmentVariable struct {
 	ID        string
 	Key       string
 	CreatedAt string

@@ -188,12 +188,12 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			badgeURL, badgeMarkdown = g.buildProjectBadge(vcs, vcsurlinfos[len(vcsurlinfos)-2], vcsurlinfos[len(vcsurlinfos)-1], circleciProject.VcsInfo.DefaultBranch)
 		}
 
-		envs := map[string]Env{}
+		envs := map[string]EnvironmentVariable{}
 		if circleciEnvs, err := g.client.Project.GetEnvironmentVariables(ctx, circleciProject.Slug); err != nil {
 			log.Println(err.Error())
 		} else {
 			for _, e := range circleciEnvs.Items {
-				envs[e.Name] = Env{
+				envs[e.Name] = EnvironmentVariable{
 					ID:        e.Name,
 					Key:       e.Name,
 					CreatedAt: e.CreatedAt,
@@ -205,17 +205,17 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 
 		project := &Project{
-			ID:            circleciProject.Name,
-			Name:          circleciProject.Name,
-			Url:           url,
-			Description:   circleciProject.GetMessage(),
-			WebHooks:      webHooks,
-			Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
-			Envs:          envs,
-			Workflows:     map[string]Workflow{},
-			Deployments:   map[string]Deployment{},
-			BadgeURL:      badgeURL,
-			BadgeMarkDown: badgeMarkdown,
+			ID:                   circleciProject.Name,
+			Name:                 circleciProject.Name,
+			Url:                  url,
+			Description:          circleciProject.GetMessage(),
+			WebHooks:             webHooks,
+			Properties:           map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
+			EnvironmentVariables: envs,
+			Workflows:            map[string]Workflow{},
+			Deployments:          map[string]Deployment{},
+			BadgeURL:             badgeURL,
+			BadgeMarkDown:        badgeMarkdown,
 		}
 
 		resultChan <- project

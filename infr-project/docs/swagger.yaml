@@ -409,9 +409,9 @@ definitions:
         type: array
       description:
         type: string
-      environments:
+      environment_variables:
         items:
-          $ref: '#/definitions/viewmodels.ProjectEnv'
+          $ref: '#/definitions/viewmodels.ProjectEnvironmentVariable'
         type: array
       followed:
         type: boolean
@@ -470,7 +470,7 @@ definitions:
           $ref: '#/definitions/viewmodels.ProjectResource'
         type: array
     type: object
-  viewmodels.ProjectEnv:
+  viewmodels.ProjectEnvironmentVariable:
     properties:
       createdAt:
         type: string
