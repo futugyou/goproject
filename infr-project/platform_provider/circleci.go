@@ -182,12 +182,6 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
-		badgeURL, badgeMarkdown := "", ""
-		vcsurlinfos := strings.Split(circleciProject.VcsInfo.VcsURL, "/")
-		if len(vcsurlinfos) >= 2 {
-			badgeURL, badgeMarkdown = g.buildProjectBadge(vcs, vcsurlinfos[len(vcsurlinfos)-2], vcsurlinfos[len(vcsurlinfos)-1], circleciProject.VcsInfo.DefaultBranch)
-		}
-
 		envs := map[string]EnvironmentVariable{}
 		if circleciEnvs, err := g.client.Project.GetEnvironmentVariables(ctx, circleciProject.Slug); err != nil {
 			log.Println(err.Error())
@@ -204,6 +198,29 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
+		runs := map[string]WorkflowRun{}
+		if circleciRuns, err := g.client.Pipeline.GetYourPipelines(ctx, circleciProject.Slug); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, e := range circleciRuns.Items {
+				badgeURL, badgeMarkdown := buildCommonBadge(fmt.Sprintf("%d", e.Number), e.State, "created", "circleci", nil)
+				runs[e.ID] = WorkflowRun{
+					ID:            e.ID,
+					Name:          fmt.Sprintf("%d", e.Number),
+					Status:        e.State,
+					CreatedAt:     e.CreatedAt,
+					BadgeURL:      badgeURL,
+					BadgeMarkdown: badgeMarkdown,
+				}
+			}
+		}
+
+		badgeURL, badgeMarkdown := "", ""
+		vcsurlinfos := strings.Split(circleciProject.VcsInfo.VcsURL, "/")
+		if len(vcsurlinfos) >= 2 {
+			badgeURL, badgeMarkdown = g.buildProjectBadge(vcs, vcsurlinfos[len(vcsurlinfos)-2], vcsurlinfos[len(vcsurlinfos)-1], circleciProject.VcsInfo.DefaultBranch)
+		}
+
 		project := &Project{
 			ID:                   circleciProject.Name,
 			Name:                 circleciProject.Name,
@@ -212,8 +229,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			WebHooks:             webHooks,
 			Properties:           map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
 			EnvironmentVariables: envs,
-			Workflows:            map[string]Workflow{},
-			Deployments:          map[string]Deployment{},
+			WorkflowRuns:         runs,
 			BadgeURL:             badgeURL,
 			BadgeMarkDown:        badgeMarkdown,
 		}
@@ -382,20 +398,20 @@ func (g *CircleClient) buildProject(pro circleci.ProjectListItem, url string) Pr
 		Name:          pro.Reponame,
 		Url:           fmt.Sprintf(url, vcs_full, pro.Username, pro.Reponame),
 		Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": pro.VcsURL},
-		Workflows:     g.buildWrokflow(vcs, vcs_full, pro),
+		WorkflowRuns:  g.buildWrokflow(vcs, vcs_full, pro),
 		BadgeURL:      badgeURL,
 		BadgeMarkDown: badgeMarkdown,
 	}
 }
 
-func (g *CircleClient) buildWrokflow(vcs string, vcs_full string, pro circleci.ProjectListItem) map[string]Workflow {
+func (g *CircleClient) buildWrokflow(vcs string, vcs_full string, pro circleci.ProjectListItem) map[string]WorkflowRun {
 	default_branch := pro.DefaultBranch
 	branchInfo := pro.Branches[default_branch]
 
-	workflows := map[string]Workflow{}
+	workflows := map[string]WorkflowRun{}
 	for k, v := range branchInfo.LatestWorkflows {
 		badgeURL, badgeMarkdown := g.buildWorkflowBadge(vcs, vcs_full, pro.Username, pro.Reponame, k, default_branch)
-		workflows[k] = Workflow{
+		workflows[k] = WorkflowRun{
 			ID:            v.ID,
 			Name:          k,
 			Status:        v.Status,
