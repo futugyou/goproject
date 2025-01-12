@@ -1,10 +1,30 @@
 package platform_provider
 
-import "context"
+import (
+	"context"
+	"fmt"
+	"strings"
+)
 
 //TODO: fill field
 
 const CommonProjectBadge = "https://img.shields.io/badge/%s-%s-%s?logo=%s&link=%s"
+const CommonProjectBadgeWithoutUrl = "https://img.shields.io/badge/%s-%s-%s?logo=%s"
+
+func buildCommonBadge(lable string, state string, okState string, logo string, url *string) (badgeUrl string, badgeMarkDown string) {
+	lable = strings.ReplaceAll(lable, "-", "%20")
+	if state == okState {
+		badgeUrl = fmt.Sprintf(CommonProjectBadgeWithoutUrl, lable, state, "brightgreen", logo)
+	} else {
+		badgeUrl = fmt.Sprintf(CommonProjectBadgeWithoutUrl, lable, state, "red", logo)
+	}
+
+	if url != nil {
+		badgeUrl += fmt.Sprintf("&link=%s", *url)
+	}
+	badgeMarkDown = fmt.Sprintf("![%s](%s)", lable, badgeUrl)
+	return
+}
 
 type CreateProjectRequest struct {
 	PlatformId string
@@ -19,10 +39,11 @@ type Project struct {
 	Description          string
 	WebHooks             []WebHook
 	Properties           map[string]string
-	EnvironmentVariables map[string]EnvironmentVariable
-	Environments         []string
-	Workflows            map[string]Workflow
-	Deployments          map[string]Deployment
+	EnvironmentVariables map[string]EnvironmentVariable // github use action repositroy secrets
+	Environments         []string                       // circleci don't have
+	Workflows            map[string]Workflow            // circleci have pipeline, but it's a record of WorkflowRun. vercel don't have
+	WorkflowRuns         map[string]WorkflowRun         // circleci use 'pipeline'. vercel don't have
+	Deployments          map[string]Deployment          // circleci don't have
 	BadgeURL             string
 	BadgeMarkDown        string
 }
@@ -44,6 +65,15 @@ type EnvironmentVariable struct {
 }
 
 type Workflow struct {
+	ID            string
+	Name          string
+	Status        string
+	CreatedAt     string
+	BadgeURL      string
+	BadgeMarkdown string
+}
+
+type WorkflowRun struct {
 	ID            string
 	Name          string
 	Status        string
