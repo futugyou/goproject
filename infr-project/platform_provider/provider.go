@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-//TODO: fill field
-
 const CommonProjectBadge = "https://img.shields.io/badge/%s-%s-%s?logo=%s&link=%s"
 const CommonProjectBadgeWithoutUrl = "https://img.shields.io/badge/%s-%s-%s?logo=%s"
 

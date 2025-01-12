@@ -276,10 +276,31 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
+		runs := map[string]WorkflowRun{}
+		if gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
+			Branch:      repository.GetDefaultBranch(),
+			ListOptions: github.ListOptions{Page: 1, PerPage: 20},
+		}); err != nil {
+			log.Println(err.Error())
+		} else {
+			for _, v := range gitRuns.WorkflowRuns {
+				badgeUrl, badgeMarkdown := g.buildGithubWorkflowBadge(v.GetName(), v.GetStatus(), v.GetURL())
+				runs[fmt.Sprintf("%d", v.GetID())] = WorkflowRun{
+					ID:            fmt.Sprintf("%d", v.GetID()),
+					Name:          v.GetName(),
+					Status:        v.GetStatus(),
+					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
+					BadgeURL:      badgeUrl,
+					BadgeMarkdown: badgeMarkdown,
+				}
+			}
+		}
+
 		project := g.buildGithubProject(repository)
 		project.WebHooks = hooks
 		project.EnvironmentVariables = envs
 		project.Workflows = wfs
+		project.WorkflowRuns = runs
 		project.Deployments = deployments
 		project.Environments = environments
 		resultChan <- &project
