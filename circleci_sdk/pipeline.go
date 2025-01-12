@@ -156,12 +156,20 @@ type CircleciPipeline struct {
 	ProjectSlug       string            `json:"project_slug"`
 	UpdatedAt         string            `json:"updated_at"`
 	Number            int               `json:"number"`
-	TriggerParameters TriggerParameters `json:"trigger_parameters"`
+	TriggerParameters map[string]string `json:"trigger_parameters"`
 	State             string            `json:"state"`
 	CreatedAt         string            `json:"created_at"`
 	Trigger           Trigger           `json:"trigger"`
 	Vcs               Vcs               `json:"vcs"`
 	Message           *string           `json:"message"`
+}
+
+func (c *CircleciPipeline) GetMessage() string {
+	if c == nil || c.Message == nil {
+		return ""
+	}
+
+	return *c.Message
 }
 
 type CircleciError struct {
@@ -180,11 +188,6 @@ type Actor struct {
 	AvatarURL string `json:"avatar_url"`
 	ID        string `json:"id"`
 	Name      string `json:"name"`
-}
-
-type TriggerParameters struct {
-	Property1 string `json:"property1"`
-	Property2 string `json:"property2"`
 }
 
 type Vcs struct {
