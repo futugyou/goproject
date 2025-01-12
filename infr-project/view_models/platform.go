@@ -92,6 +92,7 @@ type PlatformProject struct {
 	EnvironmentVariables []EnvironmentVariable `json:"environment_variables"`
 	Environments         []string              `json:"environments"`
 	Workflows            []Workflow            `json:"workflows"`
+	WorkflowRuns         []WorkflowRun         `json:"workflow_runs"`
 	Deployments          []Deployment          `json:"deployments"`
 	BadgeURL             string                `json:"badge_url"`
 	BadgeMarkdown        string                `json:"badge_markdown"`
@@ -107,6 +108,15 @@ type EnvironmentVariable struct {
 }
 
 type Workflow struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Status        string `json:"status"`
+	CreatedAt     string `json:"createdAt"`
+	BadgeURL      string `json:"badge_url"`
+	BadgeMarkdown string `json:"badge_markdown"`
+}
+
+type WorkflowRun struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
 	Status        string `json:"status"`

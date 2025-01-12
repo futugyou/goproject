@@ -454,6 +454,10 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Webhook'
         type: array
+      workflow_runs:
+        items:
+          $ref: '#/definitions/viewmodels.WorkflowRun'
+        type: array
       workflows:
         items:
           $ref: '#/definitions/viewmodels.Workflow'
@@ -813,6 +817,21 @@ definitions:
         type: string
     type: object
   viewmodels.Workflow:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  viewmodels.WorkflowRun:
     properties:
       badge_markdown:
         type: string

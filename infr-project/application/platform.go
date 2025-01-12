@@ -429,6 +429,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrNa
 		if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
 			log.Println(err.Error())
 		} else {
+			// TODO: add limit or cache when get detail provider
 			parameters := mergePropertiesToMap(project.Properties, src.Properties)
 			if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
 				log.Println(err.Error())

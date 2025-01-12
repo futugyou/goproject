@@ -2143,6 +2143,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Webhook"
                     }
                 },
+                "workflow_runs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/viewmodels.WorkflowRun"
+                    }
+                },
                 "workflows": {
                     "type": "array",
                     "items": {
@@ -2661,6 +2667,29 @@ const docTemplate = `{
             }
         },
         "viewmodels.Workflow": {
+            "type": "object",
+            "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "viewmodels.WorkflowRun": {
             "type": "object",
             "properties": {
                 "badge_markdown": {
