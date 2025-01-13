@@ -229,6 +229,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			WebHooks:             webHooks,
 			Properties:           map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
 			EnvironmentVariables: envs,
+			Environments:		  [],
 			WorkflowRuns:         runs,
 			BadgeURL:             badgeURL,
 			BadgeMarkDown:        badgeMarkdown,
@@ -398,7 +399,8 @@ func (g *CircleClient) buildProject(pro circleci.ProjectListItem, url string) Pr
 		Name:          pro.Reponame,
 		Url:           fmt.Sprintf(url, vcs_full, pro.Username, pro.Reponame),
 		Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": pro.VcsURL},
-		WorkflowRuns:  g.buildWrokflow(vcs, vcs_full, pro),
+		WorkflowRuns:  g.buildWrokflow(vcs, vcs_full, pro),		
+		Environments:  [],
 		BadgeURL:      badgeURL,
 		BadgeMarkDown: badgeMarkdown,
 	}
