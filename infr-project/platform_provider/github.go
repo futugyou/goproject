@@ -145,7 +145,7 @@ func (g *GithubClient) buildGithubProject(repo *github.Repository) Project {
 		Properties:    paras,
 		BadgeURL:      badgeURL,
 		BadgeMarkDown: badgeMarkdown,
-		Environments:  [],
+		Environments:  []string{},
 	}
 }
 
