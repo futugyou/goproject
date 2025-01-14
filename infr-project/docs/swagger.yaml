@@ -586,6 +586,10 @@ definitions:
     type: object
   viewmodels.UpdatePlatformProjectRequest:
     properties:
+      description:
+        maxLength: 250
+        minLength: 3
+        type: string
       name:
         maxLength: 50
         minLength: 3
@@ -611,6 +615,7 @@ definitions:
         minLength: 3
         type: string
     required:
+    - description
     - name
     - properties
     - secrets

@@ -2344,12 +2344,18 @@ const docTemplate = `{
         "viewmodels.UpdatePlatformProjectRequest": {
             "type": "object",
             "required": [
+                "description",
                 "name",
                 "properties",
                 "secrets",
                 "url"
             ],
             "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 3
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 50,
