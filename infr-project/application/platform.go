@@ -349,6 +349,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		project.Url,
 		platform.WithProjectProperties(properties),
 		platform.WithProjectSecrets(secrets),
+		platform.WithProjectDescription(project.Description),
 	)
 
 	if _, err = plat.UpdateProject(*proj); err != nil {

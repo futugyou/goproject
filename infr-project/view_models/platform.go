@@ -27,6 +27,7 @@ type UpdatePlatformProjectRequest struct {
 	Name              string     `json:"name" validate:"required,min=3,max=50"`
 	Url               string     `json:"url" validate:"required,min=3,max=150"`
 	Secrets           []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
+	Description       string     `json:"description" validate:"required,min=3,max=250"`
 	Properties        []Property `json:"properties" validate:"required"`
 	ProviderProjectId string     `json:"provider_project_id"`
 	Operate           string     `json:"operate" validate:"oneof=upsert sync"`
