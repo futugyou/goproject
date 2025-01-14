@@ -46,6 +46,13 @@ type Project struct {
 	BadgeMarkDown        string
 }
 
+func (w *Project) GetProperties() map[string]string {
+	if w == nil {
+		return map[string]string{}
+	}
+	return w.Properties
+}
+
 func (w *Project) GetWebhooks() []WebHook {
 	if w == nil {
 		return []WebHook{}
@@ -98,6 +105,13 @@ type WebHook struct {
 	Events     []string
 	Activate   bool
 	Parameters map[string]string
+}
+
+func (w *WebHook) GetParameters() map[string]string {
+	if w == nil {
+		return map[string]string{}
+	}
+	return w.Parameters
 }
 
 type ProjectFilter struct {
