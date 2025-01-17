@@ -72,7 +72,7 @@ func (g *GithubClient) CreateProjectAsync(ctx context.Context, request CreatePro
 		resultChan <- &Project{
 			ID:   repository.GetName(), // gitHub repository uses name more often than id
 			Name: repository.GetName(),
-			Url:  repository.GetURL(),
+			Url:  repository.GetHTMLURL(),
 		}
 	}()
 	return resultChan, errorChan
@@ -130,7 +130,7 @@ func (g *GithubClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 }
 
 func (g *GithubClient) buildGithubProject(repo *github.Repository) Project {
-	badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetURL())
+	badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetHTMLURL())
 	paras := map[string]string{}
 	paras["GITHUB_REPO"] = repo.GetName()
 	paras["GITHUB_DETAULT_BRANCH"] = repo.GetDefaultBranch()
@@ -140,7 +140,7 @@ func (g *GithubClient) buildGithubProject(repo *github.Repository) Project {
 	return Project{
 		ID:            repo.GetName(),
 		Name:          repo.GetName(),
-		Url:           repo.GetURL(),
+		Url:           repo.GetHTMLURL(),
 		Description:   repo.GetDescription(),
 		Properties:    paras,
 		BadgeURL:      badgeURL,
@@ -285,7 +285,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			log.Println(err.Error())
 		} else {
 			for _, v := range gitRuns.WorkflowRuns {
-				badgeUrl, badgeMarkdown := g.buildGithubWorkflowBadge(v.GetName(), v.GetStatus(), v.GetURL())
+				badgeUrl, badgeMarkdown := g.buildGithubWorkflowBadge(v.GetName(), v.GetStatus(), v.GetHTMLURL())
 				runs[fmt.Sprintf("%d", v.GetID())] = WorkflowRun{
 					ID:            fmt.Sprintf("%d", v.GetID()),
 					Name:          v.GetName(),
