@@ -2435,8 +2435,7 @@
             "required": [
                 "name",
                 "properties",
-                "secrets",
-                "url"
+                "secrets"
             ],
             "properties": {
                 "activate": {
@@ -2470,11 +2469,6 @@
                 },
                 "sync": {
                     "type": "boolean"
-                },
-                "url": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
                 }
             }
         },

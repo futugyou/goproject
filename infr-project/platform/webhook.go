@@ -1,5 +1,22 @@
 package platform
 
+import (
+	"fmt"
+	"os"
+	"strings"
+)
+
+const WebhookEndPoint string = "api/v1/webhook"
+
+func GetWebhookUrl() string {
+	host := os.Getenv("PROJECT_URL")
+	if strings.HasSuffix(host, "/") {
+		return host + WebhookEndPoint
+	} else {
+		return fmt.Sprintf("%s/%s", host, WebhookEndPoint)
+	}
+}
+
 type Webhook struct {
 	ID         string              `json:"id"`
 	Name       string              `json:"name"`
@@ -49,11 +66,11 @@ func WithWebhookSecrets(secrets map[string]Secret) WebhookOption {
 	}
 }
 
-func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
+func NewWebhook(name string, opts ...WebhookOption) *Webhook {
 	webhook := &Webhook{
 		Name:       name,
 		Activate:   true,
-		Url:        url,
+		Url:        GetWebhookUrl(),
 		State:      WebhookInit,
 		Properties: make(map[string]Property),
 		Secrets:    make(map[string]Secret),

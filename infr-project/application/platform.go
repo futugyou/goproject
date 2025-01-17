@@ -249,7 +249,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 		return nil, err
 	}
 
-	newhook := platform.NewWebhook(hook.Name, hook.Url,
+	newhook := platform.NewWebhook(hook.Name,
 		platform.WithWebhookProperties(properties),
 		platform.WithWebhookActivate(hook.Activate),
 		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
@@ -271,7 +271,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 			}
 
 			if providerHook, err := s.createProviderWebhook(ctx, provider, platformId,
-				project.ProviderProjectId, hook.Url, hook.Name); err == nil {
+				project.ProviderProjectId, platform.GetWebhookUrl(), hook.Name); err == nil {
 				newhook.UpdateProviderHookId(providerHook.ID)
 				plat.UpdateWebhook(projectId, *newhook)
 			}

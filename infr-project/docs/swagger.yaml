@@ -683,15 +683,10 @@ definitions:
         type: string
       sync:
         type: boolean
-      url:
-        maxLength: 150
-        minLength: 3
-        type: string
     required:
     - name
     - properties
     - secrets
-    - url
     type: object
   viewmodels.UpdateProjectDesignRequest:
     properties:

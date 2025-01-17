@@ -35,7 +35,6 @@ type UpdatePlatformProjectRequest struct {
 
 type UpdatePlatformWebhookRequest struct {
 	Name       string     `json:"name" validate:"required,min=3,max=50"`
-	Url        string     `json:"url" validate:"required,min=3,max=150"`
 	Activate   bool       `json:"activate"`
 	State      string     `json:"state" validate:"oneof=Init Creating Ready"`
 	Secrets    []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request

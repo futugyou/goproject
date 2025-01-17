@@ -360,7 +360,7 @@ func (s *PlatformService) mergeWebhooks(platformWebhooks []platform.Webhook, pro
 			Secrets:    s.convertToPlatformModelSecrets(hook.Secrets),
 			Followed:   false,
 		}
-		prow := tool.ArrayFirst(providerWebHooks, func(t platformProvider.WebHook) bool { return t.ID == hook.ID })
+		prow := tool.ArrayFirst(providerWebHooks, func(t platformProvider.WebHook) bool { return t.ID == hook.ID && t.Url == platform.GetWebhookUrl() })
 		if prow != nil {
 			mw.Name = prow.Name
 			mw.Url = prow.Url
@@ -374,6 +374,10 @@ func (s *PlatformService) mergeWebhooks(platformWebhooks []platform.Webhook, pro
 	}
 
 	for _, prow := range providerWebHooks {
+		if prow.Url != platform.GetWebhookUrl() {
+			continue
+		}
+
 		hook := tool.ArrayFirst(platformWebhooks, func(t platform.Webhook) bool { return t.ID == prow.ID })
 		if hook == nil {
 			webhooks = append(webhooks, models.Webhook{

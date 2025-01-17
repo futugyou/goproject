@@ -2446,8 +2446,7 @@ const docTemplate = `{
             "required": [
                 "name",
                 "properties",
-                "secrets",
-                "url"
+                "secrets"
             ],
             "properties": {
                 "activate": {
@@ -2481,11 +2480,6 @@ const docTemplate = `{
                 },
                 "sync": {
                     "type": "boolean"
-                },
-                "url": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
                 }
             }
         },
