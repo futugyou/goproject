@@ -190,7 +190,7 @@ func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWri
 		ConnectString: os.Getenv("mongodb_url"),
 	}
 
-	if mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString)); err != nil {
+	if mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString)); err == nil {
 		c := mongoclient.Database(config.DBName).Collection("webhook_testing_logs")
 		c.InsertOne(ctx, bson.M{
 			"_id":  uuid.New().String(),
