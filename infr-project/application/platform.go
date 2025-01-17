@@ -437,34 +437,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrNa
 		if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
 			log.Println(err.Error())
 		} else {
-			// TODO: add limit or cache when get detail provider
-			redisKey := fmt.Sprintf("platform_%s_project_%s", src.Id, projectId)
-			if p, err := s.client.Get(ctx, redisKey).Result(); err != nil {
-				log.Println(err.Error())
-			} else {
-				if err = json.Unmarshal([]byte(p), providerProject); err != nil {
-					log.Println(err.Error())
-				}
-			}
-
-			if len(providerProject.ID) == 0 {
-				parameters := mergePropertiesToMap(project.Properties, src.Properties)
-				if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
-					log.Println(err.Error())
-				} else {
-					providerProject = project
-				}
-				if data, err := json.Marshal(providerProject); err != nil {
-					log.Println(err.Error())
-				} else {
-
-					if re, err := s.client.Set(ctx, redisKey, string(data), time.Minute*10).Result(); err != nil {
-						log.Println(err.Error())
-					} else {
-						log.Println(re)
-					}
-				}
-			}
+			providerProject = s.getProviderProjectWithCache(ctx, src, project, provider)
 		}
 
 		modelProject := s.mergeProject(providerProject, &project)
@@ -472,4 +445,38 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrNa
 	} else {
 		return nil, fmt.Errorf("can not find project with id: %s", projectId)
 	}
+}
+
+func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src *platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) *platformProvider.Project {
+	providerProject := &platformProvider.Project{}
+	redisKey := fmt.Sprintf("platform_%s_project_%s", src.Id, project.Id)
+	if data, err := s.client.Get(ctx, redisKey).Result(); err != nil {
+		log.Println(err.Error())
+	} else {
+		if err = json.Unmarshal([]byte(data), providerProject); err != nil {
+			log.Println(err.Error())
+		}
+	}
+
+	if len(providerProject.ID) > 0 {
+		return providerProject
+	}
+
+	parameters := mergePropertiesToMap(project.Properties, src.Properties)
+	if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
+		log.Println(err.Error())
+	} else {
+		providerProject = project
+	}
+
+	if data, err := json.Marshal(providerProject); err != nil {
+		log.Println(err.Error())
+	} else {
+		// 10Minute maybe configurable
+		if _, err := s.client.Set(ctx, redisKey, string(data), time.Minute*10).Result(); err != nil {
+			log.Println(err.Error())
+		}
+	}
+
+	return providerProject
 }
