@@ -2,12 +2,16 @@ package application
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"log"
 
 	tool "github.com/futugyou/extensions"
+
+	"github.com/redis/go-redis/v9"
 
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
@@ -20,17 +24,20 @@ type PlatformService struct {
 	innerService *AppService
 	repository   platform.IPlatformRepositoryAsync
 	vaultService *VaultService
+	client       *redis.Client
 }
 
 func NewPlatformService(
 	unitOfWork domain.IUnitOfWork,
 	repository platform.IPlatformRepositoryAsync,
 	vaultService *VaultService,
+	client *redis.Client,
 ) *PlatformService {
 	return &PlatformService{
 		innerService: NewAppService(unitOfWork),
 		repository:   repository,
 		vaultService: vaultService,
+		client:       client,
 	}
 }
 
@@ -431,11 +438,32 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrNa
 			log.Println(err.Error())
 		} else {
 			// TODO: add limit or cache when get detail provider
-			parameters := mergePropertiesToMap(project.Properties, src.Properties)
-			if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
+			redisKey := fmt.Sprintf("platform_%s_project_%s", src.Id, projectId)
+			if p, err := s.client.Get(ctx, redisKey).Result(); err != nil {
 				log.Println(err.Error())
 			} else {
-				providerProject = project
+				if err = json.Unmarshal([]byte(p), providerProject); err != nil {
+					log.Println(err.Error())
+				}
+			}
+
+			if len(providerProject.ID) == 0 {
+				parameters := mergePropertiesToMap(project.Properties, src.Properties)
+				if project, err := s.getProviderProject(ctx, provider, project.ProviderProjectId, parameters); err != nil {
+					log.Println(err.Error())
+				} else {
+					providerProject = project
+				}
+				if data, err := json.Marshal(providerProject); err != nil {
+					log.Println(err.Error())
+				} else {
+
+					if re, err := s.client.Set(ctx, redisKey, string(data), time.Minute*10).Result(); err != nil {
+						log.Println(err.Error())
+					} else {
+						log.Println(re)
+					}
+				}
 			}
 		}
 

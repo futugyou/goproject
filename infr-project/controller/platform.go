@@ -276,10 +276,15 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 		return nil, err
 	}
 
+	redisClient, err := extensions.RedisClient(os.Getenv("REDIS_URL"))
+	if err != nil {
+		return nil, err
+	}
+
 	repo := infra.NewPlatformRepository(client, config)
 	vaultRepo := infra.NewVaultRepository(client, config)
 	vaultService := application.NewVaultService(unitOfWork, vaultRepo)
-	return application.NewPlatformService(unitOfWork, repo, vaultService), nil
+	return application.NewPlatformService(unitOfWork, repo, vaultService, redisClient), nil
 }
 
 func (c *PlatformController) CreatePlatformV2(cqrsRoute *command.Router, w http.ResponseWriter, r *http.Request) {
