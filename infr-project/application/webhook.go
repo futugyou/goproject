@@ -36,18 +36,14 @@ func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data Webho
 		return fmt.Errorf("signature verification failed")
 	}
 
-	resp, _ := json.MarshalIndent(data, "", "  ")
-
+	callLog := s.buildWebhookLog(data)
 	c := s.database.Collection("platform_webhook_logs")
-	_, err = c.InsertOne(ctx, bson.M{
-		"_id":  uuid.New().String(),
-		"data": string(resp),
-	})
+	_, err = c.InsertOne(ctx, callLog)
 	return err
 }
 
 func (s *WebhookService) VerifyTesting(ctx context.Context) ([]VerifyResponse, error) {
-	result := make([]WebhookInfo, 0)
+	result := make([]WebhookLogs, 0)
 	c := s.database.Collection("webhook_testing_logs")
 	filter := bson.D{}
 	op := options.Find()
@@ -106,9 +102,49 @@ func (*WebhookService) getProviderWebhookSignature(header map[string][]string) s
 	return signature
 }
 
-type WebhookInfo struct {
-	Id   string `bson:"_id"`
-	Data string `bson:"data"`
+func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) WebhookLogs {
+	common := CommonWebhook{}
+	json.Unmarshal([]byte(data.Body), &common)
+
+	source := ""
+	eventType := ""
+	providerPlatformId := ""
+	providerProjectId := ""
+	providerWebhookId := ""
+	if strings.HasPrefix(data.UserAgent, "CircleCI-") {
+		source = "circleci"
+		eventType = common.Type
+		providerPlatformId = common.Organization.Name
+		providerProjectId = common.Project.Slug
+		providerWebhookId = common.Webhook.ID
+	}
+
+	if strings.HasPrefix(data.UserAgent, "GitHub-") {
+		source = "github"
+		if h, ok := data.Header["X-Github-Event"]; ok && len(h) > 0 {
+			eventType = h[0]
+		}
+		fulls := strings.Split(common.Repository.FullName, "/")
+		if len(fulls) == 2 {
+			providerPlatformId = fulls[0]
+			providerProjectId = fulls[1]
+		}
+		if h, ok := data.Header["X-Github-Hook-Id"]; ok && len(h) > 0 {
+			providerWebhookId = h[0]
+		}
+	}
+
+	callLog := WebhookLogs{
+		Id:                 uuid.NewString(),
+		Source:             source,
+		EventType:          eventType,
+		ProviderPlatformId: providerPlatformId,
+		ProviderProjectId:  providerProjectId,
+		ProviderWebhookId:  providerWebhookId,
+		Data:               data.Body,
+	}
+
+	return callLog
 }
 
 type WebhookRequestInfo struct {
@@ -127,4 +163,43 @@ type VerifyResponse struct {
 	Id      string `json:"id"`
 	Verify  bool   `json:"verify"`
 	Message string `json:"message"`
+}
+
+type WebhookLogs struct {
+	Id                 string `bson:"_id"`
+	Source             string `bson:"source"` // github/vercel/circleci
+	EventType          string `bson:"event_type"`
+	ProviderPlatformId string `bson:"provider_platform_id"`
+	ProviderProjectId  string `bson:"provider_project_id"`
+	ProviderWebhookId  string `bson:"provider_webhook_id"`
+	Data               string `bson:"data"`
+	HappenedAt         string `json:"happened_at"`
+}
+
+type CommonWebhook struct {
+	Type         string          `json:"type"`
+	Webhook      ProviderWebhook `json:"webhook"`
+	Repository   Repository      `json:"repository"`
+	Project      CircleProject   `json:"project"`
+	Organization CircleOrg       `json:"organization"`
+}
+
+type CircleOrg struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type CircleProject struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+}
+
+type Repository struct {
+	FullName string `json:"full_name"`
+}
+
+type ProviderWebhook struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
