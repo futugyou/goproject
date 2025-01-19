@@ -20,7 +20,7 @@ func NewWebhookController() *WebhookController {
 	return &WebhookController{}
 }
 
-func (c *WebhookController) PlatformCallback(w http.ResponseWriter, r *http.Request) {
+func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service, err := createWebhookService(ctx)
 	if err != nil {
@@ -45,7 +45,7 @@ func (c *WebhookController) PlatformCallback(w http.ResponseWriter, r *http.Requ
 		UserAgent:  r.UserAgent(),
 	}
 
-	service.PlatformCallback(ctx, reqInfo)
+	service.ProviderWebhookCallback(ctx, reqInfo)
 	writeJSONResponse(w, nil, 200)
 }
 

@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 
@@ -24,11 +25,21 @@ func NewWebhookService(database *mongo.Database) *WebhookService {
 	}
 }
 
-func (s *WebhookService) PlatformCallback(ctx context.Context, data WebhookRequestInfo) error {
+func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data WebhookRequestInfo) error {
+	signature := s.getProviderWebhookSignature(data.Header)
+	verifyResult, err := tool.VerifySignatureHMAC(os.Getenv("TRIGGER_AUTH_KEY"), signature, data.Body)
+	if err != nil {
+		return err
+	}
+
+	if !verifyResult {
+		return fmt.Errorf("signature verification failed")
+	}
+
 	resp, _ := json.MarshalIndent(data, "", "  ")
 
 	c := s.database.Collection("platform_webhook_logs")
-	_, err := c.InsertOne(ctx, bson.M{
+	_, err = c.InsertOne(ctx, bson.M{
 		"_id":  uuid.New().String(),
 		"data": string(resp),
 	})

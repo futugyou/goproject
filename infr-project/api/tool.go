@@ -164,5 +164,5 @@ func getDataType(tableName string) reflect.Type {
 
 func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	ctrl := controller.NewWebhookController()
-	ctrl.PlatformCallback(w, r)
+	ctrl.ProviderWebhookCallback(w, r)
 }
