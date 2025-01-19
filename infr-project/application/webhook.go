@@ -2,11 +2,7 @@ package application
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"os"
 	"strings"
 
@@ -14,6 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	tool "github.com/futugyou/extensions"
 )
 
 type WebhookService struct {
@@ -64,19 +62,9 @@ func (s *WebhookService) VerifyTesting(ctx context.Context) ([]VerifyResponse, e
 			Verify:  false,
 			Message: "",
 		}
-		source := ""
-		signatureHeader := ""
-		if h, ok := data.Header["Circleci-Signature"]; ok && len(h) > 0 {
-			source = "circleci"
-			signatureHeader = h[0]
-		}
 
-		if h, ok := data.Header["X-Hub-Signature-256"]; ok {
-			source = "github"
-			signatureHeader = h[0]
-		}
-
-		if r, err := VerifySignature(os.Getenv("TRIGGER_AUTH_KEY"), signatureHeader, data.Body, source); err != nil {
+		signature := s.getProviderWebhookSignature(data.Header)
+		if r, err := tool.VerifySignatureHMAC(os.Getenv("TRIGGER_AUTH_KEY"), signature, data.Body); err != nil {
 			ver.Message = err.Error()
 		} else {
 			ver.Verify = r
@@ -87,35 +75,24 @@ func (s *WebhookService) VerifyTesting(ctx context.Context) ([]VerifyResponse, e
 	return datas, nil
 }
 
-func VerifySignature(secret, signatureHeader, payload, source string) (bool, error) {
-	var signature string
-
-	switch source {
-	case "github":
-		if !strings.HasPrefix(signatureHeader, "sha256=") {
-			return false, errors.New("invalid GitHub signature format")
-		}
-		signature = signatureHeader[7:]
-	case "circleci":
-		for _, part := range strings.Split(signatureHeader, ",") {
+func (*WebhookService) getProviderWebhookSignature(header map[string][]string) string {
+	signature := ""
+	if h, ok := header["Circleci-Signature"]; ok && len(h) > 0 {
+		for _, part := range strings.Split(h[0], ",") {
 			kv := strings.SplitN(part, "=", 2)
 			if len(kv) == 2 && kv[0] == "v1" {
 				signature = kv[1]
 				break
 			}
 		}
-		if signature == "" {
-			return false, errors.New("no CircleCI v1 signature found")
-		}
-	default:
-		return false, errors.New("unsupported source")
 	}
 
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(payload))
-	expectedSignature := hex.EncodeToString(mac.Sum(nil))
-
-	return hmac.Equal([]byte(expectedSignature), []byte(signature)), nil
+	if h, ok := header["X-Hub-Signature-256"]; ok {
+		if strings.HasPrefix(h[0], "sha256=") {
+			signature = h[0][7:]
+		}
+	}
+	return signature
 }
 
 type WebhookInfo struct {

@@ -418,3 +418,15 @@ func VerifySignature(publicKeyStr, message, rStr, sStr string) (bool, error) {
 
 	return ecdsa.Verify(publicKey, hash[:], &r, &s), nil
 }
+
+func VerifySignatureHMAC(secret, signature, payload string) (bool, error) {
+	if len(signature) == 0 {
+		return false, errors.New("signature format error")
+	}
+
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(payload))
+	expectedSignature := hex.EncodeToString(mac.Sum(nil))
+
+	return hmac.Equal([]byte(expectedSignature), []byte(signature)), nil
+}
