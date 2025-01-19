@@ -13,6 +13,7 @@ import (
 	"github.com/futugyou/vercel"
 
 	"github.com/futugyou/infr-project/command"
+	"github.com/futugyou/infr-project/controller"
 	"github.com/futugyou/infr-project/extensions"
 	sdk "github.com/futugyou/infr-project/platform_sdk"
 	"github.com/futugyou/infr-project/services"
@@ -33,6 +34,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
 	v1.GET("/test/cqrs", cqrstest)
 	v1.GET("/test/redis", redisget)
 	v1.GET("/test/redishash", redisHash)
+	v1.GET("/test/webhook", webhook)
 }
 
 // @Summary ping
@@ -302,4 +304,16 @@ type BikeInfo struct {
 	Brand string `redis:"brand" json:"brand"`
 	Type  string `redis:"type" json:"type"`
 	Price int    `redis:"price" json:"price"`
+}
+
+// @Summary webhook
+// @Description webhook
+// @Tags Test
+// @Accept json
+// @Produce json
+// @Success 200 {object}  map[string]string
+// @Router /v1/test/webhook [get]
+func webhook(c *gin.Context) {
+	ctrl := controller.NewWebhookController()
+	ctrl.VerifyTesting(c.Writer, c.Request)
 }

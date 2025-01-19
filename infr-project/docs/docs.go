@@ -1207,6 +1207,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/test/webhook": {
+            "get": {
+                "description": "webhook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "webhook",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/test/workflow": {
             "get": {
                 "description": "workflow",

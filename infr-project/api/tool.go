@@ -3,15 +3,12 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"os"
 	"reflect"
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -166,50 +163,6 @@ func getDataType(tableName string) reflect.Type {
 }
 
 func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	ctx := r.Context()
-	bodyBytes, _ := io.ReadAll(r.Body)
-	defer r.Body.Close()
-
-	query := r.URL.Query()
-
-	reqInfo := RequestInfo{
-		Method:     r.Method,
-		URL:        r.URL.String(),
-		Proto:      r.Proto,
-		Host:       r.Host,
-		Header:     r.Header,
-		Body:       string(bodyBytes),
-		Query:      query,
-		RemoteAddr: r.RemoteAddr,
-		UserAgent:  r.UserAgent(),
-	}
-
-	resp, _ := json.MarshalIndent(reqInfo, "", "  ")
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	if mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString)); err == nil {
-		c := mongoclient.Database(config.DBName).Collection("webhook_testing_logs")
-		c.InsertOne(ctx, bson.M{
-			"_id":  uuid.New().String(),
-			"data": string(resp),
-		})
-	}
-
-	w.WriteHeader(200)
-
-}
-
-type RequestInfo struct {
-	Method     string              `json:"method"`
-	URL        string              `json:"url"`
-	Proto      string              `json:"proto"`
-	Host       string              `json:"host"`
-	Header     http.Header         `json:"header"`
-	Body       string              `json:"body"`
-	Query      map[string][]string `json:"query"`
-	RemoteAddr string              `json:"remote_addr"`
-	UserAgent  string              `json:"user_agent"`
+	ctrl := controller.NewWebhookController()
+	ctrl.PlatformCallback(w, r)
 }

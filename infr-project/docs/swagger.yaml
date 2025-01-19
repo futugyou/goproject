@@ -1637,6 +1637,23 @@ paths:
       summary: vercel
       tags:
       - Test
+  /v1/test/webhook:
+    get:
+      consumes:
+      - application/json
+      description: webhook
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: webhook
+      tags:
+      - Test
   /v1/test/workflow:
     get:
       consumes:
