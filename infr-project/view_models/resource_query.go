@@ -1,0 +1,26 @@
+package viewmodels
+
+import "time"
+
+type ResourceChangeData struct {
+	Id              string    `json:"id"`
+	ResourceVersion int       `json:"version"`
+	EventType       string    `json:"event_type"`
+	CreatedAt       time.Time `json:"created_at"`
+	Name            string    `json:"name"`
+	Type            string    `json:"type"`
+	Data            string    `json:"data"`
+	Tags            []string  `json:"tags"`
+}
+
+type ResourceView struct {
+	Id        string    `json:"id" redis:"id"`
+	Name      string    `json:"name" redis:"name"`
+	Type      string    `json:"type" redis:"type"`
+	Data      string    `json:"data" redis:"data"`
+	Version   int       `json:"version" redis:"version"`
+	IsDelete  bool      `json:"is_deleted" redis:"is_deleted"`
+	CreatedAt time.Time `json:"created_at" redis:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" redis:"updated_at"`
+	Tags      []string  `json:"tags" redis:"tags"`
+}

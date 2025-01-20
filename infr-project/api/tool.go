@@ -115,7 +115,7 @@ func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 		return
 	}
 
-	if resourceData, ok := dataInstance.(*application.ResourceChangeData); ok {
+	if resourceData, ok := dataInstance.(*models.ResourceChangeData); ok {
 		if err = service.HandleResourceChanged(ctx, *resourceData); err != nil {
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(500)
@@ -156,7 +156,7 @@ func createResourceQueryService(ctx context.Context) (*application.ResourceQuery
 func getDataType(tableName string) reflect.Type {
 	switch tableName {
 	case "resource_events":
-		return reflect.TypeOf(application.ResourceChangeData{})
+		return reflect.TypeOf(models.ResourceChangeData{})
 	default:
 		return nil
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	tool "github.com/futugyou/extensions"
 
@@ -84,7 +83,7 @@ func (s *ResourceQueryService) convertData(data resourcequery.Resource) models.R
 	}
 }
 
-func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data ResourceChangeData) error {
+func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data models.ResourceChangeData) error {
 	res, err := s.repository.Get(ctx, data.Id)
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		return err
@@ -148,15 +147,4 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data R
 		_, err = s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
 		return err
 	})
-}
-
-type ResourceChangeData struct {
-	Id              string    `bson:"id" json:"id"`
-	ResourceVersion int       `bson:"version" json:"version"`
-	EventType       string    `bson:"event_type" json:"event_type"`
-	CreatedAt       time.Time `bson:"created_at" json:"created_at"`
-	Name            string    `bson:"name" json:"name"`
-	Type            string    `bson:"type" json:"type"`
-	Data            string    `bson:"data" json:"data"`
-	Tags            []string  `bson:"tags" json:"tags"`
 }
