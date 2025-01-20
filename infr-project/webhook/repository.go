@@ -7,11 +7,11 @@ import (
 )
 
 type WebhookLogSearch struct {
-	Source             *string
-	EventType          *string
-	ProviderPlatformId *string
-	ProviderProjectId  *string
-	ProviderWebhookId  *string
+	Source             string
+	EventType          string
+	ProviderPlatformId string
+	ProviderProjectId  string
+	ProviderWebhookId  string
 }
 
 type IWebhookLogRepository interface {
