@@ -282,7 +282,18 @@ func (s *PlatformService) getProviderProject(ctx context.Context, provider platf
 // followed == true && providerProjectId != "", means need provider project was already followed
 // followed == false && providerProjectId != "", means need follow the provider project
 func (s *PlatformService) mergeProject(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProject {
-	modelProject := models.PlatformProject{}
+	modelProject := models.PlatformProject{
+		Properties:           []models.Property{},
+		Secrets:              []models.Secret{},
+		Webhooks:             []models.Webhook{},
+		ProviderProjectId:    "",
+		EnvironmentVariables: []models.EnvironmentVariable{},
+		Environments:         []string{},
+		Workflows:            []models.Workflow{},
+		WorkflowRuns:         []models.WorkflowRun{},
+		Deployments:          []models.Deployment{},
+	}
+
 	if project != nil {
 		modelProject.Id = project.Id
 		modelProject.Description = project.Description
