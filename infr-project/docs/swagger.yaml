@@ -816,6 +816,23 @@ definitions:
       url:
         type: string
     type: object
+  viewmodels.WebhookLogs:
+    properties:
+      data:
+        type: string
+      event_type:
+        type: string
+      happened_at:
+        type: string
+      provider_platform_id:
+        type: string
+      provider_project_id:
+        type: string
+      provider_webhook_id:
+        type: string
+      source:
+        type: string
+    type: object
   viewmodels.Workflow:
     properties:
       badge_markdown:
@@ -1652,6 +1669,42 @@ paths:
               type: string
             type: object
       summary: webhook
+      tags:
+      - Test
+  /v1/test/webhooklog:
+    get:
+      consumes:
+      - application/json
+      description: webhook get
+      parameters:
+      - description: source
+        in: query
+        name: source
+        type: string
+      - description: event_type
+        in: query
+        name: event_type
+        type: string
+      - description: provider_platform_id
+        in: query
+        name: provider_platform_id
+        type: string
+      - description: provider_project_id
+        in: query
+        name: provider_project_id
+        type: string
+      - description: provider_webhook_id
+        in: query
+        name: provider_webhook_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodels.WebhookLogs'
+      summary: webhook get
       tags:
       - Test
   /v1/test/workflow:

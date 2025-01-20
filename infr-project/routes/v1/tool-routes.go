@@ -17,6 +17,7 @@ import (
 	"github.com/futugyou/infr-project/extensions"
 	sdk "github.com/futugyou/infr-project/platform_sdk"
 	"github.com/futugyou/infr-project/services"
+	viewmodels "github.com/futugyou/infr-project/view_models"
 )
 
 var cqrsRoute *command.Router
@@ -35,6 +36,7 @@ func ConfigTestingRoutes(v1 *gin.RouterGroup, route *command.Router) {
 	v1.GET("/test/redis", redisget)
 	v1.GET("/test/redishash", redisHash)
 	v1.GET("/test/webhook", webhook)
+	v1.GET("/test/webhooklog", webhooklogs)
 }
 
 // @Summary ping
@@ -316,4 +318,33 @@ type BikeInfo struct {
 func webhook(c *gin.Context) {
 	ctrl := controller.NewWebhookController()
 	ctrl.VerifyTesting(c.Writer, c.Request)
+}
+
+// @Summary webhook get
+// @Description webhook get
+// @Tags Test
+// @Accept json
+// @Produce json
+// @Param source query string false "source"
+// @Param event_type query string false "event_type"
+// @Param provider_platform_id query string false "provider_platform_id"
+// @Param provider_project_id query string false "provider_project_id"
+// @Param provider_webhook_id query string false "provider_webhook_id"
+// @Success 200 {object}  viewmodels.WebhookLogs
+// @Router /v1/test/webhooklog [get]
+func webhooklogs(c *gin.Context) {
+	ctrl := controller.NewWebhookController()
+	source := c.Query("source")
+	event_type := c.Query("event_type")
+	provider_platform_id := c.Query("provider_platform_id")
+	provider_project_id := c.Query("provider_project_id")
+	provider_webhook_id := c.Query("provider_webhook_id")
+	filter := viewmodels.WebhookSearch{
+		Source:             source,
+		EventType:          event_type,
+		ProviderPlatformId: provider_platform_id,
+		ProviderProjectId:  provider_project_id,
+		ProviderWebhookId:  provider_webhook_id,
+	}
+	ctrl.SearchWebhookLogs(c.Writer, c.Request, filter)
 }

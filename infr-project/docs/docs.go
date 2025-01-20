@@ -1233,6 +1233,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/test/webhooklog": {
+            "get": {
+                "description": "webhook get",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test"
+                ],
+                "summary": "webhook get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "source",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "event_type",
+                        "name": "event_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "provider_platform_id",
+                        "name": "provider_platform_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "provider_project_id",
+                        "name": "provider_project_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "provider_webhook_id",
+                        "name": "provider_webhook_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.WebhookLogs"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/test/workflow": {
             "get": {
                 "description": "workflow",
@@ -2688,6 +2743,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "viewmodels.WebhookLogs": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "event_type": {
+                    "type": "string"
+                },
+                "happened_at": {
+                    "type": "string"
+                },
+                "provider_platform_id": {
+                    "type": "string"
+                },
+                "provider_project_id": {
+                    "type": "string"
+                },
+                "provider_webhook_id": {
+                    "type": "string"
+                },
+                "source": {
                     "type": "string"
                 }
             }
