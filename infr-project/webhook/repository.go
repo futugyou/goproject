@@ -16,5 +16,5 @@ type WebhookLogSearch struct {
 
 type IWebhookLogRepository interface {
 	domain.IRepository[WebhookLogs]
-	SearchWebhookLogs(ctx context.Context, filter *WebhookLogSearch) ([]WebhookLogs, error)
+	SearchWebhookLogs(ctx context.Context, filter WebhookLogSearch) ([]WebhookLogs, error)
 }
