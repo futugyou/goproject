@@ -10,8 +10,8 @@ type IEventSourcing interface {
 
 type AggregateWithEventSourcing struct {
 	Aggregate
-	domainEvents []IDomainEvent `json:"-"`
-	Version      int            `json:"version"`
+	domainEvents []IDomainEvent
+	Version      int
 }
 
 func (b *AggregateWithEventSourcing) AddDomainEvent(event IDomainEvent) {

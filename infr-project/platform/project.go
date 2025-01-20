@@ -4,14 +4,14 @@ import "fmt"
 
 // entity
 type PlatformProject struct {
-	Id                string              `json:"id" bson:"id"`
-	Name              string              `json:"name" bson:"name"`
-	Url               string              `json:"url" bson:"url"`
-	Description       string              `json:"description" bson:"description"`
-	Properties        map[string]Property `json:"properties" bson:"properties"`
-	Secrets           map[string]Secret   `json:"secrets" bson:"secrets"`
-	Webhooks          []Webhook           `json:"webhooks" bson:"webhooks"`
-	ProviderProjectId string              `json:"provider_project_id" bson:"provider_project_id"`
+	Id                string
+	Name              string
+	Url               string
+	Description       string
+	Properties        map[string]Property
+	Secrets           map[string]Secret
+	Webhooks          []Webhook
+	ProviderProjectId string
 }
 
 func (s PlatformProject) GetKey() string {

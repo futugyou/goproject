@@ -12,14 +12,14 @@ import (
 )
 
 type Resource struct {
-	domain.AggregateWithEventSourcing `json:"-"`
-	Name                              string       `json:"name"`
-	Type                              ResourceType `json:"type"`
-	Data                              string       `json:"data"`
-	Tags                              []string     `json:"tags"`
-	IsDeleted                         bool         `json:"is_deleted"`
-	CreatedAt                         time.Time    `json:"created_at"`
-	UpdatedAt                         time.Time    `json:"updated_at"`
+	domain.AggregateWithEventSourcing
+	Name      string
+	Type      ResourceType
+	Data      string
+	Tags      []string
+	IsDeleted bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func NewResource(name string, resourceType ResourceType, data string, tags []string) *Resource {

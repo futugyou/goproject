@@ -10,15 +10,15 @@ import (
 )
 
 type Vault struct {
-	domain.Aggregate `json:"-"`
-	Key              string       `json:"key"`
-	Value            string       `json:"value"`
-	StorageMedia     StorageMedia `json:"storage_media"` // local, aws, HCP,...
-	VaultType        VaultType    `json:"vault_type"`    // system, common, project, resource, platform
-	TypeIdentity     string       `json:"type_identity"` // system, common, projectId, resourceId, platformId
-	State            VaultState   `json:"state"`         // default, changing
-	Tags             []string     `json:"tags"`
-	hasChange        bool         `json:"-"`
+	domain.Aggregate
+	Key          string
+	Value        string
+	StorageMedia StorageMedia // local, aws, HCP,...
+	VaultType    VaultType    // system, common, project, resource, platform
+	TypeIdentity string       // system, common, projectId, resourceId, platformId
+	State        VaultState   // default, changing
+	Tags         []string
+	hasChange    bool
 }
 
 type VaultOption func(*Vault)

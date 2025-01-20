@@ -68,9 +68,11 @@ func WithWebhookSecrets(secrets map[string]Secret) WebhookOption {
 
 func NewWebhook(name string, opts ...WebhookOption) *Webhook {
 	webhook := &Webhook{
+		ID:         "",
 		Name:       name,
-		Activate:   true,
 		Url:        GetWebhookUrl(),
+		Events:     []string{},
+		Activate:   true,
 		State:      WebhookInit,
 		Properties: make(map[string]Property),
 		Secrets:    make(map[string]Secret),

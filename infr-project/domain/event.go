@@ -17,10 +17,10 @@ type IDomainEventHolder[Event IDomainEvent] interface {
 }
 
 type DomainEvent struct {
-	Id              string    `bson:"id" json:"id"`
-	ResourceVersion int       `bson:"version" json:"version"`
-	EventType       string    `bson:"event_type" json:"event_type"`
-	CreatedAt       time.Time `bson:"created_at" json:"created_at"`
+	Id              string    `bson:"id"`
+	ResourceVersion int       `bson:"version"`
+	EventType       string    `bson:"event_type"`
+	CreatedAt       time.Time `bson:"created_at"`
 }
 
 func (d DomainEvent) Version() int {

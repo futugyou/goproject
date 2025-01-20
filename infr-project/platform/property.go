@@ -1,8 +1,8 @@
 package platform
 
 type Property struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key   string `bson:"key"`
+	Value string `bson:"value"`
 }
 
 func (p Property) GetKey() string {

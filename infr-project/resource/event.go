@@ -13,15 +13,15 @@ type IResourceEvent interface {
 }
 
 type ResourceEvent struct {
-	domain.DomainEvent `bson:",inline" json:",inline"`
+	domain.DomainEvent `bson:",inline"`
 }
 
 type ResourceCreatedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string   `bson:"name" json:"name"`
-	Type          string   `bson:"type" json:"type"`
-	Data          string   `bson:"data" json:"data"`
-	Tags          []string `bson:"tags" json:"tags"`
+	ResourceEvent `bson:",inline"`
+	Name          string   `bson:"name"`
+	Type          string   `bson:"type"`
+	Data          string   `bson:"data"`
+	Tags          []string `bson:"tags"`
 }
 
 func (e ResourceCreatedEvent) EventType() string {
@@ -46,11 +46,11 @@ func NewResourceCreatedEvent(r *Resource) *ResourceCreatedEvent {
 
 // Deprecated: Use a specific resource event type, cannot delete because data already exists
 type ResourceUpdatedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string   `bson:"name" json:"name"`
-	Type          string   `bson:"type" json:"type"`
-	Data          string   `bson:"data" json:"data"`
-	Tags          []string `bson:"tags" json:"tags"`
+	ResourceEvent `bson:",inline"`
+	Name          string   `bson:"name"`
+	Type          string   `bson:"type"`
+	Data          string   `bson:"data"`
+	Tags          []string `bson:"tags"`
 }
 
 func (e ResourceUpdatedEvent) EventType() string {
@@ -58,7 +58,7 @@ func (e ResourceUpdatedEvent) EventType() string {
 }
 
 type ResourceDeletedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
+	ResourceEvent `bson:",inline"`
 }
 
 func (e ResourceDeletedEvent) EventType() string {
@@ -78,8 +78,8 @@ func NewResourceDeletedEvent(r *Resource) *ResourceDeletedEvent {
 }
 
 type ResourceNameChangedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
-	Name          string `bson:"name" json:"name"`
+	ResourceEvent `bson:",inline"`
+	Name          string `bson:"name"`
 }
 
 func (e ResourceNameChangedEvent) EventType() string {
@@ -100,8 +100,8 @@ func NewResourceNameChangedEvent(r *Resource) *ResourceNameChangedEvent {
 }
 
 type ResourceDataChangedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
-	Data          string `bson:"data" json:"data"`
+	ResourceEvent `bson:",inline"`
+	Data          string `bson:"data"`
 }
 
 func (e ResourceDataChangedEvent) EventType() string {
@@ -122,8 +122,8 @@ func NewResourceDataChangedEvent(r *Resource) *ResourceDataChangedEvent {
 }
 
 type ResourceTagsChangedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
-	Tags          []string `bson:"tags" json:"tags"`
+	ResourceEvent `bson:",inline"`
+	Tags          []string `bson:"tags"`
 }
 
 func (e ResourceTagsChangedEvent) EventType() string {
@@ -144,8 +144,8 @@ func NewResourceTagsChangedEvent(r *Resource) *ResourceTagsChangedEvent {
 }
 
 type ResourceTypeChangedEvent struct {
-	ResourceEvent `bson:",inline" json:",inline"`
-	Type          string `bson:"type" json:"type"`
+	ResourceEvent `bson:",inline"`
+	Type          string `bson:"type"`
 }
 
 func (e ResourceTypeChangedEvent) EventType() string {
