@@ -36,9 +36,13 @@ func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data Webho
 		return fmt.Errorf("signature verification failed")
 	}
 
-	callLog := s.buildWebhookLog(data)
+	callLog, err := s.buildWebhookLog(data)
+	if err != nil {
+		return err
+	}
+
 	c := s.database.Collection("platform_webhook_logs")
-	_, err = c.InsertOne(ctx, callLog)
+	_, err = c.InsertOne(ctx, *callLog)
 	return err
 }
 
@@ -102,7 +106,7 @@ func (*WebhookService) getProviderWebhookSignature(header map[string][]string) s
 	return signature
 }
 
-func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) WebhookLogs {
+func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) (*WebhookLogs, error) {
 	common := CommonWebhook{}
 	json.Unmarshal([]byte(data.Body), &common)
 
@@ -111,15 +115,14 @@ func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) WebhookLogs {
 	providerPlatformId := ""
 	providerProjectId := ""
 	providerWebhookId := ""
+
 	if strings.HasPrefix(data.UserAgent, "CircleCI-") {
 		source = "circleci"
 		eventType = common.Type
 		providerPlatformId = common.Organization.Name
 		providerProjectId = common.Project.Slug
 		providerWebhookId = common.Webhook.ID
-	}
-
-	if strings.HasPrefix(data.UserAgent, "GitHub-") {
+	} else if strings.HasPrefix(data.UserAgent, "GitHub-") {
 		source = "github"
 		if h, ok := data.Header["X-Github-Event"]; ok && len(h) > 0 {
 			eventType = h[0]
@@ -132,9 +135,11 @@ func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) WebhookLogs {
 		if h, ok := data.Header["X-Github-Hook-Id"]; ok && len(h) > 0 {
 			providerWebhookId = h[0]
 		}
+	} else {
+		return nil, fmt.Errorf("unsupport webhook")
 	}
 
-	callLog := WebhookLogs{
+	callLog := &WebhookLogs{
 		Id:                 uuid.NewString(),
 		Source:             source,
 		EventType:          eventType,
@@ -144,7 +149,7 @@ func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) WebhookLogs {
 		Data:               data.Body,
 	}
 
-	return callLog
+	return callLog, nil
 }
 
 type WebhookRequestInfo struct {
