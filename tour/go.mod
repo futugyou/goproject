@@ -4,9 +4,9 @@ go 1.22.5
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.33.0
-	github.com/aws/aws-sdk-go-v2/config v1.29.0
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.53
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.4
+	github.com/aws/aws-sdk-go-v2/config v1.29.1
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.54
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.39.5
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/go-openapi/loads v0.22.0
 	github.com/go-openapi/spec v0.21.0
@@ -26,9 +26,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.10.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.24.10 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.33.8 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.24.11 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.10 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.33.9 // indirect
 	github.com/aws/smithy-go v1.22.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
