@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -159,9 +160,50 @@ func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) (*WebhookLogs, e
 		ProviderProjectId:  providerProjectId,
 		ProviderWebhookId:  providerWebhookId,
 		Data:               data.Body,
+		HappenedAt:         time.Now().UTC().Format(time.RFC3339Nano),
 	}
 
 	return callLog, nil
+}
+
+func (s *WebhookService) SearchWebhookLogs(ctx context.Context, searcher *WebhookSearch) ([]WebhookLogs, error) {
+	result := make([]WebhookLogs, 0)
+	c := s.database.Collection("platform_webhook_logs")
+	filter := bson.D{}
+	op := options.Find()
+
+	if searcher != nil {
+		if searcher.Source != nil {
+			filter = append(filter, bson.E{Key: "source", Value: *searcher.Source})
+		}
+		if searcher.EventType != nil {
+			filter = append(filter, bson.E{Key: "event_type", Value: *searcher.EventType})
+		}
+		if searcher.ProviderPlatformId != nil {
+			filter = append(filter, bson.E{Key: "provider_platform_id", Value: *searcher.ProviderPlatformId})
+		}
+		if searcher.ProviderProjectId != nil {
+			filter = append(filter, bson.E{Key: "provider_project_id", Value: *searcher.ProviderProjectId})
+		}
+		if searcher.ProviderWebhookId != nil {
+			filter = append(filter, bson.E{Key: "provider_webhook_id", Value: *searcher.ProviderWebhookId})
+		}
+	}
+
+	cursor, err := c.Find(ctx, filter, op)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cursor.All(ctx, &result); err != nil {
+		return nil, err
+	}
+
+	for _, data := range result {
+		cursor.Decode(&data)
+	}
+
+	return result, nil
 }
 
 type WebhookRequestInfo struct {
@@ -220,4 +262,12 @@ type Repository struct {
 type ProviderWebhook struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type WebhookSearch struct {
+	Source             *string
+	EventType          *string
+	ProviderPlatformId *string
+	ProviderProjectId  *string
+	ProviderWebhookId  *string
 }
