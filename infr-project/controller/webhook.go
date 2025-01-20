@@ -11,6 +11,7 @@ import (
 
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	models "github.com/futugyou/infr-project/view_models"
 )
 
 type WebhookController struct {
@@ -33,7 +34,7 @@ func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *ht
 
 	query := r.URL.Query()
 
-	reqInfo := application.WebhookRequestInfo{
+	reqInfo := models.WebhookRequestInfo{
 		Method:     r.Method,
 		URL:        r.URL.String(),
 		Proto:      r.Proto,
@@ -66,6 +67,23 @@ func (c *WebhookController) VerifyTesting(w http.ResponseWriter, r *http.Request
 
 }
 
+func (c *WebhookController) SearchWebhookLogs(w http.ResponseWriter, r *http.Request, filter models.WebhookSearch) {
+	ctx := r.Context()
+	service, err := createWebhookService(ctx)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	if data, err := service.SearchWebhookLogs(ctx, filter); err != nil {
+		handleError(w, err, 500)
+		return
+	} else {
+		writeJSONResponse(w, data, 200)
+	}
+
+}
+
 func createWebhookService(ctx context.Context) (*application.WebhookService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -77,5 +95,6 @@ func createWebhookService(ctx context.Context) (*application.WebhookService, err
 		return nil, err
 	}
 
-	return application.NewWebhookService(client.Database(config.DBName)), nil
+	repo := infra.NewWebhookLogRepository(client, config)
+	return application.NewWebhookService(repo), nil
 }

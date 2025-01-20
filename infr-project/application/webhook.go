@@ -6,29 +6,28 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
-	tool "github.com/futugyou/extensions"
+	models "github.com/futugyou/infr-project/view_models"
+	"github.com/futugyou/infr-project/webhook"
 )
 
 type WebhookService struct {
-	database *mongo.Database
+	repository webhook.IWebhookLogRepository
 }
 
-func NewWebhookService(database *mongo.Database) *WebhookService {
+func NewWebhookService(repository webhook.IWebhookLogRepository) *WebhookService {
 	return &WebhookService{
-		database: database,
+		repository: repository,
 	}
 }
 
-func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data WebhookRequestInfo) error {
-	signature := s.getProviderWebhookSignature(data.Header)
-	verifyResult, err := tool.VerifySignatureHMAC(os.Getenv("TRIGGER_AUTH_KEY"), signature, data.Body)
+func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data models.WebhookRequestInfo) error {
+	webhookLog, err := s.buildWebhookLog(data)
+	if err != nil {
+		return err
+	}
+
+	verifyResult, err := webhookLog.Verify(os.Getenv("TRIGGER_AUTH_KEY"))
 	if err != nil {
 		return err
 	}
@@ -37,53 +36,11 @@ func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data Webho
 		return fmt.Errorf("signature verification failed")
 	}
 
-	callLog, err := s.buildWebhookLog(data)
-	if err != nil {
-		return err
-	}
-
-	c := s.database.Collection("platform_webhook_logs")
-	_, err = c.InsertOne(ctx, *callLog)
-	return err
+	return s.repository.Insert(ctx, *webhookLog)
 }
 
-func (s *WebhookService) VerifyTesting(ctx context.Context) ([]VerifyResponse, error) {
-	result := make([]WebhookLogs, 0)
-	c := s.database.Collection("webhook_testing_logs")
-	filter := bson.D{}
-	op := options.Find()
-	cursor, err := c.Find(ctx, filter, op)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = cursor.All(ctx, &result); err != nil {
-		return nil, err
-	}
-
-	for _, data := range result {
-		cursor.Decode(&data)
-	}
-
-	datas := []VerifyResponse{}
-	for _, d := range result {
-		data := WebhookRequestInfo{}
-		json.Unmarshal([]byte(d.Data), &data)
-		ver := VerifyResponse{
-			Id:      d.Id,
-			Verify:  false,
-			Message: "",
-		}
-
-		signature := s.getProviderWebhookSignature(data.Header)
-		if r, err := tool.VerifySignatureHMAC(os.Getenv("TRIGGER_AUTH_KEY"), signature, data.Body); err != nil {
-			ver.Message = err.Error()
-		} else {
-			ver.Verify = r
-		}
-
-		datas = append(datas, ver)
-	}
+func (s *WebhookService) VerifyTesting(ctx context.Context) ([]models.VerifyResponse, error) {
+	datas := []models.VerifyResponse{}
 	return datas, nil
 }
 
@@ -104,10 +61,16 @@ func (*WebhookService) getProviderWebhookSignature(header map[string][]string) s
 			signature = h[0][7:]
 		}
 	}
+
 	return signature
 }
 
-func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) (*WebhookLogs, error) {
+func (s *WebhookService) buildWebhookLog(data models.WebhookRequestInfo) (*webhook.WebhookLogs, error) {
+	signature := s.getProviderWebhookSignature(data.Header)
+	if len(signature) == 0 {
+		return nil, fmt.Errorf("signature verification failed")
+	}
+
 	common := CommonWebhook{}
 	json.Unmarshal([]byte(data.Body), &common)
 
@@ -152,87 +115,32 @@ func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) (*WebhookLogs, e
 		return nil, fmt.Errorf("unsupport webhook")
 	}
 
-	callLog := &WebhookLogs{
-		Id:                 uuid.NewString(),
-		Source:             source,
-		EventType:          eventType,
-		ProviderPlatformId: providerPlatformId,
-		ProviderProjectId:  providerProjectId,
-		ProviderWebhookId:  providerWebhookId,
-		Data:               data.Body,
-		HappenedAt:         time.Now().UTC().Format(time.RFC3339Nano),
-	}
+	webhookLog := webhook.NewWebhookLogs(source, eventType, providerPlatformId, providerProjectId, providerWebhookId, data.Body, signature)
 
-	return callLog, nil
+	return webhookLog, nil
 }
 
-func (s *WebhookService) SearchWebhookLogs(ctx context.Context, searcher *WebhookSearch) ([]WebhookLogs, error) {
-	result := make([]WebhookLogs, 0)
-	c := s.database.Collection("platform_webhook_logs")
-	filter := bson.D{}
-	op := options.Find()
-
-	if searcher != nil {
-		if searcher.Source != nil {
-			filter = append(filter, bson.E{Key: "source", Value: *searcher.Source})
-		}
-		if searcher.EventType != nil {
-			filter = append(filter, bson.E{Key: "event_type", Value: *searcher.EventType})
-		}
-		if searcher.ProviderPlatformId != nil {
-			filter = append(filter, bson.E{Key: "provider_platform_id", Value: *searcher.ProviderPlatformId})
-		}
-		if searcher.ProviderProjectId != nil {
-			filter = append(filter, bson.E{Key: "provider_project_id", Value: *searcher.ProviderProjectId})
-		}
-		if searcher.ProviderWebhookId != nil {
-			filter = append(filter, bson.E{Key: "provider_webhook_id", Value: *searcher.ProviderWebhookId})
-		}
-	}
-
-	cursor, err := c.Find(ctx, filter, op)
+func (s *WebhookService) SearchWebhookLogs(ctx context.Context, searcher models.WebhookSearch) ([]models.WebhookLogs, error) {
+	filter := webhook.WebhookLogSearch(searcher)
+	result := []models.WebhookLogs{}
+	logs, err := s.repository.SearchWebhookLogs(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = cursor.All(ctx, &result); err != nil {
-		return nil, err
-	}
-
-	for _, data := range result {
-		cursor.Decode(&data)
+	for _, log := range logs {
+		result = append(result, models.WebhookLogs{
+			Source:             log.Source,
+			EventType:          log.EventType,
+			ProviderPlatformId: log.ProviderPlatformId,
+			ProviderProjectId:  log.ProviderProjectId,
+			ProviderWebhookId:  log.ProviderWebhookId,
+			Data:               log.Data,
+			HappenedAt:         log.HappenedAt,
+		})
 	}
 
 	return result, nil
-}
-
-type WebhookRequestInfo struct {
-	Method     string              `json:"method"`
-	URL        string              `json:"url"`
-	Proto      string              `json:"proto"`
-	Host       string              `json:"host"`
-	Header     map[string][]string `json:"header"`
-	Body       string              `json:"body"`
-	Query      map[string][]string `json:"query"`
-	RemoteAddr string              `json:"remote_addr"`
-	UserAgent  string              `json:"user_agent"`
-}
-
-type VerifyResponse struct {
-	Id      string `json:"id"`
-	Verify  bool   `json:"verify"`
-	Message string `json:"message"`
-}
-
-type WebhookLogs struct {
-	Id                 string `bson:"_id"`
-	Source             string `bson:"source"` // github/vercel/circleci
-	EventType          string `bson:"event_type"`
-	ProviderPlatformId string `bson:"provider_platform_id"`
-	ProviderProjectId  string `bson:"provider_project_id"`
-	ProviderWebhookId  string `bson:"provider_webhook_id"`
-	Data               string `bson:"data"`
-	HappenedAt         string `json:"happened_at"`
 }
 
 type CommonWebhook struct {
@@ -262,12 +170,4 @@ type Repository struct {
 type ProviderWebhook struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-}
-
-type WebhookSearch struct {
-	Source             *string
-	EventType          *string
-	ProviderPlatformId *string
-	ProviderProjectId  *string
-	ProviderWebhookId  *string
 }

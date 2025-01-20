@@ -16,6 +16,7 @@ type WebhookLogs struct {
 	ProviderPlatformId string `bson:"provider_platform_id"`
 	ProviderProjectId  string `bson:"provider_project_id"`
 	ProviderWebhookId  string `bson:"provider_webhook_id"`
+	Signature          string `bson:"signature"`
 	Data               string `bson:"data"`
 	HappenedAt         string `bson:"happened_at"`
 }
@@ -24,11 +25,11 @@ func (r WebhookLogs) AggregateName() string {
 	return "platform_webhook_logs"
 }
 
-func (r WebhookLogs) Verify(secret string, signature string) (bool, error) {
-	return tool.VerifySignatureHMAC(secret, signature, r.Data)
+func (r WebhookLogs) Verify(secret string) (bool, error) {
+	return tool.VerifySignatureHMAC(secret, r.Signature, r.Data)
 }
 
-func NewWebhookLogs(source, eventType, providerPlatformId, providerProjectId, providerWebhookId, data string) *WebhookLogs {
+func NewWebhookLogs(source, eventType, providerPlatformId, providerProjectId, providerWebhookId, data string, signature string) *WebhookLogs {
 	return &WebhookLogs{
 		Aggregate: domain.Aggregate{
 			Id: uuid.NewString(),
@@ -40,5 +41,6 @@ func NewWebhookLogs(source, eventType, providerPlatformId, providerProjectId, pr
 		ProviderWebhookId:  providerWebhookId,
 		Data:               data,
 		HappenedAt:         time.Now().UTC().Format(time.RFC3339Nano),
+		Signature:          signature,
 	}
 }
