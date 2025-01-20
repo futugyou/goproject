@@ -123,17 +123,29 @@ func (*WebhookService) buildWebhookLog(data WebhookRequestInfo) (*WebhookLogs, e
 		providerProjectId = common.Project.Slug
 		providerWebhookId = common.Webhook.ID
 	} else if strings.HasPrefix(data.UserAgent, "GitHub-") {
+		if len(common.Action) > 0 && common.Action != "completed" {
+			return nil, fmt.Errorf("github webhook log when action is completed")
+		}
+
 		source = "github"
 		if h, ok := data.Header["X-Github-Event"]; ok && len(h) > 0 {
 			eventType = h[0]
+		} else {
+			return nil, fmt.Errorf("github webhook need X-Github-Event in header")
 		}
+
 		fulls := strings.Split(common.Repository.FullName, "/")
 		if len(fulls) == 2 {
 			providerPlatformId = fulls[0]
 			providerProjectId = fulls[1]
+		} else {
+			return nil, fmt.Errorf("github webhook need respository fullname")
 		}
+
 		if h, ok := data.Header["X-Github-Hook-Id"]; ok && len(h) > 0 {
 			providerWebhookId = h[0]
+		} else {
+			return nil, fmt.Errorf("github webhook need X-Github-Hook-Id in header")
 		}
 	} else {
 		return nil, fmt.Errorf("unsupport webhook")
@@ -183,6 +195,7 @@ type WebhookLogs struct {
 
 type CommonWebhook struct {
 	Type         string          `json:"type"`
+	Action       string          `json:"action"`
 	Webhook      ProviderWebhook `json:"webhook"`
 	Repository   Repository      `json:"repository"`
 	Project      CircleProject   `json:"project"`
