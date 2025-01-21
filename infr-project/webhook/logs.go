@@ -1,9 +1,13 @@
 package webhook
 
-import "github.com/futugyou/infr-project/domain"
+import (
+	tool "github.com/futugyou/extensions"
+
+	"github.com/futugyou/infr-project/domain"
+)
 
 type WebhookLogs struct {
-	domain.Aggregate   `bson:"-"`
+	domain.Aggregate   `bson:",inline"`
 	Source             string `bson:"source"` // github/vercel/circleci
 	EventType          string `bson:"event_type"`
 	ProviderPlatformId string `bson:"provider_platform_id"`
@@ -15,4 +19,8 @@ type WebhookLogs struct {
 
 func (r WebhookLogs) AggregateName() string {
 	return "platform_webhook_logs"
+}
+
+func (r WebhookLogs) Verify(secret string, signature string) (bool, error) {
+	return tool.VerifySignatureHMAC(secret, signature, r.Data)
 }
