@@ -30,8 +30,6 @@ func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
 	op := r.URL.Query().Get("optype")
 	ctrl := controller.NewController()
 	switch op {
-	case "redis":
-		redistool(ctrl, r, w)
 	case "event":
 		eventHandler(ctrl, r, w)
 	case "webhook":
@@ -41,34 +39,6 @@ func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-}
-
-func redistool(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	client, err := tool.RedisClient(os.Getenv("REDIS_URL"))
-	if err != nil {
-		w.Write([]byte("linkMsg:" + err.Error()))
-		w.WriteHeader(500)
-		return
-	}
-
-	ctx := r.Context()
-
-	err = client.Set(ctx, "foo", "bar", 0).Err()
-	if err != nil {
-		w.Write([]byte("WriteMsg:" + err.Error()))
-		w.WriteHeader(500)
-		return
-	}
-
-	val, err := client.Get(ctx, "foo").Result()
-	if err != nil {
-		w.Write([]byte("ReadMsg:" + err.Error()))
-		w.WriteHeader(500)
-		return
-	}
-
-	w.Write([]byte("ResultMsg:" + val))
-	w.WriteHeader(200)
 }
 
 func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {

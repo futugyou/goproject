@@ -440,20 +440,6 @@
             }
         },
         {
-            "src": "/api/v1/test/redis",
-            "dest": "/api/webhook.go?optype=redis",
-            "methods": [
-                "GET",
-                "OPTIONS"
-            ],
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Expose-Headers": "*"
-            }
-        },
-        {
             "src": "/api/v1/event",
             "dest": "/api/webhook.go?optype=event",
             "methods": [
