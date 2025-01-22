@@ -217,13 +217,16 @@ func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider pl
 }
 
 func (s *PlatformService) createProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync,
-	platformId string, projectId string, url string, name string) (*platformProvider.WebHook, error) {
+	platformId string, projectId string, url string, name string, secret string) (*platformProvider.WebHook, error) {
 	request := platformProvider.CreateWebHookRequest{
 		PlatformId: platformId,
 		ProjectId:  projectId,
 		WebHook: platformProvider.WebHook{
 			Name: name,
 			Url:  url,
+			Parameters: map[string]string{
+				"SigningSecret": secret,
+			},
 		},
 	}
 

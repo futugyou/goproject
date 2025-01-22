@@ -335,7 +335,7 @@ func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) (badge
 	return
 }
 
-// if need webhook secret, set it in WebHook.Parameters with key 'WEBHOOK_SECRET'
+// if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
 func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
 	resultChan := make(chan *WebHook, 1)
 	errorChan := make(chan error, 1)
@@ -348,7 +348,7 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 			URL:         github.String(request.WebHook.Url),
 		}
 
-		if s, ok := request.WebHook.Parameters["WEBHOOK_SECRET"]; ok && len(s) > 0 {
+		if s, ok := request.WebHook.Parameters["SigningSecret"]; ok && len(s) > 0 {
 			config.Secret = github.String(s)
 		}
 
@@ -375,7 +375,7 @@ func (g *GithubClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 		if githookconfig != nil {
 			paras["ContentType"] = githookconfig.GetContentType()
 			paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
-			paras["Secret"] = githookconfig.GetSecret()
+			paras["SigningSecret"] = githookconfig.GetSecret()
 			paras["URL"] = githookconfig.GetURL()
 		}
 		hook := &WebHook{

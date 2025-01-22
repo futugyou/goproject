@@ -262,21 +262,11 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 
 	if needInsert {
 		// Regardless of whether sync is successful, the program will continue
-		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
-			platformId := ""
-			if plat.Provider == platform.PlatformProviderGithub {
-				if prop, ok := plat.Properties["GITHUB_OWNER"]; ok {
-					platformId = prop.Value
-				}
-			}
-
-			if providerHook, err := s.createProviderWebhook(ctx, provider, platformId,
-				project.ProviderProjectId, platform.GetWebhookUrl(), hook.Name); err == nil {
-				newhook.UpdateProviderHookId(providerHook.ID)
-				plat.UpdateWebhook(projectId, *newhook)
-			}
-		} else {
+		if providerHook, err := s.handlingProviderWebhookCreation(ctx, plat, project, hook.Name); err != nil {
 			log.Println(err.Error())
+		} else {
+			newhook.UpdateProviderHookId(providerHook.ID)
+			plat.UpdateWebhook(project.Id, *newhook)
 		}
 	}
 
@@ -288,6 +278,31 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 	}
 
 	return s.convertPlatformEntityToViewModel(ctx, plat)
+}
+
+func (s *PlatformService) handlingProviderWebhookCreation(ctx context.Context, plat *platform.Platform, project platform.PlatformProject, webhookName string) (*platformProvider.WebHook, error) {
+	provider, err := s.getPlatfromProvider(ctx, *plat)
+	if err != nil {
+		return nil, err
+	}
+
+	secret, _ := tool.GenerateRandomKey(6)
+	platformId := ""
+	if plat.Provider == platform.PlatformProviderGithub {
+		if prop, ok := plat.Properties["GITHUB_OWNER"]; ok {
+			platformId = prop.Value
+		}
+	}
+
+	return s.createProviderWebhook(
+		ctx,
+		provider,
+		platformId,
+		project.ProviderProjectId,
+		platform.GetWebhookUrl(),
+		webhookName,
+		secret,
+	)
 }
 
 func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.RemoveWebhookRequest) (*models.PlatformDetailView, error) {
