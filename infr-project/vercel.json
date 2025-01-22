@@ -441,7 +441,7 @@
         },
         {
             "src": "/api/v1/test/redis",
-            "dest": "/api/tool.go?optype=redis",
+            "dest": "/api/webhook.go?optype=redis",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -455,7 +455,7 @@
         },
         {
             "src": "/api/v1/event",
-            "dest": "/api/tool.go?optype=event",
+            "dest": "/api/webhook.go?optype=event",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -469,7 +469,7 @@
         },
         {
             "src": "/api/v1/webhook",
-            "dest": "/api/tool.go?optype=webhook",
+            "dest": "/api/webhook.go?optype=webhook",
             "methods": [
                 "POST",
                 "OPTIONS"

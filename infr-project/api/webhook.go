@@ -21,7 +21,7 @@ import (
 	models "github.com/futugyou/infr-project/view_models"
 )
 
-func ToolsDispatch(w http.ResponseWriter, r *http.Request) {
+func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
 	// cors
 	if extensions.Cors(w, r) {
 		return
