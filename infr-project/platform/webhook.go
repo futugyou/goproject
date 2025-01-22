@@ -89,3 +89,19 @@ func (w *Webhook) UpdateProviderHookId(id string) *Webhook {
 	w.ID = id
 	return w
 }
+
+func (w *Webhook) UpdateProperties(properties map[string]Property) *Webhook {
+	for k, v := range properties {
+		w.Properties[k] = v
+	}
+
+	return w
+}
+
+func (w *Webhook) UpdateSecrets(secrets map[string]Secret) *Webhook {
+	for k, v := range secrets {
+		w.Secrets[k] = v
+	}
+
+	return w
+}
