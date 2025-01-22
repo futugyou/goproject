@@ -265,6 +265,9 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 		if providerHook, err := s.handlingProviderWebhookCreation(ctx, plat, project, hook.Name); err != nil {
 			log.Println(err.Error())
 		} else {
+			hookSecrets, hookProperties := s.createWebhookVault(ctx, providerHook, plat.Id, project.ProviderProjectId, hook.Name)
+			newhook.UpdateProperties(hookProperties)
+			newhook.UpdateSecrets(hookSecrets)
 			newhook.UpdateProviderHookId(providerHook.ID)
 			plat.UpdateWebhook(project.Id, *newhook)
 		}
@@ -278,6 +281,56 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 	}
 
 	return s.convertPlatformEntityToViewModel(ctx, plat)
+}
+
+func (s *PlatformService) createWebhookVault(ctx context.Context, providerHook *platformProvider.WebHook, platformId string,
+	providerProjectId string, hookName string) (map[string]platform.Secret, map[string]platform.Property) {
+	parameters := providerHook.GetParameters()
+	properties := map[string]platform.Property{}
+	for k, v := range parameters {
+		properties[k] = platform.Property{
+			Key:   k,
+			Value: v,
+		}
+	}
+
+	secrets := map[string]platform.Secret{}
+	signingSecret := providerHook.GetParameters()["SigningSecret"]
+	if len(signingSecret) == 0 {
+		return secrets, properties
+	}
+
+	delete(properties, "SigningSecret")
+
+	aux := models.CreateVaultsRequest{
+		Vaults: []models.CreateVaultModel{
+			{
+				Key:          "WebHookSecret",
+				Value:        signingSecret,
+				StorageMedia: "Local",
+				VaultType:    "project",
+				TypeIdentity: fmt.Sprintf("%s/%s/%s", platformId, providerProjectId, hookName),
+			},
+		},
+		ForceInsert: false,
+	}
+
+	vaultReps, err := s.vaultService.CreateVaults(ctx, aux)
+	if err != nil {
+		log.Println(err.Error())
+		return secrets, properties
+	}
+
+	if len(vaultReps.Vaults) > 0 {
+		secrets["WebHookSecret"] = platform.Secret{
+			Key:            "WebHookSecret",
+			Value:          signingSecret,
+			VaultKey:       vaultReps.Vaults[0].Key,
+			VaultMaskValue: vaultReps.Vaults[0].MaskValue,
+		}
+	}
+
+	return secrets, properties
 }
 
 func (s *PlatformService) handlingProviderWebhookCreation(ctx context.Context, plat *platform.Platform, project platform.PlatformProject, webhookName string) (*platformProvider.WebHook, error) {
