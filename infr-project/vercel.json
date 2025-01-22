@@ -466,6 +466,20 @@
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Expose-Headers": "*"
             }
+        },
+        {
+            "src": "/api/v2/webhook/(?<platform>[^/]+)/(?<project>[^/]+)",
+            "dest": "/api/webhook.go?optype=webhook&platform=$platform&project=$project",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
         }
     ],
     "build": {

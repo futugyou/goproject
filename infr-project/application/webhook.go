@@ -65,6 +65,17 @@ func (*WebhookService) getProviderWebhookSignature(header map[string][]string) s
 	return signature
 }
 
+func getMapString(v map[string][]string, key string) string {
+	if v == nil {
+		return ""
+	}
+	vs := v[key]
+	if len(vs) == 0 {
+		return ""
+	}
+	return vs[0]
+}
+
 func (s *WebhookService) buildWebhookLog(data models.WebhookRequestInfo) (*webhook.WebhookLogs, error) {
 	signature := s.getProviderWebhookSignature(data.Header)
 	if len(signature) == 0 {
@@ -76,8 +87,8 @@ func (s *WebhookService) buildWebhookLog(data models.WebhookRequestInfo) (*webho
 
 	source := ""
 	eventType := ""
-	providerPlatformId := ""
-	providerProjectId := ""
+	providerPlatformId := getMapString(data.Query, "platform")
+	providerProjectId := getMapString(data.Query, "project")
 	providerWebhookId := ""
 
 	if strings.HasPrefix(data.UserAgent, "CircleCI-") {
@@ -102,8 +113,6 @@ func (s *WebhookService) buildWebhookLog(data models.WebhookRequestInfo) (*webho
 		if len(fulls) == 2 {
 			providerPlatformId = fulls[0]
 			providerProjectId = fulls[1]
-		} else {
-			return nil, fmt.Errorf("github webhook need respository fullname")
 		}
 
 		if h, ok := data.Header["X-Github-Hook-Id"]; ok && len(h) > 0 {
