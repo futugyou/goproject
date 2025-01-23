@@ -14,11 +14,13 @@ func (c vaultType) String() string {
 }
 
 const (
-	VaultTypeSystem   vaultType = "system"
-	VaultTypeCommon   vaultType = "common"
-	VaultTypeProject  vaultType = "project"
-	VaultTypeResource vaultType = "resource"
-	VaultTypePlatform vaultType = "platform"
+	VaultTypeSystem          vaultType = "system"
+	VaultTypeCommon          vaultType = "common"
+	VaultTypeProject         vaultType = "project"
+	VaultTypeResource        vaultType = "resource"
+	VaultTypePlatform        vaultType = "platform"
+	VaultTypePlatformProject vaultType = "platform_project"
+	VaultTypePlatformWebhook vaultType = "platform_webhook"
 )
 
 func GetVaultType(rType string) VaultType {
@@ -33,6 +35,10 @@ func GetVaultType(rType string) VaultType {
 		return VaultTypeResource
 	case "platform":
 		return VaultTypePlatform
+	case "platform_project":
+		return VaultTypePlatformProject
+	case "platform_webhook":
+		return VaultTypePlatformWebhook
 	default:
 		return VaultTypeCommon
 	}

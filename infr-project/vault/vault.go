@@ -14,8 +14,8 @@ type Vault struct {
 	Key          string
 	Value        string
 	StorageMedia StorageMedia // local, aws, HCP,...
-	VaultType    VaultType    // system, common, project, resource, platform
-	TypeIdentity string       // system, common, projectId, resourceId, platformId
+	VaultType    VaultType    // system, common, project, resource, platform, platform_project, platform_webhook
+	TypeIdentity string       // system, common, projectId, resourceId, platformId, platform_project_id, platform_webhook_id
 	State        VaultState   // default, changing
 	Tags         []string
 	hasChange    bool
