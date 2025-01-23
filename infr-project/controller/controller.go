@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/futugyou/infr-project/extensions"
 )
 
@@ -30,10 +32,28 @@ func writeJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) 
 	}
 }
 
-func handleRequestWithService[S any, T any](
+func handleRequest[S any, T any](
 	w http.ResponseWriter,
 	r *http.Request,
 	createService func(ctx context.Context) (S, error),
+	handler func(ctx context.Context, service S, req T) (interface{}, error),
+) {
+	handleRequestUseSpecValidate(
+		w,
+		r,
+		createService,
+		func(v *validator.Validate, req *T) error {
+			return v.Struct(req)
+		},
+		handler,
+	)
+}
+
+func handleRequestUseSpecValidate[S any, T any](
+	w http.ResponseWriter,
+	r *http.Request,
+	createService func(ctx context.Context) (S, error),
+	validor func(v *validator.Validate, req *T) error,
 	handler func(ctx context.Context, service S, req T) (interface{}, error),
 ) {
 	ctx := r.Context()
@@ -58,7 +78,7 @@ func handleRequestWithService[S any, T any](
 		req = new(T)
 	}
 
-	if err := extensions.Validate.Struct(req); err != nil {
+	if err := validor(extensions.Validate, req); err != nil {
 		handleError(w, err, 400)
 		return
 	}
