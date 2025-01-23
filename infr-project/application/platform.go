@@ -302,32 +302,28 @@ func (s *PlatformService) createWebhookVault(ctx context.Context, providerHook *
 
 	delete(properties, "SigningSecret")
 
-	aux := models.CreateVaultsRequest{
-		Vaults: []models.CreateVaultModel{
-			{
-				Key:          "WebHookSecret",
-				Value:        signingSecret,
-				StorageMedia: "Local",
-				VaultType:    "project",
-				TypeIdentity: fmt.Sprintf("%s/%s/%s", platformId, providerProjectId, hookName),
-			},
+	aux := models.CreateVaultRequest{
+		CreateVaultModel: models.CreateVaultModel{
+			Key:          "WebHookSecret",
+			Value:        signingSecret,
+			StorageMedia: "Local",
+			VaultType:    "project",
+			TypeIdentity: fmt.Sprintf("%s/%s/%s", platformId, providerProjectId, hookName),
 		},
 		ForceInsert: false,
 	}
 
-	vaultReps, err := s.vaultService.CreateVaults(ctx, aux)
+	vaultReps, err := s.vaultService.CreateVault(ctx, aux)
 	if err != nil {
 		log.Println(err.Error())
 		return secrets, properties
 	}
 
-	if len(vaultReps.Vaults) > 0 {
-		secrets["WebHookSecret"] = platform.Secret{
-			Key:            "WebHookSecret",
-			Value:          signingSecret,
-			VaultKey:       vaultReps.Vaults[0].Key,
-			VaultMaskValue: vaultReps.Vaults[0].MaskValue,
-		}
+	secrets["WebHookSecret"] = platform.Secret{
+		Key:            "WebHookSecret",
+		Value:          signingSecret,
+		VaultKey:       vaultReps.Key,
+		VaultMaskValue: vaultReps.MaskValue,
 	}
 
 	return secrets, properties
