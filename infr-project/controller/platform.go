@@ -24,240 +24,69 @@ func NewPlatformController() *PlatformController {
 }
 
 func (c *PlatformController) DeletePlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.DeleteProject(ctx, idOrName, projectId)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.DeleteProject(ctx, idOrName, projectId)
+	})
 }
 
 func (c *PlatformController) UpsertPlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.UpdatePlatformProjectRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.UpsertProject(ctx, idOrName, projectId, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, req models.UpdatePlatformProjectRequest) (interface{}, error) {
+		return service.UpsertProject(ctx, idOrName, projectId, req)
+	})
 }
 
 func (c *PlatformController) CreatePlatform(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.CreatePlatformRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.CreatePlatform(ctx, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, req models.CreatePlatformRequest) (interface{}, error) {
+		return service.CreatePlatform(ctx, req)
+	})
 }
 
 func (c *PlatformController) GetPlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetPlatform(ctx, idOrName)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.GetPlatform(ctx, idOrName)
+	})
 }
 
 func (c *PlatformController) GetPlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetPlatformProject(ctx, idOrName, projectId)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.GetPlatformProject(ctx, idOrName, projectId)
+	})
 }
 
 func (c *PlatformController) SearchPlatforms(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.SearchPlatforms(ctx, request)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.SearchPlatforms(ctx, request)
+	})
 }
 
 func (c *PlatformController) UpdatePlatformHook(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.UpdatePlatformWebhookRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.UpsertWebhook(ctx, idOrName, projectId, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, req models.UpdatePlatformWebhookRequest) (interface{}, error) {
+		return service.UpsertWebhook(ctx, idOrName, projectId, req)
+	})
 }
 
 func (c *PlatformController) DeletePlatformHook(request models.RemoveWebhookRequest, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.RemoveWebhook(ctx, request)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.RemoveWebhook(ctx, request)
+	})
 }
 
 func (c *PlatformController) UpdatePlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.UpdatePlatformRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.UpdatePlatform(ctx, idOrName, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, req models.UpdatePlatformRequest) (interface{}, error) {
+		return service.UpdatePlatform(ctx, idOrName, req)
+	})
 }
 
 func (c *PlatformController) DeletePlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.DeletePlatform(ctx, idOrName)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.DeletePlatform(ctx, idOrName)
+	})
 }
 
 func (c *PlatformController) RecoveryPlatform(idOrName string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createPlatformService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.RecoveryPlatform(ctx, idOrName)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.RecoveryPlatform(ctx, idOrName)
+	})
 }
 
 func createPlatformService(ctx context.Context) (*application.PlatformService, error) {

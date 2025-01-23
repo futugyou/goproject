@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -21,47 +20,15 @@ func NewResourceQueryController() *ResourceQueryController {
 }
 
 func (c *ResourceQueryController) GetResource(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceQueryService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetResource(ctx, id)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	if res == nil || res.Id == "" {
-		handleError(w, fmt.Errorf("resource not found"), 400)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createResourceQueryService, func(ctx context.Context, service *application.ResourceQueryService, _ struct{}) (interface{}, error) {
+		return service.GetResource(ctx, id)
+	})
 }
 
 func (c *ResourceQueryController) GetAllResource(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceQueryService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetAllResources(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	if len(res) == 0 {
-		handleError(w, fmt.Errorf("resource not found"), 400)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createResourceQueryService, func(ctx context.Context, service *application.ResourceQueryService, _ struct{}) (interface{}, error) {
+		return service.GetAllResources(ctx)
+	})
 }
 
 func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {

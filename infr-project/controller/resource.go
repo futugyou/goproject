@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
-
 	_ "github.com/joho/godotenv/autoload"
 
 	"context"
@@ -13,7 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/futugyou/infr-project/application"
-	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/resource"
 	models "github.com/futugyou/infr-project/view_models"
@@ -27,93 +24,27 @@ func NewResourceController() *ResourceController {
 }
 
 func (c *ResourceController) GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.AllVersionResource(ctx, id)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (interface{}, error) {
+		return service.AllVersionResource(ctx, id)
+	})
 }
 
 func (c *ResourceController) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	err = service.DeleteResource(ctx, id)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, "ok", 200)
+	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (interface{}, error) {
+		return "ok", service.DeleteResource(ctx, id)
+	})
 }
 
 func (c *ResourceController) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.UpdateResourceRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	err = service.UpdateResource(ctx, id, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, "ok", 200)
+	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, req models.UpdateResourceRequest) (interface{}, error) {
+		return "ok", service.UpdateResource(ctx, id, req)
+	})
 }
 
 func (c *ResourceController) CreateResource(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createResourceService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.CreateResourceRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.CreateResource(ctx, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, req models.CreateResourceRequest) (interface{}, error) {
+		return service.CreateResource(ctx, req)
+	})
 }
 
 func createResourceService(ctx context.Context) (*application.ResourceService, error) {

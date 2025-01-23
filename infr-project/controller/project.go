@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"os"
 
@@ -10,9 +9,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/futugyou/infr-project/application"
-	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	models "github.com/futugyou/infr-project/view_models"
+	"github.com/go-playground/validator/v10"
 )
 
 type ProjectController struct {
@@ -23,151 +22,49 @@ func NewProjectController() *ProjectController {
 }
 
 func (c *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createProjectService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.CreateProjectRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.CreateProject(ctx, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createProjectService, func(ctx context.Context, service *application.ProjectService, req models.CreateProjectRequest) (interface{}, error) {
+		return service.CreateProject(ctx, req)
+	})
 }
 
 func (c *ProjectController) GetProject(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createProjectService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetProject(ctx, id)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createProjectService, func(ctx context.Context, service *application.ProjectService, _ struct{}) (interface{}, error) {
+		return service.GetProject(ctx, id)
+	})
 }
 
 func (c *ProjectController) GetAllProject(w http.ResponseWriter, r *http.Request, page *int, size *int) {
-	ctx := r.Context()
-	service, err := createProjectService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.GetAllProject(ctx, page, size)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createProjectService, func(ctx context.Context, service *application.ProjectService, _ struct{}) (interface{}, error) {
+		return service.GetAllProject(ctx, page, size)
+	})
 }
 
 func (c *ProjectController) UpdateProject(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createProjectService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.UpdateProjectRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.UpdateProject(ctx, id, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createProjectService, func(ctx context.Context, service *application.ProjectService, req models.UpdateProjectRequest) (interface{}, error) {
+		return service.UpdateProject(ctx, id, req)
+	})
 }
 
 func (c *ProjectController) UpdateProjectPlatform(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createProjectService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux []models.UpdateProjectPlatformRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Var(aux, "required,gt=0,dive"); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.UpdateProjectPlatform(ctx, id, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequestUseSpecValidate(w, r, createProjectService,
+		func(v *validator.Validate, req *[]models.UpdateProjectPlatformRequest) error {
+			return v.Var(*req, "required,gt=0,dive")
+		},
+		func(ctx context.Context, service *application.ProjectService, req []models.UpdateProjectPlatformRequest) (interface{}, error) {
+			return service.UpdateProjectPlatform(ctx, id, req)
+		},
+	)
 }
 
 func (c *ProjectController) UpdateProjectDesign(id string, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createProjectService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux []models.UpdateProjectDesignRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Var(aux, "gt=0,dive"); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.UpdateProjectDesign(ctx, id, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequestUseSpecValidate(w, r, createProjectService,
+		func(v *validator.Validate, req *[]models.UpdateProjectDesignRequest) error {
+			return v.Var(*req, "gt=0,dive")
+		},
+		func(ctx context.Context, service *application.ProjectService, req []models.UpdateProjectDesignRequest) (interface{}, error) {
+			return service.UpdateProjectDesign(ctx, id, req)
+		},
+	)
 }
 
 func createProjectService(ctx context.Context) (*application.ProjectService, error) {

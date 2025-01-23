@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"os"
 
@@ -10,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/futugyou/infr-project/application"
-	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
@@ -24,177 +22,59 @@ func NewVaultController() *VaultController {
 }
 
 func (c *VaultController) CreateVaults(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.CreateVaultsRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.CreateVaults(ctx, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.CreateVaultsRequest) (interface{}, error) {
+		return service.CreateVaults(ctx, req)
+	})
 }
 
 func (c *VaultController) CreateVault(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.CreateVaultRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.CreateVault(ctx, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.CreateVaultRequest) (interface{}, error) {
+		return service.CreateVault(ctx, req)
+	})
 }
 
 func (c *VaultController) SearchVaults(w http.ResponseWriter, r *http.Request, aux models.SearchVaultsRequest) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-	if err := extensions.Validate.Struct(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	query := application.VaultSearchQuery{
-		Filters: []vault.VaultSearch{
-			{
-				Key:          aux.Key,
-				KeyFuzzy:     true,
-				StorageMedia: aux.StorageMedia,
-				VaultType:    aux.VaultType,
-				TypeIdentity: aux.TypeIdentity,
-				Tags:         aux.Tags,
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (interface{}, error) {
+		query := application.VaultSearchQuery{
+			Filters: []vault.VaultSearch{
+				{
+					Key:          aux.Key,
+					KeyFuzzy:     true,
+					StorageMedia: aux.StorageMedia,
+					VaultType:    aux.VaultType,
+					TypeIdentity: aux.TypeIdentity,
+					Tags:         aux.Tags,
+				},
 			},
-		},
-		Page: aux.Page,
-		Size: aux.Size,
-	}
-	res, err := service.SearchVaults(ctx, query)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+			Page: aux.Page,
+			Size: aux.Size,
+		}
+		return service.SearchVaults(ctx, query)
+	})
 }
 
 func (c *VaultController) ShowVaultRawValue(w http.ResponseWriter, r *http.Request, vaultId string) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.ShowVaultRawValue(ctx, vaultId)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (interface{}, error) {
+		return service.ShowVaultRawValue(ctx, vaultId)
+	})
 }
 
 func (c *VaultController) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId string) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-	var aux models.ChangeVaultRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.ChangeVault(ctx, vaultId, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.ChangeVaultRequest) (interface{}, error) {
+		return service.ChangeVault(ctx, vaultId, req)
+	})
 }
 
 func (c *VaultController) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId string) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	res, err := service.DeleteVault(ctx, vaultId)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (interface{}, error) {
+		return service.DeleteVault(ctx, vaultId)
+	})
 }
 
 func (c *VaultController) ImportVaults(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createVaultService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	var aux models.ImportVaultsRequest
-	if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-		handleError(w, err, 400)
-		return
-	}
-
-	res, err := service.ImportVaults(ctx, aux)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	writeJSONResponse(w, res, 200)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.ImportVaultsRequest) (interface{}, error) {
+		return service.ImportVaults(ctx, req)
+	})
 }
 
 func createVaultService(ctx context.Context) (*application.VaultService, error) {

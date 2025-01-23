@@ -22,18 +22,10 @@ func NewWebhookController() *WebhookController {
 }
 
 func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createWebhookService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
 	bodyBytes, _ := io.ReadAll(r.Body)
 	defer r.Body.Close()
 
 	query := r.URL.Query()
-
 	reqInfo := models.WebhookRequestInfo{
 		Method:     r.Method,
 		URL:        r.URL.String(),
@@ -46,42 +38,21 @@ func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *ht
 		UserAgent:  r.UserAgent(),
 	}
 
-	service.ProviderWebhookCallback(ctx, reqInfo)
-	writeJSONResponse(w, nil, 200)
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookService, _ struct{}) (interface{}, error) {
+		return nil, service.ProviderWebhookCallback(ctx, reqInfo)
+	})
 }
 
 func (c *WebhookController) VerifyTesting(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	service, err := createWebhookService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	if data, err := service.VerifyTesting(ctx); err != nil {
-		handleError(w, err, 500)
-		return
-	} else {
-		writeJSONResponse(w, data, 200)
-	}
-
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookService, _ struct{}) (interface{}, error) {
+		return service.VerifyTesting(ctx)
+	})
 }
 
 func (c *WebhookController) SearchWebhookLogs(w http.ResponseWriter, r *http.Request, filter models.WebhookSearch) {
-	ctx := r.Context()
-	service, err := createWebhookService(ctx)
-	if err != nil {
-		handleError(w, err, 500)
-		return
-	}
-
-	if data, err := service.SearchWebhookLogs(ctx, filter); err != nil {
-		handleError(w, err, 500)
-		return
-	} else {
-		writeJSONResponse(w, data, 200)
-	}
-
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookService, _ struct{}) (interface{}, error) {
+		return service.SearchWebhookLogs(ctx, filter)
+	})
 }
 
 func createWebhookService(ctx context.Context) (*application.WebhookService, error) {
