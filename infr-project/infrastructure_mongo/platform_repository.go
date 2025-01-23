@@ -80,9 +80,9 @@ func (s *PlatformRepository) buildSearchFilter(search platform.PlatformSearch) m
 
 	if search.Name != "" {
 		if search.NameFuzzy {
-			filter["key"] = bson.D{{Key: "$regex", Value: search.Name}, {Key: "$options", Value: "i"}}
+			filter["name"] = bson.D{{Key: "$regex", Value: search.Name}, {Key: "$options", Value: "i"}}
 		} else {
-			filter["key"] = search.Name
+			filter["name"] = search.Name
 		}
 	}
 
