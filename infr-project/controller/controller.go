@@ -1,8 +1,12 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
+	"io"
 	"net/http"
+
+	"github.com/futugyou/infr-project/extensions"
 )
 
 type Controller struct {
@@ -24,4 +28,46 @@ func writeJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) 
 	if data != nil {
 		json.NewEncoder(w).Encode(data)
 	}
+}
+
+func handleRequestWithService[S any, T any](
+	w http.ResponseWriter,
+	r *http.Request,
+	createService func(ctx context.Context) (S, error),
+	handler func(ctx context.Context, service S, req T) (interface{}, error),
+) {
+	ctx := r.Context()
+	service, err := createService(ctx)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	var req *T
+	if r.Method != http.MethodGet && r.Method != http.MethodDelete && r.Method != http.MethodOptions {
+		if r.Body != nil {
+			req = new(T)
+			if err := json.NewDecoder(r.Body).Decode(req); err != nil && err != io.EOF {
+				handleError(w, err, 400)
+				return
+			}
+		}
+	}
+
+	if req == nil {
+		req = new(T)
+	}
+
+	if err := extensions.Validate.Struct(req); err != nil {
+		handleError(w, err, 400)
+		return
+	}
+
+	res, err := handler(ctx, service, *req)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, res, 200)
 }
