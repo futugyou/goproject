@@ -155,6 +155,24 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 	return &response, nil
 }
 
+func (s *VaultService) CreateVault(ctx context.Context, aux models.CreateVaultRequest) (*models.VaultView, error) {
+	createVaultsRequest := models.CreateVaultsRequest{
+		Vaults:      []models.CreateVaultModel{aux.CreateVaultModel},
+		ForceInsert: false,
+	}
+
+	result, err := s.CreateVaults(ctx, createVaultsRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result.Vaults) == 0 {
+		return nil, fmt.Errorf("create valut error, check data again")
+	}
+
+	return &result.Vaults[0], nil
+}
+
 func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.ChangeVaultRequest) (*models.VaultView, error) {
 	if tool.IsAllFieldsNil(aux.Data) {
 		return nil, fmt.Errorf("no data need change")
@@ -264,7 +282,7 @@ func (s *VaultService) ImportVaults(ctx context.Context, aux models.ImportVaults
 			vi = "common"
 		case "project", "resource", "platform":
 			if aux.TypeIdentity == nil {
-				return nil, fmt.Errorf("when VaultType is project/resource/platform, the TypeIdentity cannot be nil")
+				return nil, fmt.Errorf("when VaultType is not system and common, the TypeIdentity cannot be nil")
 			}
 			vt = *aux.VaultType
 			vi = *aux.TypeIdentity

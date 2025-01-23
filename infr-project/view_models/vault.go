@@ -38,6 +38,11 @@ type SearchVaultsRequest struct {
 	Size         int      `json:"size"`
 }
 
+type CreateVaultRequest struct {
+	CreateVaultModel `json:",inline"`
+	ForceInsert      bool `json:"force_insert"`
+}
+
 type ChangeVaultRequest struct {
 	Data        ChangeVaultItem `json:"vault_data"`
 	ForceInsert bool            `json:"force_insert"`
