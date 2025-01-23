@@ -1406,7 +1406,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "create vault",
+                "description": "batch create vault",
                 "consumes": [
                     "application/json"
                 ],
@@ -1416,7 +1416,41 @@ const docTemplate = `{
                 "tags": [
                     "Vault"
                 ],
-                "summary": "create vault",
+                "summary": "batch create vault",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.CreateVaultRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/viewmodels.VaultView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/vault/batch": {
+            "post": {
+                "description": "batch create vault",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "batch create vault",
                 "parameters": [
                     {
                         "description": "Request body",
@@ -1953,6 +1987,58 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
+                "key": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "Local",
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform"
+                    ]
+                }
+            }
+        },
+        "viewmodels.CreateVaultRequest": {
+            "type": "object",
+            "required": [
+                "key",
+                "value"
+            ],
+            "properties": {
+                "force_insert": {
+                    "type": "boolean"
+                },
                 "key": {
                     "type": "string",
                     "maxLength": 150,

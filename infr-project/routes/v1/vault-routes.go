@@ -39,7 +39,7 @@ func createVaults(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreateVaultRequest true "Request body"
-// @Success 200 {object} viewmodels.CreateVaultResponse
+// @Success 200 {object} viewmodels.VaultView
 // @Router /v1/vault [post]
 func createVault(c *gin.Context) {
 	ctrl := controller.NewVaultController()

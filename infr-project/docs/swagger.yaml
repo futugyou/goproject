@@ -301,6 +301,45 @@ definitions:
     - key
     - value
     type: object
+  viewmodels.CreateVaultRequest:
+    properties:
+      force_insert:
+        type: boolean
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        type: string
+    required:
+    - key
+    - value
+    type: object
   viewmodels.CreateVaultsRequest:
     properties:
       force_insert:
@@ -1789,22 +1828,22 @@ paths:
     post:
       consumes:
       - application/json
-      description: create vault
+      description: batch create vault
       parameters:
       - description: Request body
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreateVaultsRequest'
+          $ref: '#/definitions/viewmodels.CreateVaultRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.CreateVaultsResponse'
-      summary: create vault
+            $ref: '#/definitions/viewmodels.VaultView'
+      summary: batch create vault
       tags:
       - Vault
   /v1/vault/{id}:
@@ -1873,6 +1912,28 @@ paths:
           schema:
             type: string
       summary: show vault value
+      tags:
+      - Vault
+  /v1/vault/batch:
+    post:
+      consumes:
+      - application/json
+      description: batch create vault
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodels.CreateVaultsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodels.CreateVaultsResponse'
+      summary: batch create vault
       tags:
       - Vault
   /v2/platform:
