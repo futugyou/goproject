@@ -1828,7 +1828,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: batch create vault
+      description: create vault
       parameters:
       - description: Request body
         in: body
@@ -1843,7 +1843,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/viewmodels.VaultView'
-      summary: batch create vault
+      summary: create vault
       tags:
       - Vault
   /v1/vault/{id}:

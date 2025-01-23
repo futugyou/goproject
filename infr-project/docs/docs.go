@@ -1406,7 +1406,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "batch create vault",
+                "description": "create vault",
                 "consumes": [
                     "application/json"
                 ],
@@ -1416,7 +1416,7 @@ const docTemplate = `{
                 "tags": [
                     "Vault"
                 ],
-                "summary": "batch create vault",
+                "summary": "create vault",
                 "parameters": [
                     {
                         "description": "Request body",

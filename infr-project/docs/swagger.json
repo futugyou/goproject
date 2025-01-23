@@ -1395,7 +1395,7 @@
                 }
             },
             "post": {
-                "description": "batch create vault",
+                "description": "create vault",
                 "consumes": [
                     "application/json"
                 ],
@@ -1405,7 +1405,7 @@
                 "tags": [
                     "Vault"
                 ],
-                "summary": "batch create vault",
+                "summary": "create vault",
                 "parameters": [
                     {
                         "description": "Request body",

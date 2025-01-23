@@ -33,8 +33,8 @@ func createVaults(c *gin.Context) {
 	ctrl.CreateVaults(c.Writer, c.Request)
 }
 
-// @Summary batch create vault
-// @Description batch create vault
+// @Summary create vault
+// @Description create vault
 // @Tags Vault
 // @Accept json
 // @Produce json
