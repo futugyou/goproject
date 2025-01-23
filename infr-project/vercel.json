@@ -356,8 +356,22 @@
             }
         },
         {
+            "src": "/api/v1/vault/batch",
+            "dest": "/api/vault.go?optype=batch",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
             "src": "/api/v1/vault",
-            "dest": "/api/vault.go?optype=create",
+            "dest": "/api/vault.go?optype=single",
             "methods": [
                 "POST",
                 "OPTIONS"

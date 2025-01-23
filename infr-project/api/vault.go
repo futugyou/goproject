@@ -24,7 +24,9 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 	op := r.URL.Query().Get("optype")
 	ctrl := controller.NewVaultController()
 	switch op {
-	case "create":
+	case "batch":
+		createVaults(ctrl, r, w)
+	case "single":
 		createVault(ctrl, r, w)
 	case "show":
 		showVault(ctrl, r, w)
@@ -106,12 +108,20 @@ func showVault(ctrl *controller.VaultController, r *http.Request, w http.Respons
 	ctrl.ShowVaultRawValue(w, r, id)
 }
 
-func createVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
+func createVaults(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return
 	}
 
 	ctrl.CreateVaults(w, r)
+}
+
+func createVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
+	ctrl.CreateVault(w, r)
 }
 
 func importVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {

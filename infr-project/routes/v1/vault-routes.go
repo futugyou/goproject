@@ -11,6 +11,7 @@ import (
 )
 
 func ConfigVaultRoutes(v1 *gin.RouterGroup) {
+	v1.POST("/vault/batch", createVaults)
 	v1.POST("/vault", createVault)
 	v1.POST("/vault/:id/show", showVaultRawValue)
 	v1.GET("/vault", getVault)
@@ -19,17 +20,30 @@ func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/import_vault", importVault)
 }
 
-// @Summary create vault
-// @Description create vault
+// @Summary batch create vault
+// @Description batch create vault
 // @Tags Vault
 // @Accept json
 // @Produce json
 // @Param request body viewmodels.CreateVaultsRequest true "Request body"
 // @Success 200 {object} viewmodels.CreateVaultsResponse
+// @Router /v1/vault/batch [post]
+func createVaults(c *gin.Context) {
+	ctrl := controller.NewVaultController()
+	ctrl.CreateVaults(c.Writer, c.Request)
+}
+
+// @Summary batch create vault
+// @Description batch create vault
+// @Tags Vault
+// @Accept json
+// @Produce json
+// @Param request body viewmodels.CreateVaultRequest true "Request body"
+// @Success 200 {object} viewmodels.CreateVaultResponse
 // @Router /v1/vault [post]
 func createVault(c *gin.Context) {
 	ctrl := controller.NewVaultController()
-	ctrl.CreateVaults(c.Writer, c.Request)
+	ctrl.CreateVault(c.Writer, c.Request)
 }
 
 // @Summary show vault value
