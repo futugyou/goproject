@@ -115,6 +115,10 @@ func (s *PlatformService) convertToPlatformSecrets(ctx context.Context, secrets 
 		for _, secret := range secrets {
 			for i := 0; i < len(vaults); i++ {
 				if vaults[i].Id == secret.VaultId {
+					if vaults[i].VaultType == "system" {
+						return nil, fmt.Errorf("system vault can not be use")
+					}
+
 					secretInfos[secret.Key] = platform.Secret{
 						Key:            secret.Key,
 						Value:          vaults[i].Id,
