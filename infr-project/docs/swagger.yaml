@@ -131,6 +131,14 @@ definitions:
     type: object
   viewmodels.ChangeVaultItem:
     properties:
+      description:
+        maxLength: 250
+        minLength: 3
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
       key:
         maxLength: 150
         minLength: 3
@@ -266,6 +274,12 @@ definitions:
     type: object
   viewmodels.CreateVaultModel:
     properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
       key:
         maxLength: 150
         minLength: 3
@@ -303,6 +317,12 @@ definitions:
     type: object
   viewmodels.CreateVaultRequest:
     properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
       force_insert:
         type: boolean
       key:
@@ -811,6 +831,12 @@ definitions:
     type: object
   viewmodels.VaultView:
     properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
       id:
         type: string
       key:

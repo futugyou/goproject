@@ -1797,6 +1797,17 @@ const docTemplate = `{
         "viewmodels.ChangeVaultItem": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 3
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
                 "key": {
                     "type": "string",
                     "maxLength": 150,
@@ -1987,6 +1998,15 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
                 "key": {
                     "type": "string",
                     "maxLength": 150,
@@ -2036,6 +2056,15 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
                 "force_insert": {
                     "type": "boolean"
                 },
@@ -2766,6 +2795,15 @@ const docTemplate = `{
         "viewmodels.VaultView": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },
