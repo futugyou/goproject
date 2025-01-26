@@ -24,6 +24,8 @@ func (r Vault) commonMarshal(marshal func(interface{}) ([]byte, error)) ([]byte,
 		"key":           r.Key,
 		"type_identity": r.TypeIdentity,
 		"tags":          r.Tags,
+		"extension":     r.Extension,
+		"description":   r.Description,
 	}
 
 	if value, err := tool.AesCTREncrypt(r.Value, os.Getenv("Encrypt_Key")); err != nil {
@@ -71,6 +73,14 @@ func (w *Vault) commonUnmarshal(data []byte, unmarshal func([]byte, any) error) 
 
 	if value, ok := m["key"].(string); ok {
 		w.Key = value
+	}
+
+	if value, ok := m["description"].(string); ok {
+		w.Description = value
+	}
+
+	if value, ok := m["extension"].(map[string]string); ok {
+		w.Extension = value
 	}
 
 	if value, ok := m["value"].(string); ok {

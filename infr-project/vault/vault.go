@@ -13,6 +13,8 @@ type Vault struct {
 	domain.Aggregate
 	Key          string
 	Value        string
+	Description  string
+	Extension    map[string]string
 	StorageMedia StorageMedia // local, aws, HCP,...
 	VaultType    VaultType    // system, common, project, resource, platform, platform_project, platform_webhook
 	TypeIdentity string       // system, common, projectId, resourceId, platformId, platform_project_id, platform_webhook_id
@@ -22,6 +24,18 @@ type Vault struct {
 }
 
 type VaultOption func(*Vault)
+
+func WithExtension(extension map[string]string) VaultOption {
+	return func(w *Vault) {
+		w.Extension = extension
+	}
+}
+
+func WithDescription(description string) VaultOption {
+	return func(w *Vault) {
+		w.Description = description
+	}
+}
 
 func WithStorageMedia(media StorageMedia) VaultOption {
 	return func(w *Vault) {
@@ -83,14 +97,33 @@ func (v *Vault) UpdateKey(key string) error {
 	return nil
 }
 
-func (v *Vault) UpdateState(state vaultState) error {
-	v.State = state
+func (v *Vault) UpdateState(state VaultState) error {
+	if v.State != state {
+		v.State = state
+		v.hasChange = true
+	}
 	return nil
 }
 
 func (v *Vault) UpdateValue(value string) error {
 	if v.Value != value {
 		v.Value = value
+		v.hasChange = true
+	}
+	return nil
+}
+
+func (v *Vault) UpdateDescription(value string) error {
+	if v.Description != value {
+		v.Description = value
+		v.hasChange = true
+	}
+	return nil
+}
+
+func (v *Vault) UpdateExtension(extension map[string]string) error {
+	if !tool.MapsCompare(v.Extension, extension) {
+		v.Extension = extension
 		v.hasChange = true
 	}
 	return nil
