@@ -13,6 +13,7 @@ type VaultSearch struct {
 	StorageMedia string
 	VaultType    string
 	TypeIdentity string
+	Description  string
 	Tags         []string
 }
 
