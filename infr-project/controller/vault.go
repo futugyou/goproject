@@ -43,6 +43,7 @@ func (c *VaultController) SearchVaults(w http.ResponseWriter, r *http.Request, a
 					StorageMedia: aux.StorageMedia,
 					VaultType:    aux.VaultType,
 					TypeIdentity: aux.TypeIdentity,
+					Description:  aux.Description,
 					Tags:         aux.Tags,
 				},
 			},

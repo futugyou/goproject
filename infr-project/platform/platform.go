@@ -12,15 +12,16 @@ import (
 // The difference between Property and Secrets is like ConfigMap and Secrets in k8s
 type Platform struct {
 	domain.Aggregate
-	Name       string
-	Activate   bool
-	Url        string
-	Provider   PlatformProvider
-	Properties map[string]Property
-	Secrets    map[string]Secret
-	Projects   map[string]PlatformProject
-	Tags       []string
-	IsDeleted  bool
+	Name        string
+	Activate    bool
+	Url         string
+	Description string
+	Provider    PlatformProvider
+	Properties  map[string]Property
+	Secrets     map[string]Secret
+	Projects    map[string]PlatformProject
+	Tags        []string
+	IsDeleted   bool
 }
 
 type PlatformOption func(*Platform)

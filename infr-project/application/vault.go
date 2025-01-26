@@ -82,6 +82,8 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 			vault.WithStorageMedia(vault.GetStorageMedia(va.StorageMedia)),
 			vault.WithTags(va.Tags),
 			vault.WithVaultType(vault.GetVaultType(va.VaultType), va.TypeIdentity),
+			vault.WithExtension(va.Extension),
+			vault.WithDescription(va.Description),
 		)
 		entities = append(entities, *entity)
 		if _, ok := storageMediaList[va.StorageMedia]; !ok {
@@ -353,6 +355,14 @@ func doVaultChange(data *vault.Vault, aux models.ChangeVaultItem) {
 		data.UpdateKey(*aux.Key)
 	}
 
+	if aux.Description != nil {
+		data.UpdateDescription(*aux.Description)
+	}
+
+	if aux.Extension != nil {
+		data.UpdateExtension(*aux.Extension)
+	}
+
 	if aux.Value != nil {
 		value := *aux.Value
 		maskValue := tool.MaskString(data.Value, 5, 0.5)
@@ -385,6 +395,8 @@ func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 		VaultType:    entity.VaultType.String(),
 		TypeIdentity: entity.TypeIdentity,
 		Tags:         entity.Tags,
+		Description:  entity.Description,
+		Extension:    entity.Extension,
 	}
 }
 

@@ -1,22 +1,26 @@
 package viewmodels
 
 type VaultView struct {
-	Id           string   `json:"id"`
-	Key          string   `json:"key"`
-	MaskValue    string   `json:"mask_value"`
-	StorageMedia string   `json:"storage_media"`
-	VaultType    string   `json:"vault_type"`
-	TypeIdentity string   `json:"type_identity"`
-	Tags         []string `json:"tags"`
+	Id           string            `json:"id"`
+	Key          string            `json:"key"`
+	MaskValue    string            `json:"mask_value"`
+	StorageMedia string            `json:"storage_media"`
+	VaultType    string            `json:"vault_type"`
+	TypeIdentity string            `json:"type_identity"`
+	Tags         []string          `json:"tags"`
+	Description  string            `json:"description"`
+	Extension    map[string]string `json:"extension"`
 }
 
 type CreateVaultModel struct {
-	Key          string   `json:"key" validate:"required,min=3,max=150"`
-	Value        string   `json:"value" validate:"required,min=3,max=150"`
-	StorageMedia string   `json:"storage_media" validate:"oneof=Local AWS HCP AzureVault"`
-	VaultType    string   `json:"vault_type" validate:"oneof=system common project resource platform"`
-	TypeIdentity string   `json:"type_identity" validate:"min=3,max=150"`
-	Tags         []string `json:"tags"`
+	Key          string            `json:"key" validate:"required,min=3,max=150"`
+	Value        string            `json:"value" validate:"required,min=3,max=150"`
+	StorageMedia string            `json:"storage_media" validate:"oneof=Local AWS HCP AzureVault"`
+	VaultType    string            `json:"vault_type" validate:"oneof=system common project resource platform"`
+	TypeIdentity string            `json:"type_identity" validate:"min=3,max=150"`
+	Tags         []string          `json:"tags"`
+	Description  string            `json:"description"`
+	Extension    map[string]string `json:"extension"`
 }
 
 type CreateVaultsRequest struct {
@@ -33,6 +37,7 @@ type SearchVaultsRequest struct {
 	StorageMedia string   `json:"storage_media"`
 	VaultType    string   `json:"vault_type"`
 	TypeIdentity string   `json:"type_identity"`
+	Description  string   `json:"description"`
 	Tags         []string `json:"tags"`
 	Page         int      `json:"page"`
 	Size         int      `json:"size"`
@@ -49,12 +54,14 @@ type ChangeVaultRequest struct {
 }
 
 type ChangeVaultItem struct {
-	Key          *string   `json:"key" validate:"min=3,max=150"`
-	Value        *string   `json:"value" validate:"min=3,max=150"`
-	StorageMedia *string   `json:"storage_media" validate:"oneof=Local AWS HCP AzureVault"`
-	VaultType    *string   `json:"vault_type" validate:"oneof=system common project resource platform"`
-	TypeIdentity *string   `json:"type_identity" validate:"min=3,max=150"`
-	Tags         *[]string `json:"tags"`
+	Key          *string            `json:"key" validate:"min=3,max=150"`
+	Value        *string            `json:"value" validate:"min=3,max=150"`
+	StorageMedia *string            `json:"storage_media" validate:"oneof=Local AWS HCP AzureVault"`
+	VaultType    *string            `json:"vault_type" validate:"oneof=system common project resource platform"`
+	TypeIdentity *string            `json:"type_identity" validate:"min=3,max=150"`
+	Tags         *[]string          `json:"tags"`
+	Description  *string            `json:"description" validate:"min=3,max=250"`
+	Extension    *map[string]string `json:"extension"`
 }
 
 type ImportVaultsRequest struct {
