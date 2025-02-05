@@ -20,7 +20,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.4
 	github.com/hashicorp/go-tfe v1.75.0
-	github.com/hashicorp/hcp-sdk-go v0.134.0
+	github.com/hashicorp/hcp-sdk-go v0.135.0
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/swaggo/files v1.0.1
