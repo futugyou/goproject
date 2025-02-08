@@ -42,6 +42,8 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 		createPlatformProject(ctrl, r, w)
 	case "proget":
 		getPlatformProject(ctrl, r, w)
+	case "progetv2":
+		getPlatformProjectV2(ctrl, r, w)
 	case "prodel":
 		deletePlatformProject(ctrl, r, w)
 	case "proup":
@@ -173,6 +175,12 @@ func getPlatformProject(ctrl *controller.PlatformController, r *http.Request, w 
 	id := r.URL.Query().Get("id")
 	projectid := r.URL.Query().Get("project_id")
 	ctrl.GetPlatformProject(id, projectid, w, r)
+}
+
+func getPlatformProjectV2(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
+	id := r.URL.Query().Get("id")
+	projectid := r.URL.Query().Get("project_id")
+	ctrl.GetPlatformProjectV2(id, projectid, w, r)
 }
 
 func createPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
