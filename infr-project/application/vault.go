@@ -160,7 +160,7 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 func (s *VaultService) CreateVault(ctx context.Context, aux models.CreateVaultRequest) (*models.VaultView, error) {
 	createVaultsRequest := models.CreateVaultsRequest{
 		Vaults:      []models.CreateVaultModel{aux.CreateVaultModel},
-		ForceInsert: false,
+		ForceInsert: aux.ForceInsert,
 	}
 
 	result, err := s.CreateVaults(ctx, createVaultsRequest)
