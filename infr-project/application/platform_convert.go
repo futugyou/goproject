@@ -431,3 +431,78 @@ func (*PlatformService) mergeWebhookProperty(providerProperties map[string]strin
 	}
 	return properties
 }
+
+func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProjectV2 {
+	modelProject := models.PlatformProjectV2{
+		Properties: []models.Property{},
+		Secrets:    []models.Secret{},
+		Webhooks:   []models.Webhook{},
+		ProviderProject: models.PlatformProviderProject{
+			WebHooks:             []models.Webhook{},
+			Properties:           []models.Property{},
+			EnvironmentVariables: []models.EnvironmentVariable{},
+			Environments:         []string{},
+			Workflows:            []models.Workflow{},
+			WorkflowRuns:         []models.WorkflowRun{},
+			Deployments:          []models.Deployment{},
+		},
+	}
+
+	if project != nil {
+		modelProject.Id = project.Id
+		modelProject.Description = project.Description
+		modelProject.Name = project.Name
+		modelProject.Url = project.Url
+		modelProject.Secrets = s.convertToPlatformModelSecrets(project.Secrets)
+		modelProject.Properties = s.convertToPlatformModelProperties(project.Properties)
+		webhooks := []models.Webhook{}
+		for _, hook := range project.Webhooks {
+			mw := models.Webhook{
+				ID:         hook.ID,
+				Name:       hook.Name,
+				Url:        hook.Url,
+				Events:     hook.Events,
+				Activate:   hook.Activate,
+				State:      hook.State.String(),
+				Properties: s.convertToPlatformModelProperties(hook.Properties),
+				Secrets:    s.convertToPlatformModelSecrets(hook.Secrets),
+				Followed:   false,
+			}
+
+			webhooks = append(webhooks, mw)
+		}
+		modelProject.Webhooks = webhooks
+	}
+
+	if providerProject != nil {
+		modelProject.Followed = true
+		modelProject.ProviderProjectId = providerProject.ID
+		modelProject.ProviderProject.Id = providerProject.ID
+		modelProject.ProviderProject.Name = providerProject.Name
+		modelProject.ProviderProject.Description = providerProject.Description
+		modelProject.ProviderProject.Url = providerProject.Url
+		modelProject.ProviderProject.EnvironmentVariables = s.convertToPlatformModelEnvironments(providerProject.EnvironmentVariables)
+		modelProject.ProviderProject.Environments = providerProject.Environments
+		modelProject.ProviderProject.Workflows = s.convertToPlatformModelWorkflows(providerProject.Workflows)
+		modelProject.ProviderProject.WorkflowRuns = s.convertToPlatformModelWorkflowRuns(providerProject.WorkflowRuns)
+		modelProject.ProviderProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
+		modelProject.ProviderProject.BadgeURL = providerProject.BadgeURL
+		modelProject.ProviderProject.BadgeMarkdown = providerProject.BadgeMarkDown
+		webhooks := []models.Webhook{}
+		for _, prow := range providerProject.WebHooks {
+			webhooks = append(webhooks, models.Webhook{
+				Name:       prow.Name,
+				Url:        prow.Url,
+				Activate:   prow.Activate,
+				State:      "Ready",
+				Properties: s.mergeWebhookProperty(prow.GetParameters(), nil),
+				Secrets:    []models.Secret{},
+				Followed:   true,
+				ID:         prow.ID,
+			})
+		}
+		modelProject.ProviderProject.WebHooks = webhooks
+	}
+
+	return modelProject
+}

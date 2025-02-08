@@ -98,6 +98,35 @@ type PlatformProject struct {
 	BadgeMarkdown        string                `json:"badge_markdown"`
 }
 
+type PlatformProjectV2 struct {
+	Id                string                  `json:"id"`
+	Name              string                  `json:"name"`
+	Url               string                  `json:"url"`
+	Description       string                  `json:"description"`
+	Properties        []Property              `json:"properties"`
+	Secrets           []Secret                `json:"secrets"`
+	Webhooks          []Webhook               `json:"webhooks"`
+	ProviderProjectId string                  `json:"provider_project_id"`
+	Followed          bool                    `json:"followed"`
+	ProviderProject   PlatformProviderProject `json:"provider_project"`
+}
+
+type PlatformProviderProject struct {
+	Id                   string                `json:"id"`
+	Name                 string                `json:"name"`
+	Url                  string                `json:"url"`
+	Description          string                `json:"description"`
+	WebHooks             []Webhook             `json:"webhooks"`
+	Properties           []Property            `json:"properties"`
+	EnvironmentVariables []EnvironmentVariable `json:"environment_variables"`
+	Environments         []string              `json:"environments"`
+	Workflows            []Workflow            `json:"workflows"`
+	WorkflowRuns         []WorkflowRun         `json:"workflow_runs"`
+	Deployments          []Deployment          `json:"deployments"`
+	BadgeURL             string                `json:"badge_url"`
+	BadgeMarkdown        string                `json:"badge_markdown"`
+}
+
 type EnvironmentVariable struct {
 	ID        string `json:"id"`
 	Key       string `json:"key"`
