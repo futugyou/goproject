@@ -23,6 +23,7 @@ func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 	v2api := router.Group("/api/v2")
 	{
 		v2.ConfigPlatformRoutes(v2api, cqrsRoute)
+		v2.ConfigPlatformRoutesWithOutCQRS(v2api)
 	}
 
 	v1api := router.Group("/api/v1")
