@@ -45,6 +45,14 @@ func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("page not found"))
 			w.WriteHeader(404)
 		}
+	case "v2":
+		switch op {
+		case "webhook":
+			handleWebhook(ctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
 	default:
 		w.Write([]byte("page not found"))
 		w.WriteHeader(404)

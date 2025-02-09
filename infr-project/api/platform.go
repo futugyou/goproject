@@ -49,14 +49,20 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 			createPlatformProject(ctrl, r, w)
 		case "proget":
 			getPlatformProject(ctrl, r, w)
-		case "progetv2":
-			getPlatformProjectV2(ctrl, r, w)
 		case "prodel":
 			deletePlatformProject(ctrl, r, w)
 		case "proup":
 			updatePlatformProject(ctrl, r, w)
 		case "recovery":
 			recoveryPlatform(ctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
+	case "v2":
+		switch op {
+		case "proget":
+			getPlatformProjectV2(ctrl, r, w)
 		default:
 			w.Write([]byte("page not found"))
 			w.WriteHeader(404)

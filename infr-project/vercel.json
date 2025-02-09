@@ -20,8 +20,8 @@
             }
         },
         {
-            "src": "/api/v1/resource",
-            "dest": "/api/resource.go?optype=all",
+            "src": "/api/(?<version>[^/]+)/resource",
+            "dest": "/api/resource.go?optype=all&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -34,8 +34,8 @@
             }
         },
         {
-            "src": "/api/v1/resource",
-            "dest": "/api/resource.go?optype=create",
+            "src": "/api/(?<version>[^/]+)/resource",
+            "dest": "/api/resource.go?optype=create&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -48,8 +48,8 @@
             }
         },
         {
-            "src": "/api/v1/resource/(?<id>[^/]+)",
-            "dest": "/api/resource.go?id=$id&optype=get",
+            "src": "/api/(?<version>[^/]+)/resource/(?<id>[^/]+)",
+            "dest": "/api/resource.go?id=$id&optype=get&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -62,8 +62,8 @@
             }
         },
         {
-            "src": "/api/v1/resource/(?<id>[^/]+)",
-            "dest": "/api/resource.go?id=$id&optype=update",
+            "src": "/api/(?<version>[^/]+)/resource/(?<id>[^/]+)",
+            "dest": "/api/resource.go?id=$id&optype=update&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -76,8 +76,8 @@
             }
         },
         {
-            "src": "/api/v1/resource/(?<id>[^/]+)",
-            "dest": "/api/resource.go?id=$id&optype=delete",
+            "src": "/api/(?<version>[^/]+)/resource/(?<id>[^/]+)",
+            "dest": "/api/resource.go?id=$id&optype=delete&version=$version",
             "methods": [
                 "DELETE",
                 "OPTIONS"
@@ -90,8 +90,8 @@
             }
         },
         {
-            "src": "/api/v1/resource/(?<id>[^/]+)/history",
-            "dest": "/api/resource.go?id=$id&optype=history",
+            "src": "/api/(?<version>[^/]+)/resource/(?<id>[^/]+)/history",
+            "dest": "/api/resource.go?id=$id&optype=history&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -104,8 +104,8 @@
             }
         },
         {
-            "src": "/api/v1/platform",
-            "dest": "/api/platform.go?optype=all",
+            "src": "/api/(?<version>[^/]+)/platform",
+            "dest": "/api/platform.go?optype=all&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -118,8 +118,8 @@
             }
         },
         {
-            "src": "/api/v1/platform",
-            "dest": "/api/platform.go?optype=create",
+            "src": "/api/(?<version>[^/]+)/platform",
+            "dest": "/api/platform.go?optype=create&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -132,8 +132,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&optype=get",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&optype=get&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -146,8 +146,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&optype=update",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&optype=update&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -160,8 +160,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&optype=delete",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&optype=delete&version=$version",
             "methods": [
                 "DELETE",
                 "OPTIONS"
@@ -174,8 +174,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/recovery",
-            "dest": "/api/platform.go?id=$id&optype=recovery",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/recovery",
+            "dest": "/api/platform.go?id=$id&optype=recovery&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -188,8 +188,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)/hook",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=hook",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)/hook",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=hook&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -202,8 +202,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)/hook/(?<hookname>[^/]+)",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&hook_name=$hookname&optype=hook_del",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)/hook/(?<hookname>[^/]+)",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&hook_name=$hookname&optype=hook_del&version=$version",
             "methods": [
                 "DELETE",
                 "OPTIONS"
@@ -216,8 +216,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/project",
-            "dest": "/api/platform.go?id=$id&optype=project",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project",
+            "dest": "/api/platform.go?id=$id&optype=project&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -230,8 +230,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=prodel",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=prodel&version=$version",
             "methods": [
                 "DELETE",
                 "OPTIONS"
@@ -244,8 +244,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proget",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proget&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -258,8 +258,8 @@
             }
         },
         {
-            "src": "/api/v2/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=progetv2",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proget&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -272,8 +272,8 @@
             }
         },
         {
-            "src": "/api/v1/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proup",
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)",
+            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=proup&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -286,8 +286,8 @@
             }
         },
         {
-            "src": "/api/v1/project",
-            "dest": "/api/project.go?optype=all",
+            "src": "/api/(?<version>[^/]+)/project",
+            "dest": "/api/project.go?optype=all&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -300,8 +300,8 @@
             }
         },
         {
-            "src": "/api/v1/project",
-            "dest": "/api/project.go?optype=create",
+            "src": "/api/(?<version>[^/]+)/project",
+            "dest": "/api/project.go?optype=create&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -314,8 +314,8 @@
             }
         },
         {
-            "src": "/api/v1/project/(?<id>[^/]+)",
-            "dest": "/api/project.go?id=$id&optype=get",
+            "src": "/api/(?<version>[^/]+)/project/(?<id>[^/]+)",
+            "dest": "/api/project.go?id=$id&optype=get&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -328,8 +328,8 @@
             }
         },
         {
-            "src": "/api/v1/project/(?<id>[^/]+)",
-            "dest": "/api/project.go?id=$id&optype=update",
+            "src": "/api/(?<version>[^/]+)/project/(?<id>[^/]+)",
+            "dest": "/api/project.go?id=$id&optype=update&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -342,8 +342,8 @@
             }
         },
         {
-            "src": "/api/v1/project/(?<id>[^/]+)/platform",
-            "dest": "/api/project.go?id=$id&optype=platform",
+            "src": "/api/(?<version>[^/]+)/project/(?<id>[^/]+)/platform",
+            "dest": "/api/project.go?id=$id&optype=platform&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -356,8 +356,8 @@
             }
         },
         {
-            "src": "/api/v1/project/(?<id>[^/]+)/design",
-            "dest": "/api/project.go?id=$id&optype=design",
+            "src": "/api/(?<version>[^/]+)/project/(?<id>[^/]+)/design",
+            "dest": "/api/project.go?id=$id&optype=design&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -370,8 +370,8 @@
             }
         },
         {
-            "src": "/api/v1/vault/batch",
-            "dest": "/api/vault.go?optype=batch",
+            "src": "/api/(?<version>[^/]+)/vault/batch",
+            "dest": "/api/vault.go?optype=batch&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -384,8 +384,8 @@
             }
         },
         {
-            "src": "/api/v1/vault",
-            "dest": "/api/vault.go?optype=single",
+            "src": "/api/(?<version>[^/]+)/vault",
+            "dest": "/api/vault.go?optype=single&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -398,8 +398,8 @@
             }
         },
         {
-            "src": "/api/v1/vault/(?<id>[^/]+)/show",
-            "dest": "/api/vault.go?id=$id&optype=show",
+            "src": "/api/(?<version>[^/]+)/vault/(?<id>[^/]+)/show",
+            "dest": "/api/vault.go?id=$id&optype=show&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -412,8 +412,8 @@
             }
         },
         {
-            "src": "/api/v1/vault",
-            "dest": "/api/vault.go?optype=get",
+            "src": "/api/(?<version>[^/]+)/vault",
+            "dest": "/api/vault.go?optype=get&version=$version",
             "methods": [
                 "GET",
                 "OPTIONS"
@@ -426,8 +426,8 @@
             }
         },
         {
-            "src": "/api/v1/vault/(?<id>[^/]+)",
-            "dest": "/api/vault.go?id=$id&optype=update",
+            "src": "/api/(?<version>[^/]+)/vault/(?<id>[^/]+)",
+            "dest": "/api/vault.go?id=$id&optype=update&version=$version",
             "methods": [
                 "PUT",
                 "OPTIONS"
@@ -440,8 +440,8 @@
             }
         },
         {
-            "src": "/api/v1/vault/(?<id>[^/]+)",
-            "dest": "/api/vault.go?id=$id&optype=delete",
+            "src": "/api/(?<version>[^/]+)/vault/(?<id>[^/]+)",
+            "dest": "/api/vault.go?id=$id&optype=delete&version=$version",
             "methods": [
                 "DELETE",
                 "OPTIONS"
@@ -454,8 +454,8 @@
             }
         },
         {
-            "src": "/api/v1/import_vault",
-            "dest": "/api/vault.go?optype=import",
+            "src": "/api/(?<version>[^/]+)/import_vault",
+            "dest": "/api/vault.go?optype=import&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -468,8 +468,8 @@
             }
         },
         {
-            "src": "/api/v1/event",
-            "dest": "/api/webhook.go?optype=event",
+            "src": "/api/(?<version>[^/]+)/event",
+            "dest": "/api/webhook.go?optype=event&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -482,8 +482,8 @@
             }
         },
         {
-            "src": "/api/v1/webhook",
-            "dest": "/api/webhook.go?optype=webhook",
+            "src": "/api/(?<version>[^/]+)/webhook",
+            "dest": "/api/webhook.go?optype=webhook&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
@@ -496,8 +496,8 @@
             }
         },
         {
-            "src": "/api/v2/webhook/(?<platform>[^/]+)/(?<project>[^/]+)",
-            "dest": "/api/webhook.go?optype=webhook&platform=$platform&project=$project",
+            "src": "/api/(?<version>[^/]+)/webhook/(?<platform>[^/]+)/(?<project>[^/]+)",
+            "dest": "/api/webhook.go?optype=webhook&platform=$platform&project=$project&version=$version",
             "methods": [
                 "POST",
                 "OPTIONS"
