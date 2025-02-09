@@ -22,26 +22,36 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	version := r.URL.Query().Get("version")
+	if len(version) == 0 {
+		version = "v1"
+	}
+
 	ctrl := controller.NewVaultController()
-	switch op {
-	case "batch":
-		createVaults(ctrl, r, w)
-	case "single":
-		createVault(ctrl, r, w)
-	case "show":
-		showVault(ctrl, r, w)
-	case "get":
-		getVault(ctrl, r, w)
-	case "update":
-		updateVault(ctrl, r, w)
-	case "delete":
-		deleteVault(ctrl, r, w)
-	case "import":
-		importVault(ctrl, r, w)
+	switch version {
+	case "v1":
+		switch op {
+		case "batch":
+			createVaults(ctrl, r, w)
+		case "single":
+			createVault(ctrl, r, w)
+		case "show":
+			showVault(ctrl, r, w)
+		case "get":
+			getVault(ctrl, r, w)
+		case "update":
+			updateVault(ctrl, r, w)
+		case "delete":
+			deleteVault(ctrl, r, w)
+		case "import":
+			importVault(ctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
 	default:
-		w.Write([]byte("system error"))
-		w.WriteHeader(500)
-		return
+		w.Write([]byte("page not found"))
+		w.WriteHeader(404)
 	}
 }
 
