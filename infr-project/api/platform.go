@@ -22,38 +22,48 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	version := r.URL.Query().Get("version")
+	if len(version) == 0 {
+		version = "v1"
+	}
+
 	ctrl := controller.NewPlatformController()
-	switch op {
-	case "create":
-		createPlatform(ctrl, r, w)
-	case "get":
-		getPlatform(ctrl, r, w)
-	case "update":
-		updatePlatform(ctrl, r, w)
-	case "delete":
-		deletePlatform(ctrl, r, w)
-	case "all":
-		allPlatform(ctrl, r, w)
-	case "hook":
-		hookPlatform(ctrl, r, w)
-	case "hook_del":
-		deleteHookPlatform(ctrl, r, w)
-	case "project":
-		createPlatformProject(ctrl, r, w)
-	case "proget":
-		getPlatformProject(ctrl, r, w)
-	case "progetv2":
-		getPlatformProjectV2(ctrl, r, w)
-	case "prodel":
-		deletePlatformProject(ctrl, r, w)
-	case "proup":
-		updatePlatformProject(ctrl, r, w)
-	case "recovery":
-		recoveryPlatform(ctrl, r, w)
+	switch version {
+	case "v1":
+		switch op {
+		case "create":
+			createPlatform(ctrl, r, w)
+		case "get":
+			getPlatform(ctrl, r, w)
+		case "update":
+			updatePlatform(ctrl, r, w)
+		case "delete":
+			deletePlatform(ctrl, r, w)
+		case "all":
+			allPlatform(ctrl, r, w)
+		case "hook":
+			hookPlatform(ctrl, r, w)
+		case "hook_del":
+			deleteHookPlatform(ctrl, r, w)
+		case "project":
+			createPlatformProject(ctrl, r, w)
+		case "proget":
+			getPlatformProject(ctrl, r, w)
+		case "progetv2":
+			getPlatformProjectV2(ctrl, r, w)
+		case "prodel":
+			deletePlatformProject(ctrl, r, w)
+		case "proup":
+			updatePlatformProject(ctrl, r, w)
+		case "recovery":
+			recoveryPlatform(ctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
 	default:
-		w.Write([]byte("system error"))
-		w.WriteHeader(500)
-		return
+		w.Write([]byte("page not found"))
+		w.WriteHeader(404)
 	}
 }
 func recoveryPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
