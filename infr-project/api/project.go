@@ -20,24 +20,34 @@ func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	version := r.URL.Query().Get("version")
+	if len(version) == 0 {
+		version = "v1"
+	}
+
 	ctrl := controller.NewProjectController()
-	switch op {
-	case "create":
-		createProject(ctrl, r, w)
-	case "get":
-		getProject(ctrl, r, w)
-	case "update":
-		updateProject(ctrl, r, w)
-	case "all":
-		allProject(ctrl, r, w)
-	case "platform":
-		updateProjectPlatform(ctrl, r, w)
-	case "design":
-		updateProjectDesign(ctrl, r, w)
+	switch version {
+	case "v1":
+		switch op {
+		case "create":
+			createProject(ctrl, r, w)
+		case "get":
+			getProject(ctrl, r, w)
+		case "update":
+			updateProject(ctrl, r, w)
+		case "all":
+			allProject(ctrl, r, w)
+		case "platform":
+			updateProjectPlatform(ctrl, r, w)
+		case "design":
+			updateProjectDesign(ctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
 	default:
-		w.Write([]byte("system error"))
-		w.WriteHeader(500)
-		return
+		w.Write([]byte("page not found"))
+		w.WriteHeader(404)
 	}
 }
 
