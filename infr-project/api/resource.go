@@ -18,25 +18,35 @@ func ResourceDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	version := r.URL.Query().Get("version")
+	if len(version) == 0 {
+		version = "v1"
+	}
+
 	ctrl := controller.NewResourceController()
 	queryctrl := controller.NewResourceQueryController()
-	switch op {
-	case "create":
-		createResource(ctrl, r, w)
-	case "get":
-		getResource(queryctrl, r, w)
-	case "update":
-		updateResource(ctrl, r, w)
-	case "delete":
-		deleteResource(ctrl, r, w)
-	case "history":
-		historyResource(ctrl, r, w)
-	case "all":
-		allResource(queryctrl, r, w)
+	switch version {
+	case "v1":
+		switch op {
+		case "create":
+			createResource(ctrl, r, w)
+		case "get":
+			getResource(queryctrl, r, w)
+		case "update":
+			updateResource(ctrl, r, w)
+		case "delete":
+			deleteResource(ctrl, r, w)
+		case "history":
+			historyResource(ctrl, r, w)
+		case "all":
+			allResource(queryctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
 	default:
-		w.Write([]byte("system error"))
-		w.WriteHeader(500)
-		return
+		w.Write([]byte("page not found"))
+		w.WriteHeader(404)
 	}
 }
 
