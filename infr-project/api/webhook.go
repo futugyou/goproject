@@ -28,16 +28,26 @@ func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	op := r.URL.Query().Get("optype")
+	version := r.URL.Query().Get("version")
+	if len(version) == 0 {
+		version = "v1"
+	}
+
 	ctrl := controller.NewController()
-	switch op {
-	case "event":
-		eventHandler(ctrl, r, w)
-	case "webhook":
-		handleWebhook(ctrl, r, w)
+	switch version {
+	case "v1":
+		switch op {
+		case "event":
+			eventHandler(ctrl, r, w)
+		case "webhook":
+			handleWebhook(ctrl, r, w)
+		default:
+			w.Write([]byte("page not found"))
+			w.WriteHeader(404)
+		}
 	default:
-		w.Write([]byte("system error"))
-		w.WriteHeader(500)
-		return
+		w.Write([]byte("page not found"))
+		w.WriteHeader(404)
 	}
 }
 
