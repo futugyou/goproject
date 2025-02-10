@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"os"
 	"reflect"
@@ -41,6 +42,8 @@ func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
 			eventHandler(ctrl, r, w)
 		case "webhook":
 			handleWebhook(ctrl, r, w)
+		case "qstash":
+			handleQstash(ctrl, r, w)
 		default:
 			w.Write([]byte("page not found"))
 			w.WriteHeader(404)
@@ -153,4 +156,18 @@ func getDataType(tableName string) reflect.Type {
 func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	ctrl := controller.NewWebhookController()
 	ctrl.ProviderWebhookCallback(w, r)
+}
+
+func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	bodyBytes, _ := io.ReadAll(r.Body)
+	defer r.Body.Close()
+
+	query := r.URL.Query()
+
+	w.Write(bodyBytes)
+	if len(query["event"]) > 0 {
+		w.Write([]byte(query["event"][0]))
+	}
+
+	w.WriteHeader(200)
 }

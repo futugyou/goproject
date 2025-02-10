@@ -508,6 +508,20 @@
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Expose-Headers": "*"
             }
+        },
+        {
+            "src": "/api/(?<version>[^/]+)/webhook/(?<event>[^/]+)",
+            "dest": "/api/webhook.go?optype=qstash&event=$event&version=$version",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
         }
     ],
     "build": {
