@@ -2,7 +2,10 @@ package application
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"sync"
 
 	tool "github.com/futugyou/extensions"
@@ -29,7 +32,7 @@ func NewVaultService(
 	return &VaultService{
 		innerService: NewAppService(unitOfWork),
 		repository:   repository,
-		qstashClient:qstashClient,
+		qstashClient: qstashClient,
 	}
 }
 
@@ -228,6 +231,15 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 
 			if data.StorageMedia == vault.StorageMediaLocal {
 				return nil
+			}
+
+			if bodyBytes, err := json.Marshal(*data); err == nil {
+				if _, err := s.qstashClient.Message.Publish(ctx, qstash.PublishRequest{
+					Destination: fmt.Sprintf(os.Getenv("QSTASH_DESTINATION"), "vault_changed"),
+					Body:        string(bodyBytes),
+				}); err != nil {
+					log.Println(err.Error())
+				}
 			}
 
 			return s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value})
