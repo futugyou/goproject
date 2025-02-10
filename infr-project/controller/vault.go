@@ -8,6 +8,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/futugyou/qstash"
+
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	"github.com/futugyou/infr-project/vault"
@@ -95,5 +97,6 @@ func createVaultService(ctx context.Context) (*application.VaultService, error) 
 		return nil, err
 	}
 
-	return application.NewVaultService(unitOfWork, repo), nil
+	qstashClient := qstash.NewClient(os.Getenv("QSTASH_TOKEN"))
+	return application.NewVaultService(unitOfWork, repo, qstashClient), nil
 }

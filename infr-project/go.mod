@@ -12,6 +12,7 @@ require (
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/circleci v0.0.0-00010101000000-000000000000
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
+	github.com/futugyou/qstash v0.0.0-00010101000000-000000000000
 	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/gin-gonic/gin v1.10.0
@@ -141,5 +142,7 @@ replace github.com/futugyou/circleci v0.0.0-00010101000000-000000000000 => ../ci
 replace github.com/futugyou/vercel v0.0.0-00010101000000-000000000000 => ../vercel_sdk
 
 replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
+
+replace github.com/futugyou/qstash v0.0.0-00010101000000-000000000000 => ../qstash_sdk
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998

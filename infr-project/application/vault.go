@@ -11,20 +11,25 @@ import (
 	vault "github.com/futugyou/infr-project/vault"
 	provider "github.com/futugyou/infr-project/vault_provider"
 	models "github.com/futugyou/infr-project/view_models"
+
+	"github.com/futugyou/qstash"
 )
 
 type VaultService struct {
 	innerService *AppService
 	repository   vault.IVaultRepositoryAsync
+	qstashClient *qstash.QstashClient
 }
 
 func NewVaultService(
 	unitOfWork domain.IUnitOfWork,
 	repository vault.IVaultRepositoryAsync,
+	qstashClient *qstash.QstashClient,
 ) *VaultService {
 	return &VaultService{
 		innerService: NewAppService(unitOfWork),
 		repository:   repository,
+		qstashClient:qstashClient,
 	}
 }
 
