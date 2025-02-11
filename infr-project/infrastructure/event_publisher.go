@@ -6,6 +6,7 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
-type IEventPulisher[Event domain.IDomainEvent] interface {
-	Publish(ctx context.Context, events []Event) error
+type IEventPulisher interface {
+	Publish(ctx context.Context, events []domain.IDomainEvent) error
+	PublishCommon(ctx context.Context, event any, event_type string) error
 }

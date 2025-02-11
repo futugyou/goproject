@@ -11,17 +11,17 @@ import (
 	"github.com/futugyou/infr-project/domain"
 )
 
-type QStashEventPulisher[Event domain.IDomainEvent] struct {
+type QStashEventPulisher struct {
 	client *qstash.QstashClient
 }
 
-func NewQStashEventPulisher[Event domain.IDomainEvent](client *qstash.QstashClient) *QStashEventPulisher[Event] {
-	return &QStashEventPulisher[Event]{
+func NewQStashEventPulisher(client *qstash.QstashClient) *QStashEventPulisher {
+	return &QStashEventPulisher{
 		client: client,
 	}
 }
 
-func (q *QStashEventPulisher[Event]) Publish(ctx context.Context, events []Event) error {
+func (q *QStashEventPulisher) Publish(ctx context.Context, events []domain.IDomainEvent) error {
 	if len(events) == 0 {
 		return nil
 	}
@@ -41,5 +41,21 @@ func (q *QStashEventPulisher[Event]) Publish(ctx context.Context, events []Event
 	}
 
 	_, err := q.client.Message.Batch(ctx, qstashRequest)
+	return err
+}
+
+func (q *QStashEventPulisher) PublishCommon(ctx context.Context, event any, event_type string) error {
+	var bodyBytes []byte
+	var err error
+	if bodyBytes, err = json.Marshal(event); err != nil {
+		return err
+	}
+
+	qstashRequest := qstash.PublishRequest{
+		Destination: fmt.Sprintf(os.Getenv("QSTASH_DESTINATION"), event_type),
+		Body:        string(bodyBytes),
+	}
+
+	_, err = q.client.Message.Publish(ctx, qstashRequest)
 	return err
 }
