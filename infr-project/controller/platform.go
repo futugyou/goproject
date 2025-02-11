@@ -15,6 +15,7 @@ import (
 	"github.com/futugyou/infr-project/command"
 	"github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -121,7 +122,8 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 	repo := infra.NewPlatformRepository(client, config)
 	vaultRepo := infra.NewVaultRepository(client, config)
 	qstashClient := qstash.NewClient(os.Getenv("QSTASH_TOKEN"))
-	vaultService := application.NewVaultService(unitOfWork, vaultRepo, qstashClient)
+	eventPublisher := publisher.NewQStashEventPulisher(qstashClient)
+	vaultService := application.NewVaultService(unitOfWork, vaultRepo, eventPublisher)
 	return application.NewPlatformService(unitOfWork, repo, vaultService, redisClient), nil
 }
 

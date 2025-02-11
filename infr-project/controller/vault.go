@@ -12,6 +12,7 @@ import (
 
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
 	"github.com/futugyou/infr-project/vault"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -98,5 +99,6 @@ func createVaultService(ctx context.Context) (*application.VaultService, error) 
 	}
 
 	qstashClient := qstash.NewClient(os.Getenv("QSTASH_TOKEN"))
-	return application.NewVaultService(unitOfWork, repo, qstashClient), nil
+	eventPublisher := publisher.NewQStashEventPulisher(qstashClient)
+	return application.NewVaultService(unitOfWork, repo, eventPublisher), nil
 }

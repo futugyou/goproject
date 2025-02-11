@@ -2,13 +2,8 @@ package application
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"os"
-
-	"github.com/futugyou/qstash"
 
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
@@ -50,7 +45,7 @@ type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSo
 	snapshotStore     infra.ISnapshotStore[EventSourcing]
 	innerService      *AppService
 	domainService     *domain.DomainService[Event, EventSourcing]
-	qstashClient      *qstash.QstashClient
+	eventPulisher     infra.IEventPulisher
 	newAggregateFunc  func() EventSourcing
 	needStoreSnapshot func(EventSourcing) bool
 }
@@ -61,7 +56,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 	unitOfWork domain.IUnitOfWork,
 	newAggregateFunc func() EventSourcing,
 	needStoreSnapshot func(EventSourcing) bool,
-	qstashClient *qstash.QstashClient,
+	eventPulisher infra.IEventPulisher,
 ) *ApplicationService[Event, EventSourcing] {
 	return &ApplicationService[Event, EventSourcing]{
 		eventStore:        eventStore,
@@ -70,7 +65,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 		domainService:     domain.NewDomainService[Event, EventSourcing](),
 		newAggregateFunc:  newAggregateFunc,
 		needStoreSnapshot: needStoreSnapshot,
-		qstashClient:      qstashClient,
+		eventPulisher:     eventPulisher,
 	}
 }
 
@@ -176,29 +171,9 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx con
 		}
 	}
 
-	s.publishDomainEvents(ctx, events)
+	s.eventPulisher.Publish(ctx, es)
 
 	return s.eventStore.Save(ctx, events)
-}
-
-func (s *ApplicationService[Event, EventSourcing]) publishDomainEvents(ctx context.Context, events []Event) {
-	qstashRequest := qstash.BatchRequest{}
-	for _, event := range events {
-		if bodyBytes, err := json.Marshal(event); err == nil {
-			qstashRequest = append(qstashRequest, qstash.BatchRequestItem{
-				Destination: fmt.Sprintf(os.Getenv("QSTASH_DESTINATION"), event.EventType()),
-				Body:        string(bodyBytes),
-			})
-		}
-	}
-
-	if len(qstashRequest) == 0 {
-		return
-	}
-
-	if _, err := s.qstashClient.Message.Batch(ctx, qstashRequest); err != nil {
-		log.Println(err.Error())
-	}
 }
 
 func (es *ApplicationService[Event, EventSourcing]) RestoreFromSnapshot(ctx context.Context, id string) (*EventSourcing, error) {

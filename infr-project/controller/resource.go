@@ -14,6 +14,7 @@ import (
 
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
 	"github.com/futugyou/infr-project/resource"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -68,5 +69,6 @@ func createResourceService(ctx context.Context) (*application.ResourceService, e
 	}
 
 	qstashClient := qstash.NewClient(os.Getenv("QSTASH_TOKEN"))
-	return application.NewResourceService(eventStore, snapshotStore, unitOfWork, qstashClient), nil
+	eventPublisher := publisher.NewQStashEventPulisher(qstashClient)
+	return application.NewResourceService(eventStore, snapshotStore, unitOfWork, eventPublisher), nil
 }

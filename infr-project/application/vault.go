@@ -2,37 +2,33 @@ package application
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 	"sync"
 
 	tool "github.com/futugyou/extensions"
 
 	domain "github.com/futugyou/infr-project/domain"
+	infra "github.com/futugyou/infr-project/infrastructure"
 	vault "github.com/futugyou/infr-project/vault"
 	provider "github.com/futugyou/infr-project/vault_provider"
 	models "github.com/futugyou/infr-project/view_models"
-
-	"github.com/futugyou/qstash"
 )
 
 type VaultService struct {
-	innerService *AppService
-	repository   vault.IVaultRepositoryAsync
-	qstashClient *qstash.QstashClient
+	innerService  *AppService
+	repository    vault.IVaultRepositoryAsync
+	eventPulisher infra.IEventPulisher
 }
 
 func NewVaultService(
 	unitOfWork domain.IUnitOfWork,
 	repository vault.IVaultRepositoryAsync,
-	qstashClient *qstash.QstashClient,
+	eventPulisher infra.IEventPulisher,
 ) *VaultService {
 	return &VaultService{
-		innerService: NewAppService(unitOfWork),
-		repository:   repository,
-		qstashClient: qstashClient,
+		innerService:  NewAppService(unitOfWork),
+		repository:    repository,
+		eventPulisher: eventPulisher,
 	}
 }
 
@@ -233,14 +229,7 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 				return nil
 			}
 
-			if bodyBytes, err := json.Marshal(*data); err == nil {
-				if _, err := s.qstashClient.Message.Publish(ctx, qstash.PublishRequest{
-					Destination: fmt.Sprintf(os.Getenv("QSTASH_DESTINATION"), "vault_changed"),
-					Body:        string(bodyBytes),
-				}); err != nil {
-					log.Println(err.Error())
-				}
-			}
+			s.eventPulisher.PublishCommon(ctx, data, "vault_changed")
 
 			return s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value})
 		}); err != nil {
