@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/futugyou/qstash"
+
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
 )
@@ -45,6 +47,7 @@ type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSo
 	snapshotStore     infra.ISnapshotStore[EventSourcing]
 	innerService      *AppService
 	domainService     *domain.DomainService[Event, EventSourcing]
+	qstashClient      *qstash.QstashClient
 	newAggregateFunc  func() EventSourcing
 	needStoreSnapshot func(EventSourcing) bool
 }
@@ -55,6 +58,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 	unitOfWork domain.IUnitOfWork,
 	newAggregateFunc func() EventSourcing,
 	needStoreSnapshot func(EventSourcing) bool,
+	qstashClient *qstash.QstashClient,
 ) *ApplicationService[Event, EventSourcing] {
 	return &ApplicationService[Event, EventSourcing]{
 		eventStore:        eventStore,
@@ -63,6 +67,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 		domainService:     domain.NewDomainService[Event, EventSourcing](),
 		newAggregateFunc:  newAggregateFunc,
 		needStoreSnapshot: needStoreSnapshot,
+		qstashClient:      qstashClient,
 	}
 }
 

@@ -6,6 +6,8 @@ import (
 
 	tool "github.com/futugyou/extensions"
 
+	"github.com/futugyou/qstash"
+
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
@@ -25,9 +27,10 @@ func NewResourceService(
 	eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
+	qstashClient *qstash.QstashClient,
 ) *ResourceService {
 	return &ResourceService{
-		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot),
+		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot, qstashClient),
 		unitOfWork: unitOfWork,
 	}
 }
