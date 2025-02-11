@@ -143,6 +143,7 @@ type BatchRequestItem struct {
 	Destination string            `json:"destination"`
 	Headers     map[string]string `json:"headers"`
 	Queue       string            `json:"queue"`
+	Body        string            `json:"body"`
 }
 
 type BatchResponse []BatchResponseItem
