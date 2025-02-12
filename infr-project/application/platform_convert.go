@@ -457,6 +457,10 @@ func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Proje
 		modelProject.Properties = s.convertToPlatformModelProperties(project.Properties)
 		webhooks := []models.Webhook{}
 		for _, hook := range project.Webhooks {
+			followed := false
+			if len(hook.ID) > 0 {
+				followed = true
+			}
 			mw := models.Webhook{
 				ID:         hook.ID,
 				Name:       hook.Name,
@@ -466,7 +470,7 @@ func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Proje
 				State:      hook.State.String(),
 				Properties: s.convertToPlatformModelProperties(hook.Properties),
 				Secrets:    s.convertToPlatformModelSecrets(hook.Secrets),
-				Followed:   false,
+				Followed:   followed,
 			}
 
 			webhooks = append(webhooks, mw)
@@ -490,6 +494,14 @@ func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Proje
 		modelProject.ProviderProject.BadgeMarkdown = providerProject.BadgeMarkDown
 		webhooks := []models.Webhook{}
 		for _, prow := range providerProject.WebHooks {
+			dbWebhook := tool.ArrayFirst(modelProject.Webhooks, func(p models.Webhook) bool {
+				return p.ID == prow.ID
+			})
+			followed := false
+			if dbWebhook != nil && len(dbWebhook.ID) > 0 {
+				followed = true
+			}
+
 			webhooks = append(webhooks, models.Webhook{
 				Name:       prow.Name,
 				Url:        prow.Url,
@@ -497,7 +509,7 @@ func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Proje
 				State:      "Ready",
 				Properties: s.mergeWebhookProperty(prow.GetParameters(), nil),
 				Secrets:    []models.Secret{},
-				Followed:   true,
+				Followed:   followed,
 				ID:         prow.ID,
 			})
 		}
