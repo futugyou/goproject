@@ -1873,7 +1873,9 @@
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }
@@ -2072,7 +2074,9 @@
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }
@@ -2133,7 +2137,9 @@
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }
@@ -2241,7 +2247,9 @@
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }

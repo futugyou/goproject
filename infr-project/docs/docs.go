@@ -1884,7 +1884,9 @@ const docTemplate = `{
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }
@@ -2083,7 +2085,9 @@ const docTemplate = `{
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }
@@ -2144,7 +2148,9 @@ const docTemplate = `{
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }
@@ -2252,7 +2258,9 @@ const docTemplate = `{
                         "common",
                         "project",
                         "resource",
-                        "platform"
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
                     ]
                 }
             }

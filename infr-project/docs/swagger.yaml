@@ -169,6 +169,8 @@ definitions:
         - project
         - resource
         - platform
+        - platform_project
+        - platform_webhook
         type: string
     type: object
   viewmodels.ChangeVaultRequest:
@@ -310,6 +312,8 @@ definitions:
         - project
         - resource
         - platform
+        - platform_project
+        - platform_webhook
         type: string
     required:
     - key
@@ -355,6 +359,8 @@ definitions:
         - project
         - resource
         - platform
+        - platform_project
+        - platform_webhook
         type: string
     required:
     - key
@@ -431,6 +437,8 @@ definitions:
         - project
         - resource
         - platform
+        - platform_project
+        - platform_webhook
         type: string
     type: object
   viewmodels.ImportVaultsResponse:
