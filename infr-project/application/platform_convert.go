@@ -19,7 +19,7 @@ func (s *PlatformService) convertPlatformEntityToViewModel(ctx context.Context, 
 	}
 
 	providerProjects := []platformProvider.Project{}
-	if provider, err := s.getPlatfromProvider(ctx, *src); err == nil {
+	if provider, err := s.getPlatformProvider(ctx, *src); err == nil {
 		projects, _ := s.getProviderProjects(ctx, provider, *src)
 		providerProjects = projects
 	} else {
@@ -169,7 +169,7 @@ func (s *PlatformService) convertToPlatformViews(src []platform.Platform) []mode
 	return result
 }
 
-func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
+func (s *PlatformService) getPlatformProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
 	vaultId, err := src.ProviderVaultInfo()
 	if err != nil {
 		return nil, err
@@ -177,10 +177,10 @@ func (s *PlatformService) getPlatfromProvider(ctx context.Context, src platform.
 
 	token, err := s.vaultService.ShowVaultRawValue(ctx, vaultId)
 	if err != nil {
-		return nil, fmt.Errorf("get platfrom provider token error, vaultId is %s, message %s", vaultId, err.Error())
+		return nil, fmt.Errorf("get platform provider token error, vaultId is %s, message %s", vaultId, err.Error())
 	}
 
-	return platformProvider.PlatformProviderFatory(src.Provider.String(), token)
+	return platformProvider.PlatformProviderFactory(src.Provider.String(), token)
 }
 
 func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync, src platform.Platform) ([]platformProvider.Project, error) {
@@ -256,7 +256,7 @@ func (s *PlatformService) getProviderUser(ctx context.Context, provider platform
 }
 
 func (s *PlatformService) determineProviderStatus(ctx context.Context, res *platform.Platform) bool {
-	provider, err := s.getPlatfromProvider(ctx, *res)
+	provider, err := s.getPlatformProvider(ctx, *res)
 	if err != nil {
 		log.Println(err.Error())
 		return false

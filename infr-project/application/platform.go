@@ -123,7 +123,7 @@ func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*mo
 func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
 	return s.updatePlatform(ctx, idOrName, "UpdatePlatform", func(plat *platform.Platform) error {
 		if plat.IsDeleted {
-			return fmt.Errorf("id: %s was alrealdy deleted", plat.Id)
+			return fmt.Errorf("id: %s was already deleted", plat.Id)
 		}
 
 		if plat.Name != data.Name {
@@ -330,7 +330,7 @@ func (s *PlatformService) createWebhookVault(ctx context.Context, providerHook *
 }
 
 func (s *PlatformService) handlingProviderWebhookCreation(ctx context.Context, plat *platform.Platform, project platform.PlatformProject, webhookName string) (*platformProvider.WebHook, error) {
-	provider, err := s.getPlatfromProvider(ctx, *plat)
+	provider, err := s.getPlatformProvider(ctx, *plat)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +376,7 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 	}
 
 	if request.Sync {
-		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
+		if provider, err := s.getPlatformProvider(ctx, *plat); err == nil {
 			parameters := mergePropertiesToMap(plat.Properties, project.Properties)
 			if err = s.deleteProviderWebhook(ctx, provider, hook.ID, parameters); err != nil {
 				log.Println(err.Error())
@@ -430,7 +430,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	providerProjectId := project.ProviderProjectId
 	// Regardless of whether sync is successful, the program will continue
 	if project.Operate == "sync" {
-		if provider, err := s.getPlatfromProvider(ctx, *plat); err == nil {
+		if provider, err := s.getPlatformProvider(ctx, *plat); err == nil {
 			shouldCreate := len(providerProjectId) == 0
 			if !shouldCreate {
 				projects, _ := s.getProviderProjects(ctx, provider, *plat)
@@ -489,8 +489,8 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrName string, projectId string) (*models.PlatformProject, error) {
-	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platfromIdOrName)
+func (s *PlatformService) GetPlatformProject(ctx context.Context, platformIdOrName string, projectId string) (*models.PlatformProject, error) {
+	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platformIdOrName)
 	src, err := tool.HandleAsync(ctx, srcCh, errCh)
 	if err != nil {
 		return nil, err
@@ -498,7 +498,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrNa
 
 	if project, ok := src.Projects[projectId]; ok {
 		providerProject := &platformProvider.Project{}
-		if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+		if provider, err := s.getPlatformProvider(ctx, *src); err != nil {
 			log.Println(err.Error())
 		} else {
 			providerProject = s.getProviderProjectWithCache(ctx, src, project, provider)
@@ -511,8 +511,8 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platfromIdOrNa
 	}
 }
 
-func (s *PlatformService) GetPlatformProjectV2(ctx context.Context, platfromIdOrName string, projectId string) (*models.PlatformProjectV2, error) {
-	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platfromIdOrName)
+func (s *PlatformService) GetPlatformProjectV2(ctx context.Context, platformIdOrName string, projectId string) (*models.PlatformProjectV2, error) {
+	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platformIdOrName)
 	src, err := tool.HandleAsync(ctx, srcCh, errCh)
 	if err != nil {
 		return nil, err
@@ -520,7 +520,7 @@ func (s *PlatformService) GetPlatformProjectV2(ctx context.Context, platfromIdOr
 
 	if project, ok := src.Projects[projectId]; ok {
 		providerProject := &platformProvider.Project{}
-		if provider, err := s.getPlatfromProvider(ctx, *src); err != nil {
+		if provider, err := s.getPlatformProvider(ctx, *src); err != nil {
 			log.Println(err.Error())
 		} else {
 			providerProject = s.getProviderProjectWithCache(ctx, src, project, provider)
