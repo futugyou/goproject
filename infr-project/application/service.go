@@ -45,7 +45,7 @@ type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSo
 	snapshotStore     infra.ISnapshotStore[EventSourcing]
 	innerService      *AppService
 	domainService     *domain.DomainService[Event, EventSourcing]
-	eventPulisher     infra.IEventPulisher
+	eventPublisher    infra.IEventPublisher
 	newAggregateFunc  func() EventSourcing
 	needStoreSnapshot func(EventSourcing) bool
 }
@@ -56,7 +56,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 	unitOfWork domain.IUnitOfWork,
 	newAggregateFunc func() EventSourcing,
 	needStoreSnapshot func(EventSourcing) bool,
-	eventPulisher infra.IEventPulisher,
+	eventPublisher infra.IEventPublisher,
 ) *ApplicationService[Event, EventSourcing] {
 	return &ApplicationService[Event, EventSourcing]{
 		eventStore:        eventStore,
@@ -65,7 +65,7 @@ func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEven
 		domainService:     domain.NewDomainService[Event, EventSourcing](),
 		newAggregateFunc:  newAggregateFunc,
 		needStoreSnapshot: needStoreSnapshot,
-		eventPulisher:     eventPulisher,
+		eventPublisher:    eventPublisher,
 	}
 }
 
@@ -129,7 +129,7 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(ctx co
 
 // this method can not handle mutile version change
 // eg. if version changed form 4 to 7, than event 4567 will be stored, but the snapshot(version 6) will not stored,
-// beacuse the current aggregate version is 7, and needStoreSnapshot will return false(7%5==1)
+// because the current aggregate version is 7, and needStoreSnapshot will return false(7%5==1)
 func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(ctx context.Context, aggregate EventSourcing) error {
 	// es := aggregate.DomainEvents()
 	// events := make([]Event, 0)
@@ -171,7 +171,7 @@ func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx con
 		}
 	}
 
-	s.eventPulisher.Publish(ctx, es)
+	s.eventPublisher.Publish(ctx, es)
 
 	return s.eventStore.Save(ctx, events)
 }

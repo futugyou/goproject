@@ -2,7 +2,7 @@ package vault_provider
 
 import "fmt"
 
-func VaultProviderFatory(provider string) (IVaultProviderAsync, error) {
+func VaultProviderFactory(provider string) (IVaultProviderAsync, error) {
 	if provider == "AWS" {
 		client, err := NewAWSClient()
 		return NewAsyncWrapper(client), err

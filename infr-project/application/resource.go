@@ -25,10 +25,10 @@ func NewResourceService(
 	eventStore infra.IEventStore[resource.IResourceEvent],
 	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
-	eventPulisher infra.IEventPulisher,
+	eventPublisher infra.IEventPublisher,
 ) *ResourceService {
 	return &ResourceService{
-		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot, eventPulisher),
+		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot, eventPublisher),
 		unitOfWork: unitOfWork,
 	}
 }

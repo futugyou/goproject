@@ -17,18 +17,18 @@ import (
 type VaultService struct {
 	innerService  *AppService
 	repository    vault.IVaultRepositoryAsync
-	eventPulisher infra.IEventPulisher
+	eventPublisher infra.IEventPublisher
 }
 
 func NewVaultService(
 	unitOfWork domain.IUnitOfWork,
 	repository vault.IVaultRepositoryAsync,
-	eventPulisher infra.IEventPulisher,
+	eventPublisher infra.IEventPublisher,
 ) *VaultService {
 	return &VaultService{
 		innerService:  NewAppService(unitOfWork),
 		repository:    repository,
-		eventPulisher: eventPulisher,
+		eventPublisher: eventPublisher,
 	}
 }
 
@@ -173,7 +173,7 @@ func (s *VaultService) CreateVault(ctx context.Context, aux models.CreateVaultRe
 	}
 
 	if len(result.Vaults) == 0 {
-		return nil, fmt.Errorf("create valut error, check data again")
+		return nil, fmt.Errorf("create vault error, check data again")
 	}
 
 	return &result.Vaults[0], nil
@@ -229,7 +229,7 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 				return nil
 			}
 
-			s.eventPulisher.PublishCommon(ctx, data, "vault_changed")
+			s.eventPublisher.PublishCommon(ctx, data, "vault_changed")
 
 			return s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value})
 		}); err != nil {
@@ -407,7 +407,7 @@ func convertVaultToVaultView(entity vault.Vault) models.VaultView {
 }
 
 func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type string, key string) error {
-	p, err := provider.VaultProviderFatory(provider_type)
+	p, err := provider.VaultProviderFactory(provider_type)
 	if err != nil {
 		return err
 	}
@@ -416,7 +416,7 @@ func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type 
 }
 
 func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type string, datas map[string]string) error {
-	p, err := provider.VaultProviderFatory(provider_type)
+	p, err := provider.VaultProviderFactory(provider_type)
 	if err != nil {
 		return err
 	}
@@ -455,7 +455,7 @@ func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type 
 }
 
 func (s *VaultService) searchVaultInProvider(ctx context.Context, provider_type string, prefix string) (map[string]provider.ProviderVault, error) {
-	p, err := provider.VaultProviderFatory(provider_type)
+	p, err := provider.VaultProviderFactory(provider_type)
 	if err != nil {
 		return nil, err
 	}
