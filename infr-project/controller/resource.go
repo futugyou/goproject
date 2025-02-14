@@ -10,8 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/futugyou/qstash"
-
 	"github.com/futugyou/infr-project/application"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
@@ -68,7 +66,6 @@ func createResourceService(ctx context.Context) (*application.ResourceService, e
 		return nil, err
 	}
 
-	qstashClient := qstash.NewClient(os.Getenv("QSTASH_TOKEN"))
-	eventPublisher := publisher.NewQStashEventPulisher(qstashClient)
+	eventPublisher := publisher.NewQStashEventPulisher(os.Getenv("QSTASH_TOKEN"), os.Getenv("QSTASH_DESTINATION"))
 	return application.NewResourceService(eventStore, snapshotStore, unitOfWork, eventPublisher), nil
 }

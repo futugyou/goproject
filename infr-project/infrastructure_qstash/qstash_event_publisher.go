@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/futugyou/qstash"
 
@@ -12,12 +11,15 @@ import (
 )
 
 type QStashEventPulisher struct {
-	client *qstash.QstashClient
+	client      *qstash.QstashClient
+	destination string
 }
 
-func NewQStashEventPulisher(client *qstash.QstashClient) *QStashEventPulisher {
+func NewQStashEventPulisher(token string, destination string) *QStashEventPulisher {
+	qstashClient := qstash.NewClient(token)
 	return &QStashEventPulisher{
-		client: client,
+		client:      qstashClient,
+		destination: destination,
 	}
 }
 
@@ -30,7 +32,7 @@ func (q *QStashEventPulisher) Publish(ctx context.Context, events []domain.IDoma
 	for _, event := range events {
 		if bodyBytes, err := json.Marshal(event); err == nil {
 			qstashRequest = append(qstashRequest, qstash.BatchRequestItem{
-				Destination: fmt.Sprintf(os.Getenv("QSTASH_DESTINATION"), event.EventType()),
+				Destination: fmt.Sprintf(q.destination, event.EventType()),
 				Body:        string(bodyBytes),
 			})
 		}
@@ -52,7 +54,7 @@ func (q *QStashEventPulisher) PublishCommon(ctx context.Context, event any, even
 	}
 
 	qstashRequest := qstash.PublishRequest{
-		Destination: fmt.Sprintf(os.Getenv("QSTASH_DESTINATION"), event_type),
+		Destination: fmt.Sprintf(q.destination, event_type),
 		Body:        string(bodyBytes),
 	}
 

@@ -9,8 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/futugyou/qstash"
-
 	"github.com/futugyou/infr-project/application"
 	"github.com/futugyou/infr-project/command"
 	"github.com/futugyou/infr-project/extensions"
@@ -121,8 +119,7 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 
 	repo := infra.NewPlatformRepository(client, config)
 	vaultRepo := infra.NewVaultRepository(client, config)
-	qstashClient := qstash.NewClient(os.Getenv("QSTASH_TOKEN"))
-	eventPublisher := publisher.NewQStashEventPulisher(qstashClient)
+	eventPublisher := publisher.NewQStashEventPulisher(os.Getenv("QSTASH_TOKEN"), os.Getenv("QSTASH_DESTINATION"))
 	vaultService := application.NewVaultService(unitOfWork, vaultRepo, eventPublisher)
 	return application.NewPlatformService(unitOfWork, repo, vaultService, redisClient), nil
 }
