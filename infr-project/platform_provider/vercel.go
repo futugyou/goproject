@@ -244,6 +244,10 @@ func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Environm
 func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
 	deployments := map[string]Deployment{}
 	for _, v := range vercelDeployments {
+		if len(v.Name) == 0 || len(v.Target) == 0 || len(v.ReadyState) == 0 {
+			continue
+		}
+
 		badgeURL, badgeMarkdown := g.buildVercelBadge(v.Name, url, v.ReadyState)
 		deployments[v.ID] = Deployment{
 			ID:            v.ID,
