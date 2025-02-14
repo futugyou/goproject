@@ -203,10 +203,15 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			log.Println(err.Error())
 		} else {
 			for _, e := range circleciRuns.Items {
-				badgeURL, badgeMarkdown := buildCommonBadge(fmt.Sprintf("%d", e.Number), e.State, "created", "circleci", nil)
+				name := fmt.Sprintf("%d", e.Number)
+				if len(e.Vcs.Commit.Subject) > 0 {
+					name = e.Vcs.Commit.Subject
+				}
+
+				badgeURL, badgeMarkdown := buildCommonBadge(name, e.State, "created", "circleci", nil)
 				runs[e.ID] = WorkflowRun{
 					ID:            e.ID,
-					Name:          fmt.Sprintf("%d", e.Number),
+					Name:          name,
 					Status:        e.State,
 					CreatedAt:     e.CreatedAt,
 					BadgeURL:      badgeURL,
@@ -229,7 +234,7 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			WebHooks:             webHooks,
 			Properties:           map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
 			EnvironmentVariables: envs,
-			Environments:		  []string{},
+			Environments:         []string{},
 			WorkflowRuns:         runs,
 			BadgeURL:             badgeURL,
 			BadgeMarkDown:        badgeMarkdown,
@@ -399,7 +404,7 @@ func (g *CircleClient) buildProject(pro circleci.ProjectListItem, url string) Pr
 		Name:          pro.Reponame,
 		Url:           fmt.Sprintf(url, vcs_full, pro.Username, pro.Reponame),
 		Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": pro.VcsURL},
-		WorkflowRuns:  g.buildWrokflow(vcs, vcs_full, pro),		
+		WorkflowRuns:  g.buildWrokflow(vcs, vcs_full, pro),
 		Environments:  []string{},
 		BadgeURL:      badgeURL,
 		BadgeMarkDown: badgeMarkdown,
