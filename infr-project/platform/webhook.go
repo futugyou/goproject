@@ -3,18 +3,10 @@ package platform
 import (
 	"fmt"
 	"os"
-	"strings"
 )
 
-const WebhookEndPoint string = "api/v1/webhook"
-
-func GetWebhookUrl() string {
-	host := os.Getenv("PROJECT_URL")
-	if strings.HasSuffix(host, "/") {
-		return host + WebhookEndPoint
-	} else {
-		return fmt.Sprintf("%s/%s", host, WebhookEndPoint)
-	}
+func GetWebhookUrl(platform, project string) string {
+	return fmt.Sprintf(os.Getenv("PROJECT_WEBHOOK_URL"), platform, project)
 }
 
 type Webhook struct {
@@ -66,11 +58,11 @@ func WithWebhookSecrets(secrets map[string]Secret) WebhookOption {
 	}
 }
 
-func NewWebhook(name string, opts ...WebhookOption) *Webhook {
+func NewWebhook(name string, url string, opts ...WebhookOption) *Webhook {
 	webhook := &Webhook{
 		ID:         "",
 		Name:       name,
-		Url:        GetWebhookUrl(),
+		Url:        url,
 		Events:     []string{},
 		Activate:   true,
 		State:      WebhookInit,

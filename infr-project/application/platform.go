@@ -249,7 +249,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 		return nil, err
 	}
 
-	newhook := platform.NewWebhook(hook.Name,
+	newhook := platform.NewWebhook(hook.Name, platform.GetWebhookUrl(plat.Name, project.Name),
 		platform.WithWebhookProperties(properties),
 		platform.WithWebhookActivate(hook.Activate),
 		platform.WithWebhookState(platform.GetWebhookState(hook.State)),
@@ -295,7 +295,7 @@ func (s *PlatformService) createWebhookVault(ctx context.Context, providerHook *
 	}
 
 	secrets := map[string]platform.Secret{}
-	signingSecret := providerHook.GetParameters()["SigningSecret"]
+	signingSecret := parameters["SigningSecret"]
 	if len(signingSecret) == 0 {
 		return secrets, properties
 	}
@@ -310,7 +310,7 @@ func (s *PlatformService) createWebhookVault(ctx context.Context, providerHook *
 			VaultType:    "project",
 			TypeIdentity: fmt.Sprintf("%s/%s/%s", platformId, providerProjectId, hookName),
 		},
-		ForceInsert: false,
+		ForceInsert: true,
 	}
 
 	vaultReps, err := s.vaultService.CreateVault(ctx, aux)
@@ -348,7 +348,7 @@ func (s *PlatformService) handlingProviderWebhookCreation(ctx context.Context, p
 		provider,
 		platformId,
 		project.ProviderProjectId,
-		platform.GetWebhookUrl(),
+		platform.GetWebhookUrl(plat.Name, project.Name),
 		webhookName,
 		secret,
 	)
