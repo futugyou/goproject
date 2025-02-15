@@ -481,57 +481,6 @@ definitions:
     type: object
   viewmodels.PlatformProject:
     properties:
-      badge_markdown:
-        type: string
-      badge_url:
-        type: string
-      deployments:
-        items:
-          $ref: '#/definitions/viewmodels.Deployment'
-        type: array
-      description:
-        type: string
-      environment_variables:
-        items:
-          $ref: '#/definitions/viewmodels.EnvironmentVariable'
-        type: array
-      environments:
-        items:
-          type: string
-        type: array
-      followed:
-        type: boolean
-      id:
-        type: string
-      name:
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      provider_project_id:
-        type: string
-      secrets:
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      url:
-        type: string
-      webhooks:
-        items:
-          $ref: '#/definitions/viewmodels.Webhook'
-        type: array
-      workflow_runs:
-        items:
-          $ref: '#/definitions/viewmodels.WorkflowRun'
-        type: array
-      workflows:
-        items:
-          $ref: '#/definitions/viewmodels.Workflow'
-        type: array
-    type: object
-  viewmodels.PlatformProjectV2:
-    properties:
       description:
         type: string
       followed:
@@ -2064,30 +2013,4 @@ paths:
       summary: create platform v2
       tags:
       - Platform v2
-  /v2/platform/{id}/project/{project_id}:
-    get:
-      consumes:
-      - application/json
-      description: get platform project by id v2
-      parameters:
-      - description: Platform ID or Name
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Platform Project ID
-        in: path
-        name: project_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/viewmodels.PlatformProjectV2'
-      summary: get platform project by id v2
-      tags:
-      - Platform
 swagger: "2.0"
