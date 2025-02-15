@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	domain "github.com/futugyou/infr-project/domain"
-	infra "github.com/futugyou/infr-project/infrastructure"
 )
 
 type AppService struct {
@@ -41,22 +40,22 @@ func (s *AppService) withUnitOfWork(ctx context.Context, fn func(ctx context.Con
 }
 
 type ApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing] struct {
-	eventStore        infra.IEventStore[Event]
-	snapshotStore     infra.ISnapshotStore[EventSourcing]
+	eventStore        domain.IEventStore[Event]
+	snapshotStore     domain.ISnapshotStore[EventSourcing]
 	innerService      *AppService
 	domainService     *domain.DomainService[Event, EventSourcing]
-	eventPublisher    infra.IEventPublisher
+	eventPublisher    domain.IEventPublisher
 	newAggregateFunc  func() EventSourcing
 	needStoreSnapshot func(EventSourcing) bool
 }
 
 func NewApplicationService[Event domain.IDomainEvent, EventSourcing domain.IEventSourcing](
-	eventStore infra.IEventStore[Event],
-	snapshotStore infra.ISnapshotStore[EventSourcing],
+	eventStore domain.IEventStore[Event],
+	snapshotStore domain.ISnapshotStore[EventSourcing],
 	unitOfWork domain.IUnitOfWork,
 	newAggregateFunc func() EventSourcing,
 	needStoreSnapshot func(EventSourcing) bool,
-	eventPublisher infra.IEventPublisher,
+	eventPublisher domain.IEventPublisher,
 ) *ApplicationService[Event, EventSourcing] {
 	return &ApplicationService[Event, EventSourcing]{
 		eventStore:        eventStore,
