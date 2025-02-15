@@ -7,6 +7,7 @@ import (
 	tool "github.com/futugyou/extensions"
 
 	domain "github.com/futugyou/infr-project/domain"
+	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
 	models "github.com/futugyou/infr-project/view_models"
 )
@@ -21,10 +22,10 @@ func needStoreSnapshot(aggregate *resource.Resource) bool {
 }
 
 func NewResourceService(
-	eventStore domain.IEventStore[resource.IResourceEvent],
-	snapshotStore domain.ISnapshotStore[*resource.Resource],
+	eventStore infra.IEventStore[resource.IResourceEvent],
+	snapshotStore infra.ISnapshotStore[*resource.Resource],
 	unitOfWork domain.IUnitOfWork,
-	eventPublisher domain.IEventPublisher,
+	eventPublisher infra.IEventPublisher,
 ) *ResourceService {
 	return &ResourceService{
 		service:    NewApplicationService(eventStore, snapshotStore, unitOfWork, resource.ResourceFactory, needStoreSnapshot, eventPublisher),

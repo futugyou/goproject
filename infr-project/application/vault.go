@@ -8,25 +8,26 @@ import (
 	tool "github.com/futugyou/extensions"
 
 	domain "github.com/futugyou/infr-project/domain"
+	infra "github.com/futugyou/infr-project/infrastructure"
 	vault "github.com/futugyou/infr-project/vault"
 	provider "github.com/futugyou/infr-project/vault_provider"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
 type VaultService struct {
-	innerService   *AppService
-	repository     vault.IVaultRepositoryAsync
-	eventPublisher domain.IEventPublisher
+	innerService  *AppService
+	repository    vault.IVaultRepositoryAsync
+	eventPublisher infra.IEventPublisher
 }
 
 func NewVaultService(
 	unitOfWork domain.IUnitOfWork,
 	repository vault.IVaultRepositoryAsync,
-	eventPublisher domain.IEventPublisher,
+	eventPublisher infra.IEventPublisher,
 ) *VaultService {
 	return &VaultService{
-		innerService:   NewAppService(unitOfWork),
-		repository:     repository,
+		innerService:  NewAppService(unitOfWork),
+		repository:    repository,
 		eventPublisher: eventPublisher,
 	}
 }
