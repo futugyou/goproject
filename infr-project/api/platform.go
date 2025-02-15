@@ -59,14 +59,6 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("page not found"))
 			w.WriteHeader(404)
 		}
-	case "v2":
-		switch op {
-		case "proget":
-			getPlatformProjectV2(ctrl, r, w)
-		default:
-			w.Write([]byte("page not found"))
-			w.WriteHeader(404)
-		}
 	default:
 		w.Write([]byte("page not found"))
 		w.WriteHeader(404)
@@ -191,12 +183,6 @@ func getPlatformProject(ctrl *controller.PlatformController, r *http.Request, w 
 	id := r.URL.Query().Get("id")
 	projectid := r.URL.Query().Get("project_id")
 	ctrl.GetPlatformProject(id, projectid, w, r)
-}
-
-func getPlatformProjectV2(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
-	id := r.URL.Query().Get("id")
-	projectid := r.URL.Query().Get("project_id")
-	ctrl.GetPlatformProjectV2(id, projectid, w, r)
 }
 
 func createPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {

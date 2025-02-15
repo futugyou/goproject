@@ -285,68 +285,6 @@ func (s *PlatformService) getProviderProject(ctx context.Context, provider platf
 	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
-// followed == false && providerProjectId == "", means need create project to provider
-// followed == true && providerProjectId != "", means need provider project was already followed
-// followed == false && providerProjectId != "", means need follow the provider project
-func (s *PlatformService) mergeProject(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProject {
-	modelProject := models.PlatformProject{
-		Properties:           []models.Property{},
-		Secrets:              []models.Secret{},
-		Webhooks:             []models.Webhook{},
-		ProviderProjectId:    "",
-		EnvironmentVariables: []models.EnvironmentVariable{},
-		Environments:         []string{},
-		Workflows:            []models.Workflow{},
-		WorkflowRuns:         []models.WorkflowRun{},
-		Deployments:          []models.Deployment{},
-	}
-
-	if project != nil {
-		modelProject.Id = project.Id
-		modelProject.Description = project.Description
-		modelProject.Name = project.Name
-		modelProject.Url = project.Url
-		modelProject.Secrets = s.convertToPlatformModelSecrets(project.Secrets)
-	}
-
-	if providerProject != nil {
-		if len(modelProject.Id) == 0 {
-			modelProject.Id = providerProject.ID
-		}
-		if len(modelProject.Name) == 0 {
-			modelProject.Name = providerProject.Name
-		}
-		if len(modelProject.Description) == 0 {
-			modelProject.Description = providerProject.Description
-		}
-		if len(modelProject.Url) == 0 {
-			modelProject.Url = providerProject.Url
-		}
-		if len(modelProject.Secrets) == 0 {
-			modelProject.Secrets = []models.Secret{}
-		}
-
-		modelProject.ProviderProjectId = providerProject.ID
-		modelProject.EnvironmentVariables = s.convertToPlatformModelEnvironments(providerProject.EnvironmentVariables)
-		modelProject.Environments = providerProject.Environments
-		modelProject.Workflows = s.convertToPlatformModelWorkflows(providerProject.Workflows)
-		modelProject.WorkflowRuns = s.convertToPlatformModelWorkflowRuns(providerProject.WorkflowRuns)
-		modelProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
-		modelProject.BadgeURL = providerProject.BadgeURL
-		modelProject.BadgeMarkdown = providerProject.BadgeMarkDown
-	}
-
-	modelProject.Webhooks = s.mergeWebhooks(project.GetWebhooks(), providerProject.GetWebhooks())
-
-	if providerProject != nil && project != nil {
-		modelProject.Followed = true
-	}
-
-	modelProject.Properties = s.mergeProperties(providerProject.GetProperties(), project.GetProperties())
-
-	return modelProject
-}
-
 func (s *PlatformService) mergeProperties(providerProperty map[string]string, projectProperty map[string]platform.Property) []models.Property {
 	properties := []models.Property{}
 	// 1. add provider project property
@@ -429,8 +367,8 @@ func (*PlatformService) mergeWebhookProperty(providerProperties map[string]strin
 	return properties
 }
 
-func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProjectV2 {
-	modelProject := models.PlatformProjectV2{
+func (s *PlatformService) mergeProject(providerProject *platformProvider.Project, project *platform.PlatformProject) models.PlatformProject {
+	modelProject := models.PlatformProject{
 		Properties: []models.Property{},
 		Secrets:    []models.Secret{},
 		Webhooks:   []models.Webhook{},
@@ -476,7 +414,12 @@ func (s *PlatformService) mergeProjectV2(providerProject *platformProvider.Proje
 	}
 
 	if providerProject != nil {
-		modelProject.Followed = true
+		if len(modelProject.Id) > 0 {
+			modelProject.Followed = true
+		} else {
+			modelProject.Followed = false
+		}
+
 		modelProject.ProviderProjectId = providerProject.ID
 		modelProject.ProviderProject.Id = providerProject.ID
 		modelProject.ProviderProject.Name = providerProject.Name

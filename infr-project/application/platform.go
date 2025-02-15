@@ -511,28 +511,6 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platformIdOrNa
 	}
 }
 
-func (s *PlatformService) GetPlatformProjectV2(ctx context.Context, platformIdOrName string, projectId string) (*models.PlatformProjectV2, error) {
-	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platformIdOrName)
-	src, err := tool.HandleAsync(ctx, srcCh, errCh)
-	if err != nil {
-		return nil, err
-	}
-
-	if project, ok := src.Projects[projectId]; ok {
-		providerProject := &platformProvider.Project{}
-		if provider, err := s.getPlatformProvider(ctx, *src); err != nil {
-			log.Println(err.Error())
-		} else {
-			providerProject = s.getProviderProjectWithCache(ctx, src, project, provider)
-		}
-
-		modelProject := s.mergeProjectV2(providerProject, &project)
-		return &modelProject, nil
-	} else {
-		return nil, fmt.Errorf("can not find project with id: %s", projectId)
-	}
-}
-
 func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src *platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) *platformProvider.Project {
 	providerProject := &platformProvider.Project{}
 	redisKey := fmt.Sprintf("platform_%s_project_%s", src.Id, project.Id)

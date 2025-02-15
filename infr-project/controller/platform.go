@@ -54,12 +54,6 @@ func (c *PlatformController) GetPlatformProject(idOrName string, projectId strin
 	})
 }
 
-func (c *PlatformController) GetPlatformProjectV2(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
-		return service.GetPlatformProjectV2(ctx, idOrName, projectId)
-	})
-}
-
 func (c *PlatformController) SearchPlatforms(w http.ResponseWriter, r *http.Request, request models.SearchPlatformsRequest) {
 	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
 		return service.SearchPlatforms(ctx, request)
