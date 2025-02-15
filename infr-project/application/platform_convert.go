@@ -285,85 +285,15 @@ func (s *PlatformService) getProviderProject(ctx context.Context, provider platf
 	return tool.HandleAsync(ctx, resCh, errCh)
 }
 
-func (s *PlatformService) mergeProperties(providerProperty map[string]string, projectProperty map[string]platform.Property) []models.Property {
+func (*PlatformService) mapToModelProperty(providerProperties map[string]string) []models.Property {
 	properties := []models.Property{}
-	// 1. add provider project property
-	for k, v := range providerProperty {
-		properties = append(properties, models.Property{Key: k, Value: v})
-	}
-
-	// 2. add property which is in project and not in provider
-	for _, v := range projectProperty {
-		if _, ok := providerProperty[v.Key]; !ok {
-			properties = append(properties, models.Property{Key: v.Key, Value: v.Value})
-		}
-	}
-
-	return properties
-}
-
-// method only use in project list, and project list donot have provider project webhook
-func (s *PlatformService) mergeWebhooks(platformWebhooks []platform.Webhook, providerWebHooks []platformProvider.WebHook) []models.Webhook {
-	webhooks := []models.Webhook{}
-	for _, hook := range platformWebhooks {
-		mw := models.Webhook{
-			ID:         hook.ID,
-			Name:       hook.Name,
-			Url:        hook.Url,
-			Events:     hook.Events,
-			Activate:   hook.Activate,
-			State:      hook.State.String(),
-			Properties: s.convertToPlatformModelProperties(hook.Properties),
-			Secrets:    s.convertToPlatformModelSecrets(hook.Secrets),
-			Followed:   false,
-		}
-		prow := tool.ArrayFirst(providerWebHooks, func(t platformProvider.WebHook) bool { return t.ID == hook.ID })
-		if prow != nil {
-			mw.Name = prow.Name
-			mw.Url = prow.Url
-			mw.Activate = prow.Activate
-			mw.Followed = true
-			mw.Properties = s.mergeWebhookProperty(prow.GetParameters(), mw.Properties)
-			mw.Events = prow.Events
-		}
-
-		webhooks = append(webhooks, mw)
-	}
-
-	for _, prow := range providerWebHooks {
-		hook := tool.ArrayFirst(platformWebhooks, func(t platform.Webhook) bool { return t.ID == prow.ID })
-		if hook == nil {
-			webhooks = append(webhooks, models.Webhook{
-				Name:       prow.Name,
-				Url:        prow.Url,
-				Activate:   prow.Activate,
-				State:      "Ready",
-				Properties: s.mergeWebhookProperty(prow.GetParameters(), nil),
-				Secrets:    []models.Secret{},
-				Followed:   true,
-				ID:         prow.ID,
-			})
-		}
-	}
-
-	return webhooks
-}
-
-func (*PlatformService) mergeWebhookProperty(providerProperties map[string]string, properties []models.Property) []models.Property {
-	if properties == nil {
-		properties = []models.Property{}
-	}
-
 	for key, v := range providerProperties {
-		if f := tool.ArrayFirst(properties, func(p models.Property) bool {
-			return p.Key == key
-		}); f == nil {
-			properties = append(properties, models.Property{
-				Key:   key,
-				Value: v,
-			})
-		}
+		properties = append(properties, models.Property{
+			Key:   key,
+			Value: v,
+		})
 	}
+
 	return properties
 }
 
@@ -432,6 +362,7 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		modelProject.ProviderProject.Deployments = s.convertToPlatformModelDeployments(providerProject.Deployments)
 		modelProject.ProviderProject.BadgeURL = providerProject.BadgeURL
 		modelProject.ProviderProject.BadgeMarkdown = providerProject.BadgeMarkDown
+		modelProject.ProviderProject.Properties = s.mapToModelProperty(providerProject.Properties)
 		webhooks := []models.Webhook{}
 		for _, prow := range providerProject.WebHooks {
 			dbWebhook := tool.ArrayFirst(modelProject.Webhooks, func(p models.Webhook) bool {
@@ -447,7 +378,7 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 				Url:        prow.Url,
 				Activate:   prow.Activate,
 				State:      "Ready",
-				Properties: s.mergeWebhookProperty(prow.GetParameters(), nil),
+				Properties: s.mapToModelProperty(prow.GetParameters()),
 				Secrets:    []models.Secret{},
 				Followed:   followed,
 				ID:         prow.ID,
