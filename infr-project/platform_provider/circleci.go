@@ -208,10 +208,16 @@ func (g *CircleClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					name = e.Vcs.Commit.Subject
 				}
 
+				description := ""
+				if len(e.Vcs.Commit.Body) > 0 {
+					description = e.Vcs.Commit.Body
+				}
+
 				badgeURL, badgeMarkdown := buildCommonBadge(name, e.State, "created", "circleci", nil)
 				runs[e.ID] = WorkflowRun{
 					ID:            e.ID,
 					Name:          name,
+					Description:   description,
 					Status:        e.State,
 					CreatedAt:     e.CreatedAt,
 					BadgeURL:      badgeURL,

@@ -148,6 +148,7 @@ type Workflow struct {
 type WorkflowRun struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
+	Description   string `json:"description"`
 	Status        string `json:"status"`
 	CreatedAt     string `json:"createdAt"`
 	BadgeURL      string `json:"badge_url"`

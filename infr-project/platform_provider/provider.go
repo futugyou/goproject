@@ -81,6 +81,7 @@ type Workflow struct {
 type WorkflowRun struct {
 	ID            string
 	Name          string
+	Description   string
 	Status        string
 	CreatedAt     string
 	BadgeURL      string

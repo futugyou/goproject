@@ -289,6 +289,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 				runs[fmt.Sprintf("%d", v.GetID())] = WorkflowRun{
 					ID:            fmt.Sprintf("%d", v.GetID()),
 					Name:          v.GetName(),
+					Description:   v.GetDisplayTitle(),
 					Status:        v.GetStatus(),
 					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
 					BadgeURL:      badgeUrl,
