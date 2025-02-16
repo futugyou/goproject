@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -265,7 +266,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 		if providerHook, err := s.handlingProviderWebhookCreation(ctx, plat, project, hook.Name); err != nil {
 			log.Println(err.Error())
 		} else {
-			hookSecrets, hookProperties := s.createWebhookVault(ctx, providerHook, plat.Id, project.ProviderProjectId, hook.Name)
+			hookSecrets, hookProperties := s.createWebhookVault(ctx, providerHook.GetParameters(), plat.Id, project.ProviderProjectId, hook.Name)
 			newhook.UpdateProperties(hookProperties)
 			newhook.UpdateSecrets(hookSecrets)
 			newhook.UpdateProviderHookId(providerHook.ID)
@@ -283,9 +284,8 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) createWebhookVault(ctx context.Context, providerHook *platformProvider.WebHook, platformId string,
-	providerProjectId string, hookName string) (map[string]platform.Secret, map[string]platform.Property) {
-	parameters := providerHook.GetParameters()
+func (s *PlatformService) createWebhookVault(ctx context.Context, parameters map[string]string,
+	platformId string, providerProjectId string, hookName string) (map[string]platform.Secret, map[string]platform.Property) {
 	properties := map[string]platform.Property{}
 	for k, v := range parameters {
 		properties[k] = platform.Property{
@@ -501,7 +501,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platformIdOrNa
 		if provider, err := s.getPlatformProvider(ctx, *src); err != nil {
 			log.Println(err.Error())
 		} else {
-			providerProject = s.getProviderProjectWithCache(ctx, src, project, provider)
+			providerProject = s.getProviderProjectWithCache(ctx, *src, project, provider)
 		}
 
 		modelProject := s.mergeProject(providerProject, &project)
@@ -511,7 +511,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, platformIdOrNa
 	}
 }
 
-func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src *platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) *platformProvider.Project {
+func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) *platformProvider.Project {
 	providerProject := &platformProvider.Project{}
 	redisKey := fmt.Sprintf("platform_%s_project_%s", src.Id, project.Id)
 	if data, err := s.client.Get(ctx, redisKey).Result(); err != nil {
@@ -543,4 +543,73 @@ func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src *
 	}
 
 	return providerProject
+}
+
+func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event models.PlatformProjectUpsertEvent) error {
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, event.PlatformId)
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
+		return err
+	}
+
+	var project *platform.PlatformProject
+	if proj, ok := plat.Projects[event.ProjectId]; ok {
+		project = &proj
+	} else {
+		return fmt.Errorf("can not find project with id: %s", event.ProjectId)
+	}
+
+	var provider platformProvider.IPlatformProviderAsync
+	if provider, err = s.getPlatformProvider(ctx, *plat); err != nil {
+		return err
+	}
+
+	providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
+	if providerProject == nil || len(providerProject.ID) == 0 {
+		if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
+			return err
+		}
+	}
+
+	project.UpdateProviderProjectId(providerProject.ID)
+
+	if event.ImportWebhooks {
+		project.ClearWebhooks()
+		if len(providerProject.WebHooks) == 0 {
+			var providerHook *platformProvider.WebHook
+			if providerHook, err = s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook"); err != nil {
+				return err
+			}
+
+			s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
+		} else {
+			for _, providerHook := range providerProject.WebHooks {
+				if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
+					continue
+				}
+
+				s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
+			}
+		}
+	}
+
+	plat.UpdateProject(*project)
+
+	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		errCh := s.repository.UpdateAsync(ctx, *plat)
+		return tool.HandleErrorAsync(ctx, errCh)
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *PlatformService) setupWebhookWithSecrets(ctx context.Context, providerHook platformProvider.WebHook, plat *platform.Platform, project *platform.PlatformProject) {
+	newhook := platform.NewWebhook(providerHook.Name, platform.GetWebhookUrl(plat.Name, project.Name))
+	hookSecrets, hookProperties := s.createWebhookVault(ctx, providerHook.GetParameters(), plat.Id, project.ProviderProjectId, newhook.Name)
+	newhook.UpdateProperties(hookProperties)
+	newhook.UpdateSecrets(hookSecrets)
+	newhook.UpdateProviderHookId(providerHook.ID)
+	project.UpsertWebhook(*newhook)
 }

@@ -79,7 +79,6 @@ type Secret struct {
 	MaskValue string `json:"mask_value,omitempty"`
 }
 
- 
 type PlatformProject struct {
 	Id                string                  `json:"id"`
 	Name              string                  `json:"name"`
@@ -166,4 +165,11 @@ type SearchPlatformsRequest struct {
 	Tags     []string `json:"tags"`
 	Page     int      `json:"page"`
 	Size     int      `json:"size"`
+}
+
+type PlatformProjectUpsertEvent struct {
+	PlatformId     string `json:"platform_id"`
+	ProjectId      string `json:"project_id"`
+	ImportWebhooks bool   `json:"import_webhooks"` // If the provider has a webhook for infr-project, import all of them. If there is none, create one for infr-project.
+	EventName      string `json:"event_name"`
 }
