@@ -62,6 +62,7 @@ func (g *GithubClient) CreateProjectAsync(ctx context.Context, request CreatePro
 			DefaultBranch: github.String(GITHUB_BRANCH),
 			MasterBranch:  github.String(GITHUB_BRANCH),
 			Private:       github.Bool(GITHUB_PRIVATE),
+			AutoInit:      github.Bool(true),
 		}
 
 		repository, _, err := g.client.Repositories.Create(ctx, GITHUB_OWNER, repo)
