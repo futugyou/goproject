@@ -168,8 +168,9 @@ type SearchPlatformsRequest struct {
 }
 
 type PlatformProjectUpsertEvent struct {
-	PlatformId     string `json:"platform_id"`
-	ProjectId      string `json:"project_id"`
-	ImportWebhooks bool   `json:"import_webhooks"` // If the provider has a webhook for infr-project, import all of them. If there is none, create one for infr-project.
-	EventName      string `json:"event_name"`
+	PlatformId            string `json:"platform_id"`
+	ProjectId             string `json:"project_id"`
+	CreateProviderProject bool   `json:"create_provider_project"`
+	ImportWebhooks        bool   `json:"import_webhooks"` // If the provider has a webhook for infr-project, import all of them. If there is none, create one for infr-project.
+	EventName             string `json:"event_name"`
 }

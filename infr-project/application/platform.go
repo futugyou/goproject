@@ -566,8 +566,15 @@ func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event
 
 	providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
 	if providerProject == nil || len(providerProject.ID) == 0 {
-		if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
-			return err
+		if event.CreateProviderProject {
+			providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties)
+			if err != nil {
+				return err
+			}
+		}
+
+		if providerProject == nil || len(providerProject.ID) == 0 {
+			return fmt.Errorf("no corresponding provider information with project: %s", event.ProjectId)
 		}
 	}
 
