@@ -298,7 +298,7 @@ func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWeb
 		paras["SigningSecret"] = vercelHook.Secret
 		hook := &WebHook{
 			ID:         vercelHook.Id,
-			Name:       vercelHook.Id,
+			Name:       request.WebHook.Name,
 			Url:        vercelHook.Url,
 			Events:     vercelHook.Events,
 			Parameters: paras,
