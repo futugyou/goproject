@@ -31,6 +31,7 @@ type UpdatePlatformProjectRequest struct {
 	Properties        []Property `json:"properties" validate:"required"`
 	ProviderProjectId string     `json:"provider_project_id"`
 	Operate           string     `json:"operate" validate:"oneof=upsert sync"`
+	ImportWebhooks    bool       `json:"import_webhooks"`
 }
 
 type UpdatePlatformWebhookRequest struct {

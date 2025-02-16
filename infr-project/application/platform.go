@@ -16,16 +16,18 @@ import (
 
 	domain "github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/extensions"
+	infra "github.com/futugyou/infr-project/infrastructure"
 	platform "github.com/futugyou/infr-project/platform"
 	platformProvider "github.com/futugyou/infr-project/platform_provider"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
 type PlatformService struct {
-	innerService *AppService
-	repository   platform.IPlatformRepositoryAsync
-	vaultService *VaultService
-	client       *redis.Client
+	innerService   *AppService
+	repository     platform.IPlatformRepositoryAsync
+	vaultService   *VaultService
+	client         *redis.Client
+	eventPublisher infra.IEventPublisher
 }
 
 func NewPlatformService(
@@ -33,12 +35,14 @@ func NewPlatformService(
 	repository platform.IPlatformRepositoryAsync,
 	vaultService *VaultService,
 	client *redis.Client,
+	eventPublisher infra.IEventPublisher,
 ) *PlatformService {
 	return &PlatformService{
-		innerService: NewAppService(unitOfWork),
-		repository:   repository,
-		vaultService: vaultService,
-		client:       client,
+		innerService:   NewAppService(unitOfWork),
+		repository:     repository,
+		vaultService:   vaultService,
+		client:         client,
+		eventPublisher: eventPublisher,
 	}
 }
 
@@ -228,6 +232,7 @@ func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
+// this method is considered deprecated. we should create a webhook through the project callback.
 func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	plat, err := tool.HandleAsync(ctx, platCh, errCh)
@@ -423,40 +428,21 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		platform.WithProjectDescription(project.Description),
 	)
 
+	proj.UpdateProviderProjectId(project.ProviderProjectId)
 	if _, err = plat.UpdateProject(*proj); err != nil {
 		return nil, err
 	}
 
-	providerProjectId := project.ProviderProjectId
-	// Regardless of whether sync is successful, the program will continue
-	if project.Operate == "sync" {
-		if provider, err := s.getPlatformProvider(ctx, *plat); err == nil {
-			shouldCreate := len(providerProjectId) == 0
-			if !shouldCreate {
-				projects, _ := s.getProviderProjects(ctx, provider, *plat)
-				shouldCreate = true
-
-				for _, v := range projects {
-					if v.ID == providerProjectId {
-						shouldCreate = false
-						break
-					}
-				}
-			}
-
-			if shouldCreate {
-				if p, err := s.createProviderProject(ctx, provider, proj.Name, proj.Properties); err == nil {
-					providerProjectId = p.ID
-				}
-			}
-		} else {
-			log.Println(err.Error())
+	if project.Operate == "sync" || project.ImportWebhooks {
+		event := models.PlatformProjectUpsertEvent{
+			PlatformId:            plat.Id,
+			ProjectId:             projectId,
+			CreateProviderProject: project.Operate == "sync",
+			ImportWebhooks:        project.ImportWebhooks,
+			EventName:             "upsert_project",
 		}
+		s.eventPublisher.PublishCommon(ctx, event, "upsert_project")
 	}
-
-	proj.UpdateProviderProjectId(providerProjectId)
-	// The status of PlatformProject has been checked before.
-	plat.UpdateProject(*proj)
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
