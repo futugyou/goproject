@@ -678,6 +678,8 @@ definitions:
         maxLength: 250
         minLength: 3
         type: string
+      import_webhooks:
+        type: boolean
       name:
         maxLength: 50
         minLength: 3
