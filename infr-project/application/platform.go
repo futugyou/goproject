@@ -11,6 +11,7 @@ import (
 	"log"
 
 	tool "github.com/futugyou/extensions"
+	"github.com/futugyou/screenshot"
 
 	"github.com/redis/go-redis/v9"
 
@@ -420,8 +421,13 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	}
 
 	var projectDb *platform.PlatformProject
+	screenshot := false
 	if proj, ok := plat.Projects[projectId]; ok {
 		projectDb = &proj
+		if len(project.Url) > 0 && (projectDb.Url != project.Url || len(projectDb.ImageData) == 0) {
+			screenshot = true
+		}
+
 		projectDb.UpdateName(project.Name)
 		projectDb.UpdateDescription(project.Description)
 		projectDb.UpdateProperties(properties)
@@ -438,19 +444,24 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 			platform.WithProjectDescription(project.Description),
 			platform.WithProviderProjectId(project.ProviderProjectId),
 		)
+
+		if len(projectDb.Url) > 0 {
+			screenshot = true
+		}
 	}
 
 	if _, err = plat.UpdateProject(*projectDb); err != nil {
 		return nil, err
 	}
 
-	if project.Operate == "sync" || project.ImportWebhooks {
+	if project.Operate == "sync" || project.ImportWebhooks || screenshot {
 		event := models.PlatformProjectUpsertEvent{
 			PlatformId:            plat.Id,
 			ProjectId:             projectId,
 			CreateProviderProject: project.Operate == "sync",
 			ImportWebhooks:        project.ImportWebhooks,
 			EventName:             "upsert_project",
+			Screenshot:            screenshot,
 		}
 		s.eventPublisher.PublishCommon(ctx, event, "upsert_project")
 	}
@@ -556,57 +567,70 @@ func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event
 		return fmt.Errorf("can not find project with id: %s", event.ProjectId)
 	}
 
-	var provider platformProvider.IPlatformProviderAsync
-	if provider, err = s.getPlatformProvider(ctx, *plat); err != nil {
-		return err
-	}
-
-	providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
-	if providerProject == nil || len(providerProject.ID) == 0 {
-		if event.CreateProviderProject {
-			providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties)
-			if err != nil {
-				return err
-			}
-		}
-
+	if provider, err := s.getPlatformProvider(ctx, *plat); err != nil {
+		log.Println(err.Error())
+	} else {
+		providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
 		if providerProject == nil || len(providerProject.ID) == 0 {
-			return fmt.Errorf("no corresponding provider information with project: %s", event.ProjectId)
-		}
-	}
-
-	project.UpdateProviderProjectId(providerProject.ID)
-
-	if event.ImportWebhooks {
-		project.ClearWebhooks()
-		if len(providerProject.WebHooks) == 0 {
-			var providerHook *platformProvider.WebHook
-			if providerHook, err = s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook"); err != nil {
-				return err
+			if event.CreateProviderProject {
+				if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
+					log.Println(err.Error())
+				}
 			}
 
-			s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
-		} else {
-			for _, providerHook := range providerProject.WebHooks {
-				if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
-					continue
+			if providerProject == nil || len(providerProject.ID) == 0 {
+				log.Printf("no corresponding provider information with project: %s", event.ProjectId)
+			}
+		}
+
+		if providerProject != nil && len(providerProject.ID) > 0 {
+			project.UpdateProviderProjectId(providerProject.ID)
+		}
+
+		if event.ImportWebhooks {
+			project.ClearWebhooks()
+			if len(providerProject.WebHooks) == 0 {
+				var providerHook *platformProvider.WebHook
+				if providerHook, err = s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook"); err != nil {
+					log.Println(err.Error())
 				}
 
-				s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
+				if providerHook != nil {
+					s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
+				}
+			} else {
+				for _, providerHook := range providerProject.WebHooks {
+					if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
+						continue
+					}
+
+					s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
+				}
 			}
+		}
+	}
+
+	if event.Screenshot && len(project.Url) > 0 {
+		sclient := screenshot.NewClient(os.Getenv("SCREENSHOT_API_KEY"))
+		var image_data []byte
+		if os.Getenv("SCREENSHOT_TYPE") == "Apiflash" {
+			image_data, err = sclient.Apiflash.GetScreenshot(ctx, project.Url, map[string]string{"wait_until": "page_loaded", "format": "png"})
+		} else {
+			image_data, err = sclient.Screenshotmachine.GetScreenshot(ctx, project.Url, map[string]string{"dimension": "320x240", "delay": "2000", "format": "png"})
+		}
+		if err != nil {
+			log.Println(err.Error())
+		} else {
+			project.UpdateImageData(image_data)
 		}
 	}
 
 	plat.UpdateProject(*project)
 
-	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+	return s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		return tool.HandleErrorAsync(ctx, errCh)
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (s *PlatformService) setupWebhookWithSecrets(ctx context.Context, providerHook platformProvider.WebHook, plat *platform.Platform, project *platform.PlatformProject) {
