@@ -2296,6 +2296,12 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "image_data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "name": {
                     "type": "string"
                 },

@@ -487,6 +487,10 @@ definitions:
         type: boolean
       id:
         type: string
+      image_data:
+        items:
+          type: integer
+        type: array
       name:
         type: string
       properties:
