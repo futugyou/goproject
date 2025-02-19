@@ -10,6 +10,7 @@ type PlatformProject struct {
 	Description       string
 	Properties        map[string]Property
 	Secrets           map[string]Secret
+	ImageData         []byte
 	Webhooks          []Webhook
 	ProviderProjectId string
 }
@@ -84,6 +85,11 @@ func (w *PlatformProject) UpdateSecrets(secrets map[string]Secret) *PlatformProj
 	return w
 }
 
+func (w *PlatformProject) UpdateImageData(imageData []byte) *PlatformProject {
+	w.ImageData = imageData
+	return w
+}
+
 func (w *PlatformProject) UpsertWebhook(hook Webhook) {
 	for i := 0; i < len(w.Webhooks); i++ {
 		if w.Webhooks[i].Name == hook.Name {
@@ -110,7 +116,7 @@ func (w *PlatformProject) ClearWebhooks() {
 	if w == nil {
 		return
 	}
-	
+
 	w.Webhooks = []Webhook{}
 }
 

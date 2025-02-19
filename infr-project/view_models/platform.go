@@ -84,6 +84,7 @@ type PlatformProject struct {
 	Id                string                  `json:"id"`
 	Name              string                  `json:"name"`
 	Url               string                  `json:"url"`
+	ImageData         []byte                  `json:"image_data"`
 	Description       string                  `json:"description"`
 	Properties        []Property              `json:"properties"`
 	Secrets           []Secret                `json:"secrets"`

@@ -56,6 +56,10 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.ProviderProjectId = value
 	}
 
+	if value, ok := m["image_data"].(primitive.Binary); ok {
+		r.ImageData = value.Data
+	}
+
 	if value, ok := m["properties"].(primitive.A); ok {
 		properties, err := parseArrayToMap[Property](value, marshal, unmarshal)
 		if err != nil {
@@ -112,6 +116,7 @@ func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
 		"webhooks":            r.Webhooks,
 		"provider_project_id": r.ProviderProjectId,
 		"description":         r.Description,
+		"image_data":          r.ImageData,
 	}
 
 	return m

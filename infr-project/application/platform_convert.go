@@ -302,6 +302,7 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		Properties: []models.Property{},
 		Secrets:    []models.Secret{},
 		Webhooks:   []models.Webhook{},
+		ImageData:  []byte{},
 		ProviderProject: models.PlatformProviderProject{
 			WebHooks:             []models.Webhook{},
 			Properties:           []models.Property{},
@@ -316,6 +317,7 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 	if project != nil {
 		modelProject.Id = project.Id
 		modelProject.Description = project.Description
+		modelProject.ImageData = project.ImageData
 		modelProject.Name = project.Name
 		modelProject.Url = project.Url
 		modelProject.Secrets = s.convertToPlatformModelSecrets(project.Secrets)
