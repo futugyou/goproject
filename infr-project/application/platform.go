@@ -419,17 +419,28 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		return nil, err
 	}
 
-	proj := platform.NewPlatformProject(
-		projectId,
-		project.Name,
-		project.Url,
-		platform.WithProjectProperties(properties),
-		platform.WithProjectSecrets(secrets),
-		platform.WithProjectDescription(project.Description),
-	)
+	var projectDb *platform.PlatformProject
+	if proj, ok := plat.Projects[projectId]; ok {
+		projectDb = &proj
+		projectDb.UpdateName(project.Name)
+		projectDb.UpdateDescription(project.Description)
+		projectDb.UpdateProperties(properties)
+		projectDb.UpdateUrl(project.Url)
+		projectDb.UpdateSecrets(secrets)
+		projectDb.UpdateProviderProjectId(project.ProviderProjectId)
+	} else {
+		projectDb = platform.NewPlatformProject(
+			projectId,
+			project.Name,
+			project.Url,
+			platform.WithProjectProperties(properties),
+			platform.WithProjectSecrets(secrets),
+			platform.WithProjectDescription(project.Description),
+			platform.WithProviderProjectId(project.ProviderProjectId),
+		)
+	}
 
-	proj.UpdateProviderProjectId(project.ProviderProjectId)
-	if _, err = plat.UpdateProject(*proj); err != nil {
+	if _, err = plat.UpdateProject(*projectDb); err != nil {
 		return nil, err
 	}
 

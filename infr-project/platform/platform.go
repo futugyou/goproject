@@ -170,7 +170,6 @@ func (w *Platform) UpdateSecrets(secrets map[string]Secret) (*Platform, error) {
 	return w, nil
 }
 
-// this update not include webhook
 func (w *Platform) UpdateProject(project PlatformProject) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
@@ -178,10 +177,6 @@ func (w *Platform) UpdateProject(project PlatformProject) (*Platform, error) {
 
 	if w.Projects == nil {
 		w.Projects = map[string]PlatformProject{}
-	}
-
-	if pro, exists := w.Projects[project.Id]; exists {
-		project.Webhooks = pro.Webhooks
 	}
 
 	if w.Provider == PlatformProviderGithub {

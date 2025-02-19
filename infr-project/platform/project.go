@@ -39,6 +39,12 @@ func WithProjectDescription(description string) ProjectOption {
 	}
 }
 
+func WithProviderProjectId(providerProjectId string) ProjectOption {
+	return func(w *PlatformProject) {
+		w.ProviderProjectId = providerProjectId
+	}
+}
+
 func NewPlatformProject(id string, name string, url string, opts ...ProjectOption) *PlatformProject {
 	project := &PlatformProject{
 		Id:         id,
