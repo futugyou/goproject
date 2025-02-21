@@ -25,7 +25,7 @@ const qstash_url string = "https://qstash.upstash.io"
 
 func NewClient(token string) *QstashClient {
 	c := &QstashClient{
-		http: NewHttpClient(qstash_url, token),
+		http: NewHttpClient(token, qstash_url),
 	}
 	c.initialize()
 	return c
@@ -79,11 +79,15 @@ type QstashHeader struct {
 	ScheduleId                *string           `json:"-"`
 }
 
-func (q QstashHeader) BuilderHeader() map[string]string {
+func (q *QstashHeader) BuilderHeader() map[string]string {
 	header := map[string]string{
 		"Upstash-Method":  "POST",
 		"Upstash-Timeout": "15m",
 		"Upstash-Retries": "3",
+	}
+
+	if q == nil {
+		return header
 	}
 
 	if q.Method != nil {

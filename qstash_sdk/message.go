@@ -109,7 +109,7 @@ type PublishRequest struct {
 func verify(destination string) error {
 	valid := false
 	for _, v := range validProtocol {
-		if strings.HasSuffix(destination, v) {
+		if strings.HasPrefix(destination, v) {
 			valid = true
 			break
 		}

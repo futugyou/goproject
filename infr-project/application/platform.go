@@ -463,7 +463,9 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 			EventName:             "upsert_project",
 			Screenshot:            screenshot,
 		}
-		s.eventPublisher.PublishCommon(ctx, event, "upsert_project")
+		if err := s.eventPublisher.PublishCommon(ctx, event, "upsert_project"); err != nil {
+			log.Println(err.Error())
+		}
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
