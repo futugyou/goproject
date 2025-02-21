@@ -280,7 +280,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			log.Println(err.Error())
 		} else {
 			for _, v := range gitRuns.Environments {
-				environments = append(environments, v.GetEnvironmentName())
+				environments = append(environments, v.GetName())
 			}
 		}
 
