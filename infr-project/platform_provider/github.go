@@ -252,17 +252,23 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		}
 
 		deployments := map[string]Deployment{}
+		// this api can not get deployment status, may be need graphql.
 		if gitDeployments, _, err := g.client.Repositories.ListDeployments(ctx, GITHUB_OWNER, filter.Name, &github.DeploymentsListOptions{
 			ListOptions: github.ListOptions{Page: 1, PerPage: 20},
 		}); err != nil {
 			log.Println(err.Error())
 		} else {
 			for _, v := range gitDeployments {
+				badgeUrl, badgeMarkdown := g.buildGithubCommonBadge(v.GetTask(), "Unknown", v.GetStatusesURL())
 				deployments[fmt.Sprintf("%d", v.GetID())] = Deployment{
-					ID:          fmt.Sprintf("%d", v.GetID()),
-					Name:        v.GetTask(),
-					Environment: v.GetEnvironment(),
-					CreatedAt:   v.GetCreatedAt().Format(time.RFC3339Nano),
+					ID:            fmt.Sprintf("%d", v.GetID()),
+					Name:          v.GetTask(),
+					Environment:   v.GetEnvironment(),
+					ReadyState:    "Unknown",
+					ReadySubstate: "Notexist",
+					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
+					BadgeURL:      badgeUrl,
+					BadgeMarkdown: badgeMarkdown,
 				}
 			}
 		}
@@ -286,7 +292,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			log.Println(err.Error())
 		} else {
 			for _, v := range gitRuns.WorkflowRuns {
-				badgeUrl, badgeMarkdown := g.buildGithubWorkflowBadge(v.GetName(), v.GetStatus(), v.GetHTMLURL())
+				badgeUrl, badgeMarkdown := g.buildGithubCommonBadge(v.GetName(), v.GetStatus(), v.GetHTMLURL())
 				runs[fmt.Sprintf("%d", v.GetID())] = WorkflowRun{
 					ID:            fmt.Sprintf("%d", v.GetID()),
 					Name:          v.GetName(),
@@ -311,11 +317,11 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 	return resultChan, errorChan
 }
 
-func (g *GithubClient) buildGithubWorkflowBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {
+func (g *GithubClient) buildGithubCommonBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {
 	name = extensions.Sanitize2String(name, " ")
 	color := "red"
 	switch status {
-	case "in_progress", "queued", "neutral", "skipped", "waiting", "pending", "action_required":
+	case "in_progress", "queued", "neutral", "skipped", "waiting", "pending", "action_required", "Unknown":
 		color = "yellow"
 	case "completed", "success":
 		color = "brightgreen"
