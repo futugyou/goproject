@@ -11,7 +11,6 @@ import (
 	"log"
 
 	tool "github.com/futugyou/extensions"
-	"github.com/futugyou/screenshot"
 
 	"github.com/redis/go-redis/v9"
 
@@ -569,63 +568,66 @@ func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event
 		return fmt.Errorf("can not find project with id: %s", event.ProjectId)
 	}
 
-	if provider, err := s.getPlatformProvider(ctx, *plat); err != nil {
-		log.Println(err.Error())
-	} else {
-		providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
-		if providerProject == nil || len(providerProject.ID) == 0 {
-			if event.CreateProviderProject {
-				if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
-					log.Println(err.Error())
-				}
-			}
-
-			if providerProject == nil || len(providerProject.ID) == 0 {
-				log.Printf("no corresponding provider information with project: %s", event.ProjectId)
-			}
-		}
-
-		if providerProject != nil && len(providerProject.ID) > 0 {
-			project.UpdateProviderProjectId(providerProject.ID)
-		}
-
-		if event.ImportWebhooks {
-			project.ClearWebhooks()
-			if len(providerProject.WebHooks) == 0 {
-				var providerHook *platformProvider.WebHook
-				if providerHook, err = s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook"); err != nil {
-					log.Println(err.Error())
-				}
-
-				if providerHook != nil {
-					s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
-				}
-			} else {
-				for _, providerHook := range providerProject.WebHooks {
-					if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
-						continue
-					}
-
-					s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
-				}
-			}
-		}
-	}
-
-	if event.Screenshot && len(project.Url) > 0 {
-		sclient := screenshot.NewClient(os.Getenv("SCREENSHOT_API_KEY"))
-		var image_data []byte
-		if os.Getenv("SCREENSHOT_TYPE") == "Apiflash" {
-			image_data, err = sclient.Apiflash.GetScreenshot(ctx, project.Url, map[string]string{"wait_until": "page_loaded", "format": "png"})
-		} else {
-			image_data, err = sclient.Screenshotmachine.GetScreenshot(ctx, project.Url, map[string]string{"dimension": "320x240", "delay": "2000", "format": "png"})
-		}
-		if err != nil {
+	if event.CreateProviderProject || event.ImportWebhooks {
+		if provider, err := s.getPlatformProvider(ctx, *plat); err != nil {
 			log.Println(err.Error())
 		} else {
-			project.UpdateImageData(image_data)
+			providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
+			if providerProject == nil || len(providerProject.ID) == 0 {
+				if event.CreateProviderProject {
+					if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
+						log.Println(err.Error())
+					}
+				}
+
+				if providerProject == nil || len(providerProject.ID) == 0 {
+					log.Printf("no corresponding provider information with project: %s", event.ProjectId)
+				}
+			}
+
+			if providerProject != nil && len(providerProject.ID) > 0 {
+				project.UpdateProviderProjectId(providerProject.ID)
+			}
+
+			if event.ImportWebhooks {
+				project.ClearWebhooks()
+				if len(providerProject.WebHooks) == 0 {
+					var providerHook *platformProvider.WebHook
+					if providerHook, err = s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook"); err != nil {
+						log.Println(err.Error())
+					}
+
+					if providerHook != nil {
+						s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
+					}
+				} else {
+					for _, providerHook := range providerProject.WebHooks {
+						if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
+							continue
+						}
+
+						s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
+					}
+				}
+			}
 		}
 	}
+
+	// Due to limited storage resources, i have to give up this feature. If i find a free CDN in the future, can add it back.
+	// if event.Screenshot && len(project.Url) > 0 && false {
+	// 	sclient := screenshot.NewClient(os.Getenv("SCREENSHOT_API_KEY"))
+	// 	var image_data []byte
+	// 	if os.Getenv("SCREENSHOT_TYPE") == "Apiflash" {
+	// 		image_data, err = sclient.Apiflash.GetScreenshot(ctx, project.Url, map[string]string{"wait_until": "page_loaded", "format": "png"})
+	// 	} else {
+	// 		image_data, err = sclient.Screenshotmachine.GetScreenshot(ctx, project.Url, map[string]string{"dimension": "320x240", "delay": "2000", "format": "png"})
+	// 	}
+	// 	if err != nil {
+	// 		log.Println(err.Error())
+	// 	} else {
+	// 		project.UpdateImageData(image_data)
+	// 	}
+	// }
 
 	plat.UpdateProject(*project)
 
