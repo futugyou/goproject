@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"context"
+	"time"
 
 	"github.com/futugyou/infr-project/domain"
 )
@@ -17,4 +18,5 @@ type WebhookLogSearch struct {
 type IWebhookLogRepository interface {
 	domain.IRepository[WebhookLogs]
 	SearchWebhookLogs(ctx context.Context, filter WebhookLogSearch) ([]WebhookLogs, error)
+	DeleteWebhookLogsByDate(ctx context.Context, filter time.Time) error
 }

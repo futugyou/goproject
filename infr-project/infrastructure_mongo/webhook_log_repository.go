@@ -2,7 +2,9 @@ package infrastructure_mongo
 
 import (
 	"context"
+	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/futugyou/infr-project/extensions"
@@ -39,4 +41,12 @@ func (r *WebhookLogRepository) SearchWebhookLogs(ctx context.Context, filter web
 
 	condition := extensions.NewSearch(nil, nil, nil, f)
 	return r.BaseRepository.GetWithCondition(ctx, condition)
+}
+
+func (r *WebhookLogRepository) DeleteWebhookLogsByDate(ctx context.Context, filter time.Time) error {
+	tenDaysAgoStr := filter.Format(time.RFC3339)
+	a := new(webhook.WebhookLogs)
+	c := r.Client.Database(r.DBName).Collection((*a).AggregateName())
+	_, err := c.DeleteMany(context.Background(), bson.M{"happened_at": bson.M{"$lt": tenDaysAgoStr}})
+	return err
 }
