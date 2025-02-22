@@ -50,3 +50,21 @@ func (r *WebhookLogRepository) DeleteWebhookLogsByDate(ctx context.Context, filt
 	_, err := c.DeleteMany(context.Background(), bson.M{"happened_at": bson.M{"$lt": tenDaysAgoStr}})
 	return err
 }
+
+func (r *WebhookLogRepository) InsertAndDeleteOldData(ctx context.Context, logs []webhook.WebhookLogs, filter time.Time) error {
+	tenDaysAgoStr := filter.Format(time.RFC3339)
+	a := new(webhook.WebhookLogs)
+	c := r.Client.Database(r.DBName).Collection((*a).AggregateName())
+
+	bulkOps := []mongo.WriteModel{
+		mongo.NewDeleteManyModel().SetFilter(bson.M{"happened_at": bson.M{"$lt": tenDaysAgoStr}}),
+	}
+
+	for _, log := range logs {
+		bulkOps = append(bulkOps, mongo.NewInsertOneModel().SetDocument(log))
+	}
+
+	_, err := c.BulkWrite(context.Background(), bulkOps)
+
+	return err
+}
