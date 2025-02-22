@@ -572,43 +572,19 @@ func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event
 		if provider, err := s.getPlatformProvider(ctx, *plat); err != nil {
 			log.Println(err.Error())
 		} else {
-			providerProject := s.getProviderProjectWithCache(ctx, *plat, *project, provider)
-			if providerProject == nil || len(providerProject.ID) == 0 {
-				if event.CreateProviderProject {
-					if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
-						log.Println(err.Error())
-					}
-				}
-
-				if providerProject == nil || len(providerProject.ID) == 0 {
-					log.Printf("no corresponding provider information with project: %s", event.ProjectId)
-				}
+			// 1. providerProject
+			providerProject, err := s.createProviderProjectIfNeeded(ctx, event, *plat, *project, provider)
+			if err != nil {
+				log.Println(err.Error())
 			}
 
 			if providerProject != nil && len(providerProject.ID) > 0 {
 				project.UpdateProviderProjectId(providerProject.ID)
 			}
 
-			if event.ImportWebhooks {
-				project.ClearWebhooks()
-				if len(providerProject.WebHooks) == 0 {
-					var providerHook *platformProvider.WebHook
-					if providerHook, err = s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook"); err != nil {
-						log.Println(err.Error())
-					}
-
-					if providerHook != nil {
-						s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
-					}
-				} else {
-					for _, providerHook := range providerProject.WebHooks {
-						if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
-							continue
-						}
-
-						s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
-					}
-				}
+			// 2. webhook
+			if err := s.handleWebhooks(ctx, event, providerProject, plat, project); err != nil {
+				log.Println(err.Error())
 			}
 		}
 	}
@@ -644,4 +620,54 @@ func (s *PlatformService) setupWebhookWithSecrets(ctx context.Context, providerH
 	newhook.UpdateSecrets(hookSecrets)
 	newhook.UpdateProviderHookId(providerHook.ID)
 	project.UpsertWebhook(*newhook)
+}
+
+func (s *PlatformService) createProviderProjectIfNeeded(ctx context.Context, event models.PlatformProjectUpsertEvent,
+	plat platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) (*platformProvider.Project, error) {
+
+	providerProject := s.getProviderProjectWithCache(ctx, plat, project, provider)
+	if providerProject == nil || len(providerProject.ID) == 0 {
+		if event.CreateProviderProject {
+			var err error
+			if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
+				return nil, err
+			}
+		}
+
+		if providerProject == nil || len(providerProject.ID) == 0 {
+			log.Printf("no corresponding provider information with project: %s", event.ProjectId)
+		}
+	}
+
+	return providerProject, nil
+}
+
+func (s *PlatformService) handleWebhooks(ctx context.Context, event models.PlatformProjectUpsertEvent,
+	providerProject *platformProvider.Project, plat *platform.Platform, project *platform.PlatformProject) error {
+
+	if providerProject == nil || len(providerProject.ID) == 0 && !event.ImportWebhooks {
+		return nil
+	}
+
+	project.ClearWebhooks()
+	if len(providerProject.WebHooks) == 0 {
+		providerHook, err := s.handlingProviderWebhookCreation(ctx, plat, *project, "infr-project-webhook")
+		if err != nil {
+			return err
+		}
+
+		if providerHook != nil {
+			s.setupWebhookWithSecrets(ctx, *providerHook, plat, project)
+		}
+	} else {
+		for _, providerHook := range providerProject.WebHooks {
+			if !strings.HasPrefix(providerHook.Url, os.Getenv("PROJECT_URL")) {
+				continue
+			}
+
+			s.setupWebhookWithSecrets(ctx, providerHook, plat, project)
+		}
+	}
+
+	return nil
 }
