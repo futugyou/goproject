@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	models "github.com/futugyou/infr-project/view_models"
 	"github.com/futugyou/infr-project/webhook"
@@ -36,7 +37,8 @@ func (s *WebhookService) ProviderWebhookCallback(ctx context.Context, data model
 		return fmt.Errorf("signature verification failed")
 	}
 
-	return s.repository.Insert(ctx, *webhookLog)
+	tenDaysAgo := time.Now().Add(-10 * 24 * time.Hour) // 10 days ago
+	return s.repository.InsertAndDeleteOldData(ctx, []webhook.WebhookLogs{*webhookLog}, tenDaysAgo)
 }
 
 func (s *WebhookService) VerifyTesting(ctx context.Context) ([]models.VerifyResponse, error) {
