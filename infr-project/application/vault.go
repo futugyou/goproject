@@ -15,8 +15,8 @@ import (
 )
 
 type VaultService struct {
-	innerService  *AppService
-	repository    vault.IVaultRepositoryAsync
+	innerService   *AppService
+	repository     vault.IVaultRepositoryAsync
 	eventPublisher infra.IEventPublisher
 }
 
@@ -26,8 +26,8 @@ func NewVaultService(
 	eventPublisher infra.IEventPublisher,
 ) *VaultService {
 	return &VaultService{
-		innerService:  NewAppService(unitOfWork),
-		repository:    repository,
+		innerService:   NewAppService(unitOfWork),
+		repository:     repository,
 		eventPublisher: eventPublisher,
 	}
 }
@@ -225,11 +225,11 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 				return fmt.Errorf("ChangeVault timeout: %w", ctx.Err())
 			}
 
+			s.eventPublisher.PublishCommon(ctx, data, "vault_changed")
+
 			if data.StorageMedia == vault.StorageMediaLocal {
 				return nil
 			}
-
-			s.eventPublisher.PublishCommon(ctx, data, "vault_changed")
 
 			return s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value})
 		}); err != nil {

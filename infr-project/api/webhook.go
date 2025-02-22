@@ -19,6 +19,7 @@ import (
 	"github.com/futugyou/infr-project/controller"
 	tool "github.com/futugyou/infr-project/extensions"
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
+	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
@@ -159,15 +160,66 @@ func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWri
 }
 
 func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	query := r.URL.Query()
+	if len(query["event"]) == 0 {
+		w.WriteHeader(200)
+		return
+	}
+
+	ctx := r.Context()
+	var err error
 	bodyBytes, _ := io.ReadAll(r.Body)
 	defer r.Body.Close()
+	event := query["event"][0]
 
-	query := r.URL.Query()
+	switch event {
+	case "upsert_project":
+		var data models.PlatformProjectUpsertEvent
+		if err = json.Unmarshal(bodyBytes, &data); err != nil {
+			w.WriteHeader(500)
+			return
+		}
 
-	w.Write(bodyBytes)
-	if len(query["event"]) > 0 {
-		w.Write([]byte(query["event"][0]))
+		service, err := createPlatformService(ctx)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+
+		if err = service.HandlePlatformProjectUpsert(ctx, data); err != nil {
+			w.WriteHeader(500)
+			return
+		}
+	case "vault_changed":
 	}
 
 	w.WriteHeader(200)
+}
+
+func createPlatformService(ctx context.Context) (*application.PlatformService, error) {
+	config := infra.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
+	if err != nil {
+		return nil, err
+	}
+
+	unitOfWork, err := infra.NewMongoUnitOfWork(client)
+	if err != nil {
+		return nil, err
+	}
+
+	redisClient, err := tool.RedisClient(os.Getenv("REDIS_URL"))
+	if err != nil {
+		return nil, err
+	}
+
+	repo := infra.NewPlatformRepository(client, config)
+	vaultRepo := infra.NewVaultRepository(client, config)
+	eventPublisher := publisher.NewQStashEventPulisher(os.Getenv("QSTASH_TOKEN"), os.Getenv("QSTASH_DESTINATION"))
+	vaultService := application.NewVaultService(unitOfWork, vaultRepo, eventPublisher)
+	return application.NewPlatformService(unitOfWork, repo, vaultService, redisClient, eventPublisher), nil
 }
