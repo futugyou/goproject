@@ -244,3 +244,51 @@ type ContentInfo struct {
 	ModTime      int64  `json:"modTime"`
 	ParentFolder string `json:"parentFolder"`
 }
+
+func (s *ContentService) DeleteContent(ctx context.Context, request DeleteContentRequest) (*DeleteContentResponse, error) {
+	path := "https://api.gofile.io/contents"
+
+	payloadBytes, _ := json.Marshal(request)
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("DELETE", path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+s.client.key)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("delete content error, status code: %v", resp.StatusCode)
+	}
+
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteContentResponse{}
+	if err = json.Unmarshal(all, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type DeleteContentRequest struct {
+	ContentId string `json:"contentsId"`
+}
+
+type DeleteContentResponse struct {
+	Status string `json:"status"`
+}
