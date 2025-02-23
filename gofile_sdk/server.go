@@ -25,10 +25,15 @@ func (s *ServerService) GetServer(ctx context.Context) (*ServerResponse, error) 
 	defer resp.Body.Close()
 
 	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	response := &ServerResponse{}
 	if err = json.Unmarshal(all, response); err != nil {
 		return nil, err
 	}
+
 	return response, nil
 }
 
