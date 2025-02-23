@@ -8,6 +8,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 )
 
 type ContentService service
@@ -291,4 +292,110 @@ type DeleteContentRequest struct {
 
 type DeleteContentResponse struct {
 	Status string `json:"status"`
+}
+
+// this api return 401, so I can't test it
+func (s *ContentService) GetContent(ctx context.Context, request GetContentRequest) (*GetContentResponse, error) {
+	u, _ := url.Parse(fmt.Sprintf("https://api.gofile.io/contents/%s", request.ContentId))
+	params := url.Values{}
+	if request.Password != nil {
+		params.Add("password", *request.Password)
+	}
+
+	u.RawQuery = params.Encode()
+	path := u.String()
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+s.client.key)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("get content error, status code: %v", resp.StatusCode)
+	}
+
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetContentResponse{}
+	if err = json.Unmarshal(all, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type GetContentRequest struct {
+	ContentId string
+	Password  *string
+}
+
+type GetContentResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
+}
+
+// this api return 401, so I can't test it
+func (s *ContentService) SearchContent(ctx context.Context, request SearchContentRequest) (*SearchContentResponse, error) {
+	u, _ := url.Parse("https://api.gofile.io/contents/search")
+	params := url.Values{}
+	params.Add("contentId", request.ContentId)
+	params.Add("searchedString", request.SearchedString)
+
+	u.RawQuery = params.Encode()
+	path := u.String()
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+s.client.key)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("search content error, status code: %v", resp.StatusCode)
+	}
+
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchContentResponse{}
+	if err = json.Unmarshal(all, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type SearchContentRequest struct {
+	ContentId      string
+	SearchedString string
+}
+type SearchContentResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
 }
