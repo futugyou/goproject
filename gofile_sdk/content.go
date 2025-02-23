@@ -173,3 +173,74 @@ type FolderData struct {
 	ModTime      int64  `json:"modTime"`
 	Code         string `json:"code"`
 }
+
+func (s *ContentService) UpdateContent(ctx context.Context, request UpdateContentRequest) (*UpdateContentResponse, error) {
+	path := fmt.Sprintf("https://api.gofile.io/contents/%s/update", request.ContentId)
+
+	payloadBytes, _ := json.Marshal(request)
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("PUT", path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+s.client.key)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("update content error, status code: %v", resp.StatusCode)
+	}
+
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateContentResponse{}
+	if err = json.Unmarshal(all, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+// name: Content name (files & folders)
+//
+// description: Download page description (folders only)
+//
+// tags: Comma-separated tags (folders only)
+//
+// public: Public access status (folders only)
+//
+// expiry: Expiration date timestamp (folders only)
+//
+// password: Access password (folders only)
+type UpdateContentRequest struct {
+	ContentId      string `json:"-"`
+	Attribute      string `json:"attribute"`
+	AttributeValue string `json:"attributeValue"`
+}
+
+type UpdateContentResponse struct {
+	Status string      `json:"status"`
+	Data   ContentInfo `json:"data"`
+}
+
+type ContentInfo struct {
+	ID           string `json:"id"`
+	Type         string `json:"type"`
+	Name         string `json:"name"`
+	CreateTime   int64  `json:"createTime"`
+	ModTime      int64  `json:"modTime"`
+	ParentFolder string `json:"parentFolder"`
+}
