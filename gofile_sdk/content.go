@@ -113,3 +113,63 @@ type FileData struct {
 	Size             int64    `json:"size"`
 	Type             string   `json:"type"`
 }
+
+func (s *ContentService) CreateFolder(ctx context.Context, request CreateFolderRequest) (*CreateFolderResponse, error) {
+	path := "https://api.gofile.io/contents/createFolder"
+	payloadBytes, _ := json.Marshal(request)
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", path, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Authorization", "Bearer "+s.client.key)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("create folder error, status code: %v", resp.StatusCode)
+	}
+
+	all, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateFolderResponse{}
+	if err = json.Unmarshal(all, response); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type CreateFolderRequest struct {
+	FolderName     *string `json:"folderName"`
+	ParentFolderId string  `json:"parentFolderId"`
+}
+
+type CreateFolderResponse struct {
+	Status string     `json:"status"`
+	Data   FolderData `json:"data"`
+}
+
+type FolderData struct {
+	ID           string `json:"id"`
+	Owner        string `json:"owner"`
+	Type         string `json:"type"`
+	Name         string `json:"name"`
+	ParentFolder string `json:"parentFolder"`
+	CreateTime   int64  `json:"createTime"`
+	ModTime      int64  `json:"modTime"`
+	Code         string `json:"code"`
+}
