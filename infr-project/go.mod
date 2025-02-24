@@ -13,7 +13,6 @@ require (
 	github.com/futugyou/circleci v0.0.0-00010101000000-000000000000
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyou/qstash v0.0.0-00010101000000-000000000000
-	github.com/futugyou/screenshot v0.0.0-00010101000000-000000000000
 	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/gin-gonic/gin v1.10.0
@@ -24,7 +23,7 @@ require (
 	github.com/hashicorp/go-tfe v1.75.0
 	github.com/hashicorp/hcp-sdk-go v0.136.0
 	github.com/joho/godotenv v1.5.1
-	github.com/redis/go-redis/v9 v9.7.0
+	github.com/redis/go-redis/v9 v9.7.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
