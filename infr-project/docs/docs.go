@@ -1177,9 +1177,7 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/secret_service.OpenAppSecretOK"
-                        }
+                        "schema": {}
                     }
                 }
             }
@@ -1659,138 +1657,6 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
-                }
-            }
-        },
-        "models.Secrets20230613OpenAppSecretResponse": {
-            "type": "object",
-            "properties": {
-                "secret": {
-                    "description": "secret",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Secrets20230613OpenSecret"
-                        }
-                    ]
-                }
-            }
-        },
-        "models.Secrets20230613OpenSecret": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "description": "created at\nFormat: date-time",
-                    "type": "string"
-                },
-                "created_by": {
-                    "description": "created by",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Secrets20230613Principal"
-                        }
-                    ]
-                },
-                "created_by_id": {
-                    "description": "created by id",
-                    "type": "string"
-                },
-                "latest_version": {
-                    "description": "latest version",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "name",
-                    "type": "string"
-                },
-                "sync_status": {
-                    "description": "sync status",
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/models.Secrets20230613SyncStatus"
-                    }
-                },
-                "version": {
-                    "description": "version",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Secrets20230613OpenSecretVersion"
-                        }
-                    ]
-                }
-            }
-        },
-        "models.Secrets20230613OpenSecretVersion": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "description": "created at\nFormat: date-time",
-                    "type": "string"
-                },
-                "created_by": {
-                    "description": "created by",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Secrets20230613Principal"
-                        }
-                    ]
-                },
-                "created_by_id": {
-                    "description": "created by id",
-                    "type": "string"
-                },
-                "type": {
-                    "description": "type",
-                    "type": "string"
-                },
-                "value": {
-                    "description": "value",
-                    "type": "string"
-                },
-                "version": {
-                    "description": "version",
-                    "type": "string"
-                }
-            }
-        },
-        "models.Secrets20230613Principal": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "description": "email",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "name",
-                    "type": "string"
-                },
-                "type": {
-                    "description": "type",
-                    "type": "string"
-                }
-            }
-        },
-        "models.Secrets20230613SyncStatus": {
-            "type": "object",
-            "properties": {
-                "last_error_code": {
-                    "description": "last error code",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "status",
-                    "type": "string"
-                },
-                "updated_at": {
-                    "description": "updated at\nFormat: date-time",
-                    "type": "string"
-                }
-            }
-        },
-        "secret_service.OpenAppSecretOK": {
-            "type": "object",
-            "properties": {
-                "payload": {
-                    "$ref": "#/definitions/models.Secrets20230613OpenAppSecretResponse"
                 }
             }
         },
@@ -2301,6 +2167,9 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "image_url": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

@@ -37,98 +37,6 @@ definitions:
       value:
         type: string
     type: object
-  models.Secrets20230613OpenAppSecretResponse:
-    properties:
-      secret:
-        allOf:
-        - $ref: '#/definitions/models.Secrets20230613OpenSecret'
-        description: secret
-    type: object
-  models.Secrets20230613OpenSecret:
-    properties:
-      created_at:
-        description: |-
-          created at
-          Format: date-time
-        type: string
-      created_by:
-        allOf:
-        - $ref: '#/definitions/models.Secrets20230613Principal'
-        description: created by
-      created_by_id:
-        description: created by id
-        type: string
-      latest_version:
-        description: latest version
-        type: string
-      name:
-        description: name
-        type: string
-      sync_status:
-        additionalProperties:
-          $ref: '#/definitions/models.Secrets20230613SyncStatus'
-        description: sync status
-        type: object
-      version:
-        allOf:
-        - $ref: '#/definitions/models.Secrets20230613OpenSecretVersion'
-        description: version
-    type: object
-  models.Secrets20230613OpenSecretVersion:
-    properties:
-      created_at:
-        description: |-
-          created at
-          Format: date-time
-        type: string
-      created_by:
-        allOf:
-        - $ref: '#/definitions/models.Secrets20230613Principal'
-        description: created by
-      created_by_id:
-        description: created by id
-        type: string
-      type:
-        description: type
-        type: string
-      value:
-        description: value
-        type: string
-      version:
-        description: version
-        type: string
-    type: object
-  models.Secrets20230613Principal:
-    properties:
-      email:
-        description: email
-        type: string
-      name:
-        description: name
-        type: string
-      type:
-        description: type
-        type: string
-    type: object
-  models.Secrets20230613SyncStatus:
-    properties:
-      last_error_code:
-        description: last error code
-        type: string
-      status:
-        description: status
-        type: string
-      updated_at:
-        description: |-
-          updated at
-          Format: date-time
-        type: string
-    type: object
-  secret_service.OpenAppSecretOK:
-    properties:
-      payload:
-        $ref: '#/definitions/models.Secrets20230613OpenAppSecretResponse'
-    type: object
   viewmodels.ChangeVaultItem:
     properties:
       description:
@@ -491,6 +399,8 @@ definitions:
         items:
           type: integer
         type: array
+      image_url:
+        type: string
       name:
         type: string
       properties:
@@ -1736,8 +1646,7 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/secret_service.OpenAppSecretOK'
+          schema: {}
       summary: vault
       tags:
       - Test

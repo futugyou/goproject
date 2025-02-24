@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 
 	"github.com/futugyou/circleci"
 	"github.com/futugyou/vercel"
@@ -137,7 +136,7 @@ func circleciProjectList(c *gin.Context) {
 // @Tags Test
 // @Accept json
 // @Produce json
-// @Success 200 {object}  secret_service.OpenAppSecretOK
+// @Success 200 {object}  interface{}
 // @Router /v1/test/vault [get]
 func vaultSecret(c *gin.Context) {
 	f := sdk.NewVaultClient()

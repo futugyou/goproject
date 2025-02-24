@@ -318,6 +318,7 @@ func (s *PlatformService) mergeProject(providerProject *platformProvider.Project
 		modelProject.Id = project.Id
 		modelProject.Description = project.Description
 		modelProject.ImageData = project.ImageData
+		modelProject.ImageUrl = project.ImageUrl
 		modelProject.Name = project.Name
 		modelProject.Url = project.Url
 		modelProject.Secrets = s.convertToPlatformModelSecrets(project.Secrets)

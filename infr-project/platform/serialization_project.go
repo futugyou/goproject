@@ -56,6 +56,10 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.ProviderProjectId = value
 	}
 
+	if value, ok := m["image_url"].(string); ok {
+		r.ImageUrl = value
+	}
+
 	if value, ok := m["image_data"].(primitive.Binary); ok {
 		r.ImageData = value.Data
 	}
@@ -117,6 +121,7 @@ func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
 		"provider_project_id": r.ProviderProjectId,
 		"description":         r.Description,
 		"image_data":          r.ImageData,
+		"image_url":           r.ImageUrl,
 	}
 
 	return m

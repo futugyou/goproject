@@ -11,6 +11,7 @@ type PlatformProject struct {
 	Properties        map[string]Property
 	Secrets           map[string]Secret
 	ImageData         []byte
+	ImageUrl          string
 	Webhooks          []Webhook
 	ProviderProjectId string
 }
@@ -93,6 +94,11 @@ func (w *PlatformProject) UpdateSecrets(secrets map[string]Secret) *PlatformProj
 
 func (w *PlatformProject) UpdateImageData(imageData []byte) *PlatformProject {
 	w.ImageData = imageData
+	return w
+}
+
+func (w *PlatformProject) UpdateImageUrl(url string) *PlatformProject {
+	w.ImageUrl = url
 	return w
 }
 
