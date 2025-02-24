@@ -14,6 +14,8 @@ require (
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyou/qstash v0.0.0-00010101000000-000000000000
 	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
+	github.com/futugyou/screenshot v0.0.0-00010101000000-000000000000
+	github.com/futugyou/gofile v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.25.0
@@ -147,5 +149,7 @@ replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../
 replace github.com/futugyou/qstash v0.0.0-00010101000000-000000000000 => ../qstash_sdk
 
 replace github.com/futugyou/screenshot v0.0.0-00010101000000-000000000000 => ../screenshot_sdk
+
+replace github.com/futugyou/gofile v0.0.0-00010101000000-000000000000 => ../gofile_sdk
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
