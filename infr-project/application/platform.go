@@ -4,11 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
-
-	"log"
 
 	tool "github.com/futugyou/extensions"
 
@@ -28,6 +27,7 @@ type PlatformService struct {
 	vaultService   *VaultService
 	client         *redis.Client
 	eventPublisher infra.IEventPublisher
+	screenshot     infra.IScreenshot
 }
 
 func NewPlatformService(
@@ -36,6 +36,7 @@ func NewPlatformService(
 	vaultService *VaultService,
 	client *redis.Client,
 	eventPublisher infra.IEventPublisher,
+	screenshot infra.IScreenshot,
 ) *PlatformService {
 	return &PlatformService{
 		innerService:   NewAppService(unitOfWork),
@@ -43,6 +44,7 @@ func NewPlatformService(
 		vaultService:   vaultService,
 		client:         client,
 		eventPublisher: eventPublisher,
+		screenshot:     screenshot,
 	}
 }
 
@@ -423,7 +425,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	screenshot := false
 	if proj, ok := plat.Projects[projectId]; ok {
 		projectDb = &proj
-		if len(project.Url) > 0 && (projectDb.Url != project.Url || len(projectDb.ImageData) == 0) {
+		if len(project.Url) > 0 && (projectDb.Url != project.Url || len(projectDb.ImageUrl) == 0) {
 			screenshot = true
 		}
 
@@ -589,21 +591,13 @@ func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event
 		}
 	}
 
-	// Due to limited storage resources, i have to give up this feature. If i find a free CDN in the future, can add it back.
-	// if event.Screenshot && len(project.Url) > 0 && false {
-	// 	sclient := screenshot.NewClient(os.Getenv("SCREENSHOT_API_KEY"))
-	// 	var image_data []byte
-	// 	if os.Getenv("SCREENSHOT_TYPE") == "Apiflash" {
-	// 		image_data, err = sclient.Apiflash.GetScreenshot(ctx, project.Url, map[string]string{"wait_until": "page_loaded", "format": "png"})
-	// 	} else {
-	// 		image_data, err = sclient.Screenshotmachine.GetScreenshot(ctx, project.Url, map[string]string{"dimension": "320x240", "delay": "2000", "format": "png"})
-	// 	}
-	// 	if err != nil {
-	// 		log.Println(err.Error())
-	// 	} else {
-	// 		project.UpdateImageData(image_data)
-	// 	}
-	// }
+	if event.Screenshot && len(project.Url) > 0 && os.Getenv("SCREENSHOT_ALLOW") != "false" {
+		if imageUrl, err := s.screenshot.Create(ctx, project.Url); err != nil {
+			log.Println(err.Error())
+		} else {
+			project.UpdateImageUrl(*imageUrl)
+		}
+	}
 
 	plat.UpdateProject(*project)
 
