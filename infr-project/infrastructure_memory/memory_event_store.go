@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/infrastructure"
+	"github.com/futugyou/infr-project/options"
 )
 
 type MemoryEventStore[Event domain.IDomainEvent] struct {
@@ -99,4 +101,12 @@ func (s *MemoryEventStore[Event]) SaveAsync(ctx context.Context, events []Event)
 	}()
 
 	return errorChan
+}
+
+func init() {
+	infrastructure.DefaultEventStoreRegistry.RegisterComponent(func(option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
+		return NewMemoryEventStore[domain.IDomainEvent]()
+	}, func(option options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent] {
+		return NewMemoryEventStore[domain.IDomainEvent]()
+	}, "mongo")
 }

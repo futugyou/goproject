@@ -48,6 +48,7 @@ type Options struct {
 	GoFileServer            string
 	GoFileFolder            string
 	EventPublisher          string
+	EventStore              string
 }
 
 func New(origArgs []string) (*Options, error) {
@@ -93,6 +94,7 @@ func New(origArgs []string) (*Options, error) {
 		GoFileServer:            os.Getenv("GOFILE_SERVER"),
 		GoFileFolder:            os.Getenv("GOFILE_FOLDER"),
 		EventPublisher:          GetEnvWithDefault("EVENT_PUBLISHER", "qstash"),
+		EventStore:              GetEnvWithDefault("EVENT_STORE", "mongo"),
 	}
 
 	return opts, nil
