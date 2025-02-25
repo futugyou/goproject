@@ -12,10 +12,10 @@ require (
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/circleci v0.0.0-00010101000000-000000000000
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
-	github.com/futugyou/qstash v0.0.0-00010101000000-000000000000
-	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
-	github.com/futugyou/screenshot v0.0.0-00010101000000-000000000000
 	github.com/futugyou/gofile v0.0.0-00010101000000-000000000000
+	github.com/futugyou/qstash v0.0.0-00010101000000-000000000000
+	github.com/futugyou/screenshot v0.0.0-00010101000000-000000000000
+	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.25.0
@@ -30,7 +30,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
 	go.mongodb.org/mongo-driver v1.17.2
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
