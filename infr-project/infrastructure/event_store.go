@@ -22,8 +22,8 @@ type IEventStoreAsync[Event domain.IDomainEvent] interface {
 
 type EventStoreRegistry struct {
 	Options     *options.Options
-	events      map[string]func(options.Options) IEventStore[domain.IDomainEvent]
-	eventAsyncs map[string]func(options.Options) IEventStoreAsync[domain.IDomainEvent]
+	stores      map[string]func(options.Options) IEventStore[domain.IDomainEvent]
+	storeAsyncs map[string]func(options.Options) IEventStoreAsync[domain.IDomainEvent]
 }
 
 var DefaultEventStoreRegistry *EventStoreRegistry = NewEventStoreRegistry()
@@ -31,15 +31,15 @@ var DefaultEventStoreRegistry *EventStoreRegistry = NewEventStoreRegistry()
 func NewEventStoreRegistry() *EventStoreRegistry {
 	return &EventStoreRegistry{
 		Options:     &options.Options{},
-		events:      map[string]func(options.Options) IEventStore[domain.IDomainEvent]{},
-		eventAsyncs: map[string]func(options.Options) IEventStoreAsync[domain.IDomainEvent]{},
+		stores:      map[string]func(options.Options) IEventStore[domain.IDomainEvent]{},
+		storeAsyncs: map[string]func(options.Options) IEventStoreAsync[domain.IDomainEvent]{},
 	}
 }
 
 func (s *EventStoreRegistry) RegisterComponent(componentFactory func(options.Options) IEventStore[domain.IDomainEvent], componentAsyncFactory func(options.Options) IEventStoreAsync[domain.IDomainEvent], names ...string) {
 	for _, name := range names {
-		s.events[fmt.Sprintf("event-store-%s", name)] = componentFactory
-		s.eventAsyncs[fmt.Sprintf("event-store-async-%s", name)] = componentAsyncFactory
+		s.stores[fmt.Sprintf("event-store-%s", name)] = componentFactory
+		s.storeAsyncs[fmt.Sprintf("event-store-async-%s", name)] = componentAsyncFactory
 	}
 }
 
@@ -48,9 +48,9 @@ func (s *EventStoreRegistry) Create() (IEventStore[domain.IDomainEvent], IEventS
 		return nil, nil, fmt.Errorf("options is nil")
 	}
 
-	name := s.Options.EventStore
-	if method, ok := s.events[fmt.Sprintf("event-store-%s", name)]; ok {
-		if methodasync, ok2 := s.eventAsyncs[fmt.Sprintf("event-store-async-%s", name)]; ok2 {
+	name := s.Options.StoreType
+	if method, ok := s.stores[fmt.Sprintf("event-store-%s", name)]; ok {
+		if methodasync, ok2 := s.storeAsyncs[fmt.Sprintf("event-store-async-%s", name)]; ok2 {
 			return method(*s.Options), methodasync(*s.Options), nil
 		}
 	}

@@ -14,21 +14,21 @@ type IEventPublisher interface {
 }
 
 type EventPublisherRegistry struct {
-	Options *options.Options
-	events  map[string]func(options.Options) IEventPublisher
+	Options    *options.Options
+	publishers map[string]func(options.Options) IEventPublisher
 }
 
 var DefaultEventPublisherRegistry *EventPublisherRegistry = NewEventPublisherRegistry()
 
 func NewEventPublisherRegistry() *EventPublisherRegistry {
 	return &EventPublisherRegistry{
-		events: map[string]func(options.Options) IEventPublisher{},
+		publishers: map[string]func(options.Options) IEventPublisher{},
 	}
 }
 
 func (s *EventPublisherRegistry) RegisterComponent(componentFactory func(options.Options) IEventPublisher, names ...string) {
 	for _, name := range names {
-		s.events[fmt.Sprintf("event-publisher-%s", name)] = componentFactory
+		s.publishers[fmt.Sprintf("event-publisher-%s", name)] = componentFactory
 	}
 }
 
@@ -38,7 +38,7 @@ func (s *EventPublisherRegistry) Create() (IEventPublisher, error) {
 	}
 
 	name := s.Options.EventPublisher
-	if method, ok := s.events[fmt.Sprintf("event-publisher-%s", name)]; ok {
+	if method, ok := s.publishers[fmt.Sprintf("event-publisher-%s", name)]; ok {
 		return method(*s.Options), nil
 	}
 	return nil, fmt.Errorf("couldn't find event publisher %s", name)
