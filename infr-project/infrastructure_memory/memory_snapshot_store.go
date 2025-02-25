@@ -70,5 +70,5 @@ func init() {
 		return NewMemorySnapshotStore[domain.IEventSourcing]()
 	}, func(option options.Options) infrastructure.ISnapshotStoreAsync[domain.IEventSourcing] {
 		return NewMemorySnapshotStore[domain.IEventSourcing]()
-	}, "mongo")
+	}, "memory")
 }

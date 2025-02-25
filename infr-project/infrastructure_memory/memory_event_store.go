@@ -108,5 +108,5 @@ func init() {
 		return NewMemoryEventStore[domain.IDomainEvent]()
 	}, func(option options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent] {
 		return NewMemoryEventStore[domain.IDomainEvent]()
-	}, "mongo")
+	}, "memory")
 }
