@@ -8,6 +8,8 @@ import (
 	"github.com/futugyou/qstash"
 
 	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/infrastructure"
+	"github.com/futugyou/infr-project/options"
 )
 
 type QStashEventPulisher struct {
@@ -60,4 +62,10 @@ func (q *QStashEventPulisher) PublishCommon(ctx context.Context, event any, even
 
 	_, err = q.client.Message.Publish(ctx, qstashRequest)
 	return err
+}
+
+func init() {
+	infrastructure.DefaultEventPublisherRegistry.RegisterComponent(func(option options.Options) infrastructure.IEventPublisher {
+		return NewQStashEventPulisher(option.QstashToken, option.QstashDestination)
+	}, "qstash")
 }

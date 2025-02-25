@@ -47,6 +47,7 @@ type Options struct {
 	GoFileToken             string
 	GoFileServer            string
 	GoFileFolder            string
+	EventPublisher          string
 }
 
 func New(origArgs []string) (*Options, error) {
@@ -91,7 +92,16 @@ func New(origArgs []string) (*Options, error) {
 		GoFileToken:             os.Getenv("GOFILE_TOKEN"),
 		GoFileServer:            os.Getenv("GOFILE_SERVER"),
 		GoFileFolder:            os.Getenv("GOFILE_FOLDER"),
+		EventPublisher:          GetEnvWithDefault("EVENT_PUBLISHER", "qstash"),
 	}
 
 	return opts, nil
+}
+
+func GetEnvWithDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
