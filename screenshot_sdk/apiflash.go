@@ -192,7 +192,7 @@ func (s *ApiflashService) GetScreenshot(ctx context.Context, path string, header
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
+	req = req.WithContext(ctx)
 	resp, err := s.client.http.Do(req)
 	if err != nil {
 		return []byte{}, err

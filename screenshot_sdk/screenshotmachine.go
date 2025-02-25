@@ -74,7 +74,7 @@ func (s *ScreenshotmachineService) GetScreenshot(ctx context.Context, path strin
 	}
 
 	request.URL.RawQuery = data.Encode()
-
+	request = request.WithContext(ctx)
 	resp, err := s.client.http.Do(request)
 	if err != nil {
 		return []byte{}, err
