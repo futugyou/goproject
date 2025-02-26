@@ -1,6 +1,8 @@
 package component
 
 import (
+	"context"
+
 	"github.com/futugyou/infr-project/domain"
 	memory "github.com/futugyou/infr-project/infrastructure_memory"
 	"github.com/futugyou/infr-project/options"
@@ -8,9 +10,9 @@ import (
 )
 
 func init() {
-	unit.DefaultRegistry.RegisterComponent(func(option options.Options) domain.IUnitOfWork {
+	unit.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) domain.IUnitOfWork {
 		return memory.NewMemoryUnitOfWork()
-	}, func(option options.Options) domain.IUnitOfWorkAsync {
+	}, func(ctx context.Context, option options.Options) domain.IUnitOfWorkAsync {
 		return memory.NewMemoryUnitOfWork()
 	}, "memory")
 }

@@ -18,16 +18,14 @@ func init() {
 	create := func(eventType string) (domain.IDomainEvent, error) {
 		return resource.CreateEvent(eventType)
 	}
-	event_store.DefaultRegistry.RegisterComponent(func(option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
-		ctx := context.Background()
+	event_store.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
 		config := infrastructure_mongo.DBConfig{
 			DBName:        option.DBName,
 			ConnectString: option.MongoDBURL,
 		}
 		client, _ := mongo.Connect(ctx, mongo_options.Client().ApplyURI(config.ConnectString))
 		return infrastructure_mongo.NewMongoEventStore(client, config, "resource_events", create)
-	}, func(option options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent] {
-		ctx := context.Background()
+	}, func(ctx context.Context, option options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent] {
 		config := infrastructure_mongo.DBConfig{
 			DBName:        option.DBName,
 			ConnectString: option.MongoDBURL,

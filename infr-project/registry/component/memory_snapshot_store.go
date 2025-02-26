@@ -1,6 +1,8 @@
 package component
 
 import (
+	"context"
+
 	"github.com/futugyou/infr-project/domain"
 	"github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/infrastructure_memory"
@@ -9,9 +11,9 @@ import (
 )
 
 func init() {
-	snapshot_store.DefaultRegistry.RegisterComponent(func(option options.Options) infrastructure.ISnapshotStore[domain.IEventSourcing] {
+	snapshot_store.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) infrastructure.ISnapshotStore[domain.IEventSourcing] {
 		return infrastructure_memory.NewMemorySnapshotStore[domain.IEventSourcing]()
-	}, func(option options.Options) infrastructure.ISnapshotStoreAsync[domain.IEventSourcing] {
+	}, func(ctx context.Context, option options.Options) infrastructure.ISnapshotStoreAsync[domain.IEventSourcing] {
 		return infrastructure_memory.NewMemorySnapshotStore[domain.IEventSourcing]()
 	}, "memory")
 }
