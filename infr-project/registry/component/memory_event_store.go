@@ -1,0 +1,17 @@
+package component
+
+import (
+	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/infrastructure"
+	"github.com/futugyou/infr-project/infrastructure_memory"
+	"github.com/futugyou/infr-project/options"
+	"github.com/futugyou/infr-project/registry/event_store"
+)
+
+func init() {
+	event_store.DefaultRegistry.RegisterComponent(func(option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
+		return infrastructure_memory.NewMemoryEventStore[domain.IDomainEvent]()
+	}, func(option options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent] {
+		return infrastructure_memory.NewMemoryEventStore[domain.IDomainEvent]()
+	}, "memory")
+}

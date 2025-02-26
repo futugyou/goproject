@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"github.com/futugyou/infr-project/domain"
-	"github.com/futugyou/infr-project/infrastructure"
-	"github.com/futugyou/infr-project/options"
 )
 
 type MemorySnapshotStore[EventSourcing domain.IEventSourcing] struct {
@@ -63,12 +61,4 @@ func (s *MemorySnapshotStore[EventSourcing]) SaveSnapshotAsync(ctx context.Conte
 	}()
 
 	return errorChan
-}
-
-func init() {
-	infrastructure.DefaultSnapshotStoreRegistry.RegisterComponent(func(option options.Options) infrastructure.ISnapshotStore[domain.IEventSourcing] {
-		return NewMemorySnapshotStore[domain.IEventSourcing]()
-	}, func(option options.Options) infrastructure.ISnapshotStoreAsync[domain.IEventSourcing] {
-		return NewMemorySnapshotStore[domain.IEventSourcing]()
-	}, "memory")
 }
