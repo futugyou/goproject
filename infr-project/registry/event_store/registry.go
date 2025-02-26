@@ -24,7 +24,11 @@ func NewRegistry() *Registry {
 	}
 }
 
-func (s *Registry) RegisterComponent(componentFactory func(options.Options) infrastructure.IEventStore[domain.IDomainEvent], componentAsyncFactory func(options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent], names ...string) {
+func (s *Registry) RegisterComponent(
+	componentFactory func(options.Options) infrastructure.IEventStore[domain.IDomainEvent],
+	componentAsyncFactory func(options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent],
+	names ...string,
+) {
 	for _, name := range names {
 		s.stores[fmt.Sprintf("event-store-%s", name)] = componentFactory
 		s.storeAsyncs[fmt.Sprintf("event-store-async-%s", name)] = componentAsyncFactory
