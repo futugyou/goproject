@@ -1,6 +1,11 @@
 package infrastructure_memory
 
-import "context"
+import (
+	"context"
+
+	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/infr-project/options"
+)
 
 type MemoryUnitOfWork struct {
 }
@@ -43,4 +48,12 @@ func (u *MemoryUnitOfWork) RollbackAsync(ctx context.Context) <-chan error {
 	errChan <- nil
 	close(errChan)
 	return errChan
+}
+
+func init() {
+	domain.DefaultUnitOfWorkRegistry.RegisterComponent(func(option options.Options) domain.IUnitOfWork {
+		return NewMemoryUnitOfWork()
+	}, func(option options.Options) domain.IUnitOfWorkAsync {
+		return NewMemoryUnitOfWork()
+	}, "memory")
 }
