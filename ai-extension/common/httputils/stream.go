@@ -1,4 +1,4 @@
-package openai
+package httputils
 
 import (
 	"bufio"
@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"github.com/futugyou/ai-extension/common/errorutils"
 )
 
 const endTag string = "[DONE]"
@@ -18,22 +20,22 @@ type StreamResponse struct {
 	StreamEnd bool
 }
 
-func (c *StreamResponse) ReadStream(ctx context.Context, response interface{}) *OpenaiError {
+func (c *StreamResponse) ReadStream(ctx context.Context, response interface{}) *errorutils.OpenaiError {
 	if c.Reader == nil {
 		c.StreamEnd = true
-		return systemError("stream reader is nil")
+		return errorutils.SystemError("stream reader is nil")
 	}
 
 	for {
 		select {
 		case <-ctx.Done():
 			c.StreamEnd = true
-			return systemError("context canceled: " + ctx.Err().Error())
+			return errorutils.SystemError("context canceled: " + ctx.Err().Error())
 		default:
 			line, err := c.Reader.ReadBytes('\n')
 			if err != nil {
 				c.StreamEnd = true
-				return systemError("failed to read from stream: " + err.Error())
+				return errorutils.SystemError("failed to read from stream: " + err.Error())
 			}
 
 			line = bytes.TrimSpace(line)
@@ -48,7 +50,7 @@ func (c *StreamResponse) ReadStream(ctx context.Context, response interface{}) *
 
 				if err := json.Unmarshal(line, response); err != nil {
 					c.StreamEnd = true
-					return systemError("failed to unmarshal JSON: " + err.Error())
+					return errorutils.SystemError("failed to unmarshal JSON: " + err.Error())
 				}
 
 				return nil

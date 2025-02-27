@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	lib "github.com/futugyousuzu/go-openai"
+	lib "github.com/futugyou/ai-extension/openai"
 
 	"github.com/futugyousuzu/go-openai-web/services"
 

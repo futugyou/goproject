@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/devfeel/mapper"
-	openai "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyou/ai-extension/openai"
 )
 
 type EditService struct {

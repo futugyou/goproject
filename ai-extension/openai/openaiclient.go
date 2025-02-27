@@ -1,7 +1,9 @@
 package openai
 
+import "github.com/futugyou/ai-extension/common/httputils"
+
 type OpenaiClient struct {
-	httpClient *HttpClient
+	httpClient *httputils.HttpClient
 	common     service
 	Audio      *AudioService
 	Chat       *ChatService
@@ -25,7 +27,7 @@ func NewClient(apikey string) *OpenaiClient {
 	}
 
 	c := &OpenaiClient{
-		httpClient: NewHttpClient(apikey),
+		httpClient: httputils.NewHttpClient(apikey),
 	}
 
 	c.initialize()

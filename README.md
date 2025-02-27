@@ -50,11 +50,3 @@
 [![Alphavantage Production](https://github.com/futugyou/goproject/actions/workflows/alphavantage-production.yaml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/alphavantage-production.yaml)
 
 [![CircleCI](https://dl.circleci.com/insights-snapshot/gh/futugyou/goproject/master/alphavantage-server/badge.svg?window=30d)](https://app.circleci.com/insights/github/futugyou/goproject/workflows/alphavantage-server/overview?branch=master&reporting-window=last-30-days&insights-snapshot=true)
-
-## pin go version when go mod tidy
-
-```golang
-// set GOTOOLCHAIN except auto, eg. local path go1.20
-go env -w  GOTOOLCHAIN=local
-go mod tidy -go=1.20 -compat=1.20
-```

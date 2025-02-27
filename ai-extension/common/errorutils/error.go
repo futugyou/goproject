@@ -1,4 +1,4 @@
-package openai
+package errorutils
 
 import (
 	"encoding/json"
@@ -22,21 +22,21 @@ func (e *OpenaiError) Error() string {
 	return string(result)
 }
 
-func messageError(message string) *OpenaiError {
+func MessageError(message string) *OpenaiError {
 	return &OpenaiError{
 		ErrorMessage: message,
 		ErrorType:    "invalid parameters",
 	}
 }
 
-func systemError(message string) *OpenaiError {
+func SystemError(message string) *OpenaiError {
 	return &OpenaiError{
 		ErrorMessage: message,
 		ErrorType:    "system error",
 	}
 }
 
-func unsupportedTypeError[T any](field string, value T, list []T) *OpenaiError {
+func UnsupportedTypeError[T any](field string, value T, list []T) *OpenaiError {
 	message := fmt.Sprintf("%s only support [%s], but current value is: %v.", field, enumjoin(list, ","), value)
 
 	return &OpenaiError{

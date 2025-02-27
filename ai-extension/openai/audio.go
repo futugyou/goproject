@@ -5,7 +5,9 @@ import (
 	"os"
 	"strings"
 
-	types "github.com/futugyousuzu/go-openai/audioformattype"
+	"github.com/futugyou/ai-extension/common/errorutils"
+	types "github.com/futugyou/ai-extension/openai/audioformattype"
+
 	"golang.org/x/exp/slices"
 )
 
@@ -29,12 +31,12 @@ type CreateAudioTranscriptionRequest struct {
 }
 
 type CreateAudioTranscriptionResponse struct {
-	Error    *OpenaiError `json:"error,omitempty"`
-	Text     string       `json:"text,omitempty"`
-	Task     string       `json:"task,omitempty"`
-	Language string       `json:"language,omitempty"`
-	Duration float64      `json:"duration,omitempty"`
-	Segments []Segments   `json:"segments,omitempty"`
+	Error    *errorutils.OpenaiError `json:"error,omitempty"`
+	Text     string                  `json:"text,omitempty"`
+	Task     string                  `json:"task,omitempty"`
+	Language string                  `json:"language,omitempty"`
+	Duration float64                 `json:"duration,omitempty"`
+	Segments []Segments              `json:"segments,omitempty"`
 }
 
 type Segments struct {
@@ -60,8 +62,8 @@ type CreateAudioTranslationRequest struct {
 }
 
 type CreateAudioTranslationResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
-	Text  string       `json:"text,omitempty"`
+	Error *errorutils.OpenaiError `json:"error,omitempty"`
+	Text  string                  `json:"text,omitempty"`
 }
 
 func (c *AudioService) CreateAudioTranscription(ctx context.Context, request CreateAudioTranscriptionRequest) *CreateAudioTranscriptionResponse {
@@ -89,7 +91,7 @@ func (c *AudioService) CreateAudioTranscription(ctx context.Context, request Cre
 		c.client.httpClient.PostWithFile(ctx, audioTranscriptionPath, &request, result)
 	} else {
 		if err := c.client.httpClient.PostWithFile(ctx, audioTranscriptionPath, &request, &result.Text); err != nil {
-			result.Error = systemError(err.Error())
+			result.Error = errorutils.SystemError(err.Error())
 		}
 	}
 
@@ -121,38 +123,38 @@ func (c *AudioService) CreateAudioTranslation(ctx context.Context, request Creat
 		c.client.httpClient.PostWithFile(ctx, audioTranslationPath, &request, result)
 	} else {
 		if err := c.client.httpClient.PostWithFile(ctx, audioTranslationPath, &request, &result.Text); err != nil {
-			result.Error = systemError(err.Error())
+			result.Error = errorutils.SystemError(err.Error())
 		}
 	}
 
 	return result
 }
 
-func validateAudioResponseFormat(responseFormat types.AudioFormatType) *OpenaiError {
+func validateAudioResponseFormat(responseFormat types.AudioFormatType) *errorutils.OpenaiError {
 	if len(responseFormat) > 0 && !slices.Contains(types.SupportededResponseFormatType, responseFormat) {
-		return unsupportedTypeError("ResponseFormat", responseFormat, types.SupportededResponseFormatType)
+		return errorutils.UnsupportedTypeError("ResponseFormat", responseFormat, types.SupportededResponseFormatType)
 	}
 
 	return nil
 }
 
-func validateAudioModel(model string) *OpenaiError {
+func validateAudioModel(model string) *errorutils.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedAudioModel, model) {
-		return unsupportedTypeError("Model", model, supportedAudioModel)
+		return errorutils.UnsupportedTypeError("Model", model, supportedAudioModel)
 	}
 
 	return nil
 }
 
-func validateAudioFile(file os.File) *OpenaiError {
+func validateAudioFile(file os.File) *errorutils.OpenaiError {
 	segmentations := strings.Split(file.Name(), ".")
 	if len(segmentations) <= 1 {
-		return unsupportedTypeError("audio type", "nil", supportedAudioType)
+		return errorutils.UnsupportedTypeError("audio type", "nil", supportedAudioType)
 	}
 
 	suffix := strings.ToLower(strings.Split(file.Name(), ".")[len(segmentations)-1])
 	if !slices.Contains(supportedAudioType, suffix) {
-		return unsupportedTypeError("audio type", suffix, supportedAudioType)
+		return errorutils.UnsupportedTypeError("audio type", suffix, supportedAudioType)
 	}
 
 	return nil

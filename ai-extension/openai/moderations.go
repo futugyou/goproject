@@ -3,6 +3,7 @@ package openai
 import (
 	"context"
 
+	"github.com/futugyou/ai-extension/common/errorutils"
 	"golang.org/x/exp/slices"
 )
 
@@ -19,10 +20,10 @@ type CreateModerationRequest struct {
 }
 
 type CreateModerationResponse struct {
-	Error   *OpenaiError       `json:"error,omitempty"`
-	ID      string             `json:"id,omitempty"`
-	Model   string             `json:"model,omitempty"`
-	Results []ModerationResult `json:"results,omitempty"`
+	Error   *errorutils.OpenaiError `json:"error,omitempty"`
+	ID      string                  `json:"id,omitempty"`
+	Model   string                  `json:"model,omitempty"`
+	Results []ModerationResult      `json:"results,omitempty"`
 }
 
 type Categories struct {
@@ -66,9 +67,9 @@ func (c *ModerationService) CreateModeration(ctx context.Context, request Create
 	return result
 }
 
-func validateModerationModel(model string) *OpenaiError {
+func validateModerationModel(model string) *errorutils.OpenaiError {
 	if len(model) > 0 && !slices.Contains(supportedModerationModel, model) {
-		return unsupportedTypeError("Model", model, supportedModerationModel)
+		return errorutils.UnsupportedTypeError("Model", model, supportedModerationModel)
 	}
 
 	return nil

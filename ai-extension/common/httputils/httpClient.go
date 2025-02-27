@@ -1,4 +1,4 @@
-package openai
+package httputils
 
 import (
 	"bufio"
@@ -13,6 +13,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/futugyou/ai-extension/common/errorutils"
 )
 
 const baseUrl string = "https://api.openai.com/v1/"
@@ -41,19 +43,19 @@ func (c *HttpClient) SetBaseUrl(baseurl string) {
 	c.baseurl = baseurl
 }
 
-func (c *HttpClient) Post(ctx context.Context, path string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) Post(ctx context.Context, path string, request, response interface{}) *errorutils.OpenaiError {
 	return c.doRequest(ctx, path, "POST", request, response)
 }
 
-func (c *HttpClient) Get(ctx context.Context, path string, response interface{}) *OpenaiError {
+func (c *HttpClient) Get(ctx context.Context, path string, response interface{}) *errorutils.OpenaiError {
 	return c.doRequest(ctx, path, "GET", nil, response)
 }
 
-func (c *HttpClient) Delete(ctx context.Context, path string, response interface{}) *OpenaiError {
+func (c *HttpClient) Delete(ctx context.Context, path string, response interface{}) *errorutils.OpenaiError {
 	return c.doRequest(ctx, path, "DELETE", nil, response)
 }
 
-func (c *HttpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) doRequest(ctx context.Context, path, method string, request, response interface{}) *errorutils.OpenaiError {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -73,12 +75,12 @@ func (c *HttpClient) doRequest(ctx context.Context, path, method string, request
 	return c.readHttpResponse(ctx, req, response)
 }
 
-func (c *HttpClient) readHttpResponse(ctx context.Context, req *http.Request, response interface{}) *OpenaiError {
+func (c *HttpClient) readHttpResponse(ctx context.Context, req *http.Request, response interface{}) *errorutils.OpenaiError {
 	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 
 	if err != nil {
-		return systemError(err.Error())
+		return errorutils.SystemError(err.Error())
 	}
 
 	defer resp.Body.Close()
@@ -90,7 +92,7 @@ func (c *HttpClient) readHttpResponse(ctx context.Context, req *http.Request, re
 	all, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return systemError(err.Error())
+		return errorutils.SystemError(err.Error())
 	}
 
 	switch result := response.(type) {
@@ -98,31 +100,31 @@ func (c *HttpClient) readHttpResponse(ctx context.Context, req *http.Request, re
 		*result = string(all)
 	default:
 		if err = json.Unmarshal(all, response); err != nil {
-			return systemError(err.Error())
+			return errorutils.SystemError(err.Error())
 		}
 	}
 
 	return nil
 }
 
-func checkResponseStatusCode(resp *http.Response) *OpenaiError {
+func checkResponseStatusCode(resp *http.Response) *errorutils.OpenaiError {
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
 		all, err := io.ReadAll(resp.Body)
 
 		if err != nil {
 			// raw error message
-			return systemError(err.Error())
+			return errorutils.SystemError(err.Error())
 		}
 
-		apiError := &OpenaiError{}
+		apiError := &errorutils.OpenaiError{}
 		if jsonError := json.Unmarshal(all, apiError); jsonError != nil {
 			// raw error message
-			return systemError(string(all))
+			return errorutils.SystemError(string(all))
 		}
 
 		if len(apiError.ErrorMessage) == 0 {
 			// raw error message
-			return systemError(string(all))
+			return errorutils.SystemError(string(all))
 		}
 
 		return apiError
@@ -131,14 +133,14 @@ func checkResponseStatusCode(resp *http.Response) *OpenaiError {
 	return nil
 }
 
-func (c *HttpClient) PostWithFile(ctx context.Context, path string, request, response interface{}) *OpenaiError {
+func (c *HttpClient) PostWithFile(ctx context.Context, path string, request, response interface{}) *errorutils.OpenaiError {
 	path = c.createSubpath(path)
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
 	reType := reflect.TypeOf(request)
 	if reType.Kind() != reflect.Ptr || reType.Elem().Kind() != reflect.Struct {
-		return systemError("request must ptr")
+		return errorutils.SystemError("request must ptr")
 	}
 
 	v := reflect.ValueOf(request).Elem()
@@ -174,7 +176,7 @@ func (c *HttpClient) PostWithFile(ctx context.Context, path string, request, res
 			writer.WriteField(fieldName, v)
 		case *os.File:
 			if wimage, e := writer.CreateFormFile(fieldName, v.Name()); e != nil {
-				return systemError(e.Error())
+				return errorutils.SystemError(e.Error())
 			} else {
 				io.Copy(wimage, v)
 			}
@@ -197,15 +199,15 @@ func (c *HttpClient) PostWithFile(ctx context.Context, path string, request, res
 	return c.readHttpResponse(ctx, req, response)
 }
 
-func (c *HttpClient) PostStream(ctx context.Context, path string, request interface{}) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) PostStream(ctx context.Context, path string, request interface{}) (*StreamResponse, *errorutils.OpenaiError) {
 	return c.doStreamRequest(ctx, path, "POST", request)
 }
 
-func (c *HttpClient) GetStream(ctx context.Context, path string) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) GetStream(ctx context.Context, path string) (*StreamResponse, *errorutils.OpenaiError) {
 	return c.doStreamRequest(ctx, path, "GET", nil)
 }
 
-func (c *HttpClient) doStreamRequest(ctx context.Context, path, method string, request interface{}) (*StreamResponse, *OpenaiError) {
+func (c *HttpClient) doStreamRequest(ctx context.Context, path, method string, request interface{}) (*StreamResponse, *errorutils.OpenaiError) {
 	path = c.createSubpath(path)
 	var body io.Reader
 
@@ -228,7 +230,7 @@ func (c *HttpClient) doStreamRequest(ctx context.Context, path, method string, r
 	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, systemError(err.Error())
+		return nil, errorutils.SystemError(err.Error())
 	}
 
 	if er := checkResponseStatusCode(resp); er != nil {

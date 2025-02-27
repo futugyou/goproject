@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
-	openai "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyou/ai-extension/openai"
 	"github.com/redis/go-redis/v9"
 )
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	openai "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyou/ai-extension/openai"
 )
 
 type CreateChatRequest struct {

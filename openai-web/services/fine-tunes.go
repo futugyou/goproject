@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	openai "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyou/ai-extension/openai"
 )
 
 type FineTuneService struct {

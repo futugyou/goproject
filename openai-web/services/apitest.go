@@ -12,7 +12,7 @@ import (
 	"os"
 	"strconv"
 
-	lib "github.com/futugyousuzu/go-openai"
+	lib "github.com/futugyou/ai-extension/openai"
 )
 
 type Payload struct {

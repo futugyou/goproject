@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"golang.org/x/exp/slices"
+
+	"github.com/futugyou/ai-extension/common/errorutils"
+	"github.com/futugyou/ai-extension/common/httputils"
 )
 
 const finetunesPath string = "fine-tunes"
@@ -41,7 +44,7 @@ type CreateFinetuneRequest struct {
 }
 
 type CreateFinetuneResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *errorutils.OpenaiError `json:"error,omitempty"`
 	FinetuneMoel
 }
 
@@ -76,32 +79,32 @@ type Events struct {
 }
 
 type CancelFinetuneResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *errorutils.OpenaiError `json:"error,omitempty"`
 	FinetuneMoel
 }
 
 type ListFinetuneResponse struct {
-	Error  *OpenaiError   `json:"error,omitempty"`
-	Object string         `json:"object,omitempty"`
-	Data   []FinetuneMoel `json:"data,omitempty"`
+	Error  *errorutils.OpenaiError `json:"error,omitempty"`
+	Object string                  `json:"object,omitempty"`
+	Data   []FinetuneMoel          `json:"data,omitempty"`
 }
 
 type RetrieveFinetuneResponse struct {
-	Error *OpenaiError `json:"error,omitempty"`
+	Error *errorutils.OpenaiError `json:"error,omitempty"`
 	FinetuneMoel
 }
 
 type ListFinetuneEventResponse struct {
-	Error  *OpenaiError `json:"error,omitempty"`
-	Object string       `json:"object,omitempty"`
-	Data   []Events     `json:"data,omitempty"`
+	Error  *errorutils.OpenaiError `json:"error,omitempty"`
+	Object string                  `json:"object,omitempty"`
+	Data   []Events                `json:"data,omitempty"`
 }
 
 type DeleteFinetuneModelResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Deleted bool         `json:"deleted,omitempty"`
+	Error   *errorutils.OpenaiError `json:"error,omitempty"`
+	Object  string                  `json:"object,omitempty"`
+	ID      string                  `json:"id,omitempty"`
+	Deleted bool                    `json:"deleted,omitempty"`
 }
 
 type FinetuneService service
@@ -113,19 +116,19 @@ func (c *FinetuneService) CreateFinetune(ctx context.Context, request CreateFine
 		l := request.Model[len(request.Model)-19 : len(request.Model)-9]
 		modelDate, err := time.Parse("2006-01-02", l)
 		if err != nil {
-			result.Error = messageError("fine tune model format error, plaese check your model.")
+			result.Error = errorutils.MessageError("fine tune model format error, plaese check your model.")
 			return result
 		}
 
 		baseDate, _ := time.Parse("2006-01-02", "2022-04-21")
 		if baseDate.After(modelDate) {
-			result.Error = messageError(fmt.Sprintf("fine tune model date can not earlier than 2022-04-21, current is %s", modelDate.Format("2006-01-02")))
+			result.Error = errorutils.MessageError(fmt.Sprintf("fine tune model date can not earlier than 2022-04-21, current is %s", modelDate.Format("2006-01-02")))
 			return result
 		}
 
 	} else if len(request.Model) > 0 {
 		if !slices.Contains(supportedFineTunesModel, request.Model) {
-			result.Error = unsupportedTypeError("Model", request.Model, supportedFineTunesModel)
+			result.Error = errorutils.UnsupportedTypeError("Model", request.Model, supportedFineTunesModel)
 			return result
 		}
 	}
@@ -187,6 +190,6 @@ func (c *FinetuneService) DeleteFinetuneMdel(ctx context.Context, model string) 
 //			result.Data = append(result.Data, *event)
 //		}
 //	}
-func (c *FinetuneService) ListFinetuneEventsStream(ctx context.Context, fine_tune_id string) (*StreamResponse, *OpenaiError) {
+func (c *FinetuneService) ListFinetuneEventsStream(ctx context.Context, fine_tune_id string) (*httputils.StreamResponse, *errorutils.OpenaiError) {
 	return c.client.httpClient.GetStream(ctx, fmt.Sprintf(listFinetuneEventStreamPath, fine_tune_id))
 }

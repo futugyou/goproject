@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"os"
 
+	openai "github.com/futugyou/ai-extension/openai"
 	"github.com/futugyou/extensions"
-	openai "github.com/futugyousuzu/go-openai"
 	"github.com/futugyousuzu/go-openai-web/services"
 	verceltool "github.com/futugyousuzu/go-openai-web/vercel"
 

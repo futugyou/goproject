@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"golang.org/x/exp/slices"
+
+	"github.com/futugyou/ai-extension/common/errorutils"
 )
 
 const embeddingsPath string = "embeddings"
@@ -20,11 +22,11 @@ type CreateEmbeddingsRequest struct {
 }
 
 type CreateEmbeddingsResponse struct {
-	Error  *OpenaiError     `json:"error,omitempty"`
-	Object string           `json:"object,omitempty"`
-	Data   []EmbeddingsData `json:"data,omitempty"`
-	Model  string           `json:"model,omitempty"`
-	Usage  *Usage           `json:"usage,omitempty"`
+	Error  *errorutils.OpenaiError `json:"error,omitempty"`
+	Object string                  `json:"object,omitempty"`
+	Data   []EmbeddingsData        `json:"data,omitempty"`
+	Model  string                  `json:"model,omitempty"`
+	Usage  *Usage                  `json:"usage,omitempty"`
 }
 
 type EmbeddingsData struct {
@@ -47,9 +49,9 @@ func (c *EmbeddingService) CreateEmbeddings(ctx context.Context, request CreateE
 	return result
 }
 
-func validateEmbeddingsModel(model string) *OpenaiError {
+func validateEmbeddingsModel(model string) *errorutils.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEmbeddingsModel, model) {
-		return unsupportedTypeError("Model", model, supportedEmbeddingsModel)
+		return errorutils.UnsupportedTypeError("Model", model, supportedEmbeddingsModel)
 	}
 
 	return nil

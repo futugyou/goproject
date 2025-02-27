@@ -6,8 +6,8 @@ require github.com/beego/beego/v2 v2.3.0
 
 require (
 	github.com/devfeel/mapper v0.7.13
+	github.com/futugyou/ai-extension v0.0.0-00010101000000-000000000000
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
-	github.com/futugyousuzu/go-openai v0.0.0
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
 	github.com/redis/go-redis/v9 v9.7.0
@@ -36,7 +36,7 @@ replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/go
 
 replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
 
-replace github.com/futugyousuzu/go-openai v0.0.0 => ../openai
+replace github.com/futugyou/ai-extension => ../ai-extension
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

@@ -5,7 +5,9 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	role "github.com/futugyousuzu/go-openai/chatrole"
+	"github.com/futugyou/ai-extension/common/errorutils"
+	"github.com/futugyou/ai-extension/common/httputils"
+	role "github.com/futugyou/ai-extension/openai/chatrole"
 )
 
 type ChatService service
@@ -75,13 +77,13 @@ func ChatCompletionMessageFromAssistant(message string) ChatCompletionMessage {
 }
 
 type CreateChatCompletionResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	Created int32        `json:"created,omitempty"`
-	Model   string       `json:"model,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Error   *errorutils.OpenaiError `json:"error,omitempty"`
+	ID      string                  `json:"id,omitempty"`
+	Object  string                  `json:"object,omitempty"`
+	Created int32                   `json:"created,omitempty"`
+	Model   string                  `json:"model,omitempty"`
+	Choices []Choices               `json:"choices,omitempty"`
+	Usage   *Usage                  `json:"usage,omitempty"`
 }
 
 func (c *ChatService) CreateChatCompletion(ctx context.Context, request CreateChatCompletionRequest) *CreateChatCompletionResponse {
@@ -108,22 +110,22 @@ func (c *ChatService) CreateChatCompletion(ctx context.Context, request CreateCh
 	return result
 }
 
-func validateChatModel(model string) *OpenaiError {
+func validateChatModel(model string) *errorutils.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedChatModel, model) {
-		return unsupportedTypeError("Model", model, supportedChatModel)
+		return errorutils.UnsupportedTypeError("Model", model, supportedChatModel)
 	}
 
 	return nil
 }
 
-func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
+func validateChatRole(messages []ChatCompletionMessage) *errorutils.OpenaiError {
 	if len(messages) == 0 {
-		return messageError("messages can not be nil.")
+		return errorutils.MessageError("messages can not be nil.")
 	}
 
 	for _, message := range messages {
 		if !slices.Contains(role.SupportedChatRoles, message.Role) {
-			return unsupportedTypeError("Message role", message.Role, role.SupportedChatRoles)
+			return errorutils.UnsupportedTypeError("Message role", message.Role, role.SupportedChatRoles)
 		}
 	}
 	return nil
@@ -152,7 +154,7 @@ func validateChatRole(messages []ChatCompletionMessage) *OpenaiError {
 //				result = append(result, response)
 //			}
 //		}
-func (c *ChatService) CreateChatStreamCompletion(ctx context.Context, request CreateChatCompletionRequest) (*StreamResponse, *OpenaiError) {
+func (c *ChatService) CreateChatStreamCompletion(ctx context.Context, request CreateChatCompletionRequest) (*httputils.StreamResponse, *errorutils.OpenaiError) {
 	// err := validateChatModel(request.Model)
 	// if err != nil {
 	// 	return nil, err

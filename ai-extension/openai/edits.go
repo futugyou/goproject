@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"golang.org/x/exp/slices"
+
+	"github.com/futugyou/ai-extension/common/errorutils"
 )
 
 const editsPath string = "edits"
@@ -23,11 +25,11 @@ type CreateEditsRequest struct {
 }
 
 type CreateEditsResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	Created int          `json:"created,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Error   *errorutils.OpenaiError `json:"error,omitempty"`
+	Object  string                  `json:"object,omitempty"`
+	Created int                     `json:"created,omitempty"`
+	Choices []Choices               `json:"choices,omitempty"`
+	Usage   *Usage                  `json:"usage,omitempty"`
 }
 
 type EditService service
@@ -45,9 +47,9 @@ func (c *EditService) CreateEdits(ctx context.Context, request CreateEditsReques
 	return result
 }
 
-func validateEditModel(model string) *OpenaiError {
+func validateEditModel(model string) *errorutils.OpenaiError {
 	if len(model) == 0 || !slices.Contains(supportedEditModel, model) {
-		return unsupportedTypeError("Model", model, supportedEditModel)
+		return errorutils.UnsupportedTypeError("Model", model, supportedEditModel)
 	}
 
 	return nil

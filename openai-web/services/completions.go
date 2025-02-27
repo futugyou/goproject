@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	openai "github.com/futugyousuzu/go-openai"
+	openai "github.com/futugyou/ai-extension/openai"
 
 	"github.com/devfeel/mapper"
 )

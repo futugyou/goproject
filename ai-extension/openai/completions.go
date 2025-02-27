@@ -1,6 +1,11 @@
 package openai
 
-import "context"
+import (
+	"context"
+
+	"github.com/futugyou/ai-extension/common/errorutils"
+	"github.com/futugyou/ai-extension/common/httputils"
+)
 
 const completionsPath string = "completions"
 
@@ -30,13 +35,13 @@ type completionRequest struct {
 }
 
 type CreateCompletionResponse struct {
-	Error   *OpenaiError `json:"error,omitempty"`
-	ID      string       `json:"id,omitempty"`
-	Object  string       `json:"object,omitempty"`
-	Created int32        `json:"created,omitempty"`
-	Model   string       `json:"model,omitempty"`
-	Choices []Choices    `json:"choices,omitempty"`
-	Usage   *Usage       `json:"usage,omitempty"`
+	Error   *errorutils.OpenaiError `json:"error,omitempty"`
+	ID      string                  `json:"id,omitempty"`
+	Object  string                  `json:"object,omitempty"`
+	Created int32                   `json:"created,omitempty"`
+	Model   string                  `json:"model,omitempty"`
+	Choices []Choices               `json:"choices,omitempty"`
+	Usage   *Usage                  `json:"usage,omitempty"`
 }
 
 type CompletionService service
@@ -75,7 +80,7 @@ func (c *CompletionService) CreateCompletion(ctx context.Context, request Create
 //				result = append(result, response)
 //			}
 //		}
-func (c *CompletionService) CreateStreamCompletion(ctx context.Context, request CreateCompletionRequest) (*StreamResponse, *OpenaiError) {
+func (c *CompletionService) CreateStreamCompletion(ctx context.Context, request CreateCompletionRequest) (*httputils.StreamResponse, *errorutils.OpenaiError) {
 	newRequest := completionRequest{
 		CreateCompletionRequest: request,
 		Stream:                  true,

@@ -1,4 +1,4 @@
-module github.com/futugyousuzu/go-openai
+module github.com/futugyou/ai-extension
 
 go 1.20
 

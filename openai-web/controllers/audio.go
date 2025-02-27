@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"os"
 
-	lib "github.com/futugyousuzu/go-openai"
+	lib "github.com/futugyou/ai-extension/openai"
 	"github.com/futugyousuzu/go-openai-web/services"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
