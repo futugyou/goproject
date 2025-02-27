@@ -32,5 +32,5 @@ func init() {
 		}
 		client, _ := mongo.Connect(ctx, mongo_options.Client().ApplyURI(config.ConnectString))
 		return infrastructure_mongo.NewMongoEventStore(client, config, "resource_events", create)
-	}, "memory")
+	}, "mongo")
 }
