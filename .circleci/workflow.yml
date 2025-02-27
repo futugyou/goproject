@@ -39,6 +39,9 @@ jobs:
           name: Run tests
           command: |
             mkdir -p /tmp/<< parameters.path >>/test-reports
+            if [ -d "~/goproject/<< parameters.path >>/conf" ] && [ -f "~/goproject/<< parameters.path >>/conf/app.conf.templete" ]; then
+              mv ~/goproject/<< parameters.path >>/conf/app.conf.templete ~/goproject/<< parameters.path >>/conf/app.conf
+            fi
             gotestsum --junitfile /tmp/<< parameters.path >>/test-reports/unit-tests.xml
           working_directory: ~/goproject/<< parameters.path >>
       - store_test_results:
