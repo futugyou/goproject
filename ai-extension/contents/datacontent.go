@@ -9,11 +9,11 @@ import (
 
 // DataContent represents content that holds data, similar to the C# DataContent class.
 type DataContent struct {
-	AIContent
-	URI       string
-	MediaType string
-	data      []byte
-	dataURI   *DataUri
+	AIContent `json:",inline"`
+	URI       string   `json:"url,omitempty"`
+	MediaType string   `json:"mediaType,omitempty"`
+	Data      []byte   `json:"-"`
+	dataURI   *DataUri `json:"-"`
 }
 
 // NewDataContentFromURI creates a new DataContent from a URI string, optionally providing a media type.
@@ -35,7 +35,7 @@ func NewDataContentFromURI(uri string, mediaType string) (*DataContent, error) {
 		if mediaType == "" {
 			content.MediaType = dataURI.MediaType
 		} else if mediaType != dataURI.MediaType {
-			content.data = dataURI.Data
+			content.Data = dataURI.Data
 			content.dataURI = nil
 			content.URI = ""
 		}
@@ -47,7 +47,7 @@ func NewDataContentFromURI(uri string, mediaType string) (*DataContent, error) {
 
 	return content, nil
 }
- 
+
 // GetURI returns the URI for this DataContent.
 func (dc *DataContent) GetURI() string {
 	if dc.URI == "" && dc.dataURI != nil {
@@ -62,11 +62,15 @@ func (dc *DataContent) GetURI() string {
 
 // GetData returns the data for this DataContent, if available.
 func (dc *DataContent) GetData() ([]byte, error) {
-	if dc.dataURI != nil && len(dc.data) == 0 {
-		dc.data = dc.dataURI.Data
+	if dc.dataURI != nil && len(dc.Data) == 0 {
+		dc.Data = dc.dataURI.Data
 	}
-	if len(dc.data) > 0 {
-		return dc.data, nil
+	if len(dc.Data) > 0 {
+		return dc.Data, nil
 	}
 	return nil, errors.New("no data available")
+}
+
+func (dc *DataContent) MediaTypeStartsWith(prefix string) bool {
+	return strings.HasPrefix(dc.MediaType, prefix)
 }

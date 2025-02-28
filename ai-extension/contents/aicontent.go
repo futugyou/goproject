@@ -7,7 +7,7 @@ import (
 
 type AIContent struct {
 	RawRepresentation    interface{}            // Raw representation of the content (for debugging or underlying object model).
-	AdditionalProperties map[string]interface{} // Additional properties for the content.
+	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"` // Additional properties for the content.
 }
 
 // AddAdditionalProperty allows adding properties to the content.
