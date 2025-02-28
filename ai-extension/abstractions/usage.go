@@ -1,4 +1,4 @@
-package chatcompletion
+package abstractions
 
 type UsageDetails struct {
 	InputTokenCount      *int64           `json:"inputTokenCount,omitempty"`

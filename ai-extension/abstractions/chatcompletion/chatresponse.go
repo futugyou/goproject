@@ -1,17 +1,21 @@
 package chatcompletion
 
-import "time"
+import (
+	"time"
+
+	"github.com/futugyou/ai-extension/abstractions"
+)
 
 type ChatResponse struct {
-	Choices              []ChatMessage          `json:"choices"`
-	Message              ChatMessage            `json:"-"`
-	ResponseId           *string                `json:"responseId"`
-	ChatThreadId         *string                `json:"chatThreadId"`
-	ModelId              *string                `json:"modelId"`
-	CreatedAt            *time.Time             `json:"createdAt"`
-	FinishReason         *ChatFinishReason      `json:"finishReason"`
-	Usage                *UsageDetails          `json:"usage"`
-	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
+	Choices              []ChatMessage              `json:"choices"`
+	Message              ChatMessage                `json:"-"`
+	ResponseId           *string                    `json:"responseId"`
+	ChatThreadId         *string                    `json:"chatThreadId"`
+	ModelId              *string                    `json:"modelId"`
+	CreatedAt            *time.Time                 `json:"createdAt"`
+	FinishReason         *ChatFinishReason          `json:"finishReason"`
+	Usage                *abstractions.UsageDetails `json:"usage"`
+	AdditionalProperties map[string]interface{}     `json:"additionalProperties,omitempty"`
 }
 
 type ChatFinishReason string
