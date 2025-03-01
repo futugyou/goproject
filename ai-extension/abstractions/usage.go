@@ -8,6 +8,15 @@ type UsageDetails struct {
 }
 
 func (u *UsageDetails) Add(usage UsageDetails) {
+	if u == nil {
+		u = &UsageDetails{
+			InputTokenCount:      new(int64),
+			OutputTokenCount:     new(int64),
+			TotalTokenCount:      new(int64),
+			AdditionalProperties: map[string]int64{},
+		}
+	}
+
 	if usage.InputTokenCount != nil {
 		if u.InputTokenCount == nil {
 			u.InputTokenCount = new(int64)
