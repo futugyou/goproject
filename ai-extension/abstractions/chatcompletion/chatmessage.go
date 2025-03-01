@@ -1,10 +1,12 @@
 package chatcompletion
 
 type ChatMessage struct {
-	// system assistant user tool
-	Role ChatRole `json:"role"`
-	// The text of the message.
-	Message string `json:"message"`
+	Role                 ChatRole               `json:"role"`
+	Message              string                 `json:"message"`
+	Text                 *string                `json:"-"`
+	Contents             []interface{}          `json:"contents"`
+	AuthorName           *string                `json:"authorName"`
+	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
 }
 
 type ChatRole string
