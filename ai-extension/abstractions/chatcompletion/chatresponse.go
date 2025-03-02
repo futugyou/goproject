@@ -1,6 +1,8 @@
 package chatcompletion
 
 import (
+	"encoding/json"
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -41,7 +43,58 @@ type ChatResponseUpdate struct {
 	CreatedAt            *time.Time             `json:"createdAt"`
 	FinishReason         *ChatFinishReason      `json:"finishReason"`
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
-	Contents             []interface{}          `json:"contents"`
+	Contents             []contents.IAIContent  `json:"contents"`
+}
+
+func (cru *ChatResponseUpdate) UnmarshalJSON(data []byte) error {
+	temp := struct {
+		AuthorName           *string                `json:"authorName"`
+		Role                 *ChatRole              `json:"role"`
+		ChoiceIndex          int                    `json:"choiceIndex"`
+		Text                 *string                `json:"text"`
+		ResponseId           *string                `json:"responseId"`
+		ChatThreadId         *string                `json:"chatThreadId"`
+		ModelId              *string                `json:"modelId"`
+		CreatedAt            *time.Time             `json:"createdAt"`
+		FinishReason         *ChatFinishReason      `json:"finishReason"`
+		AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
+		Contents             []json.RawMessage      `json:"contents"`
+	}{}
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+
+	for _, raw := range temp.Contents {
+		var base struct {
+			Type string `json:"type"`
+		}
+		if err := json.Unmarshal(raw, &base); err != nil {
+			return err
+		}
+
+		var content contents.IAIContent
+		switch base.Type {
+		case "AIContent":
+			content = &contents.AIContent{}
+		case "FunctionCallContent":
+			content = &contents.FunctionCallContent{}
+		case "FunctionResultContent":
+			content = &contents.FunctionResultContent{}
+		case "TextContent":
+			content = &contents.TextContent{}
+		case "UsageContent":
+			content = &contents.UsageContent{}
+		default:
+			return fmt.Errorf("unknown type: %s", base.Type)
+		}
+
+		if err := json.Unmarshal(raw, content); err != nil {
+			return err
+		}
+
+		cru.Contents = append(cru.Contents, content)
+	}
+	return nil
 }
 
 type ChatStreamingResponse struct {
@@ -68,7 +121,7 @@ func ToChatResponse(updates []ChatResponseUpdate, coalesceContent bool) ChatResp
 			Role:                 "",
 			Message:              "",
 			Text:                 new(string),
-			Contents:             []interface{}{},
+			Contents:             []contents.IAIContent{},
 			AuthorName:           new(string),
 			AdditionalProperties: map[string]interface{}{},
 		}
@@ -136,7 +189,7 @@ func addMessage(response *ChatResponse, coalesceContent bool, message ChatMessag
 	response.Choices = append(response.Choices, message)
 }
 
-func coalesceTextContent(conts []interface{}) []interface{} {
+func coalesceTextContent(conts []contents.IAIContent) []contents.IAIContent {
 	var coalescedText *strings.Builder
 
 	start := 0
@@ -186,9 +239,9 @@ func coalesceTextContent(conts []interface{}) []interface{} {
 	return conts
 }
 
-func filterNonNilContents(contents []interface{}) []interface{} {
-	result := []interface{}{}
-	for _, content := range contents {
+func filterNonNilContents(conts []contents.IAIContent) []contents.IAIContent {
+	result := []contents.IAIContent{}
+	for _, content := range conts {
 		if content != nil {
 			result = append(result, content)
 		}
