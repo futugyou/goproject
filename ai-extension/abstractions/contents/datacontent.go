@@ -2,6 +2,7 @@ package contents
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -73,4 +74,30 @@ func (dc *DataContent) GetData() ([]byte, error) {
 
 func (dc *DataContent) MediaTypeStartsWith(prefix string) bool {
 	return strings.HasPrefix(dc.MediaType, prefix)
+}
+
+func (ac DataContent) MarshalJSON() ([]byte, error) {
+	type Alias DataContent
+	return json.Marshal(&struct {
+		Type string `json:"type"`
+		Alias
+	}{
+		Type:  "DataContent",
+		Alias: Alias(ac),
+	})
+}
+
+func (ac *DataContent) UnmarshalJSON(data []byte) error {
+	type Alias DataContent
+	aux := &struct {
+		Type string `json:"type"`
+		Alias
+	}{Alias: Alias(*ac)}
+
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	*ac = DataContent(aux.Alias)
+	return nil
 }
