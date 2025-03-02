@@ -11,8 +11,8 @@ type IEmbeddingGenerator[TInput any, TEmbedding IEmbedding] interface {
 	Generate(ctx context.Context, values []TInput, options *EmbeddingGenerationOptions) (GeneratedEmbeddings[TEmbedding], error)
 }
 
-func GenerateEmbeddingVector[TInput, TEmbeddingElement any, TEmbedding Embedding](
-	generator IEmbeddingGenerator[TInput, *EmbeddingT[TEmbeddingElement]],
+func GenerateEmbeddingVector[TInput any, TEmbeddingElement any](
+	generator IEmbeddingGenerator[TInput, EmbeddingT[TEmbeddingElement]],
 	ctx context.Context,
 	value TInput,
 	options *EmbeddingGenerationOptions,
@@ -24,12 +24,12 @@ func GenerateEmbeddingVector[TInput, TEmbeddingElement any, TEmbedding Embedding
 	return embedding.Vector, nil
 }
 
-func GenerateEmbedding[TInput, TEmbeddingElement any, TEmbedding Embedding](
-	generator IEmbeddingGenerator[TInput, *EmbeddingT[TEmbeddingElement]],
+func GenerateEmbedding[TInput any, TEmbedding IEmbedding](
+	generator IEmbeddingGenerator[TInput, TEmbedding],
 	ctx context.Context,
 	value TInput,
 	options *EmbeddingGenerationOptions,
-) (*EmbeddingT[TEmbeddingElement], error) {
+) (*TEmbedding, error) {
 	if generator == nil {
 		return nil, errors.New("generator cannot be nil")
 	}
@@ -47,7 +47,8 @@ func GenerateEmbedding[TInput, TEmbeddingElement any, TEmbedding Embedding](
 		return nil, fmt.Errorf("expected the number of embeddings (%d) to match the number of inputs (1)", embeddings.Count())
 	}
 
-	return embeddings.Get(0), nil
+	emb := embeddings.Get(0)
+	return &emb, nil
 }
 
 func isNil(value interface{}) bool {
@@ -57,4 +58,43 @@ func isNil(value interface{}) bool {
 	}
 
 	return false
+}
+
+type EmbeddingWithInput[TInput any, TEmbedding IEmbedding] struct {
+	Value     TInput
+	Embedding TEmbedding
+}
+
+func GenerateAndZip[TInput any, TEmbedding IEmbedding](
+	generator IEmbeddingGenerator[TInput, TEmbedding],
+	ctx context.Context,
+	values []TInput,
+	options *EmbeddingGenerationOptions,
+) ([]EmbeddingWithInput[TInput, TEmbedding], error) {
+	if generator == nil {
+		return nil, errors.New("generator cannot be nil")
+	}
+
+	if len(values) == 0 {
+		return nil, nil
+	}
+
+	embeddings, err := generator.Generate(ctx, values, options)
+	if err != nil {
+		return nil, err
+	}
+
+	if embeddings.Count() != len(values) {
+		return nil, fmt.Errorf("expected the number of embeddings (%d) to match the number of inputs (%d)", embeddings.Count(), len(values))
+	}
+
+	var results []EmbeddingWithInput[TInput, TEmbedding]
+	for i := 0; i < len(values); i++ {
+		results = append(results, EmbeddingWithInput[TInput, TEmbedding]{
+			Value:     values[i],
+			Embedding: embeddings.Get(i),
+		})
+	}
+
+	return results, nil
 }
