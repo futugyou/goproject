@@ -2,19 +2,19 @@ package embeddings
 
 import "github.com/futugyou/ai-extension/abstractions"
 
-type GeneratedEmbeddings[TEmbedding comparable] struct {
+type GeneratedEmbeddings[TEmbedding IEmbedding] struct {
 	embeddings           []TEmbedding
 	Usage                *abstractions.UsageDetails
 	AdditionalProperties map[string]interface{}
 }
 
-func NewGeneratedEmbeddings[TEmbedding comparable]() *GeneratedEmbeddings[TEmbedding] {
+func NewGeneratedEmbeddings[TEmbedding IEmbedding]() *GeneratedEmbeddings[TEmbedding] {
 	return &GeneratedEmbeddings[TEmbedding]{
 		embeddings: make([]TEmbedding, 0),
 	}
 }
 
-func NewGeneratedEmbeddingsWithCapacity[TEmbedding comparable](capacity int) *GeneratedEmbeddings[TEmbedding] {
+func NewGeneratedEmbeddingsWithCapacity[TEmbedding IEmbedding](capacity int) *GeneratedEmbeddings[TEmbedding] {
 	if capacity < 0 {
 		panic("capacity cannot be less than 0")
 	}
@@ -23,7 +23,7 @@ func NewGeneratedEmbeddingsWithCapacity[TEmbedding comparable](capacity int) *Ge
 	}
 }
 
-func NewGeneratedEmbeddingsFromCollection[TEmbedding comparable](embeddings []TEmbedding) *GeneratedEmbeddings[TEmbedding] {
+func NewGeneratedEmbeddingsFromCollection[TEmbedding IEmbedding](embeddings []TEmbedding) *GeneratedEmbeddings[TEmbedding] {
 	return &GeneratedEmbeddings[TEmbedding]{
 		embeddings: append([]TEmbedding(nil), embeddings...),
 	}
@@ -47,7 +47,7 @@ func (ge *GeneratedEmbeddings[TEmbedding]) Clear() {
 
 func (ge *GeneratedEmbeddings[TEmbedding]) Contains(item TEmbedding) bool {
 	for _, embedding := range ge.embeddings {
-		if embedding == item {
+		if embedding.Hash() == item.Hash() {
 			return true
 		}
 	}
@@ -70,7 +70,7 @@ func (ge *GeneratedEmbeddings[TEmbedding]) Set(index int, item TEmbedding) {
 
 func (ge *GeneratedEmbeddings[TEmbedding]) Remove(item TEmbedding) bool {
 	for i, embedding := range ge.embeddings {
-		if embedding == item {
+		if embedding.Hash() == item.Hash() {
 			ge.embeddings = append(ge.embeddings[:i], ge.embeddings[i+1:]...)
 			return true
 		}
@@ -87,7 +87,7 @@ func (ge *GeneratedEmbeddings[TEmbedding]) RemoveAt(index int) {
 
 func (ge *GeneratedEmbeddings[TEmbedding]) IndexOf(item TEmbedding) int {
 	for i, embedding := range ge.embeddings {
-		if embedding == item {
+		if embedding.Hash() == item.Hash() {
 			return i
 		}
 	}

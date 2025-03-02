@@ -1,16 +1,26 @@
 package embeddings
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"reflect"
 	"time"
 )
 
+type IEmbedding interface {
+	Hash() string
+}
+
 type Embedding struct {
 	CreatedAt            *time.Time             `json:"createdAt,omitempty"`
 	ModelId              *string                `json:"modelId,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
+}
+
+func (d Embedding) Hash() string {
+	data, _ := json.Marshal(d)
+	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
 func (e Embedding) IsEquals(b Embedding) bool {
@@ -51,6 +61,11 @@ type EmbeddingT[T any] struct {
 	Vector []T `json:"vector"`
 }
 
+func (d EmbeddingT[T]) Hash() string {
+	data, _ := json.Marshal(d)
+	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
 type EmbeddingType interface {
 	GetType() string
 }
@@ -74,7 +89,7 @@ func FromJSON(data []byte) (EmbeddingType, error) {
 			}
 			return &emb, nil
 		case "floats":
-			var emb EmbeddingT[float64]
+			var emb EmbeddingT[float32]
 			if err := json.Unmarshal(data, &emb); err != nil {
 				return nil, err
 			}
