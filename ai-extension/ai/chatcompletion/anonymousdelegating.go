@@ -75,7 +75,7 @@ func (client *AnonymousDelegatingChatClient) GetResponse(
 		return response, err
 	}
 
-	if client.getResponseFunc == nil {
+	if client.getResponseFunc != nil {
 		return client.getResponseFunc(ctx, messages, options, client.InnerClient)
 	}
 
@@ -97,5 +97,53 @@ func (client *AnonymousDelegatingChatClient) GetStreamingResponse(
 	messages []chatcompletion.ChatMessage,
 	options *chatcompletion.ChatOptions,
 ) <-chan chatcompletion.ChatStreamingResponse {
-	return client.getStreamingResponseFunc(ctx, messages, options, client.InnerClient)
+	if client.getStreamingResponseFunc != nil {
+		return client.getStreamingResponseFunc(ctx, messages, options, client.InnerClient)
+	}
+
+	if client.sharedFunc != nil {
+		var response <-chan chatcompletion.ChatStreamingResponse
+		client.sharedFunc(ctx, messages, options, func(
+			ctx context.Context,
+			messages []chatcompletion.ChatMessage,
+			options *chatcompletion.ChatOptions,
+		) error {
+			response = client.InnerClient.GetStreamingResponse(ctx, messages, options)
+			return nil
+		})
+
+		return response
+	}
+
+	streamResp := make(chan chatcompletion.ChatStreamingResponse)
+	if client.getResponseFunc == nil {
+		streamResp <- chatcompletion.ChatStreamingResponse{
+			Update: nil,
+			Err:    fmt.Errorf("getResponseFunc is nil"),
+		}
+		close(streamResp)
+		return streamResp
+	}
+
+	chat, err := client.getResponseFunc(ctx, messages, options, client.InnerClient)
+	if err != nil {
+		streamResp <- chatcompletion.ChatStreamingResponse{
+			Update: nil,
+			Err:    err,
+		}
+		close(streamResp)
+		return streamResp
+	}
+
+	updates := chat.ToChatResponseUpdates()
+	go func() {
+		defer close(streamResp)
+		for _, item := range updates {
+			streamResp <- chatcompletion.ChatStreamingResponse{
+				Update: &item,
+				Err:    nil,
+			}
+		}
+	}()
+	return streamResp
 }
