@@ -1,5 +1,7 @@
 package chatcompletion
 
+import "github.com/futugyou/ai-extension/abstractions"
+
 type ChatOptions struct {
 	ChatThreadId         *string                `json:"chatThreadId,omitempty"`
 	Temperature          *float32               `json:"temperature,omitempty"`
@@ -13,7 +15,7 @@ type ChatOptions struct {
 	ModelId              *string                `json:"modelId,omitempty"`
 	StopSequences        []string               `json:"stopSequences,omitempty"`
 	ToolMode             *ChatToolMode          `json:"toolMode,omitempty"`
-	Tools                []AITool               `json:"tools,omitempty"`
+	Tools                []abstractions.AITool  `json:"-"`
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
 }
 
@@ -32,7 +34,3 @@ const (
 	RequireAnyMode ChatToolMode = "requireAny"
 	NoneMode       ChatToolMode = "none"
 )
-
-type AITool struct {
-	// Define the structure based on the specific tool's fields
-}
