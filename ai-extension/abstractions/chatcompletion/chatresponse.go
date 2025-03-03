@@ -23,6 +23,43 @@ type ChatResponse struct {
 	AdditionalProperties map[string]interface{}     `json:"additionalProperties,omitempty"`
 }
 
+func (c *ChatResponse) ToChatResponseUpdates() []ChatResponseUpdate {
+	var updates []ChatResponseUpdate
+
+	for i, choice := range c.Choices {
+		update := ChatResponseUpdate{
+			ChatThreadId:         c.ChatThreadId,
+			ChoiceIndex:          i,
+			AdditionalProperties: choice.AdditionalProperties,
+			AuthorName:           choice.AuthorName,
+			Contents:             choice.Contents,
+			Role:                 &choice.Role,
+			ResponseId:           c.ResponseId,
+			CreatedAt:            c.CreatedAt,
+			FinishReason:         c.FinishReason,
+			ModelId:              c.ModelId,
+		}
+		updates = append(updates, update)
+	}
+
+	if c.AdditionalProperties != nil || c.Usage != nil {
+		extra := ChatResponseUpdate{
+			AdditionalProperties: c.AdditionalProperties,
+		}
+
+		if c.Usage != nil {
+			extra.Contents = append(extra.Contents, contents.UsageContent{
+				AIContent: contents.AIContent{},
+				Details:   *c.Usage,
+			})
+		}
+
+		updates = append(updates, extra)
+	}
+
+	return updates
+}
+
 type ChatFinishReason string
 
 const (
@@ -132,7 +169,7 @@ func ToChatResponse(updates []ChatResponseUpdate, coalesceContent bool) ChatResp
 		for _, con := range update.Contents {
 			switch c := con.(type) {
 			case contents.UsageContent:
-				response.Usage.Add(c.Details)
+				response.Usage.AddUsageDetails(c.Details)
 			default:
 				message.Contents = append(message.Contents, c)
 			}

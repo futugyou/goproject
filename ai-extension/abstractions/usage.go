@@ -7,7 +7,7 @@ type UsageDetails struct {
 	AdditionalProperties map[string]int64 `json:"additionalProperties,omitempty"`
 }
 
-func (u *UsageDetails) Add(usage UsageDetails) {
+func (u *UsageDetails) AddUsageDetails(usage UsageDetails) {
 	if u == nil {
 		u = &UsageDetails{
 			InputTokenCount:      new(int64),
