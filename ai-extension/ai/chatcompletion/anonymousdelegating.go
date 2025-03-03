@@ -2,6 +2,7 @@ package chatcompletion
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 )
@@ -18,9 +19,10 @@ type GetStreamingResponseFunc func(
 	messages []chatcompletion.ChatMessage,
 	options *chatcompletion.ChatOptions,
 	client chatcompletion.IChatClient,
-) <-chan chatcompletion.ChatResponseUpdate
+) <-chan chatcompletion.ChatStreamingResponse
 
 type SharedFunc func(
+	ctx context.Context,
 	messages []chatcompletion.ChatMessage,
 	options *chatcompletion.ChatOptions,
 	callback func(
@@ -28,7 +30,6 @@ type SharedFunc func(
 		messages []chatcompletion.ChatMessage,
 		options *chatcompletion.ChatOptions,
 	) error,
-	ctx context.Context,
 ) error
 
 type AnonymousDelegatingChatClient struct {
@@ -59,13 +60,42 @@ func (client *AnonymousDelegatingChatClient) GetResponse(
 	messages []chatcompletion.ChatMessage,
 	options *chatcompletion.ChatOptions,
 ) (*chatcompletion.ChatResponse, error) {
-	return client.getResponseFunc(ctx, messages, options, client.InnerClient)
+	if client.sharedFunc != nil {
+		var response *chatcompletion.ChatResponse
+		var err error
+		client.sharedFunc(ctx, messages, options, func(
+			ctx context.Context,
+			messages []chatcompletion.ChatMessage,
+			options *chatcompletion.ChatOptions,
+		) error {
+			response, err = client.InnerClient.GetResponse(ctx, messages, options)
+			return err
+		})
+
+		return response, err
+	}
+
+	if client.getResponseFunc == nil {
+		return client.getResponseFunc(ctx, messages, options, client.InnerClient)
+	}
+
+	if client.getStreamingResponseFunc == nil {
+		return nil, fmt.Errorf("getStreamingResponseFunc is nil")
+	}
+
+	updateResponse := <-client.getStreamingResponseFunc(ctx, messages, options, client.InnerClient)
+	if updateResponse.Err != nil {
+		return nil, updateResponse.Err
+	}
+
+	response := chatcompletion.ToChatResponse([]chatcompletion.ChatResponseUpdate{*updateResponse.Update}, true)
+	return &response, nil
 }
 
 func (client *AnonymousDelegatingChatClient) GetStreamingResponse(
 	ctx context.Context,
 	messages []chatcompletion.ChatMessage,
 	options *chatcompletion.ChatOptions,
-) <-chan chatcompletion.ChatResponseUpdate {
+) <-chan chatcompletion.ChatStreamingResponse {
 	return client.getStreamingResponseFunc(ctx, messages, options, client.InnerClient)
 }
