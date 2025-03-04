@@ -300,6 +300,8 @@ definitions:
         type: string
       createdAt:
         type: string
+      description:
+        type: string
       environment:
         type: string
       id:

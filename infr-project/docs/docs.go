@@ -2022,6 +2022,9 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "environment": {
                     "type": "string"
                 },

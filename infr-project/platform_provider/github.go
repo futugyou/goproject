@@ -269,6 +269,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
 					BadgeURL:      badgeUrl,
 					BadgeMarkdown: badgeMarkdown,
+					Description:   v.GetDescription(),
 				}
 			}
 		}

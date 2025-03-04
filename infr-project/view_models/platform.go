@@ -148,6 +148,7 @@ type Deployment struct {
 	CreatedAt     string `json:"createdAt"`
 	BadgeURL      string `json:"badge_url"`
 	BadgeMarkdown string `json:"badge_markdown"`
+	Description   string `json:"description"`
 }
 
 type Webhook struct {

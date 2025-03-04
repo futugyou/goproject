@@ -97,6 +97,7 @@ type Deployment struct {
 	CreatedAt     string
 	BadgeURL      string
 	BadgeMarkdown string
+	Description   string
 }
 
 type WebHook struct {

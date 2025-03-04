@@ -275,6 +275,7 @@ func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.Deployme
 			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
 			BadgeURL:      badgeURL,
 			BadgeMarkdown: badgeMarkdown,
+			Description:   v.Meta.GitCommitMessage,
 		}
 	}
 	return deployments
