@@ -276,9 +276,9 @@ func (v *DeploymentService) UploadDeploymentFiles(ctx context.Context, request i
 }
 
 type ListDeploymentResponse struct {
-	Deployments []DeploymentInfo `json:"deployments,omitempty"`
-	Pagination  Pagination       `json:"pagination,omitempty"`
-	Error       *VercelError     `json:"error,omitempty"`
+	Deployments []Deployment `json:"deployments,omitempty"`
+	Pagination  Pagination   `json:"pagination,omitempty"`
+	Error       *VercelError `json:"error,omitempty"`
 }
 
 type DeleteDeploymentResponse struct {
@@ -287,12 +287,43 @@ type DeleteDeploymentResponse struct {
 	Error *VercelError `json:"error,omitempty"`
 }
 
+type Deployment struct {
+	Uid                 string          `json:"uid"`
+	Name                string          `json:"name"`
+	URL                 string          `json:"url"`
+	Created             int64           `json:"created"`
+	Source              string          `json:"source"`
+	State               string          `json:"state"`
+	ReadyState          string          `json:"readyState"`
+	ReadySubstate       string          `json:"readySubstate"`
+	Type                string          `json:"type"`
+	Creator             Creator         `json:"creator"`
+	InspectorURL        string          `json:"inspectorUrl"`
+	Meta                Meta            `json:"meta"`
+	Target              *string         `json:"target"`
+	AliasError          *VercelError    `json:"aliasError,omitempty"`
+	AliasAssigned       int64           `json:"aliasAssigned"`
+	IsRollbackCandidate bool            `json:"isRollbackCandidate"`
+	CreatedAt           int64           `json:"createdAt"`
+	BuildingAt          int64           `json:"buildingAt"`
+	Ready               int64           `json:"ready"`
+	ProjectSettings     ProjectSettings `json:"projectSettings"`
+}
+
+type Meta struct {
+	GitCommitAuthorName string `json:"gitCommitAuthorName"`
+	GitCommitMessage    string `json:"gitCommitMessage"`
+	GitCommitRef        string `json:"gitCommitRef"`
+	GitCommitSHA        string `json:"gitCommitSha"`
+	GitDirty            string `json:"gitDirty"`
+}
+
 type DeploymentInfo struct {
-	Id                            string          `json:"id,omitempty"`
+	ID                            string          `json:"id,omitempty"`
 	Meta                          interface{}     `json:"meta,omitempty"`
 	Url                           string          `json:"url,omitempty"`
 	Alias                         []string        `json:"alias,omitempty"`
-	AliasAssigned                 bool            `json:"aliasAssigned,omitempty"`
+	AliasAssigned                 int64           `json:"aliasAssigned,omitempty"`
 	AliasAssignedAt               string          `json:"aliasAssignedAt,omitempty"`
 	AliasError                    *VercelError    `json:"aliasError,omitempty"`
 	AliasFinal                    string          `json:"aliasFinal,omitempty"`
@@ -311,7 +342,7 @@ type DeploymentInfo struct {
 	ChecksState                   string          `json:"checksState,omitempty"`
 	ConnectBuildsEnabled          bool            `json:"connectBuildsEnabled,omitempty"`
 	ConnectConfigurationId        string          `json:"connectConfigurationId,omitempty"`
-	CreatedAt                     int             `json:"createdAt,omitempty"`
+	CreatedAt                     int64           `json:"createdAt,omitempty"`
 	CreatedIn                     string          `json:"createdIn,omitempty"`
 	Creator                       CreatorInfo     `json:"creator,omitempty"`
 	Crons                         []Cron          `json:"crons,omitempty"`
