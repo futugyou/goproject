@@ -116,7 +116,7 @@ func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilte
 				Properties:           properties,
 				EnvironmentVariables: g.buildVercelEnv(project.Env),
 				Environments:         environments,
-				Deployments:          g.buildVercelDeployment(project.LatestDeployments, url),
+				Deployments:          g.buildVercelDeploymentWithLatest(project.LatestDeployments, url),
 				BadgeURL:             badgeURL,
 				BadgeMarkDown:        badgeMarkdown,
 			})
@@ -193,6 +193,23 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
 		}
 
+		deploymentRequestLimit := "20"
+		deploymentRequest := vercel.ListDeploymentParameter{
+			Limit:     &deploymentRequestLimit,
+			ProjectId: &vercelProject.Id,
+			BaseUrlParameter: vercel.BaseUrlParameter{
+				TeamSlug: &team_slug,
+				TeamId:   &team_id,
+			},
+		}
+
+		deployments := map[string]Deployment{}
+		if depls, err := g.client.Deployments.ListDeployment(ctx, deploymentRequest); err != nil {
+			log.Println(err.Error())
+		} else {
+			deployments = g.buildVercelDeployment(depls.Deployments, url)
+		}
+
 		badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
 		project := &Project{
 			ID:                   vercelProject.Id,
@@ -201,7 +218,7 @@ func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			WebHooks:             hooks,
 			Properties:           properties,
 			EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
-			Deployments:          g.buildVercelDeployment(vercelProject.LatestDeployments, url),
+			Deployments:          deployments, //g.buildVercelDeployment(vercelProject.LatestDeployments, url),
 			BadgeURL:             badgeURL,
 			Environments:         environments,
 			BadgeMarkDown:        badgeMarkdown,
@@ -241,7 +258,29 @@ func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Environm
 	return envs
 }
 
-func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
+func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.Deployment, url string) map[string]Deployment {
+	deployments := map[string]Deployment{}
+	for _, v := range vercelDeployments {
+		if v.Target == nil || len(v.Name) == 0 || len(v.ReadyState) == 0 {
+			continue
+		}
+
+		badgeURL, badgeMarkdown := g.buildVercelBadge(v.Name, url, v.ReadyState)
+		deployments[v.Uid] = Deployment{
+			ID:            v.Uid,
+			Name:          v.Name,
+			Environment:   *v.Target,
+			ReadyState:    v.ReadyState,
+			ReadySubstate: v.ReadySubstate,
+			CreatedAt:     tool.Int64ToTime(v.CreatedAt).Format(time.RFC3339Nano),
+			BadgeURL:      badgeURL,
+			BadgeMarkdown: badgeMarkdown,
+		}
+	}
+	return deployments
+}
+
+func (g *VercelClient) buildVercelDeploymentWithLatest(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
 	deployments := map[string]Deployment{}
 	for _, v := range vercelDeployments {
 		if len(v.Name) == 0 || len(v.Target) == 0 || len(v.ReadyState) == 0 {
