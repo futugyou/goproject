@@ -265,7 +265,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 					Name:          v.GetTask(),
 					Environment:   v.GetEnvironment(),
 					ReadyState:    "Unknown",
-					ReadySubstate: "Notexist",
+					ReadySubstate: "",
 					CreatedAt:     v.GetCreatedAt().Format(time.RFC3339Nano),
 					BadgeURL:      badgeUrl,
 					BadgeMarkdown: badgeMarkdown,
