@@ -46,71 +46,68 @@ func (client *CachingChatClient) GetStreamingResponse(
 	chatMessages []chatcompletion.ChatMessage,
 	options *chatcompletion.ChatOptions,
 ) <-chan chatcompletion.ChatStreamingResponse {
-	streamResp := make(chan chatcompletion.ChatStreamingResponse)
 	var cacheKey = client.GetCacheKey(true, chatMessages, options)
 
 	if client.CoalesceStreamingUpdates {
 		if cachedResponse, err := client.ReadCacheAsync(ctx, cacheKey); err == nil {
-			updates := cachedResponse.ToChatResponseUpdates()
+			streamResp := make(chan chatcompletion.ChatStreamingResponse)
 
 			go func() {
 				defer close(streamResp)
-				for _, item := range updates {
+				for _, item := range cachedResponse.ToChatResponseUpdates() {
 					streamResp <- chatcompletion.ChatStreamingResponse{
 						Update: &item,
 						Err:    nil,
 					}
 				}
 			}()
-
 			return streamResp
-		} else {
-			originalResponse := client.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
-			newResponse := make(chan chatcompletion.ChatStreamingResponse)
-
-			go func() {
-				defer close(newResponse)
-				updates := []chatcompletion.ChatResponseUpdate{}
-				for msg := range originalResponse {
-					updates = append(updates, *msg.Update)
-					newResponse <- msg
-				}
-
-				client.WriteCacheAsync(ctx, cacheKey, chatcompletion.ToChatResponse(updates, true))
-			}()
-
-			return newResponse
 		}
-	} else {
-		if cachedResponse, err := client.ReadCacheStreamingAsync(ctx, cacheKey); err == nil {
-			go func() {
-				defer close(streamResp)
-				for _, item := range cachedResponse {
-					streamResp <- chatcompletion.ChatStreamingResponse{
-						Update: &item,
-						Err:    nil,
-					}
-				}
-			}()
-		} else {
-			originalResponse := client.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
-			newResponse := make(chan chatcompletion.ChatStreamingResponse)
 
-			go func() {
-				defer close(newResponse)
-				updates := []chatcompletion.ChatResponseUpdate{}
-				for msg := range originalResponse {
-					updates = append(updates, *msg.Update)
-					newResponse <- msg
-				}
+		originalResponse := client.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
+		streamResp := make(chan chatcompletion.ChatStreamingResponse)
 
-				client.WriteCacheStreamingAsync(ctx, cacheKey, updates)
-			}()
+		go func() {
+			defer close(streamResp)
+			updates := []chatcompletion.ChatResponseUpdate{}
+			for msg := range originalResponse {
+				updates = append(updates, *msg.Update)
+				streamResp <- msg
+			}
 
-			return newResponse
-		}
+			client.WriteCacheAsync(ctx, cacheKey, chatcompletion.ToChatResponse(updates, true))
+		}()
+		return streamResp
 	}
 
+	if cachedResponse, err := client.ReadCacheStreamingAsync(ctx, cacheKey); err == nil {
+		streamResp := make(chan chatcompletion.ChatStreamingResponse)
+
+		go func() {
+			defer close(streamResp)
+			for _, item := range cachedResponse {
+				streamResp <- chatcompletion.ChatStreamingResponse{
+					Update: &item,
+					Err:    nil,
+				}
+			}
+		}()
+		return streamResp
+	}
+
+	originalResponse := client.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
+	streamResp := make(chan chatcompletion.ChatStreamingResponse)
+
+	go func() {
+		defer close(streamResp)
+		updates := []chatcompletion.ChatResponseUpdate{}
+		for msg := range originalResponse {
+			updates = append(updates, *msg.Update)
+			streamResp <- msg
+		}
+
+		client.WriteCacheStreamingAsync(ctx, cacheKey, updates)
+	}()
 	return streamResp
 }
 
