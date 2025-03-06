@@ -3,6 +3,7 @@ package chatcompletion
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/abstractions/contents"
@@ -22,6 +23,76 @@ func NewFunctionInvokingChatClient(innerClient chatcompletion.IChatClient) *Func
 	return &FunctionInvokingChatClient{
 		DelegatingChatClient: chatcompletion.DelegatingChatClient{InnerClient: innerClient},
 	}
+}
+
+func (f *FunctionInvokingChatClient) processFunctionCalls(
+	ctx context.Context,
+	messages []chatcompletion.ChatMessage,
+	options *chatcompletion.ChatOptions,
+	callContents []contents.FunctionCallContent,
+	iteration int,
+) (string, []chatcompletion.ChatMessage, []chatcompletion.ChatMessage, error) {
+	if len(messages) == 0 {
+		return "", nil, messages, fmt.Errorf("no messages to process")
+	}
+
+	if len(messages) == 1 {
+		result := f.processFunctionCall(ctx, messages, options, callContents, iteration, 0)
+		added, err := f.CreateResponseMessages([]FunctionInvocationResult{result})
+		if err != nil {
+			return "", nil, messages, err
+		}
+
+		messages = append(messages, added...)
+
+		return result.ContinueMode, added, messages, nil
+	}
+
+	var results []FunctionInvocationResult
+	if f.AllowConcurrentInvocation {
+		var wg sync.WaitGroup
+		resultChan := make(chan FunctionInvocationResult, len(callContents))
+
+		for i := 0; i < len(callContents); i++ {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				res := f.processFunctionCall(ctx, messages, options, callContents, iteration, i)
+				resultChan <- res
+			}(i)
+		}
+
+		wg.Wait()
+		close(resultChan)
+
+		results = make([]FunctionInvocationResult, 0, len(callContents))
+		for res := range resultChan {
+			results = append(results, res)
+		}
+	} else {
+		results = make([]FunctionInvocationResult, len(callContents))
+		for i := 0; i < len(callContents); i++ {
+			results[i] = f.processFunctionCall(ctx, messages, options, callContents, iteration, i)
+		}
+	}
+
+	added, err := f.CreateResponseMessages(results)
+	if err != nil {
+		return "", nil, messages, err
+	}
+
+	continueMode := "Continue"
+	messages = append(messages, added...)
+	for _, fir := range results {
+		if fir.ContinueMode == "Terminate" {
+			continueMode = "Terminate"
+			break
+		} else if fir.ContinueMode == "AllowOneMoreRoundtrip" {
+			continueMode = "AllowOneMoreRoundtrip"
+		}
+	}
+
+	return continueMode, added, messages, nil
 }
 
 func (f *FunctionInvokingChatClient) processFunctionCall(
