@@ -2,8 +2,10 @@ package chatcompletion
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/abstractions/contents"
@@ -12,7 +14,7 @@ import (
 
 type FunctionInvokingChatClient struct {
 	chatcompletion.DelegatingChatClient
-	MaximumIterationsPerRequest int
+	MaximumIterationsPerRequest *int
 	RetryOnError                bool
 	IncludeDetailedErrors       bool
 	AllowConcurrentInvocation   bool
@@ -238,4 +240,199 @@ func (f *FunctionInvokingChatClient) updateOptionsForMode(mode string, options *
 	}
 
 	return false
+}
+
+func (f *FunctionInvokingChatClient) copyFunctionCalls(messages []chatcompletion.ChatMessage, functionCalls *[]contents.FunctionCallContent) bool {
+	any := false
+	for _, message := range messages {
+		if f.copyFunctionCallsFromContent(message.Contents, functionCalls) {
+			any = true
+		}
+	}
+	return any
+}
+
+func (f *FunctionInvokingChatClient) copyFunctionCallsFromContent(content []contents.IAIContent, functionCalls *[]contents.FunctionCallContent) bool {
+	any := false
+	for _, item := range content {
+		if functionCall, ok := item.(contents.FunctionCallContent); ok {
+			*functionCalls = append(*functionCalls, functionCall)
+			any = true
+		}
+	}
+	return any
+}
+
+func (f *FunctionInvokingChatClient) fixupHistories(
+	originalMessages []chatcompletion.ChatMessage,
+	augmentedHistory []chatcompletion.ChatMessage,
+	response chatcompletion.ChatResponse,
+	allTurnsResponseMessages []chatcompletion.ChatMessage,
+	lastIterationHadThreadId bool,
+) ([]chatcompletion.ChatMessage, []chatcompletion.ChatMessage, bool) {
+	if response.ChatThreadId != nil {
+		augmentedHistory = augmentedHistory[:0]
+		lastIterationHadThreadId = true
+	} else if lastIterationHadThreadId {
+		augmentedHistory = append([]chatcompletion.ChatMessage{}, originalMessages...)
+		augmentedHistory = append(augmentedHistory, allTurnsResponseMessages...)
+		lastIterationHadThreadId = false
+	} else {
+		if len(augmentedHistory) == 0 {
+			augmentedHistory = append([]chatcompletion.ChatMessage{}, originalMessages...)
+		}
+
+		addMessages := func(messages []chatcompletion.ChatMessage, response chatcompletion.ChatResponse) []chatcompletion.ChatMessage {
+			messages = append(messages, response.Message)
+			return messages
+		}
+
+		augmentedHistory = addMessages(augmentedHistory, response)
+		lastIterationHadThreadId = false
+	}
+
+	return augmentedHistory, augmentedHistory, lastIterationHadThreadId
+}
+
+func (c *FunctionInvokingChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+	return c.InnerClient.GetResponse(ctx, chatMessages, options)
+}
+
+// func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
+// 	originalMessages := chatMessages
+// 	augmentedHistory := []chatcompletion.ChatMessage{}
+// 	functionCallContents := []contents.FunctionCallContent{}
+// 	responseMessages := []chatcompletion.ChatMessage{}
+// 	lastIterationHadThreadId := false
+// 	updates := []chatcompletion.ChatResponseUpdate{}
+// 	streamResp := make(chan chatcompletion.ChatStreamingResponse)
+
+// 	iteration := 0
+// 	for {
+// 		updates = []chatcompletion.ChatResponseUpdate{}
+// 		functionCallContents = []contents.FunctionCallContent{}
+
+// 		originalResponse := c.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
+
+// 		go func() {
+// 			defer close(streamResp)
+// 			for msg := range originalResponse {
+// 				updates = append(updates, *msg.Update)
+// 				streamResp <- msg
+// 			}
+
+// 		}()
+
+// 		if len(functionCallContents) == 0 ||
+// 			options == nil || len(options.Tools) == 0 ||
+// 			(c.MaximumIterationsPerRequest != nil && iteration >= *c.MaximumIterationsPerRequest) {
+// 			break
+// 		}
+
+// 		iteration = iteration + 1
+// 	}
+
+// 	return streamResp
+// }
+
+func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
+	updateCh := make(chan chatcompletion.ChatStreamingResponse)
+	if messages == nil {
+		updateCh <- chatcompletion.ChatStreamingResponse{
+			Update: nil,
+			Err:    errors.New("messages cannot be nil"),
+		}
+		close(updateCh)
+		return updateCh
+	}
+
+	go func() {
+		defer close(updateCh)
+
+		var (
+			originalMessages    = messages
+			augmentedHistory    []chatcompletion.ChatMessage
+			functionCallContent []contents.FunctionCallContent
+			responseMessages    []chatcompletion.ChatMessage
+			lastIterationHadID  bool
+		)
+
+		for iteration := 0; ; iteration++ {
+			var updates []chatcompletion.ChatResponseUpdate
+			functionCallContent = nil
+
+			innerCh := c.InnerClient.GetStreamingResponse(ctx, messages, options)
+
+			for update := range innerCh {
+				if update.Err != nil {
+					updateCh <- chatcompletion.ChatStreamingResponse{
+						Update: nil,
+						Err:    update.Err,
+					}
+					return
+				}
+
+				select {
+				case <-ctx.Done():
+					return
+				case updateCh <- update:
+
+				}
+
+				updates = append(updates, *update.Update)
+				c.copyFunctionCallsFromContent(update.Update.Contents, &functionCallContent)
+			}
+
+			if len(functionCallContent) == 0 || options == nil || len(options.Tools) == 0 || (c.MaximumIterationsPerRequest != nil && iteration >= *c.MaximumIterationsPerRequest) {
+				return
+			}
+
+			response := chatcompletion.ToChatResponse(updates, true)
+			responseMessages = append(responseMessages, response.Message)
+			messages, augmentedHistory, lastIterationHadID = c.fixupHistories(originalMessages, augmentedHistory, response, responseMessages, lastIterationHadID)
+
+			continueMode := ""
+			var modeAndMessages []chatcompletion.ChatMessage
+			var err error
+			continueMode, modeAndMessages, augmentedHistory, err = c.processFunctionCalls(ctx, augmentedHistory, options, functionCallContent, iteration)
+			if err != nil {
+				updateCh <- chatcompletion.ChatStreamingResponse{
+					Update: nil,
+					Err:    err,
+				}
+				return
+			}
+
+			responseMessages = append(responseMessages, modeAndMessages...)
+
+			toolResponseID := "" //TODO: uuid
+			for _, msg := range modeAndMessages {
+				t := time.Now().UTC()
+				toolResultUpdate := chatcompletion.ChatResponseUpdate{
+					AdditionalProperties: msg.AdditionalProperties,
+					AuthorName:           msg.AuthorName,
+					ChatThreadId:         response.ChatThreadId,
+					CreatedAt:            &t,
+					Contents:             msg.Contents,
+					ResponseId:           &toolResponseID,
+					Role:                 &msg.Role,
+				}
+
+				select {
+				case <-ctx.Done():
+					return
+				case updateCh <- chatcompletion.ChatStreamingResponse{
+					Update: &toolResultUpdate,
+					Err:    nil,
+				}:
+				}
+			}
+
+			if c.updateOptionsForMode(continueMode, options, response.ChatThreadId) {
+				return
+			}
+		}
+	}()
+
+	return updateCh
 }
