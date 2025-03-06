@@ -117,7 +117,7 @@ func (f *FunctionInvokingChatClient) processFunctionCall(
 	}
 
 	if function == nil {
-		return newFunctionInvocationResult("Continue", "NotFound", callContent, nil, nil)
+		return NewFunctionInvocationResult("Continue", "NotFound", callContent, nil, nil)
 	}
 
 	functionContext := FunctionInvocationContext{
@@ -135,14 +135,14 @@ func (f *FunctionInvokingChatClient) processFunctionCall(
 		if !f.RetryOnError {
 			continueMode = "AllowOneMoreRoundtrip"
 		}
-		return newFunctionInvocationResult(continueMode, "Exception", callContent, nil, nil)
+		return NewFunctionInvocationResult(continueMode, "Exception", callContent, nil, nil)
 	}
 
 	continueMode := "Terminate"
 	if !functionContext.Terminate {
 		continueMode = "Continue"
 	}
-	return newFunctionInvocationResult(continueMode, "RanToCompletion", callContent, result, nil)
+	return NewFunctionInvocationResult(continueMode, "RanToCompletion", callContent, result, nil)
 }
 
 func (f *FunctionInvokingChatClient) InvokeFunction(ctx context.Context, funcContext FunctionInvocationContext) interface{} {
@@ -200,7 +200,7 @@ type FunctionInvocationResult struct {
 	ContinueMode string
 }
 
-func newFunctionInvocationResult(
+func NewFunctionInvocationResult(
 	continueMode string,
 	status string,
 	callContent contents.FunctionCallContent,
@@ -214,4 +214,28 @@ func newFunctionInvocationResult(
 		Result:       result,
 		err:          err,
 	}
+}
+
+func (f *FunctionInvokingChatClient) updateOptionsForMode(mode string, options *chatcompletion.ChatOptions, chatThreadId *string) bool {
+	switch mode {
+	case "Continue":
+		if *options.ToolMode == chatcompletion.RequireAnyMode {
+			options.ToolMode = nil
+			options.ChatThreadId = chatThreadId
+		}
+		return false
+	case "Terminate":
+		return true
+	case "AllowOneMoreRoundtrip":
+		options.Tools = nil
+		options.ToolMode = nil
+		options.ChatThreadId = chatThreadId
+		return false
+	default:
+		if options.ChatThreadId != chatThreadId {
+			options.ChatThreadId = chatThreadId
+		}
+	}
+
+	return false
 }
