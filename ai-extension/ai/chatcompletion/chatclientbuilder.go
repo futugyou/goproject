@@ -70,3 +70,7 @@ func (b *ChatClientBuilder) UseResponseFunc(getResponseFunc GetResponseFunc, get
 		)
 	})
 }
+
+func IChatClientAsBuilder(innerClient chatcompletion.IChatClient) *ChatClientBuilder {
+	return NewChatClientBuilder(innerClient)
+}
