@@ -1,6 +1,7 @@
 module github/go-project/tour
 
 go 1.22.5
+toolchain go1.23.7
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
@@ -13,7 +14,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/spf13/cobra v1.9.1
 	go.mongodb.org/mongo-driver v1.17.3
-	golang.org/x/text v0.22.0
+	golang.org/x/text v0.23.0
 )
 
 require (
@@ -65,7 +66,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
 )
 
 replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
