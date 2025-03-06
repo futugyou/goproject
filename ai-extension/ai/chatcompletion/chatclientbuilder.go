@@ -71,6 +71,13 @@ func (b *ChatClientBuilder) UseResponseFunc(getResponseFunc GetResponseFunc, get
 	})
 }
 
+func (b *ChatClientBuilder) ConfigureOptions(configure func(*chatcompletion.ChatOptions)) *ChatClientBuilder {
+	b.Use(func(innerClient chatcompletion.IChatClient, sp core.IServiceProvider) chatcompletion.IChatClient {
+		return NewConfigureOptionsChatClient(innerClient, configure)
+	})
+	return b
+}
+
 func IChatClientAsBuilder(innerClient chatcompletion.IChatClient) *ChatClientBuilder {
 	return NewChatClientBuilder(innerClient)
 }
