@@ -26,6 +26,14 @@ func (response *ChatResponse[T]) GetResult() (*T, error) {
 	return response.getResultCore()
 }
 
+func (response *ChatResponse[T]) TryGetResult() (*T, bool) {
+	result, err := response.getResultCore()
+	if err != nil {
+		return nil, false
+	}
+	return result, true
+}
+
 func (response *ChatResponse[T]) getResultCore() (*T, error) {
 	if response.hasDeserializedResult {
 		return response.deserializedResult, nil
