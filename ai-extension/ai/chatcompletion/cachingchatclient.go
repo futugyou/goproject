@@ -28,7 +28,7 @@ func (client *CachingChatClient) GetResponse(
 	options *chatcompletion.ChatOptions,
 ) (*chatcompletion.ChatResponse, error) {
 	var cacheKey = client.GetCacheKey(false, chatMessages, options)
-	if cachedResponse, err := client.ReadCacheAsync(ctx, cacheKey); err == nil {
+	if cachedResponse, err := client.ReadCache(ctx, cacheKey); err == nil {
 		return cachedResponse, nil
 	}
 
@@ -37,7 +37,7 @@ func (client *CachingChatClient) GetResponse(
 		return nil, err
 	}
 
-	client.WriteCacheAsync(ctx, cacheKey, *response)
+	client.WriteCache(ctx, cacheKey, *response)
 	return response, nil
 }
 
@@ -49,7 +49,7 @@ func (client *CachingChatClient) GetStreamingResponse(
 	var cacheKey = client.GetCacheKey(true, chatMessages, options)
 
 	if client.CoalesceStreamingUpdates {
-		if cachedResponse, err := client.ReadCacheAsync(ctx, cacheKey); err == nil {
+		if cachedResponse, err := client.ReadCache(ctx, cacheKey); err == nil {
 			streamResp := make(chan chatcompletion.ChatStreamingResponse)
 
 			go func() {
@@ -75,12 +75,12 @@ func (client *CachingChatClient) GetStreamingResponse(
 				streamResp <- msg
 			}
 
-			client.WriteCacheAsync(ctx, cacheKey, chatcompletion.ToChatResponse(updates, true))
+			client.WriteCache(ctx, cacheKey, chatcompletion.ToChatResponse(updates, true))
 		}()
 		return streamResp
 	}
 
-	if cachedResponse, err := client.ReadCacheStreamingAsync(ctx, cacheKey); err == nil {
+	if cachedResponse, err := client.ReadCacheStreaming(ctx, cacheKey); err == nil {
 		streamResp := make(chan chatcompletion.ChatStreamingResponse)
 
 		go func() {
@@ -106,7 +106,7 @@ func (client *CachingChatClient) GetStreamingResponse(
 			streamResp <- msg
 		}
 
-		client.WriteCacheStreamingAsync(ctx, cacheKey, updates)
+		client.WriteCacheStreaming(ctx, cacheKey, updates)
 	}()
 	return streamResp
 }
@@ -115,17 +115,17 @@ func (client *CachingChatClient) GetCacheKey(boxed bool, chatMessages []chatcomp
 	panic("GetCacheKey must be implemented by subclass")
 }
 
-func (client *CachingChatClient) ReadCacheAsync(ctx context.Context, key string) (*chatcompletion.ChatResponse, error) {
-	panic("ReadCacheAsync must be implemented by subclass")
+func (client *CachingChatClient) ReadCache(ctx context.Context, key string) (*chatcompletion.ChatResponse, error) {
+	panic("ReadCache must be implemented by subclass")
 }
 
-func (client *CachingChatClient) ReadCacheStreamingAsync(ctx context.Context, key string) ([]chatcompletion.ChatResponseUpdate, error) {
-	panic("ReadCacheStreamingAsync must be implemented by subclass")
+func (client *CachingChatClient) ReadCacheStreaming(ctx context.Context, key string) ([]chatcompletion.ChatResponseUpdate, error) {
+	panic("ReadCacheStreaming must be implemented by subclass")
 }
 
-func (client *CachingChatClient) WriteCacheAsync(ctx context.Context, key string, value chatcompletion.ChatResponse) error {
-	panic("WriteCacheAsync must be implemented by subclass")
+func (client *CachingChatClient) WriteCache(ctx context.Context, key string, value chatcompletion.ChatResponse) error {
+	panic("WriteCache must be implemented by subclass")
 }
-func (client *CachingChatClient) WriteCacheStreamingAsync(ctx context.Context, key string, value []chatcompletion.ChatResponseUpdate) error {
-	panic("WriteCacheStreamingAsync must be implemented by subclass")
+func (client *CachingChatClient) WriteCacheStreaming(ctx context.Context, key string, value []chatcompletion.ChatResponseUpdate) error {
+	panic("WriteCacheStreaming must be implemented by subclass")
 }
