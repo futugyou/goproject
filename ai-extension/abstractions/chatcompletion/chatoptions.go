@@ -34,3 +34,35 @@ const (
 	RequireAnyMode ChatToolMode = "requireAny"
 	NoneMode       ChatToolMode = "none"
 )
+
+func (o *ChatOptions) Clone() *ChatOptions {
+	if o == nil {
+		return &ChatOptions{}
+	}
+
+	options := ChatOptions{
+		ChatThreadId:         o.ChatThreadId,
+		Temperature:          o.Temperature,
+		MaxOutputTokens:      o.MaxOutputTokens,
+		TopP:                 o.TopP,
+		TopK:                 o.TopK,
+		FrequencyPenalty:     o.FrequencyPenalty,
+		PresencePenalty:      o.PresencePenalty,
+		Seed:                 o.Seed,
+		ResponseFormat:       o.ResponseFormat,
+		ModelId:              o.ModelId,
+		ToolMode:             o.ToolMode,
+		AdditionalProperties: o.AdditionalProperties,
+		StopSequences:        o.StopSequences,
+		Tools:                o.Tools,
+	}
+
+	additionalProperties := map[string]interface{}{}
+	for k, v := range o.AdditionalProperties {
+		additionalProperties[k] = v
+	}
+
+	options.AdditionalProperties = additionalProperties
+
+	return &options
+}
