@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/futugyou/ai-extension/abstractions"
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/abstractions/contents"
 	"github.com/futugyou/ai-extension/abstractions/functions"
@@ -294,47 +295,6 @@ func (f *FunctionInvokingChatClient) fixupHistories(
 	return augmentedHistory, augmentedHistory, lastIterationHadThreadId
 }
 
-func (c *FunctionInvokingChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
-	return c.InnerClient.GetResponse(ctx, chatMessages, options)
-}
-
-// func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
-// 	originalMessages := chatMessages
-// 	augmentedHistory := []chatcompletion.ChatMessage{}
-// 	functionCallContents := []contents.FunctionCallContent{}
-// 	responseMessages := []chatcompletion.ChatMessage{}
-// 	lastIterationHadThreadId := false
-// 	updates := []chatcompletion.ChatResponseUpdate{}
-// 	streamResp := make(chan chatcompletion.ChatStreamingResponse)
-
-// 	iteration := 0
-// 	for {
-// 		updates = []chatcompletion.ChatResponseUpdate{}
-// 		functionCallContents = []contents.FunctionCallContent{}
-
-// 		originalResponse := c.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
-
-// 		go func() {
-// 			defer close(streamResp)
-// 			for msg := range originalResponse {
-// 				updates = append(updates, *msg.Update)
-// 				streamResp <- msg
-// 			}
-
-// 		}()
-
-// 		if len(functionCallContents) == 0 ||
-// 			options == nil || len(options.Tools) == 0 ||
-// 			(c.MaximumIterationsPerRequest != nil && iteration >= *c.MaximumIterationsPerRequest) {
-// 			break
-// 		}
-
-// 		iteration = iteration + 1
-// 	}
-
-// 	return streamResp
-// }
-
 func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
 	updateCh := make(chan chatcompletion.ChatStreamingResponse)
 	if messages == nil {
@@ -435,4 +395,67 @@ func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, m
 	}()
 
 	return updateCh
+}
+
+func (c *FunctionInvokingChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+	if chatMessages == nil {
+		return nil, errors.New("messages cannot be nil")
+	}
+
+	var originalMessages = chatMessages
+	var augmentedHistory []chatcompletion.ChatMessage = []chatcompletion.ChatMessage{}
+	var functionCallContent []contents.FunctionCallContent = []contents.FunctionCallContent{}
+	var responseMessages []chatcompletion.ChatMessage = []chatcompletion.ChatMessage{}
+	var lastIterationHadID bool
+	var response *chatcompletion.ChatResponse
+	var err error
+	totalUsage := &abstractions.UsageDetails{}
+
+	for iteration := 0; ; iteration++ {
+		functionCallContent = nil
+
+		response, err = c.InnerClient.GetResponse(ctx, chatMessages, options)
+		if err != nil {
+			return nil, err
+		}
+
+		requiresFunctionInvocation := len(options.Tools) > 0 &&
+			(c.MaximumIterationsPerRequest == nil || iteration < *c.MaximumIterationsPerRequest) &&
+			c.copyFunctionCalls([]chatcompletion.ChatMessage{response.Message}, &functionCallContent)
+
+		if iteration == 0 && !requiresFunctionInvocation {
+			return response, nil
+		}
+
+		responseMessages = append(responseMessages, response.Message)
+
+		if response.Usage != nil {
+			totalUsage.AddUsageDetails(*response.Usage)
+		}
+
+		if !requiresFunctionInvocation {
+			break
+		}
+
+		chatMessages, augmentedHistory, lastIterationHadID = c.fixupHistories(originalMessages, augmentedHistory, *response, responseMessages, lastIterationHadID)
+
+		continueMode := ""
+		var modeAndMessages []chatcompletion.ChatMessage
+
+		continueMode, modeAndMessages, augmentedHistory, err = c.processFunctionCalls(ctx, augmentedHistory, options, functionCallContent, iteration)
+		if err != nil {
+			return nil, err
+		}
+
+		responseMessages = append(responseMessages, modeAndMessages...)
+
+		if c.updateOptionsForMode(continueMode, options, response.ChatThreadId) {
+			break
+		}
+	}
+
+	response.Choices = responseMessages
+	response.Usage = totalUsage
+
+	return response, nil
 }
