@@ -78,6 +78,22 @@ func (b *ChatClientBuilder) ConfigureOptions(configure func(*chatcompletion.Chat
 	return b
 }
 
+func (b *ChatClientBuilder) UseDistributedCache(storage core.IDistributedCache, configure func(*DistributedCachingChatClient)) *ChatClientBuilder {
+	b.Use(func(innerClient chatcompletion.IChatClient, sp core.IServiceProvider) chatcompletion.IChatClient {
+		if storage == nil {
+			storage = core.GetService[core.IDistributedCache](sp)
+		}
+
+		var chatClient = NewDistributedCachingChatClient(innerClient, storage)
+		if configure != nil {
+			configure(chatClient)
+		}
+
+		return chatClient
+	})
+	return b
+}
+
 func IChatClientAsBuilder(innerClient chatcompletion.IChatClient) *ChatClientBuilder {
 	return NewChatClientBuilder(innerClient)
 }

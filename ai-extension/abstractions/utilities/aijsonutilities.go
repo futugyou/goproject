@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+// HashDataToString generates a hash string from the given values using FNV-1a algorithm.
+// It accepts variable number of interface{} arguments and returns their combined hash as a hexadecimal string.
 func HashDataToString(values ...interface{}) string {
 	h := fnv.New64a()
 
@@ -20,6 +22,10 @@ func HashDataToString(values ...interface{}) string {
 	return strconv.FormatUint(h.Sum64(), 16)
 }
 
+// writeHash writes the hash representation of a value v into the provided hash.Hash64.
+// It handles various basic types (string, numeric types, bool) and fmt.Stringer interface.
+// For complex types, it delegates to encodeComplex.
+// If the input value is nil, it writes "nil" to the hash.
 func writeHash(h hash.Hash64, v interface{}) {
 	if v == nil {
 		h.Write([]byte("nil"))
@@ -48,6 +54,10 @@ func writeHash(h hash.Hash64, v interface{}) {
 	}
 }
 
+// encodeComplex writes a hash representation of a complex data structure into the provided hash.Hash64.
+// It handles various types including pointers, slices, arrays, maps, structs, and primitive types.
+// For maps, it ensures consistent hashing by sorting keys before processing.
+// For structs, it uses JSON marshaling to create a consistent string representation.
 func encodeComplex(h hash.Hash64, v interface{}) {
 	rv := reflect.ValueOf(v)
 
