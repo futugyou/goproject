@@ -111,7 +111,7 @@ func (client *CachingChatClient) GetStreamingResponse(
 	return streamResp
 }
 
-func (client *CachingChatClient) GetCacheKey(boxed bool, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) string {
+func (client *CachingChatClient) GetCacheKey(values ...interface{}) string {
 	panic("GetCacheKey must be implemented by subclass")
 }
 

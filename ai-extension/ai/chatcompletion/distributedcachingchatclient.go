@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
+	"github.com/futugyou/ai-extension/abstractions/utilities"
 	"github.com/futugyou/ai-extension/core"
 )
 
@@ -69,6 +70,6 @@ func (client *DistributedCachingChatClient) WriteCacheStreaming(ctx context.Cont
 	return client.storage.Set(ctx, key, cache)
 }
 
-func (client *DistributedCachingChatClient) GetCacheKey(boxed bool, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) string {
-	panic("GetCacheKey must be implemented by subclass")
+func (client *DistributedCachingChatClient) GetCacheKey(values ...interface{}) string {
+	return utilities.HashDataToString(values...)
 }
