@@ -8,7 +8,7 @@ import (
 )
 
 type IEmbeddingGenerator[TInput any, TEmbedding IEmbedding] interface {
-	Generate(ctx context.Context, values []TInput, options *EmbeddingGenerationOptions) (GeneratedEmbeddings[TEmbedding], error)
+	Generate(ctx context.Context, values []TInput, options *EmbeddingGenerationOptions) (*GeneratedEmbeddings[TEmbedding], error)
 }
 
 func GenerateEmbeddingVector[TInput any, TEmbeddingElement any](

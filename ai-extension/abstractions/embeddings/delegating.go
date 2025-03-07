@@ -12,6 +12,6 @@ func NewDelegatingEmbeddingGenerator[TInput any, TEmbedding IEmbedding](innerGen
 	}
 }
 
-func (g *DelegatingEmbeddingGenerator[TInput, TEmbedding]) Generate(ctx context.Context, values []TInput, options *EmbeddingGenerationOptions) (GeneratedEmbeddings[TEmbedding], error) {
+func (g *DelegatingEmbeddingGenerator[TInput, TEmbedding]) Generate(ctx context.Context, values []TInput, options *EmbeddingGenerationOptions) (*GeneratedEmbeddings[TEmbedding], error) {
 	return g.InnerGenerator.Generate(ctx, values, options)
 }
