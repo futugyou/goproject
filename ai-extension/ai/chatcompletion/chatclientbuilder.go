@@ -94,6 +94,18 @@ func (b *ChatClientBuilder) UseDistributedCache(storage core.IDistributedCache, 
 	return b
 }
 
+func (b *ChatClientBuilder) UseFunctionInvocation(configure func(*FunctionInvokingChatClient)) *ChatClientBuilder {
+	b.Use(func(innerClient chatcompletion.IChatClient, sp core.IServiceProvider) chatcompletion.IChatClient {
+		var chatClient = NewFunctionInvokingChatClient(innerClient)
+		if configure != nil {
+			configure(chatClient)
+		}
+
+		return chatClient
+	})
+	return b
+}
+
 func IChatClientAsBuilder(innerClient chatcompletion.IChatClient) *ChatClientBuilder {
 	return NewChatClientBuilder(innerClient)
 }
