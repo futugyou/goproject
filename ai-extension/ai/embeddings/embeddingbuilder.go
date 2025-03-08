@@ -71,3 +71,16 @@ func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseAnonymousGenerator(
 		return NewAnonymousDelegatingEmbeddingGenerator(generator, enerateFunc)
 	})
 }
+
+func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) ConfigureOptions(configure func(*embeddings.EmbeddingGenerationOptions)) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
+	b.Use(func(innerClient embeddings.IEmbeddingGenerator[TInput, TEmbedding], sp core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
+		return NewConfigureOptionsEmbeddingGenerator(innerClient, configure)
+	})
+	return b
+}
+
+func IEmbeddingGeneratorAsBuilder[TInput any, TEmbedding embeddings.IEmbedding](
+	innerClient embeddings.IEmbeddingGenerator[TInput, TEmbedding],
+) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
+	return NewEmbeddingGeneratorBuilder(innerClient)
+}
