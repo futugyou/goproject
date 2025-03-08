@@ -12,21 +12,46 @@ import (
 )
 
 type ChatResponse struct {
-	Choices              []ChatMessage              `json:"choices"`
-	Message              ChatMessage                `json:"-"`
+	Messages             []ChatMessage              `json:"choices"`
 	ResponseId           *string                    `json:"responseId"`
 	ChatThreadId         *string                    `json:"chatThreadId"`
 	ModelId              *string                    `json:"modelId"`
 	CreatedAt            *time.Time                 `json:"createdAt"`
 	FinishReason         *ChatFinishReason          `json:"finishReason"`
 	Usage                *abstractions.UsageDetails `json:"usage"`
+	RawRepresentation    interface{}                `json:"-"`
 	AdditionalProperties map[string]interface{}     `json:"additionalProperties,omitempty"`
+}
+
+func NewChatResponse(messages []ChatMessage, message *ChatMessage) *ChatResponse {
+	response := &ChatResponse{
+		Messages: []ChatMessage{},
+	}
+	if len(messages) > 0 {
+		response.Messages = messages
+	}
+	if message != nil {
+		response.Messages = append(response.Messages, *message)
+	}
+	return response
+}
+
+func (c *ChatResponse) Text() string {
+	return ConcatMessagesContents(c.Messages)
+}
+
+func ConcatMessagesContents(contents []ChatMessage) string {
+	var text string
+	for _, content := range contents {
+		text += content.Text()
+	}
+	return text
 }
 
 func (c *ChatResponse) ToChatResponseUpdates() []ChatResponseUpdate {
 	var updates []ChatResponseUpdate
 
-	for i, choice := range c.Choices {
+	for i, choice := range c.Messages {
 		update := ChatResponseUpdate{
 			ChatThreadId:         c.ChatThreadId,
 			ChoiceIndex:          i,
@@ -154,14 +179,18 @@ func ToChatResponse(updates []ChatResponseUpdate, coalesceContent bool) ChatResp
 		response.ModelId = update.ModelId
 		response.ResponseId = update.ResponseId
 
-		message := ChatMessage{
-			Role:                 "",
-			Message:              "",
-			Text:                 new(string),
-			Contents:             []contents.IAIContent{},
-			AuthorName:           new(string),
-			AdditionalProperties: map[string]interface{}{},
+		var message ChatMessage
+		if len(response.Messages) == 0 || response.ResponseId != nil && update.ResponseId != nil && *response.ResponseId != *update.ResponseId {
+			message = ChatMessage{
+				AuthorName:           new(string),
+				Role:                 RoleAssistant,
+				Contents:             []contents.IAIContent{},
+				AdditionalProperties: map[string]interface{}{},
+			}
+		} else {
+			message = response.Messages[len(response.Messages)-1]
 		}
+
 		if v, ok := messages[update.ChoiceIndex]; ok {
 			message = v
 		}
@@ -197,9 +226,9 @@ func addMessagesToResponse(messages map[int]ChatMessage, response *ChatResponse,
 			addMessage(response, coalesceContent, message)
 		}
 
-		if len(response.Choices) == 1 && response.Choices[0].AdditionalProperties != nil {
-			response.AdditionalProperties = response.Choices[0].AdditionalProperties
-			response.Choices[0].AdditionalProperties = nil
+		if len(response.Messages) == 1 && response.Messages[0].AdditionalProperties != nil {
+			response.AdditionalProperties = response.Messages[0].AdditionalProperties
+			response.Messages[0].AdditionalProperties = nil
 		}
 	} else {
 		keys := make([]int, 0, len(messages))
@@ -223,7 +252,7 @@ func addMessage(response *ChatResponse, coalesceContent bool, message ChatMessag
 		message.Contents = coalesceTextContent(message.Contents)
 	}
 
-	response.Choices = append(response.Choices, message)
+	response.Messages = append(response.Messages, message)
 }
 
 func coalesceTextContent(conts []contents.IAIContent) []contents.IAIContent {

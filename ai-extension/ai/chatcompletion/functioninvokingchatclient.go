@@ -284,7 +284,7 @@ func (f *FunctionInvokingChatClient) fixupHistories(
 		}
 
 		addMessages := func(messages []chatcompletion.ChatMessage, response chatcompletion.ChatResponse) []chatcompletion.ChatMessage {
-			messages = append(messages, response.Message)
+			messages = append(messages, response.Messages...)
 			return messages
 		}
 
@@ -348,7 +348,7 @@ func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, m
 			}
 
 			response := chatcompletion.ToChatResponse(updates, true)
-			responseMessages = append(responseMessages, response.Message)
+			responseMessages = append(responseMessages, response.Messages...)
 			messages, augmentedHistory, lastIterationHadID = c.fixupHistories(originalMessages, augmentedHistory, response, responseMessages, lastIterationHadID)
 
 			continueMode := ""
@@ -421,13 +421,13 @@ func (c *FunctionInvokingChatClient) GetResponse(ctx context.Context, chatMessag
 
 		requiresFunctionInvocation := len(options.Tools) > 0 &&
 			(c.MaximumIterationsPerRequest == nil || iteration < *c.MaximumIterationsPerRequest) &&
-			c.copyFunctionCalls([]chatcompletion.ChatMessage{response.Message}, &functionCallContent)
+			c.copyFunctionCalls(response.Messages, &functionCallContent)
 
 		if iteration == 0 && !requiresFunctionInvocation {
 			return response, nil
 		}
 
-		responseMessages = append(responseMessages, response.Message)
+		responseMessages = append(responseMessages, response.Messages...)
 
 		if response.Usage != nil {
 			totalUsage.AddUsageDetails(*response.Usage)
@@ -454,7 +454,7 @@ func (c *FunctionInvokingChatClient) GetResponse(ctx context.Context, chatMessag
 		}
 	}
 
-	response.Choices = responseMessages
+	response.Messages = responseMessages
 	response.Usage = totalUsage
 
 	return response, nil

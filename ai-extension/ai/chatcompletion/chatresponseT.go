@@ -70,13 +70,13 @@ func (response *ChatResponse[T]) getResultCore() (*T, error) {
 }
 
 func (response *ChatResponse[T]) GetResultAsJson() string {
-	if len(response.Choices) != 1 {
+	if len(response.Messages) != 1 {
 		return ""
 	}
-	if len(response.Choices[0].Contents) != 1 {
+	if len(response.Messages[0].Contents) != 1 {
 		return ""
 	}
-	content := response.Choices[0].Contents[0]
+	content := response.Messages[0].Contents[0]
 
 	switch expression := content.(type) {
 	case contents.TextContent:

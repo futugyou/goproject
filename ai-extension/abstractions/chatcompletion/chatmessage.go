@@ -8,12 +8,15 @@ import (
 )
 
 type ChatMessage struct {
-	Role                 ChatRole               `json:"role"`
-	Message              string                 `json:"message"`
-	Text                 *string                `json:"-"`
 	AuthorName           *string                `json:"authorName"`
-	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
+	Role                 ChatRole               `json:"role"`
 	Contents             []contents.IAIContent  `json:"contents"`
+	RawRepresentation    interface{}            `json:"-"`
+	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
+}
+
+func (c *ChatMessage) Text() string {
+	return contents.ConcatTextContents(c.Contents)
 }
 
 func (cru *ChatMessage) UnmarshalJSON(data []byte) error {
