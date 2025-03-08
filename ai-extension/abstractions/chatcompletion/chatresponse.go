@@ -3,7 +3,6 @@ package chatcompletion
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
 	"strings"
 	"time"
 
@@ -164,14 +163,12 @@ type ChatStreamingResponse struct {
 	Err    error
 }
 
-func ToChatResponse(updates []ChatResponseUpdate, coalesceContent bool) ChatResponse {
+func ToChatResponse(updates []ChatResponseUpdate) ChatResponse {
 	if len(updates) == 0 {
 		return ChatResponse{}
 	}
 
 	response := new(ChatResponse)
-	messages := map[int]ChatMessage{}
-
 	for _, update := range updates {
 		response.ChatThreadId = update.ChatThreadId
 		response.CreatedAt = update.CreatedAt
@@ -189,10 +186,6 @@ func ToChatResponse(updates []ChatResponseUpdate, coalesceContent bool) ChatResp
 			}
 		} else {
 			message = response.Messages[len(response.Messages)-1]
-		}
-
-		if v, ok := messages[update.ChoiceIndex]; ok {
-			message = v
 		}
 
 		for _, con := range update.Contents {
@@ -213,46 +206,18 @@ func ToChatResponse(updates []ChatResponseUpdate, coalesceContent bool) ChatResp
 			message.AdditionalProperties[key] = vaule
 
 		}
-		messages[update.ChoiceIndex] = message
+
+		response.Messages = append(response.Messages, message)
 	}
 
-	addMessagesToResponse(messages, response, coalesceContent)
+	finalizeResponse(response)
 	return *response
 }
 
-func addMessagesToResponse(messages map[int]ChatMessage, response *ChatResponse, coalesceContent bool) {
-	if len(messages) <= 1 {
-		for _, message := range messages {
-			addMessage(response, coalesceContent, message)
-		}
-
-		if len(response.Messages) == 1 && response.Messages[0].AdditionalProperties != nil {
-			response.AdditionalProperties = response.Messages[0].AdditionalProperties
-			response.Messages[0].AdditionalProperties = nil
-		}
-	} else {
-		keys := make([]int, 0, len(messages))
-		for key := range messages {
-			keys = append(keys, key)
-		}
-		sort.Ints(keys)
-
-		for _, key := range keys {
-			addMessage(response, coalesceContent, messages[key])
-		}
+func finalizeResponse(response *ChatResponse) {
+	for i := 0; i < len(response.Messages); i++ {
+		response.Messages[i].Contents = coalesceTextContent(response.Messages[i].Contents)
 	}
-}
-
-func addMessage(response *ChatResponse, coalesceContent bool, message ChatMessage) {
-	if message.Role == "" {
-		message.Role = "Assistant"
-	}
-
-	if coalesceContent {
-		message.Contents = coalesceTextContent(message.Contents)
-	}
-
-	response.Messages = append(response.Messages, message)
 }
 
 func coalesceTextContent(conts []contents.IAIContent) []contents.IAIContent {

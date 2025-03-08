@@ -75,7 +75,7 @@ func (client *CachingChatClient) GetStreamingResponse(
 				streamResp <- msg
 			}
 
-			client.WriteCache(ctx, cacheKey, chatcompletion.ToChatResponse(updates, true))
+			client.WriteCache(ctx, cacheKey, chatcompletion.ToChatResponse(updates))
 		}()
 		return streamResp
 	}

@@ -88,7 +88,7 @@ func (client *AnonymousDelegatingChatClient) GetResponse(
 		return nil, updateResponse.Err
 	}
 
-	response := chatcompletion.ToChatResponse([]chatcompletion.ChatResponseUpdate{*updateResponse.Update}, true)
+	response := chatcompletion.ToChatResponse([]chatcompletion.ChatResponseUpdate{*updateResponse.Update})
 	return &response, nil
 }
 

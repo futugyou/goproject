@@ -347,7 +347,7 @@ func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, m
 				return
 			}
 
-			response := chatcompletion.ToChatResponse(updates, true)
+			response := chatcompletion.ToChatResponse(updates)
 			responseMessages = append(responseMessages, response.Messages...)
 			messages, augmentedHistory, lastIterationHadID = c.fixupHistories(originalMessages, augmentedHistory, response, responseMessages, lastIterationHadID)
 
