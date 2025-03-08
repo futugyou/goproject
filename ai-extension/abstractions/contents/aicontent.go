@@ -62,3 +62,14 @@ func (ac *AIContent) UnmarshalJSON(data []byte) error {
 	*ac = AIContent(aux.Alias)
 	return nil
 }
+
+
+func ConcatTextContents(contents []IAIContent) string {
+	var text string
+	for _, content := range contents {
+		if textContent, ok := content.(TextContent); ok {
+			text += textContent.Text
+		}
+	}
+	return text
+}
