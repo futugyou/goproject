@@ -3,6 +3,7 @@ package chatcompletion
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -22,11 +23,58 @@ var (
 	tracer = otel.Tracer(tracerName)
 	meter  = otel.Meter(metricName)
 )
-var latencyHist, _ = meter.Float64Histogram("operation_duration_seconds")
-var tokenHist, _ = meter.Int64Histogram("token_usage_count")
+var latencyHist, _ = meter.Float64Histogram(
+	"gen_ai.client.operation.duration",
+	metric.WithUnit("token"),
+	metric.WithDescription("Measures the duration of a GenAI operation"),
+	metric.WithExplicitBucketBoundaries([]float64{0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 1.28, 2.56, 5.12, 10.24, 20.48, 40.96, 81.92}...),
+)
+
+var tokenHist, _ = meter.Int64Histogram(
+	"gen_ai.client.token.usage",
+	metric.WithUnit("token"),
+	metric.WithDescription("Measures number of input and output tokens used"),
+	metric.WithExplicitBucketBoundaries([]float64{1, 4, 16, 64, 256, 1_024, 4_096, 16_384, 65_536, 262_144, 1_048_576, 4_194_304, 16_777_216, 67_108_864}...),
+)
 
 type OpenTelemetryChatClient struct {
 	chatcompletion.DelegatingChatClient
+	Metadata *chatcompletion.ChatClientMetadata
+}
+
+func NewOpenTelemetryChatClient(innerClient chatcompletion.IChatClient, metadata *chatcompletion.ChatClientMetadata) *OpenTelemetryChatClient {
+	return &OpenTelemetryChatClient{
+		DelegatingChatClient: chatcompletion.DelegatingChatClient{InnerClient: innerClient},
+		Metadata:             metadata,
+	}
+}
+
+func (c *OpenTelemetryChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+	system := "gen-ai"
+	serverAddress := "localhost"
+	serverPort := "0"
+	modelId := ""
+
+	if c.Metadata != nil {
+		if c.Metadata.ModelId != nil {
+			modelId = *c.Metadata.ModelId
+		}
+		if c.Metadata.ProviderName != nil {
+			system = *c.Metadata.ProviderName
+		}
+		if c.Metadata.ProviderUri != nil {
+			if u, err := url.Parse(*c.Metadata.ProviderUri); err == nil {
+				serverAddress = u.Hostname()
+				serverPort = u.Port()
+			}
+		}
+	}
+
+	ctx, span := CreateAndConfigureSpan(ctx, options, system, serverAddress, modelId, serverPort)
+	startTime := time.Now()
+	response, err := c.InnerClient.GetResponse(ctx, chatMessages, options)
+	TraceResponse(ctx, span, response, err, startTime)
+	return response, err
 }
 
 func CreateAndConfigureSpan(
@@ -35,9 +83,9 @@ func CreateAndConfigureSpan(
 	system string,
 	serverAddress string,
 	serverPort string,
+	modelId string,
 ) (context.Context, trace.Span) {
 	// add Span name
-	modelId := ""
 	if options != nil && options.ModelId != nil {
 		modelId = *options.ModelId
 	}
@@ -105,7 +153,7 @@ func CreateAndConfigureSpan(
 }
 
 // TraceResponse log request/reponse
-func TraceResponse(ctx context.Context, span trace.Span, requestModelId string, response *chatcompletion.ChatResponse, err error, startTime time.Time) {
+func TraceResponse(ctx context.Context, span trace.Span, response *chatcompletion.ChatResponse, err error, startTime time.Time) {
 	// log time metric
 	duration := time.Since(startTime).Seconds()
 	latencyHist.Record(ctx, duration)
