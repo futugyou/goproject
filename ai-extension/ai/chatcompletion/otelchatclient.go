@@ -72,9 +72,80 @@ func (c *OpenTelemetryChatClient) GetResponse(ctx context.Context, chatMessages 
 
 	ctx, span := CreateAndConfigureSpan(ctx, options, system, serverAddress, modelId, serverPort)
 	startTime := time.Now()
+	defer span.End()
+
 	response, err := c.InnerClient.GetResponse(ctx, chatMessages, options)
 	TraceResponse(ctx, span, response, err, startTime)
 	return response, err
+}
+
+func (c *OpenTelemetryChatClient) GetStreamingResponse(
+	ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
+	system := "gen-ai"
+	serverAddress := "localhost"
+	serverPort := "0"
+	modelId := ""
+
+	if c.Metadata != nil {
+		if c.Metadata.ModelId != nil {
+			modelId = *c.Metadata.ModelId
+		}
+		if c.Metadata.ProviderName != nil {
+			system = *c.Metadata.ProviderName
+		}
+		if c.Metadata.ProviderUri != nil {
+			if u, err := url.Parse(*c.Metadata.ProviderUri); err == nil {
+				serverAddress = u.Hostname()
+				serverPort = u.Port()
+			}
+		}
+	}
+
+	// create OpenTelemetry span
+	ctx, span := CreateAndConfigureSpan(ctx, options, system, serverAddress, modelId, serverPort)
+	startTime := time.Now()
+
+	// ploxy InnerClient stream response
+	responseChan := c.InnerClient.GetStreamingResponse(ctx, chatMessages, options)
+	outputChan := make(chan chatcompletion.ChatStreamingResponse)
+
+	go func() {
+		defer close(outputChan)
+		defer func() {
+			if r := recover(); r != nil {
+				err := fmt.Errorf("panic: %v", r)
+				TraceResponse(ctx, span, nil, err, startTime)
+				span.End()
+			}
+		}()
+
+		var updates []chatcompletion.ChatResponseUpdate
+		var responseError error
+
+		for response := range responseChan {
+			if response.Err != nil {
+				responseError = response.Err
+			}
+
+			if responseError != nil {
+				break
+			}
+
+			updates = append(updates, *response.Update)
+			select {
+			case outputChan <- response:
+			case <-ctx.Done():
+				responseError = ctx.Err()
+			}
+		}
+
+		// end OpenTelemetry tracing
+		response := chatcompletion.ToChatResponse(updates)
+		TraceResponse(ctx, span, &response, responseError, startTime)
+		span.End()
+	}()
+
+	return outputChan
 }
 
 func CreateAndConfigureSpan(
@@ -172,6 +243,7 @@ func TraceResponse(ctx context.Context, span trace.Span, response *chatcompletio
 	if err != nil {
 		span.SetAttributes(attribute.String("error.type", fmt.Sprintf("%T", err)))
 		span.SetStatus(1, err.Error())
+		span.RecordError(err)
 	}
 
 	// log Response Tags
