@@ -4,12 +4,12 @@ import "github.com/futugyou/ai-extension/abstractions"
 
 type ChatOptions struct {
 	ChatThreadId         *string                `json:"chatThreadId,omitempty"`
-	Temperature          *float32               `json:"temperature,omitempty"`
+	Temperature          *float64               `json:"temperature,omitempty"`
 	MaxOutputTokens      *int                   `json:"maxOutputTokens,omitempty"`
-	TopP                 *float32               `json:"topP,omitempty"`
+	TopP                 *float64               `json:"topP,omitempty"`
 	TopK                 *int                   `json:"topK,omitempty"`
-	FrequencyPenalty     *float32               `json:"frequencyPenalty,omitempty"`
-	PresencePenalty      *float32               `json:"presencePenalty,omitempty"`
+	FrequencyPenalty     *float64               `json:"frequencyPenalty,omitempty"`
+	PresencePenalty      *float64               `json:"presencePenalty,omitempty"`
 	Seed                 *int64                 `json:"seed,omitempty"`
 	ResponseFormat       *ChatResponseFormat    `json:"responseFormat,omitempty"`
 	ModelId              *string                `json:"modelId,omitempty"`
