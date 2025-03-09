@@ -79,9 +79,9 @@ func NewOpenTelemetryChatClient(innerClient chatcompletion.IChatClient, metadata
 func (c *OpenTelemetryChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
 	ctx, span := CreateAndConfigureSpan(ctx, options, c.system, c.serverAddress, c.modelId, c.serverPort)
 	startTime := time.Now()
-	defer span.End()
 
 	response, err := c.InnerClient.GetResponse(ctx, chatMessages, options)
+
 	TraceResponse(ctx, span, response, err, startTime)
 	return response, err
 }
@@ -102,7 +102,6 @@ func (c *OpenTelemetryChatClient) GetStreamingResponse(
 			if r := recover(); r != nil {
 				err := fmt.Errorf("panic: %v", r)
 				TraceResponse(ctx, span, nil, err, startTime)
-				span.End()
 			}
 		}()
 
@@ -129,7 +128,6 @@ func (c *OpenTelemetryChatClient) GetStreamingResponse(
 		// end OpenTelemetry tracing
 		response := chatcompletion.ToChatResponse(updates)
 		TraceResponse(ctx, span, &response, responseError, startTime)
-		span.End()
 	}()
 
 	return outputChan
