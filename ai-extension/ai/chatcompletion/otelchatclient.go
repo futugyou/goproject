@@ -39,38 +39,45 @@ var tokenHist, _ = meter.Int64Histogram(
 
 type OpenTelemetryChatClient struct {
 	chatcompletion.DelegatingChatClient
-	Metadata *chatcompletion.ChatClientMetadata
+	Metadata      *chatcompletion.ChatClientMetadata
+	system        string
+	serverAddress string
+	serverPort    string
+	modelId       string
 }
 
 func NewOpenTelemetryChatClient(innerClient chatcompletion.IChatClient, metadata *chatcompletion.ChatClientMetadata) *OpenTelemetryChatClient {
-	return &OpenTelemetryChatClient{
-		DelegatingChatClient: chatcompletion.DelegatingChatClient{InnerClient: innerClient},
-		Metadata:             metadata,
-	}
-}
-
-func (c *OpenTelemetryChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
 	system := "gen-ai"
 	serverAddress := "localhost"
 	serverPort := "0"
 	modelId := ""
 
-	if c.Metadata != nil {
-		if c.Metadata.ModelId != nil {
-			modelId = *c.Metadata.ModelId
+	if metadata != nil {
+		if metadata.ModelId != nil {
+			modelId = *metadata.ModelId
 		}
-		if c.Metadata.ProviderName != nil {
-			system = *c.Metadata.ProviderName
+		if metadata.ProviderName != nil {
+			system = *metadata.ProviderName
 		}
-		if c.Metadata.ProviderUri != nil {
-			if u, err := url.Parse(*c.Metadata.ProviderUri); err == nil {
+		if metadata.ProviderUri != nil {
+			if u, err := url.Parse(*metadata.ProviderUri); err == nil {
 				serverAddress = u.Hostname()
 				serverPort = u.Port()
 			}
 		}
 	}
+	return &OpenTelemetryChatClient{
+		DelegatingChatClient: chatcompletion.DelegatingChatClient{InnerClient: innerClient},
+		Metadata:             metadata,
+		system:               system,
+		serverAddress:        serverAddress,
+		serverPort:           serverPort,
+		modelId:              modelId,
+	}
+}
 
-	ctx, span := CreateAndConfigureSpan(ctx, options, system, serverAddress, modelId, serverPort)
+func (c *OpenTelemetryChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+	ctx, span := CreateAndConfigureSpan(ctx, options, c.system, c.serverAddress, c.modelId, c.serverPort)
 	startTime := time.Now()
 	defer span.End()
 
@@ -81,28 +88,8 @@ func (c *OpenTelemetryChatClient) GetResponse(ctx context.Context, chatMessages 
 
 func (c *OpenTelemetryChatClient) GetStreamingResponse(
 	ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
-	system := "gen-ai"
-	serverAddress := "localhost"
-	serverPort := "0"
-	modelId := ""
-
-	if c.Metadata != nil {
-		if c.Metadata.ModelId != nil {
-			modelId = *c.Metadata.ModelId
-		}
-		if c.Metadata.ProviderName != nil {
-			system = *c.Metadata.ProviderName
-		}
-		if c.Metadata.ProviderUri != nil {
-			if u, err := url.Parse(*c.Metadata.ProviderUri); err == nil {
-				serverAddress = u.Hostname()
-				serverPort = u.Port()
-			}
-		}
-	}
-
 	// create OpenTelemetry span
-	ctx, span := CreateAndConfigureSpan(ctx, options, system, serverAddress, modelId, serverPort)
+	ctx, span := CreateAndConfigureSpan(ctx, options, c.system, c.serverAddress, c.modelId, c.serverPort)
 	startTime := time.Now()
 
 	// ploxy InnerClient stream response
