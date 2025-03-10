@@ -3,10 +3,9 @@ package chatcompletion
 import (
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/core"
+	"github.com/futugyou/ai-extension/core/logger"
 )
 
-// TODO, find a DI container
-// [dig](https://github.com/uber-go/dig) or [wire](https://github.com/google/wire)
 type ChatClientBuilder struct {
 	innerClientFactory func(core.IServiceProvider) chatcompletion.IChatClient
 	clientFactories    []func(chatcompletion.IChatClient, core.IServiceProvider) chatcompletion.IChatClient
@@ -104,6 +103,40 @@ func (b *ChatClientBuilder) UseFunctionInvocation(configure func(*FunctionInvoki
 		return chatClient
 	})
 	return b
+}
+
+func (b *ChatClientBuilder) UseLogging(configure func(*LoggingChatClient)) *ChatClientBuilder {
+	return b.Use(func(client chatcompletion.IChatClient, services core.IServiceProvider) chatcompletion.IChatClient {
+		logger := core.GetService[logger.Logger](services)
+		metadata := core.GetService[*chatcompletion.ChatClientMetadata](services)
+		logclient := NewLoggingChatClient(
+			client,
+			logger,
+			metadata,
+		)
+
+		if configure != nil {
+			configure(logclient)
+		}
+
+		return logclient
+	})
+}
+
+func (b *ChatClientBuilder) UseOpenTelemetry(configure func(*OpenTelemetryChatClient)) *ChatClientBuilder {
+	return b.Use(func(client chatcompletion.IChatClient, services core.IServiceProvider) chatcompletion.IChatClient {
+		metadata := core.GetService[*chatcompletion.ChatClientMetadata](services)
+		otelclient := NewOpenTelemetryChatClient(
+			client,
+			metadata,
+		)
+
+		if configure != nil {
+			configure(otelclient)
+		}
+
+		return otelclient
+	})
 }
 
 func IChatClientAsBuilder(innerClient chatcompletion.IChatClient) *ChatClientBuilder {

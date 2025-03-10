@@ -26,6 +26,8 @@ func GetService[T any](sp IServiceProvider) T {
 	}
 }
 
+// TODO, find a DI container
+// [dig](https://github.com/uber-go/dig) or [wire](https://github.com/google/wire)
 type ServiceProvider struct {
 	services sync.Map
 }
