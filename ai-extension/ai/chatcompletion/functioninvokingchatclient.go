@@ -154,7 +154,7 @@ func (f *FunctionInvokingChatClient) InvokeFunction(ctx context.Context, funcCon
 		return nil
 	}
 
-	resullt, err := funcContext.Function.InvokeAsync(ctx, funcContext.CallContent.Arguments)
+	resullt, err := funcContext.Function.Invoke(ctx, funcContext.CallContent.Arguments)
 	if err != nil {
 		// log error
 		return nil
