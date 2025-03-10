@@ -3,6 +3,7 @@ package embeddings
 import (
 	"github.com/futugyou/ai-extension/abstractions/embeddings"
 	"github.com/futugyou/ai-extension/core"
+	"github.com/futugyou/ai-extension/core/logger"
 )
 
 type EmbeddingGeneratorBuilder[TInput any, TEmbedding embeddings.IEmbedding] struct {
@@ -77,6 +78,59 @@ func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) ConfigureOptions(configu
 		return NewConfigureOptionsEmbeddingGenerator(innerClient, configure)
 	})
 	return b
+}
+
+func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseDistributedCache(
+	storage core.IDistributedCache,
+	configure func(*DistributedCachingEmbeddingGenerator[TInput, TEmbedding]),
+) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
+	b.Use(func(innerClient embeddings.IEmbeddingGenerator[TInput, TEmbedding], sp core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
+		if storage == nil {
+			storage = core.GetService[core.IDistributedCache](sp)
+		}
+
+		var chatClient = NewDistributedCachingEmbeddingGenerator[TInput, TEmbedding](innerClient, storage)
+		if configure != nil {
+			configure(chatClient)
+		}
+
+		return chatClient
+	})
+	return b
+}
+
+func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseLogging(configure func(*LoggingEmbeddingGenerator[TInput, TEmbedding])) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
+	return b.Use(func(client embeddings.IEmbeddingGenerator[TInput, TEmbedding], services core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
+		logger := core.GetService[logger.Logger](services)
+		metadata := core.GetService[*embeddings.EmbeddingGeneratorMetadata](services)
+		logclient := NewLoggingEmbeddingGenerator[TInput, TEmbedding](
+			client,
+			logger,
+			metadata,
+		)
+
+		if configure != nil {
+			configure(logclient)
+		}
+
+		return logclient
+	})
+}
+
+func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseOpenTelemetry(configure func(*OpenTelemetryEmbeddingGenerator[TInput, TEmbedding])) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
+	return b.Use(func(client embeddings.IEmbeddingGenerator[TInput, TEmbedding], services core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
+		metadata := core.GetService[*embeddings.EmbeddingGeneratorMetadata](services)
+		otelclient := NewOpenTelemetryEmbeddingGenerator[TInput, TEmbedding](
+			client,
+			metadata,
+		)
+
+		if configure != nil {
+			configure(otelclient)
+		}
+
+		return otelclient
+	})
 }
 
 func IEmbeddingGeneratorAsBuilder[TInput any, TEmbedding embeddings.IEmbedding](
