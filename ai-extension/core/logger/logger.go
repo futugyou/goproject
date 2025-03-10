@@ -22,6 +22,7 @@ var logContextKey = logContextKeyType{}
 type LogLevel string
 
 const (
+	TraceLevel     LogLevel = "trace"
 	DebugLevel     LogLevel = "debug"
 	InfoLevel      LogLevel = "info"
 	WarnLevel      LogLevel = "warn"
@@ -38,10 +39,12 @@ type Logger interface {
 	IsOutputLevelEnabled(level LogLevel) bool
 	WithLogType(logType string) Logger
 	WithFields(fields map[string]any) Logger
-	Info(args ...interface{})
-	Infof(format string, args ...interface{})
+	Trace(args ...interface{})
+	Tracef(format string, args ...interface{})
 	Debug(args ...interface{})
 	Debugf(format string, args ...interface{})
+	Info(args ...interface{})
+	Infof(format string, args ...interface{})
 	Warn(args ...interface{})
 	Warnf(format string, args ...interface{})
 	Error(args ...interface{})
@@ -52,6 +55,8 @@ type Logger interface {
 
 func ToLogLevel(level string) LogLevel {
 	switch strings.ToLower(level) {
+	case "trace":
+		return TraceLevel
 	case "debug":
 		return DebugLevel
 	case "info":
