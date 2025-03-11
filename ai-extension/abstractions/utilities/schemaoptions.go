@@ -35,6 +35,7 @@ var DefaultAIJsonSchemaCreateOptions = &AIJsonSchemaCreateOptions{
 }
 
 // CreateFunctionJsonSchema generates a JSON Schema based on a function type, title, description, list of parameter names, and inferred options
+// TODO: maybe use https://github.com/invopop/jsonschema is better.
 func CreateFunctionJsonSchema(fnType reflect.Type, title string, description string, paramNames []string, inferenceOptions *AIJsonSchemaCreateOptions) (map[string]interface{}, error) {
 	if fnType == nil {
 		return nil, fmt.Errorf("type cannot be nil")

@@ -63,24 +63,11 @@ type reflectionAIFunction struct {
 
 // Invoke invokes the method with the provided arguments.
 func (f *reflectionAIFunction) InvokeCore(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {
-	methodType := f.method.Type()
-	args := make([]reflect.Value, methodType.NumIn())
-
-	for i := 0; i < methodType.NumIn(); i++ {
-		argType := methodType.In(i)
-		argValue, ok := arguments[argType.Name()]
-		if !ok {
-			return nil, errors.New("missing argument: " + argType.Name())
-		}
-		args[i] = reflect.ValueOf(argValue)
+	descriptor, err := GetOrCreateDescriptor(f.method.Interface(), f.options)
+	if err != nil {
+		return nil, err
 	}
-
-	results := f.method.Call(args)
-	if len(results) == 0 {
-		return nil, nil
-	}
-
-	return results[0].Interface(), nil
+	return descriptor.Invoke(ctx, arguments)
 }
 
 // PooledMemoryStream implements a simple write-only memory stream that uses pooled buffers.
