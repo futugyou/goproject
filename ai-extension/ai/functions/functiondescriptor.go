@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
+
+	"github.com/futugyou/ai-extension/abstractions/utilities"
 )
 
 type FunctionDescriptor struct {
@@ -142,7 +144,11 @@ func newFunctionDescriptor(fn reflect.Value, options AIFunctionFactoryOptions) (
 	description := options.Description
 
 	// Generate a simple JSON Schema description (here just a simple description of the type of each parameter)
-	jsonSchema := generateJSONSchema(fnType, name, description, paramNames)
+	// jsonSchema := generateJSONSchema(fnType, name, description, paramNames)
+	jsonSchema, err := utilities.CreateFunctionJsonSchema(fnType, name, description, paramNames, utilities.DefaultAIJsonSchemaCreateOptions)
+	if err != nil {
+		return nil, err
+	}
 
 	return &FunctionDescriptor{
 		Func:             fn,
