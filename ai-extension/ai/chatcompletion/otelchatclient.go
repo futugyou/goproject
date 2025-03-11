@@ -3,7 +3,6 @@ package chatcompletion
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -60,10 +59,8 @@ func NewOpenTelemetryChatClient(innerClient chatcompletion.IChatClient, metadata
 			system = *metadata.ProviderName
 		}
 		if metadata.ProviderUri != nil {
-			if u, err := url.Parse(*metadata.ProviderUri); err == nil {
-				serverAddress = u.Hostname()
-				serverPort = u.Port()
-			}
+			serverAddress = metadata.ProviderUri.Hostname()
+			serverPort = metadata.ProviderUri.Port()
 		}
 	}
 	return &OpenTelemetryChatClient{
