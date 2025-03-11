@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -62,7 +63,7 @@ func CreateFunctionJsonSchema(fnType reflect.Type, title string, description str
 			paramName = fmt.Sprintf("param%d", i)
 		}
 
-		paramSchema := createJsonSchemaCore(inType, paramName, "", inferenceOptions)
+		paramSchema := createJsonSchemaCore(inType, paramName, "", nil, inferenceOptions)
 		properties[paramName] = paramSchema
 		required = append(required, paramName)
 	}
@@ -94,6 +95,7 @@ func createJsonSchemaCore(
 	t reflect.Type,
 	paramName string,
 	description string,
+	defaultVal interface{},
 	options *AIJsonSchemaCreateOptions,
 ) map[string]interface{} {
 
@@ -112,7 +114,7 @@ func createJsonSchemaCore(
 	case reflect.Struct:
 		handleStructType(t, schema, options)
 	case reflect.Ptr:
-		handlePointerType(t, schema, paramName, description, options)
+		handlePointerType(t, schema, paramName, description, defaultVal, options)
 	case reflect.Slice, reflect.Array:
 		handleArrayType(t, schema, paramName, options)
 	case reflect.Map:
@@ -122,6 +124,11 @@ func createJsonSchemaCore(
 	// add description
 	if description != "" {
 		schema[DescriptionPropertyName] = description
+	}
+
+	// add default value
+	if defaultVal != nil {
+		schema["default"] = defaultVal
 	}
 
 	// handle enum values
@@ -137,6 +144,42 @@ func createJsonSchemaCore(
 	return schema
 }
 
+// for go unused warning
+var _ = parseJSONTag
+
+func parseJSONTag(tag string) (name string, opts string) {
+	parts := strings.Split(tag, ",")
+	if len(parts) > 0 {
+		name = parts[0]
+	}
+	if len(parts) > 1 {
+		opts = strings.Join(parts[1:], ",")
+	}
+	return
+}
+
+// for go unused warning
+var _ = parseDefaultValue
+
+func parseDefaultValue(valStr string, t reflect.Type) interface{} {
+	if valStr == "" {
+		return nil
+	}
+
+	// TODO
+	switch t.Kind() {
+	case reflect.String:
+		return valStr
+	case reflect.Int:
+		var i int
+		fmt.Sscanf(valStr, "%d", &i)
+		return i
+	case reflect.Bool:
+		return strings.ToLower(valStr) == "true"
+	}
+	return nil
+}
+
 func handleStructType(t reflect.Type, schema map[string]interface{}, options *AIJsonSchemaCreateOptions) {
 	nestedSchema, _ := CreateFunctionJsonSchema(t, "", "", nil, options)
 	schema["type"] = "object"
@@ -149,9 +192,9 @@ func handleStructType(t reflect.Type, schema map[string]interface{}, options *AI
 	}
 }
 
-func handlePointerType(t reflect.Type, schema map[string]interface{}, paramName, description string, options *AIJsonSchemaCreateOptions) {
+func handlePointerType(t reflect.Type, schema map[string]interface{}, paramName, description string, defaultVal interface{}, options *AIJsonSchemaCreateOptions) {
 	elemType := t.Elem()
-	elemSchema := createJsonSchemaCore(elemType, paramName, description, options)
+	elemSchema := createJsonSchemaCore(elemType, paramName, description, defaultVal, options)
 	schema["anyOf"] = []map[string]interface{}{
 		elemSchema,
 		{"type": "null"},
@@ -160,17 +203,17 @@ func handlePointerType(t reflect.Type, schema map[string]interface{}, paramName,
 
 func handleArrayType(t reflect.Type, schema map[string]interface{}, paramName string, options *AIJsonSchemaCreateOptions) {
 	elemType := t.Elem()
-	elemSchema := createJsonSchemaCore(elemType, paramName, "", options)
+	elemSchema := createJsonSchemaCore(elemType, paramName, "", nil, options)
 	schema["type"] = "array"
 	schema["items"] = elemSchema
 }
 
-func handleMapType(schema map[string]interface{}, options *AIJsonSchemaCreateOptions) {
+func handleMapType(schema map[string]interface{}, _ *AIJsonSchemaCreateOptions) {
 	schema["type"] = "object"
 	schema["additionalProperties"] = true
 }
 
-func getEnumValues(t reflect.Type) []interface{} {
+func getEnumValues(_ reflect.Type) []interface{} {
 	// TODO
 	return nil
 }
