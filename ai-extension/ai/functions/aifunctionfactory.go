@@ -3,7 +3,6 @@ package functions
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"reflect"
 	"regexp"
@@ -11,13 +10,6 @@ import (
 
 	"github.com/futugyou/ai-extension/abstractions/functions"
 )
-
-// AIFunctionFactoryOptions holds options for creating an AIFunction.
-type AIFunctionFactoryOptions struct {
-	Name              string
-	Description       string
-	SerializerOptions *json.Encoder
-}
 
 // AIFunctionFactory provides methods to create AIFunction instances.
 type AIFunctionFactory struct {
@@ -64,24 +56,13 @@ func (factory *AIFunctionFactory) Create(method interface{}, options *AIFunction
 
 // reflectionAIFunction is an implementation of AIFunction that uses reflection to invoke a method.
 type reflectionAIFunction struct {
+	functions.BaseAIFunction
 	method  reflect.Value
 	options AIFunctionFactoryOptions
 }
 
-func (t *reflectionAIFunction) GetName() string {
-	return ""
-}
-
-func (t *reflectionAIFunction) GetDescription() string {
-	return ""
-}
-
-func (t *reflectionAIFunction) GetAdditionalProperties() map[string]interface{} {
-	return map[string]interface{}{}
-}
-
 // Invoke invokes the method with the provided arguments.
-func (f *reflectionAIFunction) Invoke(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {
+func (f *reflectionAIFunction) InvokeCore(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {
 	methodType := f.method.Type()
 	args := make([]reflect.Value, methodType.NumIn())
 
