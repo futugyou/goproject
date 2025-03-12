@@ -29,6 +29,8 @@ type OllamaChatClient struct {
 }
 
 func NewOllamaChatClient(modelId *string, endpoint url.URL, httpClient *http.Client) *OllamaChatClient {
+	var _ chatcompletion.IChatClient = (*OllamaChatClient)(nil)
+
 	name := "ollama"
 	apiChatEndpoint := endpoint.JoinPath("api/chat")
 	if httpClient == nil {

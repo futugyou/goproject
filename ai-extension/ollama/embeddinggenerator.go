@@ -20,6 +20,9 @@ type OllamaEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT[fl
 }
 
 func NewOllamaEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT[float64]](modelId *string, endpoint url.URL, httpClient *http.Client) *OllamaEmbeddingGenerator[TInput, TEmbedding] {
+	var _ embeddings.IEmbedding = (*embeddings.EmbeddingT[float64])(nil)
+	var _ embeddings.IEmbeddingGenerator[TInput, embeddings.EmbeddingT[float64]] = (*OllamaEmbeddingGenerator[TInput, embeddings.EmbeddingT[float64]])(nil)
+
 	name := "ollama"
 	apiChatEndpoint := endpoint.JoinPath("api/embed")
 	if httpClient == nil {
