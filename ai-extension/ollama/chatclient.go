@@ -1,6 +1,7 @@
 package ollama
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -16,6 +17,9 @@ import (
 )
 
 var schemalessJsonResponseFormatValue = json.RawMessage([]byte(`"json"`))
+var headerData []byte = []byte("data: ")
+
+const endTag string = "[DONE]"
 
 type OllamaChatClient struct {
 	metadata        *chatcompletion.ChatClientMetadata
@@ -66,26 +70,134 @@ func (client *OllamaChatClient) GetResponse(ctx context.Context, chatMessages []
 	return result, nil
 }
 
-func ToChatResponse(chatResponse OllamaChatResponse) *chatcompletion.ChatResponse {
-	message := chatcompletion.ChatMessage{}
-	if chatResponse.Message != nil {
-		message = FromOllamaMessage(*chatResponse.Message)
-	}
-
-	reason := ToFinishReason(chatResponse)
-	result := chatcompletion.NewChatResponse(nil, &message)
-	result.ResponseId = chatResponse.CreatedAt
-	result.ModelId = chatResponse.Model
-	result.CreatedAt = StringToTimePtr(chatResponse.CreatedAt, time.RFC3339)
-	result.FinishReason = &reason
-	result.Usage = ParseOllamaChatResponseUsage(chatResponse)
-
-	return result
-}
-
 func (client *OllamaChatClient) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
-	// TODO: Implement
-	return nil
+	// Create the channel for streaming responses
+	response := make(chan chatcompletion.ChatStreamingResponse)
+
+	// Prepare the request
+	path := client.apiChatEndpoint.String()
+	request := ToOllamaChatRequest(chatMessages, options, true)
+	payloadBytes, _ := json.Marshal(request)
+	body := bytes.NewReader(payloadBytes)
+
+	req, _ := http.NewRequest("POST", path, body)
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Connection", "keep-alive")
+
+	// Perform the HTTP request
+	resp, err := client.httpClient.Do(req)
+	if err != nil {
+		// Handle error and close the channel
+		go func() {
+			response <- chatcompletion.ChatStreamingResponse{
+				Update: nil,
+				Err:    err,
+			}
+			close(response)
+		}()
+		return response
+	}
+	defer resp.Body.Close()
+
+	// Initialize the reader for the response body
+	reader := bufio.NewReader(resp.Body)
+
+	// Handle streaming data
+	go func() {
+		defer close(response) // Ensure channel is closed at the end
+
+		for {
+			select {
+			case <-ctx.Done():
+				// Handle context cancellation
+				response <- chatcompletion.ChatStreamingResponse{
+					Update: nil,
+					Err:    ctx.Err(),
+				}
+				return
+			default:
+				// Read each line of the stream
+				line, err := reader.ReadBytes('\n')
+				if err != nil {
+					// Handle read errors
+					response <- chatcompletion.ChatStreamingResponse{
+						Update: nil,
+						Err:    err,
+					}
+					return
+				}
+
+				line = bytes.TrimSpace(line)
+				if bytes.HasPrefix(line, headerData) {
+					line = bytes.TrimPrefix(line, headerData)
+					responseStr := string(line)
+
+					// Check for end of response
+					if responseStr == endTag {
+						return
+					}
+
+					// Parse the response JSON
+					chatResponse := OllamaChatResponse{}
+					if err := json.Unmarshal(line, &chatResponse); err != nil {
+						response <- chatcompletion.ChatStreamingResponse{
+							Update: nil,
+							Err:    err,
+						}
+						return
+					}
+
+					// Construct the update response
+					reason := ToFinishReason(chatResponse)
+					update := chatcompletion.ChatResponseUpdate{
+						CreatedAt:    StringToTimePtr(chatResponse.CreatedAt, time.RFC3339),
+						ResponseId:   chatResponse.CreatedAt, //TODO: use uuid
+						FinishReason: &reason,
+						ModelId:      chatResponse.Model,
+						Contents:     []contents.IAIContent{},
+					}
+
+					// Process the message content and tool calls
+					if chatResponse.Message != nil {
+						role := chatcompletion.StringToChatRole(chatResponse.Message.Role)
+						update.Role = &role
+						for _, tool := range chatResponse.Message.ToolCalls {
+							if tool.Function != nil {
+								update.Contents = append(update.Contents, ToFunctionCallContent(*tool.Function))
+							}
+						}
+
+						if len(chatResponse.Message.Content) > 0 || len(update.Contents) == 0 {
+							update.Contents = append(update.Contents, contents.TextContent{
+								Text: chatResponse.Message.Content,
+							})
+						}
+					}
+
+					// Add usage content if available
+					useage := ParseOllamaChatResponseUsage(chatResponse)
+					if useage != nil {
+						update.Contents = append(update.Contents, contents.UsageContent{
+							AIContent: contents.AIContent{},
+							Details:   *useage,
+						})
+					}
+
+					// Send the update
+					response <- chatcompletion.ChatStreamingResponse{
+						Update: &update,
+						Err:    nil,
+					}
+				}
+			}
+		}
+	}()
+
+	// Return the response channel
+	return response
 }
 
 func ToOllamaChatRequest(messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions, stream bool) *OllamaChatRequest {
@@ -290,10 +402,6 @@ func ToOllamaChatRequestMessages(messages []chatcompletion.ChatMessage) []Ollama
 	return response
 }
 
-func Ptr[T any](v T) *T {
-	return &v
-}
-
 func ToOllamaChatResponseFormat(chatResponseFormat *chatcompletion.ChatResponseFormat) json.RawMessage {
 	if chatResponseFormat == nil {
 		return schemalessJsonResponseFormatValue
@@ -327,26 +435,12 @@ func transferMetadataValue[T any](
 	}
 }
 
-func StringToTimePtr(s *string, layout string) *time.Time {
-	if s == nil {
-		return nil
-	}
-
-	parsedTime, err := time.Parse(layout, *s)
-	if err != nil {
-		return nil
-	}
-
-	return &parsedTime
-}
-
 func FromOllamaMessage(message OllamaChatResponseMessage) chatcompletion.ChatMessage {
 	conts := []contents.IAIContent{}
 	for _, tool := range message.ToolCalls {
 		if tool.Function != nil {
 			conts = append(conts, ToFunctionCallContent(*tool.Function))
 		}
-
 	}
 
 	if len(message.Content) > 0 || len(conts) == 0 {
@@ -409,4 +503,21 @@ func ToFinishReason(chatResponse OllamaChatResponse) chatcompletion.ChatFinishRe
 	default:
 		return chatcompletion.ReasonUnknown
 	}
+}
+
+func ToChatResponse(chatResponse OllamaChatResponse) *chatcompletion.ChatResponse {
+	message := chatcompletion.ChatMessage{}
+	if chatResponse.Message != nil {
+		message = FromOllamaMessage(*chatResponse.Message)
+	}
+
+	reason := ToFinishReason(chatResponse)
+	result := chatcompletion.NewChatResponse(nil, &message)
+	result.ResponseId = chatResponse.CreatedAt
+	result.ModelId = chatResponse.Model
+	result.CreatedAt = StringToTimePtr(chatResponse.CreatedAt, time.RFC3339)
+	result.FinishReason = &reason
+	result.Usage = ParseOllamaChatResponseUsage(chatResponse)
+
+	return result
 }

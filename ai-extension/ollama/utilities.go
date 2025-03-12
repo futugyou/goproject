@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 )
 
 // SharedClient is a global HttpClient instance used for local access to non-production environments.
@@ -49,4 +50,21 @@ func ThrowUnsuccessfulOllamaResponseAsync(ctx context.Context, response *http.Re
 	}
 
 	return errors.New("Ollama error: " + errorContent)
+}
+
+func Ptr[T any](v T) *T {
+	return &v
+}
+
+func StringToTimePtr(s *string, layout string) *time.Time {
+	if s == nil {
+		return nil
+	}
+
+	parsedTime, err := time.Parse(layout, *s)
+	if err != nil {
+		return nil
+	}
+
+	return &parsedTime
 }
