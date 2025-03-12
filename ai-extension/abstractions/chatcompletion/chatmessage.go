@@ -73,3 +73,18 @@ const (
 	RoleUser      ChatRole = "user"
 	RoleTool      ChatRole = "tool"
 )
+
+func StringToChatRole(s string) ChatRole {
+	switch s {
+	case string(RoleSystem):
+		return RoleSystem
+	case string(RoleAssistant):
+		return RoleAssistant
+	case string(RoleUser):
+		return RoleUser
+	case string(RoleTool):
+		return RoleTool
+	default:
+		return RoleSystem
+	}
+}

@@ -87,10 +87,11 @@ func (c *ChatResponse) ToChatResponseUpdates() []ChatResponseUpdate {
 type ChatFinishReason string
 
 const (
-	ReasonStop          ChatFinishReason = "stop"
-	ReasonLength        ChatFinishReason = "length"
-	ReasonToolCalls     ChatFinishReason = "tool_calls"
-	ReasonContentFilter ChatFinishReason = "content_filter"
+	ReasonStop          = ChatFinishReason("stop")
+	ReasonLength        = ChatFinishReason("length")
+	ReasonToolCalls     = ChatFinishReason("tool_calls")
+	ReasonContentFilter = ChatFinishReason("content_filter")
+	ReasonUnknown       = ChatFinishReason("unknown")
 )
 
 type ChatResponseUpdate struct {

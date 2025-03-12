@@ -6,9 +6,9 @@ type OllamaChatResponse struct {
 	TotalDuration      *int64
 	LoadDuration       *int64
 	DoneReason         *string
-	PromptEvalCount    *int
+	PromptEvalCount    *int64
 	PromptEvalDuration *int64
-	EvalCount          *int
+	EvalCount          *int64
 	EvalDuration       *int64
 	Message            *OllamaChatResponseMessage
 	Done               bool
