@@ -11,6 +11,7 @@ import (
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/abstractions/contents"
 	"github.com/futugyou/ai-extension/abstractions/functions"
+	"github.com/google/uuid"
 )
 
 type FunctionInvokingChatClient struct {
@@ -365,7 +366,7 @@ func (c *FunctionInvokingChatClient) GetStreamingResponse(ctx context.Context, m
 
 			responseMessages = append(responseMessages, modeAndMessages...)
 
-			toolResponseID := "" //TODO: uuid
+			toolResponseID := uuid.New().String()
 			for _, msg := range modeAndMessages {
 				t := time.Now().UTC()
 				toolResultUpdate := chatcompletion.ChatResponseUpdate{

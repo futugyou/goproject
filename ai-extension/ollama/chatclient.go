@@ -14,6 +14,7 @@ import (
 	"github.com/futugyou/ai-extension/abstractions"
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/abstractions/contents"
+	"github.com/google/uuid"
 )
 
 var schemalessJsonResponseFormatValue = json.RawMessage([]byte(`"json"`))
@@ -152,9 +153,10 @@ func (client *OllamaChatClient) GetStreamingResponse(ctx context.Context, chatMe
 
 					// Construct the update response
 					reason := ToFinishReason(chatResponse)
+					responseId := uuid.New().String()
 					update := chatcompletion.ChatResponseUpdate{
 						CreatedAt:    StringToTimePtr(chatResponse.CreatedAt, time.RFC3339),
-						ResponseId:   chatResponse.CreatedAt, //TODO: use uuid
+						ResponseId:   &responseId,
 						FinishReason: &reason,
 						ModelId:      chatResponse.Model,
 						Contents:     []contents.IAIContent{},
@@ -457,7 +459,7 @@ func FromOllamaMessage(message OllamaChatResponseMessage) chatcompletion.ChatMes
 
 func ToFunctionCallContent(ollamaFunctionToolCall OllamaFunctionToolCall) contents.IAIContent {
 	return contents.FunctionCallContent{
-		CallId:    "", //TODO: add uuid lib
+		CallId:    uuid.New().String(),
 		Name:      ollamaFunctionToolCall.Name,
 		Arguments: ollamaFunctionToolCall.Arguments,
 	}
