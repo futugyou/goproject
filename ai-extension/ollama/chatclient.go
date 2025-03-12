@@ -1,12 +1,14 @@
 package ollama
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/futugyou/ai-extension/abstractions"
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
@@ -17,7 +19,7 @@ var schemalessJsonResponseFormatValue = json.RawMessage([]byte(`"json"`))
 
 type OllamaChatClient struct {
 	metadata        *chatcompletion.ChatClientMetadata
-	apiChatEndpoint *url.URL
+	apiChatEndpoint url.URL
 	httpClient      *http.Client
 }
 
@@ -34,14 +36,51 @@ func NewOllamaChatClient(modelId *string, endpoint url.URL, httpClient *http.Cli
 			ProviderUri:  &endpoint,
 			ModelId:      modelId,
 		},
-		apiChatEndpoint: apiChatEndpoint,
+		apiChatEndpoint: *apiChatEndpoint,
 		httpClient:      httpClient,
 	}
 }
 
 func (client *OllamaChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
-	// TODO: Implement
-	return nil, nil
+	path := client.apiChatEndpoint.String()
+	request := ToOllamaChatRequest(chatMessages, options, false)
+	payloadBytes, _ := json.Marshal(request)
+	body := bytes.NewReader(payloadBytes)
+
+	req, _ := http.NewRequest("POST", path, body)
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var chatResponse OllamaChatResponse
+	err = json.NewDecoder(resp.Body).Decode(&chatResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	result := ToChatResponse(chatResponse)
+	return result, nil
+}
+
+func ToChatResponse(chatResponse OllamaChatResponse) *chatcompletion.ChatResponse {
+	message := chatcompletion.ChatMessage{}
+	if chatResponse.Message != nil {
+		message = FromOllamaMessage(*chatResponse.Message)
+	}
+
+	reason := ToFinishReason(chatResponse)
+	result := chatcompletion.NewChatResponse(nil, &message)
+	result.ResponseId = chatResponse.CreatedAt
+	result.ModelId = chatResponse.Model
+	result.CreatedAt = StringToTimePtr(chatResponse.CreatedAt, time.RFC3339)
+	result.FinishReason = &reason
+	result.Usage = ParseOllamaChatResponseUsage(chatResponse)
+
+	return result
 }
 
 func (client *OllamaChatClient) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
@@ -285,5 +324,89 @@ func transferMetadataValue[T any](
 		if condition, ok := value.(T); ok {
 			setOption(request.Options, condition)
 		}
+	}
+}
+
+func StringToTimePtr(s *string, layout string) *time.Time {
+	if s == nil {
+		return nil
+	}
+
+	parsedTime, err := time.Parse(layout, *s)
+	if err != nil {
+		return nil
+	}
+
+	return &parsedTime
+}
+
+func FromOllamaMessage(message OllamaChatResponseMessage) chatcompletion.ChatMessage {
+	conts := []contents.IAIContent{}
+	for _, tool := range message.ToolCalls {
+		if tool.Function != nil {
+			conts = append(conts, ToFunctionCallContent(*tool.Function))
+		}
+
+	}
+
+	if len(message.Content) > 0 || len(conts) == 0 {
+		conts = append(conts, contents.TextContent{
+			Text: message.Content,
+		})
+	}
+
+	return chatcompletion.ChatMessage{
+		Role:     chatcompletion.StringToChatRole(message.Role),
+		Contents: conts,
+	}
+}
+
+func ToFunctionCallContent(ollamaFunctionToolCall OllamaFunctionToolCall) contents.IAIContent {
+	return contents.FunctionCallContent{
+		CallId:    "", //TODO: add uuid lib
+		Name:      ollamaFunctionToolCall.Name,
+		Arguments: ollamaFunctionToolCall.Arguments,
+	}
+}
+
+func ParseOllamaChatResponseUsage(chatResponse OllamaChatResponse) *abstractions.UsageDetails {
+	metadata := map[string]int64{}
+	TransferNanosecondsTime(chatResponse, func(response OllamaChatResponse) *int64 { return response.LoadDuration }, "load_duration", &metadata)
+	TransferNanosecondsTime(chatResponse, func(response OllamaChatResponse) *int64 { return response.TotalDuration }, "total_duration", &metadata)
+	TransferNanosecondsTime(chatResponse, func(response OllamaChatResponse) *int64 { return response.PromptEvalDuration }, "prompt_eval_duration", &metadata)
+	TransferNanosecondsTime(chatResponse, func(response OllamaChatResponse) *int64 { return response.EvalDuration }, "eval_duration", &metadata)
+
+	if len(metadata) > 0 || chatResponse.PromptEvalCount != nil || chatResponse.EvalCount != nil {
+		var p int64 = 0
+		if chatResponse.PromptEvalCount != nil {
+			p = *chatResponse.PromptEvalCount
+		}
+
+		if chatResponse.EvalCount != nil {
+			p = p + *chatResponse.EvalCount + p
+		}
+
+		return &abstractions.UsageDetails{
+			InputTokenCount:      chatResponse.PromptEvalCount,
+			OutputTokenCount:     chatResponse.EvalCount,
+			TotalTokenCount:      &p,
+			AdditionalProperties: metadata,
+		}
+	}
+
+	return nil
+}
+
+func ToFinishReason(chatResponse OllamaChatResponse) chatcompletion.ChatFinishReason {
+	if chatResponse.DoneReason == nil {
+		return chatcompletion.ReasonUnknown
+	}
+	switch *chatResponse.DoneReason {
+	case "length":
+		return chatcompletion.ReasonLength
+	case "stop":
+		return chatcompletion.ReasonStop
+	default:
+		return chatcompletion.ReasonUnknown
 	}
 }
