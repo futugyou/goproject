@@ -1,5 +1,6 @@
 package abstractions
 
+// TODO: json schema
 type AITool interface {
 	GetName() string
 	GetDescription() string

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/futugyou/ai-extension/abstractions"
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
 	"github.com/futugyou/ai-extension/abstractions/contents"
 )
@@ -61,6 +62,8 @@ func ToOllamaChatRequest(messages []chatcompletion.ChatMessage, options *chatcom
 		if options.ModelId != nil {
 			request.Model = *options.ModelId
 		}
+
+		request.Tools = ToOllamaTools(options.Tools, options.ToolMode)
 
 		transferMetadataValue(options, request, "logits_all", func(options *OllamaRequestOptions, value bool) {
 			options.LogitsAll = &value
@@ -160,6 +163,25 @@ func ToOllamaChatRequest(messages []chatcompletion.ChatMessage, options *chatcom
 	}
 
 	return request
+}
+
+func ToOllamaTools(aITool []abstractions.AITool, chatToolMode *chatcompletion.ChatToolMode) []OllamaTool {
+	if chatToolMode != nil && *chatToolMode == chatcompletion.NoneMode {
+		return []OllamaTool{}
+	}
+
+	result := make([]OllamaTool, len(aITool))
+	for i := 0; i < len(result); i++ {
+		result[i] = OllamaTool{
+			Type: "function",
+			// TODO: need json schema for AITool
+			Function: OllamaFunctionTool{
+				Name:        aITool[i].GetName(),
+				Description: aITool[i].GetDescription(),
+			},
+		}
+	}
+	return result
 }
 
 func ToOllamaChatRequestMessages(messages []chatcompletion.ChatMessage) []OllamaChatRequestMessage {
