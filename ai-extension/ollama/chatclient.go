@@ -2,12 +2,14 @@ package ollama
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/futugyou/ai-extension/abstractions/chatcompletion"
+	"github.com/futugyou/ai-extension/abstractions/contents"
 )
 
 var schemalessJsonResponseFormatValue = json.RawMessage([]byte(`"json"`))
@@ -48,12 +50,17 @@ func (client *OllamaChatClient) GetStreamingResponse(ctx context.Context, chatMe
 
 func ToOllamaChatRequest(messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions, stream bool) *OllamaChatRequest {
 	request := &OllamaChatRequest{
-		Options: &OllamaRequestOptions{},
-		Stream:  stream,
+		Options:  &OllamaRequestOptions{},
+		Stream:   stream,
+		Model:    "",
+		Messages: ToOllamaChatRequestMessages(messages),
 	}
 
 	if options != nil {
 		request.Format = ToOllamaChatResponseFormat(options.ResponseFormat)
+		if options.ModelId != nil {
+			request.Model = *options.ModelId
+		}
 
 		transferMetadataValue(options, request, "logits_all", func(options *OllamaRequestOptions, value bool) {
 			options.LogitsAll = &value
@@ -153,6 +160,77 @@ func ToOllamaChatRequest(messages []chatcompletion.ChatMessage, options *chatcom
 	}
 
 	return request
+}
+
+func ToOllamaChatRequestMessages(messages []chatcompletion.ChatMessage) []OllamaChatRequestMessage {
+	response := []OllamaChatRequestMessage{}
+	var currentTextMessage *OllamaChatRequestMessage = nil
+
+	for _, message := range messages {
+		for _, content := range message.Contents {
+			if con, ok := content.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
+				if currentTextMessage != nil {
+					currentTextMessage.Images = append(currentTextMessage.Images, base64.StdEncoding.EncodeToString(con.Data))
+				} else {
+					response = append(response, OllamaChatRequestMessage{
+						Images: []string{base64.StdEncoding.EncodeToString(con.Data)},
+						Role:   string(message.Role),
+					})
+				}
+			} else {
+				if currentTextMessage != nil {
+					response = append(response, *currentTextMessage)
+					currentTextMessage = nil
+				}
+
+				switch cont := content.(type) {
+				case *contents.TextContent:
+					text := cont.Text
+					currentTextMessage = &OllamaChatRequestMessage{
+						Content: &text,
+						Role:    string(message.Role),
+					}
+
+				case *contents.FunctionCallContent:
+					arguments, _ := json.Marshal(cont.Arguments)
+					callContent := OllamaFunctionCallContent{
+						CallId:    &cont.CallId,
+						Name:      &cont.Name,
+						Arguments: arguments,
+					}
+					jsonString, _ := json.Marshal(callContent)
+
+					response = append(response, OllamaChatRequestMessage{
+						Content: Ptr(string(jsonString)),
+						Role:    "assistant",
+					})
+
+				case *contents.FunctionResultContent:
+					result, _ := json.Marshal(cont.Result)
+					callContent := OllamaFunctionResultContent{
+						CallId: &cont.CallId,
+						Result: result,
+					}
+					jsonString, _ := json.Marshal(callContent)
+
+					response = append(response, OllamaChatRequestMessage{
+						Content: Ptr(string(jsonString)),
+						Role:    "tool",
+					})
+				}
+			}
+		}
+	}
+
+	if currentTextMessage != nil {
+		response = append(response, *currentTextMessage)
+	}
+
+	return response
+}
+
+func Ptr[T any](v T) *T {
+	return &v
 }
 
 func ToOllamaChatResponseFormat(chatResponseFormat *chatcompletion.ChatResponseFormat) json.RawMessage {
