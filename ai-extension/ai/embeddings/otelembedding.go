@@ -3,7 +3,6 @@ package embeddings
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"time"
 
 	"github.com/futugyou/ai-extension/abstractions/embeddings"
@@ -63,10 +62,8 @@ func NewOpenTelemetryEmbeddingGenerator[TInput any, TEmbedding embeddings.IEmbed
 			system = *metadata.ProviderName
 		}
 		if metadata.ProviderUri != nil {
-			if u, err := url.Parse(*metadata.ProviderUri); err == nil {
-				serverAddress = u.Hostname()
-				serverPort = u.Port()
-			}
+			serverAddress = metadata.ProviderUri.Hostname()
+			serverPort = metadata.ProviderUri.Port()
 		}
 	}
 	return &OpenTelemetryEmbeddingGenerator[TInput, TEmbedding]{
