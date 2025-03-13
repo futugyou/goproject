@@ -57,8 +57,18 @@ func Completions(w http.ResponseWriter, r *http.Request) {
 		CompletionModel: co,
 	}
 
-	result := completionService.CreateCompletion(r.Context(), re)
-	body, _ := json.Marshal(result)
+	result, err := completionService.CreateCompletion(r.Context(), re)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(500)
+		return
+	}
+	body, err := json.Marshal(result)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		w.WriteHeader(500)
+		return
+	}
 	w.Write(body)
 	w.WriteHeader(200)
 }

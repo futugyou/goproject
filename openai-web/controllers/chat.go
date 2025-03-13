@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	lib "github.com/futugyou/ai-extension/openai"
+	lib "github.com/openai/openai-go"
 
 	"github.com/futugyousuzu/go-openai-web/services"
 
@@ -19,14 +19,18 @@ type ChatController struct {
 
 // @Title CreateChat
 // @Description create chat
-// @Param	body		body 	lib.CreateChatCompletionRequest	true		"body for create chat content"
+// @Param	body		body 	lib.ChatCompletionNewParams	true		"body for create chat content"
 // @Success 200 {object} 	lib.CreateChatCompletionResponse
 // @router / [post]
-func (c *ChatController) CreateChat(request lib.CreateChatCompletionRequest) {
+func (c *ChatController) CreateChat(request lib.ChatCompletionNewParams) {
 	chatService := services.NewChatService(createOpenAICLient())
-	var chat lib.CreateChatCompletionRequest
+	var chat lib.ChatCompletionNewParams
 	json.Unmarshal(c.Ctx.Input.RequestBody, &chat)
-	result := chatService.CreateChatCompletion(c.Ctx.Request.Context(), chat)
+	result, err := chatService.CreateChatCompletion(c.Ctx.Request.Context(), chat)
+	if err != nil {
+		c.Ctx.JSONResp(err)
+		return
+	}
 	c.Ctx.JSONResp(result)
 }
 

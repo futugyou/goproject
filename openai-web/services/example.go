@@ -20,11 +20,11 @@ type ExampleModel struct {
 	SubTitle         string   `json:"subTitle,omitempty" bson:"subTitle,omitempty"`
 	Model            string   `json:"model,omitempty" bson:"model,omitempty"`
 	Prompt           string   `json:"prompt,omitempty" bson:"prompt,omitempty"`
-	Temperature      float32  `json:"temperature,omitempty" bson:"temperature,omitempty"`
-	MaxTokens        int32    `json:"max_tokens,omitempty" bson:"max_tokens,omitempty"`
-	Top_p            float32  `json:"top_p,omitempty" bson:"top_p,omitempty"`
-	FrequencyPenalty float32  `json:"frequency_penalty,omitempty" bson:"frequency_penalty,omitempty"`
-	PresencePenalty  float32  `json:"presence_penalty,omitempty" bson:"presence_penalty,omitempty"`
+	Temperature      float64  `json:"temperature,omitempty" bson:"temperature,omitempty"`
+	MaxTokens        int64    `json:"max_tokens,omitempty" bson:"max_tokens,omitempty"`
+	Top_p            float64  `json:"top_p,omitempty" bson:"top_p,omitempty"`
+	FrequencyPenalty float64  `json:"frequency_penalty,omitempty" bson:"frequency_penalty,omitempty"`
+	PresencePenalty  float64  `json:"presence_penalty,omitempty" bson:"presence_penalty,omitempty"`
 	Stop             []string `json:"stop,omitempty" bson:"stop,omitempty"`
 	Tags             []string `json:"tags,omitempty" bson:"tags,omitempty"`
 	Description      string   `json:"description,omitempty" bson:"description,omitempty"`

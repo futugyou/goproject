@@ -2,31 +2,24 @@ package services
 
 import (
 	"context"
-	"os"
 
-	openai "github.com/futugyou/ai-extension/openai"
+	openai "github.com/openai/openai-go"
 )
 
 type AudioService struct {
-	client *openai.OpenaiClient
+	client *openai.Client
 }
 
-func NewAudioService(client *openai.OpenaiClient) *AudioService {
-	if client == nil {
-		openaikey := os.Getenv("openaikey")
-		client = openai.NewClient(openaikey)
-	}
+func NewAudioService(client *openai.Client) *AudioService {
 	return &AudioService{
 		client: client,
 	}
 }
 
-func (s *AudioService) CreateAudioTranscription(ctx context.Context, request openai.CreateAudioTranscriptionRequest) *openai.CreateAudioTranscriptionResponse {
-	response := s.client.Audio.CreateAudioTranscription(ctx, request)
-	return response
+func (s *AudioService) CreateAudioTranscription(ctx context.Context, request openai.AudioTranscriptionNewParams) (  *openai.Transcription,   error) {
+	return s.client.Audio.Transcriptions.New(ctx, request) 
 }
 
-func (s *AudioService) CreateAudioTranslation(ctx context.Context, request openai.CreateAudioTranslationRequest) *openai.CreateAudioTranslationResponse {
-	response := s.client.Audio.CreateAudioTranslation(ctx, request)
-	return response
+func (s *AudioService) CreateAudioTranslation(ctx context.Context, request openai.AudioTranslationNewParams)  (  *openai.Translation,   error) {
+	return s.client.Audio.Translations.New(ctx, request) 
 }

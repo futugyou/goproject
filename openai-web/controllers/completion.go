@@ -85,23 +85,23 @@ func (c *CompletionController) CreateCompletionWithSSE() {
 func (c *CompletionController) CreateCompletion() {
 	var r models.CompletionModel
 	json.Unmarshal(c.Ctx.Input.RequestBody, &r)
-	valid := validation.Validation{}
-	b, err := valid.Valid(&r)
+	// valid := validation.Validation{}
+	// b, err := valid.Valid(&r)
 
-	if err != nil {
-		c.Ctx.JSONResp(err)
-		return
-	}
+	// if err != nil {
+	// 	c.Ctx.JSONResp(err)
+	// 	return
+	// }
 
-	if !b {
-		errString := ""
-		for _, err := range valid.Errors {
-			errString += (err.Key + " " + err.Message)
-		}
+	// if !b {
+	// 	errString := ""
+	// 	for _, err := range valid.Errors {
+	// 		errString += (err.Key + " " + err.Message)
+	// 	}
 
-		c.Ctx.WriteString(errString)
-		return
-	}
+	// 	c.Ctx.WriteString(errString)
+	// 	return
+	// }
 
 	completionService := services.NewCompletionService(createOpenAICLient())
 	co := services.CompletionModel{}
@@ -111,6 +111,10 @@ func (c *CompletionController) CreateCompletion() {
 		CompletionModel: co,
 	}
 
-	result := completionService.CreateCompletion(c.Ctx.Request.Context(), re)
+	result, err := completionService.CreateCompletion(c.Ctx.Request.Context(), re)
+	if err != nil {
+		c.Ctx.JSONResp(err)
+		return
+	}
 	c.Ctx.JSONResp(result)
 }

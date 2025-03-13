@@ -9,11 +9,12 @@ import (
 	"net/url"
 	"os"
 
-	openai "github.com/futugyou/ai-extension/openai"
 	"github.com/futugyou/extensions"
 	"github.com/futugyousuzu/go-openai-web/services"
 	verceltool "github.com/futugyousuzu/go-openai-web/vercel"
 
+	openai "github.com/openai/openai-go"
+	"github.com/openai/openai-go/azure"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -68,13 +69,16 @@ func Chatsse(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createOpenAICLient() *openai.OpenaiClient {
+func createOpenAICLient() *openai.Client {
 	openaikey := os.Getenv("openaikey")
 	openaiurl := os.Getenv("openaiurl")
-	client := openai.NewClient(openaikey)
-	if len(openaiurl) > 0 {
-		client.SetBaseUrl(openaiurl)
-	}
+
+	const azureOpenAIAPIVersion = "2024-06-01"
+
+	client := openai.NewClient(
+		azure.WithEndpoint(openaiurl, azureOpenAIAPIVersion),
+		azure.WithAPIKey(openaikey),
+	)
 
 	return client
 }

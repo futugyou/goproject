@@ -6,15 +6,17 @@ require github.com/beego/beego/v2 v2.3.0
 
 require (
 	github.com/devfeel/mapper v0.7.13
-	github.com/futugyou/ai-extension v0.0.0-00010101000000-000000000000
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/futugyousuzu/openai-tokenizer v0.0.0
+	github.com/openai/openai-go v0.1.0-alpha.53
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/smartystreets/goconvey v1.6.4
 )
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -26,6 +28,10 @@ require (
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
 	golang.org/x/mod v0.20.0 // indirect
 )
@@ -35,8 +41,6 @@ replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => github.com/futugyou/g
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
 
 replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions
-
-replace github.com/futugyou/ai-extension => ../ai-extension
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -49,7 +53,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/prometheus/client_golang v1.19.1 // indirect

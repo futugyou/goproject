@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
-	openai "github.com/futugyou/ai-extension/openai"
+	openai "github.com/openai/openai-go"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -18,15 +18,10 @@ type ModelListResponse struct {
 
 type ModelService struct {
 	redisDb *redis.Client
-	client  *openai.OpenaiClient
+	client  *openai.Client
 }
 
-func NewModelService(client *openai.OpenaiClient, redisDb *redis.Client) *ModelService {
-	if client == nil {
-		openaikey := os.Getenv("openaikey")
-		client = openai.NewClient(openaikey)
-	}
-
+func NewModelService(client *openai.Client, redisDb *redis.Client) *ModelService {
 	if redisDb == nil {
 		client, err := RedisClient(os.Getenv("REDIS_URL"))
 		if err != nil {
@@ -57,10 +52,13 @@ func (s *ModelService) GetAllModels(ctx context.Context) []ModelListResponse {
 		return result
 	}
 
-	models := s.client.Model.ListModels(ctx)
+	models, err := s.client.Models.List(ctx)
+	if err != nil {
+		return result
+	}
 	rset := make(map[string]interface{})
-	if len(models.Datas) > 0 {
-		for _, model := range models.Datas {
+	if len(models.Data) > 0 {
+		for _, model := range models.Data {
 			result = append(result, ModelListResponse{Name: model.ID})
 			modelstring, _ := json.Marshal(model)
 			rset[model.ID] = string(modelstring)

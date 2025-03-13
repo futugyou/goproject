@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"os"
 
-	lib "github.com/futugyou/ai-extension/openai"
 	"github.com/futugyousuzu/go-openai-web/services"
+	lib "github.com/openai/openai-go"
+	"github.com/openai/openai-go/azure"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,37 +22,48 @@ type AudioController struct {
 
 // @Title CreateAudioTranscription
 // @Description create audio transcription
-// @Param	body		body 	lib.CreateAudioTranscriptionRequest	true		"body for create audio transcription content"
+// @Param	body		body 	lib.AudioTranscriptionNewParams	true		"body for create audio transcription content"
 // @Success 200 {object} 	lib.CreateAudioTranscriptionResponse
 // @router /transcription [post]
-func (c *AudioController) CreateAudioTranscription(request lib.CreateAudioTranscriptionRequest) {
+func (c *AudioController) CreateAudioTranscription(request lib.AudioTranscriptionNewParams) {
 	chatService := services.NewAudioService(createOpenAICLient())
-	var audio lib.CreateAudioTranscriptionRequest
+	var audio lib.AudioTranscriptionNewParams
 	json.Unmarshal(c.Ctx.Input.RequestBody, &audio)
-	result := chatService.CreateAudioTranscription(c.Ctx.Request.Context(), audio)
+	result, err := chatService.CreateAudioTranscription(c.Ctx.Request.Context(), audio)
+	if err != nil {
+		c.Ctx.JSONResp(err)
+		return
+	}
 	c.Ctx.JSONResp(result)
 }
 
 // @Title CreateAudioTranslation
 // @Description create audio translation
-// @Param	body		body 	lib.CreateAudioTranslationRequest	true		"body for create audio translation content"
+// @Param	body		body 	lib.AudioTranslationNewParams	true		"body for create audio translation content"
 // @Success 200 {object} 	lib.CreateAudioTranslationResponse
 // @router /translation [post]
-func (c *AudioController) CreateAudioTranslation(request lib.CreateAudioTranslationRequest) {
+func (c *AudioController) CreateAudioTranslation(request lib.AudioTranslationNewParams) {
 	chatService := services.NewAudioService(createOpenAICLient())
-	var audio lib.CreateAudioTranslationRequest
+	var audio lib.AudioTranslationNewParams
 	json.Unmarshal(c.Ctx.Input.RequestBody, &audio)
-	result := chatService.CreateAudioTranslation(c.Ctx.Request.Context(), audio)
+	result, err := chatService.CreateAudioTranslation(c.Ctx.Request.Context(), audio)
+	if err != nil {
+		c.Ctx.JSONResp(err)
+		return
+	}
 	c.Ctx.JSONResp(result)
 }
 
-func createOpenAICLient() *lib.OpenaiClient {
+func createOpenAICLient() *lib.Client {
 	openaikey := os.Getenv("openaikey")
 	openaiurl := os.Getenv("openaiurl")
-	client := lib.NewClient(openaikey)
-	if len(openaiurl) > 0 {
-		client.SetBaseUrl(openaiurl)
-	}
+
+	const azureOpenAIAPIVersion = "2024-06-01"
+
+	client := lib.NewClient(
+		azure.WithEndpoint(openaiurl, azureOpenAIAPIVersion),
+		azure.WithAPIKey(openaikey),
+	)
 
 	return client
 }
