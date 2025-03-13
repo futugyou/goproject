@@ -41,8 +41,86 @@ func NewChatService(client *openai.Client) *ChatService {
 	}
 }
 
-func (s *ChatService) CreateChatCompletion(ctx context.Context, request openai.ChatCompletionNewParams) (*openai.ChatCompletion, error) {
-	return s.client.Chat.Completions.New(ctx, request)
+/*
+Request:
+
+	{
+		"presence_penalty": 0,
+		"prompt": "Say this is a test",
+		"model": "gpt-4o",
+		"suffix": "string",
+		"temperature": 0,
+		"top_p": 0,
+		"best_of": 1,
+		"messages": [{
+			"content": "Write me a haiku"
+		}],
+		"max_tokens": 4096
+	}
+
+Response:
+
+	{
+	  "created": "2025-03-13 17:26:06",
+	  "prompt_tokens": 12,
+	  "completion_tokens": 20,
+	  "total_tokens": 32,
+	  "messages": [
+	    {
+	      "role": "assistant",
+	      "content": "Golden leaves cascade,  \nwhispers of autumn's embrace,  \ntime drifts with the breeze."
+	    }
+	  ]
+	}
+*/
+func (s *ChatService) CreateChatCompletion(ctx context.Context, req CreateChatRequest) (*CreateChatResponse, error) {
+	msg := []openai.ChatCompletionMessageParamUnion{}
+	for _, v := range req.Messages {
+		if v.Role == "system" {
+			msg = append(msg, openai.SystemMessage(v.Content))
+		} else {
+			msg = append(msg, openai.UserMessage(v.Content))
+		}
+	}
+
+	messages := openai.F(msg)
+	request := openai.ChatCompletionNewParams{
+		Model:            openai.F(req.Model),
+		Messages:         messages,
+		Temperature:      openai.F(req.Temperature),
+		TopP:             openai.F(req.Top_p),
+		MaxTokens:        openai.F(req.MaxTokens),
+		PresencePenalty:  openai.F(req.PresencePenalty),
+		FrequencyPenalty: openai.F(req.FrequencyPenalty),
+		Seed:             openai.Int(1),
+	}
+	response, err := s.client.Chat.Completions.New(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &CreateChatResponse{}
+	if response.Created != 0 {
+		result.Created = time.Unix((int64)(response.Created), 0).Format("2006-01-02 15:04:05")
+	}
+
+	result.TotalTokens = response.Usage.TotalTokens
+	result.CompletionTokens = response.Usage.CompletionTokens
+	result.PromptTokens = response.Usage.PromptTokens
+
+	if response.Choices != nil {
+		messages := make([]Chat, 0)
+		for i := 0; i < len(response.Choices); i++ {
+			message := Chat{
+				Role:    string(response.Choices[i].Message.Role),
+				Content: response.Choices[i].Message.Content,
+			}
+			messages = append(messages, message)
+		}
+
+		result.Messages = messages
+	}
+	return result, nil
 }
 
 func (s *ChatService) CreateChatSSE(ctx context.Context, req CreateChatRequest) <-chan CreateChatResponse {

@@ -8,6 +8,8 @@ import (
 	openai "github.com/openai/openai-go"
 )
 
+// CompletionService is deprecated.
+// Deprecated: This service is no longer to use, use ChatService
 type CompletionService struct {
 	client *openai.Client
 }
@@ -69,7 +71,9 @@ func (s *CompletionService) CreateCompletion(ctx context.Context, request Create
 		Suffix:           openai.F(request.Suffix),
 		Temperature:      openai.F(request.Temperature),
 		TopP:             openai.F(request.Top_p),
+		Seed:             openai.Int(1),
 	}
+
 	apiresult, err := s.client.Completions.New(ctx, req)
 	if err != nil {
 		return nil, err
