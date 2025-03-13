@@ -23,8 +23,8 @@ type CompletionController struct {
 
 // @Title Create Completion With SSE
 // @Description create completion stream
-// @Param	body		body 	lib.CreateCompletionRequest	true		"body for create completion content"
-// @Success 200 {object} 	lib.CreateCompletionResponse
+// @Param	body		body 	models.CompletionModel	true		"body for create completion content"
+// @Success 200 {object} 	services.CreateCompletionResponse
 // @router /sse [post]
 func (c *CompletionController) CreateCompletionWithSSE() {
 	var r models.CompletionModel
