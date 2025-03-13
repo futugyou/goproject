@@ -8,7 +8,6 @@ require (
 	github.com/devfeel/mapper v0.7.13
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
-	github.com/futugyousuzu/openai-tokenizer v0.0.0
 	github.com/openai/openai-go v0.1.0-alpha.53
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/smartystreets/goconvey v1.6.4
@@ -32,11 +31,8 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
 	golang.org/x/mod v0.20.0 // indirect
 )
-
-replace github.com/futugyousuzu/openai-tokenizer v0.0.0 => github.com/futugyou/goproject/openai-tokenizer v0.0.0-20230504105143-00ca81260dbf
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
 
