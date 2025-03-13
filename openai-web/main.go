@@ -7,11 +7,8 @@ import (
 	_ "github.com/futugyousuzu/go-openai-web/services"
 	_ "github.com/futugyousuzu/openai-tokenizer"
 
-	"os"
-
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/filter/cors"
-	"github.com/futugyousuzu/go-openai-web/middleware"
 )
 
 func init() {
@@ -23,15 +20,15 @@ func init() {
 		AllowCredentials: true,
 	}))
 
-	web.InsertFilter("*", web.BeforeRouter, middleware.OAuthConfig(&middleware.Options{
-		AuthServerURL: os.Getenv("auth_server_url"),
-		ClientID:      os.Getenv("client_id"),
-		ClientSecret:  os.Getenv("client_secret"),
-		Scopes:        os.Getenv("scopes"),
-		RedirectURL:   os.Getenv("redirect_url"),
-		AuthURL:       os.Getenv("auth_url"),
-		TokenURL:      os.Getenv("token_url"),
-	}))
+	// web.InsertFilter("*", web.BeforeRouter, middleware.OAuthConfig(&middleware.Options{
+	// 	AuthServerURL: os.Getenv("auth_server_url"),
+	// 	ClientID:      os.Getenv("client_id"),
+	// 	ClientSecret:  os.Getenv("client_secret"),
+	// 	Scopes:        os.Getenv("scopes"),
+	// 	RedirectURL:   os.Getenv("redirect_url"),
+	// 	AuthURL:       os.Getenv("auth_url"),
+	// 	TokenURL:      os.Getenv("token_url"),
+	// }))
 }
 
 func main() {
