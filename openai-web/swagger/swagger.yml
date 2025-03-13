@@ -32,16 +32,16 @@ paths:
         description: body for create audio transcription content
         required: true
         schema:
-          $ref: '#/definitions/lib.CreateAudioTranscriptionRequest'
+          $ref: '#/definitions/openai.AudioTranscriptionNewParams'
       - in: query
         name: request
         schema:
-          $ref: '#/definitions/lib.CreateAudioTranscriptionRequest'
+          $ref: '#/definitions/openai.AudioTranscriptionNewParams'
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/lib.CreateAudioTranscriptionResponse'
+            $ref: '#/definitions/openai.CreateAudioTranscriptionResponse'
   /autio/translation:
     post:
       tags:
@@ -56,16 +56,16 @@ paths:
         description: body for create audio translation content
         required: true
         schema:
-          $ref: '#/definitions/lib.CreateAudioTranslationRequest'
+          $ref: '#/definitions/openai.AudioTranslationNewParams'
       - in: query
         name: request
         schema:
-          $ref: '#/definitions/lib.CreateAudioTranslationRequest'
+          $ref: '#/definitions/openai.AudioTranslationNewParams'
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/lib.CreateAudioTranslationResponse'
+            $ref: '#/definitions/openai.CreateAudioTranslationResponse'
   /chat/:
     post:
       tags:
@@ -80,16 +80,16 @@ paths:
         description: body for create chat content
         required: true
         schema:
-          $ref: '#/definitions/lib.CreateChatCompletionRequest'
+          $ref: '#/definitions/services.CreateChatRequest'
       - in: query
         name: request
         schema:
-          $ref: '#/definitions/lib.CreateChatCompletionRequest'
+          $ref: '#/definitions/services.CreateChatRequest'
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/lib.CreateChatCompletionResponse'
+            $ref: '#/definitions/services.CreateChatResponse'
   /chat/sse:
     post:
       tags:
@@ -134,12 +134,12 @@ paths:
         description: body for create completion content
         required: true
         schema:
-          $ref: '#/definitions/lib.CreateCompletionRequest'
+          $ref: '#/definitions/models.CompletionModel'
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/lib.CreateCompletionResponse'
+            $ref: '#/definitions/services.CreateCompletionResponse'
   /edits/:
     post:
       tags:
@@ -218,7 +218,7 @@ paths:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/lib.ListFinetuneEventResponse'
+            $ref: '#/definitions/openai.FineTuningJob'
         "403":
           description: fine_tune_id is empty
   /model/:
@@ -232,65 +232,30 @@ paths:
       responses:
         "200":
           description: "{list model} \t[]string"
-  /test/:
-    get:
-      tags:
-      - test
-      description: |-
-        do the test
-        <br>
-      operationId: TestController.test openai lib
 definitions:
-  lib.CreateAudioTranscriptionRequest:
-    title: CreateAudioTranscriptionRequest
-    type: object
-  lib.CreateAudioTranscriptionResponse:
-    title: CreateAudioTranscriptionResponse
-    type: object
-  lib.CreateAudioTranslationRequest:
-    title: CreateAudioTranslationRequest
-    type: object
-  lib.CreateAudioTranslationResponse:
-    title: CreateAudioTranslationResponse
-    type: object
-  lib.CreateChatCompletionRequest:
-    title: CreateChatCompletionRequest
-    type: object
-  lib.CreateChatCompletionResponse:
-    title: CreateChatCompletionResponse
-    type: object
-  lib.CreateCompletionRequest:
-    title: CreateCompletionRequest
-    type: object
-  lib.CreateCompletionResponse:
-    title: CreateCompletionResponse
-    type: object
-  lib.ListFinetuneEventResponse:
-    title: ListFinetuneEventResponse
-    type: object
   models.CompletionModel:
     title: CompletionModel
     type: object
     properties:
       best_of:
         type: integer
-        format: int32
+        format: int64
       echo:
         type: boolean
       frequency_penalty:
         type: number
-        format: float
+        format: double
       logprobs:
         type: integer
         format: int64
       max_tokens:
         type: integer
-        format: int32
+        format: int64
       model:
         type: string
       presence_penalty:
         type: number
-        format: float
+        format: double
       prompt:
         type: string
       stop:
@@ -303,15 +268,30 @@ definitions:
         type: string
       temperature:
         type: number
-        format: float
+        format: double
       top_p:
         type: number
-        format: float
+        format: double
   models.Object:
     title: Object
     type: object
   models.User:
     title: User
+    type: object
+  openai.AudioTranscriptionNewParams:
+    title: AudioTranscriptionNewParams
+    type: object
+  openai.AudioTranslationNewParams:
+    title: AudioTranslationNewParams
+    type: object
+  openai.CreateAudioTranscriptionResponse:
+    title: CreateAudioTranscriptionResponse
+    type: object
+  openai.CreateAudioTranslationResponse:
+    title: CreateAudioTranslationResponse
+    type: object
+  openai.FineTuningJob:
+    title: FineTuningJob
     type: object
   services.Chat:
     title: Chat
@@ -327,10 +307,10 @@ definitions:
     properties:
       frequency_penalty:
         type: number
-        format: float
+        format: double
       max_tokens:
         type: integer
-        format: int32
+        format: int64
       messages:
         type: array
         items:
@@ -339,13 +319,55 @@ definitions:
         type: string
       presence_penalty:
         type: number
-        format: float
+        format: double
       temperature:
         type: number
-        format: float
+        format: double
       top_p:
         type: number
-        format: float
+        format: double
+  services.CreateChatResponse:
+    title: CreateChatResponse
+    type: object
+    properties:
+      completion_tokens:
+        type: integer
+        format: int64
+      created:
+        type: string
+      error:
+        type: string
+      messages:
+        type: array
+        items:
+          $ref: '#/definitions/services.Chat'
+      prompt_tokens:
+        type: integer
+        format: int64
+      total_tokens:
+        type: integer
+        format: int64
+  services.CreateCompletionResponse:
+    title: CreateCompletionResponse
+    type: object
+    properties:
+      completion_tokens:
+        type: integer
+        format: int64
+      created:
+        type: string
+      error:
+        type: string
+      prompt_tokens:
+        type: integer
+        format: int64
+      texts:
+        type: array
+        items:
+          type: string
+      total_tokens:
+        type: integer
+        format: int64
   services.CreateEditsRequest:
     title: CreateEditsRequest
     type: object
@@ -358,13 +380,13 @@ definitions:
         type: string
       "n":
         type: integer
-        format: int32
+        format: int64
       temperature:
         type: number
-        format: float
+        format: double
       top_p:
         type: number
-        format: float
+        format: double
   services.ExampleModel:
     title: ExampleModel
     type: object
@@ -373,17 +395,17 @@ definitions:
         type: string
       frequency_penalty:
         type: number
-        format: float
+        format: double
       key:
         type: string
       max_tokens:
         type: integer
-        format: int32
+        format: int64
       model:
         type: string
       presence_penalty:
         type: number
-        format: float
+        format: double
       prompt:
         type: string
       sample_response:
@@ -400,12 +422,12 @@ definitions:
           type: string
       temperature:
         type: number
-        format: float
+        format: double
       title:
         type: string
       top_p:
         type: number
-        format: float
+        format: double
   services.ExampleModel[]:
     title: ExampleModel[]
     type: object
@@ -422,9 +444,6 @@ tags:
 - name: autio
   description: |
     Operations about Chat
-- name: test
-  description: |
-    Operations about test
 - name: examples
   description: |
     Operations about Examples
