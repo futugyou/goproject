@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/futugyou/yomawari/common/errorutils"
-	types "github.com/futugyou/yomawari/openai/audioformattype"
 
 	"golang.org/x/exp/slices"
 )
@@ -22,12 +21,12 @@ var supportedAudioModel = []string{
 }
 
 type CreateAudioTranscriptionRequest struct {
-	File           *os.File              `json:"file"`
-	Model          string                `json:"model"`
-	Prompt         string                `json:"prompt,omitempty"`
-	ResponseFormat types.AudioFormatType `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
-	Temperature    float32               `json:"temperature,omitempty"`
-	Language       string                `json:"language,omitempty"`
+	File           *os.File        `json:"file"`
+	Model          string          `json:"model"`
+	Prompt         string          `json:"prompt,omitempty"`
+	ResponseFormat AudioFormatType `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
+	Temperature    float32         `json:"temperature,omitempty"`
+	Language       string          `json:"language,omitempty"`
 }
 
 type CreateAudioTranscriptionResponse struct {
@@ -54,11 +53,11 @@ type Segments struct {
 }
 
 type CreateAudioTranslationRequest struct {
-	File           *os.File              `json:"file"`
-	Model          string                `json:"model"`
-	Prompt         string                `json:"prompt,omitempty"`
-	ResponseFormat types.AudioFormatType `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
-	Temperature    float32               `json:"temperature,omitempty"`
+	File           *os.File        `json:"file"`
+	Model          string          `json:"model"`
+	Prompt         string          `json:"prompt,omitempty"`
+	ResponseFormat AudioFormatType `json:"response_format,omitempty"` //  json, text, srt, verbose_json, or vtt.
+	Temperature    float32         `json:"temperature,omitempty"`
 }
 
 type CreateAudioTranslationResponse struct {
@@ -130,9 +129,9 @@ func (c *AudioService) CreateAudioTranslation(ctx context.Context, request Creat
 	return result
 }
 
-func validateAudioResponseFormat(responseFormat types.AudioFormatType) *errorutils.OpenaiError {
-	if len(responseFormat) > 0 && !slices.Contains(types.SupportededResponseFormatType, responseFormat) {
-		return errorutils.UnsupportedTypeError("ResponseFormat", responseFormat, types.SupportededResponseFormatType)
+func validateAudioResponseFormat(responseFormat AudioFormatType) *errorutils.OpenaiError {
+	if len(responseFormat) > 0 && !slices.Contains(SupportededResponseFormatType, responseFormat) {
+		return errorutils.UnsupportedTypeError("ResponseFormat", responseFormat, SupportededResponseFormatType)
 	}
 
 	return nil

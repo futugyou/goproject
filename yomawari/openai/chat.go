@@ -7,7 +7,6 @@ import (
 
 	"github.com/futugyou/yomawari/common/errorutils"
 	"github.com/futugyou/yomawari/common/httputils"
-	role "github.com/futugyou/yomawari/openai/chatrole"
 )
 
 type ChatService service
@@ -43,12 +42,12 @@ type chatCompletionRequest struct {
 }
 
 type ChatCompletionMessage struct {
-	Role    role.ChatRole `json:"role,omitempty"`
-	Content string        `json:"content,omitempty"`
-	Name    string        `json:"name,omitempty"`
+	Role    ChatRole `json:"role,omitempty"`
+	Content string   `json:"content,omitempty"`
+	Name    string   `json:"name,omitempty"`
 }
 
-func NewChatCompletionMessage(role role.ChatRole, message string) ChatCompletionMessage {
+func NewChatCompletionMessage(role ChatRole, message string) ChatCompletionMessage {
 	return ChatCompletionMessage{
 		Role:    role,
 		Content: message,
@@ -57,21 +56,21 @@ func NewChatCompletionMessage(role role.ChatRole, message string) ChatCompletion
 
 func ChatCompletionMessageFromUser(message string) ChatCompletionMessage {
 	return ChatCompletionMessage{
-		Role:    role.ChatRoleUser,
+		Role:    ChatRoleUser,
 		Content: message,
 	}
 }
 
 func ChatCompletionMessageFromSystem(message string) ChatCompletionMessage {
 	return ChatCompletionMessage{
-		Role:    role.ChatRoleSystem,
+		Role:    ChatRoleSystem,
 		Content: message,
 	}
 }
 
 func ChatCompletionMessageFromAssistant(message string) ChatCompletionMessage {
 	return ChatCompletionMessage{
-		Role:    role.ChatRoleAssistant,
+		Role:    ChatRoleAssistant,
 		Content: message,
 	}
 }
@@ -124,8 +123,8 @@ func validateChatRole(messages []ChatCompletionMessage) *errorutils.OpenaiError 
 	}
 
 	for _, message := range messages {
-		if !slices.Contains(role.SupportedChatRoles, message.Role) {
-			return errorutils.UnsupportedTypeError("Message role", message.Role, role.SupportedChatRoles)
+		if !slices.Contains(SupportedChatRoles, message.Role) {
+			return errorutils.UnsupportedTypeError("Message role", message.Role, SupportedChatRoles)
 		}
 	}
 	return nil
