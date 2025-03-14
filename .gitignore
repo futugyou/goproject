@@ -8,3 +8,4 @@ openai/static/*
 aws-web/data/*
 go.work
 go.work.sum
+yomawari/cmd/*

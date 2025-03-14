@@ -3,9 +3,9 @@ package embeddings
 import (
 	"context"
 
+	"github.com/futugyou/yomawari/core/logger"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
 	"github.com/futugyou/yomawari/generative-ai/ai"
-	"github.com/futugyou/yomawari/generative-ai/core/logger"
 )
 
 type LoggingEmbeddingGenerator[TInput any, TEmbedding embeddings.IEmbedding] struct {

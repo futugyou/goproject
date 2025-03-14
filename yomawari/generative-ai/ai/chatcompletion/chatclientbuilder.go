@@ -1,9 +1,9 @@
 package chatcompletion
 
 import (
+	"github.com/futugyou/yomawari/core"
+	"github.com/futugyou/yomawari/core/logger"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/generative-ai/core"
-	"github.com/futugyou/yomawari/generative-ai/core/logger"
 )
 
 type ChatClientBuilder struct {

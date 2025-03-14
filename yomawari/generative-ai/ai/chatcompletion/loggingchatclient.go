@@ -3,9 +3,9 @@ package chatcompletion
 import (
 	"context"
 
+	"github.com/futugyou/yomawari/core/logger"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/generative-ai/ai"
-	"github.com/futugyou/yomawari/generative-ai/core/logger"
 )
 
 type LoggingChatClient struct {

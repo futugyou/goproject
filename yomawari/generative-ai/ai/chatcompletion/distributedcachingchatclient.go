@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/utilities"
-	"github.com/futugyou/yomawari/generative-ai/core"
 )
 
 type DistributedCachingChatClient struct {

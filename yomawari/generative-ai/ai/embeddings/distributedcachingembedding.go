@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/utilities"
-	"github.com/futugyou/yomawari/generative-ai/core"
 )
 
 type DistributedCachingEmbeddingGenerator[TInput any, TEmbedding embeddings.IEmbedding] struct {
