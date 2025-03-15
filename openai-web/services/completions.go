@@ -160,7 +160,6 @@ func (s *CompletionService) CreateCompletionSSE(ctx context.Context, request Cre
 
 		if err := stream.Err(); err != nil {
 			result <- CreateCompletionResponse{ErrorMessage: err.Error()}
-			close(result)
 			return
 		}
 

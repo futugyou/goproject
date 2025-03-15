@@ -183,7 +183,6 @@ func (s *ChatService) CreateChatSSE(ctx context.Context, req CreateChatRequest) 
 
 		if err := stream.Err(); err != nil {
 			result <- CreateChatResponse{ErrorMessage: err.Error()}
-			close(result)
 			return
 		}
 
