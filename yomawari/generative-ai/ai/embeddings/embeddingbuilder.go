@@ -1,9 +1,9 @@
 package embeddings
 
 import (
-	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
 	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/core/logger"
+	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
 )
 
 type EmbeddingGeneratorBuilder[TInput any, TEmbedding embeddings.IEmbedding] struct {

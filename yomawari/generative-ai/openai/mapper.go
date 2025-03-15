@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
+	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
 	rawopenai "github.com/openai/openai-go"
 )
 
@@ -27,4 +28,16 @@ func ToChatResponse(response *rawopenai.ChatCompletion) *chatcompletion.ChatResp
 
 func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompletion.ChatResponseUpdate {
 	return nil
+}
+
+func ToOpenAIEmbeddingParams[TInput any](values []TInput, options *embeddings.EmbeddingGenerationOptions) *rawopenai.EmbeddingNewParams {
+	return nil
+}
+
+func ToGeneratedEmbeddings(res *rawopenai.CreateEmbeddingResponse) *embeddings.GeneratedEmbeddings[embeddings.EmbeddingT[float64]] {
+	return nil
+}
+
+func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamEvent) *chatcompletion.ChatResponseUpdate {
+	panic("unimplemented")
 }

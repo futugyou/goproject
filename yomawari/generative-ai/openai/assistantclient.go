@@ -59,13 +59,9 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 	}
 	for stream.Next() {
 		evt := stream.Current()
-		result<- chatcompletion.ChatStreamingResponse{
+		result <- chatcompletion.ChatStreamingResponse{
 			Update: ToChatResponseUpdateFromAssistantStreamEvent(evt),
 		}
 	}
 	return result
-}
-
-func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamEvent) *chatcompletion.ChatResponseUpdate{
-	panic("unimplemented")
 }

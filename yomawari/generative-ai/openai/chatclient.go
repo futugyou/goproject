@@ -18,6 +18,7 @@ func NewOpenAIChatClient(openAIClient *rawopenai.Client, modelId *string) *OpenA
 	return &OpenAIChatClient{
 		metadata: chatcompletion.ChatClientMetadata{
 			ProviderName: &name,
+			ModelId:      modelId,
 		},
 		openAIClient: openAIClient,
 		modelId:      modelId,

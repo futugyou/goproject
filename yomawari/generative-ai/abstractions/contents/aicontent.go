@@ -63,7 +63,6 @@ func (ac *AIContent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-
 func ConcatTextContents(contents []IAIContent) string {
 	var text string
 	for _, content := range contents {
