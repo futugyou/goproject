@@ -104,6 +104,7 @@ type ChatResponseUpdate struct {
 	ModelId              *string                `json:"modelId"`
 	CreatedAt            *time.Time             `json:"createdAt"`
 	FinishReason         *ChatFinishReason      `json:"finishReason"`
+	RawRepresentation    interface{}            `json:"-"`
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
 	Contents             []contents.IAIContent  `json:"contents"`
 }

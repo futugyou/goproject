@@ -72,6 +72,7 @@ const (
 	RoleAssistant ChatRole = "assistant"
 	RoleUser      ChatRole = "user"
 	RoleTool      ChatRole = "tool"
+	RoleDeveloper ChatRole = "developer"
 )
 
 func StringToChatRole(s string) ChatRole {
@@ -82,6 +83,8 @@ func StringToChatRole(s string) ChatRole {
 		return RoleAssistant
 	case string(RoleUser):
 		return RoleUser
+	case string(RoleDeveloper):
+		return RoleDeveloper
 	case string(RoleTool):
 		return RoleTool
 	default:
