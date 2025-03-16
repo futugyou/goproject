@@ -18,7 +18,72 @@ func ToOpenAIChatCompletion(response chatcompletion.ChatResponse, options json.R
 }
 
 func ToOpenAIMessages(chatMessages []chatcompletion.ChatMessage) []rawopenai.ChatCompletionMessageParamUnion {
-	return nil
+	result := []rawopenai.ChatCompletionMessageParamUnion{}
+	for _, msg := range chatMessages {
+		result = append(result, ToOpenAIMessage(msg))
+	}
+
+	return result
+}
+
+func ToOpenAIMessage(chatMessage chatcompletion.ChatMessage) rawopenai.ChatCompletionMessageParamUnion {
+	result := rawopenai.ChatCompletionMessageParam{}
+	// Audio:        rawopenai.F(),
+	// FunctionCall: rawopenai.F(),
+	// ToolCallID:   rawopenai.F(),
+	// ToolCalls:    rawopenai.F(),
+
+	var role string = (string)(chatMessage.Role)
+	result.Role = rawopenai.F(rawopenai.ChatCompletionMessageParamRole(role))
+	if chatMessage.AuthorName != nil {
+		result.Name = rawopenai.F(*chatMessage.AuthorName)
+	}
+	result.Content = rawopenai.F(ToOpenAIContents(chatMessage.Contents, role))
+	if v, ok := chatMessage.AdditionalProperties["Refusal"].(string); ok {
+		result.Refusal = rawopenai.F(v)
+	}
+
+	return result
+}
+
+func ToOpenAIContents(cons []contents.IAIContent, role string) interface{} {
+	result := []rawopenai.ChatCompletionContentPartUnionParam{}
+	for _, v := range cons {
+		switch con := v.(type) {
+		case *contents.TextContent:
+			result = append(result, rawopenai.TextPart(con.Text))
+		case *contents.UriContent:
+			if con.MediaTypeStartsWith("image") {
+				result = append(result, rawopenai.ImagePart(con.URI))
+			}
+		case *contents.DataContent:
+			if con.MediaTypeStartsWith("image") {
+				result = append(result, rawopenai.ImagePart(con.GetURI()))
+			}
+			if con.MediaTypeStartsWith("audio") {
+				var format rawopenai.ChatCompletionContentPartInputAudioInputAudioFormat
+				if con.MediaTypeStartsWith("audio/mpeg") {
+					format = rawopenai.ChatCompletionContentPartInputAudioInputAudioFormatMP3
+				} else if con.MediaTypeStartsWith("audio/wav") {
+					format = rawopenai.ChatCompletionContentPartInputAudioInputAudioFormatWAV
+				}
+
+				if len(format) == 0 {
+					break
+				}
+
+				audio := rawopenai.ChatCompletionContentPartInputAudioParam{
+					InputAudio: rawopenai.F(rawopenai.ChatCompletionContentPartInputAudioInputAudioParam{
+						Data:   rawopenai.F(con.GetURI()),
+						Format: rawopenai.F(format),
+					}),
+					Type: rawopenai.F(rawopenai.ChatCompletionContentPartInputAudioTypeInputAudio),
+				}
+				result = append(result, audio)
+			}
+		}
+	}
+	return result
 }
 
 func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCompletionNewParams {
