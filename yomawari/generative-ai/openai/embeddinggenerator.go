@@ -30,10 +30,10 @@ func NewOpenAIEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT
 
 func (g *OpenAIEmbeddingGenerator[TInput, TEmbedding]) Generate(ctx context.Context, values []TInput, options *embeddings.EmbeddingGenerationOptions) (*embeddings.GeneratedEmbeddings[embeddings.EmbeddingT[float64]], error) {
 	body := ToOpenAIEmbeddingParams[TInput](values, options)
-	res ,err:=g.openAIClient.Embeddings.New(ctx, *body)
+	res, err := g.openAIClient.Embeddings.New(ctx, *body)
 	if err != nil {
 		return nil, err
 	}
-	 
+
 	return ToGeneratedEmbeddings(res), nil
 }

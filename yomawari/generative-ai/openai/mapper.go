@@ -28,10 +28,6 @@ func ToOpenAIMessages(chatMessages []chatcompletion.ChatMessage) []rawopenai.Cha
 
 func ToOpenAIMessage(chatMessage chatcompletion.ChatMessage) rawopenai.ChatCompletionMessageParamUnion {
 	result := rawopenai.ChatCompletionMessageParam{}
-	// Audio:        rawopenai.F(),
-	// FunctionCall: rawopenai.F(),
-	// ToolCallID:   rawopenai.F(),
-	// ToolCalls:    rawopenai.F(),
 
 	var role string = (string)(chatMessage.Role)
 	result.Role = rawopenai.F(rawopenai.ChatCompletionMessageParamRole(role))
@@ -41,6 +37,27 @@ func ToOpenAIMessage(chatMessage chatcompletion.ChatMessage) rawopenai.ChatCompl
 	result.Content = rawopenai.F(ToOpenAIContents(chatMessage.Contents, role))
 	if v, ok := chatMessage.AdditionalProperties["Refusal"].(string); ok {
 		result.Refusal = rawopenai.F(v)
+	}
+
+	if role == "assistant" {
+		tools := []rawopenai.ChatCompletionMessageToolCallParam{}
+		for _, con := range chatMessage.Contents {
+			if c, ok := con.(*contents.FunctionCallContent); ok {
+				if d, err := json.Marshal(c.Arguments); err != nil {
+					sf := rawopenai.ChatCompletionMessageToolCallParam{
+						ID: rawopenai.F(c.CallId),
+						Function: rawopenai.F(rawopenai.ChatCompletionMessageToolCallFunctionParam{
+							Arguments: rawopenai.F(string(d)),
+							Name:      rawopenai.F(c.Name),
+						}),
+						Type: rawopenai.F(rawopenai.ChatCompletionMessageToolCallTypeFunction),
+					}
+					tools = append(tools, sf)
+				}
+			}
+		}
+		var tool interface{} = tools
+		result.ToolCalls = rawopenai.F(tool)
 	}
 
 	return result
