@@ -6,7 +6,9 @@ import (
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/contents"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
+	"github.com/futugyou/yomawari/generative-ai/abstractions/functions"
 	rawopenai "github.com/openai/openai-go"
+	"github.com/openai/openai-go/shared"
 )
 
 // Conversion functions
@@ -20,7 +22,117 @@ func ToOpenAIMessages(chatMessages []chatcompletion.ChatMessage) []rawopenai.Cha
 }
 
 func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCompletionNewParams {
-	return nil
+	result := &rawopenai.ChatCompletionNewParams{}
+	if options == nil {
+		return result
+	}
+	if options.ModelId != nil {
+		result.Model = rawopenai.F(*options.ModelId)
+	}
+	if options.FrequencyPenalty != nil {
+		result.FrequencyPenalty = rawopenai.F(*options.FrequencyPenalty)
+	}
+	if options.MaxOutputTokens != nil {
+		result.MaxCompletionTokens = rawopenai.F(*options.MaxOutputTokens)
+	}
+	if options.PresencePenalty != nil {
+		result.PresencePenalty = rawopenai.F(*options.PresencePenalty)
+	}
+	if options.Seed != nil {
+		result.Seed = rawopenai.F(*options.Seed)
+	}
+	if options.Temperature != nil {
+		result.Temperature = rawopenai.F(*options.Temperature)
+	}
+	if options.TopP != nil {
+		result.TopP = rawopenai.F(*options.TopP)
+	}
+
+	var defaultFormat rawopenai.ChatCompletionNewParamsResponseFormatUnion = rawopenai.ChatCompletionNewParamsResponseFormat{
+		Type: rawopenai.F(rawopenai.ChatCompletionNewParamsResponseFormatTypeJSONObject),
+	}
+	// TODO: json schema is not implement
+	if options.ResponseFormat != nil && *options.ResponseFormat == chatcompletion.TextFormat {
+		defaultFormat = rawopenai.ChatCompletionNewParamsResponseFormatUnion(rawopenai.ChatCompletionNewParamsResponseFormat{
+			Type: rawopenai.F(rawopenai.ChatCompletionNewParamsResponseFormatTypeText),
+		})
+	}
+
+	result.ResponseFormat = rawopenai.F(defaultFormat)
+
+	if len(options.StopSequences) > 0 {
+		var stop rawopenai.ChatCompletionNewParamsStopUnion = rawopenai.ChatCompletionNewParamsStopArray(options.StopSequences)
+		result.Stop = rawopenai.F(stop)
+	}
+
+	for _, tool := range options.Tools {
+		tools := []rawopenai.ChatCompletionToolParam{}
+		if v, ok := tool.(functions.AIFunction); ok {
+			t := ToOpenAIChatCompletionToolParam(v)
+			tools = append(tools, t)
+		}
+		result.Tools = rawopenai.F(tools)
+	}
+
+	if options.ToolMode != nil {
+		var choice rawopenai.ChatCompletionToolChoiceOptionUnionParam = rawopenai.ChatCompletionToolChoiceOptionAutoNone
+		switch *options.ToolMode {
+		case chatcompletion.AutoMode:
+			choice = rawopenai.ChatCompletionToolChoiceOptionAutoAuto
+		case chatcompletion.RequireAnyMode:
+			choice = rawopenai.ChatCompletionToolChoiceOptionAutoRequired
+		}
+		result.ToolChoice = rawopenai.F(choice)
+	}
+
+	if v, ok := options.AdditionalProperties["ParallelToolCalls"].(bool); ok {
+		result.ParallelToolCalls = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["Audio"].(rawopenai.ChatCompletionAudioParam); ok {
+		result.Audio = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["User"].(string); ok {
+		result.User = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["LogitBias"].(map[string]int64); ok {
+		result.LogitBias = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["Metadata"].(shared.MetadataParam); ok {
+		result.Metadata = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["Prediction"].(rawopenai.ChatCompletionPredictionContentParam); ok {
+		result.Prediction = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["ReasoningEffort"].(rawopenai.ChatCompletionReasoningEffort); ok {
+		result.ReasoningEffort = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["Modalities"].([]rawopenai.ChatCompletionModality); ok {
+		result.Modalities = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["Store"].(bool); ok {
+		result.Store = rawopenai.F(v)
+	}
+	if v, ok := options.AdditionalProperties["Store"].(int64); ok {
+		result.TopLogprobs = rawopenai.F(v)
+	}
+	return result
+}
+
+func ToOpenAIChatCompletionToolParam(v functions.AIFunction) rawopenai.ChatCompletionToolParam {
+	pa := shared.FunctionDefinitionParam{
+		Name:        rawopenai.F(v.GetName()),
+		Description: rawopenai.F(v.GetDescription()),
+		Strict:      rawopenai.F(false),
+	}
+	var m shared.FunctionParameters = v.GetAdditionalProperties()
+	pa.Parameters = rawopenai.F(m)
+
+	p := rawopenai.ChatCompletionToolParam{
+		Function: rawopenai.F(pa),
+		Type:     rawopenai.F(rawopenai.ChatCompletionToolTypeFunction),
+	}
+
+	return p
 }
 
 func ToChatResponse(openAICompletion *rawopenai.ChatCompletion) *chatcompletion.ChatResponse {
