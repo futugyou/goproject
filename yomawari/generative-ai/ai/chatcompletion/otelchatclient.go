@@ -169,7 +169,7 @@ func CreateAndConfigureSpan(
 			span.SetAttributes(attribute.Float64("gen_ai.request.frequency_penalty", *options.FrequencyPenalty))
 		}
 		if options.MaxOutputTokens != nil {
-			span.SetAttributes(attribute.Int("gen_ai.request.max_tokens", *options.MaxOutputTokens))
+			span.SetAttributes(attribute.Int64("gen_ai.request.max_tokens", *options.MaxOutputTokens))
 		}
 		if options.PresencePenalty != nil {
 			span.SetAttributes(attribute.Float64("gen_ai.request.presence_penalty", *options.PresencePenalty))

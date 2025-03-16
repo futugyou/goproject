@@ -15,7 +15,7 @@ type OllamaRequestOptions struct {
 	NumCtx           *int     `json:"num_ctx,omitempty"`
 	NumGPU           *int     `json:"num_gpu,omitempty"`
 	NumKeep          *int     `json:"num_keep,omitempty"`
-	NumPredict       *int     `json:"num_predict,omitempty"`
+	NumPredict       *int64   `json:"num_predict,omitempty"`
 	NumThread        *int     `json:"num_thread,omitempty"`
 	NUMA             *bool    `json:"numa,omitempty"`
 	PenalizeNewline  *bool    `json:"penalize_newline,omitempty"`
