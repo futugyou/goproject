@@ -2,25 +2,26 @@ package openai
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
 	rawopenai "github.com/openai/openai-go"
 )
 
-type OpenAIEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT[float64]] struct {
+type OpenAIEmbeddingGenerator[TEmbedding embeddings.EmbeddingT[float64]] struct {
 	metadata     *embeddings.EmbeddingGeneratorMetadata
 	openAIClient *rawopenai.Client
 	modelId      *string
 	dimensions   *int64
 }
 
-func NewOpenAIEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT[float64]](
+func NewOpenAIEmbeddingGenerator[TEmbedding embeddings.EmbeddingT[float64]](
 	openAIClient *rawopenai.Client,
 	modelId *string,
 	dimensions *int64,
-) *OpenAIEmbeddingGenerator[TInput, TEmbedding] {
+) *OpenAIEmbeddingGenerator[TEmbedding] {
 	name := "openai"
-	return &OpenAIEmbeddingGenerator[TInput, TEmbedding]{
+	return &OpenAIEmbeddingGenerator[TEmbedding]{
 		metadata:     &embeddings.EmbeddingGeneratorMetadata{ProviderName: &name, ModelId: modelId},
 		openAIClient: openAIClient,
 		modelId:      modelId,
@@ -28,8 +29,11 @@ func NewOpenAIEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT
 	}
 }
 
-func (g *OpenAIEmbeddingGenerator[TInput, TEmbedding]) Generate(ctx context.Context, values []TInput, options *embeddings.EmbeddingGenerationOptions) (*embeddings.GeneratedEmbeddings[embeddings.EmbeddingT[float64]], error) {
-	body := ToOpenAIEmbeddingParams[TInput](values, options)
+func (g *OpenAIEmbeddingGenerator[TEmbedding]) Generate(ctx context.Context, values []string, options *embeddings.EmbeddingGenerationOptions) (*embeddings.GeneratedEmbeddings[embeddings.EmbeddingT[float64]], error) {
+	if options == nil {
+		return nil, fmt.Errorf("no option info")
+	}
+	body := ToOpenAIEmbeddingParams(values, options)
 	res, err := g.openAIClient.Embeddings.New(ctx, *body)
 	if err != nil {
 		return nil, err

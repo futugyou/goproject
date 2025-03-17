@@ -410,7 +410,7 @@ func ToChatResponseUpdateWithFunctions(response *rawopenai.ChatCompletionChunk, 
 	if len(refusal) > 0 {
 		result.AdditionalProperties["refusal"] = refusal
 	}
-	
+
 	return result
 }
 
@@ -460,8 +460,29 @@ func parseContent(input string) contents.IAIContent {
 	}
 }
 
-func ToOpenAIEmbeddingParams[TInput any](values []TInput, options *embeddings.EmbeddingGenerationOptions) *rawopenai.EmbeddingNewParams {
-	return nil
+func ToOpenAIEmbeddingParams(values []string, options *embeddings.EmbeddingGenerationOptions) *rawopenai.EmbeddingNewParams {
+	if options == nil || len(values) == 0 {
+		return nil
+	}
+	var i rawopenai.EmbeddingNewParamsInputUnion = rawopenai.EmbeddingNewParamsInputArrayOfStrings(values)
+	result := &rawopenai.EmbeddingNewParams{
+		Input:      rawopenai.F(i),
+		Model:      rawopenai.F(*options.ModelId),
+		Dimensions: rawopenai.F(*options.Dimensions),
+	}
+
+	if v, ok := options.AdditionalProperties["encoding_format"].(string); ok {
+		if v == "base64" {
+			result.EncodingFormat = rawopenai.F(rawopenai.EmbeddingNewParamsEncodingFormatBase64)
+		} else {
+			result.EncodingFormat = rawopenai.F(rawopenai.EmbeddingNewParamsEncodingFormatFloat)
+		}
+
+	}
+	if v, ok := options.AdditionalProperties["user"].(string); ok {
+		result.User = rawopenai.F(v)
+	}
+	return result
 }
 
 func ToGeneratedEmbeddings(res *rawopenai.CreateEmbeddingResponse) *embeddings.GeneratedEmbeddings[embeddings.EmbeddingT[float64]] {
