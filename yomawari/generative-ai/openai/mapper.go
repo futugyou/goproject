@@ -365,27 +365,27 @@ func ToAIContent(chunk rawopenai.ChatCompletionChunkChoice) []contents.IAIConten
 	var strSlice []string
 
 	if err := json.Unmarshal([]byte(chunk.Delta.Content), &strSlice); err != nil {
-		return []contents.IAIContent{contents.NewTextContent(chunk.Delta.Content)}
+		return []contents.IAIContent{contents.NewTextContentWithRefusal(chunk.Delta.Content, chunk.Delta.Refusal)}
 	}
 
 	for _, input := range strSlice {
-		result = append(result, parseContent(input))
+		result = append(result, parseContent(input, chunk.Delta.Refusal))
 	}
 
 	return result
 }
 
-func parseContent(input string) contents.IAIContent {
+func parseContent(input string, refusal string) contents.IAIContent {
 	var jsonObj InnerContentStruct
 	if err := json.Unmarshal([]byte(input), &jsonObj); err != nil {
-		return contents.NewTextContent(input)
+		return contents.NewTextContentWithRefusal(input, refusal)
 	}
 
 	switch jsonObj.Type {
 	case "image":
-		return contents.NewDataContentFromURI(jsonObj.Image.Url, "image")
+		return contents.NewDataContentWithRefusal(jsonObj.Image.Url, "image", refusal)
 	default:
-		return contents.NewTextContent(input)
+		return contents.NewTextContentWithRefusal(input, refusal)
 	}
 }
 

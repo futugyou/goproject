@@ -17,8 +17,8 @@ type DataContent struct {
 	dataURI   *DataUri `json:"-"`
 }
 
-// NewDataContentFromURI creates a new DataContent from a URI string, optionally providing a media type.
-func NewDataContentFromURI(uri string, mediaType string) *DataContent {
+// NewDataContent creates a new DataContent from a URI string, optionally providing a media type.
+func NewDataContent(uri string, mediaType string) *DataContent {
 	content := &DataContent{MediaType: mediaType}
 
 	// Check if URI is a data URI
@@ -42,6 +42,14 @@ func NewDataContentFromURI(uri string, mediaType string) *DataContent {
 	}
 
 	return content
+}
+
+func NewDataContentWithRefusal(uri string, mediaType string, refusal string) *DataContent {
+	c := NewDataContent(uri, mediaType)
+	if len(refusal) > 0 {
+		c.AdditionalProperties["refusal"] = refusal
+	}
+	return c
 }
 
 // GetURI returns the URI for this DataContent.

@@ -15,6 +15,14 @@ func NewTextContent(text string) *TextContent {
 	}
 }
 
+func NewTextContentWithRefusal(text string, refusal string) *TextContent {
+	c := NewTextContent(text)
+	if len(refusal) > 0 {
+		c.AdditionalProperties["refusal"] = refusal
+	}
+	return c
+}
+
 func (fcc TextContent) MarshalJSON() ([]byte, error) {
 	type Alias TextContent
 	return json.Marshal(&struct {
