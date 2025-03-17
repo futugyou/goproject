@@ -18,18 +18,14 @@ type DataContent struct {
 }
 
 // NewDataContentFromURI creates a new DataContent from a URI string, optionally providing a media type.
-func NewDataContentFromURI(uri string, mediaType string) (*DataContent, error) {
-	if uri == "" {
-		return nil, errors.New("URI cannot be empty")
-	}
-
+func NewDataContentFromURI(uri string, mediaType string) *DataContent {
 	content := &DataContent{MediaType: mediaType}
 
 	// Check if URI is a data URI
 	if strings.HasPrefix(uri, "data:") {
 		dataURI, err := ParseDataUri(uri)
 		if err != nil {
-			return nil, err
+			return content
 		}
 
 		content.dataURI = dataURI
@@ -40,13 +36,12 @@ func NewDataContentFromURI(uri string, mediaType string) (*DataContent, error) {
 			content.dataURI = nil
 			content.URI = ""
 		}
-
 	} else {
 		// If not a data URI, treat it as a regular URI
 		content.URI = uri
 	}
 
-	return content, nil
+	return content
 }
 
 // GetURI returns the URI for this DataContent.

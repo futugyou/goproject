@@ -8,6 +8,13 @@ type TextContent struct {
 	Text      string `json:"text,omitempty"`
 }
 
+func NewTextContent(text string) *TextContent {
+	return &TextContent{
+		AIContent: AIContent{AdditionalProperties: make(map[string]interface{})},
+		Text:      text,
+	}
+}
+
 func (fcc TextContent) MarshalJSON() ([]byte, error) {
 	type Alias TextContent
 	return json.Marshal(&struct {
