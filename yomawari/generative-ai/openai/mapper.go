@@ -301,6 +301,7 @@ func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompleti
 	if response == nil {
 		return nil
 	}
+
 	created := time.Unix(response.Created, 0)
 	result := &chatcompletion.ChatResponseUpdate{
 		ResponseId:           &response.ID,
@@ -310,16 +311,6 @@ func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompleti
 		Contents:             []contents.IAIContent{},
 		CreatedAt:            &created,
 	}
-
-	if len(response.Choices) == 0 {
-		return result
-	}
-
-	finishReason := chatcompletion.ChatFinishReason((string)(response.Choices[len(response.Choices)-1].FinishReason))
-	role := chatcompletion.StringToChatRole((string)(response.Choices[len(response.Choices)-1].Delta.Role))
-
-	result.Role = &role
-	result.FinishReason = &finishReason
 
 	if len(response.SystemFingerprint) > 0 {
 		result.AdditionalProperties["SystemFingerprint"] = response.SystemFingerprint
@@ -336,6 +327,16 @@ func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompleti
 			},
 		})
 	}
+
+	if len(response.Choices) == 0 {
+		return result
+	}
+
+	finishReason := chatcompletion.ChatFinishReason((string)(response.Choices[len(response.Choices)-1].FinishReason))
+	role := chatcompletion.StringToChatRole((string)(response.Choices[len(response.Choices)-1].Delta.Role))
+
+	result.Role = &role
+	result.FinishReason = &finishReason
 
 	for _, chunk := range response.Choices {
 		result.Contents = append(result.Contents, ToAIContent(chunk)...)
