@@ -486,7 +486,27 @@ func ToOpenAIEmbeddingParams(values []string, options *embeddings.EmbeddingGener
 }
 
 func ToGeneratedEmbeddings(res *rawopenai.CreateEmbeddingResponse) *embeddings.GeneratedEmbeddings[embeddings.EmbeddingT[float64]] {
-	return nil
+	if res == nil {
+		return nil
+	}
+	emb := []embeddings.EmbeddingT[float64]{}
+	t := time.Now().UTC()
+	for _, v := range res.Data {
+		emb = append(emb, embeddings.EmbeddingT[float64]{
+			Embedding: embeddings.Embedding{
+				CreatedAt:            &t,
+				ModelId:              &res.Model,
+				AdditionalProperties: map[string]interface{}{},
+			},
+			Vector: v.Embedding,
+		})
+	}
+	result := embeddings.NewGeneratedEmbeddingsFromCollection[embeddings.EmbeddingT[float64]](emb)
+	result.Usage = &abstractions.UsageDetails{
+		InputTokenCount: &res.Usage.PromptTokens,
+		TotalTokenCount: &res.Usage.TotalTokens,
+	}
+	return result
 }
 
 func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamEvent) *chatcompletion.ChatResponseUpdate {
