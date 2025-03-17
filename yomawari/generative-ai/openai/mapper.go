@@ -2,6 +2,7 @@ package openai
 
 import (
 	"encoding/json"
+	"sync"
 	"time"
 
 	"github.com/futugyou/yomawari/generative-ai/abstractions"
@@ -344,6 +345,75 @@ func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompleti
 	return result
 }
 
+type ToolCallsCache struct {
+	sync.Mutex
+	data map[string]rawopenai.ChatCompletionChunkChoicesDeltaToolCall
+}
+
+func ToChatResponseUpdateWithFunctions(response *rawopenai.ChatCompletionChunk, toolCallsCache *ToolCallsCache) *chatcompletion.ChatResponseUpdate {
+	if response == nil || len(response.Choices) == 0 {
+		return nil
+	}
+
+	toolCallsCache.Mutex.Lock()
+	defer toolCallsCache.Mutex.Unlock()
+
+	created := time.Unix(response.Created, 0)
+	result := &chatcompletion.ChatResponseUpdate{
+		ResponseId:           &response.ID,
+		ModelId:              &response.Model,
+		RawRepresentation:    response,
+		AdditionalProperties: map[string]interface{}{},
+		Contents:             []contents.IAIContent{},
+		CreatedAt:            &created,
+	}
+
+	if len(response.SystemFingerprint) > 0 {
+		result.AdditionalProperties["SystemFingerprint"] = response.SystemFingerprint
+	}
+
+	finishReason := chatcompletion.ChatFinishReason((string)(response.Choices[len(response.Choices)-1].FinishReason))
+	role := chatcompletion.StringToChatRole((string)(response.Choices[len(response.Choices)-1].Delta.Role))
+
+	result.Role = &role
+	result.FinishReason = &finishReason
+	refusal := ""
+	for _, choice := range response.Choices {
+		if len(choice.Delta.Refusal) > 0 {
+			refusal = choice.Delta.Refusal
+		}
+		for _, toolCall := range choice.Delta.ToolCalls {
+			existing, found := toolCallsCache.data[toolCall.ID]
+			if found {
+				if toolCall.Function.Name != "" {
+					existing.Function.Name = toolCall.Function.Name
+				}
+				if toolCall.Function.Arguments != "" {
+					existing.Function.Arguments += toolCall.Function.Arguments
+				}
+				toolCallsCache.data[toolCall.ID] = existing
+			} else {
+				toolCallsCache.data[toolCall.ID] = toolCall
+			}
+		}
+	}
+
+	for _, v := range toolCallsCache.data {
+		con := contents.CreateFromParsedArguments(v.Function.Arguments, v.ID, v.Function.Name, func(args string) (map[string]interface{}, error) {
+			var result map[string]interface{}
+			err := json.Unmarshal([]byte(args), &result)
+			return result, err
+		})
+		result.Contents = append(result.Contents, con)
+	}
+
+	if len(refusal) > 0 {
+		result.AdditionalProperties["refusal"] = refusal
+	}
+	
+	return result
+}
+
 type InnerContentStruct struct {
 	Type       string                  `json:"type"`
 	Image      InnerContentImageStruct `json:"image_url"`
@@ -366,27 +436,27 @@ func ToAIContent(chunk rawopenai.ChatCompletionChunkChoice) []contents.IAIConten
 	var strSlice []string
 
 	if err := json.Unmarshal([]byte(chunk.Delta.Content), &strSlice); err != nil {
-		return []contents.IAIContent{contents.NewTextContentWithRefusal(chunk.Delta.Content, chunk.Delta.Refusal)}
+		return []contents.IAIContent{contents.NewTextContent(chunk.Delta.Content)}
 	}
 
 	for _, input := range strSlice {
-		result = append(result, parseContent(input, chunk.Delta.Refusal))
+		result = append(result, parseContent(input))
 	}
 
 	return result
 }
 
-func parseContent(input string, refusal string) contents.IAIContent {
+func parseContent(input string) contents.IAIContent {
 	var jsonObj InnerContentStruct
 	if err := json.Unmarshal([]byte(input), &jsonObj); err != nil {
-		return contents.NewTextContentWithRefusal(input, refusal)
+		return contents.NewTextContent(input)
 	}
 
 	switch jsonObj.Type {
 	case "image":
-		return contents.NewDataContentWithRefusal(jsonObj.Image.Url, "image", refusal)
+		return contents.NewDataContent(jsonObj.Image.Url, "image")
 	default:
-		return contents.NewTextContentWithRefusal(input, refusal)
+		return contents.NewTextContent(input)
 	}
 }
 

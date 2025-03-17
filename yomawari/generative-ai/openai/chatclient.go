@@ -40,15 +40,26 @@ func (client *OpenAIChatClient) GetStreamingResponse(ctx context.Context, chatMe
 	request := ToOpenAIChatRequest(options)
 	request.Messages = rawopenai.F(ToOpenAIMessages(chatMessages))
 	stream := client.openAIClient.Chat.Completions.NewStreaming(ctx, *request)
+
+	var toolCallsCache = ToolCallsCache{data: make(map[string]rawopenai.ChatCompletionChunkChoicesDeltaToolCall)}
+
 	go func() {
 		defer close(result)
 		defer stream.Close()
 		for stream.Next() {
 			response := stream.Current()
 			ch := ToChatResponseUpdate(&response)
+			chTools := ToChatResponseUpdateWithFunctions(&response, &toolCallsCache)
 
 			select {
 			case result <- chatcompletion.ChatStreamingResponse{Update: ch}:
+			case <-ctx.Done():
+				result <- chatcompletion.ChatStreamingResponse{Err: ctx.Err()}
+				return
+			}
+
+			select {
+			case result <- chatcompletion.ChatStreamingResponse{Update: chTools}:
 			case <-ctx.Done():
 				result <- chatcompletion.ChatStreamingResponse{Err: ctx.Err()}
 				return
