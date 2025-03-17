@@ -10,7 +10,9 @@ type GeneratedEmbeddings[TEmbedding IEmbedding] struct {
 
 func NewGeneratedEmbeddings[TEmbedding IEmbedding]() *GeneratedEmbeddings[TEmbedding] {
 	return &GeneratedEmbeddings[TEmbedding]{
-		embeddings: make([]TEmbedding, 0),
+		embeddings:           make([]TEmbedding, 0),
+		Usage:                &abstractions.UsageDetails{},
+		AdditionalProperties: map[string]interface{}{},
 	}
 }
 
@@ -19,13 +21,17 @@ func NewGeneratedEmbeddingsWithCapacity[TEmbedding IEmbedding](capacity int) *Ge
 		panic("capacity cannot be less than 0")
 	}
 	return &GeneratedEmbeddings[TEmbedding]{
-		embeddings: make([]TEmbedding, 0, capacity),
+		embeddings:           make([]TEmbedding, 0, capacity),
+		Usage:                &abstractions.UsageDetails{},
+		AdditionalProperties: map[string]interface{}{},
 	}
 }
 
 func NewGeneratedEmbeddingsFromCollection[TEmbedding IEmbedding](embeddings []TEmbedding) *GeneratedEmbeddings[TEmbedding] {
 	return &GeneratedEmbeddings[TEmbedding]{
-		embeddings: append([]TEmbedding(nil), embeddings...),
+		embeddings:           append([]TEmbedding(nil), embeddings...),
+		Usage:                &abstractions.UsageDetails{},
+		AdditionalProperties: map[string]interface{}{},
 	}
 }
 
