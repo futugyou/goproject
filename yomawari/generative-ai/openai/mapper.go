@@ -2,7 +2,9 @@ package openai
 
 import (
 	"encoding/json"
+	"time"
 
+	"github.com/futugyou/yomawari/generative-ai/abstractions"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/contents"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
@@ -194,7 +196,7 @@ func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCom
 	if v, ok := options.AdditionalProperties["Store"].(bool); ok {
 		result.Store = rawopenai.F(v)
 	}
-	if v, ok := options.AdditionalProperties["Store"].(int64); ok {
+	if v, ok := options.AdditionalProperties["TopLogprobs"].(int64); ok {
 		result.TopLogprobs = rawopenai.F(v)
 	}
 	return result
@@ -296,7 +298,95 @@ func ToChatRole(v rawopenai.ChatCompletionMessageRole) chatcompletion.ChatRole {
 }
 
 func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompletion.ChatResponseUpdate {
-	return nil
+	if response == nil {
+		return nil
+	}
+	created := time.Unix(response.Created, 0)
+	result := &chatcompletion.ChatResponseUpdate{
+		ResponseId:           &response.ID,
+		ModelId:              &response.Model,
+		RawRepresentation:    response,
+		AdditionalProperties: map[string]interface{}{},
+		Contents:             []contents.IAIContent{},
+		CreatedAt:            &created,
+	}
+
+	if len(response.Choices) == 0 {
+		return result
+	}
+
+	finishReason := chatcompletion.ChatFinishReason((string)(response.Choices[len(response.Choices)-1].FinishReason))
+	role := chatcompletion.StringToChatRole((string)(response.Choices[len(response.Choices)-1].Delta.Role))
+
+	result.Role = &role
+	result.FinishReason = &finishReason
+
+	if len(response.SystemFingerprint) > 0 {
+		result.AdditionalProperties["SystemFingerprint"] = response.SystemFingerprint
+	}
+
+	if response.Usage.CompletionTokens > 0 {
+		result.Contents = append(result.Contents, contents.UsageContent{
+			AIContent: contents.AIContent{},
+			Details: abstractions.UsageDetails{
+				InputTokenCount:      &response.Usage.PromptTokens,
+				OutputTokenCount:     &response.Usage.CompletionTokens,
+				TotalTokenCount:      &response.Usage.TotalTokens,
+				AdditionalProperties: map[string]int64{},
+			},
+		})
+	}
+
+	for _, chunk := range response.Choices {
+		result.Contents = append(result.Contents, ToAIContent(chunk)...)
+	}
+	return result
+}
+
+type InnerContentStruct struct {
+	Type       string                  `json:"type"`
+	Image      InnerContentImageStruct `json:"image_url"`
+	Refusal    string                  `json:"refusal"`
+	InputAudio InnerContentAudioStruct `json:"input_audio"`
+}
+
+type InnerContentImageStruct struct {
+	Detail string `json:"detail"`
+	Url    string `json:"url"`
+}
+
+type InnerContentAudioStruct struct {
+	Data   string `json:"data"`
+	Format string `json:"format"`
+}
+
+func ToAIContent(chunk rawopenai.ChatCompletionChunkChoice) []contents.IAIContent {
+	var result []contents.IAIContent
+	var strSlice []string
+
+	if err := json.Unmarshal([]byte(chunk.Delta.Content), &strSlice); err != nil {
+		return []contents.IAIContent{contents.NewTextContent(chunk.Delta.Content)}
+	}
+
+	for _, input := range strSlice {
+		result = append(result, parseContent(input))
+	}
+
+	return result
+}
+
+func parseContent(input string) contents.IAIContent {
+	var jsonObj InnerContentStruct
+	if err := json.Unmarshal([]byte(input), &jsonObj); err != nil {
+		return contents.NewTextContent(input)
+	}
+
+	switch jsonObj.Type {
+	case "image":
+		return contents.NewDataContentFromURI(jsonObj.Image.Url, "image")
+	default:
+		return contents.NewTextContent(input)
+	}
 }
 
 func ToOpenAIEmbeddingParams[TInput any](values []TInput, options *embeddings.EmbeddingGenerationOptions) *rawopenai.EmbeddingNewParams {
