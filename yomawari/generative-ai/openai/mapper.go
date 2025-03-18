@@ -2,6 +2,7 @@ package openai
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 
@@ -513,6 +514,115 @@ func ToGeneratedEmbeddings(res *rawopenai.CreateEmbeddingResponse) *embeddings.G
 	return result
 }
 
-func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamEvent) *chatcompletion.ChatResponseUpdate {
-	panic("unimplemented")
+func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamEvent, threadId **string, responseId **string, modelId **string) (*chatcompletion.ChatResponseUpdate, error) {
+	response := &chatcompletion.ChatResponseUpdate{AdditionalProperties: map[string]interface{}{}, Contents: []contents.IAIContent{}}
+	role := chatcompletion.RoleAssistant
+	switch data := evt.Data.(type) {
+	case rawopenai.Thread:
+		if *threadId == nil {
+			*threadId = &data.ID
+		}
+	case rawopenai.Run:
+		if *threadId == nil {
+			*threadId = &data.ThreadID
+		}
+		if *responseId == nil {
+			*responseId = &data.ID
+		}
+		if *modelId == nil {
+			*modelId = &data.Model
+		}
+		created := time.Unix(data.CreatedAt, 0)
+		response.ModelId = *modelId
+		response.CreatedAt = &created
+		response.ResponseId = *responseId
+		response.AuthorName = &data.AssistantID
+		response.Role = &role
+		response.ChatThreadId = *threadId
+		response.RawRepresentation = data
+		response.Contents = append(response.Contents, GetUsageContent(data.Usage))
+		for _, tool := range data.RequiredAction.SubmitToolOutputs.ToolCalls {
+			call, err := json.Marshal([]string{data.ID, tool.ID})
+			if err != nil {
+				continue
+			}
+			arguments := map[string]interface{}{}
+			err = json.Unmarshal([]byte(tool.Function.Arguments), &arguments)
+			if err != nil {
+				continue
+			}
+			response.Contents = append(response.Contents, contents.FunctionCallContent{
+				AIContent: contents.AIContent{AdditionalProperties: map[string]interface{}{}},
+				CallId:    string(call),
+				Name:      tool.Function.Name,
+				Arguments: arguments,
+			})
+		}
+	case rawopenai.RunStep:
+	case rawopenai.RunStepDeltaEvent:
+	case rawopenai.MessageDeltaEvent:
+	case rawopenai.Message:
+		if data.Role == rawopenai.MessageRoleUser {
+			role = chatcompletion.RoleUser
+		}
+		created := time.Unix(data.CreatedAt, 0)
+		response.ModelId = *modelId
+		response.ChatThreadId = *threadId
+		response.CreatedAt = &created
+		response.ResponseId = *responseId
+		response.AuthorName = &data.AssistantID
+		response.RawRepresentation = data
+
+		for _, con := range data.Content {
+			content := convertContent(con)
+			if content != nil {
+				response.Contents = append(response.Contents, content)
+			}
+		}
+	case shared.ErrorObject:
+		return nil, fmt.Errorf(data.Message)
+	default:
+	}
+
+	return response, nil
+}
+
+func convertContent(con rawopenai.MessageContent) contents.IAIContent {
+	if len(con.ImageURL.URL) > 0 {
+		return contents.NewDataContentWithRefusal(con.ImageURL.URL, "image", con.Refusal)
+	}
+
+	if len(con.ImageFile.FileID) > 0 {
+		return contents.NewTextContentWithRefusal(con.ImageFile.FileID, con.Refusal)
+	}
+
+	if len(con.Text.Value) > 0 {
+		return contents.NewTextContentWithRefusal(con.Text.Value, con.Refusal)
+	}
+
+	return nil
+}
+
+func GetUsageContentStep(runUsage rawopenai.RunStepUsage) contents.UsageContent {
+	return contents.UsageContent{
+		AIContent: contents.AIContent{AdditionalProperties: map[string]interface{}{}},
+		Details: abstractions.UsageDetails{
+			InputTokenCount:      &runUsage.PromptTokens,
+			OutputTokenCount:     &runUsage.CompletionTokens,
+			TotalTokenCount:      &runUsage.TotalTokens,
+			AdditionalProperties: map[string]int64{},
+		},
+	}
+}
+
+func GetUsageContent(runUsage rawopenai.RunUsage) contents.UsageContent {
+	return contents.UsageContent{
+		AIContent: contents.AIContent{AdditionalProperties: map[string]interface{}{}},
+		Details: abstractions.UsageDetails{
+			InputTokenCount:      &runUsage.PromptTokens,
+			OutputTokenCount:     &runUsage.CompletionTokens,
+			TotalTokenCount:      &runUsage.TotalTokens,
+			AdditionalProperties: map[string]int64{},
+		},
+	}
 }

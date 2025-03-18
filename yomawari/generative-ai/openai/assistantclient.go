@@ -79,12 +79,41 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 		}
 		stream = client.threads.Runs.NewStreaming(ctx, threadId, params)
 	}
-	for stream.Next() {
-		evt := stream.Current()
-		result <- chatcompletion.ChatStreamingResponse{
-			Update: ToChatResponseUpdateFromAssistantStreamEvent(evt),
+
+	var newThreadId *string = &threadId
+	var responseId *string
+	var modelId *string = options.ModelId
+	go func() {
+		defer close(result)
+		defer stream.Close()
+		for stream.Next() {
+			response := stream.Current()
+			update, err := ToChatResponseUpdateFromAssistantStreamEvent(response, &newThreadId, &responseId, &modelId)
+			if err != nil {
+				result <- chatcompletion.ChatStreamingResponse{Err: err}
+				return
+			}
+
+			if update == nil || update.ResponseId == nil {
+				continue
+			}
+
+			select {
+			case result <- chatcompletion.ChatStreamingResponse{
+				Update: update,
+			}:
+			case <-ctx.Done():
+				result <- chatcompletion.ChatStreamingResponse{Err: ctx.Err()}
+				return
+			}
 		}
-	}
+
+		if err := stream.Err(); err != nil {
+			result <- chatcompletion.ChatStreamingResponse{Err: err}
+			return
+		}
+	}()
+
 	return result
 }
 
