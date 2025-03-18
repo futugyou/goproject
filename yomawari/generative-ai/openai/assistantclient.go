@@ -2,8 +2,10 @@ package openai
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
+	"github.com/futugyou/yomawari/generative-ai/abstractions/contents"
 	rawopenai "github.com/openai/openai-go"
 	"github.com/openai/openai-go/packages/ssestream"
 )
@@ -49,20 +51,15 @@ func (client *OpenAIAssistantClient) GetResponse(ctx context.Context, chatMessag
 
 func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
 	result := make(chan chatcompletion.ChatStreamingResponse)
-	threadId := ""
-	runId := ""
-	//runId = getRunId(....)
-	if options != nil && options.ChatThreadId != nil {
-		threadId = *options.ChatThreadId
-	}
+	threadId := getThreadId(client.threadId, options)
+	runId, tools := getFunctionResultContents(chatMessages)
 
 	var stream *ssestream.Stream[rawopenai.AssistantStreamEvent]
-	if len(runId) > 0 && len(threadId) > 0 {
-		// TODO
+	if runId != nil && len(*runId) > 0 && len(threadId) > 0 {
 		params := rawopenai.BetaThreadRunSubmitToolOutputsParams{
-			ToolOutputs: rawopenai.F([]rawopenai.BetaThreadRunSubmitToolOutputsParamsToolOutput{}),
+			ToolOutputs: rawopenai.F(tools),
 		}
-		stream = client.threads.Runs.SubmitToolOutputsStreaming(ctx, threadId, runId, params)
+		stream = client.threads.Runs.SubmitToolOutputsStreaming(ctx, threadId, *runId, params)
 	} else if len(threadId) == 0 {
 		// TODO
 		params := rawopenai.BetaThreadNewAndRunParams{}
@@ -79,4 +76,48 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 		}
 	}
 	return result
+}
+
+func getThreadId(threadId *string, options *chatcompletion.ChatOptions) string {
+	if options != nil && options.ChatThreadId != nil && len(*options.ChatThreadId) > 0 {
+		return *options.ChatThreadId
+	}
+
+	if threadId != nil && len(*threadId) > 0 {
+		return *threadId
+	}
+
+	return ""
+}
+
+func getFunctionResultContents(messages []chatcompletion.ChatMessage) (*string, []rawopenai.BetaThreadRunSubmitToolOutputsParamsToolOutput) {
+	var existingRunId *string
+	tools := []rawopenai.BetaThreadRunSubmitToolOutputsParamsToolOutput{}
+
+	for _, message := range messages {
+		for _, con := range message.Contents {
+			if c, ok := con.(*contents.FunctionResultContent); ok {
+				var strSlice []string
+
+				if err := json.Unmarshal([]byte(c.CallId), &strSlice); err != nil {
+					continue
+				}
+
+				if len(strSlice) != 2 || len(strSlice[0]) == 0 || len(strSlice[1]) == 0 || (existingRunId != nil && *existingRunId != strSlice[0]) {
+					continue
+				}
+				existingRunId = &strSlice[0]
+				result := ""
+				if r, ok := c.Result.(string); ok {
+					result = r
+				}
+				tools = append(tools, rawopenai.BetaThreadRunSubmitToolOutputsParamsToolOutput{
+					ToolCallID: rawopenai.F(strSlice[1]),
+					Output:     rawopenai.F(result),
+				})
+			}
+		}
+	}
+
+	return existingRunId, tools
 }
