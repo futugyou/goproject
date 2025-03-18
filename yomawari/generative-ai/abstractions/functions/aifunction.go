@@ -13,6 +13,11 @@ type AIFunction interface {
 
 type BaseAIFunction struct {
 	abstractions.BaseAITool
+	arguments map[string]interface{}
+}
+
+func (t BaseAIFunction) GetParameters() map[string]interface{} {
+	return t.arguments
 }
 
 func (f *BaseAIFunction) Invoke(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {

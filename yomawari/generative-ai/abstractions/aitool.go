@@ -4,6 +4,7 @@ package abstractions
 type AITool interface {
 	GetName() string
 	GetDescription() string
+	GetParameters() map[string]interface{}
 	GetAdditionalProperties() map[string]interface{}
 }
 
@@ -31,4 +32,8 @@ func (t BaseAITool) GetDescription() string {
 
 func (t BaseAITool) GetAdditionalProperties() map[string]interface{} {
 	return t.AdditionalProperties
+}
+
+func (t BaseAITool) GetParameters() map[string]interface{} {
+	return map[string]interface{}{}
 }
