@@ -77,6 +77,12 @@ updates:
       time: "03:00"
 
   - package-ecosystem: "gomod"
+    directory: "/yomawari"
+    schedule:
+      interval: "daily"
+      time: "03:30"
+
+  - package-ecosystem: "gomod"
     directory: "/openai-web"
     schedule:
       interval: "daily"
