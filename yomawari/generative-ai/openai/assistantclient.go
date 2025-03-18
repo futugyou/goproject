@@ -72,8 +72,11 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 
 		stream = client.threads.NewAndRunStreaming(ctx, params)
 	} else {
-		// TODO
-		params := rawopenai.BetaThreadRunNewParams{}
+		params := getBetaThreadRunNewParams(chatMessages, options)
+		params.AssistantID = rawopenai.F(client.assistantId)
+		if len(params.Model.Value) == 0 {
+			params.Model = rawopenai.F(*options.ModelId)
+		}
 		stream = client.threads.Runs.NewStreaming(ctx, threadId, params)
 	}
 	for stream.Next() {
@@ -82,6 +85,135 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 			Update: ToChatResponseUpdateFromAssistantStreamEvent(evt),
 		}
 	}
+	return result
+}
+
+func getBetaThreadRunNewParams(chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) rawopenai.BetaThreadRunNewParams {
+	result := rawopenai.BetaThreadRunNewParams{
+		Include: rawopenai.F([]rawopenai.RunStepInclude{rawopenai.RunStepIncludeStepDetailsToolCallsFileSearchResultsContent}),
+	}
+
+	if options != nil {
+		if options.TopP != nil && *options.TopP > 0 {
+			result.TopP = rawopenai.F(*options.TopP)
+		}
+		if options.MaxOutputTokens != nil && *options.MaxOutputTokens > 0 {
+			result.MaxCompletionTokens = rawopenai.F(*options.MaxOutputTokens)
+		}
+		if options.Temperature != nil && *options.Temperature > 0 {
+			result.Temperature = rawopenai.F(*options.Temperature)
+		}
+		if options.ModelId != nil && len(*options.ModelId) > 0 {
+			result.Model = rawopenai.F(*options.ModelId)
+		}
+		if options.ToolMode != nil && len(*options.ToolMode) > 0 {
+			var toolChoice rawopenai.AssistantToolChoiceOptionUnionParam
+			switch *options.ToolMode {
+			case "requireAny":
+				toolChoice = rawopenai.AssistantToolChoiceOptionAutoRequired
+			case "auto":
+				toolChoice = rawopenai.AssistantToolChoiceOptionAutoAuto
+			case "none":
+				toolChoice = rawopenai.AssistantToolChoiceOptionAutoNone
+			}
+			if toolChoice != nil {
+				result.ToolChoice = rawopenai.F(toolChoice)
+			}
+		}
+		if v, ok := options.AdditionalProperties["ParallelToolCalls"].(bool); ok {
+			result.ParallelToolCalls = rawopenai.F(v)
+		}
+		if v, ok := options.AdditionalProperties["MaxPromptTokens"].(int64); ok {
+			result.MaxPromptTokens = rawopenai.F(v)
+		}
+		if v, ok := options.AdditionalProperties["TruncationStrategy"].(rawopenai.BetaThreadRunNewParamsTruncationStrategy); ok {
+			result.TruncationStrategy = rawopenai.F(v)
+		}
+		tools := []rawopenai.AssistantToolUnionParam{}
+		for _, tool := range options.Tools {
+			if t, ok := tool.(functions.AIFunction); ok {
+				var m shared.FunctionParameters = t.GetParameters()
+				strict := false
+				if v, ok := t.GetAdditionalProperties()["Strict"].(bool); ok {
+					strict = v
+				}
+				pa := shared.FunctionDefinitionParam{
+					Name:        rawopenai.F(t.GetName()),
+					Description: rawopenai.F(t.GetDescription()),
+					Strict:      rawopenai.F(strict),
+					Parameters:  rawopenai.F(m),
+				}
+
+				tools = append(tools, rawopenai.FunctionToolParam{
+					Function: rawopenai.F(pa),
+					Type:     rawopenai.F(rawopenai.FunctionToolTypeFunction),
+				})
+				continue
+			}
+			if _, ok := tool.(abstractions.CodeInterpreterTool); ok {
+				tools = append(tools, rawopenai.CodeInterpreterToolParam{
+					Type: rawopenai.F(rawopenai.CodeInterpreterToolTypeCodeInterpreter),
+				})
+			}
+		}
+		if len(tools) > 0 {
+			result.Tools = rawopenai.F(tools)
+		}
+	}
+
+	instructions := ""
+	message := []rawopenai.BetaThreadRunNewParamsAdditionalMessage{}
+	for _, msg := range chatMessages {
+		if msg.Role == "system" || msg.Role == "developer" {
+			for _, con := range msg.Contents {
+				if con, ok := con.(*contents.TextContent); ok {
+					instructions += con.Text
+				}
+			}
+			continue
+		}
+
+		for _, con := range msg.Contents {
+			role := rawopenai.BetaThreadRunNewParamsAdditionalMessagesRoleUser
+			if msg.Role == "assistant" {
+				role = rawopenai.BetaThreadRunNewParamsAdditionalMessagesRoleAssistant
+			}
+			if con, ok := con.(*contents.TextContent); ok {
+				message = append(message, rawopenai.BetaThreadRunNewParamsAdditionalMessage{
+					Role: rawopenai.F(role),
+					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
+						rawopenai.MessageContentPartParam{
+							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
+							Text: rawopenai.F(con.Text),
+						},
+					}),
+				})
+				continue
+			}
+			if con, ok := con.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
+				message = append(message, rawopenai.BetaThreadRunNewParamsAdditionalMessage{
+					Role: rawopenai.F(role),
+					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
+						rawopenai.MessageContentPartParam{
+							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
+							ImageURL: rawopenai.F(rawopenai.ImageURLParam{
+								URL: rawopenai.F(con.GetURI()),
+							}),
+						},
+					}),
+				})
+			}
+		}
+	}
+
+	if len(instructions) > 0 {
+		result.AdditionalInstructions = rawopenai.F(instructions)
+	}
+
+	if len(message) > 0 {
+		result.AdditionalMessages = rawopenai.F(message)
+	}
+
 	return result
 }
 
@@ -156,15 +288,9 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 		}
 	}
 
-	instructions := ""
 	message := []rawopenai.BetaThreadNewAndRunParamsThreadMessage{}
 	for _, msg := range chatMessages {
 		if msg.Role == "system" || msg.Role == "developer" {
-			for _, con := range msg.Contents {
-				if con, ok := con.(*contents.TextContent); ok {
-					instructions += con.Text
-				}
-			}
 			continue
 		}
 		for _, con := range msg.Contents {
@@ -198,10 +324,6 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 				})
 			}
 		}
-	}
-
-	if len(instructions) > 0 {
-		result.Instructions = rawopenai.F(instructions)
 	}
 
 	if len(message) > 0 {
