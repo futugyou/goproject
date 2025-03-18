@@ -18,3 +18,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Tour
+        run: go mod tidy && go build .
+        working-directory: ./tour
+      
+      - name: K8sbuilder
+        run: go mod tidy && go build .
+        working-directory: ./k8sbuilder
+      
+      - name: Container
+        run:  go mod tidy && go build .
+        working-directory: ./container
+      
+      - name: Yomawari
+        run:  go mod tidy && go build .
+        working-directory: ./yomawari
