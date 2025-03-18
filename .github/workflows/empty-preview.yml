@@ -1,0 +1,20 @@
+name: Fake Preview Deployment
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - master
+    paths: 
+    - 'tour/**'
+    - 'k8sbuilder/**'
+    - 'container/**'
+    - 'yomawari/**'
+    - '.github/workflows/empty-preview.yaml'
+jobs:
+  Deploy-Preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: Preview – fake
+
+    steps:
+      - uses: actions/checkout@v4
