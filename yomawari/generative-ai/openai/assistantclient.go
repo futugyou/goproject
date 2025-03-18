@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/futugyou/yomawari/generative-ai/abstractions"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/generative-ai/abstractions/contents"
+	"github.com/futugyou/yomawari/generative-ai/abstractions/functions"
 	rawopenai "github.com/openai/openai-go"
 	"github.com/openai/openai-go/packages/ssestream"
+	"github.com/openai/openai-go/shared"
 )
 
 type OpenAIAssistantClient struct {
@@ -61,8 +64,12 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 		}
 		stream = client.threads.Runs.SubmitToolOutputsStreaming(ctx, threadId, *runId, params)
 	} else if len(threadId) == 0 {
-		// TODO
-		params := rawopenai.BetaThreadNewAndRunParams{}
+		params := getBetaThreadNewAndRunParams(chatMessages, options)
+		params.AssistantID = rawopenai.F(client.assistantId)
+		if len(params.Model.Value) == 0 {
+			params.Model = rawopenai.F(*options.ModelId)
+		}
+
 		stream = client.threads.NewAndRunStreaming(ctx, params)
 	} else {
 		// TODO
@@ -75,6 +82,134 @@ func (client *OpenAIAssistantClient) GetStreamingResponse(ctx context.Context, c
 			Update: ToChatResponseUpdateFromAssistantStreamEvent(evt),
 		}
 	}
+	return result
+}
+
+func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) rawopenai.BetaThreadNewAndRunParams {
+	result := rawopenai.BetaThreadNewAndRunParams{}
+
+	if options != nil {
+		if options.TopP != nil && *options.TopP > 0 {
+			result.TopP = rawopenai.F(*options.TopP)
+		}
+		if options.MaxOutputTokens != nil && *options.MaxOutputTokens > 0 {
+			result.MaxCompletionTokens = rawopenai.F(*options.MaxOutputTokens)
+		}
+		if options.Temperature != nil && *options.Temperature > 0 {
+			result.Temperature = rawopenai.F(*options.Temperature)
+		}
+		if options.ModelId != nil && len(*options.ModelId) > 0 {
+			result.Model = rawopenai.F(*options.ModelId)
+		}
+		if options.ToolMode != nil && len(*options.ToolMode) > 0 {
+			var toolChoice rawopenai.AssistantToolChoiceOptionUnionParam
+			switch *options.ToolMode {
+			case "requireAny":
+				toolChoice = rawopenai.AssistantToolChoiceOptionAutoRequired
+			case "auto":
+				toolChoice = rawopenai.AssistantToolChoiceOptionAutoAuto
+			case "none":
+				toolChoice = rawopenai.AssistantToolChoiceOptionAutoNone
+			}
+			if toolChoice != nil {
+				result.ToolChoice = rawopenai.F(toolChoice)
+			}
+		}
+		if v, ok := options.AdditionalProperties["ParallelToolCalls"].(bool); ok {
+			result.ParallelToolCalls = rawopenai.F(v)
+		}
+		if v, ok := options.AdditionalProperties["MaxPromptTokens"].(int64); ok {
+			result.MaxPromptTokens = rawopenai.F(v)
+		}
+		if v, ok := options.AdditionalProperties["TruncationStrategy"].(rawopenai.BetaThreadNewAndRunParamsTruncationStrategy); ok {
+			result.TruncationStrategy = rawopenai.F(v)
+		}
+		tools := []rawopenai.BetaThreadNewAndRunParamsToolUnion{}
+		for _, tool := range options.Tools {
+			if t, ok := tool.(functions.AIFunction); ok {
+				var m shared.FunctionParameters = t.GetParameters()
+				strict := false
+				if v, ok := t.GetAdditionalProperties()["Strict"].(bool); ok {
+					strict = v
+				}
+				pa := shared.FunctionDefinitionParam{
+					Name:        rawopenai.F(t.GetName()),
+					Description: rawopenai.F(t.GetDescription()),
+					Strict:      rawopenai.F(strict),
+					Parameters:  rawopenai.F(m),
+				}
+
+				tools = append(tools, rawopenai.FunctionToolParam{
+					Function: rawopenai.F(pa),
+					Type:     rawopenai.F(rawopenai.FunctionToolTypeFunction),
+				})
+				continue
+			}
+			if _, ok := tool.(abstractions.CodeInterpreterTool); ok {
+				tools = append(tools, rawopenai.CodeInterpreterToolParam{
+					Type: rawopenai.F(rawopenai.CodeInterpreterToolTypeCodeInterpreter),
+				})
+			}
+		}
+		if len(tools) > 0 {
+			result.Tools = rawopenai.F(tools)
+		}
+	}
+
+	instructions := ""
+	message := []rawopenai.BetaThreadNewAndRunParamsThreadMessage{}
+	for _, msg := range chatMessages {
+		if msg.Role == "system" || msg.Role == "developer" {
+			for _, con := range msg.Contents {
+				if con, ok := con.(*contents.TextContent); ok {
+					instructions += con.Text
+				}
+			}
+			continue
+		}
+		for _, con := range msg.Contents {
+			role := rawopenai.BetaThreadNewAndRunParamsThreadMessagesRoleUser
+			if msg.Role == "assistant" {
+				role = rawopenai.BetaThreadNewAndRunParamsThreadMessagesRoleAssistant
+			}
+			if con, ok := con.(*contents.TextContent); ok {
+				message = append(message, rawopenai.BetaThreadNewAndRunParamsThreadMessage{
+					Role: rawopenai.F(role),
+					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
+						rawopenai.MessageContentPartParam{
+							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
+							Text: rawopenai.F(con.Text),
+						},
+					}),
+				})
+				continue
+			}
+			if con, ok := con.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
+				message = append(message, rawopenai.BetaThreadNewAndRunParamsThreadMessage{
+					Role: rawopenai.F(role),
+					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
+						rawopenai.MessageContentPartParam{
+							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
+							ImageURL: rawopenai.F(rawopenai.ImageURLParam{
+								URL: rawopenai.F(con.GetURI()),
+							}),
+						},
+					}),
+				})
+			}
+		}
+	}
+
+	if len(instructions) > 0 {
+		result.Instructions = rawopenai.F(instructions)
+	}
+
+	if len(message) > 0 {
+		result.Thread = rawopenai.F(rawopenai.BetaThreadNewAndRunParamsThread{
+			Messages: rawopenai.F(message),
+		})
+	}
+
 	return result
 }
 
