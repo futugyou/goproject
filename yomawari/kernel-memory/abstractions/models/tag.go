@@ -1,5 +1,7 @@
 package models
 
+import "github.com/futugyou/yomawari/kernel-memory/abstractions"
+
 type TagCollection struct {
 	datas map[string][]string
 }
@@ -13,6 +15,19 @@ func (t *TagCollection) Add(tag string, value []string) {
 		t = NewTagCollection()
 	}
 	t.datas[tag] = value
+}
+
+func (t *TagCollection) AddOrAppend(tag string, value string) {
+	if (t) == nil {
+		t = NewTagCollection()
+	}
+
+	if v, exists := t.datas[tag]; !exists {
+		t.datas[tag] = []string{value}
+	} else {
+		v = append(v, value)
+		t.datas[tag] = v
+	}
 }
 
 func (t *TagCollection) Remove(tag string) {
@@ -64,4 +79,8 @@ func (t *TagCollection) Clear() {
 		return
 	}
 	t.datas = make(map[string][]string)
+}
+
+func (t *TagCollection) AddSyntheticTag(value string) {
+	t.AddOrAppend(abstractions.ReservedSyntheticTypeTag, value)
 }
