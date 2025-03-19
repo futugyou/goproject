@@ -1,9 +1,28 @@
 package models
 
-import "github.com/futugyou/yomawari/kernel-memory/abstractions"
+import (
+	"encoding/json"
+	"errors"
+
+	"github.com/futugyou/yomawari/kernel-memory/abstractions"
+)
 
 type TagCollection struct {
 	datas map[string][]string
+}
+
+func (tc TagCollection) MarshalJSON() ([]byte, error) {
+	if tc.datas == nil {
+		tc.datas = make(map[string][]string)
+	}
+	return json.Marshal(tc.datas)
+}
+
+func (tc *TagCollection) UnmarshalJSON(data []byte) error {
+	if tc == nil {
+		return errors.New("TagCollection: UnmarshalJSON on nil pointer")
+	}
+	return json.Unmarshal(data, &tc.datas)
 }
 
 func NewTagCollection() *TagCollection {
