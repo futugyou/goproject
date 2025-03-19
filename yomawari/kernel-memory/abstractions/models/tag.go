@@ -30,15 +30,15 @@ func NewTagCollection() *TagCollection {
 }
 
 func (t *TagCollection) Add(tag string, value []string) {
-	if (t) == nil {
-		t = NewTagCollection()
+	if t == nil {
+		return
 	}
 	t.datas[tag] = value
 }
 
 func (t *TagCollection) AddOrAppend(tag string, value string) {
-	if (t) == nil {
-		t = NewTagCollection()
+	if t == nil {
+		return
 	}
 
 	if v, exists := t.datas[tag]; !exists {
