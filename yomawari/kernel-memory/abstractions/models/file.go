@@ -68,14 +68,14 @@ func (fc *FileCollection) AddStream(fileName string, content io.ReadCloser) {
 // GetStreams gets all files and streams
 func (fc *FileCollection) GetStreams() []struct {
 	Name    string
-	Content io.Reader
+	Content io.ReadCloser
 } {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
 
 	var result []struct {
 		Name    string
-		Content io.Reader
+		Content io.ReadCloser
 	}
 
 	for filePath, fileName := range fc.filePaths {
@@ -85,14 +85,14 @@ func (fc *FileCollection) GetStreams() []struct {
 		}
 		result = append(result, struct {
 			Name    string
-			Content io.Reader
-		}{fileName, bytes.NewReader(data)})
+			Content io.ReadCloser
+		}{fileName, io.NopCloser(bytes.NewReader(data))})
 	}
 
 	for fileName, stream := range fc.streams {
 		result = append(result, struct {
 			Name    string
-			Content io.Reader
+			Content io.ReadCloser
 		}{fileName, stream})
 	}
 
