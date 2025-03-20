@@ -17,6 +17,8 @@ limitations under the License.
 package v1
 
 import (
+	"context"
+
 	"github.com/robfig/cron"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -43,10 +45,10 @@ func (r *CronJob) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 // +kubebuilder:webhook:path=/mutate-batch-vishel-io-v1-cronjob,mutating=true,failurePolicy=fail,sideEffects=None,groups=batch.vishel.io,resources=cronjobs,verbs=create;update,versions=v1,name=mcronjob.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &CronJob{}
+var _ webhook.CustomDefaulter = &CronJob{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *CronJob) Default() {
+func (r *CronJob) Default(ctx context.Context, obj runtime.Object) error {
 	cronjoblog.Info("default", "name", r.Name)
 
 	// TODO(user): fill in your defaulting logic.
@@ -67,6 +69,8 @@ func (r *CronJob) Default() {
 		r.Spec.FailedJobsHistoryLimit = new(int32)
 		*r.Spec.FailedJobsHistoryLimit = 1
 	}
+
+	return nil
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
@@ -74,10 +78,10 @@ func (r *CronJob) Default() {
 // Modifying the path for an invalid path can cause API server errors; failing to locate the webhook.
 // +kubebuilder:webhook:path=/validate-batch-vishel-io-v1-cronjob,mutating=false,failurePolicy=fail,sideEffects=None,groups=batch.vishel.io,resources=cronjobs,verbs=create;update,versions=v1,name=vcronjob.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Validator = &CronJob{}
+var _ webhook.CustomValidator = &CronJob{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *CronJob) ValidateCreate() (admission.Warnings, error) {
+func (r *CronJob) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	cronjoblog.Info("validate create", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
@@ -85,7 +89,7 @@ func (r *CronJob) ValidateCreate() (admission.Warnings, error) {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *CronJob) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
+func (r *CronJob) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	cronjoblog.Info("validate update", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
@@ -93,7 +97,7 @@ func (r *CronJob) ValidateUpdate(old runtime.Object) (admission.Warnings, error)
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *CronJob) ValidateDelete() (admission.Warnings, error) {
+func (r *CronJob) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	cronjoblog.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.

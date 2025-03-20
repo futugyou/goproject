@@ -28,7 +28,7 @@ jobs:
         working-directory: ./k8sbuilder
       
       - name: Container
-        run:  go mod tidy && go build .
+        run:  go mod tidy
         working-directory: ./container
       
       - name: Yomawari
