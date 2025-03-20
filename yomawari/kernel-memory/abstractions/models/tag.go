@@ -7,6 +7,10 @@ import (
 	"github.com/futugyou/yomawari/kernel-memory/abstractions"
 )
 
+type MemoryFilter struct {
+	TagCollection
+}
+
 type TagCollection struct {
 	datas map[string][]string
 }
@@ -15,6 +19,7 @@ func (tc TagCollection) MarshalJSON() ([]byte, error) {
 	if tc.datas == nil {
 		tc.datas = make(map[string][]string)
 	}
+
 	return json.Marshal(tc.datas)
 }
 
@@ -102,4 +107,33 @@ func (t *TagCollection) Clear() {
 
 func (t *TagCollection) AddSyntheticTag(value string) {
 	t.AddOrAppend(abstractions.ReservedSyntheticTypeTag, value)
+}
+
+func (t *TagCollection) ByDocument(docId string) {
+	t.AddOrAppend(abstractions.ReservedDocumentIdTag, docId)
+}
+
+func (t *TagCollection) ToKeyValueList() []struct {
+	Key   string
+	Value string
+} {
+	if t == nil {
+		return nil
+	}
+
+	var result []struct {
+		Key   string
+		Value string
+	}
+
+	for k, vv := range t.datas {
+		for _, v := range vv {
+			result = append(result, struct {
+				Key   string
+				Value string
+			}{k, v})
+		}
+	}
+
+	return result
 }
