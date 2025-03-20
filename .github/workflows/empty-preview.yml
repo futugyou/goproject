@@ -24,7 +24,7 @@ jobs:
         working-directory: ./tour
       
       - name: K8sbuilder
-        run: go mod tidy && go build .
+        run: go mod tidy && go build ./cmd/main.go
         working-directory: ./k8sbuilder
       
       - name: Container
@@ -32,5 +32,5 @@ jobs:
         working-directory: ./container
       
       - name: Yomawari
-        run:  go mod tidy && go build .
+        run:  go mod tidy
         working-directory: ./yomawari
