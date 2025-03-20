@@ -45,7 +45,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
-	github.com/redis/go-redis/v9 v9.7.0 // indirect
+	github.com/redis/go-redis/v9 v9.7.3 // indirect
 	github.com/swaggest/refl v1.3.1 // indirect
 	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
