@@ -189,10 +189,10 @@ func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCom
 	if v, ok := options.AdditionalProperties["Prediction"].(rawopenai.ChatCompletionPredictionContentParam); ok {
 		result.Prediction = rawopenai.F(v)
 	}
-	if v, ok := options.AdditionalProperties["ReasoningEffort"].(rawopenai.ChatCompletionReasoningEffort); ok {
+	if v, ok := options.AdditionalProperties["ReasoningEffort"].(rawopenai.ReasoningEffort); ok {
 		result.ReasoningEffort = rawopenai.F(v)
 	}
-	if v, ok := options.AdditionalProperties["Modalities"].([]rawopenai.ChatCompletionModality); ok {
+	if v, ok := options.AdditionalProperties["Modalities"].([]rawopenai.ChatCompletionNewParamsModality); ok {
 		result.Modalities = rawopenai.F(v)
 	}
 	if v, ok := options.AdditionalProperties["Store"].(bool); ok {

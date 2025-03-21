@@ -208,28 +208,34 @@ func getBetaThreadRunNewParams(chatMessages []chatcompletion.ChatMessage, option
 				role = rawopenai.BetaThreadRunNewParamsAdditionalMessagesRoleAssistant
 			}
 			if con, ok := con.(*contents.TextContent); ok {
+				var sss rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+					rawopenai.MessageContentPartParam{
+						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
+						Text: rawopenai.F(con.Text),
+					},
+				}
+				var content rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentUnion = sss
+
 				message = append(message, rawopenai.BetaThreadRunNewParamsAdditionalMessage{
-					Role: rawopenai.F(role),
-					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
-						rawopenai.MessageContentPartParam{
-							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
-							Text: rawopenai.F(con.Text),
-						},
-					}),
+					Role:    rawopenai.F(role),
+					Content: rawopenai.F(content),
 				})
 				continue
 			}
 			if con, ok := con.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
+				var sss rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+					rawopenai.MessageContentPartParam{
+						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
+						ImageURL: rawopenai.F(rawopenai.ImageURLParam{
+							URL: rawopenai.F(con.GetURI()),
+						}),
+					},
+				}
+				var content rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentUnion = sss
+
 				message = append(message, rawopenai.BetaThreadRunNewParamsAdditionalMessage{
-					Role: rawopenai.F(role),
-					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
-						rawopenai.MessageContentPartParam{
-							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
-							ImageURL: rawopenai.F(rawopenai.ImageURLParam{
-								URL: rawopenai.F(con.GetURI()),
-							}),
-						},
-					}),
+					Role:    rawopenai.F(role),
+					Content: rawopenai.F(content),
 				})
 			}
 		}
@@ -328,28 +334,35 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 				role = rawopenai.BetaThreadNewAndRunParamsThreadMessagesRoleAssistant
 			}
 			if con, ok := con.(*contents.TextContent); ok {
+				var sss rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+					rawopenai.MessageContentPartParam{
+						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
+						Text: rawopenai.F(con.Text),
+					},
+				}
+
+				var content rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentUnion = sss
 				message = append(message, rawopenai.BetaThreadNewAndRunParamsThreadMessage{
-					Role: rawopenai.F(role),
-					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
-						rawopenai.MessageContentPartParam{
-							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
-							Text: rawopenai.F(con.Text),
-						},
-					}),
+					Role:    rawopenai.F(role),
+					Content: rawopenai.F(content),
 				})
+
 				continue
 			}
 			if con, ok := con.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
+				var sss rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+					rawopenai.MessageContentPartParam{
+						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
+						ImageURL: rawopenai.F(rawopenai.ImageURLParam{
+							URL: rawopenai.F(con.GetURI()),
+						}),
+					},
+				}
+
+				var content rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentUnion = sss
 				message = append(message, rawopenai.BetaThreadNewAndRunParamsThreadMessage{
-					Role: rawopenai.F(role),
-					Content: rawopenai.F([]rawopenai.MessageContentPartParamUnion{
-						rawopenai.MessageContentPartParam{
-							Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
-							ImageURL: rawopenai.F(rawopenai.ImageURLParam{
-								URL: rawopenai.F(con.GetURI()),
-							}),
-						},
-					}),
+					Role:    rawopenai.F(role),
+					Content: rawopenai.F(content),
 				})
 			}
 		}
