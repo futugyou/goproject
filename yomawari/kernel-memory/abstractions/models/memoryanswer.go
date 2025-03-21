@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/text"
 )
 
 type MemoryAnswer struct {
@@ -62,8 +64,7 @@ func (a *MemoryAnswer) ToString() string {
 	}
 
 	var builder strings.Builder
-	builder.WriteString(a.Result)
-	builder.WriteByte('\n')
+	text.AppendStringLine(builder, a.Result)
 
 	sources := map[string]string{}
 	for _, x := range a.RelevantSources {
@@ -74,10 +75,9 @@ func (a *MemoryAnswer) ToString() string {
 		}
 	}
 
-	builder.WriteString("- Sources:\n")
+	text.AppendStringLine(builder, "- Sources:")
 	for _, v := range sources {
-		builder.WriteString(v)
-		builder.WriteByte('\n')
+		text.AppendStringLine(builder, v)
 	}
 
 	return builder.String()
