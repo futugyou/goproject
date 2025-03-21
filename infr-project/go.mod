@@ -1,6 +1,7 @@
 module github.com/futugyou/infr-project
 
 go 1.20
+toolchain go1.24.1
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.8.2
@@ -23,7 +24,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.5
 	github.com/hashicorp/go-tfe v1.76.0
-	github.com/hashicorp/hcp-sdk-go v0.138.0
+	github.com/hashicorp/hcp-sdk-go v0.139.0
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.7.1
 	github.com/swaggo/files v1.0.1
@@ -72,7 +73,7 @@ require (
 	github.com/go-openapi/runtime v0.26.2 // indirect
 	github.com/go-openapi/spec v0.20.12 // indirect
 	github.com/go-openapi/strfmt v0.21.10 // indirect
-	github.com/go-openapi/swag v0.22.5 // indirect
+	github.com/go-openapi/swag v0.23.1 // indirect
 	github.com/go-openapi/validate v0.22.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -102,7 +103,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.0.21 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
-	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
