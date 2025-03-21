@@ -1,6 +1,7 @@
 module github.com/futugyousuzu/goproject/awsgolang
 
 go 1.20
+toolchain go1.24.1
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.30.5
@@ -44,7 +45,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/redis/go-redis/v9 v9.7.0 // indirect
+	github.com/redis/go-redis/v9 v9.7.3 // indirect
 	golang.org/x/mod v0.19.0 // indirect
 )
 
