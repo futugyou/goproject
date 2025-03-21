@@ -3,6 +3,7 @@ package context
 type IContext interface {
 	InitArgs(map[string]interface{}) IContext
 	SetArgs(map[string]interface{}) IContext
+	SetArg(key string,value interface{}) IContext
 	GetArgs() map[string]interface{}
 	ResetArgs() IContext
 	TryGetArg(ctx IContext, key string) (interface{}, bool)
@@ -39,3 +40,5 @@ func TryGetContextArg[T any](ctx IContext, key string) (*T, bool) {
 	}
 	return new(T), false
 }
+
+var _ IContext = &RequestContext{}
