@@ -1,10 +1,10 @@
 module github.com/futugyousuzu/k8sbuilder
 
 go 1.22.0
-toolchain go1.23.4
+toolchain go1.24.1
 
 require (
-	github.com/onsi/ginkgo/v2 v2.23.0
+	github.com/onsi/ginkgo/v2 v2.23.2
 	github.com/onsi/gomega v1.36.2
 	github.com/robfig/cron v1.2.0
 	k8s.io/api v0.32.3
