@@ -19,8 +19,8 @@ func (c *Chunk) SentencesAreComplete() bool {
 	if c == nil {
 		return false
 	}
-	// TODO: wait discussions, https://github.com/microsoft/kernel-memory/discussions/1034
-	if v, ok := c.Metadata[metaPageNumber]; ok {
+
+	if v, ok := c.Metadata[metaSentencesAreComplete]; ok {
 		if _, err := strconv.ParseBool(v); err == nil {
 			return true
 		}
