@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/futugyou/yomawari/kernel-memory/abstractions"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/ai"
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/constant"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/models"
 )
 
@@ -36,7 +36,7 @@ func (m *MemoryRecord) UpgradeRequired() bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	version, exists := m.Payload[abstractions.ReservedPayloadSchemaVersionField]
+	version, exists := m.Payload[constant.ReservedPayloadSchemaVersionField]
 	if !exists || version == nil || version == "" {
 		return true
 	}
@@ -49,19 +49,19 @@ func (m *MemoryRecord) Upgrade() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	version, exists := m.Payload[abstractions.ReservedPayloadSchemaVersionField]
+	version, exists := m.Payload[constant.ReservedPayloadSchemaVersionField]
 	if !exists || version == nil {
 		version = SchemaVersionZero
 	}
 
 	if version == SchemaVersionZero {
-		if _, exists := m.Payload[abstractions.ReservedPayloadUrlField]; !exists {
-			m.Payload[abstractions.ReservedPayloadUrlField] = ""
+		if _, exists := m.Payload[constant.ReservedPayloadUrlField]; !exists {
+			m.Payload[constant.ReservedPayloadUrlField] = ""
 		}
-		m.Payload[abstractions.ReservedPayloadSchemaVersionField] = SchemaVersion20231218A
+		m.Payload[constant.ReservedPayloadSchemaVersionField] = SchemaVersion20231218A
 	}
 
-	m.Payload[abstractions.ReservedPayloadSchemaVersionField] = CurrentSchemaVersion
+	m.Payload[constant.ReservedPayloadSchemaVersionField] = CurrentSchemaVersion
 }
 
 // MarshalJSON

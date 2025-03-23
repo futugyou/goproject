@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/futugyou/yomawari/kernel-memory/abstractions"
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/constant"
 )
 
 type MemoryFilter struct {
@@ -106,11 +106,11 @@ func (t *TagCollection) Clear() {
 }
 
 func (t *TagCollection) AddSyntheticTag(value string) {
-	t.AddOrAppend(abstractions.ReservedSyntheticTypeTag, value)
+	t.AddOrAppend(constant.ReservedSyntheticTypeTag, value)
 }
 
 func (t *TagCollection) ByDocument(docId string) {
-	t.AddOrAppend(abstractions.ReservedDocumentIdTag, docId)
+	t.AddOrAppend(constant.ReservedDocumentIdTag, docId)
 }
 
 func (t *TagCollection) ToKeyValueList() []struct {

@@ -1,4 +1,4 @@
-package abstractions
+package constant
 
 const (
 	// WebService Constants

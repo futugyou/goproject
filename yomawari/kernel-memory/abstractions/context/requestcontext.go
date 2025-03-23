@@ -1,6 +1,6 @@
 package context
 
-import "github.com/futugyou/yomawari/kernel-memory/abstractions"
+import "github.com/futugyou/yomawari/kernel-memory/abstractions/constant"
 
 type RequestContext struct {
 	Arguments map[string]interface{} `json:"args"`
@@ -71,7 +71,7 @@ func (rc *RequestContext) GetCustomEmptyAnswerTextOrDefault(defaultValue string)
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_EmptyAnswer].(string); ok {
+	if v, ok := rc.Arguments[constant.Rag_EmptyAnswer].(string); ok {
 		return v
 	}
 	return defaultValue
@@ -81,7 +81,7 @@ func (rc *RequestContext) GetCustomRagFactTemplateOrDefault(defaultValue string)
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_FactTemplate].(string); ok {
+	if v, ok := rc.Arguments[constant.Rag_FactTemplate].(string); ok {
 		return v
 	}
 	return defaultValue
@@ -91,7 +91,7 @@ func (rc *RequestContext) GetCustomRagIncludeDuplicateFactsOrDefault(defaultValu
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_IncludeDuplicateFacts].(bool); ok {
+	if v, ok := rc.Arguments[constant.Rag_IncludeDuplicateFacts].(bool); ok {
 		return v
 	}
 	return defaultValue
@@ -101,7 +101,7 @@ func (rc *RequestContext) GetCustomRagPromptOrDefault(defaultValue string) strin
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_Prompt].(string); ok {
+	if v, ok := rc.Arguments[constant.Rag_Prompt].(string); ok {
 		return v
 	}
 	return defaultValue
@@ -111,7 +111,7 @@ func (rc *RequestContext) GetCustomRagMaxTokensOrDefault(defaultValue int64) int
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_MaxTokens].(int64); ok {
+	if v, ok := rc.Arguments[constant.Rag_MaxTokens].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -121,7 +121,7 @@ func (rc *RequestContext) GetCustomRagMaxMatchesCountOrDefault(defaultValue int6
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_MaxMatchesCount].(int64); ok {
+	if v, ok := rc.Arguments[constant.Rag_MaxMatchesCount].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -131,7 +131,7 @@ func (rc *RequestContext) GetCustomRagTemperatureOrDefault(defaultValue float64)
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_Temperature].(float64); ok {
+	if v, ok := rc.Arguments[constant.Rag_Temperature].(float64); ok {
 		return v
 	}
 	return defaultValue
@@ -141,7 +141,7 @@ func (rc *RequestContext) GetCustomRagNucleusSamplingOrDefault(defaultValue floa
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Rag_NucleusSampling].(float64); ok {
+	if v, ok := rc.Arguments[constant.Rag_NucleusSampling].(float64); ok {
 		return v
 	}
 	return defaultValue
@@ -151,7 +151,7 @@ func (rc *RequestContext) GetCustomSummaryPromptOrDefault(defaultValue string) s
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Summary_Prompt].(string); ok {
+	if v, ok := rc.Arguments[constant.Summary_Prompt].(string); ok {
 		return v
 	}
 	return defaultValue
@@ -161,7 +161,7 @@ func (rc *RequestContext) GetCustomSummaryTargetTokenSizeOrDefault(defaultValue 
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Summary_TargetTokenSize].(int64); ok {
+	if v, ok := rc.Arguments[constant.Summary_TargetTokenSize].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -171,7 +171,7 @@ func (rc *RequestContext) GetCustomSummaryOverlappingTokensOrDefault(defaultValu
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Summary_OverlappingTokens].(int64); ok {
+	if v, ok := rc.Arguments[constant.Summary_OverlappingTokens].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -181,7 +181,7 @@ func (rc *RequestContext) GetCustomPartitioningMaxTokensPerChunkOrDefault(defaul
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Partitioning_MaxTokensPerChunk].(int64); ok {
+	if v, ok := rc.Arguments[constant.Partitioning_MaxTokensPerChunk].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -191,7 +191,7 @@ func (rc *RequestContext) GetCustomPartitioningOverlappingTokensOrDefault(defaul
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Partitioning_OverlappingTokens].(int64); ok {
+	if v, ok := rc.Arguments[constant.Partitioning_OverlappingTokens].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -201,7 +201,7 @@ func (rc *RequestContext) GetCustomPartitioningChunkHeaderOrDefault(defaultValue
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.Partitioning_ChunkHeader].(*string); ok {
+	if v, ok := rc.Arguments[constant.Partitioning_ChunkHeader].(*string); ok {
 		return v
 	}
 	return defaultValue
@@ -211,7 +211,7 @@ func (rc *RequestContext) GetCustomEmbeddingGenerationBatchSizeOrDefault(default
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.EmbeddingGeneration_BatchSize].(int64); ok {
+	if v, ok := rc.Arguments[constant.EmbeddingGeneration_BatchSize].(int64); ok {
 		return v
 	}
 	return defaultValue
@@ -221,7 +221,7 @@ func (rc *RequestContext) GetCustomTextGenerationModelNameOrDefault(defaultValue
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.TextGeneration_ModelName].(string); ok {
+	if v, ok := rc.Arguments[constant.TextGeneration_ModelName].(string); ok {
 		return v
 	}
 	return defaultValue
@@ -231,7 +231,7 @@ func (rc *RequestContext) GetCustomEmbeddingGenerationModelNameOrDefault(default
 	if rc == nil {
 		return defaultValue
 	}
-	if v, ok := rc.Arguments[abstractions.EmbeddingGeneration_ModelName].(string); ok {
+	if v, ok := rc.Arguments[constant.EmbeddingGeneration_ModelName].(string); ok {
 		return v
 	}
 	return defaultValue

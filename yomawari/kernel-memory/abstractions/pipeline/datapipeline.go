@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/futugyou/yomawari/kernel-memory/abstractions"
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/constant"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/context"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/models"
 )
@@ -246,7 +246,7 @@ func (dp *DataPipeline) IsDocumentDeletionPipeline() bool {
 		return false
 	}
 
-	return len(dp.Steps) == 1 && dp.Steps[0] == abstractions.PipelineStepsDeleteDocument
+	return len(dp.Steps) == 1 && dp.Steps[0] == constant.PipelineStepsDeleteDocument
 }
 
 func (dp *DataPipeline) IsIndexDeletionPipeline() bool {
@@ -254,7 +254,7 @@ func (dp *DataPipeline) IsIndexDeletionPipeline() bool {
 		return false
 	}
 
-	return len(dp.Steps) == 1 && dp.Steps[0] == abstractions.PipelineStepsDeleteIndex
+	return len(dp.Steps) == 1 && dp.Steps[0] == constant.PipelineStepsDeleteIndex
 }
 
 func (dp *DataPipeline) Validate() error {
