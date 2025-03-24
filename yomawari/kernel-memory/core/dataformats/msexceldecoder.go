@@ -10,6 +10,7 @@ import (
 
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/dataformats"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/pipeline"
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/text"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -27,7 +28,7 @@ func NewMsExcelDecoder(config *MsExcelDecoderConfig) *MsExcelDecoder {
 // Decode implements dataformats.IContentDecoder.
 func (m *MsExcelDecoder) Decode(ctx context.Context, fileName string) (*dataformats.FileContent, error) {
 	if m == nil {
-		return nil, fmt.Errorf("ImageDecoder is nil")
+		return nil, fmt.Errorf("MsExcelDecoder is nil")
 	}
 	content, err := os.ReadFile(fileName)
 	if err != nil {
@@ -40,7 +41,7 @@ func (m *MsExcelDecoder) Decode(ctx context.Context, fileName string) (*dataform
 // DecodeBytes implements dataformats.IContentDecoder.
 func (m *MsExcelDecoder) DecodeBytes(ctx context.Context, content []byte) (*dataformats.FileContent, error) {
 	if m == nil {
-		return nil, fmt.Errorf("ImageDecoder is nil")
+		return nil, fmt.Errorf("MsExcelDecoder is nil")
 	}
 	return m.DecodeStream(ctx, bytes.NewReader(content))
 }
@@ -48,7 +49,7 @@ func (m *MsExcelDecoder) DecodeBytes(ctx context.Context, content []byte) (*data
 // DecodeStream implements dataformats.IContentDecoder.
 func (d *MsExcelDecoder) DecodeStream(ctx context.Context, stream io.Reader) (*dataformats.FileContent, error) {
 	if d == nil {
-		return nil, fmt.Errorf("ImageDecoder is nil")
+		return nil, fmt.Errorf("MsExcelDecoder is nil")
 	}
 	f, err := excelize.OpenReader(stream)
 	if err != nil {
@@ -105,7 +106,7 @@ func (d *MsExcelDecoder) DecodeStream(ctx context.Context, stream io.Reader) (*d
 		}
 
 		sentencesAreComplete := true
-		chunk := dataformats.Chunk{Content: sb.String(), Number: worksheetNumber, Metadata: dataformats.ChunkMeta(&sentencesAreComplete, nil)}
+		chunk := dataformats.Chunk{Content: text.NormalizeNewlines(sb.String(), true), Number: worksheetNumber, Metadata: dataformats.ChunkMeta(&sentencesAreComplete, nil)}
 		result.Sections = append(result.Sections, chunk)
 	}
 
