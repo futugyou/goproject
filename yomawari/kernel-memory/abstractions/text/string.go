@@ -45,3 +45,9 @@ func NormalizeNewlines(text string, trim bool) string {
 func isWhitespace(c byte) bool {
 	return c == ' ' || c == '\t' || c == '\n' || c == '\r'
 }
+
+func RemoveBOM(x string) string {
+	x, _ = strings.CutPrefix(x, "\uFEFF")
+	x, _ = strings.CutPrefix(x, "\u200B")
+	return x
+}
