@@ -208,13 +208,13 @@ func getBetaThreadRunNewParams(chatMessages []chatcompletion.ChatMessage, option
 				role = rawopenai.BetaThreadRunNewParamsAdditionalMessagesRoleAssistant
 			}
 			if con, ok := con.(*contents.TextContent); ok {
-				var sss rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+				var sss = []rawopenai.MessageContentPartParamUnion{
 					rawopenai.MessageContentPartParam{
 						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
 						Text: rawopenai.F(con.Text),
 					},
 				}
-				var content rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentUnion = sss
+				var content []rawopenai.MessageContentPartParamUnion = sss
 
 				message = append(message, rawopenai.BetaThreadRunNewParamsAdditionalMessage{
 					Role:    rawopenai.F(role),
@@ -223,7 +223,7 @@ func getBetaThreadRunNewParams(chatMessages []chatcompletion.ChatMessage, option
 				continue
 			}
 			if con, ok := con.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
-				var sss rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+				var sss = []rawopenai.MessageContentPartParamUnion{
 					rawopenai.MessageContentPartParam{
 						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
 						ImageURL: rawopenai.F(rawopenai.ImageURLParam{
@@ -231,7 +231,7 @@ func getBetaThreadRunNewParams(chatMessages []chatcompletion.ChatMessage, option
 						}),
 					},
 				}
-				var content rawopenai.BetaThreadRunNewParamsAdditionalMessagesContentUnion = sss
+				var content []rawopenai.MessageContentPartParamUnion = sss
 
 				message = append(message, rawopenai.BetaThreadRunNewParamsAdditionalMessage{
 					Role:    rawopenai.F(role),
@@ -334,14 +334,14 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 				role = rawopenai.BetaThreadNewAndRunParamsThreadMessagesRoleAssistant
 			}
 			if con, ok := con.(*contents.TextContent); ok {
-				var sss rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+				var sss = []rawopenai.MessageContentPartParamUnion{
 					rawopenai.MessageContentPartParam{
 						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeText),
 						Text: rawopenai.F(con.Text),
 					},
 				}
 
-				var content rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentUnion = sss
+				var content []rawopenai.MessageContentPartParamUnion = sss
 				message = append(message, rawopenai.BetaThreadNewAndRunParamsThreadMessage{
 					Role:    rawopenai.F(role),
 					Content: rawopenai.F(content),
@@ -350,7 +350,7 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 				continue
 			}
 			if con, ok := con.(*contents.DataContent); ok && con.MediaTypeStartsWith("image") {
-				var sss rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentArrayOfContentParts = []rawopenai.MessageContentPartParamUnion{
+				var sss = []rawopenai.MessageContentPartParamUnion{
 					rawopenai.MessageContentPartParam{
 						Type: rawopenai.F(rawopenai.MessageContentPartParamTypeImageURL),
 						ImageURL: rawopenai.F(rawopenai.ImageURLParam{
@@ -359,7 +359,7 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 					},
 				}
 
-				var content rawopenai.BetaThreadNewAndRunParamsThreadMessagesContentUnion = sss
+				var content []rawopenai.MessageContentPartParamUnion = sss
 				message = append(message, rawopenai.BetaThreadNewAndRunParamsThreadMessage{
 					Role:    rawopenai.F(role),
 					Content: rawopenai.F(content),
