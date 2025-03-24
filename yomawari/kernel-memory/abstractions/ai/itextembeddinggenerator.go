@@ -8,6 +8,7 @@ type ITextEmbeddingBatchGenerator interface {
 }
 
 type ITextEmbeddingGenerator interface {
+	ITextTokenizer
 	GetMaxTokens() int64
 	GenerateEmbedding(ctx context.Context, text string) (Embedding, error)
 }
