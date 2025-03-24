@@ -28,9 +28,9 @@ jobs:
         working-directory: ./k8sbuilder
       
       - name: Container
-        run:  go mod tidy
+        run:  go mod tidy && go build -o mindocker .
         working-directory: ./container
       
       - name: Yomawari
-        run:  go mod tidy
+        run:  go mod tidy && go build .
         working-directory: ./yomawari
