@@ -17,39 +17,24 @@ type ImageDecoder struct {
 }
 
 // Decode implements dataformats.IContentDecoder.
-func (i *ImageDecoder) Decode(ctx context.Context, fileName string) (*dataformats.FileContent, error) {
-	if i == nil {
+func (m *ImageDecoder) Decode(ctx context.Context, fileName string) (*dataformats.FileContent, error) {
+	if m == nil {
 		return nil, fmt.Errorf("ImageDecoder is nil")
 	}
-
-	var result = &dataformats.FileContent{Sections: make([]dataformats.Chunk, 0), MimeType: pipeline.MimeTypes_PlainText}
-	content, err := i.ImageToText(ctx, fileName)
+	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
 
-	sentencesAreComplete := true
-	result.Sections = append(result.Sections, dataformats.Chunk{Content: *content, Number: 1, Metadata: dataformats.ChunkMeta(&sentencesAreComplete, nil)})
-
-	return result, nil
+	return m.DecodeBytes(ctx, content)
 }
 
 // DecodeBytes implements dataformats.IContentDecoder.
-func (i *ImageDecoder) DecodeBytes(ctx context.Context, bytes []byte) (*dataformats.FileContent, error) {
-	if i == nil {
+func (m *ImageDecoder) DecodeBytes(ctx context.Context, content []byte) (*dataformats.FileContent, error) {
+	if m == nil {
 		return nil, fmt.Errorf("ImageDecoder is nil")
 	}
-
-	var result = &dataformats.FileContent{Sections: make([]dataformats.Chunk, 0), MimeType: pipeline.MimeTypes_PlainText}
-	content, err := i.ImageToTextByte(ctx, bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	sentencesAreComplete := true
-	result.Sections = append(result.Sections, dataformats.Chunk{Content: *content, Number: 1, Metadata: dataformats.ChunkMeta(&sentencesAreComplete, nil)})
-
-	return result, nil
+	return m.DecodeStream(ctx, bytes.NewReader(content))
 }
 
 // DecodeStream implements dataformats.IContentDecoder.
