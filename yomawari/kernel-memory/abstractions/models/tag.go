@@ -11,6 +11,10 @@ type MemoryFilter struct {
 	TagCollection
 }
 
+func NewMemoryFilter() *MemoryFilter {
+	return &MemoryFilter{TagCollection{datas: make(map[string][]string)}}
+}
+
 type TagCollection struct {
 	datas map[string][]string
 }
@@ -46,6 +50,9 @@ func (t *TagCollection) AddOrAppend(tag string, value string) {
 		return
 	}
 
+	if t.datas == nil {
+		t.datas = make(map[string][]string)
+	}
 	if v, exists := t.datas[tag]; !exists {
 		t.datas[tag] = []string{value}
 	} else {
@@ -84,7 +91,7 @@ func (t *TagCollection) Values() [][]string {
 }
 
 func (m *TagCollection) Get(key string) ([]string, bool) {
-	if m == nil {
+	if m == nil || m.datas == nil {
 		return nil, false
 	}
 	value, exists := m.datas[key]
