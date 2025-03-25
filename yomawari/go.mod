@@ -1,9 +1,10 @@
 module github.com/futugyou/yomawari
 
 go 1.20
+toolchain go1.24.1
 
 require (
-	github.com/PuerkitoBio/goquery v1.9.3
+	github.com/PuerkitoBio/goquery v1.10.2
 	github.com/google/uuid v1.6.0
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	github.com/openai/openai-go v0.1.0-alpha.53
@@ -14,7 +15,7 @@ require (
 )
 
 require (
-	github.com/andybalholm/cascadia v1.3.2 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.4 // indirect
