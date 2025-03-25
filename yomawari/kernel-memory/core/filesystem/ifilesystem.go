@@ -10,7 +10,7 @@ import (
 type IFileSystem interface {
 	// Volume API
 	CreateVolume(ctx context.Context, volume string) error
-	VolumeExists(ctx context.Context, volume string) (bool, error)
+	VolumeExists(ctx context.Context, volume string) bool
 	DeleteVolume(ctx context.Context, volume string) error
 	ListVolumes(ctx context.Context) ([]string, error)
 
@@ -21,7 +21,7 @@ type IFileSystem interface {
 	// File API
 	WriteFile(ctx context.Context, volume, relPath, fileName string, streamContent io.Reader) error
 	WriteFileAsText(ctx context.Context, volume, relPath, fileName, data string) error
-	FileExists(ctx context.Context, volume, relPath, fileName string) (bool, error)
+	FileExists(ctx context.Context, volume, relPath, fileName string) bool
 
 	ReadFileAsBinary(ctx context.Context, volume, relPath, fileName string) ([]byte, error)
 	ReadFileInfo(ctx context.Context, volume, relPath, fileName string) (*models.StreamableFileContent, error)

@@ -11,6 +11,7 @@ import (
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/ai"
 
 	coreai "github.com/futugyou/yomawari/kernel-memory/core/ai"
+	"github.com/futugyou/yomawari/kernel-memory/core/filesystem"
 )
 
 func main() {
@@ -29,4 +30,5 @@ func main() {
 	var _ pipeline.IMimeTypeDetection = &pipeline.MimeTypesDetection{}
 	var _ ai.ITextEmbeddingGenerator = (*coreai.NoEmbeddingGenerator)(nil)
 
+	var _ filesystem.IFileSystem = (*filesystem.DiskFileSystem)(nil)
 }
