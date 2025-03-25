@@ -31,4 +31,5 @@ func main() {
 	var _ ai.ITextEmbeddingGenerator = (*coreai.NoEmbeddingGenerator)(nil)
 
 	var _ filesystem.IFileSystem = (*filesystem.DiskFileSystem)(nil)
+	var _ filesystem.IFileSystem = (*filesystem.VolatileFileSystem)(nil)
 }
