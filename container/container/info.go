@@ -46,7 +46,7 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName stri
 		err := os.MkdirAll(dir, os.ModePerm)
 		if err != nil {
 			logrus.Errorf("mkdir container dir: %s, err: %v", dir, err)
-			return "", err
+			return "", "", err
 		}
 	}
 
@@ -54,7 +54,7 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName stri
 	file, err := os.Create(fileName)
 	if err != nil {
 		logrus.Errorf("create config.json, fileName: %s, err: %v", fileName, err)
-		return "", err
+		return "", "", err
 	}
 	defer file.Close()
 
@@ -62,7 +62,7 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName stri
 	_, err = file.WriteString(string(bs))
 	if err != nil {
 		logrus.Errorf("write config.json, fileName: %s, err: %v", fileName, err)
-		return "", err
+		return "", "", err
 	}
 
 	return containerID, containerName, nil

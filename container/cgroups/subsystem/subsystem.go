@@ -10,7 +10,8 @@ type ResourceConfig struct {
 	CpuSet string
 }
 
-/**
+/*
+*
 将cgroup抽象成path, 因为在hierarchy中，cgroup便是虚拟的路径地址
 */
 type Subystem interface {

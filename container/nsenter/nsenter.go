@@ -38,7 +38,7 @@ __attribute__((constructor)) static void enter_namespace(void) {
 	for (i=0; i<5; i++) {
 		sprintf(nspath, "/proc/%s/ns/%s", mydocker_pid, namespaces[i]);
 		int fd = open(nspath, O_RDONLY);
-        / 调用setns进入对应的namespace
+        // 调用setns进入对应的namespace
 		if (setns(fd, 0) == -1) {
 			fprintf(stderr, "setns on %s namespace failed: %s\n", namespaces[i], strerror(errno));
 		} else {

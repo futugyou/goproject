@@ -26,9 +26,7 @@ var ExecCommand = cli.Command{
 
 		containerName := context.Args().Get(0)
 		var commandArray []string
-		for _, arg := range context.Args().Tail() {
-			commandArray = append(commandArray, arg)
-		}
+		commandArray = append(commandArray, context.Args().Tail()...)
 
 		// 执行命令
 		if err := container.ExecContainer(containerName, commandArray); err != nil {
