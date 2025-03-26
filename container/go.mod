@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli v1.22.16
 	github.com/vishvananda/netlink v1.1.0
 	github.com/vishvananda/netns v0.0.5
