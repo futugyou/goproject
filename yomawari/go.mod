@@ -1,6 +1,7 @@
 module github.com/futugyou/yomawari
 
 go 1.20
+toolchain go1.24.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.3
@@ -31,6 +32,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	golang.org/x/sync v0.11.0
+	golang.org/x/sync v0.12.0
 	golang.org/x/text v0.22.0
 )
