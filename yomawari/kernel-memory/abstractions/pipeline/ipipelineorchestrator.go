@@ -14,19 +14,19 @@ type IPipelineOrchestrator interface {
 	SetHandlerNames(names []string)
 	AddHandler(ctx rawContext.Context, hadler IPipelineStepHandler) error
 	TryAddHandler(ctx rawContext.Context, hadler IPipelineStepHandler) error
-	ImportDocument(ctx rawContext.Context, text string, uploadRequest models.DocumentUploadRequest, context context.IContext) (*string, error)
-	PrepareNewDocument(ctx rawContext.Context, index string, documentId string, tags models.TagCollection,
+	ImportDocument(ctx rawContext.Context, text string, uploadRequest *models.DocumentUploadRequest, context context.IContext) (*string, error)
+	PrepareNewDocument(ctx rawContext.Context, index string, documentId string, tags *models.TagCollection,
 		filesToUpload []models.UploadedFile, contextArgs map[string]interface{}) (*DataPipeline, error)
-	RunPipeline(ctx rawContext.Context, pipeline DataPipeline) error
+	RunPipeline(ctx rawContext.Context, pipeline *DataPipeline) error
 	ReadPipelineStatus(ctx rawContext.Context, index string, documentId string) (*DataPipeline, error)
 	ReadPipelineSummary(ctx rawContext.Context, index string, documentId string) (*models.DataPipelineStatus, error)
 	IsDocumentReady(ctx rawContext.Context, index string, documentId string) (bool, error)
 	StopAllPipelines(ctx rawContext.Context) error
-	ReadFileAsStream(ctx rawContext.Context, pipeline DataPipeline, fileName string) (*models.StreamableFileContent, error)
-	ReadFile(ctx rawContext.Context, pipeline DataPipeline, fileName string) ([]byte, error)
-	ReadTextFile(ctx rawContext.Context, pipeline DataPipeline, fileName string) (*string, error)
-	WriteTextFile(ctx rawContext.Context, pipeline DataPipeline, fileName string, fileContent string) error
-	WriteFile(ctx rawContext.Context, pipeline DataPipeline, fileName string, fileContent []byte) error
+	ReadFileAsStream(ctx rawContext.Context, pipeline *DataPipeline, fileName string) (*models.StreamableFileContent, error)
+	ReadFile(ctx rawContext.Context, pipeline *DataPipeline, fileName string) ([]byte, error)
+	ReadTextFile(ctx rawContext.Context, pipeline *DataPipeline, fileName string) (*string, error)
+	WriteTextFile(ctx rawContext.Context, pipeline *DataPipeline, fileName string, fileContent string) error
+	WriteFile(ctx rawContext.Context, pipeline *DataPipeline, fileName string, fileContent []byte) error
 	GetEmbeddingGenerationEnabled() bool
 	GetEmbeddingGenerators(ctx rawContext.Context) ([]ai.ITextEmbeddingGenerator, error)
 	GetMemoryDbs(ctx rawContext.Context) ([]memorystorage.IMemoryDb, error)
