@@ -104,7 +104,7 @@ func getUniqueFileName(fileNames map[string]struct{}, filePath string) string {
 	fileName := getBaseName(filePath)
 
 	if _, exists := fileNames[fileName]; exists {
-		dirHash := calculateSHA256(getDirName(filePath))
+		dirHash := CalculateSHA256(getDirName(filePath))
 		count := 0
 		for {
 			newName := fmt.Sprintf("%s%d_%s", dirHash, count, fileName)
@@ -134,7 +134,7 @@ func getDirName(filePath string) string {
 }
 
 // Calculate the SHA256 hash
-func calculateSHA256(value string) string {
+func CalculateSHA256(value string) string {
 	hash := sha256.Sum256([]byte(value))
 	return hex.EncodeToString(hash[:])
 }
