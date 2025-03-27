@@ -17,7 +17,7 @@ type IMemoryDb interface {
 }
 
 type IMemoryDbUpsertBatch interface {
-	UpsertBatch(ctx context.Context, index string, records []MemoryRecord) <-chan MemoryUpsertBatchChanResponse
+	UpsertBatch(ctx context.Context, index string, records []*MemoryRecord) <-chan MemoryUpsertBatchChanResponse
 }
 
 type MemoryUpsertBatchChanResponse struct {
