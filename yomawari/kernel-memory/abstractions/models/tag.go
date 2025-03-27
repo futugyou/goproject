@@ -156,3 +156,9 @@ func (t *TagCollection) CopyTo(tag *TagCollection) {
 		}
 	}
 }
+
+func (t *TagCollection) Clone() *TagCollection {
+	var clone = &TagCollection{}
+	t.CopyTo(clone)
+	return clone
+}
