@@ -1,7 +1,6 @@
 module github.com/futugyou/yomawari
 
 go 1.20
-toolchain go1.24.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.3

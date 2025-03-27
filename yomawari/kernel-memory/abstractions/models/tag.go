@@ -144,3 +144,15 @@ func (t *TagCollection) ToKeyValueList() []struct {
 
 	return result
 }
+
+func (t *TagCollection) CopyTo(tag *TagCollection) {
+	if t == nil || tag == nil {
+		return
+	}
+
+	for k, vv := range t.datas {
+		for _, v := range vv {
+			tag.AddOrAppend(k, v)
+		}
+	}
+}
