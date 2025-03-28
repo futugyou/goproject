@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	github.com/openai/openai-go v0.1.0-alpha.53
+	github.com/pkoukk/tiktoken-go v0.1.7
 	github.com/xuri/excelize/v2 v2.9.0
 	go.opentelemetry.io/otel v1.23.0
 	go.opentelemetry.io/otel/metric v1.23.0
@@ -15,6 +16,7 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
+	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.4 // indirect
