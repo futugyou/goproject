@@ -175,7 +175,7 @@ func (s *SummarizationParallelHandler) Summarizes(ctx rawContext.Context, conten
 				Overlap:           int(overlappingTokens),
 			})
 		}
-		newContent := strings.Builder{}
+		newContent := &strings.Builder{}
 		for index := 0; index < len(paragraphs); index++ {
 			paragraph := paragraphs[index]
 			var filledPrompt = strings.Replace(s.summarizationPrompt, "{{$input}}", paragraph, 1)

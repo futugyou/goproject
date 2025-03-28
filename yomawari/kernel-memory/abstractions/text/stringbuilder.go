@@ -2,7 +2,7 @@ package text
 
 import "strings"
 
-func AppendLine(builder strings.Builder) strings.Builder {
+func AppendLine(builder *strings.Builder) *strings.Builder {
 	builder.WriteByte('\n')
 	return builder
 }
