@@ -86,7 +86,7 @@ const (
 // PlainTextChunkerOptions contains options for text chunking
 type PlainTextChunkerOptions struct {
 	MaxTokensPerChunk int
-	ChunkHeader       string
+	ChunkHeader       *string
 	Overlap           int
 }
 
@@ -120,8 +120,8 @@ func (c *PlainTextChunker) SplitWithOptions(text string, options PlainTextChunke
 	text = aitext.NormalizeNewlines(text, true)
 
 	// Calculate chunk sizes with headers and overlaps
-	maxChunk1Size := options.MaxTokensPerChunk - c.TokenCount(&options.ChunkHeader)
-	maxChunkNSize := options.MaxTokensPerChunk - c.TokenCount(&options.ChunkHeader) - options.Overlap
+	maxChunk1Size := options.MaxTokensPerChunk - c.TokenCount(options.ChunkHeader)
+	maxChunkNSize := options.MaxTokensPerChunk - c.TokenCount(options.ChunkHeader) - options.Overlap
 	maxChunk1Size = int(math.Max(MinChunkSize, float64(maxChunk1Size)))
 	maxChunkNSize = int(math.Max(MinChunkSize, float64(maxChunkNSize)))
 
@@ -142,9 +142,9 @@ func (c *PlainTextChunker) SplitWithOptions(text string, options PlainTextChunke
 	}
 
 	// Add header to each chunk
-	if options.ChunkHeader != "" {
+	if options.ChunkHeader != nil && *options.ChunkHeader != "" {
 		for i := range chunks {
-			chunks[i] = options.ChunkHeader + chunks[i]
+			chunks[i] = *options.ChunkHeader + chunks[i]
 		}
 	}
 
@@ -210,7 +210,7 @@ func (c *PlainTextChunker) generateChunks(
 		FullContent:  strings.Builder{},
 		NextSentence: strings.Builder{},
 	}
-
+	var maxChunkSize int
 	for _, fragment := range fragments {
 		builder.NextSentence.WriteString(fragment.Content)
 
@@ -220,7 +220,7 @@ func (c *PlainTextChunker) generateChunks(
 
 		nextSentence := builder.NextSentence.String()
 		nextSentenceSize := c.TokenCount(&nextSentence)
-		maxChunkSize := maxChunkNSize
+		maxChunkSize = maxChunkNSize
 		if !*firstChunkDone {
 			maxChunkSize = maxChunk1Size
 		}
@@ -273,7 +273,7 @@ func (c *PlainTextChunker) generateChunks(
 	// Handle remaining content
 	fullSentenceLeft := builder.FullContent.String()
 	nextSentenceLeft := builder.NextSentence.String()
-	maxChunkSize := maxChunkNSize
+	maxChunkSize = maxChunkNSize
 	if !*firstChunkDone {
 		maxChunkSize = maxChunk1Size
 	}
@@ -341,7 +341,7 @@ func SplitToFragments(text string, separators *SeparatorTrie) []dataformats.Chun
 	fragments := []dataformats.Chunk{}
 	if separators == nil {
 		for _, v := range text {
-			fragments = append(fragments, dataformats.Chunk{Content: string(v), IsSeparator: true})
+			fragments = append(fragments, dataformats.Chunk{Number: -1, Content: string(v), Metadata: map[string]string{}, IsSeparator: true})
 		}
 		return fragments
 	}
