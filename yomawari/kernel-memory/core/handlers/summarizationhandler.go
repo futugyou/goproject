@@ -58,7 +58,8 @@ func (s *SummarizationHandler) SetStepName(name string) {
 
 // Invoke implements pipeline.IPipelineStepHandler.
 func (s *SummarizationHandler) Invoke(ctx rawContext.Context, dataPipeline *pipeline.DataPipeline) (pipeline.ReturnType, *pipeline.DataPipeline, error) {
-	for _, uploadedFile := range dataPipeline.Files {
+	for i := range dataPipeline.Files {
+		uploadedFile := &dataPipeline.Files[i]
 		summaryFiles := map[string]pipeline.GeneratedFileDetails{}
 		for _, generatedFile := range uploadedFile.GeneratedFiles {
 			var file = generatedFile
