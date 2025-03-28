@@ -103,8 +103,8 @@ github.com/go-openapi/spec v0.20.12 h1:cgSLbrsmziAP2iais+Vz7kSazwZ8rsUZd6TUzdDgk
 github.com/go-openapi/spec v0.20.12/go.mod h1:iSCgnBcwbMW9SfzJb8iYynXvcY6C/QFrI7otzF7xGM4=
 github.com/go-openapi/strfmt v0.21.10 h1:JIsly3KXZB/Qf4UzvzJpg4OELH/0ASDQsyk//TTBDDk=
 github.com/go-openapi/strfmt v0.21.10/go.mod h1:vNDMwbilnl7xKiO/Ve/8H8Bb2JIInBnH+lqiw6QWgis=
-github.com/go-openapi/swag v0.22.5 h1:fVS63IE3M0lsuWRzuom3RLwUMVI2peDH01s6M70ugys=
-github.com/go-openapi/swag v0.22.5/go.mod h1:Gl91UqO+btAM0plGGxHqJcQZ1ZTy6jbmridBTsDy8A0=
+github.com/go-openapi/swag v0.23.1 h1:lpsStH0n2ittzTnbaSloVZLuB5+fvSY/+hnagBjSNZU=
+github.com/go-openapi/swag v0.23.1/go.mod h1:STZs8TbRvEQQKUA+JZNAm3EWlgaOBGpyFDqQnDHMef0=
 github.com/go-openapi/validate v0.22.4 h1:5v3jmMyIPKTR8Lv9syBAIRxG6lY0RqeBPB1LKEijzk8=
 github.com/go-openapi/validate v0.22.4/go.mod h1:qm6O8ZIcPVdSY5219468Jv7kBdGvkiZLPOmqnqTUZ2A=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
@@ -179,8 +179,8 @@ github.com/hashicorp/go-tfe v1.76.0/go.mod h1:6dUFMBKh0jkxlRsrw7bYD2mby0efdwE4dt
 github.com/hashicorp/go-uuid v1.0.3 h1:2gKiV6YVmrJ1i2CKKa9obLvRieoRGviZFL26PcT/Co8=
 github.com/hashicorp/go-version v1.7.0 h1:5tqGy27NaOTB8yJKUZELlFAS/LTKJkrmONwQKeRZfjY=
 github.com/hashicorp/go-version v1.7.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
-github.com/hashicorp/hcp-sdk-go v0.138.0 h1:AYK2N28zJjHlqzkYVAamwtikTpIMNdl+5ZyBBuuQGDY=
-github.com/hashicorp/hcp-sdk-go v0.138.0/go.mod h1:1HCJgX11KAIccfyKxwqFOMNbCRMaSvCB68EkOnOTRUM=
+github.com/hashicorp/hcp-sdk-go v0.139.0 h1:jvEIwYg84/ZFphNJrk5Hoa5bYj5wORHgRQcbOfeqDHY=
+github.com/hashicorp/hcp-sdk-go v0.139.0/go.mod h1:ZxsZZjErm3E2sj2OjDeVsGJAkWtcRLUS+FrNLGPsUyw=
 github.com/hashicorp/jsonapi v1.4.3-0.20250220162346-81a76b606f3e h1:xwy/1T0cxHWaLx2MM0g4BlaQc1BXn/9835mPrBqwSPU=
 github.com/hashicorp/jsonapi v1.4.3-0.20250220162346-81a76b606f3e/go.mod h1:kWfdn49yCjQvbpnvY1dxxAuAFzISwrrMDQOcu6NsFoM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
@@ -233,8 +233,8 @@ github.com/lestrrat-go/option v1.0.1 h1:oAzP2fvZGQKWkvHa1/SAcFolBEca1oN+mQ7eooNB
 github.com/lestrrat-go/option v1.0.1/go.mod h1:5ZHFbivi4xwXxhxY9XHDe2FHo6/Z7WWmtT7T5nBBp3I=
 github.com/lithammer/shortuuid/v3 v3.0.7 h1:trX0KTHy4Pbwo/6ia8fscyHoGA+mf1jWbPJVuvyJQQ8=
 github.com/lithammer/shortuuid/v3 v3.0.7/go.mod h1:vMk8ke37EmiewwolSO1NLW8vP4ZaKlRuDIi8tWWmAts=
-github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
-github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
+github.com/mailru/easyjson v0.9.0 h1:PrnmzHw7262yW8sTBwxi1PdJA3Iw/EKBa8psRf7d9a4=
+github.com/mailru/easyjson v0.9.0/go.mod h1:1+xMtQp2MRNVL/V1bOzuP3aP8VNwRW55fQUto+XFtTU=
 github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2/go.mod h1:Ld9puTsIW75CHf65OeIOkyKbteujpZVXDpWK6YGZbxE=
 github.com/markbates/safe v1.0.1/go.mod h1:nAqgmRi7cY2nqMc92/bSEeQA+R4OheNU2T1kNSCBdG0=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
