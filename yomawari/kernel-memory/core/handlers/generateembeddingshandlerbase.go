@@ -50,12 +50,15 @@ func (handler *GenerateEmbeddingsHandlerBase) GetListOfPartitionsToProcess(ctx c
 	}
 	partitionsToProcess := []PartitionInfo{}
 
-	for _, uploadedFile := range pipe.Files {
+	for i := range pipe.Files {
+		uploadedFile := &pipe.Files[i]
 		for k, v := range uploadedFile.GeneratedFiles {
 			if v.ArtifactType != pipeline.ArtifactTypesTextPartition && v.ArtifactType != pipeline.ArtifactTypesSyntheticData {
 				continue
 			}
+
 			if v.AlreadyProcessedBy(handler.ActualInstance, &subStepName) {
+				uploadedFile.GeneratedFiles[k] = v
 				continue
 			}
 			if v.MimeType == pipeline.MimeTypes_PlainText || v.MimeType == pipeline.MimeTypes_MarkDown {
@@ -65,7 +68,7 @@ func (handler *GenerateEmbeddingsHandlerBase) GetListOfPartitionsToProcess(ctx c
 				}
 				partitionsToProcess = append(partitionsToProcess, PartitionInfo{
 					GeneratedFile:    map[string]pipeline.GeneratedFileDetails{k: v},
-					UploadedFile:     &uploadedFile,
+					UploadedFile:     uploadedFile,
 					PartitionContent: *partitionContent,
 				})
 			}
@@ -91,7 +94,7 @@ func (handler *GenerateEmbeddingsHandlerBase) SaveEmbeddingsToDocumentStorage(ct
 func (handler *GenerateEmbeddingsHandlerBase) SaveEmbeddingToDocumentStorage(ctx context.Context, pipe *pipeline.DataPipeline,
 	partition PartitionInfo, embedding ai.Embedding, generatorProvider string, generatorName string) error {
 
-	for _, v := range partition.GeneratedFile {
+	for k, v := range partition.GeneratedFile {
 		embeddingData := documentstorage.EmbeddingFileContent{
 			GeneratorName:     generatorName,
 			GeneratorProvider: generatorProvider,
@@ -106,6 +109,7 @@ func (handler *GenerateEmbeddingsHandlerBase) SaveEmbeddingToDocumentStorage(ctx
 		handler.orchestrator.WriteTextFile(ctx, pipe, embeddingDataFileName, embeddingDataAsJson)
 		subStep := GetSubStepName2(generatorProvider, generatorName)
 		v.MarkProcessedBy(handler.ActualInstance, &subStep)
+		partition.GeneratedFile[k] = v
 	}
 
 	return nil

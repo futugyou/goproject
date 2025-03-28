@@ -69,9 +69,7 @@ func (s *SummarizationParallelHandler) Invoke(ctx rawContext.Context, dataPipeli
 		g.Go(func() error {
 			summaryFiles := make(map[string]pipeline.GeneratedFileDetails)
 
-			for _, generatedFile := range uploadedFile.GeneratedFiles {
-				file := generatedFile
-
+			for _, file := range uploadedFile.GeneratedFiles {
 				if file.AlreadyProcessedBy(s, nil) {
 					continue
 				}

@@ -61,8 +61,7 @@ func (s *SummarizationHandler) Invoke(ctx rawContext.Context, dataPipeline *pipe
 	for i := range dataPipeline.Files {
 		uploadedFile := &dataPipeline.Files[i]
 		summaryFiles := map[string]pipeline.GeneratedFileDetails{}
-		for _, generatedFile := range uploadedFile.GeneratedFiles {
-			var file = generatedFile
+		for _, file := range uploadedFile.GeneratedFiles {
 			if file.AlreadyProcessedBy(s, nil) {
 				continue
 			}

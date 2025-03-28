@@ -69,8 +69,9 @@ func (t *TextPartitioningHandler) Invoke(ctx context.Context, dataPipeline *pipe
 	for i := range dataPipeline.Files {
 		uploadedFile := &dataPipeline.Files[i]
 		newFiles := map[string]pipeline.GeneratedFileDetails{}
-		for _, file := range uploadedFile.GeneratedFiles {
+		for k, file := range uploadedFile.GeneratedFiles {
 			if file.AlreadyProcessedBy(t, nil) {
+				uploadedFile.GeneratedFiles[k] = file
 				continue
 			}
 			if file.ArtifactType != pipeline.ArtifactTypesExtractedText {
@@ -124,6 +125,7 @@ func (t *TextPartitioningHandler) Invoke(ctx context.Context, dataPipeline *pipe
 				newFiles[destFile] = *destFileDetails
 			}
 			file.MarkProcessedBy(t, nil)
+			uploadedFile.GeneratedFiles[k] = file
 		}
 
 		for key, file := range newFiles {

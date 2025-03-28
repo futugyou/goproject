@@ -92,9 +92,10 @@ func (s *SaveRecordsHandler) Invoke(ctx context.Context, dataPipeline *pipeline.
 		sourceFiles = Chunk(GetListOfPartitionAndSyntheticFiles(dataPipeline), s.upsertBatchSize)
 	}
 
-	for _, files := range sourceFiles {
+	for i := range sourceFiles {
 		records := []*memorystorage.MemoryRecord{}
-		for _, file := range files {
+		for ii := range sourceFiles[i] {
+			file := &sourceFiles[i][ii]
 			if file.File == nil {
 				continue
 			}
@@ -184,7 +185,7 @@ func (s *SaveRecordsHandler) Invoke(ctx context.Context, dataPipeline *pipeline.
 				}
 			}
 
-			for _, file := range files {
+			for _, file := range sourceFiles[i] {
 				file.File.MarkProcessedBy(s, nil)
 			}
 		}

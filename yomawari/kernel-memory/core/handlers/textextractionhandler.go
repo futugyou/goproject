@@ -43,7 +43,8 @@ func (s *TextExtractionHandler) SetStepName(name string) {
 
 // Invoke implements pipeline.IPipelineStepHandler.
 func (s *TextExtractionHandler) Invoke(ctx context.Context, dataPipeline *pipeline.DataPipeline) (pipeline.ReturnType, *pipeline.DataPipeline, error) {
-	for _, uploadedFile := range dataPipeline.Files {
+	for i := range dataPipeline.Files {
+		uploadedFile := &dataPipeline.Files[i]
 		if uploadedFile.AlreadyProcessedBy(s, nil) {
 			continue
 		}
@@ -60,13 +61,13 @@ func (s *TextExtractionHandler) Invoke(ctx context.Context, dataPipeline *pipeli
 		skipFile := false
 		if len(fileContent) > 0 {
 			if uploadedFile.MimeType == pipeline.MimeTypes_WebPageUrl {
-				downloadedPage, pageContent, skip := s.DownloadContent(ctx, &uploadedFile, fileContent)
+				downloadedPage, pageContent, skip := s.DownloadContent(ctx, uploadedFile, fileContent)
 				skipFile = skip
 				if !skipFile {
 					text, content, skipFile, err = s.ExtractText(ctx, downloadedPage, pageContent)
 				}
 			} else {
-				text, content, skipFile, err = s.ExtractText(ctx, &uploadedFile, fileContent)
+				text, content, skipFile, err = s.ExtractText(ctx, uploadedFile, fileContent)
 			}
 			if err != nil {
 				continue
@@ -77,7 +78,7 @@ func (s *TextExtractionHandler) Invoke(ctx context.Context, dataPipeline *pipeli
 		if err != nil {
 			continue
 		}
-		
+
 		if !skipFile {
 			s.orchestrator.WriteFile(ctx, dataPipeline, destFile, []byte(text))
 			destFileDetails := pipeline.GeneratedFileDetails{
