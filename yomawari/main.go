@@ -73,5 +73,6 @@ func main() {
 	var _ filesystem.IFileSystem = (*filesystem.VolatileFileSystem)(nil)
 
 	var _ memorystorage.IMemoryDb = (*corememorystorage.SimpleTextDb)(nil)
+	var _ memorystorage.IMemoryDb = (*corememorystorage.SimpleVectorDb)(nil)
 
 }

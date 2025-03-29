@@ -32,7 +32,11 @@ func (s *SimpleTextDb) CreateIndex(ctx context.Context, index string, vectorSize
 
 // Delete implements memorystorage.IMemoryDb.
 func (s *SimpleTextDb) Delete(ctx context.Context, index string, record *memorystorage.MemoryRecord) error {
-	panic("unimplemented")
+	index, err := NormalizeIndexName(index)
+	if err != nil {
+		return err
+	}
+	return s.fileSystem.DeleteVolume(ctx, index)
 }
 
 // DeleteIndex implements memorystorage.IMemoryDb.
