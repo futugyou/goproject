@@ -13,11 +13,37 @@ import (
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/pipeline"
 )
 
+var (
+	sf_singletons sync.Map
+)
+
 type VolatileFileSystem struct {
 	mutex             sync.Mutex
 	mimeTypeDetection pipeline.IMimeTypeDetection
-	s_singletons      map[string]VolatileFileSystem
 	_volumes          map[string]map[string][]byte
+}
+
+func NewVolatileFileSystem(mimeTypeDetection pipeline.IMimeTypeDetection) *VolatileFileSystem {
+	if mimeTypeDetection == nil {
+		mimeTypeDetection = &pipeline.MimeTypesDetection{}
+	}
+	return &VolatileFileSystem{
+		mimeTypeDetection: mimeTypeDetection,
+	}
+}
+
+func GetVolatileFileSystemInstance(directory string, mimeTypeDetection pipeline.IMimeTypeDetection) *VolatileFileSystem {
+	directory = strings.Trim(directory, "/\\")
+	directory = strings.ToLower(directory)
+
+	instance, loaded := sf_singletons.Load(directory)
+	if loaded {
+		return instance.(*VolatileFileSystem)
+	}
+
+	newInstance := NewVolatileFileSystem(mimeTypeDetection)
+	actual, _ := sf_singletons.LoadOrStore(directory, newInstance)
+	return actual.(*VolatileFileSystem)
 }
 
 // CreateDirectory implements IFileSystem.
@@ -354,18 +380,6 @@ func (fs *VolatileFileSystem) WriteFileAsText(ctx context.Context, volume string
 	}
 
 	return nil
-}
-
-func NewVolatileFileSystem(mimeTypeDetection pipeline.IMimeTypeDetection) *VolatileFileSystem {
-	if mimeTypeDetection == nil {
-		mimeTypeDetection = &pipeline.MimeTypesDetection{}
-	}
-	fs := &VolatileFileSystem{
-		mimeTypeDetection: mimeTypeDetection,
-		s_singletons:      map[string]VolatileFileSystem{},
-		_volumes:          map[string]map[string][]byte{},
-	}
-	return fs
 }
 
 func JoinPaths(a, b string) string {
