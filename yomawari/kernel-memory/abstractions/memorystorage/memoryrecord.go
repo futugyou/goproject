@@ -2,7 +2,10 @@ package memorystorage
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/ai"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/constant"
@@ -102,6 +105,95 @@ func (m *MemoryRecord) UnmarshalJSON(data []byte) error {
 
 	if m.UpgradeRequired() {
 		m.Upgrade()
+	}
+
+	return nil
+}
+
+func (m *MemoryRecord) GetTagValue(tagName string) string {
+	if tagValues, ok := m.Tags.Get(tagName); ok {
+		if len(tagValues) > 0 {
+			return tagValues[0]
+		}
+	}
+
+	return ""
+}
+
+func (m *MemoryRecord) GetDocumentId() string {
+	return m.GetTagValue(constant.ReservedDocumentIdTag)
+}
+
+func (m *MemoryRecord) GetFileId() string {
+	return m.GetTagValue(constant.ReservedFileIdTag)
+}
+
+func (m *MemoryRecord) GetPartitionNumber() int {
+	value := m.GetTagValue(constant.ReservedFilePartitionNumberTag)
+	if v, err := strconv.Atoi(value); err != nil {
+		return v
+	}
+	return 0
+}
+
+func (m *MemoryRecord) GetSectionNumber() int {
+	value := m.GetTagValue(constant.ReservedFileSectionNumberTag)
+	if v, err := strconv.Atoi(value); err != nil {
+		return v
+	}
+	return 0
+}
+
+func (m *MemoryRecord) GetFileContentType() string {
+	return m.GetTagValue(constant.ReservedFileTypeTag)
+}
+
+func (m *MemoryRecord) GetFileName() string {
+	if v, ok := m.GetPayloadValue(constant.ReservedPayloadFileNameField).(string); ok {
+		return v
+	}
+	return ""
+}
+
+func (m *MemoryRecord) GetWebPageUrl(indexName string) string {
+	if webPageUrl, ok := m.GetPayloadValue(constant.ReservedPayloadUrlField).(string); ok && len(webPageUrl) > 0 {
+		return webPageUrl
+	}
+	return strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.ReplaceAll(
+				constant.HttpDownloadEndpointWithParams,
+				constant.HttpIndexPlaceholder,
+				indexName,
+			),
+			constant.HttpDocumentIdPlaceholder,
+			m.GetDocumentId(),
+		),
+		constant.HttpFilenamePlaceholder,
+		m.GetFileName(),
+	)
+}
+
+func (m *MemoryRecord) GetPartitionText() string {
+	if v, ok := m.GetPayloadValue(constant.ReservedPayloadTextField).(string); ok {
+		return v
+	}
+	return ""
+}
+
+func (m *MemoryRecord) GetLastUpdate() time.Time {
+	if v, ok := m.GetPayloadValue(constant.ReservedPayloadLastUpdateField).(string); ok {
+		if t, err := time.Parse(time.RFC3339, v); err == nil {
+			return t
+		}
+	}
+
+	return time.Time{}
+}
+
+func (m *MemoryRecord) GetPayloadValue(payloadKey string) any {
+	if tagValues, ok := m.Payload[payloadKey]; ok {
+		return tagValues
 	}
 
 	return nil

@@ -50,6 +50,11 @@ const (
 	HttpIndexPlaceholder      = "{index}"
 	HttpDocumentIdPlaceholder = "{documentId}"
 	HttpFilenamePlaceholder   = "{filename}"
+	 HttpDeleteDocumentEndpointWithParams = "{HttpDocumentsEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}";
+     HttpDeleteIndexEndpointWithParams = "{HttpIndexesEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}";
+     HttpUploadStatusEndpointWithParams = "{HttpUploadStatusEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}";
+     HttpDownloadEndpointWithParams = "{HttpDownloadEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}&{WebService.FilenameField}={HttpFilenamePlaceholder}";
+    
 )
 
 const (
