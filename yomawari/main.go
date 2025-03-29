@@ -8,12 +8,14 @@ import (
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/context"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/dataformats"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/documentstorage"
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/memorystorage"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/pipeline"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/prompts"
 	"github.com/futugyou/yomawari/kernel-memory/extensions/tiktoken"
 
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/ai"
 
+	corememorystorage "github.com/futugyou/yomawari/kernel-memory/core/memorystorage"
 	coreai "github.com/futugyou/yomawari/kernel-memory/core/ai"
 	coredataformats "github.com/futugyou/yomawari/kernel-memory/core/dataformats"
 	coredocumentstorage "github.com/futugyou/yomawari/kernel-memory/core/documentstorage"
@@ -69,5 +71,7 @@ func main() {
 
 	var _ filesystem.IFileSystem = (*filesystem.DiskFileSystem)(nil)
 	var _ filesystem.IFileSystem = (*filesystem.VolatileFileSystem)(nil)
+
+	var _ memorystorage.IMemoryDb = (*corememorystorage.SimpleTextDb)(nil)
 
 }
