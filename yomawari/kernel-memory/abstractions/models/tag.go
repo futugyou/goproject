@@ -45,6 +45,13 @@ func (t *TagCollection) Add(tag string, value []string) {
 	t.datas[tag] = value
 }
 
+func (t *TagCollection) GetData() map[string][]string {
+	if t == nil {
+		return map[string][]string{}
+	}
+	return t.datas
+}
+
 func (t *TagCollection) AddOrAppend(tag string, value string) {
 	if t == nil {
 		return
