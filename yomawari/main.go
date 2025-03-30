@@ -15,12 +15,13 @@ import (
 
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/ai"
 
-	corememorystorage "github.com/futugyou/yomawari/kernel-memory/core/memorystorage"
 	coreai "github.com/futugyou/yomawari/kernel-memory/core/ai"
 	coredataformats "github.com/futugyou/yomawari/kernel-memory/core/dataformats"
 	coredocumentstorage "github.com/futugyou/yomawari/kernel-memory/core/documentstorage"
 	"github.com/futugyou/yomawari/kernel-memory/core/filesystem"
 	"github.com/futugyou/yomawari/kernel-memory/core/handlers"
+	corememorystorage "github.com/futugyou/yomawari/kernel-memory/core/memorystorage"
+	corepipeline "github.com/futugyou/yomawari/kernel-memory/core/pipeline"
 	coreprompts "github.com/futugyou/yomawari/kernel-memory/core/prompts"
 )
 
@@ -75,4 +76,5 @@ func main() {
 	var _ memorystorage.IMemoryDb = (*corememorystorage.SimpleTextDb)(nil)
 	var _ memorystorage.IMemoryDb = (*corememorystorage.SimpleVectorDb)(nil)
 
+	var _ pipeline.IPipelineOrchestrator = (*corepipeline.BaseOrchestrator)(nil)
 }
