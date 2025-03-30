@@ -31,12 +31,13 @@ type BaseOrchestrator struct {
 	mimeTypeDetection          pipeline.IMimeTypeDetection
 	defaultIndexName           *string
 	embeddingGenerationEnabled bool
-	CancelFunc                 context.CancelFunc
+	cancelFunc                 context.CancelFunc
+	ctx                        context.Context
 	handlerNames               []string
 }
 
 // AddHandler implements pipeline.IPipelineOrchestrator.
-func (b *BaseOrchestrator) AddHandler(ctx context.Context, hadler pipeline.IPipelineStepHandler) error {
+func (b *BaseOrchestrator) AddHandler(ctx context.Context, handler pipeline.IPipelineStepHandler) error {
 	panic("unimplemented")
 }
 
@@ -239,14 +240,14 @@ func (b *BaseOrchestrator) StartIndexDeletion(ctx context.Context, index *string
 
 // StopAllPipelines implements pipeline.IPipelineOrchestrator.
 func (b *BaseOrchestrator) StopAllPipelines(ctx context.Context) error {
-	if b.CancelFunc != nil {
-		b.CancelFunc()
+	if b.cancelFunc != nil {
+		b.cancelFunc()
 	}
 	return nil
 }
 
 // TryAddHandler implements pipeline.IPipelineOrchestrator.
-func (b *BaseOrchestrator) TryAddHandler(ctx context.Context, hadler pipeline.IPipelineStepHandler) error {
+func (b *BaseOrchestrator) TryAddHandler(ctx context.Context, handler pipeline.IPipelineStepHandler) error {
 	panic("unimplemented")
 }
 
@@ -433,6 +434,7 @@ func NewBaseOrchestrator(
 	if config == nil {
 		config = &configuration.KernelMemoryConfig{}
 	}
+	ctx, cancel := context.WithCancel(context.Background())
 	return &BaseOrchestrator{
 		memoryDbs:                  memoryDbs,
 		embeddingGenerators:        embeddingGenerators,
@@ -442,5 +444,8 @@ func NewBaseOrchestrator(
 		mimeTypeDetection:          mimeTypeDetection,
 		defaultIndexName:           &config.DefaultIndexName,
 		embeddingGenerationEnabled: config.DataIngestion.EmbeddingGenerationEnabled,
+		cancelFunc:                 cancel,
+		ctx:                        ctx,
+		handlerNames:               []string{},
 	}
 }
