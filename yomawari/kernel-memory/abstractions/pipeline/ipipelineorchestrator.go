@@ -15,7 +15,7 @@ type IPipelineOrchestrator interface {
 	AddHandler(ctx rawContext.Context, hadler IPipelineStepHandler) error
 	TryAddHandler(ctx rawContext.Context, hadler IPipelineStepHandler) error
 	ImportDocument(ctx rawContext.Context, text string, uploadRequest *models.DocumentUploadRequest, context context.IContext) (*string, error)
-	PrepareNewDocument(ctx rawContext.Context, index string, documentId string, tags *models.TagCollection,
+	PrepareNewDocumentUpload(ctx rawContext.Context, index string, documentId string, tags *models.TagCollection,
 		filesToUpload []models.UploadedFile, contextArgs map[string]interface{}) (*DataPipeline, error)
 	RunPipeline(ctx rawContext.Context, pipeline *DataPipeline) error
 	ReadPipelineStatus(ctx rawContext.Context, index string, documentId string) (*DataPipeline, error)

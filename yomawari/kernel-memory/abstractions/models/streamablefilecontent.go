@@ -51,6 +51,11 @@ func NewStreamableFileContent(fileName string, fileSize int64, fileType string, 
 }
 
 func (content *StreamableFileContent) GetStream() func(ctx context.Context) (io.ReadCloser, error) {
+	if content == nil || content.getStream == nil {
+		return func(ctx context.Context) (io.ReadCloser, error) {
+			return io.NopCloser(bytes.NewReader([]byte{})), nil
+		}
+	}
 	return content.getStream
 }
 
