@@ -37,7 +37,7 @@ func NewSummarizationHandler(stepName string, orchestrator pipeline.IPipelineOrc
 		stepName:            stepName,
 	}
 	if promptProvider == nil {
-		promptProvider = promptsCore.NewEmbeddedPromptProvider(nil)
+		promptProvider = promptsCore.NewEmbeddedPromptProvider()
 	}
 	if prompt, err := promptProvider.ReadPrompt(rawContext.Background(), constant.PromptNamesSummarize); err == nil {
 		handler.summarizationPrompt = *prompt

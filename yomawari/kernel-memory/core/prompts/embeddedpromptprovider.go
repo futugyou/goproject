@@ -3,50 +3,29 @@ package prompts
 import (
 	"context"
 	"embed"
-	"errors"
 	"fmt"
-	"io"
-	"path"
-	"reflect"
 
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/prompts"
 )
 
-// EmbeddedPromptProvider implements IPromptProvider using embedded files
+//go:embed answer-with-facts.txt summarize.txt
+var embeddedFiles embed.FS
+
 type EmbeddedPromptProvider struct {
-	fs *embed.FS
+	fs embed.FS
 }
 
-func NewEmbeddedPromptProvider(fs *embed.FS) *EmbeddedPromptProvider {
-	if fs == nil {
-		fs = &embed.FS{}
-	}
-	return &EmbeddedPromptProvider{fs: fs}
+func NewEmbeddedPromptProvider() *EmbeddedPromptProvider {
+	return &EmbeddedPromptProvider{fs: embeddedFiles}
 }
 
-// ReadPrompt reads an embedded prompt file
 func (p *EmbeddedPromptProvider) ReadPrompt(ctx context.Context, promptName string) (*string, error) {
-	// Get the package name (similar to namespace in C#)
-	pkgPath := path.Dir(reflect.TypeOf(EmbeddedPromptProvider{}).PkgPath())
-	if pkgPath == "" {
-		return nil, errors.New("unable to determine package path")
-	}
-
-	// Construct the file path
 	fileName := fmt.Sprintf("%s.txt", promptName)
-	filePath := path.Join(pkgPath, fileName)
-
-	// Read the embedded file
-	file, err := p.fs.Open(filePath)
+	content, err := p.fs.ReadFile(fileName)
 	if err != nil {
-		return nil, fmt.Errorf("resource %s not found: %w", filePath, err)
+		return nil, fmt.Errorf("resource %s not found: %w", fileName, err)
 	}
-	defer file.Close()
 
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read resource %s: %w", filePath, err)
-	}
 	result := string(content)
 	return &result, nil
 }
