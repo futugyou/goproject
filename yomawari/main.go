@@ -78,4 +78,5 @@ func main() {
 
 	var _ pipeline.IPipelineOrchestrator = (*corepipeline.BaseOrchestrator)(nil)
 	var _ pipeline.IPipelineOrchestrator = (*corepipeline.DistributedPipelineOrchestrator)(nil)
+	var _ pipeline.IPipelineOrchestrator = (*corepipeline.InProcessPipelineOrchestrator)(nil)
 }
