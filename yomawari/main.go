@@ -77,4 +77,5 @@ func main() {
 	var _ memorystorage.IMemoryDb = (*corememorystorage.SimpleVectorDb)(nil)
 
 	var _ pipeline.IPipelineOrchestrator = (*corepipeline.BaseOrchestrator)(nil)
+	var _ pipeline.IPipelineOrchestrator = (*corepipeline.DistributedPipelineOrchestrator)(nil)
 }
