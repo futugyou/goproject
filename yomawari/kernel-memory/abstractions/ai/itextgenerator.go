@@ -24,5 +24,5 @@ type TextGenerationOptions struct {
 	MaxTokens            *int64
 	StopSequences        []string
 	ResultsPerPrompt     int64
-	TokenSelectionBiases map[string]float32
+	TokenSelectionBiases map[int]float32
 }

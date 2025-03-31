@@ -16,17 +16,17 @@ type SearchClientConfig struct {
 	PresencePenalty       float64         `json:"presence_penalty"`
 	FrequencyPenalty      float64         `json:"frequency_penalty"`
 	StopSequences         []string        `json:"stop_sequences"`
-	TokenSelectionBiases  map[int]float64 `json:"token_selection_biases"`
+	TokenSelectionBiases  map[int]float32 `json:"token_selection_biases"`
 	UseContentModeration  bool            `json:"use_content_moderation"`
 	ModeratedAnswer       string          `json:"moderated_answer"`
 }
 
 func NewSearchClientConfig() *SearchClientConfig {
 	return &SearchClientConfig{
-		MaxAskPromptSize:      -1,
-		MaxMatchesCount:       100,
-		AnswerTokens:          300,
-		EmptyAnswer:           "INFO NOT FOUND",
+		MaxAskPromptSize: -1,
+		MaxMatchesCount:  100,
+		AnswerTokens:     300,
+		EmptyAnswer:      "INFO NOT FOUND",
 		// "==== [File:{{$source}};Relevance:{{$relevance}}]:\n{{$content}}",
 		FactTemplate:          "==== [File:{{$source}};Relevance:{{$relevance}}]:\n{{$content}}",
 		IncludeDuplicateFacts: false,
@@ -35,7 +35,7 @@ func NewSearchClientConfig() *SearchClientConfig {
 		PresencePenalty:       0,
 		FrequencyPenalty:      0,
 		StopSequences:         []string{},
-		TokenSelectionBiases:  make(map[int]float64),
+		TokenSelectionBiases:  make(map[int]float32),
 		UseContentModeration:  true,
 		ModeratedAnswer:       "Sorry, the generated content contains unsafe or inappropriate information.",
 	}

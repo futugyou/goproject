@@ -124,3 +124,11 @@ func (s *SearchClientResult) Stop() *SearchClientResult {
 	s.State = Stop
 	return s
 }
+
+var trimChars = ".\"'`~!?@#$%^+*_-=|\\/()[]{}<>"
+
+func ValueIsEquivalentTo(value, target string) bool {
+	value = strings.Trim(value, trimChars)
+	target = strings.Trim(target, trimChars)
+	return strings.EqualFold(value, target)
+}
