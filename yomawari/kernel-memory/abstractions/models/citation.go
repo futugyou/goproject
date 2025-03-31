@@ -14,10 +14,10 @@ type Citation struct {
 }
 
 type Partition struct {
-	Text            string        `json:"text"`
-	Relevance       float64       `json:"relevance"`
-	PartitionNumber int64         `json:"partitionNumber"`
-	SectionNumber   int64         `json:"sectionNumber"`
-	LastUpdate      time.Time     `json:"lastUpdate"`
-	Tags            TagCollection `json:"tags"`
+	Text            string         `json:"text"`
+	Relevance       float64        `json:"relevance"`
+	PartitionNumber int64          `json:"partitionNumber"`
+	SectionNumber   int64          `json:"sectionNumber"`
+	LastUpdate      time.Time      `json:"lastUpdate"`
+	Tags            *TagCollection `json:"tags"`
 }

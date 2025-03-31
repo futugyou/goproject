@@ -68,7 +68,7 @@ func (a *AnswerGenerator) preparePrompt(question string, facts string, context a
 	return prompt
 }
 
-func (s *AnswerGenerator) GenerateAnswerAsync(ctx context.Context, question string, result *SearchClientResult, context aicontext.IContext) <-chan models.MemoryAnswer {
+func (s *AnswerGenerator) GenerateAnswer(ctx context.Context, question string, result *SearchClientResult, context aicontext.IContext) <-chan models.MemoryAnswer {
 	out := make(chan models.MemoryAnswer)
 	go func() {
 		defer close(out)

@@ -16,15 +16,10 @@ const (
 )
 
 const (
-	Continue SearchState = iota
-	SkipRecord
-	Stop
+	SearchStateContinue SearchState = iota
+	SearchStateSkipRecord
+	SearchStateStop
 )
-
-type SearchResult struct {
-	Query   string
-	Results []models.Citation
-}
 
 type SearchClientResult struct {
 	Mode                     SearchMode
@@ -36,7 +31,7 @@ type SearchClientResult struct {
 	NoQuestionResult         *models.MemoryAnswer
 	UnsafeAnswerResult       *models.MemoryAnswer
 	InsufficientTokensResult *models.MemoryAnswer
-	SearchResult             SearchResult
+	SearchResult             *models.SearchResult
 	Facts                    strings.Builder
 	FactsAvailableCount      int
 	FactsUsedCount           int
@@ -94,7 +89,7 @@ func NewSearchResultInstance(query string, maxSearchResults int) *SearchClientRe
 	return &SearchClientResult{
 		Mode:           SearchModeSearch,
 		MaxRecordCount: maxSearchResults,
-		SearchResult: SearchResult{
+		SearchResult: &models.SearchResult{
 			Query:   query,
 			Results: []models.Citation{},
 		},
@@ -116,12 +111,12 @@ func (s *SearchClientResult) AddTokenUsageToStaticResults(tokenUsage models.Toke
 }
 
 func (s *SearchClientResult) SkipRecord() *SearchClientResult {
-	s.State = SkipRecord
+	s.State = SearchStateSkipRecord
 	return s
 }
 
 func (s *SearchClientResult) Stop() *SearchClientResult {
-	s.State = Stop
+	s.State = SearchStateStop
 	return s
 }
 
