@@ -18,7 +18,7 @@ require (
 	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-playground/validator/v10 v10.25.0
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-slug v0.16.5
