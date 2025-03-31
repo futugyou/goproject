@@ -11,6 +11,7 @@ import (
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/memorystorage"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/pipeline"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/prompts"
+	"github.com/futugyou/yomawari/kernel-memory/abstractions/search"
 	"github.com/futugyou/yomawari/kernel-memory/extensions/tiktoken"
 
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/ai"
@@ -23,6 +24,7 @@ import (
 	corememorystorage "github.com/futugyou/yomawari/kernel-memory/core/memorystorage"
 	corepipeline "github.com/futugyou/yomawari/kernel-memory/core/pipeline"
 	coreprompts "github.com/futugyou/yomawari/kernel-memory/core/prompts"
+	coresearch "github.com/futugyou/yomawari/kernel-memory/core/search"
 )
 
 func main() {
@@ -81,4 +83,6 @@ func main() {
 	var _ pipeline.IPipelineOrchestrator = (*corepipeline.InProcessPipelineOrchestrator)(nil)
 
 	var _ pipeline.IQueue = (*corepipeline.SimpleQueues)(nil)
+
+	var _ search.ISearchClient = (*coresearch.SearchClient)(nil)
 }
