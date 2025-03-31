@@ -35,19 +35,14 @@ func NewOpenAIAssistantClient(threads *rawopenai.BetaThreadService, assistantId 
 func (client *OpenAIAssistantClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
 	originalResponse := client.GetStreamingResponse(ctx, chatMessages, options)
 	updates := []chatcompletion.ChatResponseUpdate{}
-	var err error
-	go func() {
-		for msg := range originalResponse {
-			if msg.Err != nil {
-				err = msg.Err
-				return
-			}
-			updates = append(updates, *msg.Update)
+
+	for msg := range originalResponse {
+		if msg.Err != nil {
+			return nil, msg.Err
 		}
-	}()
-	if err != nil {
-		return nil, err
+		updates = append(updates, *msg.Update)
 	}
+
 	chatResponse := chatcompletion.ToChatResponse(updates)
 	return &chatResponse, nil
 }
