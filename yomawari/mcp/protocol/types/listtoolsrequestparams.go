@@ -1,5 +1,5 @@
 package types
 
 type ListToolsRequestParams struct {
-	PaginatedRequestParams
+	PaginatedRequestParams `json:",inline"`
 }

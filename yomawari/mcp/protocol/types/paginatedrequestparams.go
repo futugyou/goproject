@@ -1,6 +1,6 @@
 package types
 
 type PaginatedRequestParams struct {
-	RequestParams
-	Cursor *string `json:"cursor"`
+	RequestParams `json:",inline"`
+	Cursor        *string `json:"cursor"`
 }

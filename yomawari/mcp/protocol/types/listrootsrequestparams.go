@@ -1,5 +1,5 @@
 package types
 
 type ListRootsRequestParams struct {
-	RequestParams
+	RequestParams `json:",inline"`
 }

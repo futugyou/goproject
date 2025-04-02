@@ -1,6 +1,8 @@
 package types
 
+import "github.com/futugyou/yomawari/mcp/protocol/messages"
+
 type ListResourceTemplatesResult struct {
-	PaginatedResult
-	ResourceTemplates []ResourceTemplate `json:"resourceTemplates"`
+	messages.PaginatedResult `json:",inline"`
+	ResourceTemplates        []ResourceTemplate `json:"resourceTemplates"`
 }

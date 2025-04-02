@@ -1,6 +1,6 @@
 package types
 
 type ReadResourceRequestParams struct {
-	RequestParams
-	Uri *string `json:"uri"`
+	RequestParams `json:",inline"`
+	Uri           *string `json:"uri"`
 }

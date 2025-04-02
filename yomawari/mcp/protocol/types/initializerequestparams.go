@@ -1,7 +1,7 @@
 package types
 
 type InitializeRequestParams struct {
-	RequestParams
+	RequestParams   `json:",inline"`
 	ProtocolVersion string              `json:"protocolVersion"`
 	Capabilities    *ClientCapabilities `json:"capabilities"`
 	ClientInfo      Implementation      `json:"clientInfo"`

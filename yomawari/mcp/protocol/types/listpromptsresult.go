@@ -1,6 +1,8 @@
 package types
 
+import "github.com/futugyou/yomawari/mcp/protocol/messages"
+
 type ListPromptsResult struct {
-	PaginatedResult
-	Prompts []Prompt `json:"prompts"`
+	messages.PaginatedResult `json:",inline"`
+	Prompts                  []Prompt `json:"prompts"`
 }

@@ -2,24 +2,24 @@ package types
 
 import "encoding/json"
 
-type BlobResourceContents struct {
+type TextResourceContents struct {
 	BaseResourceContents `json:",inline"`
-	Blob                 string `json:"blob"`
+	Text                 string `json:"text"`
 }
 
-func (b BlobResourceContents) MarshalJSON() ([]byte, error) {
-	type Alias BlobResourceContents
+func (b TextResourceContents) MarshalJSON() ([]byte, error) {
+	type Alias TextResourceContents
 	return json.Marshal(&struct {
 		Alias
 		Type string `json:"type"`
 	}{
 		Alias: Alias(b),
-		Type:  "blob",
+		Type:  "text",
 	})
 }
 
-func (b *BlobResourceContents) UnmarshalJSON(data []byte) error {
-	type Alias BlobResourceContents
+func (b *TextResourceContents) UnmarshalJSON(data []byte) error {
+	type Alias TextResourceContents
 	aux := &struct {
 		*Alias
 	}{

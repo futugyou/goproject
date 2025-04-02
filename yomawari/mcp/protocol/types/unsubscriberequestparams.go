@@ -1,6 +1,6 @@
 package types
 
 type UnsubscribeRequestParams struct {
-	RequestParams
-	Uri *string `json:"uri"`
+	RequestParams `json:",inline"`
+	Uri           *string `json:"uri"`
 }

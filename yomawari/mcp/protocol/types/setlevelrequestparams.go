@@ -1,8 +1,8 @@
 package types
 
 type SetLevelRequestParams struct {
-	RequestParams
-	Level LoggingLevel `json:"level"`
+	RequestParams `json:",inline"`
+	Level         LoggingLevel `json:"level"`
 }
 
 type LoggingLevel string

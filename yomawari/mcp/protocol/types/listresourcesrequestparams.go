@@ -1,5 +1,5 @@
 package types
 
 type ListResourcesRequestParams struct {
-	PaginatedRequestParams
+	PaginatedRequestParams `json:",inline"`
 }

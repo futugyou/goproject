@@ -1,5 +1,5 @@
 package types
 
 type ListPromptsRequestParams struct {
-	PaginatedRequestParams
+	PaginatedRequestParams `json:",inline"`
 }

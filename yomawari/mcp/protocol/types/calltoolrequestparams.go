@@ -1,7 +1,7 @@
 package types
 
 type CallToolRequestParams struct {
-	RequestParams
-	Name      string                 `json:"name"`
-	Arguments map[string]interface{} `json:"arguments"`
+	RequestParams `json:",inline"`
+	Name          string                 `json:"name"`
+	Arguments     map[string]interface{} `json:"arguments"`
 }

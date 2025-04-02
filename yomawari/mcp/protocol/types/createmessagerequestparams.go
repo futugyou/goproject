@@ -1,7 +1,7 @@
 package types
 
 type CreateMessageRequestParams struct {
-	RequestParams
+	RequestParams    `json:",inline"`
 	IncludeContext   *ContextInclusion `json:"includeContext"`
 	MaxTokens        *int              `json:"maxTokens"`
 	Messages         []SamplingMessage `json:"messages"`
