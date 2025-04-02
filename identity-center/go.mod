@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/mongo v0.0.0
-	github.com/go-oauth2/oauth2/v4 v4.5.2
+	github.com/go-oauth2/oauth2/v4 v4.5.3
 	github.com/go-session/session/v3 v3.2.1
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
@@ -23,7 +23,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.2 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
