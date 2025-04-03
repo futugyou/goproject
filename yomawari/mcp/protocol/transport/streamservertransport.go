@@ -13,12 +13,14 @@ import (
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
+var _ ITransport = (*StreamServerTransport)(nil)
 var (
 	newlineBytes = []byte("\n")
 )
 
 // StreamServerTransport provides a server transport implemented around a pair of input/output streams.
 type StreamServerTransport struct {
+	TransportBase
 	logger logging.Logger
 
 	inputReader  *bufio.Reader
@@ -31,7 +33,6 @@ type StreamServerTransport struct {
 
 	readLoopCompleted chan struct{}
 	disposed          bool
-	connected         bool
 	connectedMutex    sync.RWMutex
 }
 
@@ -47,6 +48,7 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 	ctx, cancel := context.WithCancel(context.Background())
 
 	t := &StreamServerTransport{
+		TransportBase:     *NewTransportBase(),
 		logger:            logger,
 		inputReader:       bufio.NewReader(inputStream),
 		outputStream:      outputStream,
@@ -61,15 +63,15 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 		t.endpointName = "Server (stream)"
 	}
 
-	t.setConnected(true)
+	t.SetConnected(true)
 	go t.readMessages()
 
 	return t
 }
 
-// SendMessageAsync sends a JSON-RPC message through the transport.
-func (t *StreamServerTransport) SendMessageAsync(message interface{}) error {
-	if !t.isConnected() {
+// SendMessage sends a JSON-RPC message through the transport.
+func (t *StreamServerTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+	if !t.IsConnected() {
 		t.logger.TransportNotConnected(t.endpointName)
 		return errors.New("transport is not connected")
 	}
@@ -125,7 +127,7 @@ func (t *StreamServerTransport) readMessages() {
 				} else {
 					t.logger.TransportReadMessagesFailed(t.endpointName, err)
 				}
-				t.setConnected(false)
+				t.SetConnected(false)
 				return
 			}
 
@@ -135,10 +137,12 @@ func (t *StreamServerTransport) readMessages() {
 
 			t.logger.TransportReceivedMessage(t.endpointName, string(line))
 
-			var message interface{}
-			if err := json.Unmarshal(line, &message); err != nil {
+			var message messages.IJsonRpcMessage
+			if m, err := messages.UnmarshalJsonRpcMessage(line); err != nil {
 				t.logger.TransportMessageParseFailed(t.endpointName, string(line), err)
 				continue
+			} else {
+				message = m
 			}
 
 			messageID := "(no id)"
@@ -149,8 +153,7 @@ func (t *StreamServerTransport) readMessages() {
 
 			t.logger.TransportReceivedMessageParsed(t.endpointName, messageID)
 
-			// In Go, we would typically use channels or callbacks to handle incoming messages
-			// rather than calling WriteMessageAsync directly
+			t.WriteMessage(t.shutdownCtx, message)
 			t.logger.TransportMessageWritten(t.endpointName, messageID)
 		}
 	}
@@ -181,19 +184,19 @@ func (t *StreamServerTransport) Close() error {
 		t.logger.TransportCleanupReadTaskTimeout(t.endpointName)
 	}
 
-	t.setConnected(false)
+	t.SetConnected(false)
 	t.logger.TransportCleanedUp(t.endpointName)
 	return nil
 }
 
-func (t *StreamServerTransport) isConnected() bool {
+func (t *StreamServerTransport) IsConnected() bool {
 	t.connectedMutex.RLock()
 	defer t.connectedMutex.RUnlock()
-	return t.connected
+	return t.isConnected
 }
 
-func (t *StreamServerTransport) setConnected(connected bool) {
+func (t *StreamServerTransport) SetConnected(connected bool) {
 	t.connectedMutex.Lock()
 	defer t.connectedMutex.Unlock()
-	t.connected = connected
+	t.isConnected = connected
 }
