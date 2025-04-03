@@ -12,3 +12,6 @@ type ITransport interface {
 	SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error
 	Close() error
 }
+
+const TransportTypesStdIo string = "stdio"
+const TransportTypesSse string = "sse"
