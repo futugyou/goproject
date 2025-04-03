@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 var (
@@ -77,8 +78,9 @@ func (t *StreamServerTransport) SendMessageAsync(message interface{}) error {
 	defer t.sendLock.Unlock()
 
 	messageID := "(no id)"
-	if msgWithID, ok := message.(interface{ GetID() string }); ok {
-		messageID = msgWithID.GetID()
+	if msgWithID, ok := message.(messages.IJsonRpcMessageWithId); ok {
+		messageWithId := msgWithID.GetId()
+		messageID = messageWithId.String()
 	}
 
 	t.logger.TransportSendingMessage(t.endpointName, messageID)
@@ -140,8 +142,9 @@ func (t *StreamServerTransport) readMessages() {
 			}
 
 			messageID := "(no id)"
-			if msgWithID, ok := message.(interface{ GetID() string }); ok {
-				messageID = msgWithID.GetID()
+			if msgWithID, ok := message.(messages.IJsonRpcMessageWithId); ok {
+				messageWithId := msgWithID.GetId()
+				messageID = messageWithId.String()
 			}
 
 			t.logger.TransportReceivedMessageParsed(t.endpointName, messageID)
