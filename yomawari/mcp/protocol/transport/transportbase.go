@@ -24,6 +24,11 @@ func (t *TransportBase) Close() error {
 	panic("unimplemented")
 }
 
+// SendMessageAsync implements ITransport.
+func (t *TransportBase) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+	panic("unimplemented")
+}
+
 // IsConnected implements ITransport.
 func (t *TransportBase) IsConnected() bool {
 	return t.isConnected
@@ -32,11 +37,6 @@ func (t *TransportBase) IsConnected() bool {
 // MessageReader implements ITransport.
 func (t *TransportBase) MessageReader() <-chan messages.IJsonRpcMessage {
 	return t.messageChannel
-}
-
-// SendMessageAsync implements ITransport.
-func (t *TransportBase) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
-	panic("unimplemented")
 }
 
 func (t *TransportBase) WriteMessage(ctx context.Context, message messages.IJsonRpcMessage) error {

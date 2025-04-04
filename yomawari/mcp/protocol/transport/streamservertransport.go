@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -73,7 +73,7 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 func (t *StreamServerTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
 	if !t.IsConnected() {
 		t.logger.TransportNotConnected(t.endpointName)
-		return errors.New("transport is not connected")
+		return fmt.Errorf("transport is not connected")
 	}
 
 	t.sendLock.Lock()
@@ -90,17 +90,17 @@ func (t *StreamServerTransport) SendMessage(ctx context.Context, message message
 	data, err := json.Marshal(message)
 	if err != nil {
 		t.logger.TransportSendFailed(t.endpointName, messageID, err)
-		return errors.New("failed to marshal message")
+		return fmt.Errorf("failed to marshal message")
 	}
 
 	if _, err := t.outputStream.Write(data); err != nil {
 		t.logger.TransportSendFailed(t.endpointName, messageID, err)
-		return errors.New("failed to write message")
+		return fmt.Errorf("failed to write message")
 	}
 
 	if _, err := t.outputStream.Write(newlineBytes); err != nil {
 		t.logger.TransportSendFailed(t.endpointName, messageID, err)
-		return errors.New("failed to write newline")
+		return fmt.Errorf("failed to write newline")
 	}
 
 	t.logger.TransportSentMessage(t.endpointName, messageID)
