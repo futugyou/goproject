@@ -1,4 +1,4 @@
-package mcp
+package messages
 
 type ProgressNotificationValue struct {
 	Progress float32

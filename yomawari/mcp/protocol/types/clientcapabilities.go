@@ -3,7 +3,7 @@ package types
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp"
+	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 // ClientCapabilities represents the capabilities supported by the client.
@@ -26,5 +26,5 @@ type SamplingCapability struct {
 
 // ProgressReporter represents a progress notification mechanism
 type ProgressReporter interface {
-	Report(value mcp.ProgressNotificationValue)
+	Report(value messages.ProgressNotificationValue)
 }

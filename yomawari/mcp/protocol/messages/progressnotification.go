@@ -3,13 +3,11 @@ package messages
 import (
 	"encoding/json"
 	"errors"
-
-	"github.com/futugyou/yomawari/mcp"
 )
 
 type ProgressNotification struct {
 	ProgressToken    *ProgressToken
-	Progress         *mcp.ProgressNotificationValue
+	Progress         *ProgressNotificationValue
 	NotificationType string
 }
 
@@ -39,7 +37,7 @@ func (p *ProgressNotification) UnmarshalJSON(data []byte) error {
 	}
 
 	p.ProgressToken = &token
-	p.Progress = &mcp.ProgressNotificationValue{
+	p.Progress = &ProgressNotificationValue{
 		Progress: raw.Progress,
 		Total:    raw.Total,
 		Message:  raw.Message,
