@@ -32,26 +32,41 @@ func ParseSSEStream(ctx context.Context, reader io.Reader) <-chan SseItem {
 		scanner := bufio.NewScanner(reader)
 		var eventType, data string
 
-		for scanner.Scan() {
-			line := scanner.Text()
-			if line == "" {
-				if data != "" {
-					ch <- SseItem{EventType: eventType, Data: data}
-					data = ""
+		lines := make(chan string)
+
+		go func() {
+			defer close(lines)
+			for scanner.Scan() {
+				select {
+				case lines <- scanner.Text():
+				case <-ctx.Done():
+					return
 				}
-				continue
 			}
+		}()
 
-			if strings.HasPrefix(line, "event: ") {
-				eventType = strings.TrimPrefix(line, "event: ")
-			} else if strings.HasPrefix(line, "data: ") {
-				data += strings.TrimPrefix(line, "data: ") + "\n"
-			}
-
+		for {
 			select {
 			case <-ctx.Done():
 				return
-			default:
+			case line, ok := <-lines:
+				if !ok {
+					return
+				}
+
+				if line == "" {
+					if data != "" {
+						ch <- SseItem{EventType: eventType, Data: strings.TrimSuffix(data, "\n")}
+						data = ""
+					}
+					continue
+				}
+
+				if strings.HasPrefix(line, "event: ") {
+					eventType = strings.TrimPrefix(line, "event: ")
+				} else if strings.HasPrefix(line, "data: ") {
+					data += strings.TrimPrefix(line, "data: ") + "\n"
+				}
 			}
 		}
 	}()
