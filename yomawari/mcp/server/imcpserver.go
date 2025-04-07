@@ -9,7 +9,8 @@ import (
 
 type IMcpServer interface {
 	mcp.IMcpEndpoint
-	GetClientCapabilities() types.ClientCapabilities
-	GetClientInfo() types.Implementation
+	GetClientCapabilities() *types.ClientCapabilities
+	GetClientInfo() *types.Implementation
+	GetMcpServerOptions()*McpServerOptions
 	Run(ctx context.Context) error
 }
