@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/futugyou/yomawari/generative-ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/generative-ai/abstractions/embeddings"
-	"github.com/futugyou/yomawari/generative-ai/ollama"
-	"github.com/futugyou/yomawari/generative-ai/openai"
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/embeddings"
+	"github.com/futugyou/yomawari/extensions-ai/ollama"
+	"github.com/futugyou/yomawari/extensions-ai/openai"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/context"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/dataformats"
 	"github.com/futugyou/yomawari/kernel-memory/abstractions/documentstorage"
