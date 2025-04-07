@@ -8,9 +8,10 @@ import (
 
 // ClientCapabilities represents the capabilities supported by the client.
 type ClientCapabilities struct {
-	Experimental map[string]interface{} `json:"experimental,omitempty"`
-	Roots        *RootsCapability       `json:"roots,omitempty"`
-	Sampling     *SamplingCapability    `json:"sampling,omitempty"`
+	Experimental         map[string]interface{} `json:"experimental,omitempty"`
+	Roots                *RootsCapability       `json:"roots,omitempty"`
+	Sampling             *SamplingCapability    `json:"sampling,omitempty"`
+	NotificationHandlers []map[string]func(context.Context, messages.JsonRpcNotification) error
 }
 
 // RootsCapability represents the roots capability configuration.
