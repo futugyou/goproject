@@ -19,13 +19,13 @@ type ResourcesCapability struct {
 
 // LoggingCapability represents the logging capability configuration.
 type LoggingCapability struct {
-	SetLoggingLevelHandler func(ctx context.Context, req RequestContext[types.SetLevelRequestParams]) (*types.EmptyResult, error) `json:"-"`
+	SetLoggingLevelHandler func(ctx context.Context, req RequestContext[*types.SetLevelRequestParams]) (*types.EmptyResult, error) `json:"-"`
 }
 
 // ToolsCapability represents the tools capability configuration.
 type ToolsCapability struct {
-	ListChanged      *bool                                                                                                       `json:"listChanged,omitempty"`
-	ListToolsHandler func(ctx context.Context, req RequestContext[types.ListToolsRequestParams]) (*types.ListToolsResult, error) `json:"-"`
-	CallToolHandler  func(ctx context.Context, req RequestContext[types.CallToolRequestParams]) (*types.CallToolResponse, error) `json:"-"`
-	ToolCollection   McpServerPrimitiveCollection[*McpServerTool]                                                                `json:"-"`
+	ListChanged      *bool                                                                                                        `json:"listChanged,omitempty"`
+	ListToolsHandler func(ctx context.Context, req RequestContext[*types.ListToolsRequestParams]) (*types.ListToolsResult, error) `json:"-"`
+	CallToolHandler  func(ctx context.Context, req RequestContext[*types.CallToolRequestParams]) (*types.CallToolResponse, error) `json:"-"`
+	ToolCollection   McpServerPrimitiveCollection[*McpServerTool]                                                                 `json:"-"`
 }

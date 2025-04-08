@@ -10,9 +10,8 @@ import (
 type McpServerOptions struct {
 	ServerInfo            types.Implementation
 	Capabilities          *ServerCapabilities
-	ProtocolVersion       string        // "2024-11-05" 
+	ProtocolVersion       string        // "2024-11-05"
 	InitializationTimeout time.Duration //  60 sec.
 	ServerInstructions    string
-	GetCompletionHandler  func(context.Context, RequestContext[types.CompleteRequestParams]) types.CompleteResult
+	GetCompletionHandler  func(context.Context, RequestContext[*types.CompleteRequestParams]) types.CompleteResult
 }
- 

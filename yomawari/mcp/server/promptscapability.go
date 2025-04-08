@@ -8,8 +8,8 @@ import (
 
 // PromptsCapability represents the prompts capability configuration.
 type PromptsCapability struct {
-	ListChanged        *bool                                                                                            `json:"listChanged,omitempty"`
-	ListPromptsHandler func(ctx context.Context, req *types.ListPromptsRequestParams) (*types.ListPromptsResult, error) `json:"-"`
-	GetPromptHandler   func(ctx context.Context, req *types.GetPromptRequestParams) (*types.GetPromptResult, error)     `json:"-"`
-	PromptCollection   *McpServerPrimitiveCollection[*McpServerPrompt]                                                  `json:"-"`
+	ListChanged        *bool                                                                                                    `json:"listChanged,omitempty"`
+	PromptCollection   *McpServerPrimitiveCollection[*McpServerPrompt]                                                          `json:"-"`
+	ListPromptsHandler func(context.Context, RequestContext[*types.ListPromptsRequestParams]) (*types.ListPromptsResult, error) `json:"-"`
+	GetPromptHandler   func(context.Context, RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error)     `json:"-"`
 }
