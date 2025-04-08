@@ -9,6 +9,7 @@ import (
 type AIFunction interface {
 	abstractions.AITool
 	Invoke(ctx context.Context, arguments map[string]interface{}) (interface{}, error)
+	GetJsonSchema() map[string]interface{}
 }
 
 type BaseAIFunction struct {
@@ -18,6 +19,10 @@ type BaseAIFunction struct {
 
 func (t BaseAIFunction) GetParameters() map[string]interface{} {
 	return t.arguments
+}
+
+func (t BaseAIFunction) GetJsonSchema() map[string]interface{} {
+	panic("not implemented")
 }
 
 func (f *BaseAIFunction) Invoke(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {

@@ -1,6 +1,6 @@
 package server
 
 type RequestContext[TParams any] struct {
-	Params *TParams
+	Params TParams
 	Server IMcpServer
 }

@@ -19,7 +19,7 @@ func (m *McpServerPrompt) GetProtocolPrompt() types.Prompt {
 	return m.ProtocolPrompt
 }
 
-func (m *McpServerPrompt) Get(context.Context, RequestContext[types.GetPromptRequestParams]) (*types.GetPromptResult, error) {
+func (m *McpServerPrompt) Get(context.Context, RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error) {
 	panic("implement me")
 }
 
