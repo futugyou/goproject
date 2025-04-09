@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
 	"github.com/futugyou/yomawari/mcp"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
-
-const RequestContextKey string = "__temporary_RequestContext"
 
 type AIFunctionMcpServerPrompt struct {
 	*McpServerPrompt
@@ -58,12 +57,15 @@ func (m *AIFunctionMcpServerPrompt) Get(ctx context.Context, request RequestCont
 	default:
 	}
 
-	// TODO: Once we shift to the real AIFunctionFactory, the request should be passed via AIFunctionArguments.Context.
-	arguments := map[string]interface{}{}
-	if request.Params.Arguments != nil {
-		arguments = request.Params.Arguments
+	arguments := functions.AIFunctionArguments{
+		Context: map[interface{}]interface{}{reflect.TypeOf(request): request},
 	}
-	arguments["RequestContextKey"] = request
+
+	if request.Params.Arguments != nil {
+		for key, v := range request.Params.Arguments {
+			arguments.Set(key, v)
+		}
+	}
 
 	result, err := m.AIFunction.Invoke(ctx, arguments)
 	if err != nil {

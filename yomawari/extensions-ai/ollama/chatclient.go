@@ -14,6 +14,7 @@ import (
 	"github.com/futugyou/yomawari/extensions-ai/abstractions"
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
 	"github.com/google/uuid"
 )
 
@@ -463,7 +464,7 @@ func ToFunctionCallContent(ollamaFunctionToolCall OllamaFunctionToolCall) conten
 	return contents.FunctionCallContent{
 		CallId:    uuid.New().String(),
 		Name:      ollamaFunctionToolCall.Name,
-		Arguments: ollamaFunctionToolCall.Arguments,
+		Arguments: *functions.NewAIFunctionArgumentsFromMap(ollamaFunctionToolCall.Arguments),
 	}
 }
 

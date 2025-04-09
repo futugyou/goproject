@@ -8,28 +8,28 @@ import (
 
 type AIFunction interface {
 	abstractions.AITool
-	Invoke(ctx context.Context, arguments map[string]interface{}) (interface{}, error)
+	Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error)
 	GetJsonSchema() map[string]interface{}
 }
 
 type BaseAIFunction struct {
 	abstractions.BaseAITool
-	arguments map[string]interface{}
+	arguments AIFunctionArguments
 }
 
 func (t BaseAIFunction) GetParameters() map[string]interface{} {
-	return t.arguments
+	return map[string]interface{}{}
 }
 
 func (t BaseAIFunction) GetJsonSchema() map[string]interface{} {
 	panic("not implemented")
 }
 
-func (f *BaseAIFunction) Invoke(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {
+func (f *BaseAIFunction) Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
 	return f.InvokeCore(ctx, arguments)
 }
 
-func (f *BaseAIFunction) InvokeCore(ctx context.Context, arguments map[string]interface{}) (interface{}, error) {
+func (f *BaseAIFunction) InvokeCore(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
 	panic("InvokeCore must be implemented by subclass")
 }
 
@@ -43,6 +43,6 @@ func NewExampleFunction() *ExampleFunction {
 	}
 }
 
-func (f *ExampleFunction) InvokeCore(arguments map[string]interface{}, ctx context.Context) (interface{}, error) {
+func (f *ExampleFunction) InvokeCore(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
 	return "run ExampleFunction", nil
 }
