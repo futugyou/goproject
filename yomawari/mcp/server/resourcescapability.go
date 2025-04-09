@@ -26,6 +26,6 @@ type LoggingCapability struct {
 type ToolsCapability struct {
 	ListChanged      *bool                                                                                                        `json:"listChanged,omitempty"`
 	ListToolsHandler func(ctx context.Context, req RequestContext[*types.ListToolsRequestParams]) (*types.ListToolsResult, error) `json:"-"`
-	CallToolHandler  func(ctx context.Context, req RequestContext[*types.CallToolRequestParams]) (*types.CallToolResponse, error) `json:"-"`
+	CallToolHandler  func(ctx context.Context, req RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error)   `json:"-"`
 	ToolCollection   McpServerPrimitiveCollection[*McpServerTool]                                                                 `json:"-"`
 }

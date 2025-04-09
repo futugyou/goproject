@@ -8,7 +8,7 @@ import (
 
 type McpServerHandlers struct {
 	ListToolsHandler   func(context.Context, RequestContext[*types.ListToolsRequestParams]) (*types.ListToolsResult, error)
-	CallToolHandler    func(context.Context, RequestContext[*types.CallToolRequestParams]) (*types.CallToolResponse, error)
+	CallToolHandler    func(context.Context, RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error)
 	ListPromptsHandler func(context.Context, RequestContext[*types.ListPromptsRequestParams]) (*types.ListPromptsResult, error)
 	GetPromptHandler   func(context.Context, RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error)
 
