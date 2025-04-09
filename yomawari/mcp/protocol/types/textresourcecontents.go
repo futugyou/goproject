@@ -11,10 +11,10 @@ func (b TextResourceContents) MarshalJSON() ([]byte, error) {
 	type Alias TextResourceContents
 	return json.Marshal(&struct {
 		Alias
-		Type string `json:"type"`
+		ResourceType string `json:"resource_type"`
 	}{
-		Alias: Alias(b),
-		Type:  "text",
+		Alias:        Alias(b),
+		ResourceType: "text",
 	})
 }
 

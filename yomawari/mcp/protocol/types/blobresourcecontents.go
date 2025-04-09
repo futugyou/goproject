@@ -11,10 +11,10 @@ func (b BlobResourceContents) MarshalJSON() ([]byte, error) {
 	type Alias BlobResourceContents
 	return json.Marshal(&struct {
 		Alias
-		Type string `json:"type"`
+		ResourceType string `json:"resource_type"`
 	}{
-		Alias: Alias(b),
-		Type:  "blob",
+		Alias:        Alias(b),
+		ResourceType: "blob",
 	})
 }
 

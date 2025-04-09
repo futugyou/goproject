@@ -47,7 +47,9 @@ func (c *Content) UnmarshalJSON(data []byte) error {
 		var typeInfo struct {
 			Type string `json:"type"`
 		}
-		_ = json.Unmarshal(aux.Resource, &typeInfo)
+		if err := json.Unmarshal(aux.Resource, &typeInfo); err != nil {
+			return fmt.Errorf("failed to get resource type: %w", err)
+		}
 
 		factory, ok := resourceFactories[typeInfo.Type]
 		if !ok {
