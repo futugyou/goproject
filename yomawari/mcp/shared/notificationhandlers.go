@@ -8,7 +8,7 @@ import (
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
-type NotificationHandler func(notification *messages.JsonRpcNotification, ctx context.Context) error
+type NotificationHandler func(ctx context.Context, notification *messages.JsonRpcNotification) error
 
 type NotificationHandlers struct {
 	mu       sync.RWMutex
@@ -68,7 +68,7 @@ func (nh *NotificationHandlers) registerLocked(method string, handler Notificati
 	return reg
 }
 
-func (nh *NotificationHandlers) InvokeHandlers(method string, notification *messages.JsonRpcNotification, ctx context.Context) error {
+func (nh *NotificationHandlers) InvokeHandlers(ctx context.Context, method string, notification *messages.JsonRpcNotification) error {
 	nh.mu.RLock()
 	head, exists := nh.handlers[method]
 	if !exists {
@@ -86,7 +86,7 @@ func (nh *NotificationHandlers) InvokeHandlers(method string, notification *mess
 
 	var errs []error
 	for _, reg := range handlers {
-		if err := reg.invoke(notification, ctx); err != nil {
+		if err := reg.invoke(ctx, notification); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -115,9 +115,9 @@ func (r *registration) isDisposed() bool {
 	return r.disposed
 }
 
-func (r *registration) invoke(notification *messages.JsonRpcNotification, ctx context.Context) error {
+func (r *registration) invoke(ctx context.Context, notification *messages.JsonRpcNotification) error {
 	if !r.temporary {
-		return r.handler(notification, ctx)
+		return r.handler(ctx, notification)
 	}
 
 	r.activeMu.Lock()
@@ -129,7 +129,7 @@ func (r *registration) invoke(notification *messages.JsonRpcNotification, ctx co
 	r.activeMu.Unlock()
 
 	defer r.activeWg.Done()
-	return r.handler(notification, ctx)
+	return r.handler(ctx, notification)
 }
 
 func (r *registration) dispose() {
