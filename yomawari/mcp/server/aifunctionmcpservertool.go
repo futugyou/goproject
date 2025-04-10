@@ -35,8 +35,8 @@ func (a *AIFunctionMcpServerTool) GetProtocolTool() *types.Tool {
 	return a.ProtocolTool
 }
 
-// InvokeAsync implements IMcpServerTool.
-func (m *AIFunctionMcpServerTool) InvokeAsync(ctx context.Context, request RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error) {
+// Invoke implements IMcpServerTool.
+func (m *AIFunctionMcpServerTool) Invoke(ctx context.Context, request RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error) {
 
 	if m == nil || m.AIFunction == nil {
 		return nil, fmt.Errorf("ai function is nil")
