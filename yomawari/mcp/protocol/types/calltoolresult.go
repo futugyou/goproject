@@ -23,3 +23,24 @@ type CallToolResult struct {
 	// If not set, this is assumed to be false (the call was successful).
 	IsError *bool `json:"isError,omitempty" yaml:"isError,omitempty" mapstructure:"isError,omitempty"`
 }
+
+func NewCallToolResult() *CallToolResult {
+	return &CallToolResult{
+		Meta:    make(map[string]interface{}),
+		Content: make([]Content, 0),
+	}
+}
+
+func NewCallToolResultWithContents(contents []Content) *CallToolResult {
+	return &CallToolResult{
+		Meta:    make(map[string]interface{}),
+		Content: contents,
+	}
+}
+
+func NewCallToolResultWithContent(content Content) *CallToolResult {
+	return &CallToolResult{
+		Meta:    make(map[string]interface{}),
+		Content: []Content{content},
+	}
+}
