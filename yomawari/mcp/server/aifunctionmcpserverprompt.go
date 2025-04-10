@@ -12,9 +12,29 @@ import (
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
 
+var _ IMcpServerPrompt = (*AIFunctionMcpServerPrompt)(nil)
+
 type AIFunctionMcpServerPrompt struct {
-	*McpServerPrompt
-	AIFunction functions.AIFunction
+	AIFunction     functions.AIFunction
+	ProtocolPrompt *types.Prompt
+}
+
+// GetName implements IMcpServerPrompt.
+func (m *AIFunctionMcpServerPrompt) GetName() string {
+	if m == nil || m.AIFunction == nil {
+		return ""
+	}
+
+	return m.AIFunction.GetName()
+}
+
+// GetProtocolPrompt implements IMcpServerPrompt.
+func (m *AIFunctionMcpServerPrompt) GetProtocolPrompt() *types.Prompt {
+	if m == nil {
+		return nil
+	}
+
+	return m.ProtocolPrompt
 }
 
 func AIFunctionMcpServerPromptCreate(function functions.AIFunction, options McpServerPromptCreateOptions) *AIFunctionMcpServerPrompt {
@@ -25,7 +45,7 @@ func AIFunctionMcpServerPromptCreate(function functions.AIFunction, options McpS
 		// TODO: fill args
 	}
 
-	prompt := types.Prompt{
+	prompt := &types.Prompt{
 		Arguments:   args,
 		Description: options.Description,
 	}
@@ -35,10 +55,8 @@ func AIFunctionMcpServerPromptCreate(function functions.AIFunction, options McpS
 	}
 
 	return &AIFunctionMcpServerPrompt{
-		McpServerPrompt: &McpServerPrompt{
-			ProtocolPrompt: prompt,
-		},
-		AIFunction: function,
+		ProtocolPrompt: prompt,
+		AIFunction:     function,
 	}
 }
 
