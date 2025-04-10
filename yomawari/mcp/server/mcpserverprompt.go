@@ -9,5 +9,5 @@ import (
 type IMcpServerPrompt interface {
 	IMcpServerPrimitive
 	GetProtocolPrompt() *types.Prompt
-	Get(context.Context, RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error)
+	Get(ctx context.Context, request RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error)
 }
