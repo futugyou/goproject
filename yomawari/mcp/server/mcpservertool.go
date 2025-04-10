@@ -1,11 +1,13 @@
 package server
 
-type McpServerTool struct {
-}
+import (
+	"context"
 
-// GetName implements IMcpServerPrimitive.
-func (m *McpServerTool) GetName() string {
-	panic("unimplemented")
-}
+	"github.com/futugyou/yomawari/mcp/protocol/types"
+)
 
-var _ IMcpServerPrimitive = (*McpServerTool)(nil)
+type IMcpServerTool interface {
+	IMcpServerPrimitive
+	GetProtocolTool() *types.Tool
+	InvokeAsync(ctx context.Context, request RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error)
+}
