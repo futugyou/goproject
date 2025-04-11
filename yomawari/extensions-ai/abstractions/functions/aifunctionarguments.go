@@ -32,6 +32,10 @@ func (a *AIFunctionArguments) Get(key string) (interface{}, bool) {
 	return val, ok
 }
 
+func (a *AIFunctionArguments) GetArguments() map[string]interface{} {
+	return a.arguments
+}
+
 // Set sets the value for a key
 func (a *AIFunctionArguments) Set(key string, value interface{}) {
 	a.arguments[key] = value
