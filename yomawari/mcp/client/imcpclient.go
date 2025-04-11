@@ -16,4 +16,5 @@ type IMcpClient interface {
 	Ping(ctx context.Context) error
 	ListTools(ctx context.Context) ([]McpClientTool, error)
 	CallTool(ctx context.Context, toolName string, arguments map[string]interface{}) (*types.CallToolResult, error)
+	GetPrompt(ctx context.Context, name string, arguments map[string]interface{}) (*types.GetPromptResult, error)
 }
