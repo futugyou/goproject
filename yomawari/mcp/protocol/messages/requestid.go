@@ -10,12 +10,12 @@ type RequestId struct {
 	id any
 }
 
-func NewRequestIdFromString(value string) RequestId {
-	return RequestId{id: value}
+func NewRequestIdFromString(value string) *RequestId {
+	return &RequestId{id: value}
 }
 
-func NewRequestIdFromInt(value int64) RequestId {
-	return RequestId{id: value}
+func NewRequestIdFromInt(value int64) *RequestId {
+	return &RequestId{id: value}
 }
 
 func (r RequestId) IsDefault() bool {
