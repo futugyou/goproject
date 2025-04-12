@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/futugyou/yomawari/mcp"
@@ -21,11 +22,6 @@ var s_serverSessionDuration = mcp.CreateDurationHistogram("mcp.server.session.du
 var s_clientRequestDuration = mcp.CreateDurationHistogram("rpc.client.duration", "Measures the duration of outbound RPC.", true)
 var s_serverRequestDuration = mcp.CreateDurationHistogram("rpc.server.duration", "Measures the duration of inbound RPC.", true)
 
-type responseWrapper struct {
-    cancelFunc context.CancelFunc
-    responseChan chan messages.IJsonRpcMessage
-}
-
 type McpSession struct {
 	_isServer                 bool
 	_transportKind            string
@@ -34,7 +30,7 @@ type McpSession struct {
 	_notificationHandlers     *NotificationHandlers
 	_sessionStartingTimestamp int64
 	_pendingRequests          sync.Map // map[RequestId]*responseWrapper
-	_handlingRequests         sync.Map 
+	_handlingRequests         sync.Map
 	_id                       string
 	_nextRequestId            int64
 	EndpointName              string
@@ -70,6 +66,78 @@ func (m *McpSession) createActivityName(method string) string {
 	}
 
 	return fmt.Sprintf("mcp.%s.%s/%s", s, m._transportKind, method)
+}
+
+func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcRequest) (*messages.JsonRpcResponse, error) {
+	if m == nil || request == nil {
+		return nil, fmt.Errorf("session or request is nil")
+	}
+
+	if !m._transport.IsConnected() {
+		return nil, fmt.Errorf("transport is not connected")
+	}
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
+	durationMetric := s_clientRequestDuration
+	if m._isServer {
+		durationMetric = s_serverRequestDuration
+	}
+
+	method := request.Method
+
+	var startingTimestamp int64 = time.Now().UnixNano()
+	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
+
+	tags := []attribute.KeyValue{}
+	m.addStandardTags(&tags, method)
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+
+	// Set request ID
+	if request.Id == nil {
+		newId := atomic.AddInt64(&m._nextRequestId, 1)
+		request.Id = messages.NewRequestIdFromString(fmt.Sprintf("%s-%d", m._id, newId))
+	}
+
+	ctx, cancelfunc := context.WithCancel(ctx)
+	tcs := NewTaskCompletionSource[messages.IJsonRpcMessage](ctx, cancelfunc)
+	m._pendingRequests.Store(request.Id, tcs)
+
+	m.addStandardTags(&tags, method)
+	addRpcRequestTags(&tags, *request)
+
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+
+	if err := m._transport.SendMessage(ctx, request); err != nil {
+		addExceptionTags(&tags, err)
+		return nil, err
+	}
+
+	RegisterCancellation(ctx, func() {
+		_ = m.SendMessage(ctx, messages.NewJsonRpcNotification(
+			messages.NotificationMethods_CancelledNotification,
+			messages.CancelledNotification{RequestId: *request.Id},
+		))
+	})
+
+	response, err := tcs.Result()
+	if err != nil {
+		addExceptionTags(&tags, err)
+		return nil, err
+	}
+
+	switch resp := response.(type) {
+	case *messages.JsonRpcError:
+		return nil, fmt.Errorf("request failed (server side): %s", resp.Error.Message)
+	case *messages.JsonRpcResponse:
+		return resp, nil
+	}
+
+	return nil, fmt.Errorf("invalid response type")
 }
 
 func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
