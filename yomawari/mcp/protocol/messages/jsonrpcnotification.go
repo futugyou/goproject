@@ -6,6 +6,14 @@ type JsonRpcNotification struct {
 	Params  any    `json:"params,omitempty"`
 }
 
+func NewJsonRpcNotification(method string, params any) *JsonRpcNotification {
+	return &JsonRpcNotification{
+		JsonRpc: "2.0",
+		Method:  method,
+		Params:  params,
+	}
+}
+
 // GetJsonRpc implements IJsonRpcMessage.
 func (j *JsonRpcNotification) GetJsonRpc() string {
 	return "2.0"
