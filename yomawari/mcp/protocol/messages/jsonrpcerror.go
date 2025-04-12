@@ -6,6 +6,17 @@ type JsonRpcError struct {
 	Error   *JsonRpcErrorDetail `json:"error"`
 }
 
+func NewJsonRpcError(id *RequestId, code int, message string, data any) *JsonRpcError {
+	return &JsonRpcError{
+		JsonRpc: "2.0",
+		Id: id,
+		Error: &JsonRpcErrorDetail{
+			Code: code,
+			Message: message,
+			Data: data,
+		},
+	}
+}
 // GetId implements IJsonRpcMessageWithId.
 func (j *JsonRpcError) GetId() *RequestId {
 	return j.Id
