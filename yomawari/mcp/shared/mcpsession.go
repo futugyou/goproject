@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -29,8 +30,8 @@ type McpSession struct {
 	_requestHandlers          *RequestHandlers
 	_notificationHandlers     *NotificationHandlers
 	_sessionStartingTimestamp int64
-	_pendingRequests          sync.Map // map[RequestId]*responseWrapper
-	_handlingRequests         sync.Map
+	_pendingRequests          sync.Map // map[RequestId]*TaskCompletionSource[messages.IJsonRpcMessage]
+	_handlingRequests         sync.Map // map[RequestId]context.CancelFunc
 	_id                       string
 	_nextRequestId            int64
 	EndpointName              string
@@ -57,6 +58,150 @@ func NewMcpSession(isServer bool, transp transport.ITransport, endpointName stri
 		_nextRequestId:            0,
 		EndpointName:              endpointName,
 	}
+}
+
+func (m *McpSession) ProcessMessages(ctx context.Context) error {
+	var processMessage = func(ctx context.Context, message messages.IJsonRpcMessage) error {
+		var messageWithId messages.IJsonRpcMessageWithId
+		if msg, ok := message.(messages.IJsonRpcMessageWithId); ok {
+			messageWithId = msg
+		}
+
+		var combinedCts context.Context
+		var cancelfunc context.CancelFunc
+
+		if messageWithId != nil && messageWithId.GetId() != nil {
+			combinedCts, cancelfunc = context.WithCancel(ctx)
+			id := messageWithId.GetId()
+			m._handlingRequests.Store(*id, cancelfunc)
+		}
+
+		// maybe need maybe not
+		runtime.Gosched()
+
+		callCtx := ctx
+		if combinedCts != nil {
+			callCtx = combinedCts
+		}
+
+		if err := m.handleMessage(callCtx, message); err != nil {
+			isUserCancellation := false
+			if (err == context.Canceled || err == context.DeadlineExceeded) && callCtx.Err() != nil {
+				isUserCancellation = true
+			}
+			if request, ok := message.(*messages.JsonRpcRequest); !isUserCancellation && ok {
+				m._transport.SendMessage(ctx, messages.NewJsonRpcError(request.Id, 500, err.Error(), nil))
+			}
+		}
+		return nil
+	}
+
+	msgChan := m._transport.MessageReader()
+	processor := TaskProcessor[messages.IJsonRpcMessage]{
+		MsgChan:           msgChan,
+		Handler:           processMessage, // func(ctx, msg) error
+		MaxConcurrency:    20,
+		PerMessageTimeout: 10 * time.Second,
+	}
+
+	processor.Run(ctx)
+
+	m._pendingRequests.Range(func(key, value interface{}) bool {
+		if tcs, ok := value.(*TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+			tcs.TrySetError(fmt.Errorf("the server shut down unexpectedly"))
+		}
+		return true
+	})
+
+	return nil
+}
+
+func (m *McpSession) handleMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+	durationMetric := s_clientRequestDuration
+	if m._isServer {
+		durationMetric = s_serverRequestDuration
+	}
+	method := getMethodName(message)
+
+	var startingTimestamp int64 = time.Now().UnixNano()
+	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
+
+	tags := []attribute.KeyValue{}
+	m.addStandardTags(&tags, method)
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+
+	if err := m._transport.SendMessage(ctx, message); err != nil {
+		addExceptionTags(&tags, err)
+		return err
+	}
+
+	var err error
+	switch request := message.(type) {
+	case *messages.JsonRpcRequest:
+		addRpcRequestTags(&tags, *request)
+		err = m.handleRequest(ctx, *request)
+	case *messages.JsonRpcNotification:
+		err = m.handleNotification(ctx, request)
+	case messages.IJsonRpcMessageWithId:
+		err = m.handleMessageWithId(message, request)
+	default:
+	}
+
+	if err != nil {
+		addExceptionTags(&tags, err)
+		return err
+	}
+
+	return nil
+}
+
+func (m *McpSession) handleNotification(ctx context.Context, notification *messages.JsonRpcNotification) error {
+	if notification.Method == messages.NotificationMethods_CancelledNotification {
+		if cn := getCancelledNotificationParams(notification.Params); cn != nil {
+			value, ok := m._handlingRequests.Load(cn.RequestId)
+			if ok {
+				if cancel, ok := value.(context.CancelFunc); ok {
+					cancel()
+				}
+			}
+		}
+	}
+
+	return m._notificationHandlers.InvokeHandlers(ctx, notification.Method, notification)
+}
+
+func (m *McpSession) handleMessageWithId(message messages.IJsonRpcMessage, messageWithId messages.IJsonRpcMessageWithId) error {
+	if messageWithId.GetId() == nil || len(messageWithId.GetId().String()) == 0 {
+		return fmt.Errorf("message with id has no id")
+	}
+	requestid := messageWithId.GetId()
+	value, ok := m._pendingRequests.Load(*requestid)
+	if !ok {
+		return fmt.Errorf("no pending request found for id %s", requestid.String())
+	}
+	if source, ok := value.(*TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+		source.SetResult(message)
+	}
+	return nil
+}
+
+func (m *McpSession) handleRequest(ctx context.Context, request messages.JsonRpcRequest) error {
+	handler, ok := m._requestHandlers.Get(request.Method)
+	if !ok {
+		return fmt.Errorf("no handler found for method %s", request.Method)
+	}
+
+	result, err := handler(ctx, &request)
+	if err != nil {
+		return err
+	}
+
+	msg := messages.NewJsonRpcResponse(request.Id, result)
+	return m._transport.SendMessage(ctx, msg)
+}
+
+func (m *McpSession) RegisterNotificationHandler(method string, handler NotificationHandler) *RegistrationHandle {
+	return m._notificationHandlers.Register(method, handler, true)
 }
 
 func (m *McpSession) createActivityName(method string) string {
@@ -177,8 +322,8 @@ func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcM
 	if notification, ok := message.(*messages.JsonRpcNotification); ok {
 		if params := getCancelledNotificationParams(notification.Params); params != nil {
 			if c, ok := m._pendingRequests.Load(params.RequestId); ok {
-				if cancel, ok := c.(context.CancelFunc); ok {
-					cancel()
+				if source, ok := c.(*TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+					source.Cancel()
 					m._pendingRequests.Delete(params.RequestId)
 				}
 			}
@@ -186,6 +331,32 @@ func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcM
 	}
 
 	return nil
+}
+
+func (m *McpSession) Dispose() {
+	durationMetric := s_clientSessionDuration
+	if m._isServer {
+		durationMetric = s_serverSessionDuration
+	}
+
+	tags := []attribute.KeyValue{}
+	tags = append(tags, attribute.String("session.id", m._id))
+	tags = append(tags, attribute.String("network.transport", m._transportKind))
+
+	incr := m._sessionStartingTimestamp - time.Now().UnixNano()
+	durationMetric.Record(context.Background(), (float64)(incr), metric.WithAttributes(tags...))
+
+	m._pendingRequests.Range(func(key, value interface{}) bool {
+		if tcs, ok := value.(*TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+			tcs.Cancel()
+		}
+		return true
+	})
+
+	m._pendingRequests.Range(func(key, value any) bool {
+		m._pendingRequests.Delete(key)
+		return true
+	})
 }
 
 func getCancelledNotificationParams(notificationParams interface{}) *messages.CancelledNotification {
