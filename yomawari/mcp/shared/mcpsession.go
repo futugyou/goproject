@@ -16,13 +16,12 @@ import (
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/trace"
 )
 
 var s_clientSessionDuration = mcp.CreateDurationHistogram("mcp.client.session.duration", "Measures the duration of a client session.", true)
 var s_serverSessionDuration = mcp.CreateDurationHistogram("mcp.server.session.duration", "Measures the duration of a server session.", true)
-var s_clientRequestDuration = mcp.CreateDurationHistogram("rpc.client.duration", "Measures the duration of outbound RPC.", true)
-var s_serverRequestDuration = mcp.CreateDurationHistogram("rpc.server.duration", "Measures the duration of inbound RPC.", true)
+var s_clientOperationDuration = mcp.CreateDurationHistogram("mcp.client.operation.duration", "Measures the duration of outbound message.", false)
+var s_serverOperationDuration = mcp.CreateDurationHistogram("mcp.server.operation.duration", "Measures the duration of inbound message processing.", false)
 
 type McpSession struct {
 	_isServer                 bool
@@ -48,6 +47,7 @@ func NewMcpSession(isServer bool, transp transport.ITransport, endpointName stri
 	case *transport.SseClientSessionTransport, *transport.SseResponseStreamTransport:
 		_transportKind = "sse"
 	}
+
 	return &McpSession{
 		_isServer:                 isServer,
 		_transportKind:            _transportKind,
@@ -118,18 +118,19 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 }
 
 func (m *McpSession) handleMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
-	durationMetric := s_clientRequestDuration
+	durationMetric := s_clientOperationDuration
 	if m._isServer {
-		durationMetric = s_serverRequestDuration
+		durationMetric = s_serverOperationDuration
 	}
 	method := getMethodName(message)
 
 	var startingTimestamp int64 = time.Now().UnixNano()
-	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
+	ctx, span := mcp.StartSpanWithJsonRpcData(ctx, m.createActivityName(method), message)
+	defer span.End()
 
 	tags := []attribute.KeyValue{}
 	m.addStandardTags(&tags, method)
-	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, tags)
 
 	if err := m._transport.SendMessage(ctx, message); err != nil {
 		addExceptionTags(&tags, err)
@@ -229,25 +230,28 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	default:
 	}
 
-	durationMetric := s_clientRequestDuration
+	durationMetric := s_clientOperationDuration
 	if m._isServer {
-		durationMetric = s_serverRequestDuration
+		durationMetric = s_serverOperationDuration
 	}
 
 	method := request.Method
 
 	var startingTimestamp int64 = time.Now().UnixNano()
 	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
+	defer span.End()
 
 	tags := []attribute.KeyValue{}
 	m.addStandardTags(&tags, method)
-	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, tags)
 
 	// Set request ID
 	if request.Id == nil {
 		newId := atomic.AddInt64(&m._nextRequestId, 1)
 		request.Id = messages.NewRequestIdFromString(fmt.Sprintf("%s-%d", m._id, newId))
 	}
+
+	mcp.PropagatorInject(ctx, request)
 
 	ctx, cancelfunc := context.WithCancel(ctx)
 	tcs := async.NewTaskCompletionSource[messages.IJsonRpcMessage](ctx, cancelfunc)
@@ -256,7 +260,7 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	m.addStandardTags(&tags, method)
 	addRpcRequestTags(&tags, *request)
 
-	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, tags)
 
 	if err := m._transport.SendMessage(ctx, request); err != nil {
 		addExceptionTags(&tags, err)
@@ -301,19 +305,22 @@ func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcM
 	default:
 	}
 
-	durationMetric := s_clientRequestDuration
+	durationMetric := s_clientOperationDuration
 	if m._isServer {
-		durationMetric = s_serverRequestDuration
+		durationMetric = s_serverOperationDuration
 	}
 
 	method := getMethodName(message)
 
 	var startingTimestamp int64 = time.Now().UnixNano()
 	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
+	defer span.End()
+
+	mcp.PropagatorInject(ctx, message)
 
 	tags := []attribute.KeyValue{}
 	m.addStandardTags(&tags, method)
-	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, span, tags)
+	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, tags)
 
 	if err := m._transport.SendMessage(ctx, message); err != nil {
 		addExceptionTags(&tags, err)
@@ -397,12 +404,11 @@ func addExceptionTags(tags *[]attribute.KeyValue, err error) {
 	*tags = append(*tags, attribute.String("rpc.jsonrpc.error_code", "500")) //TODO: get error code from jsonrpc error
 }
 
-func finalizeDiagnostics(ctx context.Context, startingTimestamp *int64, durationMetric metric.Float64Histogram, traceSpan trace.Span, tags []attribute.KeyValue) {
+func finalizeDiagnostics(ctx context.Context, startingTimestamp *int64, durationMetric metric.Float64Histogram, tags []attribute.KeyValue) {
 	if startingTimestamp != nil {
 		incr := *startingTimestamp - time.Now().UnixNano()
 		durationMetric.Record(ctx, (float64)(incr), metric.WithAttributes(tags...))
 	}
-	traceSpan.End()
 }
 
 func addRpcRequestTags(tags *[]attribute.KeyValue, request messages.JsonRpcRequest) {
