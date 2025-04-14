@@ -17,7 +17,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/redis/go-redis/v9 v9.7.3 // indirect
 	golang.org/x/mod v0.19.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
 
 require (
@@ -30,9 +30,9 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.mongodb.org/mongo-driver v1.17.3
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 )
 
 replace github.com/futugyou/alphavantage v0.0.0-00010101000000-000000000000 => ../alphavantage
