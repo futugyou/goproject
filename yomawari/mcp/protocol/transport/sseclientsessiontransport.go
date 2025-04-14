@@ -163,6 +163,12 @@ func (s *SseClientSessionTransport) connectAndProcessMessages(ctx context.Contex
 
 	req.Header.Set("Accept", "text/event-stream")
 
+	if s.Options != nil && s.Options.AdditionalHeaders != nil {
+		for k, v := range s.Options.AdditionalHeaders {
+			req.Header.Set(k, v)
+		}
+	}
+
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return err
