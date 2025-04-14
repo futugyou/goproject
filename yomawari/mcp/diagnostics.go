@@ -1,8 +1,13 @@
 package mcp
 
 import (
+	"context"
+
+	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -17,6 +22,8 @@ var (
 	LongSecondsBucketBoundaries  = []float64{0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 30, 60, 120, 300}
 )
 
+var Propagator = otel.GetTextMapPropagator()
+
 func CreateDurationHistogram(name string, description string, longBuckets bool) metric.Float64Histogram {
 	boundaries := ShortSecondsBucketBoundaries
 	if longBuckets {
@@ -29,4 +36,40 @@ func CreateDurationHistogram(name string, description string, longBuckets bool) 
 		metric.WithExplicitBucketBoundaries(boundaries...),
 	)
 	return m
+}
+
+func StartServerSpan(ctx context.Context, name string, carrier propagation.TextMapCarrier) (context.Context, trace.Span) {
+	parentCtx := Propagator.Extract(ctx, carrier)
+	link := trace.Link{SpanContext: trace.SpanContextFromContext(parentCtx)}
+	return Tracer.Start(parentCtx, name,
+		trace.WithSpanKind(trace.SpanKindServer),
+		trace.WithLinks(link),
+	)
+}
+
+func StartSpanWithJsonRpcData(ctx context.Context, name string, message messages.IJsonRpcMessage) (context.Context, trace.Span) {
+	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
+	switch re := message.(type) {
+	case *messages.JsonRpcRequest:
+		carrier = re
+	case *messages.JsonRpcNotification:
+		carrier = re
+	}
+	parentCtx := Propagator.Extract(ctx, carrier)
+	link := trace.Link{SpanContext: trace.SpanContextFromContext(parentCtx)}
+	return Tracer.Start(parentCtx, name,
+		trace.WithSpanKind(trace.SpanKindServer),
+		trace.WithLinks(link),
+	)
+}
+
+func PropagatorInject(ctx context.Context, message messages.IJsonRpcMessage) {
+	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
+	switch re := message.(type) {
+	case *messages.JsonRpcRequest:
+		carrier = re
+	case *messages.JsonRpcNotification:
+		carrier = re
+	}
+	Propagator.Inject(ctx, carrier)
 }
