@@ -27,6 +27,12 @@ type RequestHandlers struct {
 	mu       sync.RWMutex
 }
 
+func NewRequestHandlers() *RequestHandlers {
+	return &RequestHandlers{
+		handlers: make(map[string]RequestHandler),
+	}
+}
+
 func (c *RequestHandlers) Count() int {
 	return len(c.handlers)
 }
