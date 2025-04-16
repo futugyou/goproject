@@ -2,9 +2,11 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync/atomic"
 
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
@@ -419,4 +421,27 @@ func InvokeHandler[TParams any, TResult any](
 ) (*TResult, error) {
 	// TODO: handle _servicesScopePerRequest
 	return handler(ctx, RequestContext[TParams]{Params: args})
+}
+
+func (e *McpServer) AsSamplingChatClient() (chatcompletion.IChatClient, error) {
+	if e.GetClientCapabilities() == nil || e.GetClientCapabilities().Sampling == nil {
+		return nil, fmt.Errorf("client capabilities sampling not set")
+	}
+	return NewSamplingChatClient(e), nil
+}
+
+func (e *McpServer) RequestRoots(ctx context.Context, request types.ListRootsRequestParams) (*types.ListRootsResult, error) {
+	if e.GetClientCapabilities() == nil || e.GetClientCapabilities().Roots == nil {
+		return nil, fmt.Errorf("client capabilities roots not set")
+	}
+	req := messages.NewJsonRpcRequest(messages.RequestMethods_RootsList, request, nil)
+	resp, err := e.SendRequest(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	var result types.ListRootsResult
+	if err := json.Unmarshal(resp.Result, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
