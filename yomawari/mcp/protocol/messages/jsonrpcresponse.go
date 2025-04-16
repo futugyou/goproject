@@ -1,12 +1,14 @@
 package messages
 
+import "encoding/json"
+
 type JsonRpcResponse struct {
-	JsonRpc string     `json:"jsonrpc"`
-	Result  any        `json:"result,omitempty"`
-	Id      *RequestId `json:"id"`
+	JsonRpc string          `json:"jsonrpc"`
+	Result  json.RawMessage `json:"result,omitempty"`
+	Id      *RequestId      `json:"id"`
 }
 
-func NewJsonRpcResponse(id *RequestId, result any) *JsonRpcResponse {
+func NewJsonRpcResponse(id *RequestId, result json.RawMessage) *JsonRpcResponse {
 	return &JsonRpcResponse{
 		JsonRpc: "2.0",
 		Result:  result,

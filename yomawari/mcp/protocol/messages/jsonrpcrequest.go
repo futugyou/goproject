@@ -9,6 +9,15 @@ type JsonRpcRequest struct {
 	Id      *RequestId `json:"id"`
 }
 
+func NewJsonRpcRequest(method string, params any, id *RequestId) *JsonRpcRequest {
+	return &JsonRpcRequest{
+		JsonRpc: "2.0",
+		Method:  method,
+		Params:  params,
+		Id:      id,
+	}
+}
+
 // GetId implements IJsonRpcMessageWithId.
 func (j *JsonRpcRequest) GetId() *RequestId {
 	return j.Id

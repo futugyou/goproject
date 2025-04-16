@@ -8,9 +8,10 @@ import (
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
-type RequestHandler func(ctx context.Context, request *messages.JsonRpcRequest) (interface{}, error)
+type RequestHandler func(ctx context.Context, request *messages.JsonRpcRequest) (json.RawMessage, error)
 type GenericRequestHandler[TRequest any, TResponse any] func(ctx context.Context, request *TRequest) (*TResponse, error)
 type RequestUnmarshaler[TRequest any] func(data interface{}) (*TRequest, error)
+type RepsonseMarshaler[TResponse any] func(data TResponse) (json.RawMessage, error)
 
 func DefaultJsonUnmarshaler[TRequest any](data interface{}) (*TRequest, error) {
 	bytes, err := json.Marshal(data)
@@ -20,6 +21,10 @@ func DefaultJsonUnmarshaler[TRequest any](data interface{}) (*TRequest, error) {
 	var req TRequest
 	err = json.Unmarshal(bytes, &req)
 	return &req, err
+}
+
+func DefaultRepsonseMarshaler[TResponse any](data TResponse) (json.RawMessage, error) {
+	return json.Marshal(data)
 }
 
 type RequestHandlers struct {
@@ -88,6 +93,7 @@ func GenericRequestHandlerAdd[TRequest any, TResponse any](
 	method string,
 	handler GenericRequestHandler[TRequest, TResponse],
 	unmarshaler RequestUnmarshaler[TRequest],
+	marshaler RepsonseMarshaler[TResponse],
 ) {
 	if handers == nil {
 		return
@@ -96,15 +102,22 @@ func GenericRequestHandlerAdd[TRequest any, TResponse any](
 	if unmarshaler == nil {
 		unmarshaler = DefaultJsonUnmarshaler[TRequest]
 	}
+	if marshaler == nil {
+		marshaler = DefaultRepsonseMarshaler[TResponse]
+	}
 
 	handers.mu.Lock()
 	defer handers.mu.Unlock()
-	handers.handlers[method] = func(ctx context.Context, request *messages.JsonRpcRequest) (interface{}, error) {
+	handers.handlers[method] = func(ctx context.Context, request *messages.JsonRpcRequest) (json.RawMessage, error) {
 		requestBody := request.Params
 		req, err := unmarshaler(requestBody)
 		if err != nil {
 			return nil, err
 		}
-		return handler(ctx, req)
+		resp, err := handler(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return marshaler(*resp)
 	}
 }

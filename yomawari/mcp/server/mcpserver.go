@@ -92,6 +92,7 @@ func (m *McpServer) setInitializeHandler(options *McpServerOptions) {
 			}, nil
 		},
 		nil,
+		nil,
 	)
 }
 
@@ -171,6 +172,7 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 			return InvokeHandler(m, ctx, listToolsHandler, request)
 		},
 		nil,
+		nil,
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
@@ -178,6 +180,7 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 		func(ctx context.Context, request *types.CallToolRequestParams) (*types.CallToolResult, error) {
 			return InvokeHandler(m, ctx, callToolHandler, request)
 		},
+		nil,
 		nil,
 	)
 }
@@ -260,6 +263,7 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 			return InvokeHandler(m, ctx, listPromptsHandler, request)
 		},
 		nil,
+		nil,
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
@@ -267,6 +271,7 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 		func(ctx context.Context, request *types.GetPromptRequestParams) (*types.GetPromptResult, error) {
 			return InvokeHandler(m, ctx, getPromptHandler, request)
 		},
+		nil,
 		nil,
 	)
 }
@@ -296,6 +301,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 			return InvokeHandler(m, ctx, listResourcesHandler, request)
 		},
 		nil,
+		nil,
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
@@ -304,6 +310,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 			return InvokeHandler(m, ctx, readResourceHandler, request)
 		},
 		nil,
+		nil,
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
@@ -311,6 +318,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 		func(ctx context.Context, request *types.ListResourceTemplatesRequestParams) (*types.ListResourceTemplatesResult, error) {
 			return InvokeHandler(m, ctx, listResourceTemplatesHandler, request)
 		},
+		nil,
 		nil,
 	)
 
@@ -330,6 +338,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 			return InvokeHandler(m, ctx, subscribeHandler, request)
 		},
 		nil,
+		nil,
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
@@ -337,6 +346,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 		func(ctx context.Context, request *types.UnsubscribeRequestParams) (*types.EmptyResult, error) {
 			return InvokeHandler(m, ctx, unsubscribeHandler, request)
 		},
+		nil,
 		nil,
 	)
 
@@ -358,6 +368,7 @@ func (m *McpServer) setCompletionHandler(options *McpServerOptions) {
 			return InvokeHandler(m, ctx, completeHandler, request)
 		},
 		nil,
+		nil,
 	)
 }
 
@@ -368,6 +379,7 @@ func (m *McpServer) setPingHandler() {
 		func(ctx context.Context, request *types.PingRequest) (*types.PingResult, error) {
 			return &types.PingResult{}, nil
 		},
+		nil,
 		nil,
 	)
 }
