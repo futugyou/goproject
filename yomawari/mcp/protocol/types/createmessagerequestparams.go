@@ -3,11 +3,11 @@ package types
 type CreateMessageRequestParams struct {
 	RequestParams    `json:",inline"`
 	IncludeContext   *ContextInclusion `json:"includeContext"`
-	MaxTokens        *int              `json:"maxTokens"`
+	MaxTokens        *int64            `json:"maxTokens"`
 	Messages         []SamplingMessage `json:"messages"`
 	Metadata         any               `json:"metadata"`
 	ModelPreferences ModelPreferences  `json:"modelPreferences"`
 	StopSequences    []string          `json:"stopSequences"`
 	SystemPrompt     *string           `json:"systemPrompt"`
-	Temperature      *float32          `json:"temperature"`
+	Temperature      *float64          `json:"temperature"`
 }

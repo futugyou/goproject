@@ -2,11 +2,18 @@ package shared
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"strings"
 	"sync"
 
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
+	"github.com/futugyou/yomawari/mcp"
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
+	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
 
 var _ IMcpEndpoint = (*BaseMcpEndpoint)(nil)
@@ -131,4 +138,117 @@ func (e *BaseMcpEndpoint) disposeUnsynchronized(ctx context.Context) error {
 
 	e.session.Dispose()
 	return nil
+}
+
+func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
+	req := messages.NewJsonRpcRequest(messages.RequestMethods_SamplingCreateMessage, request, nil)
+	resp, err := e.SendRequest(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	var result types.CreateMessageResult
+	if err := json.Unmarshal(resp.Result, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+	samplingMessages := []types.SamplingMessage{}
+	var systemPrompt *strings.Builder
+	for _, message := range messages {
+		if message.Role == chatcompletion.RoleSystem {
+			if systemPrompt == nil {
+				systemPrompt = &strings.Builder{}
+			} else {
+				systemPrompt.WriteString("\n")
+			}
+
+			systemPrompt.WriteString(message.Text())
+			continue
+		}
+
+		if message.Role == chatcompletion.RoleUser || message.Role == chatcompletion.RoleAssistant {
+			role := types.RoleUser
+			if message.Role == chatcompletion.RoleAssistant {
+				role = types.RoleAssistant
+			}
+			for _, content := range message.Contents {
+				switch con := content.(type) {
+				case *contents.TextContent:
+					samplingMessages = append(samplingMessages, types.SamplingMessage{
+						Content: types.Content{
+							Type: "text",
+							Text: &con.Text,
+						},
+						Role: role,
+					})
+				case *contents.DataContent:
+					if con.MediaTypeStartsWith("image") || con.MediaTypeStartsWith("audio") {
+						t := "image"
+						if con.MediaTypeStartsWith("audio") {
+							t = "audio"
+						}
+						decoded := base64.URLEncoding.EncodeToString(con.Data)
+						samplingMessages = append(samplingMessages, types.SamplingMessage{
+							Content: types.Content{
+								Type:     t,
+								MimeType: &con.MediaType,
+								Data:     &decoded,
+							},
+							Role: role,
+						})
+					}
+				}
+			}
+		}
+	}
+
+	var modelPreferences types.ModelPreferences
+	if options != nil && options.ModelId != nil {
+		modelPreferences = types.ModelPreferences{
+			Hints: []types.ModelHint{{
+				Name: options.ModelId,
+			}},
+		}
+	}
+
+	systemPromptString := systemPrompt.String()
+	request := types.CreateMessageRequestParams{
+		RequestParams:    types.RequestParams{},
+		MaxTokens:        options.MaxOutputTokens,
+		Messages:         samplingMessages,
+		Metadata:         nil,
+		ModelPreferences: modelPreferences,
+		StopSequences:    options.StopSequences,
+		SystemPrompt:     &systemPromptString,
+		Temperature:      options.Temperature,
+	}
+
+	result, err := e.RequestSampling(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	message := &chatcompletion.ChatMessage{
+		Contents: []contents.IAIContent{mcp.ContentToAIContent(result.Content)},
+	}
+	if result.Role == types.RoleUser {
+		message.Role = chatcompletion.RoleUser
+	}
+	if result.Role == types.RoleAssistant {
+		message.Role = chatcompletion.RoleAssistant
+	}
+	resp := chatcompletion.NewChatResponse(nil, message)
+	if result.StopReason != nil {
+		if *result.StopReason == "maxTokens" {
+			t := chatcompletion.ReasonLength
+			resp.FinishReason = &t
+		} else {
+
+			t := chatcompletion.ReasonStop
+			resp.FinishReason = &t
+		}
+	}
+	return resp, nil
 }
