@@ -22,6 +22,10 @@ type BaseMcpEndpoint struct {
 	endpointName  string
 }
 
+func (e *BaseMcpEndpoint) GetMcpSession() *McpSession {
+	return e.session
+}
+
 // NotifyProgress implements IMcpEndpoint.
 func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken messages.ProgressToken, progress messages.ProgressNotificationValue) error {
 	p := messages.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}

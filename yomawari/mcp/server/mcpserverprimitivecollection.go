@@ -30,12 +30,12 @@ func (c *McpServerPrimitiveCollection[T]) Count() int {
 
 // IsEmpty returns true if the collection contains no primitives
 func (c *McpServerPrimitiveCollection[T]) IsEmpty() bool {
-	empty := true
+	count := 0
 	c.primitives.Range(func(_, _ interface{}) bool {
-		empty = false
-		return false
+		count++
+		return true
 	})
-	return empty
+	return count == 0
 }
 
 // OnChanged registers a callback that will be invoked when the collection changes

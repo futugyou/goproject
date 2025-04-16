@@ -12,7 +12,13 @@ import (
 
 	"github.com/futugyou/yomawari/mcp/configuration"
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
+
+var McpClientDefaultImplementation types.Implementation = types.Implementation{
+	Name:    "McpClient",
+	Version: "1.0.0",
+}
 
 var _ IClientTransport = (*StdioClientTransport)(nil)
 
