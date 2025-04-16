@@ -12,6 +12,7 @@ type McpServerOptions struct {
 	ProtocolVersion       string        // "2024-11-05"
 	InitializationTimeout time.Duration //  60 sec.
 	ServerInstructions    string
+	ScopeRequests         bool
 }
 
 func NewMcpServerOptions() *McpServerOptions {
@@ -21,5 +22,6 @@ func NewMcpServerOptions() *McpServerOptions {
 		ProtocolVersion:       "2024-11-05",
 		InitializationTimeout: time.Duration(60) * time.Second,
 		ServerInstructions:    "",
+		ScopeRequests:         true,
 	}
 }

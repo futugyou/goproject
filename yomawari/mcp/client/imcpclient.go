@@ -5,13 +5,13 @@ import (
 	"net/url"
 
 	"github.com/futugyou/yomawari/core/logger"
-	"github.com/futugyou/yomawari/mcp"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 	"github.com/futugyou/yomawari/mcp/server"
+	"github.com/futugyou/yomawari/mcp/shared"
 )
 
 type IMcpClient interface {
-	mcp.IMcpEndpoint
+	shared.IMcpEndpoint
 	GetServerCapabilities() *server.ServerCapabilities
 	GetServerInfo() *types.Implementation
 	GetServerInstructions() *string

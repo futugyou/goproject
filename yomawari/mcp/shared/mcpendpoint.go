@@ -11,19 +11,6 @@ import (
 
 var _ IMcpEndpoint = (*BaseMcpEndpoint)(nil)
 
-type IMcpEndpoint interface {
-	SendRequest(ctx context.Context, req *messages.JsonRpcRequest) (*messages.JsonRpcResponse, error)
-	SendMessage(ctx context.Context, msg messages.IJsonRpcMessage) error
-	RegisterNotificationHandler(method string, handler NotificationHandler) *RegistrationHandle
-	GetEndpointName() string
-	GetMessageProcessingTask() <-chan struct{}
-	Dispose(ctx context.Context) error
-}
-
-type Disposable interface {
-	Dispose() error
-}
-
 type BaseMcpEndpoint struct {
 	mu            sync.Mutex
 	disposed      bool
@@ -33,6 +20,18 @@ type BaseMcpEndpoint struct {
 	reqHandlers   *RequestHandlers
 	notifHandlers *NotificationHandlers
 	endpointName  string
+}
+
+// NotifyProgress implements IMcpEndpoint.
+func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken messages.ProgressToken, progress messages.ProgressNotificationValue) error {
+	p := messages.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
+	notification := messages.NewJsonRpcNotification(messages.NotificationMethods_ProgressNotification, p)
+	return e.SendNotification(ctx, *notification)
+}
+
+// SendNotification implements IMcpEndpoint.
+func (e *BaseMcpEndpoint) SendNotification(ctx context.Context, notification messages.JsonRpcNotification) error {
+	return e.SendMessage(ctx, &notification)
 }
 
 func NewBaseMcpEndpoint() *BaseMcpEndpoint {
