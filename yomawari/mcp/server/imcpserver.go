@@ -10,7 +10,7 @@ import (
 
 type IMcpServer interface {
 	shared.IMcpEndpoint
-	GetClientCapabilities() *types.ClientCapabilities
+	GetClientCapabilities() *shared.ClientCapabilities
 	GetClientInfo() *types.Implementation
 	GetMcpServerOptions() *McpServerOptions
 	Run(ctx context.Context) error

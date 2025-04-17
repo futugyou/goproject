@@ -24,7 +24,7 @@ type McpServer struct {
 	EndpointName             string
 	_started                 int32
 	ServerCapabilities       *ServerCapabilities
-	ClientCapabilities       *types.ClientCapabilities
+	ClientCapabilities       *shared.ClientCapabilities
 	ClientInfo               *types.Implementation
 	ServerOptions            McpServerOptions
 }
@@ -81,7 +81,7 @@ func (m *McpServer) setInitializeHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		messages.RequestMethods_Initialize,
-		func(ctx context.Context, request *types.InitializeRequestParams) (*InitializeResult, error) {
+		func(ctx context.Context, request *shared.InitializeRequestParams) (*InitializeResult, error) {
 			m.ClientCapabilities = request.Capabilities
 			m.ClientInfo = &request.ClientInfo
 			_endpointName := fmt.Sprintf("%s, Client (%s %s)", m.EndpointName, m.ClientInfo.Name, m.ClientInfo.Version)
@@ -387,7 +387,7 @@ func (m *McpServer) setPingHandler() {
 }
 
 // GetClientCapabilities implements IMcpServer.
-func (m *McpServer) GetClientCapabilities() *types.ClientCapabilities {
+func (m *McpServer) GetClientCapabilities() *shared.ClientCapabilities {
 	return m.ClientCapabilities
 }
 

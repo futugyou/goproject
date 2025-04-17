@@ -4,20 +4,21 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/shared"
 )
 
 type McpClientOptions struct {
-	ClientInfo *types.Implementation
-	Capabilities *types.ClientCapabilities
-	ProtocolVersion string
+	ClientInfo            *types.Implementation
+	Capabilities          *shared.ClientCapabilities
+	ProtocolVersion       string
 	InitializationTimeout time.Duration
 }
 
 func NewMcpClientOptions() *McpClientOptions {
 	return &McpClientOptions{
 		ClientInfo:            &types.Implementation{},
-		Capabilities:          &types.ClientCapabilities{},
+		Capabilities:          &shared.ClientCapabilities{},
 		ProtocolVersion:       "2024-11-05",
-		InitializationTimeout: time.Duration(60) * time.Second, 
+		InitializationTimeout: time.Duration(60) * time.Second,
 	}
 }
