@@ -12,6 +12,7 @@ import (
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 	"github.com/futugyou/yomawari/mcp/server"
 	"github.com/futugyou/yomawari/mcp/shared"
+	"github.com/google/uuid"
 )
 
 var _ IMcpClient = (*McpClient)(nil)
@@ -146,13 +147,26 @@ func (m *McpClient) Connect(ctx context.Context) error {
 
 // CallTool implements IMcpClient.
 func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter shared.IProgressReporter) (*types.CallToolResult, error) {
-	if reporter != nil {
-
-	}
 	params := types.CallToolRequestParams{
 		RequestParams: types.RequestParams{},
 		Name:          toolName,
 		Arguments:     arguments,
+	}
+
+	if reporter != nil {
+		progressToken := messages.NewProgressTokenFromString(uuid.New().String())
+		var handler shared.NotificationHandler = func(ctx context.Context, notification *messages.JsonRpcNotification) error {
+			var pn messages.ProgressNotification
+			if err := json.Unmarshal(notification.Params, &pn); err != nil {
+				return err
+			}
+			if pn.ProgressToken != nil && *pn.ProgressToken == progressToken {
+				reporter.Report(*pn.Progress)
+			}
+			return nil
+		}
+		m.RegisterNotificationHandler(messages.NotificationMethods_ProgressNotification, handler)
+		params.Meta = &types.RequestParamsMetadata{ProgressToken: &progressToken}
 	}
 
 	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_Initialize, params, nil)
