@@ -8,6 +8,7 @@ type StdioClientTransportOptions struct {
 	WorkingDirectory     *string
 	EnvironmentVariables map[string]string
 	ShutdownTimeout      time.Duration
+	Name                 *string
 }
 
 func NewStdioClientTransportOptions(command string) *StdioClientTransportOptions {

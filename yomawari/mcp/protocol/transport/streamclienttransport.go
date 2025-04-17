@@ -18,6 +18,11 @@ type StreamClientTransport struct {
 	mu           sync.Mutex
 }
 
+// GetName implements IClientTransport.
+func (t *StreamClientTransport) GetName() string {
+	return "in-memory-stream"
+}
+
 // NewStreamClientTransport creates a new StreamClientTransport with explicit input/output streams.
 func NewStreamClientTransport(serverInput io.Writer, serverOutput io.Reader, logger logging.Logger) *StreamClientTransport {
 	if serverInput == nil {

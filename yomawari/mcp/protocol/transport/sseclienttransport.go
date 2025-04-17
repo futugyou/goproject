@@ -7,11 +7,19 @@ import (
 	"github.com/futugyou/yomawari/mcp/configuration"
 )
 
+var _ IClientTransport = (*SseClientTransport)(nil)
+
 type SseClientTransport struct {
 	options        *SseClientTransportOptions
 	serverConfig   *configuration.McpServerConfig
 	httpClient     *http.Client
 	ownsHttpClient bool
+	name           string
+}
+
+// GetName implements IClientTransport.
+func (s *SseClientTransport) GetName() string {
+	return s.name
 }
 
 func NewSseClientTransport(serverConfig *configuration.McpServerConfig, options *SseClientTransportOptions, httpClient *http.Client, ownsHttpClient *bool) *SseClientTransport {
@@ -34,6 +42,15 @@ func NewSseClientTransport(serverConfig *configuration.McpServerConfig, options 
 	if ownsHttpClient != nil {
 		transport.ownsHttpClient = *ownsHttpClient
 	}
+
+	if options.Name != nil {
+		transport.name = *options.Name
+	}
+
+	if len(transport.name) == 0 {
+		transport.name = options.Endpoint.String()
+	}
+
 	return transport
 }
 

@@ -27,14 +27,29 @@ type StdioClientTransport struct {
 	serverConfig *configuration.McpServerConfig
 	cmd          *exec.Cmd
 	logger       logging.Logger
+	name         string
+}
+
+// GetName implements IClientTransport.
+func (s *StdioClientTransport) GetName() string {
+	return s.name
 }
 
 func NewStdioClientTransport(serverConfig *configuration.McpServerConfig, options *StdioClientTransportOptions, logger logging.Logger) *StdioClientTransport {
-	return &StdioClientTransport{
+	t := &StdioClientTransport{
 		options:      options,
 		serverConfig: serverConfig,
 		logger:       logger,
 	}
+
+	if options != nil && options.Name != nil {
+		t.name = *options.Name
+	}
+
+	if len(t.name) == 0 {
+		t.name = fmt.Sprintf("stdio-%s", strings.ReplaceAll(t.options.Command, " ", "-"))
+	}
+	return t
 }
 
 func convertEnvVars(envVars map[string]string) []string {
