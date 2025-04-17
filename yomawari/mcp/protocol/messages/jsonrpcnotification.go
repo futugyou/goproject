@@ -1,14 +1,17 @@
 package messages
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type JsonRpcNotification struct {
-	JsonRpc string `json:"jsonrpc"`
-	Method  string `json:"method"`
-	Params  any    `json:"params,omitempty"`
+	JsonRpc string          `json:"jsonrpc"`
+	Method  string          `json:"method"`
+	Params  json.RawMessage `json:"params,omitempty"`
 }
 
-func NewJsonRpcNotification(method string, params any) *JsonRpcNotification {
+func NewJsonRpcNotification(method string, params json.RawMessage) *JsonRpcNotification {
 	return &JsonRpcNotification{
 		JsonRpc: "2.0",
 		Method:  method,
@@ -20,38 +23,43 @@ func (m *JsonRpcNotification) Get(key string) string {
 	if m.Params == nil {
 		return ""
 	}
-
-	if mp, ok := m.Params.(map[string]interface{}); ok {
-		if val, exists := mp[key]; exists {
-			return fmt.Sprintf("%v", val)
-		}
+	var mp map[string]interface{}
+	if err := json.Unmarshal(m.Params, &mp); err != nil {
+		return ""
+	}
+	if val, exists := mp[key]; exists {
+		return fmt.Sprintf("%v", val)
 	}
 	return ""
 }
 
 func (m *JsonRpcNotification) Set(key, value string) {
+	if m.Params == nil {
+		m.Params = json.RawMessage{}
+	}
 	var mp map[string]interface{}
-
-	if m.Params != nil {
-		if existingMap, ok := m.Params.(map[string]interface{}); ok {
-			mp = existingMap
-		}
+	if err := json.Unmarshal(m.Params, &mp); err != nil {
+		return
 	}
-
-	if mp == nil {
-		mp = make(map[string]interface{})
-	}
-
 	mp[key] = value
-	m.Params = mp
+	d, err := json.Marshal(mp)
+	if err != nil {
+		return
+	}
+	m.Params = d
 }
 
 func (m *JsonRpcNotification) Keys() []string {
 	var keys []string
-	if mp, ok := m.Params.(map[string]interface{}); ok {
-		for k := range mp {
-			keys = append(keys, k)
-		}
+	if m.Params == nil {
+		return keys
+	}
+	var mp map[string]interface{}
+	if err := json.Unmarshal(m.Params, &mp); err != nil {
+		return keys
+	}
+	for k := range mp {
+		keys = append(keys, k)
 	}
 	return keys
 }

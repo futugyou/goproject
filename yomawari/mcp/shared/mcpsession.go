@@ -268,9 +268,13 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	}
 
 	async.RegisterCancellation(ctx, func() {
+		data, err := json.Marshal(messages.CancelledNotification{RequestId: *request.Id})
+		if err != nil {
+			return
+		}
 		_ = m.SendMessage(ctx, messages.NewJsonRpcNotification(
 			messages.NotificationMethods_CancelledNotification,
-			messages.CancelledNotification{RequestId: *request.Id},
+			data,
 		))
 	})
 

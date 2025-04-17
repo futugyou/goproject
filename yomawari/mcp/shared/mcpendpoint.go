@@ -36,7 +36,11 @@ func (e *BaseMcpEndpoint) GetMcpSession() *McpSession {
 // NotifyProgress implements IMcpEndpoint.
 func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken messages.ProgressToken, progress messages.ProgressNotificationValue) error {
 	p := messages.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
-	notification := messages.NewJsonRpcNotification(messages.NotificationMethods_ProgressNotification, p)
+	data, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	notification := messages.NewJsonRpcNotification(messages.NotificationMethods_ProgressNotification, data)
 	return e.SendNotification(ctx, *notification)
 }
 
