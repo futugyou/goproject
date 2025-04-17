@@ -169,7 +169,7 @@ func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map
 		params.Meta = &types.RequestParamsMetadata{ProgressToken: &progressToken}
 	}
 
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_Initialize, params, nil)
+	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ToolsCall, params, nil)
 	resp, err := m.SendRequest(ctx, jsonRpcRequest)
 	if err != nil {
 		return nil, err
@@ -183,12 +183,70 @@ func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map
 
 // Complete implements IMcpClient.
 func (m *McpClient) Complete(ctx context.Context, reference types.Reference, argumentName string, argumentValue string) (*types.CompleteResult, error) {
-	panic("unimplemented")
+	params := types.CompleteRequestParams{
+		Ref: reference,
+		Argument: types.Argument{
+			Name:  argumentName,
+			Value: argumentValue,
+		},
+	}
+	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_CompletionComplete, params, nil)
+	resp, err := m.SendRequest(ctx, jsonRpcRequest)
+	if err != nil {
+		return nil, err
+	}
+	var rsult types.CompleteResult
+	if err := json.Unmarshal(resp.Result, &rsult); err != nil {
+		return nil, err
+	}
+	return &rsult, nil
 }
-
-// EnumeratePrompts implements IMcpClient.
 func (m *McpClient) EnumeratePrompts(ctx context.Context, client IMcpClient) (<-chan McpClientPrompt, <-chan error) {
-	panic("unimplemented")
+	promptsCh := make(chan McpClientPrompt)
+	errCh := make(chan error, 1)
+
+	go func() {
+		defer close(promptsCh)
+		defer close(errCh)
+
+		var cursor *string
+		for {
+			params := types.ListPromptsRequestParams{
+				PaginatedRequestParams: types.PaginatedRequestParams{
+					RequestParams: types.RequestParams{},
+					Cursor:        cursor,
+				},
+			}
+			jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_PromptsList, params, nil)
+			resp, err := m.SendRequest(ctx, jsonRpcRequest)
+			if err != nil {
+				errCh <- err
+				return
+			}
+
+			var promptResults types.ListPromptsResult
+			if err := json.Unmarshal(resp.Result, &promptResults); err != nil {
+				errCh <- err
+				return
+			}
+
+			for _, prompt := range promptResults.Prompts {
+				select {
+				case <-ctx.Done():
+					errCh <- ctx.Err()
+					return
+				case promptsCh <- *NewMcpClientPrompt(prompt, m):
+				}
+			}
+
+			if promptResults.NextCursor == nil {
+				break
+			}
+			cursor = promptResults.NextCursor
+		}
+	}()
+
+	return promptsCh, errCh
 }
 
 // EnumerateResourceTemplates implements IMcpClient.
