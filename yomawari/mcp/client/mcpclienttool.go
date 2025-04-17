@@ -14,11 +14,11 @@ type McpClientTool struct {
 	additionalProperties map[string]interface{}
 	client               IMcpClient
 	name                 string
-	description          string
+	description          *string
 	ProtocolTool         types.Tool
 }
 
-func NewMcpClientTool(client IMcpClient, name string, description string, protocolTool types.Tool) *McpClientTool {
+func NewMcpClientTool(client IMcpClient, name string, description *string, protocolTool types.Tool) *McpClientTool {
 	return &McpClientTool{
 		additionalProperties: map[string]interface{}{"Strict": false},
 		client:               client,
@@ -33,7 +33,7 @@ func (m *McpClientTool) WithName(name string) *McpClientTool {
 }
 
 func (m *McpClientTool) WithDescription(description string) *McpClientTool {
-	return NewMcpClientTool(m.client, m.name, description, m.ProtocolTool)
+	return NewMcpClientTool(m.client, m.name, &description, m.ProtocolTool)
 }
 
 // GetAdditionalProperties implements functions.AIFunction.
@@ -43,7 +43,10 @@ func (m *McpClientTool) GetAdditionalProperties() map[string]interface{} {
 
 // GetDescription implements functions.AIFunction.
 func (m *McpClientTool) GetDescription() string {
-	return m.description
+	if m == nil || m.description == nil {
+		return ""
+	}
+	return *m.description
 }
 
 // GetJsonSchema implements functions.AIFunction.
