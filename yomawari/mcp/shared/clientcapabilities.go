@@ -23,10 +23,10 @@ type RootsCapability struct {
 
 // SamplingCapability represents the sampling capability configuration.
 type SamplingCapability struct {
-	SamplingHandler func(ctx context.Context, req *types.CreateMessageRequestParams, progress ProgressReporter) (*types.CreateMessageResult, error) `json:"-"`
+	SamplingHandler func(ctx context.Context, req *types.CreateMessageRequestParams, progress IProgressReporter) (*types.CreateMessageResult, error) `json:"-"`
 }
 
-// ProgressReporter represents a progress notification mechanism
-type ProgressReporter interface {
+// IProgressReporter represents a progress notification mechanism
+type IProgressReporter interface {
 	Report(value messages.ProgressNotificationValue)
 }

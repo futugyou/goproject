@@ -17,7 +17,7 @@ type IMcpClient interface {
 	GetServerInstructions() *string
 	Ping(ctx context.Context) error
 	ListTools(ctx context.Context) ([]McpClientTool, error)
-	CallTool(ctx context.Context, toolName string, arguments map[string]interface{}) (*types.CallToolResult, error)
+	CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter shared.IProgressReporter) (*types.CallToolResult, error)
 	GetPrompt(ctx context.Context, name string, arguments map[string]interface{}) (*types.GetPromptResult, error)
 	EnumerateTools(ctx context.Context) (<-chan McpClientTool, <-chan error)
 	ListPrompts(ctx context.Context, client IMcpClient) ([]McpClientPrompt, error)

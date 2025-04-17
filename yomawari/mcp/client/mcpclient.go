@@ -58,7 +58,7 @@ func NewMcpClient(clientTransport transport.IClientTransport, options McpClientO
 				messages.RequestMethods_SamplingCreateMessage,
 				func(ctx context.Context, request *types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
 
-					var progres shared.ProgressReporter = &shared.NullProgress{}
+					var progres shared.IProgressReporter = &shared.NullProgress{}
 					if request.Meta != nil && request.Meta.ProgressToken != nil {
 						progres = shared.NewTokenProgress(client, *request.Meta.ProgressToken)
 					}
@@ -145,8 +145,26 @@ func (m *McpClient) Connect(ctx context.Context) error {
 }
 
 // CallTool implements IMcpClient.
-func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map[string]interface{}) (*types.CallToolResult, error) {
-	panic("unimplemented")
+func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter shared.IProgressReporter) (*types.CallToolResult, error) {
+	if reporter != nil {
+
+	}
+	params := types.CallToolRequestParams{
+		RequestParams: types.RequestParams{},
+		Name:          toolName,
+		Arguments:     arguments,
+	}
+
+	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_Initialize, params, nil)
+	resp, err := m.SendRequest(ctx, jsonRpcRequest)
+	if err != nil {
+		return nil, err
+	}
+	var rsult types.CallToolResult
+	if err := json.Unmarshal(resp.Result, &rsult); err != nil {
+		return nil, err
+	}
+	return &rsult, nil
 }
 
 // Complete implements IMcpClient.
