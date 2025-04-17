@@ -36,6 +36,16 @@ type McpClient struct {
 	EndpointName       string
 }
 
+func CreateMcpClient(ctx context.Context, clientTransport transport.IClientTransport, options McpClientOptions) (*McpClient, error) {
+	client := NewMcpClient(clientTransport, options)
+	err := client.Connect(ctx)
+	if err != nil {
+		client.Dispose(ctx)
+		return nil, err
+	}
+	return client, nil
+}
+
 func NewMcpClient(clientTransport transport.IClientTransport, options McpClientOptions) *McpClient {
 	client := &McpClient{
 		BaseMcpEndpoint: shared.NewBaseMcpEndpoint(),
