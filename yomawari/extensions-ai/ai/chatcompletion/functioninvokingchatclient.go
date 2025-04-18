@@ -154,8 +154,8 @@ func (f *FunctionInvokingChatClient) InvokeFunction(ctx context.Context, funcCon
 	if funcContext.Function == nil {
 		return nil
 	}
-
-	resullt, err := funcContext.Function.Invoke(ctx, funcContext.CallContent.Arguments)
+	arguments := functions.NewAIFunctionArgumentsFromMap(funcContext.CallContent.Arguments)
+	resullt, err := funcContext.Function.Invoke(ctx, *arguments)
 	if err != nil {
 		// log error
 		return nil

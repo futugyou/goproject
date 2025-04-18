@@ -2,24 +2,22 @@ package contents
 
 import (
 	"encoding/json"
-
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
 )
 
 // FunctionCallContent represents content related to function calls.
 type FunctionCallContent struct {
 	AIContent `json:",inline"`
-	CallId    string                        `json:"callId,omitempty"`
-	Name      string                        `json:"name,omitempty"`
-	Arguments functions.AIFunctionArguments `json:"arguments,omitempty"`
-	Error     error                         `json:"-"`
+	CallId    string                 `json:"callId,omitempty"`
+	Name      string                 `json:"name,omitempty"`
+	Arguments map[string]interface{} `json:"arguments,omitempty"`
+	Error     error                  `json:"-"`
 }
 
 func CreateFromParsedArguments[TEncoding any](
 	encodedArguments TEncoding,
 	callId string,
 	name string,
-	argumentParser func(TEncoding) (functions.AIFunctionArguments, error),
+	argumentParser func(TEncoding) (map[string]interface{}, error),
 ) *FunctionCallContent {
 	arguments, err := argumentParser(encodedArguments)
 	return &FunctionCallContent{

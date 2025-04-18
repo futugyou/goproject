@@ -274,8 +274,8 @@ func ToChatMessage(v rawopenai.ChatCompletionMessage) chatcompletion.ChatMessage
 
 	for _, tool := range v.ToolCalls {
 		if len(tool.Function.Arguments) > 0 {
-			con := contents.CreateFromParsedArguments(tool.Function.Arguments, tool.ID, tool.Function.Name, func(args string) (functions.AIFunctionArguments, error) {
-				var result functions.AIFunctionArguments
+			con := contents.CreateFromParsedArguments(tool.Function.Arguments, tool.ID, tool.Function.Name, func(args string) (map[string]interface{}, error) {
+				var result map[string]interface{}
 				err := json.Unmarshal([]byte(args), &result)
 				return result, err
 			})
@@ -404,8 +404,8 @@ func ToChatResponseUpdateWithFunctions(response *rawopenai.ChatCompletionChunk, 
 	}
 
 	for _, v := range toolCallsCache.data {
-		con := contents.CreateFromParsedArguments(v.Function.Arguments, v.ID, v.Function.Name, func(args string) (functions.AIFunctionArguments, error) {
-			var result functions.AIFunctionArguments
+		con := contents.CreateFromParsedArguments(v.Function.Arguments, v.ID, v.Function.Name, func(args string) (map[string]interface{}, error) {
+			var result map[string]interface{}
 			err := json.Unmarshal([]byte(args), &result)
 			return result, err
 		})
@@ -546,7 +546,7 @@ func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamE
 			if err != nil {
 				continue
 			}
-			arguments := functions.AIFunctionArguments{}
+			var arguments map[string]interface{}
 			err = json.Unmarshal([]byte(tool.Function.Arguments), &arguments)
 			if err != nil {
 				continue
