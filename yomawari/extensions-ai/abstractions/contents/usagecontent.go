@@ -19,28 +19,25 @@ func NewUsageContent(details abstractions.UsageDetails) *UsageContent {
 	}
 }
 
-func (fcc UsageContent) MarshalJSON() ([]byte, error) {
+func (ac UsageContent) MarshalJSON() ([]byte, error) {
 	type Alias UsageContent
 	return json.Marshal(&struct {
 		Type string `json:"type"`
-		Alias
+		*Alias
 	}{
 		Type:  "UsageContent",
-		Alias: Alias(fcc),
+		Alias: (*Alias)(&ac),
 	})
 }
 
-func (fcc *UsageContent) UnmarshalJSON(data []byte) error {
+func (ac *UsageContent) UnmarshalJSON(data []byte) error {
 	type Alias UsageContent
 	aux := &struct {
 		Type string `json:"type"`
-		Alias
-	}{Alias: Alias(*fcc)}
-
-	if err := json.Unmarshal(data, aux); err != nil {
-		return err
+		*Alias
+	}{
+		Alias: (*Alias)(ac),
 	}
 
-	*fcc = UsageContent(aux.Alias)
-	return nil
+	return json.Unmarshal(data, aux)
 }

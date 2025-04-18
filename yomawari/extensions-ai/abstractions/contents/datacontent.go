@@ -85,10 +85,10 @@ func (ac DataContent) MarshalJSON() ([]byte, error) {
 	type Alias DataContent
 	return json.Marshal(&struct {
 		Type string `json:"type"`
-		Alias
+		*Alias
 	}{
 		Type:  "DataContent",
-		Alias: Alias(ac),
+		Alias: (*Alias)(&ac),
 	})
 }
 
@@ -96,13 +96,10 @@ func (ac *DataContent) UnmarshalJSON(data []byte) error {
 	type Alias DataContent
 	aux := &struct {
 		Type string `json:"type"`
-		Alias
-	}{Alias: Alias(*ac)}
-
-	if err := json.Unmarshal(data, aux); err != nil {
-		return err
+		*Alias
+	}{
+		Alias: (*Alias)(ac),
 	}
 
-	*ac = DataContent(aux.Alias)
-	return nil
+	return json.Unmarshal(data, aux)
 }

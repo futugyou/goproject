@@ -23,28 +23,25 @@ func NewTextContentWithRefusal(text string, refusal string) *TextContent {
 	return c
 }
 
-func (fcc TextContent) MarshalJSON() ([]byte, error) {
+func (ac TextContent) MarshalJSON() ([]byte, error) {
 	type Alias TextContent
 	return json.Marshal(&struct {
 		Type string `json:"type"`
-		Alias
+		*Alias
 	}{
 		Type:  "TextContent",
-		Alias: Alias(fcc),
+		Alias: (*Alias)(&ac),
 	})
 }
 
-func (fcc *TextContent) UnmarshalJSON(data []byte) error {
+func (ac *TextContent) UnmarshalJSON(data []byte) error {
 	type Alias TextContent
 	aux := &struct {
 		Type string `json:"type"`
-		Alias
-	}{Alias: Alias(*fcc)}
-
-	if err := json.Unmarshal(data, aux); err != nil {
-		return err
+		*Alias
+	}{
+		Alias: (*Alias)(ac),
 	}
 
-	*fcc = TextContent(aux.Alias)
-	return nil
+	return json.Unmarshal(data, aux)
 }

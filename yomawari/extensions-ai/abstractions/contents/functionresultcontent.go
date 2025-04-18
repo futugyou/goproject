@@ -10,28 +10,25 @@ type FunctionResultContent struct {
 	Error      error       `json:"-"`
 }
 
-func (fcc FunctionResultContent) MarshalJSON() ([]byte, error) {
+func (ac FunctionResultContent) MarshalJSON() ([]byte, error) {
 	type Alias FunctionResultContent
 	return json.Marshal(&struct {
 		Type string `json:"type"`
-		Alias
+		*Alias
 	}{
 		Type:  "FunctionResultContent",
-		Alias: Alias(fcc),
+		Alias: (*Alias)(&ac),
 	})
 }
 
-func (fcc *FunctionResultContent) UnmarshalJSON(data []byte) error {
+func (ac *FunctionResultContent) UnmarshalJSON(data []byte) error {
 	type Alias FunctionResultContent
 	aux := &struct {
 		Type string `json:"type"`
-		Alias
-	}{Alias: Alias(*fcc)}
-
-	if err := json.Unmarshal(data, aux); err != nil {
-		return err
+		*Alias
+	}{
+		Alias: (*Alias)(ac),
 	}
 
-	*fcc = FunctionResultContent(aux.Alias)
-	return nil
+	return json.Unmarshal(data, aux)
 }

@@ -62,10 +62,10 @@ func (ac AIContent) MarshalJSON() ([]byte, error) {
 	type Alias AIContent
 	return json.Marshal(&struct {
 		Type string `json:"type"`
-		Alias
+		*Alias
 	}{
 		Type:  "AIContent",
-		Alias: Alias(ac),
+		Alias: (*Alias)(&ac),
 	})
 }
 
@@ -73,15 +73,12 @@ func (ac *AIContent) UnmarshalJSON(data []byte) error {
 	type Alias AIContent
 	aux := &struct {
 		Type string `json:"type"`
-		Alias
-	}{Alias: Alias(*ac)}
-
-	if err := json.Unmarshal(data, aux); err != nil {
-		return err
+		*Alias
+	}{
+		Alias: (*Alias)(ac),
 	}
 
-	*ac = AIContent(aux.Alias)
-	return nil
+	return json.Unmarshal(data, aux)
 }
 
 func ConcatTextContents(contents []IAIContent) string {
