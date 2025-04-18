@@ -23,15 +23,21 @@ func (c *ChatMessage) Text() string {
 func (cru *ChatMessage) UnmarshalJSON(data []byte) error {
 	temp := struct {
 		Role                 ChatRole               `json:"role"`
-		Message              string                 `json:"message"`
-		Text                 *string                `json:"-"`
+		MessageId            *string                `json:"messageId"`
 		AuthorName           *string                `json:"authorName"`
 		AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
 		Contents             []json.RawMessage      `json:"contents"`
 	}{}
+
 	if err := json.Unmarshal(data, &temp); err != nil {
 		return err
 	}
+
+	cru.Role = temp.Role
+	cru.MessageId = temp.MessageId
+	cru.AuthorName = temp.AuthorName
+	cru.AdditionalProperties = temp.AdditionalProperties
+	cru.RawRepresentation = json.RawMessage(data)
 
 	for _, raw := range temp.Contents {
 		var base struct {
@@ -41,20 +47,9 @@ func (cru *ChatMessage) UnmarshalJSON(data []byte) error {
 			return err
 		}
 
-		var content contents.IAIContent
-		switch base.Type {
-		case "AIContent":
-			content = &contents.AIContent{}
-		case "FunctionCallContent":
-			content = &contents.FunctionCallContent{}
-		case "FunctionResultContent":
-			content = &contents.FunctionResultContent{}
-		case "TextContent":
-			content = &contents.TextContent{}
-		case "UsageContent":
-			content = &contents.UsageContent{}
-		default:
-			return fmt.Errorf("unknown type: %s", base.Type)
+		content, err := createContentByType(base.Type)
+		if err != nil {
+			return err
 		}
 
 		if err := json.Unmarshal(raw, content); err != nil {
@@ -63,7 +58,42 @@ func (cru *ChatMessage) UnmarshalJSON(data []byte) error {
 
 		cru.Contents = append(cru.Contents, content)
 	}
+
 	return nil
+}
+
+func (cru *ChatMessage) MarshalJSON() ([]byte, error) {
+	var contentsRaw []json.RawMessage
+	for _, content := range cru.Contents {
+		raw, err := json.Marshal(content)
+		if err != nil {
+			return nil, err
+		}
+		contentsRaw = append(contentsRaw, raw)
+	}
+
+	temp := struct {
+		Role                 ChatRole               `json:"role"`
+		MessageId            *string                `json:"messageId"`
+		AuthorName           *string                `json:"authorName"`
+		AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
+		Contents             []json.RawMessage      `json:"contents"`
+	}{
+		Role:                 cru.Role,
+		MessageId:            cru.MessageId,
+		AuthorName:           cru.AuthorName,
+		AdditionalProperties: cru.AdditionalProperties,
+		Contents:             contentsRaw,
+	}
+
+	return json.Marshal(temp)
+}
+
+func createContentByType(typeStr string) (contents.IAIContent, error) {
+	if factory, ok := contents.ContentTypeRegistry[typeStr]; ok {
+		return factory(), nil
+	}
+	return nil, fmt.Errorf("unknown type: %s", typeStr)
 }
 
 type ChatRole string

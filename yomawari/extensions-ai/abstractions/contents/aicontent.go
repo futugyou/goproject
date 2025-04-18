@@ -90,3 +90,15 @@ func ConcatTextContents(contents []IAIContent) string {
 	}
 	return text
 }
+
+var ContentTypeRegistry = map[string]func() IAIContent{
+	"AIContent":             func() IAIContent { return &AIContent{} },
+	"DataContent":           func() IAIContent { return &DataContent{} },
+	"ErrorContent":          func() IAIContent { return &ErrorContent{} },
+	"FunctionCallContent":   func() IAIContent { return &FunctionCallContent{} },
+	"FunctionResultContent": func() IAIContent { return &FunctionResultContent{} },
+	"TextContent":           func() IAIContent { return &TextContent{} },
+	"UriContent":            func() IAIContent { return &UriContent{} },
+	"TextReasoningContent":  func() IAIContent { return &TextReasoningContent{} },
+	"UsageContent":          func() IAIContent { return &UsageContent{} },
+}
