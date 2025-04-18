@@ -92,7 +92,7 @@ func AIContentToContent(content contents.IAIContent) types.Content {
 		}
 		return c
 	default:
-		data, err := json.Marshal(content.(contents.AIContent))
+		data, err := json.Marshal(content.(*contents.AIContent))
 		if err != nil {
 			data = []byte{}
 		}

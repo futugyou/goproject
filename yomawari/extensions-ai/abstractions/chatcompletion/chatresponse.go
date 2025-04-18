@@ -75,10 +75,7 @@ func (c *ChatResponse) ToChatResponseUpdates() []ChatResponseUpdate {
 		}
 
 		if c.Usage != nil {
-			extra.Contents = append(extra.Contents, contents.UsageContent{
-				AIContent: contents.AIContent{},
-				Details:   *c.Usage,
-			})
+			extra.Contents = append(extra.Contents, contents.NewUsageContent(*c.Usage))
 		}
 
 		updates = append(updates, extra)
@@ -266,10 +263,8 @@ func coalesceTextContent(conts []contents.IAIContent) []contents.IAIContent {
 		}
 
 		conts[start] = &contents.TextContent{
-			AIContent: contents.AIContent{
-				AdditionalProperties: firstText.AdditionalProperties,
-			},
-			Text: coalescedText.String(),
+			AIContent: contents.NewAIContent(nil, nil),
+			Text:      coalescedText.String(),
 		}
 
 		start = i

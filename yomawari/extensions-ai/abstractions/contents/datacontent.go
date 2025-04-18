@@ -10,16 +10,18 @@ import (
 
 // DataContent represents content that holds data, similar to the C# DataContent class.
 type DataContent struct {
-	AIContent `json:",inline"`
-	URI       string   `json:"url,omitempty"`
-	MediaType string   `json:"mediaType,omitempty"`
-	Data      []byte   `json:"-"`
-	dataURI   *DataUri `json:"-"`
+	*AIContent `json:",inline"`
+	URI        string   `json:"url,omitempty"`
+	MediaType  string   `json:"mediaType,omitempty"`
+	Data       []byte   `json:"-"`
+	dataURI    *DataUri `json:"-"`
 }
 
 // NewDataContent creates a new DataContent from a URI string, optionally providing a media type.
 func NewDataContent(uri string, mediaType string) *DataContent {
-	content := &DataContent{MediaType: mediaType}
+	content := &DataContent{
+		AIContent: NewAIContent(nil, nil),
+		MediaType: mediaType}
 
 	// Check if URI is a data URI
 	if strings.HasPrefix(uri, "data:") {

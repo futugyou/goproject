@@ -4,13 +4,13 @@ import "encoding/json"
 
 // TextContent represents text-based content.
 type TextContent struct {
-	AIContent `json:",inline"`
-	Text      string `json:"text,omitempty"`
+	*AIContent `json:",inline"`
+	Text       string `json:"text,omitempty"`
 }
 
 func NewTextContent(text string) *TextContent {
 	return &TextContent{
-		AIContent: AIContent{AdditionalProperties: make(map[string]interface{})},
+		AIContent: NewAIContent(nil, nil),
 		Text:      text,
 	}
 }

@@ -6,8 +6,11 @@ import (
 	"reflect"
 )
 
+var _ IAIContent = (*AIContent)(nil)
+
 type IAIContent interface {
-	IsAIContent()
+	GetRawRepresentation() interface{}
+	GetAdditionalProperties() map[string]interface{}
 }
 
 type AIContent struct {
@@ -15,7 +18,25 @@ type AIContent struct {
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"` // Additional properties for the content.
 }
 
-func (ac AIContent) IsAIContent() {}
+func NewAIContent(rawRepresentation interface{}, additionalProperties map[string]interface{}) *AIContent {
+	if additionalProperties == nil {
+		additionalProperties = make(map[string]interface{})
+	}
+	return &AIContent{
+		RawRepresentation:    rawRepresentation,
+		AdditionalProperties: additionalProperties,
+	}
+}
+
+// GetAdditionalProperties implements IAIContent.
+func (ac *AIContent) GetAdditionalProperties() map[string]interface{} {
+	return ac.AdditionalProperties
+}
+
+// GetRawRepresentation implements IAIContent.
+func (ac *AIContent) GetRawRepresentation() interface{} {
+	return ac.RawRepresentation
+}
 
 // AddAdditionalProperty allows adding properties to the content.
 func (ac *AIContent) AddAdditionalProperty(key string, value interface{}) {

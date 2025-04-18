@@ -8,8 +8,15 @@ import (
 
 // UsageContent represents content that holds usage information.
 type UsageContent struct {
-	AIContent `json:",inline"`
-	Details   abstractions.UsageDetails `json:"details,omitempty"`
+	*AIContent `json:",inline"`
+	Details    abstractions.UsageDetails `json:"details,omitempty"`
+}
+
+func NewUsageContent(details abstractions.UsageDetails) *UsageContent {
+	return &UsageContent{
+		AIContent: NewAIContent(nil, nil),
+		Details:   details,
+	}
 }
 
 func (fcc UsageContent) MarshalJSON() ([]byte, error) {

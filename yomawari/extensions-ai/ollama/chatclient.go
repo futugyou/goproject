@@ -184,10 +184,7 @@ func (client *OllamaChatClient) GetStreamingResponse(ctx context.Context, chatMe
 					// Add usage content if available
 					useage := ParseOllamaChatResponseUsage(chatResponse)
 					if useage != nil {
-						update.Contents = append(update.Contents, contents.UsageContent{
-							AIContent: contents.AIContent{},
-							Details:   *useage,
-						})
+						update.Contents = append(update.Contents, contents.NewUsageContent(*useage))
 					}
 
 					// Send the update

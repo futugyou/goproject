@@ -178,7 +178,7 @@ func (f *FunctionInvokingChatClient) CreateResponseMessages(results []FunctionIn
 		}
 
 		return contents.FunctionResultContent{
-			AIContent: contents.AIContent{},
+			AIContent: contents.NewAIContent(nil, nil),
 			CallId:    result.CallContent.CallId,
 			Result:    functionResult,
 			Error:     result.err,

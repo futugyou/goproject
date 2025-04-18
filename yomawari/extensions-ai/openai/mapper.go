@@ -248,20 +248,13 @@ func ToChatMessage(v rawopenai.ChatCompletionMessage) chatcompletion.ChatMessage
 	}
 
 	if len(v.Content) > 0 {
-		con := contents.TextContent{
-			AIContent: contents.AIContent{
-				AdditionalProperties: map[string]interface{}{},
-			},
-			Text: v.Content,
-		}
+		con := contents.NewTextContent(v.Content)
 		message.Contents = append(message.Contents, con)
 	}
 
 	if len(v.Audio.Data) > 0 {
 		con := contents.DataContent{
-			AIContent: contents.AIContent{
-				AdditionalProperties: map[string]interface{}{},
-			},
+			AIContent: contents.NewAIContent(nil, nil),
 			URI:       "",
 			MediaType: "audio/mpeg",
 			Data:      []byte(v.Audio.Data),
@@ -324,7 +317,7 @@ func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompleti
 
 	if response.Usage.CompletionTokens > 0 {
 		result.Contents = append(result.Contents, contents.UsageContent{
-			AIContent: contents.AIContent{},
+			AIContent: contents.NewAIContent(nil, nil),
 			Details: abstractions.UsageDetails{
 				InputTokenCount:      &response.Usage.PromptTokens,
 				OutputTokenCount:     &response.Usage.CompletionTokens,
@@ -552,7 +545,7 @@ func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamE
 				continue
 			}
 			response.Contents = append(response.Contents, contents.FunctionCallContent{
-				AIContent: contents.AIContent{AdditionalProperties: map[string]interface{}{}},
+				AIContent: contents.NewAIContent(nil, nil),
 				CallId:    string(call),
 				Name:      tool.Function.Name,
 				Arguments: arguments,
@@ -605,7 +598,7 @@ func convertContent(con rawopenai.MessageContent) contents.IAIContent {
 
 func GetUsageContentStep(runUsage rawopenai.RunStepUsage) contents.UsageContent {
 	return contents.UsageContent{
-		AIContent: contents.AIContent{AdditionalProperties: map[string]interface{}{}},
+		AIContent: contents.NewAIContent(nil, nil),
 		Details: abstractions.UsageDetails{
 			InputTokenCount:      &runUsage.PromptTokens,
 			OutputTokenCount:     &runUsage.CompletionTokens,
@@ -617,7 +610,7 @@ func GetUsageContentStep(runUsage rawopenai.RunStepUsage) contents.UsageContent 
 
 func GetUsageContent(runUsage rawopenai.RunUsage) contents.UsageContent {
 	return contents.UsageContent{
-		AIContent: contents.AIContent{AdditionalProperties: map[string]interface{}{}},
+		AIContent: contents.NewAIContent(nil, nil),
 		Details: abstractions.UsageDetails{
 			InputTokenCount:      &runUsage.PromptTokens,
 			OutputTokenCount:     &runUsage.CompletionTokens,
