@@ -11,9 +11,11 @@ import (
 )
 
 type ChatResponse struct {
-	Messages             []ChatMessage              `json:"choices"`
-	ResponseId           *string                    `json:"responseId"`
+	Messages   []ChatMessage `json:"choices"`
+	ResponseId *string       `json:"responseId"`
+	//Obsolete use ConversationId instead
 	ChatThreadId         *string                    `json:"chatThreadId"`
+	ConversationId       *string                    `json:"conversationId,omitempty"`
 	ModelId              *string                    `json:"modelId"`
 	CreatedAt            *time.Time                 `json:"createdAt"`
 	FinishReason         *ChatFinishReason          `json:"finishReason"`
@@ -50,13 +52,14 @@ func ConcatMessagesContents(contents []ChatMessage) string {
 func (c *ChatResponse) ToChatResponseUpdates() []ChatResponseUpdate {
 	var updates []ChatResponseUpdate
 
-	for i, choice := range c.Messages {
+	for _, choice := range c.Messages {
 		update := ChatResponseUpdate{
 			ChatThreadId:         c.ChatThreadId,
-			ChoiceIndex:          i,
+			ConversationId:       c.ConversationId,
 			AdditionalProperties: choice.AdditionalProperties,
 			AuthorName:           choice.AuthorName,
 			Contents:             choice.Contents,
+			MessageId:            choice.MessageId,
 			Role:                 &choice.Role,
 			ResponseId:           c.ResponseId,
 			CreatedAt:            c.CreatedAt,
@@ -97,16 +100,18 @@ const (
 type ChatResponseUpdate struct {
 	AuthorName           *string                `json:"authorName"`
 	Role                 *ChatRole              `json:"role"`
-	ChoiceIndex          int                    `json:"choiceIndex"`
-	Text                 *string                `json:"text"`
-	ResponseId           *string                `json:"responseId"`
-	ChatThreadId         *string                `json:"chatThreadId"`
-	ModelId              *string                `json:"modelId"`
-	CreatedAt            *time.Time             `json:"createdAt"`
-	FinishReason         *ChatFinishReason      `json:"finishReason"`
+	Text                 *string                `json:"-"`
+	Contents             []contents.IAIContent  `json:"contents"`
 	RawRepresentation    interface{}            `json:"-"`
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
-	Contents             []contents.IAIContent  `json:"contents"`
+	ResponseId           *string                `json:"responseId"`
+	MessageId            *string                `json:"messageId"`
+	//Obsolete use ConversationId instead
+	ChatThreadId   *string           `json:"chatThreadId"`
+	ConversationId *string           `json:"conversationId,omitempty"`
+	CreatedAt      *time.Time        `json:"createdAt"`
+	FinishReason   *ChatFinishReason `json:"finishReason"`
+	ModelId        *string           `json:"modelId"`
 }
 
 func (cru *ChatResponseUpdate) UnmarshalJSON(data []byte) error {
@@ -117,6 +122,7 @@ func (cru *ChatResponseUpdate) UnmarshalJSON(data []byte) error {
 		Text                 *string                `json:"text"`
 		ResponseId           *string                `json:"responseId"`
 		ChatThreadId         *string                `json:"chatThreadId"`
+		ConversationId       *string                `json:"conversationId,omitempty"`
 		ModelId              *string                `json:"modelId"`
 		CreatedAt            *time.Time             `json:"createdAt"`
 		FinishReason         *ChatFinishReason      `json:"finishReason"`
@@ -173,6 +179,7 @@ func ToChatResponse(updates []ChatResponseUpdate) ChatResponse {
 	response := new(ChatResponse)
 	for _, update := range updates {
 		response.ChatThreadId = update.ChatThreadId
+		response.ConversationId = update.ConversationId
 		response.CreatedAt = update.CreatedAt
 		response.FinishReason = update.FinishReason
 		response.ModelId = update.ModelId

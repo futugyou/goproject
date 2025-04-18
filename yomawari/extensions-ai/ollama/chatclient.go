@@ -40,9 +40,9 @@ func NewOllamaChatClient(modelId *string, endpoint url.URL, httpClient *http.Cli
 
 	return &OllamaChatClient{
 		metadata: &chatcompletion.ChatClientMetadata{
-			ProviderName: &name,
-			ProviderUri:  &endpoint,
-			ModelId:      modelId,
+			ProviderName:   &name,
+			ProviderUri:    &endpoint,
+			DefaultModelId: modelId,
 		},
 		apiChatEndpoint: *apiChatEndpoint,
 		httpClient:      httpClient,

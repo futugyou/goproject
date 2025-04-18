@@ -52,8 +52,8 @@ func NewOpenTelemetryChatClient(innerClient chatcompletion.IChatClient, metadata
 	modelId := ""
 
 	if metadata != nil {
-		if metadata.ModelId != nil {
-			modelId = *metadata.ModelId
+		if metadata.DefaultModelId != nil {
+			modelId = *metadata.DefaultModelId
 		}
 		if metadata.ProviderName != nil {
 			system = *metadata.ProviderName

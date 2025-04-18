@@ -11,6 +11,7 @@ type ChatMessage struct {
 	AuthorName           *string                `json:"authorName"`
 	Role                 ChatRole               `json:"role"`
 	Contents             []contents.IAIContent  `json:"contents"`
+	MessageId            *string                `json:"messageId"`
 	RawRepresentation    interface{}            `json:"-"`
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
 }

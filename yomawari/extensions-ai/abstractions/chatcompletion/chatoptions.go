@@ -3,7 +3,9 @@ package chatcompletion
 import "github.com/futugyou/yomawari/extensions-ai/abstractions"
 
 type ChatOptions struct {
+	//Obsolete use ConversationId instead
 	ChatThreadId         *string                `json:"chatThreadId,omitempty"`
+	ConversationId       *string                `json:"conversationId,omitempty"`
 	Temperature          *float64               `json:"temperature,omitempty"`
 	MaxOutputTokens      *int64                 `json:"maxOutputTokens,omitempty"`
 	TopP                 *float64               `json:"topP,omitempty"`
@@ -55,6 +57,7 @@ func (o *ChatOptions) Clone() *ChatOptions {
 		AdditionalProperties: o.AdditionalProperties,
 		StopSequences:        o.StopSequences,
 		Tools:                o.Tools,
+		ConversationId:       o.ConversationId,
 	}
 
 	additionalProperties := map[string]interface{}{}
