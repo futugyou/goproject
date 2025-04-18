@@ -55,8 +55,8 @@ func NewOpenTelemetryEmbeddingGenerator[TInput any, TEmbedding embeddings.IEmbed
 	modelId := ""
 
 	if metadata != nil {
-		if metadata.ModelId != nil {
-			modelId = *metadata.ModelId
+		if metadata.DefaultModelId != nil {
+			modelId = *metadata.DefaultModelId
 		}
 		if metadata.ProviderName != nil {
 			system = *metadata.ProviderName

@@ -22,7 +22,7 @@ func NewOpenAIEmbeddingGenerator[TEmbedding embeddings.EmbeddingT[float64]](
 ) *OpenAIEmbeddingGenerator[TEmbedding] {
 	name := "openai"
 	return &OpenAIEmbeddingGenerator[TEmbedding]{
-		metadata:     &embeddings.EmbeddingGeneratorMetadata{ProviderName: &name, ModelId: modelId},
+		metadata:     &embeddings.EmbeddingGeneratorMetadata{ProviderName: &name, DefaultModelId: modelId},
 		openAIClient: openAIClient,
 		modelId:      modelId,
 		dimensions:   dimensions,

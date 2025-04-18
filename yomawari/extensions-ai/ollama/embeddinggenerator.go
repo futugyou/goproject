@@ -31,9 +31,9 @@ func NewOllamaEmbeddingGenerator[TInput string, TEmbedding embeddings.EmbeddingT
 
 	return &OllamaEmbeddingGenerator[TInput, TEmbedding]{
 		metadata: &embeddings.EmbeddingGeneratorMetadata{
-			ProviderName: &name,
-			ProviderUri:  &endpoint,
-			ModelId:      modelId,
+			ProviderName:   &name,
+			ProviderUri:    &endpoint,
+			DefaultModelId: modelId,
 		},
 		apiChatEndpoint: *apiChatEndpoint,
 		httpClient:      httpClient,
@@ -49,8 +49,8 @@ func (g *OllamaEmbeddingGenerator[TInput, TEmbedding]) Generate(ctx context.Cont
 	requestModel := ""
 	if options != nil {
 		requestModel = *options.ModelId
-		if len(requestModel) == 0 && g.metadata != nil {
-			requestModel = *g.metadata.ModelId
+		if len(requestModel) == 0 && g.metadata != nil && g.metadata.DefaultModelId != nil {
+			requestModel = *g.metadata.DefaultModelId
 		}
 		request.Model = requestModel
 
