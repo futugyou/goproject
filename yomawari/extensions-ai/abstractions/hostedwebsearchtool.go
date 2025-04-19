@@ -1,7 +1,7 @@
 package abstractions
 
 type HostedWebSearchTool struct {
-	BaseAITool
+	*BaseAITool
 }
 
 func NewHostedWebSearchTool() *HostedWebSearchTool {

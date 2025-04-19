@@ -6,22 +6,21 @@ import (
 	"github.com/futugyou/yomawari/extensions-ai/abstractions"
 )
 
+var _ AIFunction = (*BaseAIFunction)(nil)
+
 type AIFunction interface {
 	abstractions.AITool
 	Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error)
+	// i want use https://github.com/invopop/jsonschema
 	GetJsonSchema() map[string]interface{}
 }
 
 type BaseAIFunction struct {
-	abstractions.BaseAITool
+	*abstractions.BaseAITool
 	arguments AIFunctionArguments
 }
 
-func (t BaseAIFunction) GetParameters() map[string]interface{} {
-	return map[string]interface{}{}
-}
-
-func (t BaseAIFunction) GetJsonSchema() map[string]interface{} {
+func (t *BaseAIFunction) GetJsonSchema() map[string]interface{} {
 	panic("not implemented")
 }
 

@@ -1,7 +1,7 @@
 package abstractions
 
 type CodeInterpreterTool struct {
-	BaseAITool
+	*BaseAITool
 }
 
 func NewCodeInterpreterTool() *CodeInterpreterTool {

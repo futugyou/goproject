@@ -11,20 +11,20 @@ type IEmbeddingGenerator[TInput any, TEmbedding IEmbedding] interface {
 	Generate(ctx context.Context, values []TInput, options *EmbeddingGenerationOptions) (*GeneratedEmbeddings[TEmbedding], error)
 }
 
-func GenerateEmbeddingVector[TInput any, TEmbeddingElement any](
+func GenerateVector[TInput any, TEmbeddingElement any](
 	generator IEmbeddingGenerator[TInput, EmbeddingT[TEmbeddingElement]],
 	ctx context.Context,
 	value TInput,
 	options *EmbeddingGenerationOptions,
 ) ([]TEmbeddingElement, error) {
-	embedding, err := GenerateEmbedding(generator, ctx, value, options)
+	embedding, err := Generate(generator, ctx, value, options)
 	if err != nil {
 		return nil, err
 	}
 	return embedding.Vector, nil
 }
 
-func GenerateEmbedding[TInput any, TEmbedding IEmbedding](
+func Generate[TInput any, TEmbedding IEmbedding](
 	generator IEmbeddingGenerator[TInput, TEmbedding],
 	ctx context.Context,
 	value TInput,
