@@ -123,7 +123,7 @@ const (
 	FileExtensions_ArchiveZip  = ".zip"
 	FileExtensions_ArchiveRar  = ".rar"
 	FileExtensions_Archive7Zip = ".7z"
-) 
+)
 
 var FileExtensionToMimeType = map[string]string{
 	FileExtensions_PlainText: MimeTypes_PlainText,
@@ -138,30 +138,30 @@ var FileExtensionToMimeType = map[string]string{
 	FileExtensions_JavaScript:          MimeTypes_JavaScript,
 	FileExtensions_BourneShellScript:   MimeTypes_BourneShellScript,
 
-	FileExtensions_ImageBmp:  MimeTypes_ImageBmp,
-	FileExtensions_ImageGif:  MimeTypes_ImageGif,
-	FileExtensions_ImageJpeg: MimeTypes_ImageJpeg,
-	FileExtensions_ImageJpg:  MimeTypes_ImageJpeg,
-	FileExtensions_ImagePng:  MimeTypes_ImagePng,
-	FileExtensions_ImageTiff: MimeTypes_ImageTiff,
+	FileExtensions_ImageBmp:   MimeTypes_ImageBmp,
+	FileExtensions_ImageGif:   MimeTypes_ImageGif,
+	FileExtensions_ImageJpeg:  MimeTypes_ImageJpeg,
+	FileExtensions_ImageJpg:   MimeTypes_ImageJpeg,
+	FileExtensions_ImagePng:   MimeTypes_ImagePng,
+	FileExtensions_ImageTiff:  MimeTypes_ImageTiff,
 	FileExtensions_ImageTiff2: MimeTypes_ImageTiff,
-	FileExtensions_ImageWebP: MimeTypes_ImageWebP,
-	FileExtensions_ImageSVG:  MimeTypes_ImageSVG,
+	FileExtensions_ImageWebP:  MimeTypes_ImageWebP,
+	FileExtensions_ImageSVG:   MimeTypes_ImageSVG,
 
-	FileExtensions_WebPageUrl:         MimeTypes_WebPageUrl,
+	FileExtensions_WebPageUrl:          MimeTypes_WebPageUrl,
 	FileExtensions_TextEmbeddingVector: MimeTypes_TextEmbeddingVector,
-	FileExtensions_Json:               MimeTypes_Json,
-	FileExtensions_CSVData:            MimeTypes_CSVData,
+	FileExtensions_Json:                MimeTypes_Json,
+	FileExtensions_CSVData:             MimeTypes_CSVData,
 
-	FileExtensions_Pdf:        MimeTypes_Pdf,
+	FileExtensions_Pdf:         MimeTypes_Pdf,
 	FileExtensions_RTFDocument: MimeTypes_RTFDocument,
 
-	FileExtensions_MsWord:   MimeTypes_MsWord,
-	FileExtensions_MsWordX:  MimeTypes_MsWordX,
-	FileExtensions_MsPowerPoint:   MimeTypes_MsPowerPoint,
-	FileExtensions_MsPowerPointX:  MimeTypes_MsPowerPointX,
-	FileExtensions_MsExcel:   MimeTypes_MsExcel,
-	FileExtensions_MsExcelX:  MimeTypes_MsExcelX,
+	FileExtensions_MsWord:        MimeTypes_MsWord,
+	FileExtensions_MsWordX:       MimeTypes_MsWordX,
+	FileExtensions_MsPowerPoint:  MimeTypes_MsPowerPoint,
+	FileExtensions_MsPowerPointX: MimeTypes_MsPowerPointX,
+	FileExtensions_MsExcel:       MimeTypes_MsExcel,
+	FileExtensions_MsExcelX:      MimeTypes_MsExcelX,
 
 	FileExtensions_OpenDocumentText:         MimeTypes_OpenDocumentText,
 	FileExtensions_OpenDocumentSpreadsheet:  MimeTypes_OpenDocumentSpreadsheet,
@@ -175,11 +175,11 @@ var FileExtensionToMimeType = map[string]string{
 	FileExtensions_AudioOpus:     MimeTypes_AudioOpus,
 	FileExtensions_AudioWEBM:     MimeTypes_AudioWEBM,
 
-	FileExtensions_VideoMP4:       MimeTypes_VideoMP4,
-	FileExtensions_VideoMPEG:      MimeTypes_VideoMPEG,
-	FileExtensions_VideoOGG:       MimeTypes_VideoOGG,
+	FileExtensions_VideoMP4:        MimeTypes_VideoMP4,
+	FileExtensions_VideoMPEG:       MimeTypes_VideoMPEG,
+	FileExtensions_VideoOGG:        MimeTypes_VideoOGG,
 	FileExtensions_VideoOGGGeneric: MimeTypes_VideoOGGGeneric,
-	FileExtensions_VideoWEBM:      MimeTypes_VideoWEBM,
+	FileExtensions_VideoWEBM:       MimeTypes_VideoWEBM,
 
 	FileExtensions_ArchiveTar:  MimeTypes_ArchiveTar,
 	FileExtensions_ArchiveGzip: MimeTypes_ArchiveGzip,

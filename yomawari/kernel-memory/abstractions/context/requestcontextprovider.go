@@ -32,7 +32,7 @@ func (p *RequestContextProvider) InitContextArgs(ctx context.Context, args map[s
 	if p == nil {
 		return nil
 	}
-	
+
 	p.GetContext(ctx).InitArgs(args)
 	return p
 }

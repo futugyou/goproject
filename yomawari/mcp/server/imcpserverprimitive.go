@@ -1,5 +1,5 @@
 package server
 
-type IMcpServerPrimitive interface{
+type IMcpServerPrimitive interface {
 	GetName() string
 }

@@ -40,21 +40,20 @@ const (
 	ReservedPayloadVectorGeneratorField = "vector_generator"
 
 	// Endpoints
-	HttpAskEndpoint           = "/ask"
-	HttpSearchEndpoint        = "/search"
-	HttpDownloadEndpoint      = "/download"
-	HttpUploadEndpoint        = "/upload"
-	HttpUploadStatusEndpoint  = "/upload-status"
-	HttpDocumentsEndpoint     = "/documents"
-	HttpIndexesEndpoint       = "/indexes"
-	HttpIndexPlaceholder      = "{index}"
-	HttpDocumentIdPlaceholder = "{documentId}"
-	HttpFilenamePlaceholder   = "{filename}"
-	 HttpDeleteDocumentEndpointWithParams = "{HttpDocumentsEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}";
-     HttpDeleteIndexEndpointWithParams = "{HttpIndexesEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}";
-     HttpUploadStatusEndpointWithParams = "{HttpUploadStatusEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}";
-     HttpDownloadEndpointWithParams = "{HttpDownloadEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}&{WebService.FilenameField}={HttpFilenamePlaceholder}";
-    
+	HttpAskEndpoint                      = "/ask"
+	HttpSearchEndpoint                   = "/search"
+	HttpDownloadEndpoint                 = "/download"
+	HttpUploadEndpoint                   = "/upload"
+	HttpUploadStatusEndpoint             = "/upload-status"
+	HttpDocumentsEndpoint                = "/documents"
+	HttpIndexesEndpoint                  = "/indexes"
+	HttpIndexPlaceholder                 = "{index}"
+	HttpDocumentIdPlaceholder            = "{documentId}"
+	HttpFilenamePlaceholder              = "{filename}"
+	HttpDeleteDocumentEndpointWithParams = "{HttpDocumentsEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}"
+	HttpDeleteIndexEndpointWithParams    = "{HttpIndexesEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}"
+	HttpUploadStatusEndpointWithParams   = "{HttpUploadStatusEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}"
+	HttpDownloadEndpointWithParams       = "{HttpDownloadEndpoint}?{WebService.IndexField}={HttpIndexPlaceholder}&{WebService.DocumentIdField}={HttpDocumentIdPlaceholder}&{WebService.FilenameField}={HttpFilenamePlaceholder}"
 )
 
 const (

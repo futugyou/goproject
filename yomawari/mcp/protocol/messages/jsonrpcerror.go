@@ -9,14 +9,15 @@ type JsonRpcError struct {
 func NewJsonRpcError(id *RequestId, code int, message string, data any) *JsonRpcError {
 	return &JsonRpcError{
 		JsonRpc: "2.0",
-		Id: id,
+		Id:      id,
 		Error: &JsonRpcErrorDetail{
-			Code: code,
+			Code:    code,
 			Message: message,
-			Data: data,
+			Data:    data,
 		},
 	}
 }
+
 // GetId implements IJsonRpcMessageWithId.
 func (j *JsonRpcError) GetId() *RequestId {
 	return j.Id
