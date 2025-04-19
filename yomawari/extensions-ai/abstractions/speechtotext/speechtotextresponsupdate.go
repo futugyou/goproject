@@ -1,6 +1,7 @@
 package speechtotext
 
 import (
+	"context"
 	"time"
 
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
@@ -101,4 +102,38 @@ func processUpdate(update SpeechToTextResponseUpdate, conts []contents.IAIConten
 		}
 	}
 	return
+}
+
+func ToSpeechToTextResponseChan(ctx context.Context, updates <-chan SpeechToTextResponseUpdate) (*SpeechToTextResponse, error) {
+	response := &SpeechToTextResponse{
+		Contents: []contents.IAIContent{},
+	}
+
+	var endTime *time.Time
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case update, ok := <-updates:
+			if !ok {
+				response.EndTime = endTime
+				response.Contents = chatcompletion.CoalesceTextContent(response.Contents)
+				return response, nil
+			}
+
+			if response.StartTime == nil {
+				response.StartTime = update.StartTime
+			}
+
+			if update.EndTime != nil {
+				endTime = update.EndTime
+			}
+			contents, responseId, modelId, additionalProperties := processUpdate(update, response.Contents)
+			response.Contents = contents
+			response.ResponseId = responseId
+			response.ModelId = modelId
+			response.AdditionalProperties = additionalProperties
+		}
+	}
 }
