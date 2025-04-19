@@ -222,11 +222,11 @@ func ToChatResponse(updates []ChatResponseUpdate) ChatResponse {
 
 func finalizeResponse(response *ChatResponse) {
 	for i := 0; i < len(response.Messages); i++ {
-		response.Messages[i].Contents = coalesceTextContent(response.Messages[i].Contents)
+		response.Messages[i].Contents = CoalesceTextContent(response.Messages[i].Contents)
 	}
 }
 
-func coalesceTextContent(conts []contents.IAIContent) []contents.IAIContent {
+func CoalesceTextContent(conts []contents.IAIContent) []contents.IAIContent {
 	var coalescedText *strings.Builder
 
 	start := 0

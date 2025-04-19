@@ -7,12 +7,13 @@ import (
 )
 
 type SpeechToTextResponse struct {
-	StartTime         *time.Time            `json:"start_time,omitempty"`
-	EndTime           *time.Time            `json:"end_time,omitempty"`
-	ResponseId        *string               `json:"response_id,omitempty"`
-	ModelId           *string               `json:"model_id,omitempty"`
-	Contents          []contents.IAIContent `json:"contents,omitempty"`
-	RawRepresentation interface{}           `json:"-"`
+	StartTime            *time.Time             `json:"start_time,omitempty"`
+	EndTime              *time.Time             `json:"end_time,omitempty"`
+	ResponseId           *string                `json:"response_id,omitempty"`
+	ModelId              *string                `json:"model_id,omitempty"`
+	Contents             []contents.IAIContent  `json:"contents,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
+	RawRepresentation    interface{}            `json:"-"`
 }
 
 func (s *SpeechToTextResponse) Text() string {
@@ -29,13 +30,14 @@ func (s *SpeechToTextResponse) ToSpeechToTextResponseUpdates() []SpeechToTextRes
 	}
 
 	sp := SpeechToTextResponseUpdate{
-		StartTime:         s.StartTime,
-		EndTime:           s.EndTime,
-		ResponseId:        s.ResponseId,
-		ModelId:           s.ModelId,
-		Contents:          s.Contents,
-		RawRepresentation: s.RawRepresentation,
-		Kind:              SpeechToTextResponseUpdateKindTextUpdated,
+		StartTime:            s.StartTime,
+		EndTime:              s.EndTime,
+		ResponseId:           s.ResponseId,
+		ModelId:              s.ModelId,
+		Contents:             s.Contents,
+		RawRepresentation:    s.RawRepresentation,
+		Kind:                 SpeechToTextResponseUpdateKindTextUpdated,
+		AdditionalProperties: s.AdditionalProperties,
 	}
 	return []SpeechToTextResponseUpdate{sp}
 }
