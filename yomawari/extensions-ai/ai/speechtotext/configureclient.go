@@ -13,12 +13,14 @@ var _ speechtotext.ISpeechToTextClient = (*ConfigureOptionsSpeechToTextClient)(n
 type ConfigureOptionsSpeechToTextClient struct {
 	*speechtotext.DelegatingSpeechToTextClient
 	configureOptions func(*speechtotext.SpeechToTextOptions)
+	metadata         *speechtotext.SpeechToTextClientMetadata
 }
 
-func NewConfigureOptionsSpeechToTextClient(client speechtotext.ISpeechToTextClient, configureOptions func(*speechtotext.SpeechToTextOptions)) *ConfigureOptionsSpeechToTextClient {
+func NewConfigureOptionsSpeechToTextClient(client speechtotext.ISpeechToTextClient, configureOptions func(*speechtotext.SpeechToTextOptions), metadata *speechtotext.SpeechToTextClientMetadata) *ConfigureOptionsSpeechToTextClient {
 	return &ConfigureOptionsSpeechToTextClient{
 		DelegatingSpeechToTextClient: speechtotext.NewDelegatingSpeechToTextClient(client),
 		configureOptions:             configureOptions,
+		metadata:                     metadata,
 	}
 }
 
