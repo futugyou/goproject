@@ -13,6 +13,12 @@ type DelegatingSpeechToTextClient struct {
 	InnerClient ISpeechToTextClient
 }
 
+func NewDelegatingSpeechToTextClient(client ISpeechToTextClient) *DelegatingSpeechToTextClient {
+	return &DelegatingSpeechToTextClient{
+		InnerClient: client,
+	}
+}
+
 // GetStreamingText implements ISpeechToTextClient.
 func (d *DelegatingSpeechToTextClient) GetStreamingText(ctx context.Context, audioSpeechStream io.ReadCloser, options *SpeechToTextOptions) (<-chan SpeechToTextResponse, <-chan error) {
 	return d.InnerClient.GetStreamingText(ctx, audioSpeechStream, options)
