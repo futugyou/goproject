@@ -42,7 +42,14 @@ type SseParser[T any] struct {
 	LastEventId                    string
 }
 
-func NewSseParserr[T any](stream io.ReadCloser, itemParser SseItemParser[T]) *SseParser[T] {
+func CreateSseParser(stream io.ReadCloser) *SseParser[string] {
+	var itemParser SseItemParser[string] = func(_ string, data []byte) string {
+		return base64.URLEncoding.EncodeToString(data)
+	}
+	return NewSseParser(stream, itemParser)
+}
+
+func NewSseParser[T any](stream io.ReadCloser, itemParser SseItemParser[T]) *SseParser[T] {
 	s := &SseParser[T]{
 		timeSpan_maxvalue_milliseconds: math.MaxInt,
 		default_array_pool_rent_size:   1024,
