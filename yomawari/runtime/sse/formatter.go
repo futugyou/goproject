@@ -3,6 +3,7 @@ package sse
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"reflect"
@@ -17,12 +18,12 @@ func Write[T any](ctx context.Context, source <-chan SseItem[T], dst io.Writer, 
 	if itemFormatter == nil {
 		var zero T
 		if reflect.TypeOf(zero).Kind() == reflect.String {
-			anyFormatter := any(DefaultStringFormatter)
-			itemFormatter = anyFormatter.(ItemFormatter[T])
+			itemFormatter = any(DefaultStringFormatter).(ItemFormatter[T])
 		} else {
-			return fmt.Errorf("no formatter provided for type %T", zero)
+			itemFormatter = DefaultJsonFormatter[T]
 		}
 	}
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -82,4 +83,9 @@ func writeLinesWithPrefix(w *bufio.Writer, prefix string, data string) {
 
 func DefaultStringFormatter(item SseItem[string], w *bufio.Writer) {
 	_, _ = w.WriteString(item.Data)
+}
+
+func DefaultJsonFormatter[T any](item SseItem[T], w *bufio.Writer) {
+	encoder := json.NewEncoder(w)
+	_ = encoder.Encode(item.Data)
 }
