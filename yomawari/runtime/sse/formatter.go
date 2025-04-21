@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 )
 
@@ -13,6 +14,15 @@ type ItemFormatter[T any] func(item SseItem[T], w *bufio.Writer)
 func Write[T any](ctx context.Context, source <-chan SseItem[T], dst io.Writer, itemFormatter ItemFormatter[T]) error {
 	writer := bufio.NewWriter(dst)
 
+	if itemFormatter == nil {
+		var zero T
+		if reflect.TypeOf(zero).Kind() == reflect.String {
+			anyFormatter := any(DefaultStringFormatter)
+			itemFormatter = anyFormatter.(ItemFormatter[T])
+		} else {
+			return fmt.Errorf("no formatter provided for type %T", zero)
+		}
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -68,4 +78,8 @@ func writeLinesWithPrefix(w *bufio.Writer, prefix string, data string) {
 	for _, line := range lines {
 		_, _ = fmt.Fprintf(w, "%s%s\n", prefix, line)
 	}
+}
+
+func DefaultStringFormatter(item SseItem[string], w *bufio.Writer) {
+	_, _ = w.WriteString(item.Data)
 }
