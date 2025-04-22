@@ -23,7 +23,7 @@ type SseWriter struct {
 	MessageFilter   func(ctx context.Context, mesg chan sse.SseItem[messages.IJsonRpcMessage]) chan sse.SseItem[messages.IJsonRpcMessage]
 }
 
-func NewSeeWriter(messageEndpoint string) *SseWriter {
+func NewSseWriter(messageEndpoint string) *SseWriter {
 	return &SseWriter{
 		messages:        make(chan sse.SseItem[messages.IJsonRpcMessage]),
 		messageEndpoint: messageEndpoint,

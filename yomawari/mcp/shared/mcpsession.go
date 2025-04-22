@@ -220,10 +220,6 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 		return nil, fmt.Errorf("session or request is nil")
 	}
 
-	if !m._transport.IsConnected() {
-		return nil, fmt.Errorf("transport is not connected")
-	}
-
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -297,10 +293,6 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
 	if m == nil || message == nil {
 		return fmt.Errorf("mcp session or message is nil")
-	}
-
-	if !m._transport.IsConnected() {
-		return fmt.Errorf("transport is not connected")
 	}
 
 	select {

@@ -10,7 +10,6 @@ import (
 )
 
 type ITransport interface {
-	IsConnected() bool
 	MessageReader() <-chan messages.IJsonRpcMessage
 	SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error
 	Close() error
@@ -19,6 +18,7 @@ type ITransport interface {
 const TransportTypesStdIo string = "stdio"
 const TransportTypesSse string = "sse"
 
+// TODO: use github.com/futugyou/yomawari/runtime/sse instead
 type SseItem struct {
 	EventType string
 	Data      string
