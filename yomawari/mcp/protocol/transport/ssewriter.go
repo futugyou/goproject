@@ -30,7 +30,7 @@ func NewSseWriter(messageEndpoint string) *SseWriter {
 	}
 }
 
-func (s *SseWriter) WriteAll(ctx context.Context, sseResponseStream io.ReadWriter) chan error {
+func (s *SseWriter) WriteAll(ctx context.Context, sseResponseStream io.Writer) chan error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -84,28 +84,26 @@ func (s *SseWriter) writeJsonRpcMessageToBuffer() sse.ItemFormatter[messages.IJs
 	}
 }
 
-func (s *SseWriter) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) chan error {
-	result := make(chan error)
-	defer close(result)
+func (s *SseWriter) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
 	if message == nil {
-		result <- fmt.Errorf("message is nil")
-		return result
+		return fmt.Errorf("message is nil")
 	}
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if s.disposed {
-		return result
-	}
-	select {
-	case s.messages <- *sse.NewSseItem[messages.IJsonRpcMessage](message, "message"):
-		result <- nil
-	default:
-		result <- fmt.Errorf("something went wrong sending the message")
+		return fmt.Errorf("sseWriter is disposed")
 	}
 
-	return result
+	var err error
+	select {
+	case s.messages <- *sse.NewSseItem[messages.IJsonRpcMessage](message, "message"):
+	default:
+		err = fmt.Errorf("something went wrong sending the message")
+	}
+
+	return err
 }
 
 func (s *SseWriter) Dispose() {
