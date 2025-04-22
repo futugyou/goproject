@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type ItemFormatter[T any] func(item SseItem[T], w *bufio.Writer)
+type ItemFormatter[T any] func(item SseItem[T], w *bufio.Writer) error
 
 func Write[T any](ctx context.Context, source <-chan SseItem[T], dst io.Writer, itemFormatter ItemFormatter[T]) error {
 	writer := bufio.NewWriter(dst)
@@ -81,11 +81,12 @@ func writeLinesWithPrefix(w *bufio.Writer, prefix string, data string) {
 	}
 }
 
-func DefaultStringFormatter(item SseItem[string], w *bufio.Writer) {
-	_, _ = w.WriteString(item.Data)
+func DefaultStringFormatter(item SseItem[string], w *bufio.Writer) error {
+	_, err := w.WriteString(item.Data)
+	return err
 }
 
-func DefaultJsonFormatter[T any](item SseItem[T], w *bufio.Writer) {
+func DefaultJsonFormatter[T any](item SseItem[T], w *bufio.Writer) error {
 	encoder := json.NewEncoder(w)
-	_ = encoder.Encode(item.Data)
+	return encoder.Encode(item.Data)
 }
