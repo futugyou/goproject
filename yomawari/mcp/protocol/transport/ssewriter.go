@@ -107,3 +107,31 @@ func (s *SseWriter) SendMessage(ctx context.Context, message messages.IJsonRpcMe
 
 	return result
 }
+
+func (s *SseWriter) Dispose() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.disposed {
+		return
+	}
+
+	if s.cancelFunc != nil {
+		s.cancelFunc()
+		s.cancelFunc = nil
+	}
+
+	close(s.messages)
+
+	if s.task != nil {
+		select {
+		case <-s.task:
+		default:
+			s.task <- nil
+		}
+		close(s.task)
+		s.task = nil
+	}
+
+	s.disposed = true
+}
