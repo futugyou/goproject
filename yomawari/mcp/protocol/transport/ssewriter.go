@@ -83,3 +83,27 @@ func (s *SseWriter) writeJsonRpcMessageToBuffer() sse.ItemFormatter[messages.IJs
 		return err
 	}
 }
+
+func (s *SseWriter) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) chan error {
+	result := make(chan error)
+	defer close(result)
+	if message == nil {
+		result <- fmt.Errorf("message is nil")
+		return result
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.disposed {
+		return result
+	}
+	select {
+	case s.messages <- *sse.NewSseItem[messages.IJsonRpcMessage](message, "message"):
+		result <- nil
+	default:
+		result <- fmt.Errorf("something went wrong sending the message")
+	}
+
+	return result
+}
