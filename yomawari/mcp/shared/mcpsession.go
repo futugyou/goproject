@@ -12,7 +12,7 @@ import (
 	"github.com/futugyou/yomawari/mcp"
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
-	"github.com/futugyou/yomawari/runtime/async"
+	"github.com/futugyou/yomawari/runtime/tasks"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -30,7 +30,7 @@ type McpSession struct {
 	_requestHandlers          *RequestHandlers
 	_notificationHandlers     *NotificationHandlers
 	_sessionStartingTimestamp int64
-	_pendingRequests          sync.Map // map[RequestId]*async.TaskCompletionSource[messages.IJsonRpcMessage]
+	_pendingRequests          sync.Map // map[RequestId]*tasks.TaskCompletionSource[messages.IJsonRpcMessage]
 	_handlingRequests         sync.Map // map[RequestId]context.CancelFunc
 	_id                       string
 	_nextRequestId            int64
@@ -98,7 +98,7 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 	}
 
 	resultChan := m._transport.MessageReader()
-	processor := async.TaskProcessor[messages.IJsonRpcMessage]{
+	processor := tasks.TaskProcessor[messages.IJsonRpcMessage]{
 		ResultChan:        resultChan,
 		Handler:           processMessage, // func(ctx, msg) error
 		MaxConcurrency:    20,
@@ -108,7 +108,7 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 	processor.Run(ctx)
 
 	m._pendingRequests.Range(func(key, value interface{}) bool {
-		if tcs, ok := value.(*async.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+		if tcs, ok := value.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
 			tcs.TrySetError(fmt.Errorf("the server shut down unexpectedly"))
 		}
 		return true
@@ -181,7 +181,7 @@ func (m *McpSession) handleMessageWithId(message messages.IJsonRpcMessage, messa
 	if !ok {
 		return fmt.Errorf("no pending request found for id %s", requestid.String())
 	}
-	if source, ok := value.(*async.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+	if source, ok := value.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
 		source.SetResult(message)
 	}
 	return nil
@@ -250,7 +250,7 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	mcp.PropagatorInject(ctx, request)
 
 	ctx, cancelfunc := context.WithCancel(ctx)
-	tcs := async.NewTaskCompletionSource[messages.IJsonRpcMessage](ctx, cancelfunc)
+	tcs := tasks.NewTaskCompletionSource[messages.IJsonRpcMessage](ctx, cancelfunc)
 	m._pendingRequests.Store(request.Id, tcs)
 
 	m.addStandardTags(&tags, method)
@@ -263,7 +263,7 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 		return nil, err
 	}
 
-	async.RegisterCancellation(ctx, func() {
+	tasks.RegisterCancellation(ctx, func() {
 		data, err := json.Marshal(messages.CancelledNotification{RequestId: *request.Id})
 		if err != nil {
 			return
@@ -326,7 +326,7 @@ func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcM
 	if notification, ok := message.(*messages.JsonRpcNotification); ok {
 		if params := getCancelledNotificationParams(notification.Params); params != nil {
 			if c, ok := m._pendingRequests.Load(params.RequestId); ok {
-				if source, ok := c.(*async.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+				if source, ok := c.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
 					source.Cancel()
 					m._pendingRequests.Delete(params.RequestId)
 				}
@@ -351,7 +351,7 @@ func (m *McpSession) Dispose() {
 	durationMetric.Record(context.Background(), (float64)(incr), metric.WithAttributes(tags...))
 
 	m._pendingRequests.Range(func(key, value interface{}) bool {
-		if tcs, ok := value.(*async.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+		if tcs, ok := value.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
 			tcs.Cancel()
 		}
 		return true

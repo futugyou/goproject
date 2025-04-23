@@ -1,4 +1,4 @@
-package async
+package tasks
 
 type Resolver[T any] interface {
 	SetResult(value T)
