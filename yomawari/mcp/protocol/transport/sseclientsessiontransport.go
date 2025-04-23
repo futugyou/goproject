@@ -13,6 +13,7 @@ import (
 
 	"github.com/futugyou/yomawari/mcp/configuration"
 	"github.com/futugyou/yomawari/mcp/protocol/messages"
+	"github.com/futugyou/yomawari/runtime/sse"
 )
 
 type SseClientSessionTransport struct {
@@ -179,12 +180,15 @@ func (s *SseClientSessionTransport) connectAndProcessMessages(ctx context.Contex
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	eventCh := ParseSSEStream(ctx, resp.Body)
+	sseWriter := sse.CreateSseParser(resp.Body)
+	eventCh, errCh := sseWriter.EnumerateStream(ctx)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
+		case err := <-errCh:
+			return err
 		case event, ok := <-eventCh:
 			if !ok {
 				return nil
