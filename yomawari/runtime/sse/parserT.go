@@ -23,7 +23,7 @@ const TimeSpanMaxMilliseconds = int64(922337203685477)
 type SseParser[T any] struct {
 	timeSpan_maxvalue_milliseconds int64
 	default_array_pool_rent_size   int
-	stream                         io.ReadCloser
+	stream                         io.Reader
 	itemParser                     SseItemParser[T]
 	used                           int32
 	lineBuffer                     []byte
@@ -42,14 +42,14 @@ type SseParser[T any] struct {
 	LastEventId                    string
 }
 
-func CreateSseParser(stream io.ReadCloser) *SseParser[string] {
+func CreateSseParser(stream io.Reader) *SseParser[string] {
 	var itemParser SseItemParser[string] = func(_ string, data []byte) string {
 		return base64.URLEncoding.EncodeToString(data)
 	}
 	return NewSseParser(stream, itemParser)
 }
 
-func NewSseParser[T any](stream io.ReadCloser, itemParser SseItemParser[T]) *SseParser[T] {
+func NewSseParser[T any](stream io.Reader, itemParser SseItemParser[T]) *SseParser[T] {
 	s := &SseParser[T]{
 		timeSpan_maxvalue_milliseconds: math.MaxInt,
 		default_array_pool_rent_size:   1024,
