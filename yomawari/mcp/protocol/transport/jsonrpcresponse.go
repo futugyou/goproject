@@ -27,6 +27,15 @@ func NewJsonRpcResponse(id *RequestId, result json.RawMessage) *JsonRpcResponse 
 	}
 }
 
+func NewJsonRpcResponseWithTransport(id *RequestId, result json.RawMessage, transport ITransport) *JsonRpcResponse {
+	return &JsonRpcResponse{
+		JsonRpc:          "2.0",
+		Result:           result,
+		Id:               id,
+		RelatedTransport: transport,
+	}
+}
+
 // GetId implements IJsonRpcMessageWithId.
 func (j *JsonRpcResponse) GetId() *RequestId {
 	return j.Id

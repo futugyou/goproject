@@ -29,6 +29,19 @@ func NewJsonRpcError(id *RequestId, code int, message string, data any) *JsonRpc
 	}
 }
 
+func NewJsonRpcErrorWithTransport(id *RequestId, code int, message string, data any, transport ITransport) *JsonRpcError {
+	return &JsonRpcError{
+		JsonRpc:          "2.0",
+		Id:               id,
+		RelatedTransport: transport,
+		Error: &JsonRpcErrorDetail{
+			Code:    code,
+			Message: message,
+			Data:    data,
+		},
+	}
+}
+
 // GetId implements IJsonRpcMessageWithId.
 func (j *JsonRpcError) GetId() *RequestId {
 	return j.Id

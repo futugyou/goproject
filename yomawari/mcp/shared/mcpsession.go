@@ -92,7 +92,7 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 				isUserCancellation = true
 			}
 			if request, ok := message.(*transport.JsonRpcRequest); !isUserCancellation && ok {
-				m._transport.SendMessage(ctx, transport.NewJsonRpcError(request.Id, 500, err.Error(), nil))
+				m._transport.SendMessage(ctx, transport.NewJsonRpcErrorWithTransport(request.Id, 500, err.Error(), nil, request.RelatedTransport))
 			}
 		}
 		return nil
@@ -199,7 +199,7 @@ func (m *McpSession) handleRequest(ctx context.Context, request transport.JsonRp
 		return err
 	}
 
-	msg := transport.NewJsonRpcResponse(request.Id, result)
+	msg := transport.NewJsonRpcResponseWithTransport(request.Id, result, request.RelatedTransport)
 	return m._transport.SendMessage(ctx, msg)
 }
 
@@ -259,19 +259,17 @@ func (m *McpSession) SendRequest(ctx context.Context, request *transport.JsonRpc
 
 	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, tags)
 
-	if err := m._transport.SendMessage(ctx, request); err != nil {
-		addExceptionTags(&tags, err)
-		return nil, err
-	}
+	m.sendToRelatedTransport(ctx, request)
 
 	tasks.RegisterCancellation(ctx, func() {
 		data, err := json.Marshal(transport.CancelledNotification{RequestId: *request.Id})
 		if err != nil {
 			return
 		}
-		_ = m.SendMessage(ctx, transport.NewJsonRpcNotification(
+		_ = m.SendMessage(ctx, transport.NewJsonRpcNotificationWithTransport(
 			transport.NotificationMethods_CancelledNotification,
 			data,
+			request.RelatedTransport,
 		))
 	})
 
@@ -319,10 +317,7 @@ func (m *McpSession) SendMessage(ctx context.Context, message transport.IJsonRpc
 	m.addStandardTags(&tags, method)
 	defer finalizeDiagnostics(ctx, &startingTimestamp, durationMetric, tags)
 
-	if err := m._transport.SendMessage(ctx, message); err != nil {
-		addExceptionTags(&tags, err)
-		return err
-	}
+	m.sendToRelatedTransport(ctx, message)
 
 	if notification, ok := message.(*transport.JsonRpcNotification); ok {
 		if params := getCancelledNotificationParams(notification.Params); params != nil {
@@ -394,6 +389,14 @@ func (m *McpSession) addStandardTags(tags *[]attribute.KeyValue, method string) 
 	*tags = append(*tags, attribute.String("rpc.jsonrpc.version", "2.0"))
 	*tags = append(*tags, attribute.String("rpc.method", method))
 	*tags = append(*tags, attribute.String("etwork.transport", m._transportKind))
+}
+
+func (m *McpSession) sendToRelatedTransport(ctx context.Context, message transport.IJsonRpcMessage) {
+	transport := message.GetRelatedTransport()
+	if transport == nil {
+		transport = m._transport
+	}
+	transport.SendMessage(ctx, message)
 }
 
 func addExceptionTags(tags *[]attribute.KeyValue, err error) {

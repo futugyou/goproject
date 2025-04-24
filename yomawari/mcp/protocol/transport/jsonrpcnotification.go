@@ -30,6 +30,15 @@ func NewJsonRpcNotification(method string, params json.RawMessage) *JsonRpcNotif
 	}
 }
 
+func NewJsonRpcNotificationWithTransport(method string, params json.RawMessage, transport ITransport) *JsonRpcNotification {
+	return &JsonRpcNotification{
+		JsonRpc:          "2.0",
+		Method:           method,
+		Params:           params,
+		RelatedTransport: transport,
+	}
+}
+
 func (m *JsonRpcNotification) Get(key string) string {
 	if m.Params == nil {
 		return ""
