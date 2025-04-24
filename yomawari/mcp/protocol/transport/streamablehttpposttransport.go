@@ -41,7 +41,7 @@ func (s *StreamableHttpPostTransport) Close() error {
 
 // MessageReader implements ITransport.
 func (s *StreamableHttpPostTransport) MessageReader() <-chan messages.IJsonRpcMessage {
-	panic("JsonRpcMessage.RelatedTransport should only be used for sending messages.")
+	panic("JsonRpcMessage.RelatedTransport should only be used for sending messages")
 }
 
 // SendMessage implements ITransport.
@@ -157,17 +157,17 @@ func (s *StreamableHttpPostTransport) stopOnFinalResponseFilter(ctx context.Cont
 				}
 				output <- item
 
-				if res,ok:=item.Data.(*messages.JsonRpcResponse ); ok {					 
-						s.mu.Lock()
-						delete(s.pendingRequests, *res.GetId())
-						empty := len(s.pendingRequests) == 0
-						s.mu.Unlock()
-						if empty {
-							return
-						} 
-				} 
+				if res, ok := item.Data.(*messages.JsonRpcResponse); ok {
+					s.mu.Lock()
+					delete(s.pendingRequests, *res.GetId())
+					empty := len(s.pendingRequests) == 0
+					s.mu.Unlock()
+					if empty {
+						return
+					}
+				}
 			}
 		}
 	}()
-	return output 
+	return output
 }

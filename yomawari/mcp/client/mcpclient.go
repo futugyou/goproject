@@ -15,6 +15,11 @@ import (
 	"github.com/google/uuid"
 )
 
+var McpClientDefaultImplementation types.Implementation = types.Implementation{
+	Name:    "McpClient",
+	Version: "1.0.0",
+}
+
 var _ IMcpClient = (*McpClient)(nil)
 
 type McpClient struct {

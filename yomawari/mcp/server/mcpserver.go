@@ -13,6 +13,11 @@ import (
 	"github.com/futugyou/yomawari/mcp/shared"
 )
 
+var McpServerDefaultImplementation types.Implementation = types.Implementation{
+	Name:    "McpServer",
+	Version: "1.0.0",
+}
+
 var _ IMcpServer = (*McpServer)(nil)
 
 type McpServer struct {
@@ -30,8 +35,8 @@ type McpServer struct {
 }
 
 func NewMcpServer(itransport transport.ITransport, options McpServerOptions) *McpServer {
-	serverName := transport.McpServerDefaultImplementation.Name
-	version := transport.McpServerDefaultImplementation.Version
+	serverName := McpServerDefaultImplementation.Name
+	version := McpServerDefaultImplementation.Version
 	if len(options.ServerInfo.Name) > 0 {
 		serverName = options.ServerInfo.Name
 	}
