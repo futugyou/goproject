@@ -385,5 +385,6 @@ func invokeHandler[TParams any, TResult any](
 	destinationTransport transport.ITransport,
 ) (*TResult, error) {
 	// TODO: handle _servicesScopePerRequest
-	return handler(ctx, RequestContext[TParams]{Params: args})
+	svr := NewDestinationBoundMcpServer(m, destinationTransport)
+	return handler(ctx, RequestContext[TParams]{Params: args, Server: svr})
 }
