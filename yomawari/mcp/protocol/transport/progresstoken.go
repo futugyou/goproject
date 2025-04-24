@@ -1,4 +1,4 @@
-package messages
+package transport
 
 import (
 	"encoding/json"
@@ -6,23 +6,23 @@ import (
 	"fmt"
 )
 
-type RequestId struct {
+type ProgressToken struct {
 	id any
 }
 
-func NewRequestIdFromString(value string) *RequestId {
-	return &RequestId{id: value}
+func NewProgressTokenFromString(value string) ProgressToken {
+	return ProgressToken{id: value}
 }
 
-func NewRequestIdFromInt(value int64) *RequestId {
-	return &RequestId{id: value}
+func NewProgressTokenFromInt(value int64) ProgressToken {
+	return ProgressToken{id: value}
 }
 
-func (r RequestId) IsDefault() bool {
+func (r ProgressToken) IsDefault() bool {
 	return r.id == nil
 }
 
-func (r RequestId) String() string {
+func (r ProgressToken) String() string {
 	switch v := r.id.(type) {
 	case string:
 		return fmt.Sprintf("\"%s\"", v)
@@ -33,7 +33,7 @@ func (r RequestId) String() string {
 	}
 }
 
-func (r RequestId) MarshalJSON() ([]byte, error) {
+func (r ProgressToken) MarshalJSON() ([]byte, error) {
 	switch v := r.id.(type) {
 	case string:
 		return json.Marshal(v)
@@ -42,11 +42,11 @@ func (r RequestId) MarshalJSON() ([]byte, error) {
 	case nil:
 		return json.Marshal("")
 	default:
-		return nil, errors.New("invalid RequestId type")
+		return nil, errors.New("invalid ProgressToken type")
 	}
 }
 
-func (r *RequestId) UnmarshalJSON(data []byte) error {
+func (r *ProgressToken) UnmarshalJSON(data []byte) error {
 	var strValue string
 	if err := json.Unmarshal(data, &strValue); err == nil {
 		r.id = strValue
@@ -59,5 +59,5 @@ func (r *RequestId) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	return errors.New("requestId must be a string or an integer")
+	return errors.New("ProgressToken must be a string or an integer")
 }

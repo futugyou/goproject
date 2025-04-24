@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/runtime/tasks"
 	"github.com/google/uuid"
@@ -30,7 +29,7 @@ type McpSession struct {
 	_requestHandlers          *RequestHandlers
 	_notificationHandlers     *NotificationHandlers
 	_sessionStartingTimestamp int64
-	_pendingRequests          sync.Map // map[RequestId]*tasks.TaskCompletionSource[messages.IJsonRpcMessage]
+	_pendingRequests          sync.Map // map[RequestId]*tasks.TaskCompletionSource[transport.IJsonRpcMessage]
 	_handlingRequests         sync.Map // map[RequestId]context.CancelFunc
 	_id                       string
 	_nextRequestId            int64
@@ -64,9 +63,9 @@ func NewMcpSession(isServer bool, transp transport.ITransport, endpointName stri
 }
 
 func (m *McpSession) ProcessMessages(ctx context.Context) error {
-	var processMessage = func(ctx context.Context, message messages.IJsonRpcMessage) error {
-		var messageWithId messages.IJsonRpcMessageWithId
-		if msg, ok := message.(messages.IJsonRpcMessageWithId); ok {
+	var processMessage = func(ctx context.Context, message transport.IJsonRpcMessage) error {
+		var messageWithId transport.IJsonRpcMessageWithId
+		if msg, ok := message.(transport.IJsonRpcMessageWithId); ok {
 			messageWithId = msg
 		}
 
@@ -92,15 +91,15 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 			if (err == context.Canceled || err == context.DeadlineExceeded) && callCtx.Err() != nil {
 				isUserCancellation = true
 			}
-			if request, ok := message.(*messages.JsonRpcRequest); !isUserCancellation && ok {
-				m._transport.SendMessage(ctx, messages.NewJsonRpcError(request.Id, 500, err.Error(), nil))
+			if request, ok := message.(*transport.JsonRpcRequest); !isUserCancellation && ok {
+				m._transport.SendMessage(ctx, transport.NewJsonRpcError(request.Id, 500, err.Error(), nil))
 			}
 		}
 		return nil
 	}
 
 	resultChan := m._transport.MessageReader()
-	processor := tasks.TaskProcessor[messages.IJsonRpcMessage]{
+	processor := tasks.TaskProcessor[transport.IJsonRpcMessage]{
 		ResultChan:        resultChan,
 		Handler:           processMessage, // func(ctx, msg) error
 		MaxConcurrency:    20,
@@ -110,7 +109,7 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 	processor.Run(ctx)
 
 	m._pendingRequests.Range(func(key, value interface{}) bool {
-		if tcs, ok := value.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+		if tcs, ok := value.(*tasks.TaskCompletionSource[transport.IJsonRpcMessage]); ok {
 			tcs.TrySetError(fmt.Errorf("the server shut down unexpectedly"))
 		}
 		return true
@@ -119,7 +118,7 @@ func (m *McpSession) ProcessMessages(ctx context.Context) error {
 	return nil
 }
 
-func (m *McpSession) handleMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (m *McpSession) handleMessage(ctx context.Context, message transport.IJsonRpcMessage) error {
 	durationMetric := s_clientOperationDuration
 	if m._isServer {
 		durationMetric = s_serverOperationDuration
@@ -141,12 +140,12 @@ func (m *McpSession) handleMessage(ctx context.Context, message messages.IJsonRp
 
 	var err error
 	switch request := message.(type) {
-	case *messages.JsonRpcRequest:
+	case *transport.JsonRpcRequest:
 		addRpcRequestTags(&tags, *request)
 		err = m.handleRequest(ctx, *request)
-	case *messages.JsonRpcNotification:
+	case *transport.JsonRpcNotification:
 		err = m.handleNotification(ctx, request)
-	case messages.IJsonRpcMessageWithId:
+	case transport.IJsonRpcMessageWithId:
 		err = m.handleMessageWithId(message, request)
 	default:
 	}
@@ -159,8 +158,8 @@ func (m *McpSession) handleMessage(ctx context.Context, message messages.IJsonRp
 	return nil
 }
 
-func (m *McpSession) handleNotification(ctx context.Context, notification *messages.JsonRpcNotification) error {
-	if notification.Method == messages.NotificationMethods_CancelledNotification {
+func (m *McpSession) handleNotification(ctx context.Context, notification *transport.JsonRpcNotification) error {
+	if notification.Method == transport.NotificationMethods_CancelledNotification {
 		if cn := getCancelledNotificationParams(notification.Params); cn != nil {
 			value, ok := m._handlingRequests.Load(cn.RequestId)
 			if ok {
@@ -174,7 +173,7 @@ func (m *McpSession) handleNotification(ctx context.Context, notification *messa
 	return m._notificationHandlers.InvokeHandlers(ctx, notification.Method, notification)
 }
 
-func (m *McpSession) handleMessageWithId(message messages.IJsonRpcMessage, messageWithId messages.IJsonRpcMessageWithId) error {
+func (m *McpSession) handleMessageWithId(message transport.IJsonRpcMessage, messageWithId transport.IJsonRpcMessageWithId) error {
 	if messageWithId.GetId() == nil || len(messageWithId.GetId().String()) == 0 {
 		return fmt.Errorf("message with id has no id")
 	}
@@ -183,13 +182,13 @@ func (m *McpSession) handleMessageWithId(message messages.IJsonRpcMessage, messa
 	if !ok {
 		return fmt.Errorf("no pending request found for id %s", requestid.String())
 	}
-	if source, ok := value.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+	if source, ok := value.(*tasks.TaskCompletionSource[transport.IJsonRpcMessage]); ok {
 		source.SetResult(message)
 	}
 	return nil
 }
 
-func (m *McpSession) handleRequest(ctx context.Context, request messages.JsonRpcRequest) error {
+func (m *McpSession) handleRequest(ctx context.Context, request transport.JsonRpcRequest) error {
 	handler, ok := m._requestHandlers.Get(request.Method)
 	if !ok {
 		return fmt.Errorf("no handler found for method %s", request.Method)
@@ -200,7 +199,7 @@ func (m *McpSession) handleRequest(ctx context.Context, request messages.JsonRpc
 		return err
 	}
 
-	msg := messages.NewJsonRpcResponse(request.Id, result)
+	msg := transport.NewJsonRpcResponse(request.Id, result)
 	return m._transport.SendMessage(ctx, msg)
 }
 
@@ -217,7 +216,7 @@ func (m *McpSession) createActivityName(method string) string {
 	return fmt.Sprintf("mcp.%s.%s/%s", s, m._transportKind, method)
 }
 
-func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcRequest) (*messages.JsonRpcResponse, error) {
+func (m *McpSession) SendRequest(ctx context.Context, request *transport.JsonRpcRequest) (*transport.JsonRpcResponse, error) {
 	if m == nil || request == nil {
 		return nil, fmt.Errorf("session or request is nil")
 	}
@@ -246,13 +245,13 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	// Set request ID
 	if request.Id == nil {
 		newId := atomic.AddInt64(&m._nextRequestId, 1)
-		request.Id = messages.NewRequestIdFromString(fmt.Sprintf("%s-%d", m._id, newId))
+		request.Id = transport.NewRequestIdFromString(fmt.Sprintf("%s-%d", m._id, newId))
 	}
 
 	mcp.PropagatorInject(ctx, request)
 
 	ctx, cancelfunc := context.WithCancel(ctx)
-	tcs := tasks.NewTaskCompletionSource[messages.IJsonRpcMessage](ctx, cancelfunc)
+	tcs := tasks.NewTaskCompletionSource[transport.IJsonRpcMessage](ctx, cancelfunc)
 	m._pendingRequests.Store(request.Id, tcs)
 
 	m.addStandardTags(&tags, method)
@@ -266,12 +265,12 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	}
 
 	tasks.RegisterCancellation(ctx, func() {
-		data, err := json.Marshal(messages.CancelledNotification{RequestId: *request.Id})
+		data, err := json.Marshal(transport.CancelledNotification{RequestId: *request.Id})
 		if err != nil {
 			return
 		}
-		_ = m.SendMessage(ctx, messages.NewJsonRpcNotification(
-			messages.NotificationMethods_CancelledNotification,
+		_ = m.SendMessage(ctx, transport.NewJsonRpcNotification(
+			transport.NotificationMethods_CancelledNotification,
 			data,
 		))
 	})
@@ -283,16 +282,16 @@ func (m *McpSession) SendRequest(ctx context.Context, request *messages.JsonRpcR
 	}
 
 	switch resp := response.(type) {
-	case *messages.JsonRpcError:
+	case *transport.JsonRpcError:
 		return nil, fmt.Errorf("request failed (server side): %s", resp.Error.Message)
-	case *messages.JsonRpcResponse:
+	case *transport.JsonRpcResponse:
 		return resp, nil
 	}
 
 	return nil, fmt.Errorf("invalid response type")
 }
 
-func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (m *McpSession) SendMessage(ctx context.Context, message transport.IJsonRpcMessage) error {
 	if m == nil || message == nil {
 		return fmt.Errorf("mcp session or message is nil")
 	}
@@ -325,10 +324,10 @@ func (m *McpSession) SendMessage(ctx context.Context, message messages.IJsonRpcM
 		return err
 	}
 
-	if notification, ok := message.(*messages.JsonRpcNotification); ok {
+	if notification, ok := message.(*transport.JsonRpcNotification); ok {
 		if params := getCancelledNotificationParams(notification.Params); params != nil {
 			if c, ok := m._pendingRequests.Load(params.RequestId); ok {
-				if source, ok := c.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+				if source, ok := c.(*tasks.TaskCompletionSource[transport.IJsonRpcMessage]); ok {
 					source.Cancel()
 					m._pendingRequests.Delete(params.RequestId)
 				}
@@ -353,7 +352,7 @@ func (m *McpSession) Dispose() {
 	durationMetric.Record(context.Background(), (float64)(incr), metric.WithAttributes(tags...))
 
 	m._pendingRequests.Range(func(key, value interface{}) bool {
-		if tcs, ok := value.(*tasks.TaskCompletionSource[messages.IJsonRpcMessage]); ok {
+		if tcs, ok := value.(*tasks.TaskCompletionSource[transport.IJsonRpcMessage]); ok {
 			tcs.Cancel()
 		}
 		return true
@@ -365,12 +364,12 @@ func (m *McpSession) Dispose() {
 	})
 }
 
-func getCancelledNotificationParams(notificationParams interface{}) *messages.CancelledNotification {
+func getCancelledNotificationParams(notificationParams interface{}) *transport.CancelledNotification {
 	d, err := json.Marshal(notificationParams)
 	if err != nil {
 		return nil
 	}
-	var p messages.CancelledNotification
+	var p transport.CancelledNotification
 	err = json.Unmarshal(d, &p)
 	if err != nil {
 		return nil
@@ -378,11 +377,11 @@ func getCancelledNotificationParams(notificationParams interface{}) *messages.Ca
 	return &p
 }
 
-func getMethodName(message messages.IJsonRpcMessage) string {
+func getMethodName(message transport.IJsonRpcMessage) string {
 	switch request := message.(type) {
-	case *messages.JsonRpcRequest:
+	case *transport.JsonRpcRequest:
 		return request.Method
-	case *messages.JsonRpcNotification:
+	case *transport.JsonRpcNotification:
 		return request.Method
 	default:
 		return "unknownMethod"
@@ -409,7 +408,7 @@ func finalizeDiagnostics(ctx context.Context, startingTimestamp *int64, duration
 	}
 }
 
-func addRpcRequestTags(tags *[]attribute.KeyValue, request messages.JsonRpcRequest) {
+func addRpcRequestTags(tags *[]attribute.KeyValue, request transport.JsonRpcRequest) {
 	*tags = append(*tags, attribute.String("rpc.jsonrpc.request_id", request.Id.String()))
 	if request.Params != nil {
 		d, err := json.Marshal(request.Params)
@@ -423,11 +422,11 @@ func addRpcRequestTags(tags *[]attribute.KeyValue, request messages.JsonRpcReque
 		}
 
 		switch request.Method {
-		case messages.RequestMethods_ToolsCall, messages.RequestMethods_PromptsGet:
+		case transport.RequestMethods_ToolsCall, transport.RequestMethods_PromptsGet:
 			if prop, ok := p["name"].(string); ok {
 				*tags = append(*tags, attribute.String("mcp.request.params.name", prop))
 			}
-		case messages.RequestMethods_ResourcesRead:
+		case transport.RequestMethods_ResourcesRead:
 			if prop, ok := p["uri"].(string); ok {
 				*tags = append(*tags, attribute.String("mcp.request.params.uri", prop))
 			}

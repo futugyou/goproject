@@ -10,12 +10,11 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/logging"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 var _ ITransport = (*StreamClientSessionTransport)(nil)
 
-// StreamClientSessionTransport represents an active client session transport.
+// StreamClientSessionTransport represents an active client session
 type StreamClientSessionTransport struct {
 	TransportBase
 	logger logging.Logger
@@ -42,7 +41,7 @@ func NewStreamClientSessionTransport(
 	ctx, cancel := context.WithCancel(context.Background())
 	t := &StreamClientSessionTransport{
 		TransportBase: TransportBase{
-			messageChannel: make(chan messages.IJsonRpcMessage),
+			messageChannel: make(chan IJsonRpcMessage),
 			isConnected:    false,
 		},
 		logger:            logger,
@@ -127,8 +126,8 @@ func (t *StreamClientSessionTransport) readMessages() {
 
 			t.logger.TransportReceivedMessage(t.EndpointName, string(line))
 
-			var message messages.IJsonRpcMessage
-			if m, err := messages.UnmarshalJsonRpcMessage(line); err != nil {
+			var message IJsonRpcMessage
+			if m, err := UnmarshalJsonRpcMessage(line); err != nil {
 				t.logger.TransportMessageParseFailed(t.EndpointName, string(line), err)
 				continue
 			} else {
@@ -136,7 +135,7 @@ func (t *StreamClientSessionTransport) readMessages() {
 			}
 
 			messageID := "(no id)"
-			if msgWithID, ok := message.(messages.IJsonRpcMessageWithId); ok {
+			if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
 				messageWithId := msgWithID.GetId()
 				messageID = messageWithId.String()
 			}
@@ -150,7 +149,7 @@ func (t *StreamClientSessionTransport) readMessages() {
 }
 
 // SendMessageAsync implements ITransport.
-func (t *StreamClientSessionTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (t *StreamClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	if !t.IsConnected() {
 		t.logger.TransportNotConnected(t.EndpointName)
 		return fmt.Errorf("transport is not connected")
@@ -160,7 +159,7 @@ func (t *StreamClientSessionTransport) SendMessage(ctx context.Context, message 
 	defer t.sendLock.Unlock()
 
 	messageID := "(no id)"
-	if msgWithID, ok := message.(messages.IJsonRpcMessageWithId); ok {
+	if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
 		messageWithId := msgWithID.GetId()
 		messageID = messageWithId.String()
 	}

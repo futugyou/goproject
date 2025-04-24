@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"io"
 	"sync/atomic"
-
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 var _ ITransport = (*StreamableHttpServerTransport)(nil)
 
 type StreamableHttpServerTransport struct {
 	sseWriter         *SseWriter
-	incomingChannel   chan messages.IJsonRpcMessage
+	incomingChannel   chan IJsonRpcMessage
 	ctx               context.Context
 	cancelFunc        context.CancelFunc
 	getRequestStarted int32
@@ -23,7 +21,7 @@ func NewStreamableHttpServerTransport() *StreamableHttpServerTransport {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	return &StreamableHttpServerTransport{
 		sseWriter:         NewSseWriter(""),
-		incomingChannel:   make(chan messages.IJsonRpcMessage),
+		incomingChannel:   make(chan IJsonRpcMessage),
 		ctx:               ctx,
 		cancelFunc:        cancelFunc,
 		getRequestStarted: 0,
@@ -40,12 +38,12 @@ func (s *StreamableHttpServerTransport) Close() error {
 }
 
 // MessageReader implements ITransport.
-func (s *StreamableHttpServerTransport) MessageReader() <-chan messages.IJsonRpcMessage {
+func (s *StreamableHttpServerTransport) MessageReader() <-chan IJsonRpcMessage {
 	return s.incomingChannel
 }
 
 // SendMessage implements ITransport.
-func (s *StreamableHttpServerTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (s *StreamableHttpServerTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	return s.sseWriter.SendMessage(ctx, message)
 }
 

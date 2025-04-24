@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/configuration"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
 
@@ -46,7 +45,7 @@ func NewSseClientSessionTransport(serverConfig *configuration.McpServerConfig, o
 	ctx, cancel := context.WithCancel(context.Background())
 	transport := &SseClientSessionTransport{
 		TransportBase: TransportBase{
-			messageChannel: make(chan messages.IJsonRpcMessage),
+			messageChannel: make(chan IJsonRpcMessage),
 			isConnected:    false,
 		},
 		httpClient:            httpClient,
@@ -116,7 +115,7 @@ func (s *SseClientSessionTransport) ProcessSseMessage(ctx context.Context, data 
 		return nil
 	}
 
-	message, err := messages.UnmarshalJsonRpcMessage([]byte(data))
+	message, err := UnmarshalJsonRpcMessage([]byte(data))
 	if err != nil {
 		return err
 	}
@@ -225,18 +224,18 @@ func (t *SseClientSessionTransport) Close() error {
 	return nil
 }
 
-func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	if t.messageEndpoint == nil {
 		return fmt.Errorf("transport not connected")
 	}
 
-	data, err := messages.MarshalJsonRpcMessage(message)
+	data, err := MarshalJsonRpcMessage(message)
 	if err != nil {
 		return fmt.Errorf("failed to serialize message: %w", err)
 	}
 
 	var messageId = "(no id)"
-	if msgWithId, ok := message.(messages.IJsonRpcMessageWithId); ok {
+	if msgWithId, ok := message.(IJsonRpcMessageWithId); ok {
 		id := msgWithId.GetId()
 		if id != nil {
 			messageId = id.String()
@@ -266,9 +265,9 @@ func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message mes
 
 	responseContent := string(body)
 
-	if reqMsg, ok := message.(*messages.JsonRpcRequest); ok && reqMsg.Method == "initialize" {
+	if reqMsg, ok := message.(*JsonRpcRequest); ok && reqMsg.Method == "initialize" {
 		if !strings.EqualFold(responseContent, "accepted") {
-			var initializeResponse messages.JsonRpcResponse
+			var initializeResponse JsonRpcResponse
 			if err := json.Unmarshal(body, &initializeResponse); err != nil {
 				return fmt.Errorf("failed to initialize client")
 			}

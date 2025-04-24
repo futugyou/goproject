@@ -9,7 +9,6 @@ import (
 	"io"
 	"sync"
 
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
 
@@ -17,19 +16,19 @@ var _ ITransport = (*StreamableHttpPostTransport)(nil)
 
 type StreamableHttpPostTransport struct {
 	httpBodies      *DuplexPipe
-	incomingChannel chan messages.IJsonRpcMessage
+	incomingChannel chan IJsonRpcMessage
 	sseWriter       *SseWriter
-	pendingRequests map[messages.RequestId]struct{}
+	pendingRequests map[RequestId]struct{}
 	mu              sync.Mutex
 }
 
-func NewStreamableHttpPostTransport(incomingChannel chan messages.IJsonRpcMessage, httpBodies *DuplexPipe) *StreamableHttpPostTransport {
+func NewStreamableHttpPostTransport(incomingChannel chan IJsonRpcMessage, httpBodies *DuplexPipe) *StreamableHttpPostTransport {
 
 	return &StreamableHttpPostTransport{
 		httpBodies:      httpBodies,
 		incomingChannel: incomingChannel,
 		sseWriter:       NewSseWriter(""),
-		pendingRequests: make(map[messages.RequestId]struct{}),
+		pendingRequests: make(map[RequestId]struct{}),
 	}
 }
 
@@ -40,12 +39,12 @@ func (s *StreamableHttpPostTransport) Close() error {
 }
 
 // MessageReader implements ITransport.
-func (s *StreamableHttpPostTransport) MessageReader() <-chan messages.IJsonRpcMessage {
+func (s *StreamableHttpPostTransport) MessageReader() <-chan IJsonRpcMessage {
 	panic("JsonRpcMessage.RelatedTransport should only be used for sending messages")
 }
 
 // SendMessage implements ITransport.
-func (s *StreamableHttpPostTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (s *StreamableHttpPostTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	return s.sseWriter.SendMessage(ctx, message)
 }
 
@@ -91,7 +90,7 @@ func (s *StreamableHttpPostTransport) onPostBodyReceived(ctx context.Context) er
 			if err := decoder.Decode(&raw); err != nil {
 				return err
 			}
-			msg, err := messages.UnmarshalJsonRpcMessage([]byte(raw))
+			msg, err := UnmarshalJsonRpcMessage([]byte(raw))
 			if err != nil {
 				return err
 			}
@@ -104,7 +103,7 @@ func (s *StreamableHttpPostTransport) onPostBodyReceived(ctx context.Context) er
 		if err != nil {
 			return err
 		}
-		msg, err := messages.UnmarshalJsonRpcMessage(data)
+		msg, err := UnmarshalJsonRpcMessage(data)
 		if err != nil {
 			return err
 		}
@@ -116,12 +115,12 @@ func (s *StreamableHttpPostTransport) onPostBodyReceived(ctx context.Context) er
 	return nil
 }
 
-func (s *StreamableHttpPostTransport) onMessageReceived(ctx context.Context, msg messages.IJsonRpcMessage) error {
+func (s *StreamableHttpPostTransport) onMessageReceived(ctx context.Context, msg IJsonRpcMessage) error {
 	if msg == nil {
 		return fmt.Errorf("received invalid null message")
 	}
 
-	if condition, ok := msg.(*messages.JsonRpcRequest); ok {
+	if condition, ok := msg.(*JsonRpcRequest); ok {
 		s.mu.Lock()
 		s.pendingRequests[*condition.GetId()] = struct{}{}
 		s.mu.Unlock()
@@ -143,8 +142,8 @@ func (s *StreamableHttpPostTransport) onMessageReceived(ctx context.Context, msg
 	}
 }
 
-func (s *StreamableHttpPostTransport) stopOnFinalResponseFilter(ctx context.Context, mesg chan sse.SseItem[messages.IJsonRpcMessage]) chan sse.SseItem[messages.IJsonRpcMessage] {
-	output := make(chan sse.SseItem[messages.IJsonRpcMessage])
+func (s *StreamableHttpPostTransport) stopOnFinalResponseFilter(ctx context.Context, mesg chan sse.SseItem[IJsonRpcMessage]) chan sse.SseItem[IJsonRpcMessage] {
+	output := make(chan sse.SseItem[IJsonRpcMessage])
 	go func() {
 		defer close(output)
 		for {
@@ -157,7 +156,7 @@ func (s *StreamableHttpPostTransport) stopOnFinalResponseFilter(ctx context.Cont
 				}
 				output <- item
 
-				if res, ok := item.Data.(*messages.JsonRpcResponse); ok {
+				if res, ok := item.Data.(*JsonRpcResponse); ok {
 					s.mu.Lock()
 					delete(s.pendingRequests, *res.GetId())
 					empty := len(s.pendingRequests) == 0

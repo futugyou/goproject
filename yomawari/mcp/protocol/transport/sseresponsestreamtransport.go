@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"sync"
-
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 var _ ITransport = (*SseResponseStreamTransport)(nil)
@@ -15,7 +13,7 @@ type SseResponseStreamTransport struct {
 	sseResponseStream io.Writer
 	messageEndpoint   string
 
-	incomingChannel chan messages.IJsonRpcMessage
+	incomingChannel chan IJsonRpcMessage
 
 	isConnected bool
 	mu          sync.Mutex
@@ -30,12 +28,12 @@ func NewSseResponseStreamTransport(sseResponseStream io.Writer, messageEndpoint 
 	return &SseResponseStreamTransport{
 		sseResponseStream: sseResponseStream,
 		messageEndpoint:   messageEndpoint,
-		incomingChannel:   make(chan messages.IJsonRpcMessage, 1), // Buffered channel
+		incomingChannel:   make(chan IJsonRpcMessage, 1), // Buffered channel
 		sseWriter:         NewSseWriter(messageEndpoint),
 	}
 }
 
-// Close implements ITransport.
+// Close implements I
 func (t *SseResponseStreamTransport) Close() error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -53,13 +51,13 @@ func (t *SseResponseStreamTransport) Close() error {
 	return nil
 }
 
-// MessageReader implements ITransport.
-func (s *SseResponseStreamTransport) MessageReader() <-chan messages.IJsonRpcMessage {
+// MessageReader implements I
+func (s *SseResponseStreamTransport) MessageReader() <-chan IJsonRpcMessage {
 	return s.incomingChannel
 }
 
-// SendMessage implements ITransport.
-func (t *SseResponseStreamTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+// SendMessage implements I
+func (t *SseResponseStreamTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	return t.sseWriter.SendMessage(ctx, message)
 }
 
@@ -81,7 +79,7 @@ func (t *SseResponseStreamTransport) Run(ctx context.Context) error {
 }
 
 // OnMessageReceived handles incoming JSON-RPC messages
-func (t *SseResponseStreamTransport) OnMessageReceived(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (t *SseResponseStreamTransport) OnMessageReceived(ctx context.Context, message IJsonRpcMessage) error {
 	t.mu.Lock()
 	if !t.isConnected {
 		t.mu.Unlock()

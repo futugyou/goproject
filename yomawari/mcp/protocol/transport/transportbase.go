@@ -3,18 +3,16 @@ package transport
 import (
 	"context"
 	"fmt"
-
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 type TransportBase struct {
-	messageChannel chan messages.IJsonRpcMessage
+	messageChannel chan IJsonRpcMessage
 	isConnected    bool
 }
 
 func NewTransportBase() *TransportBase {
 	return &TransportBase{
-		messageChannel: make(chan messages.IJsonRpcMessage),
+		messageChannel: make(chan IJsonRpcMessage),
 		isConnected:    true,
 	}
 }
@@ -25,7 +23,7 @@ func (t *TransportBase) Close() error {
 }
 
 // SendMessageAsync implements ITransport.
-func (t *TransportBase) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (t *TransportBase) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	panic("unimplemented")
 }
 
@@ -35,11 +33,11 @@ func (t *TransportBase) IsConnected() bool {
 }
 
 // MessageReader implements ITransport.
-func (t *TransportBase) MessageReader() <-chan messages.IJsonRpcMessage {
+func (t *TransportBase) MessageReader() <-chan IJsonRpcMessage {
 	return t.messageChannel
 }
 
-func (t *TransportBase) WriteMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+func (t *TransportBase) WriteMessage(ctx context.Context, message IJsonRpcMessage) error {
 	if !t.isConnected {
 		return fmt.Errorf("transport is not connected")
 	}

@@ -11,7 +11,6 @@ import (
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
 	"github.com/futugyou/yomawari/mcp"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
@@ -34,18 +33,18 @@ func (e *BaseMcpEndpoint) GetMcpSession() *McpSession {
 }
 
 // NotifyProgress implements IMcpEndpoint.
-func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken messages.ProgressToken, progress messages.ProgressNotificationValue) error {
-	p := messages.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
+func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken transport.ProgressToken, progress transport.ProgressNotificationValue) error {
+	p := transport.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
 	data, err := json.Marshal(p)
 	if err != nil {
 		return err
 	}
-	notification := messages.NewJsonRpcNotification(messages.NotificationMethods_ProgressNotification, data)
+	notification := transport.NewJsonRpcNotification(transport.NotificationMethods_ProgressNotification, data)
 	return e.SendNotification(ctx, *notification)
 }
 
 // SendNotification implements IMcpEndpoint.
-func (e *BaseMcpEndpoint) SendNotification(ctx context.Context, notification messages.JsonRpcNotification) error {
+func (e *BaseMcpEndpoint) SendNotification(ctx context.Context, notification transport.JsonRpcNotification) error {
 	return e.SendMessage(ctx, &notification)
 }
 
@@ -96,14 +95,14 @@ func (e *BaseMcpEndpoint) CancelSession() {
 	}
 }
 
-func (e *BaseMcpEndpoint) SendRequest(ctx context.Context, req *messages.JsonRpcRequest) (*messages.JsonRpcResponse, error) {
+func (e *BaseMcpEndpoint) SendRequest(ctx context.Context, req *transport.JsonRpcRequest) (*transport.JsonRpcResponse, error) {
 	if e == nil || e.session == nil {
 		return nil, errors.New("session not initialized")
 	}
 	return e.session.SendRequest(ctx, req)
 }
 
-func (e *BaseMcpEndpoint) SendMessage(ctx context.Context, msg messages.IJsonRpcMessage) error {
+func (e *BaseMcpEndpoint) SendMessage(ctx context.Context, msg transport.IJsonRpcMessage) error {
 	if e == nil || e.session == nil {
 		return errors.New("session not initialized")
 	}
@@ -145,7 +144,7 @@ func (e *BaseMcpEndpoint) disposeUnsynchronized(ctx context.Context) error {
 }
 
 func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
-	req := messages.NewJsonRpcRequest(messages.RequestMethods_SamplingCreateMessage, request, nil)
+	req := transport.NewJsonRpcRequest(transport.RequestMethods_SamplingCreateMessage, request, nil)
 	resp, err := e.SendRequest(ctx, req)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package messages
+package transport
 
 const ErrorCodes_ParseError int = -32700
 

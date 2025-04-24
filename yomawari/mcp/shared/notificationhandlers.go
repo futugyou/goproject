@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
+	"github.com/futugyou/yomawari/mcp/protocol/transport"
 )
 
-type NotificationHandler func(ctx context.Context, notification *messages.JsonRpcNotification) error
+type NotificationHandler func(ctx context.Context, notification *transport.JsonRpcNotification) error
 
 type NotificationHandlers struct {
 	mu       sync.RWMutex
@@ -68,7 +68,7 @@ func (nh *NotificationHandlers) registerLocked(method string, handler Notificati
 	return reg
 }
 
-func (nh *NotificationHandlers) InvokeHandlers(ctx context.Context, method string, notification *messages.JsonRpcNotification) error {
+func (nh *NotificationHandlers) InvokeHandlers(ctx context.Context, method string, notification *transport.JsonRpcNotification) error {
 	nh.mu.RLock()
 	head, exists := nh.handlers[method]
 	if !exists {
@@ -115,7 +115,7 @@ func (r *registration) isDisposed() bool {
 	return r.disposed
 }
 
-func (r *registration) invoke(ctx context.Context, notification *messages.JsonRpcNotification) error {
+func (r *registration) invoke(ctx context.Context, notification *transport.JsonRpcNotification) error {
 	if !r.temporary {
 		return r.handler(ctx, notification)
 	}

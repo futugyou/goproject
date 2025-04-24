@@ -1,4 +1,4 @@
-package messages
+package transport
 
 type JsonRpcError struct {
 	JsonRpc string              `json:"jsonrpc"`

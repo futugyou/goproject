@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/logging"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 )
 
 var _ ITransport = (*StreamServerTransport)(nil)
@@ -69,8 +68,8 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 	return t
 }
 
-// SendMessage sends a JSON-RPC message through the transport.
-func (t *StreamServerTransport) SendMessage(ctx context.Context, message messages.IJsonRpcMessage) error {
+// SendMessage sends a JSON-RPC message through the
+func (t *StreamServerTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
 	if !t.IsConnected() {
 		t.logger.TransportNotConnected(t.endpointName)
 		return fmt.Errorf("transport is not connected")
@@ -80,7 +79,7 @@ func (t *StreamServerTransport) SendMessage(ctx context.Context, message message
 	defer t.sendLock.Unlock()
 
 	messageID := "(no id)"
-	if msgWithID, ok := message.(messages.IJsonRpcMessageWithId); ok {
+	if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
 		messageWithId := msgWithID.GetId()
 		messageID = messageWithId.String()
 	}
@@ -137,8 +136,8 @@ func (t *StreamServerTransport) readMessages() {
 
 			t.logger.TransportReceivedMessage(t.endpointName, string(line))
 
-			var message messages.IJsonRpcMessage
-			if m, err := messages.UnmarshalJsonRpcMessage(line); err != nil {
+			var message IJsonRpcMessage
+			if m, err := UnmarshalJsonRpcMessage(line); err != nil {
 				t.logger.TransportMessageParseFailed(t.endpointName, string(line), err)
 				continue
 			} else {
@@ -146,7 +145,7 @@ func (t *StreamServerTransport) readMessages() {
 			}
 
 			messageID := "(no id)"
-			if msgWithID, ok := message.(messages.IJsonRpcMessageWithId); ok {
+			if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
 				messageWithId := msgWithID.GetId()
 				messageID = messageWithId.String()
 			}

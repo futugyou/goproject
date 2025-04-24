@@ -3,7 +3,7 @@ package mcp
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
+	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -47,12 +47,12 @@ func StartServerSpan(ctx context.Context, name string, carrier propagation.TextM
 	)
 }
 
-func StartSpanWithJsonRpcData(ctx context.Context, name string, message messages.IJsonRpcMessage) (context.Context, trace.Span) {
+func StartSpanWithJsonRpcData(ctx context.Context, name string, message transport.IJsonRpcMessage) (context.Context, trace.Span) {
 	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
 	switch re := message.(type) {
-	case *messages.JsonRpcRequest:
+	case *transport.JsonRpcRequest:
 		carrier = re
-	case *messages.JsonRpcNotification:
+	case *transport.JsonRpcNotification:
 		carrier = re
 	}
 	parentCtx := Propagator.Extract(ctx, carrier)
@@ -63,12 +63,12 @@ func StartSpanWithJsonRpcData(ctx context.Context, name string, message messages
 	)
 }
 
-func PropagatorInject(ctx context.Context, message messages.IJsonRpcMessage) {
+func PropagatorInject(ctx context.Context, message transport.IJsonRpcMessage) {
 	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
 	switch re := message.(type) {
-	case *messages.JsonRpcRequest:
+	case *transport.JsonRpcRequest:
 		carrier = re
-	case *messages.JsonRpcNotification:
+	case *transport.JsonRpcNotification:
 		carrier = re
 	}
 	Propagator.Inject(ctx, carrier)

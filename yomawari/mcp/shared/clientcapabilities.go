@@ -3,7 +3,7 @@ package shared
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
+	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
 
@@ -28,5 +28,5 @@ type SamplingCapability struct {
 
 // IProgressReporter represents a progress notification mechanism
 type IProgressReporter interface {
-	Report(value messages.ProgressNotificationValue)
+	Report(value transport.ProgressNotificationValue)
 }

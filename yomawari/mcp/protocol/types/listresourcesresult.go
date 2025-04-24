@@ -1,8 +1,8 @@
 package types
 
-import "github.com/futugyou/yomawari/mcp/protocol/messages"
+import "github.com/futugyou/yomawari/mcp/protocol/transport"
 
 type ListResourcesResult struct {
-	messages.PaginatedResult `json:",inline"`
-	Resources                []Resource `json:"resources"`
+	transport.PaginatedResult `json:",inline"`
+	Resources                 []Resource `json:"resources"`
 }

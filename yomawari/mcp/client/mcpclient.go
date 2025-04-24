@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/futugyou/yomawari/core/logger"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 	"github.com/futugyou/yomawari/mcp/server"
@@ -71,7 +70,7 @@ func NewMcpClient(clientTransport transport.IClientTransport, options McpClientO
 		if samplingCapability != nil && samplingCapability.SamplingHandler != nil {
 			shared.GenericRequestHandlerAdd(
 				client.reqHandlers,
-				messages.RequestMethods_SamplingCreateMessage,
+				transport.RequestMethods_SamplingCreateMessage,
 				func(ctx context.Context, request *types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
 
 					var progres shared.IProgressReporter = &shared.NullProgress{}
@@ -88,7 +87,7 @@ func NewMcpClient(clientTransport transport.IClientTransport, options McpClientO
 		if capabilities.Roots != nil && capabilities.Roots.RootsHandler != nil {
 			shared.GenericRequestHandlerAdd(
 				client.reqHandlers,
-				messages.RequestMethods_RootsList,
+				transport.RequestMethods_RootsList,
 				func(ctx context.Context, request *types.ListRootsRequestParams) (*types.ListRootsResult, error) {
 					return capabilities.Roots.RootsHandler(ctx, request)
 				},
@@ -144,7 +143,7 @@ func (m *McpClient) Connect(ctx context.Context) error {
 		params.ClientInfo = *m.options.ClientInfo
 	}
 
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_Initialize, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_Initialize, params, nil)
 	initializeResponse, err := m.SendRequest(ctx, jsonRpcRequest)
 	if err != nil {
 		return err
@@ -157,7 +156,7 @@ func (m *McpClient) Connect(ctx context.Context) error {
 	m.ServerCapabilities = initializeResult.Capabilities
 	m.ServerInfo = initializeResult.ServerInfo
 	m.ServerInstructions = &initializeResult.Instructions
-	return m.SendMessage(ctx, messages.NewJsonRpcNotification(messages.NotificationMethods_InitializedNotification, nil))
+	return m.SendMessage(ctx, transport.NewJsonRpcNotification(transport.NotificationMethods_InitializedNotification, nil))
 }
 
 // CallTool implements IMcpClient.
@@ -169,9 +168,9 @@ func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map
 	}
 
 	if reporter != nil {
-		progressToken := messages.NewProgressTokenFromString(uuid.New().String())
-		var handler shared.NotificationHandler = func(ctx context.Context, notification *messages.JsonRpcNotification) error {
-			var pn messages.ProgressNotification
+		progressToken := transport.NewProgressTokenFromString(uuid.New().String())
+		var handler shared.NotificationHandler = func(ctx context.Context, notification *transport.JsonRpcNotification) error {
+			var pn transport.ProgressNotification
 			if err := json.Unmarshal(notification.Params, &pn); err != nil {
 				return err
 			}
@@ -180,11 +179,11 @@ func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map
 			}
 			return nil
 		}
-		m.RegisterNotificationHandler(messages.NotificationMethods_ProgressNotification, handler)
+		m.RegisterNotificationHandler(transport.NotificationMethods_ProgressNotification, handler)
 		params.Meta = &types.RequestParamsMetadata{ProgressToken: &progressToken}
 	}
 
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ToolsCall, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ToolsCall, params, nil)
 	resp, err := m.SendRequest(ctx, jsonRpcRequest)
 	if err != nil {
 		return nil, err
@@ -205,7 +204,7 @@ func (m *McpClient) Complete(ctx context.Context, reference types.Reference, arg
 			Value: argumentValue,
 		},
 	}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_CompletionComplete, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_CompletionComplete, params, nil)
 	resp, err := m.SendRequest(ctx, jsonRpcRequest)
 	if err != nil {
 		return nil, err
@@ -234,7 +233,7 @@ func (m *McpClient) EnumeratePrompts(ctx context.Context, client IMcpClient) (<-
 					Cursor:        cursor,
 				},
 			}
-			jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_PromptsList, params, nil)
+			jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_PromptsList, params, nil)
 			resp, err := m.SendRequest(ctx, jsonRpcRequest)
 			if err != nil {
 				errCh <- err
@@ -283,7 +282,7 @@ func (m *McpClient) EnumerateResourceTemplates(ctx context.Context, client IMcpC
 					Cursor:        cursor,
 				},
 			}
-			jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesTemplatesList, params, nil)
+			jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesTemplatesList, params, nil)
 			resp, err := m.SendRequest(ctx, jsonRpcRequest)
 			if err != nil {
 				errCh <- err
@@ -332,7 +331,7 @@ func (m *McpClient) EnumerateResources(ctx context.Context, client IMcpClient) (
 					Cursor:        cursor,
 				},
 			}
-			jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesList, params, nil)
+			jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesList, params, nil)
 			resp, err := m.SendRequest(ctx, jsonRpcRequest)
 			if err != nil {
 				errCh <- err
@@ -381,7 +380,7 @@ func (m *McpClient) EnumerateTools(ctx context.Context) (<-chan McpClientTool, <
 					Cursor:        cursor,
 				},
 			}
-			jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ToolsList, params, nil)
+			jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ToolsList, params, nil)
 			resp, err := m.SendRequest(ctx, jsonRpcRequest)
 			if err != nil {
 				errCh <- err
@@ -420,7 +419,7 @@ func (m *McpClient) GetPrompt(ctx context.Context, name string, arguments map[st
 		Name:          name,
 		Arguments:     arguments,
 	}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_PromptsGet, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_PromptsGet, params, nil)
 	resp, err := m.SendRequest(ctx, jsonRpcRequest)
 	if err != nil {
 		return nil, err
@@ -458,7 +457,7 @@ func (m *McpClient) ListPrompts(ctx context.Context, client IMcpClient) ([]McpCl
 				Cursor:        cursor,
 			},
 		}
-		jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_PromptsList, params, nil)
+		jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_PromptsList, params, nil)
 		resp, err := m.SendRequest(ctx, jsonRpcRequest)
 		if err != nil {
 			return nil, err
@@ -492,7 +491,7 @@ func (m *McpClient) ListResourceTemplates(ctx context.Context, client IMcpClient
 				Cursor:        cursor,
 			},
 		}
-		jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesTemplatesList, params, nil)
+		jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesTemplatesList, params, nil)
 		resp, err := m.SendRequest(ctx, jsonRpcRequest)
 		if err != nil {
 			return nil, err
@@ -524,7 +523,7 @@ func (m *McpClient) ListResources(ctx context.Context, client IMcpClient) ([]typ
 				Cursor:        cursor,
 			},
 		}
-		jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesList, params, nil)
+		jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesList, params, nil)
 		resp, err := m.SendRequest(ctx, jsonRpcRequest)
 		if err != nil {
 			return nil, err
@@ -556,7 +555,7 @@ func (m *McpClient) ListTools(ctx context.Context) ([]McpClientTool, error) {
 				Cursor:        cursor,
 			},
 		}
-		jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ToolsList, params, nil)
+		jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ToolsList, params, nil)
 		resp, err := m.SendRequest(ctx, jsonRpcRequest)
 		if err != nil {
 			return nil, err
@@ -582,7 +581,7 @@ func (m *McpClient) ListTools(ctx context.Context) ([]McpClientTool, error) {
 // Ping implements IMcpClient.
 func (m *McpClient) Ping(ctx context.Context) error {
 	params := types.PingRequest{}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_Ping, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_Ping, params, nil)
 	_, err := m.SendRequest(ctx, jsonRpcRequest)
 	return err
 }
@@ -593,7 +592,7 @@ func (m *McpClient) ReadResource(ctx context.Context, uri string) (*types.ReadRe
 		RequestParams: types.RequestParams{},
 		Uri:           &uri,
 	}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesRead, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesRead, params, nil)
 	resp, err := m.SendRequest(ctx, jsonRpcRequest)
 	if err != nil {
 		return nil, err
@@ -616,7 +615,7 @@ func (m *McpClient) SetLoggingLevel(ctx context.Context, level types.LoggingLeve
 		RequestParams: types.RequestParams{},
 		Level:         level,
 	}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_LoggingSetLevel, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_LoggingSetLevel, params, nil)
 	_, err := m.SendRequest(ctx, jsonRpcRequest)
 	return err
 }
@@ -632,7 +631,7 @@ func (m *McpClient) SubscribeToResource(ctx context.Context, uri string) error {
 		RequestParams: types.RequestParams{},
 		Uri:           &uri,
 	}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesSubscribe, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesSubscribe, params, nil)
 	_, err := m.SendRequest(ctx, jsonRpcRequest)
 	return err
 }
@@ -648,7 +647,7 @@ func (m *McpClient) UnsubscribeFromResource(ctx context.Context, uri string) err
 		RequestParams: types.RequestParams{},
 		Uri:           &uri,
 	}
-	jsonRpcRequest := messages.NewJsonRpcRequest(messages.RequestMethods_ResourcesUnsubscribe, params, nil)
+	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesUnsubscribe, params, nil)
 	_, err := m.SendRequest(ctx, jsonRpcRequest)
 	return err
 }

@@ -1,4 +1,4 @@
-package messages
+package transport
 
 type ProgressNotificationValue struct {
 	Progress float32

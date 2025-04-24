@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
+	"github.com/futugyou/yomawari/mcp/protocol/transport"
 )
 
-type RequestHandler func(ctx context.Context, request *messages.JsonRpcRequest) (json.RawMessage, error)
+type RequestHandler func(ctx context.Context, request *transport.JsonRpcRequest) (json.RawMessage, error)
 type GenericRequestHandler[TRequest any, TResponse any] func(ctx context.Context, request *TRequest) (*TResponse, error)
 type RequestUnmarshaler[TRequest any] func(data interface{}) (*TRequest, error)
 type RepsonseMarshaler[TResponse any] func(data TResponse) (json.RawMessage, error)
@@ -108,7 +108,7 @@ func GenericRequestHandlerAdd[TRequest any, TResponse any](
 
 	handers.mu.Lock()
 	defer handers.mu.Unlock()
-	handers.handlers[method] = func(ctx context.Context, request *messages.JsonRpcRequest) (json.RawMessage, error) {
+	handers.handlers[method] = func(ctx context.Context, request *transport.JsonRpcRequest) (json.RawMessage, error) {
 		requestBody := request.Params
 		req, err := unmarshaler(requestBody)
 		if err != nil {

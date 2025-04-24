@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/mcp/protocol/messages"
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 	"github.com/futugyou/yomawari/mcp/shared"
@@ -66,14 +65,14 @@ func NewMcpServer(itransport transport.ITransport, options McpServerOptions) *Mc
 
 	if options.Capabilities != nil && options.Capabilities.Tools != nil && options.Capabilities.Tools.ToolCollection.Count() > 0 {
 		s._toolsChangedDelegate = func() {
-			s.SendMessage(context.Background(), messages.NewJsonRpcNotification(messages.NotificationMethods_ToolListChangedNotification, nil))
+			s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_ToolListChangedNotification, nil))
 		}
 		options.Capabilities.Tools.ToolCollection.OnChanged(s._toolsChangedDelegate)
 	}
 
 	if options.Capabilities != nil && options.Capabilities.Prompts != nil && options.Capabilities.Prompts.PromptCollection.Count() > 0 {
 		s._promptsChangedDelegate = func() {
-			s.SendMessage(context.Background(), messages.NewJsonRpcNotification(messages.NotificationMethods_PromptListChangedNotification, nil))
+			s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_PromptListChangedNotification, nil))
 		}
 		options.Capabilities.Prompts.PromptCollection.OnChanged(s._promptsChangedDelegate)
 	}
@@ -85,7 +84,7 @@ func NewMcpServer(itransport transport.ITransport, options McpServerOptions) *Mc
 func (m *McpServer) setInitializeHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_Initialize,
+		transport.RequestMethods_Initialize,
 		func(ctx context.Context, request *shared.InitializeRequestParams) (*InitializeResult, error) {
 			m.ClientCapabilities = request.Capabilities
 			m.ClientInfo = &request.ClientInfo
@@ -174,7 +173,7 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ToolsList,
+		transport.RequestMethods_ToolsList,
 		func(ctx context.Context, request *types.ListToolsRequestParams) (*types.ListToolsResult, error) {
 			return InvokeHandler(m, ctx, listToolsHandler, request)
 		},
@@ -183,7 +182,7 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ToolsCall,
+		transport.RequestMethods_ToolsCall,
 		func(ctx context.Context, request *types.CallToolRequestParams) (*types.CallToolResult, error) {
 			return InvokeHandler(m, ctx, callToolHandler, request)
 		},
@@ -265,7 +264,7 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_PromptsList,
+		transport.RequestMethods_PromptsList,
 		func(ctx context.Context, request *types.ListPromptsRequestParams) (*types.ListPromptsResult, error) {
 			return InvokeHandler(m, ctx, listPromptsHandler, request)
 		},
@@ -274,7 +273,7 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_PromptsGet,
+		transport.RequestMethods_PromptsGet,
 		func(ctx context.Context, request *types.GetPromptRequestParams) (*types.GetPromptResult, error) {
 			return InvokeHandler(m, ctx, getPromptHandler, request)
 		},
@@ -303,7 +302,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	}
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ResourcesList,
+		transport.RequestMethods_ResourcesList,
 		func(ctx context.Context, request *types.ListResourcesRequestParams) (*types.ListResourcesResult, error) {
 			return InvokeHandler(m, ctx, listResourcesHandler, request)
 		},
@@ -312,7 +311,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ResourcesRead,
+		transport.RequestMethods_ResourcesRead,
 		func(ctx context.Context, request *types.ReadResourceRequestParams) (*types.ReadResourceResult, error) {
 			return InvokeHandler(m, ctx, readResourceHandler, request)
 		},
@@ -321,7 +320,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ResourcesTemplatesList,
+		transport.RequestMethods_ResourcesTemplatesList,
 		func(ctx context.Context, request *types.ListResourceTemplatesRequestParams) (*types.ListResourceTemplatesResult, error) {
 			return InvokeHandler(m, ctx, listResourceTemplatesHandler, request)
 		},
@@ -340,7 +339,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	}
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ResourcesSubscribe,
+		transport.RequestMethods_ResourcesSubscribe,
 		func(ctx context.Context, request *types.SubscribeRequestParams) (*types.EmptyResult, error) {
 			return InvokeHandler(m, ctx, subscribeHandler, request)
 		},
@@ -349,7 +348,7 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	)
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_ResourcesUnsubscribe,
+		transport.RequestMethods_ResourcesUnsubscribe,
 		func(ctx context.Context, request *types.UnsubscribeRequestParams) (*types.EmptyResult, error) {
 			return InvokeHandler(m, ctx, unsubscribeHandler, request)
 		},
@@ -370,7 +369,7 @@ func (m *McpServer) setCompletionHandler(options *McpServerOptions) {
 	}
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_CompletionComplete,
+		transport.RequestMethods_CompletionComplete,
 		func(ctx context.Context, request *types.CompleteRequestParams) (*types.CompleteResult, error) {
 			return InvokeHandler(m, ctx, completeHandler, request)
 		},
@@ -382,7 +381,7 @@ func (m *McpServer) setCompletionHandler(options *McpServerOptions) {
 func (m *McpServer) setPingHandler() {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
-		messages.RequestMethods_Ping,
+		transport.RequestMethods_Ping,
 		func(ctx context.Context, request *types.PingRequest) (*types.PingResult, error) {
 			return &types.PingResult{}, nil
 		},
@@ -439,7 +438,7 @@ func (e *McpServer) RequestRoots(ctx context.Context, request types.ListRootsReq
 	if e.GetClientCapabilities() == nil || e.GetClientCapabilities().Roots == nil {
 		return nil, fmt.Errorf("client capabilities roots not set")
 	}
-	req := messages.NewJsonRpcRequest(messages.RequestMethods_RootsList, request, nil)
+	req := transport.NewJsonRpcRequest(transport.RequestMethods_RootsList, request, nil)
 	resp, err := e.SendRequest(ctx, req)
 	if err != nil {
 		return nil, err
