@@ -85,7 +85,7 @@ func (m *McpServer) setInitializeHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_Initialize,
-		func(ctx context.Context, request *shared.InitializeRequestParams) (*InitializeResult, error) {
+		func(ctx context.Context, request *shared.InitializeRequestParams, tran transport.ITransport) (*InitializeResult, error) {
 			m.ClientCapabilities = request.Capabilities
 			m.ClientInfo = &request.ClientInfo
 			_endpointName := fmt.Sprintf("%s, Client (%s %s)", m.EndpointName, m.ClientInfo.Name, m.ClientInfo.Version)
@@ -174,8 +174,8 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ToolsList,
-		func(ctx context.Context, request *types.ListToolsRequestParams) (*types.ListToolsResult, error) {
-			return InvokeHandler(m, ctx, listToolsHandler, request)
+		func(ctx context.Context, request *types.ListToolsRequestParams, destinationTransport transport.ITransport) (*types.ListToolsResult, error) {
+			return InvokeHandler(m, ctx, listToolsHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -183,8 +183,8 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ToolsCall,
-		func(ctx context.Context, request *types.CallToolRequestParams) (*types.CallToolResult, error) {
-			return InvokeHandler(m, ctx, callToolHandler, request)
+		func(ctx context.Context, request *types.CallToolRequestParams, destinationTransport transport.ITransport) (*types.CallToolResult, error) {
+			return InvokeHandler(m, ctx, callToolHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -265,8 +265,8 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_PromptsList,
-		func(ctx context.Context, request *types.ListPromptsRequestParams) (*types.ListPromptsResult, error) {
-			return InvokeHandler(m, ctx, listPromptsHandler, request)
+		func(ctx context.Context, request *types.ListPromptsRequestParams, destinationTransport transport.ITransport) (*types.ListPromptsResult, error) {
+			return InvokeHandler(m, ctx, listPromptsHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -274,8 +274,8 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_PromptsGet,
-		func(ctx context.Context, request *types.GetPromptRequestParams) (*types.GetPromptResult, error) {
-			return InvokeHandler(m, ctx, getPromptHandler, request)
+		func(ctx context.Context, request *types.GetPromptRequestParams, destinationTransport transport.ITransport) (*types.GetPromptResult, error) {
+			return InvokeHandler(m, ctx, getPromptHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -303,8 +303,8 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ResourcesList,
-		func(ctx context.Context, request *types.ListResourcesRequestParams) (*types.ListResourcesResult, error) {
-			return InvokeHandler(m, ctx, listResourcesHandler, request)
+		func(ctx context.Context, request *types.ListResourcesRequestParams, destinationTransport transport.ITransport) (*types.ListResourcesResult, error) {
+			return InvokeHandler(m, ctx, listResourcesHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -312,8 +312,8 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ResourcesRead,
-		func(ctx context.Context, request *types.ReadResourceRequestParams) (*types.ReadResourceResult, error) {
-			return InvokeHandler(m, ctx, readResourceHandler, request)
+		func(ctx context.Context, request *types.ReadResourceRequestParams, destinationTransport transport.ITransport) (*types.ReadResourceResult, error) {
+			return InvokeHandler(m, ctx, readResourceHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -321,8 +321,8 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ResourcesTemplatesList,
-		func(ctx context.Context, request *types.ListResourceTemplatesRequestParams) (*types.ListResourceTemplatesResult, error) {
-			return InvokeHandler(m, ctx, listResourceTemplatesHandler, request)
+		func(ctx context.Context, request *types.ListResourceTemplatesRequestParams, destinationTransport transport.ITransport) (*types.ListResourceTemplatesResult, error) {
+			return InvokeHandler(m, ctx, listResourceTemplatesHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -340,8 +340,8 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ResourcesSubscribe,
-		func(ctx context.Context, request *types.SubscribeRequestParams) (*types.EmptyResult, error) {
-			return InvokeHandler(m, ctx, subscribeHandler, request)
+		func(ctx context.Context, request *types.SubscribeRequestParams, destinationTransport transport.ITransport) (*types.EmptyResult, error) {
+			return InvokeHandler(m, ctx, subscribeHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -349,8 +349,8 @@ func (m *McpServer) setResourcesHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_ResourcesUnsubscribe,
-		func(ctx context.Context, request *types.UnsubscribeRequestParams) (*types.EmptyResult, error) {
-			return InvokeHandler(m, ctx, unsubscribeHandler, request)
+		func(ctx context.Context, request *types.UnsubscribeRequestParams, destinationTransport transport.ITransport) (*types.EmptyResult, error) {
+			return InvokeHandler(m, ctx, unsubscribeHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -370,8 +370,8 @@ func (m *McpServer) setCompletionHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_CompletionComplete,
-		func(ctx context.Context, request *types.CompleteRequestParams) (*types.CompleteResult, error) {
-			return InvokeHandler(m, ctx, completeHandler, request)
+		func(ctx context.Context, request *types.CompleteRequestParams, destinationTransport transport.ITransport) (*types.CompleteResult, error) {
+			return InvokeHandler(m, ctx, completeHandler, request, destinationTransport)
 		},
 		nil,
 		nil,
@@ -382,7 +382,7 @@ func (m *McpServer) setPingHandler() {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_Ping,
-		func(ctx context.Context, request *types.PingRequest) (*types.PingResult, error) {
+		func(ctx context.Context, request *types.PingRequest, destinationTransport transport.ITransport) (*types.PingResult, error) {
 			return &types.PingResult{}, nil
 		},
 		nil,
@@ -422,6 +422,7 @@ func InvokeHandler[TParams any, TResult any](
 	ctx context.Context,
 	handler func(context.Context, RequestContext[TParams]) (*TResult, error),
 	args TParams,
+	destinationTransport transport.ITransport,
 ) (*TResult, error) {
 	// TODO: handle _servicesScopePerRequest
 	return handler(ctx, RequestContext[TParams]{Params: args})

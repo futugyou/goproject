@@ -126,8 +126,7 @@ func (s *StreamableHttpPostTransport) onMessageReceived(ctx context.Context, msg
 		s.mu.Unlock()
 	}
 
-	// TODO: move all messages package to transport
-	// msg.RelatedTransport = this;
+	msg.SetRelatedTransport(s)
 
 	s.incomingChannel <- msg
 	if s.incomingChannel == nil {

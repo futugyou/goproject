@@ -9,7 +9,7 @@ import (
 )
 
 type RequestHandler func(ctx context.Context, request *transport.JsonRpcRequest) (json.RawMessage, error)
-type GenericRequestHandler[TRequest any, TResponse any] func(ctx context.Context, request *TRequest) (*TResponse, error)
+type GenericRequestHandler[TRequest any, TResponse any] func(ctx context.Context, request *TRequest, tran transport.ITransport) (*TResponse, error)
 type RequestUnmarshaler[TRequest any] func(data interface{}) (*TRequest, error)
 type RepsonseMarshaler[TResponse any] func(data TResponse) (json.RawMessage, error)
 
@@ -114,7 +114,7 @@ func GenericRequestHandlerAdd[TRequest any, TResponse any](
 		if err != nil {
 			return nil, err
 		}
-		resp, err := handler(ctx, req)
+		resp, err := handler(ctx, req, request.RelatedTransport)
 		if err != nil {
 			return nil, err
 		}

@@ -71,8 +71,7 @@ func NewMcpClient(clientTransport transport.IClientTransport, options McpClientO
 			shared.GenericRequestHandlerAdd(
 				client.reqHandlers,
 				transport.RequestMethods_SamplingCreateMessage,
-				func(ctx context.Context, request *types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
-
+				func(ctx context.Context, request *types.CreateMessageRequestParams, tran transport.ITransport) (*types.CreateMessageResult, error) {
 					var progres shared.IProgressReporter = &shared.NullProgress{}
 					if request.Meta != nil && request.Meta.ProgressToken != nil {
 						progres = shared.NewTokenProgress(client, *request.Meta.ProgressToken)
@@ -88,7 +87,7 @@ func NewMcpClient(clientTransport transport.IClientTransport, options McpClientO
 			shared.GenericRequestHandlerAdd(
 				client.reqHandlers,
 				transport.RequestMethods_RootsList,
-				func(ctx context.Context, request *types.ListRootsRequestParams) (*types.ListRootsResult, error) {
+				func(ctx context.Context, request *types.ListRootsRequestParams, tran transport.ITransport) (*types.ListRootsResult, error) {
 					return capabilities.Roots.RootsHandler(ctx, request)
 				},
 				nil,
