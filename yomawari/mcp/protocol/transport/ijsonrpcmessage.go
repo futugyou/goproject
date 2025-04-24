@@ -7,6 +7,8 @@ import (
 
 type IJsonRpcMessage interface {
 	GetJsonRpc() string
+	GetRelatedTransport() ITransport
+	SetRelatedTransport(transport ITransport)
 }
 
 type IJsonRpcMessageWithId interface {

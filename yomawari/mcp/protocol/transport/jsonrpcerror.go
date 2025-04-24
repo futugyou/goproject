@@ -1,9 +1,20 @@
 package transport
 
 type JsonRpcError struct {
-	JsonRpc string              `json:"jsonrpc"`
-	Id      *RequestId          `json:"id"`
-	Error   *JsonRpcErrorDetail `json:"error"`
+	JsonRpc          string              `json:"jsonrpc"`
+	Id               *RequestId          `json:"id"`
+	Error            *JsonRpcErrorDetail `json:"error"`
+	RelatedTransport ITransport          `json:"-"`
+}
+
+// GetRelatedTransport implements IJsonRpcMessageWithId.
+func (j *JsonRpcError) GetRelatedTransport() ITransport {
+	return j.RelatedTransport
+}
+
+// SetRelatedTransport implements IJsonRpcMessageWithId.
+func (j *JsonRpcError) SetRelatedTransport(transport ITransport) {
+	j.RelatedTransport = transport
 }
 
 func NewJsonRpcError(id *RequestId, code int, message string, data any) *JsonRpcError {

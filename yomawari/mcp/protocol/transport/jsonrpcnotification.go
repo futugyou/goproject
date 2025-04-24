@@ -6,9 +6,20 @@ import (
 )
 
 type JsonRpcNotification struct {
-	JsonRpc string          `json:"jsonrpc"`
-	Method  string          `json:"method"`
-	Params  json.RawMessage `json:"params,omitempty"`
+	JsonRpc          string          `json:"jsonrpc"`
+	Method           string          `json:"method"`
+	Params           json.RawMessage `json:"params,omitempty"`
+	RelatedTransport ITransport      `json:"-"`
+}
+
+// GetRelatedTransport implements IJsonRpcMessage.
+func (m *JsonRpcNotification) GetRelatedTransport() ITransport {
+	return m.RelatedTransport
+}
+
+// SetRelatedTransport implements IJsonRpcMessage.
+func (m *JsonRpcNotification) SetRelatedTransport(transport ITransport) {
+	m.RelatedTransport = transport
 }
 
 func NewJsonRpcNotification(method string, params json.RawMessage) *JsonRpcNotification {

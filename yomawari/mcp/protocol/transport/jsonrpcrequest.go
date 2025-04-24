@@ -3,10 +3,21 @@ package transport
 import "fmt"
 
 type JsonRpcRequest struct {
-	JsonRpc string     `json:"jsonrpc"`
-	Method  string     `json:"method"`
-	Params  any        `json:"params,omitempty"`
-	Id      *RequestId `json:"id"`
+	JsonRpc          string     `json:"jsonrpc"`
+	Method           string     `json:"method"`
+	Params           any        `json:"params,omitempty"`
+	Id               *RequestId `json:"id"`
+	RelatedTransport ITransport `json:"-"`
+}
+
+// GetRelatedTransport implements IJsonRpcMessageWithId.
+func (j *JsonRpcRequest) GetRelatedTransport() ITransport {
+	return j.RelatedTransport
+}
+
+// SetRelatedTransport implements IJsonRpcMessageWithId.
+func (j *JsonRpcRequest) SetRelatedTransport(transport ITransport) {
+	j.RelatedTransport = transport
 }
 
 func NewJsonRpcRequest(method string, params any, id *RequestId) *JsonRpcRequest {
