@@ -62,13 +62,10 @@ func (m *McpClientTool) GetJsonSchema() map[string]interface{} {
 
 // GetName implements functions.AIFunction.
 func (m *McpClientTool) GetName() string {
+	if len(m.name) == 0 {
+		return "McpClientTool"
+	}
 	return m.name
-}
-
-// GetParameters implements functions.AIFunction.
-func (m *McpClientTool) GetParameters() map[string]interface{} {
-	// unused method wait for extensions-ai updated
-	panic("unimplemented")
 }
 
 // Invoke implements functions.AIFunction.

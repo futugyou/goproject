@@ -8,8 +8,6 @@ import (
 	"github.com/futugyou/yomawari/extensions-ai/abstractions"
 )
 
-var _ AIFunction = (*BaseAIFunction)(nil)
-
 type AIFunction interface {
 	abstractions.AITool
 	Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error)
@@ -24,21 +22,13 @@ type BaseAIFunction struct {
 }
 
 func (t *BaseAIFunction) GetJsonSchema() map[string]interface{} {
-	panic("not implemented")
+	return map[string]interface{}{}
 }
 
 func (f *BaseAIFunction) UnderlyingMethod() reflect.Method {
-	return reflect.Method{}
+	return reflect.TypeOf(f).Method(0)
 }
 
 func (f *BaseAIFunction) JsonSerializerOptions() json.Marshaler {
-	return nil
-}
-
-func (f *BaseAIFunction) Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
-	return f.InvokeCore(ctx, arguments)
-}
-
-func (f *BaseAIFunction) InvokeCore(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
-	panic("InvokeCore must be implemented by subclass")
+	return &json.RawMessage{}
 }

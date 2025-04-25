@@ -62,7 +62,7 @@ type reflectionAIFunction struct {
 }
 
 // Invoke invokes the method with the provided arguments.
-func (f *reflectionAIFunction) InvokeCore(ctx context.Context, arguments functions.AIFunctionArguments) (interface{}, error) {
+func (f *reflectionAIFunction) Invoke(ctx context.Context, arguments functions.AIFunctionArguments) (interface{}, error) {
 	descriptor, err := GetOrCreateDescriptor(f.method.Interface(), f.options)
 	if err != nil {
 		return nil, err
