@@ -204,9 +204,9 @@ func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCom
 }
 
 func ToOpenAIChatCompletionToolParam(v functions.AIFunction) rawopenai.ChatCompletionToolParam {
-	var m shared.FunctionParameters = v.GetParameters()
+	var m shared.FunctionParameters = v.GetJsonSchema()
 	strict := false
-	if v, ok := v.GetAdditionalProperties()["Strict"].(bool); ok {
+	if v, ok := v.GetAdditionalProperties()["strictJsonSchema"].(bool); ok {
 		strict = v
 	}
 	pa := shared.FunctionDefinitionParam{

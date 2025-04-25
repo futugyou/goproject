@@ -156,7 +156,7 @@ func getBetaThreadRunNewParams(chatMessages []chatcompletion.ChatMessage, option
 		tools := []rawopenai.AssistantToolUnionParam{}
 		for _, tool := range options.Tools {
 			if t, ok := tool.(functions.AIFunction); ok {
-				var m shared.FunctionParameters = t.GetParameters()
+				var m shared.FunctionParameters = t.GetJsonSchema()
 				strict := false
 				if v, ok := t.GetAdditionalProperties()["Strict"].(bool); ok {
 					strict = v
@@ -289,9 +289,9 @@ func getBetaThreadNewAndRunParams(chatMessages []chatcompletion.ChatMessage, opt
 		tools := []rawopenai.BetaThreadNewAndRunParamsToolUnion{}
 		for _, tool := range options.Tools {
 			if t, ok := tool.(functions.AIFunction); ok {
-				var m shared.FunctionParameters = t.GetParameters()
+				var m shared.FunctionParameters = t.GetJsonSchema()
 				strict := false
-				if v, ok := t.GetAdditionalProperties()["Strict"].(bool); ok {
+				if v, ok := t.GetAdditionalProperties()["strictJsonSchema"].(bool); ok {
 					strict = v
 				}
 				pa := shared.FunctionDefinitionParam{

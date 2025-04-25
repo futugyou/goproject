@@ -6,8 +6,6 @@ type AITool interface {
 	GetName() string
 	GetDescription() string
 	GetAdditionalProperties() map[string]interface{}
-	//Obsolete
-	GetParameters() map[string]interface{}
 }
 
 type BaseAITool struct {
@@ -34,8 +32,4 @@ func (t *BaseAITool) GetDescription() string {
 
 func (t *BaseAITool) GetAdditionalProperties() map[string]interface{} {
 	return t.AdditionalProperties
-}
-
-func (t *BaseAITool) GetParameters() map[string]interface{} {
-	return map[string]interface{}{}
 }
