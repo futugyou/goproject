@@ -133,7 +133,9 @@ func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCom
 	if options.TopP != nil {
 		result.TopP = rawopenai.F(*options.TopP)
 	}
-
+	if options.AllowMultipleToolCalls != nil {
+		result.ParallelToolCalls = rawopenai.F(*options.AllowMultipleToolCalls)
+	}
 	var defaultFormat rawopenai.ChatCompletionNewParamsResponseFormatUnion = rawopenai.ChatCompletionNewParamsResponseFormat{
 		Type: rawopenai.F(rawopenai.ChatCompletionNewParamsResponseFormatTypeJSONObject),
 	}
@@ -171,9 +173,6 @@ func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCom
 		result.ToolChoice = rawopenai.F(choice)
 	}
 
-	if v, ok := options.AdditionalProperties["ParallelToolCalls"].(bool); ok {
-		result.ParallelToolCalls = rawopenai.F(v)
-	}
 	if v, ok := options.AdditionalProperties["Audio"].(rawopenai.ChatCompletionAudioParam); ok {
 		result.Audio = rawopenai.F(v)
 	}
