@@ -6,6 +6,6 @@ type CodeInterpreterTool struct {
 
 func NewCodeInterpreterTool() *CodeInterpreterTool {
 	return &CodeInterpreterTool{
-		BaseAITool: NewBaseAITool("CodeInterpreterTool"),
+		BaseAITool: NewBaseAITool(),
 	}
 }

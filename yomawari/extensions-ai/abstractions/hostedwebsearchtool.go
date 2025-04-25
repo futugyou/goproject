@@ -6,6 +6,6 @@ type HostedWebSearchTool struct {
 
 func NewHostedWebSearchTool() *HostedWebSearchTool {
 	return &HostedWebSearchTool{
-		BaseAITool: NewBaseAITool("HostedWebSearchTool"),
+		BaseAITool: NewBaseAITool(),
 	}
 }

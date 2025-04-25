@@ -17,7 +17,6 @@ type AIFunction interface {
 
 type BaseAIFunction struct {
 	*abstractions.BaseAITool
-	arguments AIFunctionArguments
 }
 
 func (t *BaseAIFunction) GetJsonSchema() map[string]interface{} {
@@ -30,18 +29,4 @@ func (f *BaseAIFunction) Invoke(ctx context.Context, arguments AIFunctionArgumen
 
 func (f *BaseAIFunction) InvokeCore(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
 	panic("InvokeCore must be implemented by subclass")
-}
-
-type ExampleFunction struct {
-	BaseAIFunction
-}
-
-func NewExampleFunction() *ExampleFunction {
-	return &ExampleFunction{
-		BaseAIFunction{BaseAITool: abstractions.NewBaseAITool("ExampleFunction")},
-	}
-}
-
-func (f *ExampleFunction) InvokeCore(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
-	return "run ExampleFunction", nil
 }

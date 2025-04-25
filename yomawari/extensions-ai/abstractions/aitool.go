@@ -1,5 +1,7 @@
 package abstractions
 
+import "reflect"
+
 var _ AITool = (*BaseAITool)(nil)
 
 type AITool interface {
@@ -14,16 +16,15 @@ type BaseAITool struct {
 	AdditionalProperties map[string]interface{}
 }
 
-func NewBaseAITool(name string) *BaseAITool {
+func NewBaseAITool() *BaseAITool {
 	return &BaseAITool{
-		Name:                 name,
 		Description:          "",
 		AdditionalProperties: make(map[string]interface{}),
 	}
 }
 
 func (t *BaseAITool) GetName() string {
-	return t.Name
+	return reflect.TypeOf(t).Name()
 }
 
 func (t *BaseAITool) GetDescription() string {
