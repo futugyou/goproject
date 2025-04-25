@@ -11,6 +11,7 @@ import (
 var _ functions.AIFunction = &McpClientTool{}
 
 type McpClientTool struct {
+	functions.BaseAIFunction
 	additionalProperties map[string]interface{}
 	client               IMcpClient
 	name                 string
