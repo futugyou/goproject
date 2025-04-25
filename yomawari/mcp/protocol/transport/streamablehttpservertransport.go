@@ -51,7 +51,7 @@ func (s *StreamableHttpServerTransport) HandleGetRequest(ctx context.Context, ss
 	if atomic.SwapInt32(&s.getRequestStarted, 1) != 0 {
 		return fmt.Errorf("session resumption is not yet supported. Please start a new session")
 	}
-	ctx, _ = mergeContexts(s.ctx, ctx)
+	// We do not need to reference ctx like in HandlePostRequest, because the session ending completes the sseWriter gracefully.
 	resultCh := s.sseWriter.WriteAll(ctx, sseResponseStream)
 
 	select {
