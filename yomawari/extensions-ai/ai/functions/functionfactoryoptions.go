@@ -9,4 +9,5 @@ type AIFunctionFactoryOptions struct {
 	Description       string                 // function description
 	ParameterNames    []string               // parameter names
 	JSONSchemaOptions map[string]interface{} // JSON Schema
+	AdditionalProperties map[string]interface{}
 }
