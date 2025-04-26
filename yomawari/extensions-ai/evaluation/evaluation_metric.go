@@ -33,3 +33,16 @@ func (e *EvaluationMetric) AddDiagnostics(diagnostics []EvaluationDiagnostic) {
 func (e *EvaluationMetric) AddOrUpdateMetadata(name string, value string) {
 	e.Metadata[name] = value
 }
+
+func (e *EvaluationMetric) ContainsDiagnostics(predicate func(EvaluationDiagnostic) bool) bool {
+	if e == nil || e.Diagnostics == nil || predicate == nil {
+		return false
+	}
+
+	for _, v := range e.Diagnostics {
+		if predicate(v) {
+			return true
+		}
+	}
+	return false
+}
