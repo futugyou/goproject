@@ -1,5 +1,7 @@
 package evaluation
 
+var _ IEvaluationMetric = (*EvaluationMetricT[any])(nil)
+
 type EvaluationMetricT[T any] struct {
 	EvaluationMetric
 	Value T

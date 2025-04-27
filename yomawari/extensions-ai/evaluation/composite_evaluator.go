@@ -35,12 +35,12 @@ func NewCompositeEvaluator(evaluators []IEvaluator) *CompositeEvaluator {
 
 // Evaluate implements IEvaluator.
 func (c *CompositeEvaluator) Evaluate(ctx context.Context, messages []chatcompletion.ChatMessage, modelResponse chatcompletion.ChatResponse, chatConfiguration *ChatConfiguration, additionalContext []EvaluationContext) (*EvaluationResult, error) {
-	metrics := []EvaluationMetric{}
+	metrics := []IEvaluationMetric{}
 	resultsStream := c.evaluateAndStreamResults(ctx, messages, modelResponse, chatConfiguration, additionalContext)
 
 	for result := range resultsStream {
 		for _, metric := range result.Metrics {
-			metrics = append(metrics, *metric)
+			metrics = append(metrics,  metric)
 		}
 	}
 

@@ -3,16 +3,16 @@ package evaluation
 import "github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
 
 type EvaluationResult struct {
-	Metrics map[string]*EvaluationMetric
+	Metrics map[string]IEvaluationMetric
 }
 
-func NewEvaluationResult(metrics []EvaluationMetric) *EvaluationResult {
+func NewEvaluationResult(metrics []IEvaluationMetric) *EvaluationResult {
 	e := &EvaluationResult{
-		Metrics: make(map[string]*EvaluationMetric),
+		Metrics: make(map[string]IEvaluationMetric),
 	}
 
 	for _, v := range metrics {
-		e.Metrics[v.Name] = &v
+		e.Metrics[v.GetName()] = v
 	}
 
 	return e
@@ -42,10 +42,10 @@ func (r *EvaluationResult) ContainsDiagnostics(predicate func(EvaluationDiagnost
 	return false
 }
 
-func (r *EvaluationResult) Interpret(interpretationProvider func(*EvaluationMetric) *EvaluationMetricInterpretation) {
+func (r *EvaluationResult) Interpret(interpretationProvider func(IEvaluationMetric) *EvaluationMetricInterpretation) {
 	for _, v := range r.Metrics {
 		if i := interpretationProvider(v); i != nil {
-			v.Interpretation = i
+			v.SetInterpretation(i)
 		}
 	}
 }

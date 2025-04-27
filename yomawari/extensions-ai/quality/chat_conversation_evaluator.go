@@ -10,10 +10,9 @@ import (
 )
 
 type ChatConversationEvaluator interface {
-	EvaluationMetricNames() []string
+	evaluation.IEvaluator
 	IgnoresHistory() bool
-	SystemPrompt() *string
-	Evaluate(ctx context.Context, messages []chatcompletion.ChatMessage, modelResponse chatcompletion.ChatResponse, chatConfiguration *evaluation.ChatConfiguration, additionalContext []evaluation.EvaluationContext) (*evaluation.EvaluationResult, error)
+	SystemPrompt() string
 	RenderChatResponse(ctx context.Context, response *chatcompletion.ChatResponse) string
 	RenderChatMessage(ctx context.Context, message *chatcompletion.ChatMessage) string
 	RenderEvaluationPrompt(ctx context.Context, userRequest *chatcompletion.ChatMessage, modelResponse chatcompletion.ChatResponse, conversationHistory []chatcompletion.ChatMessage, additionalContext []evaluation.EvaluationContext) (*string, error)
@@ -24,31 +23,11 @@ type ChatConversationEvaluator interface {
 type BaseChatConversationEvaluator struct {
 }
 
-func (e *BaseChatConversationEvaluator) IgnoresHistory() bool {
-	panic("implement me")
-}
-
-func (e *BaseChatConversationEvaluator) InitializeResult() *evaluation.EvaluationResult {
-	panic("implement me")
-}
-
-func (e *BaseChatConversationEvaluator) SystemPrompt() *string {
-	panic("implement me")
-}
-
-func (e *BaseChatConversationEvaluator) PerformEvaluation(ctx context.Context, chatConfiguration *evaluation.ChatConfiguration, evaluationMessages []chatcompletion.ChatMessage, result *evaluation.EvaluationResult) error {
-	panic("implement me")
-}
-
-func (e *BaseChatConversationEvaluator) RenderEvaluationPrompt(ctx context.Context, userRequest *chatcompletion.ChatMessage, modelResponse chatcompletion.ChatResponse, conversationHistory []chatcompletion.ChatMessage, additionalContext []evaluation.EvaluationContext) (*string, error) {
-	panic("implement me")
-}
-
-func (e *BaseChatConversationEvaluator) getUserRequestAndConversationHistory(messages []chatcompletion.ChatMessage) (*chatcompletion.ChatMessage, []chatcompletion.ChatMessage) {
+func (e *BaseChatConversationEvaluator) getUserRequestAndConversationHistory(evaluator ChatConversationEvaluator, messages []chatcompletion.ChatMessage) (*chatcompletion.ChatMessage, []chatcompletion.ChatMessage) {
 	var userRequest *chatcompletion.ChatMessage
 	var conversationHistory []chatcompletion.ChatMessage
 
-	if e.IgnoresHistory() {
+	if evaluator.IgnoresHistory() {
 		if len(messages) > 0 {
 			lastMessage := messages[len(messages)-1]
 			if lastMessage.Role == chatcompletion.RoleUser {
@@ -70,8 +49,8 @@ func (e *BaseChatConversationEvaluator) getUserRequestAndConversationHistory(mes
 	return userRequest, conversationHistory
 }
 
-func (e *BaseChatConversationEvaluator) Evaluate(ctx context.Context, messages []chatcompletion.ChatMessage, modelResponse chatcompletion.ChatResponse, chatConfiguration *evaluation.ChatConfiguration, additionalContext []evaluation.EvaluationContext) (*evaluation.EvaluationResult, error) {
-	result := e.InitializeResult()
+func (e *BaseChatConversationEvaluator) Evaluate(evaluator ChatConversationEvaluator, ctx context.Context, messages []chatcompletion.ChatMessage, modelResponse chatcompletion.ChatResponse, chatConfiguration *evaluation.ChatConfiguration, additionalContext []evaluation.EvaluationContext) (*evaluation.EvaluationResult, error) {
+	result := evaluator.InitializeResult()
 	if len(modelResponse.Text()) == 0 {
 		result.AddDiagnosticsToAllMetrics([]evaluation.EvaluationDiagnostic{
 			evaluation.EvaluationDiagnosticError("Evaluation failed because the model response supplied for evaluation was null or empty."),
@@ -81,19 +60,19 @@ func (e *BaseChatConversationEvaluator) Evaluate(ctx context.Context, messages [
 	}
 
 	evaluationMessages := []chatcompletion.ChatMessage{}
-	systemPrompt := e.SystemPrompt()
-	if systemPrompt != nil && len(*systemPrompt) > 0 {
-		evaluationMessages = append(evaluationMessages, *chatcompletion.NewChatMessageWithText(chatcompletion.RoleSystem, *systemPrompt))
+	systemPrompt := evaluator.SystemPrompt()
+	if len(systemPrompt) > 0 {
+		evaluationMessages = append(evaluationMessages, *chatcompletion.NewChatMessageWithText(chatcompletion.RoleSystem, systemPrompt))
 	}
 
-	userRequest, conversationHistory := e.getUserRequestAndConversationHistory(messages)
-	evaluationPrompt, err := e.RenderEvaluationPrompt(ctx, userRequest, modelResponse, conversationHistory, additionalContext)
+	userRequest, conversationHistory := e.getUserRequestAndConversationHistory(evaluator, messages)
+	evaluationPrompt, err := evaluator.RenderEvaluationPrompt(ctx, userRequest, modelResponse, conversationHistory, additionalContext)
 
 	if err == nil {
 		evaluationMessages = append(evaluationMessages, *chatcompletion.NewChatMessageWithText(chatcompletion.RoleUser, *evaluationPrompt))
 	}
 
-	e.PerformEvaluation(ctx, chatConfiguration, evaluationMessages, result)
+	evaluator.PerformEvaluation(ctx, chatConfiguration, evaluationMessages, result)
 
 	return result, nil
 }
