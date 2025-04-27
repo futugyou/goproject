@@ -16,6 +16,22 @@ type ChatMessage struct {
 	AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
 }
 
+func NewChatMessage(role ChatRole, contents []contents.IAIContent) *ChatMessage {
+	return &ChatMessage{
+		Role:     role,
+		Contents: contents,
+	}
+}
+
+func NewChatMessageWithText(role ChatRole, text string) *ChatMessage {
+	return &ChatMessage{
+		Role: role,
+		Contents: []contents.IAIContent{
+			contents.NewTextContent(text),
+		},
+	}
+}
+
 func (c *ChatMessage) Text() string {
 	return contents.ConcatTextContents(c.Contents)
 }
