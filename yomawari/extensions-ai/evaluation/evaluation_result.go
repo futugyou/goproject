@@ -1,7 +1,5 @@
 package evaluation
 
-import "github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
-
 type EvaluationResult struct {
 	Metrics map[string]IEvaluationMetric
 }
@@ -18,7 +16,7 @@ func NewEvaluationResult(metrics []IEvaluationMetric) *EvaluationResult {
 	return e
 }
 
-func (r *EvaluationResult) AddOrUpdateContextInAllMetrics(name string, value []contents.IAIContent) {
+func (r *EvaluationResult) AddOrUpdateContextInAllMetrics(name string, value EvaluationContext) {
 	for _, v := range r.Metrics {
 		v.AddOrUpdateContext(name, value)
 	}

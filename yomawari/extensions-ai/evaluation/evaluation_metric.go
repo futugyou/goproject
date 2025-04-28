@@ -1,16 +1,12 @@
 package evaluation
 
-import (
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
-)
-
 type IEvaluationMetric interface {
-	AddOrUpdateContext(name string, value []contents.IAIContent)
+	AddOrUpdateContext(name string, value EvaluationContext)
 	AddDiagnostics(diagnostics []EvaluationDiagnostic)
 	AddOrUpdateMetadata(name string, value string)
 	ContainsDiagnostics(predicate func(EvaluationDiagnostic) bool) bool
 	GetName() string
-	SetName(string)
+	SetName(name string)
 	GetInterpretation() *EvaluationMetricInterpretation
 	SetInterpretation(*EvaluationMetricInterpretation)
 }
@@ -21,7 +17,7 @@ type EvaluationMetric struct {
 	name           string
 	Reason         *string
 	interpretation *EvaluationMetricInterpretation
-	Context        map[string][]contents.IAIContent
+	Context        map[string]EvaluationContext
 	Metadata       map[string]string
 	Diagnostics    []EvaluationDiagnostic
 }
@@ -33,7 +29,7 @@ func NewEvaluationMetric(name string, reason *string) EvaluationMetric {
 	}
 }
 
-func (e *EvaluationMetric) AddOrUpdateContext(name string, value []contents.IAIContent) {
+func (e *EvaluationMetric) AddOrUpdateContext(name string, value EvaluationContext) {
 	e.Context[name] = value
 }
 
