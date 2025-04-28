@@ -1,5 +1,11 @@
 package evaluation
 
+import (
+	"fmt"
+
+	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
+)
+
 type IEvaluationMetric interface {
 	AddOrUpdateContext(values []EvaluationContext)
 	AddDiagnostics(diagnostics []EvaluationDiagnostic)
@@ -9,6 +15,7 @@ type IEvaluationMetric interface {
 	SetName(name string)
 	GetInterpretation() *EvaluationMetricInterpretation
 	SetInterpretation(*EvaluationMetricInterpretation)
+	AddOrUpdateChatMetadata(response chatcompletion.ChatResponse, duration float64)
 }
 
 var _ IEvaluationMetric = (*EvaluationMetric)(nil)
@@ -20,6 +27,31 @@ type EvaluationMetric struct {
 	Context        map[string]EvaluationContext
 	Metadata       map[string]string
 	Diagnostics    []EvaluationDiagnostic
+}
+
+// AddOrUpdateChatMetadata implements IEvaluationMetric.
+func (metric *EvaluationMetric) AddOrUpdateChatMetadata(evaluationResponse chatcompletion.ChatResponse, duration float64) {
+	if evaluationResponse.ModelId != nil {
+		metric.AddOrUpdateMetadata("evaluation-model-used", *evaluationResponse.ModelId)
+	}
+
+	if evaluationResponse.Usage != nil {
+		if evaluationResponse.Usage.InputTokenCount != nil {
+			metric.AddOrUpdateMetadata("evaluation-input-tokens-used", fmt.Sprintf("%d", *evaluationResponse.Usage.InputTokenCount))
+		}
+
+		if evaluationResponse.Usage.OutputTokenCount != nil {
+			metric.AddOrUpdateMetadata("evaluation-output-tokens-used", fmt.Sprintf("%d", *evaluationResponse.Usage.OutputTokenCount))
+		}
+
+		if evaluationResponse.Usage.TotalTokenCount != nil {
+			metric.AddOrUpdateMetadata("evaluation-total-tokens-used", fmt.Sprintf("%d", *evaluationResponse.Usage.TotalTokenCount))
+		}
+	}
+	if duration > 0 {
+		duration := fmt.Sprintf("%f", duration)
+		metric.AddOrUpdateMetadata("evaluation-duration", duration)
+	}
 }
 
 func NewEvaluationMetric(name string, reason *string) EvaluationMetric {
