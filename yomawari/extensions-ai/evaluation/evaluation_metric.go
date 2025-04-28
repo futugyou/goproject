@@ -1,7 +1,7 @@
 package evaluation
 
 type IEvaluationMetric interface {
-	AddOrUpdateContext(name string, value EvaluationContext)
+	AddOrUpdateContext(values []EvaluationContext)
 	AddDiagnostics(diagnostics []EvaluationDiagnostic)
 	AddOrUpdateMetadata(name string, value string)
 	ContainsDiagnostics(predicate func(EvaluationDiagnostic) bool) bool
@@ -29,8 +29,10 @@ func NewEvaluationMetric(name string, reason *string) EvaluationMetric {
 	}
 }
 
-func (e *EvaluationMetric) AddOrUpdateContext(name string, value EvaluationContext) {
-	e.Context[name] = value
+func (e *EvaluationMetric) AddOrUpdateContext(values []EvaluationContext) {
+	for _, v := range values {
+		e.Context[v.GetName()] = v
+	}
 }
 
 func (e *EvaluationMetric) GetName() string {

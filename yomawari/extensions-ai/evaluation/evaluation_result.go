@@ -16,9 +16,9 @@ func NewEvaluationResult(metrics []IEvaluationMetric) *EvaluationResult {
 	return e
 }
 
-func (r *EvaluationResult) AddOrUpdateContextInAllMetrics(name string, value EvaluationContext) {
+func (r *EvaluationResult) AddOrUpdateContextInAllMetrics(values []EvaluationContext) {
 	for _, v := range r.Metrics {
-		v.AddOrUpdateContext(name, value)
+		v.AddOrUpdateContext(values)
 	}
 }
 
