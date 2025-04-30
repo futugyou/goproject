@@ -120,7 +120,7 @@ func (s *SemanticTextMemory) Search(ctx context.Context, collection string, quer
 		return resultCh, errorCh
 	}
 
-	resCh, embeddingsCh, errCh := s.storage.GetNearestMatches(ctx, collection, queryEmbedding, limit, minRelevanceScore, withEmbeddings)
+	resCh, errCh := s.storage.GetNearestMatches(ctx, collection, queryEmbedding, limit, minRelevanceScore, withEmbeddings)
 
 	go func() {
 		defer close(resultCh)
@@ -136,12 +136,11 @@ func (s *SemanticTextMemory) Search(ctx context.Context, collection string, quer
 					errorCh <- err
 				}
 				return
-			case res, ok1 := <-resCh:
-				embedding, ok2 := <-embeddingsCh
-				if !ok1 || !ok2 {
+			case res, ok := <-resCh:
+				if ok {
 					return
 				}
-				resultCh <- memory.FromMemoryRecord(res, embedding)
+				resultCh <- memory.FromMemoryRecord(res.Record, res.Score)
 			}
 		}
 	}()

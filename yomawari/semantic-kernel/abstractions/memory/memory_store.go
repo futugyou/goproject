@@ -13,6 +13,11 @@ type IMemoryStore interface {
 	GetBatch(ctx context.Context, collectionName string, keys []string, withEmbeddings bool) (<-chan MemoryRecord, <-chan error)
 	Remove(ctx context.Context, collectionName string, key string) error
 	RemoveBatch(ctx context.Context, collectionName string, keys []string) error
-	GetNearestMatches(ctx context.Context, collectionName string, embedding []float32, limit int, minRelevanceScore float64, withEmbeddings bool) (<-chan MemoryRecord, <-chan float64, <-chan error)
+	GetNearestMatches(ctx context.Context, collectionName string, embedding []float32, limit int, minRelevanceScore float64, withEmbeddings bool) (<-chan NearestMatchesResult, <-chan error)
 	GetNearestMatch(ctx context.Context, collectionName string, embedding []float32, limit int, minRelevanceScore float64, withEmbeddings bool) (*MemoryRecord, float64, error)
+}
+
+type NearestMatchesResult struct {
+	Record MemoryRecord
+	Score  float64
 }
