@@ -45,6 +45,7 @@ func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *S
 }
 
 func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+	var err error
 	ctx, _ = mergeContexts(t.ctx, ctx)
 
 	data, err := MarshalJsonRpcMessage(message)
@@ -56,15 +57,9 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json, text/event-stream")
 
-	if t.mcpSessionId != "" {
-		req.Header.Set("mcp-session-id", t.mcpSessionId)
-	}
-	for k, v := range t.Options.AdditionalHeaders {
-		req.Header.Set(k, v)
-	}
+	t.fillHttpHeader(req)
+
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send request: %w", err)
@@ -77,49 +72,19 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 
 	var rpcMessage IJsonRpcMessage
 	var rpcRequest *JsonRpcRequest
+
 	switch resp.Header.Get("Content-Type") {
 	case "application/json":
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body: %w", err)
-		}
-
-		if rpcMessage, err = UnmarshalJsonRpcMessage(body); err != nil {
-			return fmt.Errorf("failed to initialize client")
-		}
-
-		t.WriteMessage(ctx, rpcMessage)
+		rpcMessage, err = t.processResponse(ctx, resp)
 	case "text/event-stream":
 		if condition, ok := message.(*JsonRpcRequest); ok && condition != nil {
 			rpcRequest = condition
 		}
+		rpcMessage, err = t.processSseResponse(ctx, resp, rpcRequest)
+	}
 
-		sseWriter := sse.CreateSseParser(resp.Body)
-		eventCh, errCh := sseWriter.EnumerateStream(ctx)
-		for {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case err := <-errCh:
-				return err
-			case event, ok := <-eventCh:
-				if !ok {
-					return nil
-				}
-
-				switch event.EventType {
-				case "message":
-					if rpcMessage, err = UnmarshalJsonRpcMessage([]byte(event.Data)); err != nil {
-						return fmt.Errorf("failed to initialize client")
-					}
-					if rpcMessageWithId, ok := rpcMessage.(IJsonRpcMessageWithId); ok && rpcRequest != nil && rpcMessageWithId != nil {
-						if rpcMessageWithId.GetId().String() == rpcRequest.GetId().String() {
-							rpcMessage = rpcMessageWithId
-						}
-					}
-				}
-			}
-		}
+	if err != nil {
+		return err
 	}
 
 	if rpcRequest == nil {
@@ -134,4 +99,69 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 		t.mcpSessionId = resp.Header.Get("mcp-session-id")
 	}
 	return nil
+}
+
+func (t *StreamableHttpClientSessionTransport) fillHttpHeader(req *http.Request) {
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+
+	if t.mcpSessionId != "" {
+		req.Header.Set("mcp-session-id", t.mcpSessionId)
+	}
+	for k, v := range t.Options.AdditionalHeaders {
+		req.Header.Set(k, v)
+	}
+}
+
+func (t *StreamableHttpClientSessionTransport) processResponse(ctx context.Context, resp *http.Response) (IJsonRpcMessage, error) {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	rpcMessage, err := UnmarshalJsonRpcMessage(body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = t.WriteMessage(ctx, rpcMessage)
+	if err != nil {
+		return nil, err
+	}
+	return rpcMessage, nil
+}
+
+func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Context, resp *http.Response, rpcRequest *JsonRpcRequest) (IJsonRpcMessage, error) {
+	sseWriter := sse.CreateSseParser(resp.Body)
+	eventCh, errCh := sseWriter.EnumerateStream(ctx)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case err := <-errCh:
+			return nil, err
+		case event, ok := <-eventCh:
+			if !ok {
+				return nil, nil
+			}
+
+			switch event.EventType {
+			case "message":
+				rpcMessage, err := UnmarshalJsonRpcMessage([]byte(event.Data))
+				if err != nil {
+					return nil, err
+				}
+				err = t.WriteMessage(ctx, rpcMessage)
+				if err != nil {
+					return nil, err
+				}
+				if rpcMessageWithId, ok := rpcMessage.(IJsonRpcMessageWithId); ok && rpcRequest != nil && rpcMessageWithId != nil {
+					if rpcMessageWithId.GetId().String() == rpcRequest.GetId().String() {
+						return rpcMessageWithId, nil
+					}
+				}
+			}
+		}
+	}
 }
