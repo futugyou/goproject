@@ -22,7 +22,10 @@ func (r RequestId) IsDefault() bool {
 	return r.id == nil
 }
 
-func (r RequestId) String() string {
+func (r *RequestId) String() string {
+	if r == nil {
+		return ""
+	}
 	switch v := r.id.(type) {
 	case string:
 		return fmt.Sprintf("\"%s\"", v)
