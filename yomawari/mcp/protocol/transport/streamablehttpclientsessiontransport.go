@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/futugyou/yomawari/runtime/sse"
 )
@@ -17,6 +18,7 @@ type StreamableHttpClientSessionTransport struct {
 	ctx          context.Context
 	cancelFunc   context.CancelFunc
 	mcpSessionId string
+	disposed     bool
 
 	getReceiveTask chan struct{}
 }
@@ -39,6 +41,7 @@ func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *S
 		ctx:            ctx,
 		cancelFunc:     cancel,
 		getReceiveTask: make(chan struct{}),
+		disposed:       false,
 	}
 	transport.SetConnected(true)
 	return transport
@@ -100,6 +103,23 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 		go t.receiveUnsolicitedMessages()
 	}
 
+	return nil
+}
+
+func (t *StreamableHttpClientSessionTransport) Close() error {
+	if t.disposed {
+		return nil
+	}
+	t.disposed = true
+
+	t.cancelFunc()
+
+	select {
+	case <-t.getReceiveTask:
+	case <-time.After(5 * time.Second):
+	}
+
+	t.SetConnected(false)
 	return nil
 }
 
