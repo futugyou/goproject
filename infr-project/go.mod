@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/go-tfe v1.78.0
 	github.com/hashicorp/hcp-sdk-go v0.141.0
 	github.com/joho/godotenv v1.5.1
-	github.com/redis/go-redis/v9 v9.7.3
+	github.com/redis/go-redis/v9 v9.8.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
