@@ -97,7 +97,9 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 
 	if _, ok := rpcMessage.(*JsonRpcResponse); ok && rpcRequest.Method == RequestMethods_Initialize {
 		t.mcpSessionId = resp.Header.Get("mcp-session-id")
+		go t.receiveUnsolicitedMessages()
 	}
+
 	return nil
 }
 
@@ -135,6 +137,11 @@ func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Co
 	sseWriter := sse.CreateSseParser(resp.Body)
 	eventCh, errCh := sseWriter.EnumerateStream(ctx)
 
+	rpcRequestId := ""
+	if rpcRequest != nil {
+		rpcRequestId = rpcRequest.GetId().String()
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -152,16 +159,36 @@ func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Co
 				if err != nil {
 					return nil, err
 				}
+
 				err = t.WriteMessage(ctx, rpcMessage)
 				if err != nil {
 					return nil, err
 				}
-				if rpcMessageWithId, ok := rpcMessage.(IJsonRpcMessageWithId); ok && rpcRequest != nil && rpcMessageWithId != nil {
-					if rpcMessageWithId.GetId().String() == rpcRequest.GetId().String() {
+
+				if rpcMessageWithId, ok := rpcMessage.(IJsonRpcMessageWithId); ok && rpcMessageWithId != nil {
+					if rpcMessageWithId.GetId().String() == rpcRequestId {
 						return rpcMessageWithId, nil
 					}
 				}
 			}
 		}
 	}
+}
+
+func (t *StreamableHttpClientSessionTransport) receiveUnsolicitedMessages() {
+	defer close(t.getReceiveTask)
+	req, err := http.NewRequestWithContext(t.ctx, http.MethodGet, t.Options.Endpoint.String(), nil)
+	if err != nil {
+		return
+	}
+
+	t.fillHttpHeader(req)
+
+	resp, err := t.httpClient.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	t.processSseResponse(t.ctx, resp, nil)
 }
