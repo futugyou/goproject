@@ -12,6 +12,7 @@ type SseClientTransportOptions struct {
 	AdditionalHeaders    map[string]string
 	MaxReconnectAttempts int
 	ReconnectDelay       time.Duration
+	UseStreamableHttp    bool
 }
 
 func NewSseClientTransportOptions() *SseClientTransportOptions {

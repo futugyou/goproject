@@ -23,7 +23,7 @@ type StreamableHttpClientSessionTransport struct {
 	getReceiveTask chan struct{}
 }
 
-func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *SseClientTransportOptions) *StreamableHttpClientSessionTransport {
+func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *SseClientTransportOptions,name string) *StreamableHttpClientSessionTransport {
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
@@ -35,6 +35,7 @@ func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *S
 		TransportBase: TransportBase{
 			messageChannel: make(chan IJsonRpcMessage),
 			isConnected:    false,
+			Name: name,
 		},
 		httpClient:     httpClient,
 		Options:        options,
@@ -61,7 +62,8 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
-	t.fillHttpHeader(req)
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	CopyAdditionalHeaders(req, t.Options.AdditionalHeaders, t.mcpSessionId)
 
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
@@ -123,14 +125,13 @@ func (t *StreamableHttpClientSessionTransport) Close() error {
 	return nil
 }
 
-func (t *StreamableHttpClientSessionTransport) fillHttpHeader(req *http.Request) {
+func CopyAdditionalHeaders(req *http.Request, additionalHeaders map[string]string, mcpSessionId string) {
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json, text/event-stream")
 
-	if t.mcpSessionId != "" {
-		req.Header.Set("mcp-session-id", t.mcpSessionId)
+	if mcpSessionId != "" {
+		req.Header.Set("mcp-session-id", mcpSessionId)
 	}
-	for k, v := range t.Options.AdditionalHeaders {
+	for k, v := range additionalHeaders {
 		req.Header.Set(k, v)
 	}
 }
@@ -202,7 +203,8 @@ func (t *StreamableHttpClientSessionTransport) receiveUnsolicitedMessages() {
 		return
 	}
 
-	t.fillHttpHeader(req)
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	CopyAdditionalHeaders(req, t.Options.AdditionalHeaders, t.mcpSessionId)
 
 	resp, err := t.httpClient.Do(req)
 	if err != nil {

@@ -56,6 +56,10 @@ func NewSseClientTransport(serverConfig *configuration.McpServerConfig, options 
 
 // Connect implements IClientTransport.
 func (s *SseClientTransport) Connect(ctx context.Context) (ITransport, error) {
+	if s.options.UseStreamableHttp {
+		return NewStreamableHttpClientSessionTransport(s.httpClient, s.options, s.name), nil
+	}
+
 	sessionTransport := NewSseClientSessionTransport(s.serverConfig, s.options, s.httpClient)
 	err := sessionTransport.Connect(ctx)
 	if err != nil {

@@ -3,7 +3,6 @@ package transport
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -162,12 +161,7 @@ func (s *SseClientSessionTransport) connectAndProcessMessages(ctx context.Contex
 	}
 
 	req.Header.Set("Accept", "text/event-stream")
-
-	if s.Options != nil && s.Options.AdditionalHeaders != nil {
-		for k, v := range s.Options.AdditionalHeaders {
-			req.Header.Set(k, v)
-		}
-	}
+	CopyAdditionalHeaders(req, s.Options.AdditionalHeaders, "")
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
@@ -246,7 +240,9 @@ func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message IJs
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
+
 	req.Header.Set("Content-Type", "application/json")
+	CopyAdditionalHeaders(req, t.Options.AdditionalHeaders, "")
 
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
@@ -264,18 +260,6 @@ func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message IJs
 	}
 
 	responseContent := string(body)
-
-	if reqMsg, ok := message.(*JsonRpcRequest); ok && reqMsg.Method == "initialize" {
-		if !strings.EqualFold(responseContent, "accepted") {
-			var initializeResponse JsonRpcResponse
-			if err := json.Unmarshal(body, &initializeResponse); err != nil {
-				return fmt.Errorf("failed to initialize client")
-			}
-
-			t.WriteMessage(ctx, &initializeResponse)
-		}
-		return nil
-	}
 
 	if strings.EqualFold(responseContent, "accepted") {
 		fmt.Printf("SSE Transport Post Accepted: %s, Message ID: %s\n", t.messageEndpoint.String(), messageId)

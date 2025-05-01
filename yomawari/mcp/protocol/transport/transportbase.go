@@ -8,6 +8,7 @@ import (
 type TransportBase struct {
 	messageChannel chan IJsonRpcMessage
 	isConnected    bool
+	Name           string
 }
 
 func NewTransportBase() *TransportBase {
