@@ -45,7 +45,7 @@ func NewMcpSession(isServer bool, transp transport.ITransport, endpointName stri
 		_transportKind = "stream"
 	case *transport.SseClientSessionTransport, *transport.SseResponseStreamTransport:
 		_transportKind = "sse"
-	case *transport.StreamableHttpServerTransport, *transport.StreamableHttpPostTransport:
+	case *transport.StreamableHttpServerTransport, *transport.StreamableHttpPostTransport, *transport.StreamableHttpClientSessionTransport:
 		_transportKind = "http"
 	}
 

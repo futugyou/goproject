@@ -50,7 +50,15 @@ func (s *StreamableHttpPostTransport) SendMessage(ctx context.Context, message I
 
 func (s *StreamableHttpPostTransport) Run(ctx context.Context) (bool, error) {
 	if s.incomingChannel != nil {
-		if err := s.onPostBodyReceived(ctx); err != nil {
+		data, err := io.ReadAll(s.httpBodies.Input)
+		if err != nil {
+			return false, err
+		}
+		msg, err := UnmarshalJsonRpcMessage(data)
+		if err != nil {
+			return false, err
+		}
+		if err := s.onMessageReceived(ctx, msg); err != nil {
 			return false, err
 		}
 	}
