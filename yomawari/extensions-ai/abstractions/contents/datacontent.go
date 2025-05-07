@@ -21,26 +21,30 @@ type DataContent struct {
 func NewDataContent(uri string, mediaType string) *DataContent {
 	content := &DataContent{
 		AIContent: NewAIContent(nil, nil),
-		MediaType: mediaType}
+		MediaType: mediaType,
+	}
 
-	// Check if URI is a data URI
-	if strings.HasPrefix(uri, "data:") {
-		dataURI, err := ParseDataUri(uri)
+	var err error
+	content.dataURI, err = ParseDataUri(uri)
+	if err != nil {
+		return content
+	}
+
+	if mediaType == "" {
+		mediaType = content.dataURI.MediaType
+	}
+
+	if mediaType != "" {
+		content.MediaType, err = ThrowIfInvalidMediaType(mediaType, mediaType)
 		if err != nil {
 			return content
 		}
-
-		content.dataURI = dataURI
-		if mediaType == "" {
-			content.MediaType = dataURI.MediaType
-		} else if mediaType != dataURI.MediaType {
-			content.Data = dataURI.Data
+		if !content.dataURI.IsBase64 || content.MediaType != content.dataURI.MediaType {
+			content.Data = content.dataURI.Data
 			content.dataURI = nil
 			content.URI = ""
 		}
-	} else {
-		// If not a data URI, treat it as a regular URI
-		content.URI = uri
+
 	}
 
 	return content
@@ -77,6 +81,14 @@ func (dc *DataContent) GetData() ([]byte, error) {
 	return nil, errors.New("no data available")
 }
 
+func (dc *DataContent) GetBase64Data() []byte {
+	index := strings.Index(dc.URI, ",")
+	if index == -1 || index+1 >= len(dc.URI) {
+		return []byte{}
+	}
+	return []byte(dc.URI[index+1:])
+}
+
 func (dc *DataContent) MediaTypeStartsWith(prefix string) bool {
 	return strings.HasPrefix(dc.MediaType, prefix)
 }
@@ -101,5 +113,12 @@ func (ac *DataContent) UnmarshalJSON(data []byte) error {
 		Alias: (*Alias)(ac),
 	}
 
-	return json.Unmarshal(data, aux)
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	newDC := NewDataContent(ac.URI, ac.MediaType)
+	*ac = *newDC
+
+	return nil
 }
