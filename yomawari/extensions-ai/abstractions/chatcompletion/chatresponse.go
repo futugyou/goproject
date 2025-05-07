@@ -112,20 +112,14 @@ type ChatResponseUpdate struct {
 }
 
 func (cru *ChatResponseUpdate) UnmarshalJSON(data []byte) error {
-	temp := struct {
-		AuthorName           *string                `json:"authorName"`
-		Role                 *ChatRole              `json:"role"`
-		ChoiceIndex          int                    `json:"choiceIndex"`
-		Text                 *string                `json:"text"`
-		ResponseId           *string                `json:"responseId"`
-		ChatThreadId         *string                `json:"chatThreadId"`
-		ConversationId       *string                `json:"conversationId,omitempty"`
-		ModelId              *string                `json:"modelId"`
-		CreatedAt            *time.Time             `json:"createdAt"`
-		FinishReason         *ChatFinishReason      `json:"finishReason"`
-		AdditionalProperties map[string]interface{} `json:"additionalProperties,omitempty"`
-		Contents             []json.RawMessage      `json:"contents"`
-	}{}
+	type Alias ChatResponseUpdate
+	temp := &struct {
+		*Alias 
+		Contents []json.RawMessage `json:"contents"`  
+	}{
+		Alias: (*Alias)(cru),
+	}
+
 	if err := json.Unmarshal(data, &temp); err != nil {
 		return err
 	}

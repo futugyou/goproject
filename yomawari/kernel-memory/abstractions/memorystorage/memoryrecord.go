@@ -82,13 +82,7 @@ func (m *MemoryRecord) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON
 func (m *MemoryRecord) UnmarshalJSON(data []byte) error {
-	type Alias struct {
-		Id      string                `json:"id"`
-		Vector  *ai.Embedding         `json:"vector"`
-		Tags    *models.TagCollection `json:"tags"`
-		Payload map[string]any        `json:"payload"`
-	}
-
+	type Alias MemoryRecord
 	aux := &Alias{}
 
 	if err := json.Unmarshal(data, aux); err != nil {
