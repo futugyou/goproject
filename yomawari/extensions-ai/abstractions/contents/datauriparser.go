@@ -2,7 +2,6 @@ package contents
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -24,7 +23,7 @@ type DataUri struct {
 func ParseDataUri(dataUri string) (*DataUri, error) {
 	// Ensure the data URI starts with "data:"
 	if !strings.HasPrefix(dataUri, "data:") {
-		return nil, errors.New("invalid data URI format: must start with 'data:'")
+		return nil, fmt.Errorf("invalid data URI format: must start with 'data:'")
 	}
 
 	// Remove the "data:" scheme prefix
@@ -33,7 +32,7 @@ func ParseDataUri(dataUri string) (*DataUri, error) {
 	// Find the comma separating the metadata from the data
 	commaPos := strings.Index(dataUri, ",")
 	if commaPos == -1 {
-		return nil, errors.New("invalid data URI format: must contain a comma separating metadata and data")
+		return nil, fmt.Errorf("invalid data URI format: must contain a comma separating metadata and data")
 	}
 
 	// Extract the metadata and data parts
@@ -50,7 +49,7 @@ func ParseDataUri(dataUri string) (*DataUri, error) {
 	// Validate the media type
 	mediaType := ""
 	if !isValidMediaType(metadata, &mediaType) {
-		return nil, errors.New("invalid media type in data URI")
+		return nil, fmt.Errorf("invalid media type in data URI")
 	}
 
 	// Decode the data
@@ -106,6 +105,18 @@ func isValidMediaType(metadata string, mediaType *string) bool {
 	}
 
 	return false
+}
+
+func ThrowIfInvalidMediaType(mediaType string, parameterName string) (string, error) {
+	if len(mediaType) == 0 || len(parameterName) == 0 {
+		return "", fmt.Errorf("invalid parameter")
+	}
+
+	if !isValidMediaType(mediaType, &mediaType) {
+		return "", fmt.Errorf("an invalid media type was specified: '%s'", parameterName)
+	}
+
+	return mediaType, nil
 }
 
 // ToByteArray converts the DataUri to a byte array.
