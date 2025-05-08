@@ -4,12 +4,13 @@ import "net/url"
 
 // A general binary data processing method is needed for use in audio/image, etc.
 type BinaryContent struct {
-	MimeType string         `json:"mimeType"`
-	ModelId  string         `json:"modelId"`
-	Metadata map[string]any `json:"metadata"`
-	Uri      url.URL        `json:"uri"`
-	DataUri  string         `json:"-"`
-	Data     []byte         `json:"data"`
+	MimeType     string         `json:"mimeType"`
+	ModelId      string         `json:"modelId"`
+	Metadata     map[string]any `json:"metadata"`
+	Uri          url.URL        `json:"uri"`
+	DataUri      string         `json:"-"`
+	Data         []byte         `json:"data"`
+	InnerContent any            `json:"-"`
 }
 
 func (bc *BinaryContent) CanRead() bool {

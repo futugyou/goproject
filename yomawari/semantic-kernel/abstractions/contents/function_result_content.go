@@ -8,6 +8,7 @@ type FunctionResultContent struct {
 	PluginName   string         `json:"pluginName"`
 	FunctionName string         `json:"functionName"`
 	Result       any            `json:"result"`
+	InnerContent any            `json:"-"`
 }
 
 func (FunctionResultContent) Type() string {

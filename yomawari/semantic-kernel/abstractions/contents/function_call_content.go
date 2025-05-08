@@ -9,6 +9,7 @@ type FunctionCallContent struct {
 	FunctionName string         `json:"functionName"`
 	Arguments    map[string]any `json:"arguments"`
 	Exception    string         `json:"exception"`
+	InnerContent any            `json:"-"`
 }
 
 func (FunctionCallContent) Type() string {

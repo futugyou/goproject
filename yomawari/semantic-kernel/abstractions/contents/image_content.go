@@ -3,12 +3,13 @@ package contents
 import "net/url"
 
 type ImageContent struct {
-	MimeType string         `json:"mimeType"`
-	ModelId  string         `json:"modelId"`
-	Metadata map[string]any `json:"metadata"`
-	Uri      url.URL        `json:"uri"`
-	DataUri  string         `json:"-"`
-	Data     []byte         `json:"data"`
+	MimeType     string         `json:"mimeType"`
+	ModelId      string         `json:"modelId"`
+	Metadata     map[string]any `json:"metadata"`
+	Uri          url.URL        `json:"uri"`
+	DataUri      string         `json:"-"`
+	Data         []byte         `json:"data"`
+	InnerContent any            `json:"-"`
 }
 
 func (bc *ImageContent) CanRead() bool {
