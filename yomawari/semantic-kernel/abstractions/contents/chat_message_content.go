@@ -1,6 +1,9 @@
 package contents
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+	"encoding/json"
+)
 
 type AuthorRole string
 
@@ -13,8 +16,41 @@ const (
 )
 
 type ChatMessageContentItemCollection struct {
-	// TODO
+	Items []KernelContent `json:"items"`
 }
+
+func (c ChatMessageContentItemCollection) MarshalJSON() ([]byte, error) {
+	var rawItems []json.RawMessage
+	for _, item := range c.Items {
+		b, err := MarshalKernelContent(item)
+		if err != nil {
+			return nil, err
+		}
+		rawItems = append(rawItems, b)
+	}
+	return json.Marshal(map[string]any{
+		"items": rawItems,
+	})
+}
+
+func (c *ChatMessageContentItemCollection) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		Items []json.RawMessage `json:"items"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	for _, item := range raw.Items {
+		content, err := UnmarshalKernelContent(item)
+		if err != nil {
+			return err
+		}
+		c.Items = append(c.Items, content)
+	}
+	return nil
+}
+
 type ChatMessageContent struct {
 	MimeType   string                           `json:"mimeType"`
 	ModelId    string                           `json:"modelId"`
