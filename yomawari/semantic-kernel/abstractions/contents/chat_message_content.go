@@ -66,3 +66,13 @@ type ChatMessageContent struct {
 func (ChatMessageContent) Type() string {
 	return "chatMessage"
 }
+
+func (c *ChatMessageContent) GetFunctionCalls() []FunctionCallContent {
+	var result []FunctionCallContent
+	for _, item := range c.Items.Items {
+		if item.Type() == "functionCall" {
+			result = append(result, item.(FunctionCallContent))
+		}
+	}
+	return result
+}
