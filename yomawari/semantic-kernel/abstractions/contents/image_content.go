@@ -2,8 +2,7 @@ package contents
 
 import "net/url"
 
-// A general binary data processing method is needed for use in audio/image, etc.
-type BinaryContent struct {
+type ImageContent struct {
 	MimeType string         `json:"mimeType"`
 	ModelId  string         `json:"modelId"`
 	Metadata map[string]any `json:"metadata"`
@@ -12,10 +11,10 @@ type BinaryContent struct {
 	Data     []byte         `json:"data"`
 }
 
-func (bc *BinaryContent) CanRead() bool {
+func (bc *ImageContent) CanRead() bool {
 	return bc.Data != nil || bc.DataUri != ""
 }
 
-func (BinaryContent) Type() string {
-	return "binary"
+func (ImageContent) Type() string {
+	return "image"
 }
