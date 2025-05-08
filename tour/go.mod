@@ -59,8 +59,8 @@ require (
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/swaggest/jsonschema-go v0.3.73
-	github.com/swaggest/openapi-go v0.2.57
+	github.com/swaggest/jsonschema-go v0.3.74
+	github.com/swaggest/openapi-go v0.2.58
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
