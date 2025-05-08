@@ -77,3 +77,31 @@ func (c *ChatMessageContent) GetFunctionCalls() []FunctionCallContent {
 	}
 	return result
 }
+
+func (c ChatMessageContent) GetContent() string {
+	for _, item := range c.Items.Items {
+		if textContent, ok := item.(TextContent); ok && item.Type() == "streaming-function-call-update" {
+			return textContent.Text
+		}
+	}
+	return ""
+}
+
+func (c *ChatMessageContent) SetContent(content string) {
+	for i, item := range c.Items.Items {
+		if textContent, ok := item.(TextContent); ok && item.Type() == "streaming-function-call-update" {
+			textContent.Text = content
+			c.Items.Items[i] = textContent
+			return
+		}
+	}
+
+	var textContent TextContent = TextContent{
+		ModelId:      c.ModelId,
+		Metadata:     c.Metadata,
+		InnerContent: c.InnerContent,
+		Text:         content,
+		Encoding:     c.Encoding,
+	}
+	c.Items.Items = append(c.Items.Items, textContent)
+}

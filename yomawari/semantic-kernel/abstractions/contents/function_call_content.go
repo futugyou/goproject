@@ -1,5 +1,11 @@
 package contents
 
+import (
+	"context"
+
+	"github.com/futugyou/yomawari/semantic-kernel/abstractions"
+)
+
 type FunctionCallContent struct {
 	MimeType     string         `json:"mimeType"`
 	ModelId      string         `json:"modelId"`
@@ -14,4 +20,9 @@ type FunctionCallContent struct {
 
 func (FunctionCallContent) Type() string {
 	return "functionCall"
+}
+
+func (FunctionCallContent) InvokeAsync(ctx context.Context, kernel abstractions.Kernel) (*FunctionResultContent, error) {
+	// TODO
+	return nil, nil
 }
