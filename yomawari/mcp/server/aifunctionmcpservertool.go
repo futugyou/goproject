@@ -68,7 +68,13 @@ func (m *AIFunctionMcpServerTool) Invoke(ctx context.Context, request RequestCon
 	}
 	switch r := result.(type) {
 	case contents.IAIContent:
-		return types.NewCallToolResultWithContent(mcp.AIContentToContent(r)), nil
+		isError := false
+		if _, ok := r.(contents.ErrorContent); ok {
+			isError = true
+		}
+		rr := types.NewCallToolResultWithContent(mcp.AIContentToContent(r))
+		rr.IsError = isError
+		return rr, nil
 	case *string:
 		result := types.NewCallToolResult()
 		result.Content = append(result.Content, types.Content{Type: "text", Text: r})
@@ -82,11 +88,7 @@ func (m *AIFunctionMcpServerTool) Invoke(ctx context.Context, request RequestCon
 		}
 		return result, nil
 	case []contents.IAIContent:
-		contents := []types.Content{}
-		for _, v := range r {
-			contents = append(contents, mcp.AIContentToContent(v))
-		}
-		return types.NewCallToolResultWithContents(contents), nil
+		return onvertAIContentEnumerableToCallToolResponse(r), nil
 	case []types.Content:
 		return types.NewCallToolResultWithContents(r), nil
 	case *types.CallToolResult:
@@ -101,5 +103,25 @@ func (m *AIFunctionMcpServerTool) Invoke(ctx context.Context, request RequestCon
 		result := types.NewCallToolResult()
 		result.Content = append(result.Content, types.Content{Type: "text", Text: &text})
 		return result, nil
+	}
+}
+
+func onvertAIContentEnumerableToCallToolResponse(contentItems []contents.IAIContent) *types.CallToolResult {
+	contentList := []types.Content{}
+	allErrorContent := true
+	hasAny := false
+
+	for _, item := range contentItems {
+		contentList = append(contentList, mcp.AIContentToContent(item))
+		hasAny = true
+
+		if _, ok := item.(contents.ErrorContent); !ok && allErrorContent {
+			allErrorContent = false
+		}
+	}
+
+	return &types.CallToolResult{
+		Content: contentList,
+		IsError: allErrorContent && hasAny,
 	}
 }

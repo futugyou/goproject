@@ -21,7 +21,7 @@ type CallToolResult struct {
 	// Whether the tool call ended in an error.
 	//
 	// If not set, this is assumed to be false (the call was successful).
-	IsError *bool `json:"isError,omitempty" yaml:"isError,omitempty" mapstructure:"isError,omitempty"`
+	IsError bool `json:"isError,omitempty" yaml:"isError,omitempty" mapstructure:"isError,omitempty"`
 }
 
 func NewCallToolResult() *CallToolResult {
