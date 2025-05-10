@@ -80,41 +80,41 @@ func (c *McpServerPrimitiveCollection[T]) Clear() {
 
 // Add adds a primitive to the collection
 func (c *McpServerPrimitiveCollection[T]) Add(primitive T) error {
-	if _, ok := c.Get(primitive.GetName()); ok {
-		return &AlreadyExistsError{Name: primitive.GetName()}
+	if _, ok := c.Get(primitive.GetId()); ok {
+		return &AlreadyExistsError{Name: primitive.GetId()}
 	}
 
-	c.primitives.Store(primitive.GetName(), primitive)
+	c.primitives.Store(primitive.GetId(), primitive)
 	c.raiseChanged()
 	return nil
 }
 
 // TryAdd attempts to add a primitive to the collection
 func (c *McpServerPrimitiveCollection[T]) TryAdd(primitive T) bool {
-	if _, ok := c.Get(primitive.GetName()); ok {
+	if _, ok := c.Get(primitive.GetId()); ok {
 		return false
 	}
 
-	c.primitives.Store(primitive.GetName(), primitive)
+	c.primitives.Store(primitive.GetId(), primitive)
 	c.raiseChanged()
 	return true
 }
 
 // Remove removes a primitive from the collection
 func (c *McpServerPrimitiveCollection[T]) Remove(primitive T) bool {
-	existing, ok := c.Get(primitive.GetName())
+	existing, ok := c.Get(primitive.GetId())
 	if !ok || !isEqual(existing, primitive) {
 		return false
 	}
 
-	c.primitives.Delete(primitive.GetName())
+	c.primitives.Delete(primitive.GetId())
 	c.raiseChanged()
 	return true
 }
 
 // Contains checks if a primitive exists in the collection
 func (c *McpServerPrimitiveCollection[T]) Contains(primitive T) bool {
-	existing, ok := c.Get(primitive.GetName())
+	existing, ok := c.Get(primitive.GetId())
 	return ok && isEqual(existing, primitive)
 }
 
@@ -149,8 +149,5 @@ func (e *AlreadyExistsError) Error() string {
 
 // Helper function to compare primitives (implementation depends on your needs)
 func isEqual[T IMcpServerPrimitive](a, b T) bool {
-	// Implement your equality comparison logic here
-	// For example, if primitives have an ID field:
-	// return a.GetID() == b.GetID()
-	return a.GetName() == b.GetName()
+	return a.GetId() == b.GetId()
 }

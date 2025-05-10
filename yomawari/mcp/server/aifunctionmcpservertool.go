@@ -19,8 +19,8 @@ type AIFunctionMcpServerTool struct {
 	AIFunction   functions.AIFunction
 }
 
-// GetName implements IMcpServerTool.
-func (a *AIFunctionMcpServerTool) GetName() string {
+// GetId implements IMcpServerTool.
+func (a *AIFunctionMcpServerTool) GetId() string {
 	if a == nil || a.ProtocolTool == nil {
 		return ""
 	}

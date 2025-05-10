@@ -23,9 +23,9 @@ func (d *DelegatingMcpServerPrompt) Get(ctx context.Context, request RequestCont
 	return d.innerPrompt.Get(ctx, request)
 }
 
-// GetName implements IMcpServerPrompt.
-func (d *DelegatingMcpServerPrompt) GetName() string {
-	return d.innerPrompt.GetName()
+// GetId implements IMcpServerPrompt.
+func (d *DelegatingMcpServerPrompt) GetId() string {
+	return d.innerPrompt.GetId()
 }
 
 // GetProtocolPrompt implements IMcpServerPrompt.

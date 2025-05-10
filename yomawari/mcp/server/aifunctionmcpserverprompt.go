@@ -19,8 +19,8 @@ type AIFunctionMcpServerPrompt struct {
 	ProtocolPrompt *types.Prompt
 }
 
-// GetName implements IMcpServerPrompt.
-func (m *AIFunctionMcpServerPrompt) GetName() string {
+// GetId implements IMcpServerPrompt.
+func (m *AIFunctionMcpServerPrompt) GetId() string {
 	if m == nil || m.AIFunction == nil {
 		return ""
 	}

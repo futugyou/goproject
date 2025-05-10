@@ -18,9 +18,9 @@ func NewDelegatingMcpServerTool(innerTool IMcpServerTool) *DelegatingMcpServerTo
 	}
 }
 
-// GetName implements IMcpServerTool.
-func (d *DelegatingMcpServerTool) GetName() string {
-	return d.innerTool.GetName()
+// GetId implements IMcpServerTool.
+func (d *DelegatingMcpServerTool) GetId() string {
+	return d.innerTool.GetId()
 }
 
 // GetProtocolTool implements IMcpServerTool.
