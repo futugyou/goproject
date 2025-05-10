@@ -15,6 +15,7 @@ type ResourcesCapability struct {
 	ReadResourceHandler             func(ctx context.Context, req RequestContext[*types.ReadResourceRequestParams]) (*types.ReadResourceResult, error)                   `json:"-"`
 	SubscribeToResourcesHandler     func(ctx context.Context, req RequestContext[*types.SubscribeRequestParams]) (*types.EmptyResult, error)                             `json:"-"`
 	UnsubscribeFromResourcesHandler func(ctx context.Context, req RequestContext[*types.UnsubscribeRequestParams]) (*types.EmptyResult, error)                           `json:"-"`
+	ResourceCollection              *McpServerPrimitiveCollection[IMcpServerResource]                                                                                    `json:"-"`
 }
 
 // LoggingCapability represents the logging capability configuration.
