@@ -265,8 +265,8 @@ func (m *McpClient) EnumeratePrompts(ctx context.Context, client IMcpClient) (<-
 }
 
 // EnumerateResourceTemplates implements IMcpClient.
-func (m *McpClient) EnumerateResourceTemplates(ctx context.Context, client IMcpClient) (<-chan types.ResourceTemplate, <-chan error) {
-	promptsCh := make(chan types.ResourceTemplate)
+func (m *McpClient) EnumerateResourceTemplates(ctx context.Context, client IMcpClient) (<-chan McpClientResourceTemplate, <-chan error) {
+	promptsCh := make(chan McpClientResourceTemplate)
 	errCh := make(chan error, 1)
 
 	go func() {
@@ -299,7 +299,9 @@ func (m *McpClient) EnumerateResourceTemplates(ctx context.Context, client IMcpC
 				case <-ctx.Done():
 					errCh <- ctx.Err()
 					return
-				case promptsCh <- prompt:
+				default:
+					t := NewMcpClientResourceTemplate(m, prompt)
+					promptsCh <- *t
 				}
 			}
 
@@ -314,8 +316,8 @@ func (m *McpClient) EnumerateResourceTemplates(ctx context.Context, client IMcpC
 }
 
 // EnumerateResources implements IMcpClient.
-func (m *McpClient) EnumerateResources(ctx context.Context, client IMcpClient) (<-chan types.Resource, <-chan error) {
-	promptsCh := make(chan types.Resource)
+func (m *McpClient) EnumerateResources(ctx context.Context, client IMcpClient) (<-chan McpClientResource, <-chan error) {
+	promptsCh := make(chan McpClientResource)
 	errCh := make(chan error, 1)
 
 	go func() {
@@ -348,7 +350,9 @@ func (m *McpClient) EnumerateResources(ctx context.Context, client IMcpClient) (
 				case <-ctx.Done():
 					errCh <- ctx.Err()
 					return
-				case promptsCh <- prompt:
+				default:
+					t := NewMcpClientResource(m, prompt)
+					promptsCh <- *t
 				}
 			}
 
@@ -480,8 +484,8 @@ func (m *McpClient) ListPrompts(ctx context.Context, client IMcpClient) ([]McpCl
 }
 
 // ListResourceTemplates implements IMcpClient.
-func (m *McpClient) ListResourceTemplates(ctx context.Context, client IMcpClient) ([]types.ResourceTemplate, error) {
-	prompts := []types.ResourceTemplate{}
+func (m *McpClient) ListResourceTemplates(ctx context.Context, client IMcpClient) ([]McpClientResourceTemplate, error) {
+	prompts := []McpClientResourceTemplate{}
 	var cursor *string
 	for {
 		params := types.ListResourceTemplatesRequestParams{
@@ -501,7 +505,10 @@ func (m *McpClient) ListResourceTemplates(ctx context.Context, client IMcpClient
 			return nil, err
 		}
 
-		prompts = append(prompts, promptResults.ResourceTemplates...)
+		for _, v := range promptResults.ResourceTemplates {
+			t := NewMcpClientResourceTemplate(m, v)
+			prompts = append(prompts, *t)
+		}
 
 		if promptResults.NextCursor == nil {
 			break
@@ -512,8 +519,8 @@ func (m *McpClient) ListResourceTemplates(ctx context.Context, client IMcpClient
 }
 
 // ListResources implements IMcpClient.
-func (m *McpClient) ListResources(ctx context.Context, client IMcpClient) ([]types.Resource, error) {
-	prompts := []types.Resource{}
+func (m *McpClient) ListResources(ctx context.Context, client IMcpClient) ([]McpClientResource, error) {
+	prompts := []McpClientResource{}
 	var cursor *string
 	for {
 		params := types.ListResourcesRequestParams{
@@ -533,7 +540,10 @@ func (m *McpClient) ListResources(ctx context.Context, client IMcpClient) ([]typ
 			return nil, err
 		}
 
-		prompts = append(prompts, promptResults.Resources...)
+		for _, v := range promptResults.Resources {
+			t := NewMcpClientResource(m, v)
+			prompts = append(prompts, *t)
+		}
 
 		if promptResults.NextCursor == nil {
 			break
@@ -606,6 +616,16 @@ func (m *McpClient) ReadResource(ctx context.Context, uri string) (*types.ReadRe
 // ReadResourceWithUri implements IMcpClient.
 func (m *McpClient) ReadResourceWithUri(ctx context.Context, uri url.URL) (*types.ReadResourceResult, error) {
 	return m.ReadResource(ctx, uri.String())
+}
+
+// ReadResourceWithUriAndArguments implements IMcpClient.
+func (m *McpClient) ReadResourceWithUriAndArguments(ctx context.Context, uriTemplate string, arguments map[string]interface{}) (*types.ReadResourceResult, error) {
+	url, err := shared.FormatUri(uriTemplate, arguments)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.ReadResource(ctx, url)
 }
 
 // SetLoggingLevel implements IMcpClient.

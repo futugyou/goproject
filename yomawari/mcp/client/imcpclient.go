@@ -22,12 +22,13 @@ type IMcpClient interface {
 	EnumerateTools(ctx context.Context) (<-chan McpClientTool, <-chan error)
 	ListPrompts(ctx context.Context, client IMcpClient) ([]McpClientPrompt, error)
 	EnumeratePrompts(ctx context.Context, client IMcpClient) (<-chan McpClientPrompt, <-chan error)
-	ListResourceTemplates(ctx context.Context, client IMcpClient) ([]types.ResourceTemplate, error)
-	EnumerateResourceTemplates(ctx context.Context, client IMcpClient) (<-chan types.ResourceTemplate, <-chan error)
-	ListResources(ctx context.Context, client IMcpClient) ([]types.Resource, error)
-	EnumerateResources(ctx context.Context, client IMcpClient) (<-chan types.Resource, <-chan error)
+	ListResourceTemplates(ctx context.Context, client IMcpClient) ([]McpClientResourceTemplate, error)
+	EnumerateResourceTemplates(ctx context.Context, client IMcpClient) (<-chan McpClientResourceTemplate, <-chan error)
+	ListResources(ctx context.Context, client IMcpClient) ([]McpClientResource, error)
+	EnumerateResources(ctx context.Context, client IMcpClient) (<-chan McpClientResource, <-chan error)
 	ReadResource(ctx context.Context, uri string) (*types.ReadResourceResult, error)
 	ReadResourceWithUri(ctx context.Context, uri url.URL) (*types.ReadResourceResult, error)
+	ReadResourceWithUriAndArguments(ctx context.Context, uriTemplate string, arguments map[string]interface{}) (*types.ReadResourceResult, error)
 	Complete(ctx context.Context, reference types.Reference, argumentName string, argumentValue string) (*types.CompleteResult, error)
 	SubscribeToResource(ctx context.Context, uri string) error
 	SubscribeToResourceWithUri(ctx context.Context, uri url.URL) error
