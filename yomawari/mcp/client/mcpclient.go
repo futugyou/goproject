@@ -599,7 +599,7 @@ func (m *McpClient) Ping(ctx context.Context) error {
 func (m *McpClient) ReadResource(ctx context.Context, uri string) (*types.ReadResourceResult, error) {
 	params := types.ReadResourceRequestParams{
 		RequestParams: types.RequestParams{},
-		Uri:           &uri,
+		Uri:           uri,
 	}
 	jsonRpcRequest := transport.NewJsonRpcRequest(transport.RequestMethods_ResourcesRead, params, nil)
 	resp, err := m.SendRequest(ctx, jsonRpcRequest)
