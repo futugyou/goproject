@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
 	"github.com/futugyou/yomawari/extensions-ai/abstractions/utilities"
 )
 
@@ -18,7 +17,7 @@ type FunctionDescriptor struct {
 	Name             string
 	Description      string
 	JSONSchema       map[string]interface{}
-	ParamMarshallers []func(ctx context.Context, args functions.AIFunctionArguments) (reflect.Value, error)
+	ParamMarshallers []func(ctx context.Context, args AIFunctionArguments) (reflect.Value, error)
 	ReturnMarshaller func(ctx context.Context, results []reflect.Value) (interface{}, error)
 }
 
@@ -60,7 +59,7 @@ func GetOrCreateDescriptor(fn interface{}, options AIFunctionFactoryOptions) (*F
 func newFunctionDescriptor(fn reflect.Value, options AIFunctionFactoryOptions) (*FunctionDescriptor, error) {
 	fnType := fn.Type()
 	numIn := fnType.NumIn()
-	paramMarshallers := make([]func(ctx context.Context, args functions.AIFunctionArguments) (reflect.Value, error), numIn)
+	paramMarshallers := make([]func(ctx context.Context, args AIFunctionArguments) (reflect.Value, error), numIn)
 
 	// prepare parameter name. if it not enough, use param%d
 	paramNames := options.ParameterNames
@@ -76,14 +75,14 @@ func newFunctionDescriptor(fn reflect.Value, options AIFunctionFactoryOptions) (
 		paramName := paramNames[i]
 		// If the parameter implements context.Context, the passed context is used directly
 		if inType.Implements(reflect.TypeOf((*context.Context)(nil)).Elem()) {
-			paramMarshallers[i] = func(ctx context.Context, args functions.AIFunctionArguments) (reflect.Value, error) {
+			paramMarshallers[i] = func(ctx context.Context, args AIFunctionArguments) (reflect.Value, error) {
 				return reflect.ValueOf(ctx), nil
 			}
 		} else {
 			// Otherwise, find the corresponding value from the parameter map and perform necessary type conversion
 			// closure is used to bind paramName and the target type
-			paramMarshallers[i] = func(paramName string, targetType reflect.Type) func(ctx context.Context, args functions.AIFunctionArguments) (reflect.Value, error) {
-				return func(ctx context.Context, args functions.AIFunctionArguments) (reflect.Value, error) {
+			paramMarshallers[i] = func(paramName string, targetType reflect.Type) func(ctx context.Context, args AIFunctionArguments) (reflect.Value, error) {
+				return func(ctx context.Context, args AIFunctionArguments) (reflect.Value, error) {
 					val, ok := args.Get(paramName)
 					if !ok {
 						// If no parameter is provided, the zero value for that type is returned.
@@ -161,7 +160,7 @@ func newFunctionDescriptor(fn reflect.Value, options AIFunctionFactoryOptions) (
 }
 
 // Invoke calls the function based on the passed parameters map and context and returns the converted result
-func (fd *FunctionDescriptor) Invoke(ctx context.Context, args functions.AIFunctionArguments) (interface{}, error) {
+func (fd *FunctionDescriptor) Invoke(ctx context.Context, args AIFunctionArguments) (interface{}, error) {
 	fnType := fd.Func.Type()
 	numIn := fnType.NumIn()
 	inValues := make([]reflect.Value, numIn)

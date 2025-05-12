@@ -7,8 +7,6 @@ import (
 	"reflect"
 	"regexp"
 	"sync"
-
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
 )
 
 // AIFunctionFactory provides methods to create AIFunction instances.
@@ -33,7 +31,7 @@ func SanitizeMemberName(memberName string) string {
 }
 
 // Create creates an AIFunction instance for a method, specified via a delegate.
-func (factory *AIFunctionFactory) Create(method interface{}, options *AIFunctionFactoryOptions) (functions.AIFunction, error) {
+func (factory *AIFunctionFactory) Create(method interface{}, options *AIFunctionFactoryOptions) (AIFunction, error) {
 	if method == nil {
 		return nil, errors.New("method cannot be nil")
 	}
@@ -56,13 +54,13 @@ func (factory *AIFunctionFactory) Create(method interface{}, options *AIFunction
 
 // reflectionAIFunction is an implementation of AIFunction that uses reflection to invoke a method.
 type reflectionAIFunction struct {
-	functions.BaseAIFunction
+	BaseAIFunction
 	method  reflect.Value
 	options AIFunctionFactoryOptions
 }
 
 // Invoke invokes the method with the provided arguments.
-func (f *reflectionAIFunction) Invoke(ctx context.Context, arguments functions.AIFunctionArguments) (interface{}, error) {
+func (f *reflectionAIFunction) Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
 	descriptor, err := GetOrCreateDescriptor(f.method.Interface(), f.options)
 	if err != nil {
 		return nil, err
