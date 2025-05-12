@@ -39,10 +39,32 @@ func (m *AIFunctionMcpServerPrompt) GetProtocolPrompt() *types.Prompt {
 
 func AIFunctionMcpServerPromptCreate(function functions.AIFunction, options McpServerPromptCreateOptions) *AIFunctionMcpServerPrompt {
 	args := []types.PromptArgument{}
+	requiredList := []string{}
+	if requireds, ok := function.GetJsonSchema()["required"].(json.RawMessage); ok {
+		json.Unmarshal(requireds, &requiredList)
+	}
 
 	if properties, ok := function.GetJsonSchema()["properties"].(json.RawMessage); ok {
-		_ = properties
-		// TODO: fill args
+		var propertyList []struct {
+			Name        string `json:"name"`
+			Description string `json:"description"`
+		}
+		if err := json.Unmarshal(properties, &propertyList); err == nil {
+			for _, property := range propertyList {
+				required := false
+				for _, v := range requiredList {
+					if v == property.Name {
+						required = true
+						break
+					}
+				}
+				args = append(args, types.PromptArgument{
+					Name:        property.Name,
+					Description: &property.Description,
+					Required:    &required,
+				})
+			}
+		}
 	}
 
 	prompt := &types.Prompt{
