@@ -37,7 +37,7 @@ func (m *AIFunctionMcpServerPrompt) GetProtocolPrompt() *types.Prompt {
 	return m.ProtocolPrompt
 }
 
-func AIFunctionMcpServerPromptCreate(function functions.AIFunction, options McpServerPromptCreateOptions) *AIFunctionMcpServerPrompt {
+func PromptCreate(function functions.AIFunction, options McpServerPromptCreateOptions) AIFunctionMcpServerPrompt {
 	args := []types.PromptArgument{}
 	requiredList := []string{}
 	if requireds, ok := function.GetJsonSchema()["required"].(json.RawMessage); ok {
@@ -76,10 +76,38 @@ func AIFunctionMcpServerPromptCreate(function functions.AIFunction, options McpS
 		prompt.Name = *options.Name
 	}
 
-	return &AIFunctionMcpServerPrompt{
+	return AIFunctionMcpServerPrompt{
 		ProtocolPrompt: prompt,
 		AIFunction:     function,
 	}
+}
+
+func PromptDynamicCreate(methodInfo reflect.Value, options McpServerPromptCreateOptions) AIFunctionMcpServerPrompt {
+	factory := functions.NewAIFunctionFactory()
+	op := createPromptCreateOption(options, methodInfo)
+	function, err := factory.Create(methodInfo, op)
+	if err != nil {
+		return AIFunctionMcpServerPrompt{}
+	}
+	return PromptCreate(function, options)
+}
+
+func createPromptCreateOption(options McpServerPromptCreateOptions, methodInfo reflect.Value) *functions.AIFunctionFactoryOptions {
+	op := &functions.AIFunctionFactoryOptions{
+		SerializerOptions:    &json.Encoder{},
+		ParameterNames:       []string{},
+		JSONSchemaOptions:    map[string]interface{}{},
+		AdditionalProperties: map[string]interface{}{},
+	}
+	if options.Name != nil {
+		op.Name = *options.Name
+	} else {
+		op.Name = methodInfo.Type().Method(0).Name
+	}
+	if options.Description != nil {
+		op.Description = *options.Description
+	}
+	return op
 }
 
 func (m *AIFunctionMcpServerPrompt) Get(ctx context.Context, request RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error) {
