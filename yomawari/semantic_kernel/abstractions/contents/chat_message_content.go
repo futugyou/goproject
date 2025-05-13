@@ -68,6 +68,14 @@ func (ChatMessageContent) Type() string {
 	return "chatMessage"
 }
 
+func (f ChatMessageContent) ToString() string {
+	return f.Content
+}
+
+func (f ChatMessageContent) GetInnerContent() any {
+	return f.InnerContent
+}
+
 func (c *ChatMessageContent) GetFunctionCalls() []FunctionCallContent {
 	var result []FunctionCallContent
 	for _, item := range c.Items.Items {

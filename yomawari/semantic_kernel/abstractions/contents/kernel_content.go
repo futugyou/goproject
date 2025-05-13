@@ -7,6 +7,8 @@ import (
 
 type KernelContent interface {
 	Type() string
+	ToString() string
+	GetInnerContent() any
 }
 
 func MarshalKernelContent(con KernelContent) ([]byte, error) {

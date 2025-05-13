@@ -14,3 +14,11 @@ type AnnotationContent struct {
 func (AnnotationContent) Type() string {
 	return "annotation"
 }
+
+func (f AnnotationContent) ToString() string {
+	return f.Quote
+}
+
+func (f AnnotationContent) GetInnerContent() any {
+	return f.InnerContent
+}

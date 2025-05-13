@@ -19,3 +19,11 @@ func (bc *ImageContent) CanRead() bool {
 func (ImageContent) Type() string {
 	return "image"
 }
+
+func (f ImageContent) ToString() string {
+	return string(f.Data)
+}
+
+func (f ImageContent) GetInnerContent() any {
+	return f.InnerContent
+}

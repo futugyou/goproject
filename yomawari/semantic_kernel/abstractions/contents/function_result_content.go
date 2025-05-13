@@ -1,5 +1,7 @@
 package contents
 
+import "encoding/json"
+
 type FunctionResultContent struct {
 	MimeType     string         `json:"mimeType"`
 	ModelId      string         `json:"modelId"`
@@ -13,6 +15,18 @@ type FunctionResultContent struct {
 
 func (FunctionResultContent) Type() string {
 	return "functionResult"
+}
+
+func (f FunctionResultContent) ToString() string {
+	d, err := json.Marshal(f.Result)
+	if err != nil {
+		return ""
+	}
+	return string(d)
+}
+
+func (f FunctionResultContent) GetInnerContent() any {
+	return f.InnerContent
 }
 
 func (f FunctionResultContent) ToChatMessage() ChatMessageContent {

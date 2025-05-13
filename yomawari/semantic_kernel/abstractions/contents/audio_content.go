@@ -19,3 +19,11 @@ func (bc *AudioContent) CanRead() bool {
 func (AudioContent) Type() string {
 	return "audio"
 }
+
+func (f AudioContent) ToString() string {
+	return string(f.Data)
+}
+
+func (f AudioContent) GetInnerContent() any {
+	return f.InnerContent
+}

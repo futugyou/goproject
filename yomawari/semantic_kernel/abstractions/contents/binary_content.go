@@ -20,3 +20,11 @@ func (bc *BinaryContent) CanRead() bool {
 func (BinaryContent) Type() string {
 	return "binary"
 }
+
+func (f BinaryContent) ToString() string {
+	return string(f.Data)
+}
+
+func (f BinaryContent) GetInnerContent() any {
+	return f.InnerContent
+}

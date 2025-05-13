@@ -14,3 +14,11 @@ type TextContent struct {
 func (TextContent) Type() string {
 	return "text"
 }
+
+func (f TextContent) ToString() string {
+	return f.Text
+}
+
+func (f TextContent) GetInnerContent() any {
+	return f.InnerContent
+}

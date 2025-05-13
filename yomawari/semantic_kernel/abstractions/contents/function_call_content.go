@@ -22,6 +22,14 @@ func (FunctionCallContent) Type() string {
 	return "functionCall"
 }
 
+func (f FunctionCallContent) ToString() string {
+	return f.FunctionName
+}
+
+func (f FunctionCallContent) GetInnerContent() any {
+	return f.InnerContent
+}
+
 func (FunctionCallContent) InvokeAsync(ctx context.Context, kernel abstractions.Kernel) (*FunctionResultContent, error) {
 	// TODO
 	return nil, nil

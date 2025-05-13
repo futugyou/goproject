@@ -12,3 +12,11 @@ type FileReferenceContent struct {
 func (FileReferenceContent) Type() string {
 	return "fileReference"
 }
+
+func (f FileReferenceContent) ToString() string {
+	return f.FileId
+}
+
+func (f FileReferenceContent) GetInnerContent() any {
+	return f.InnerContent
+}
