@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 	"github.com/futugyou/yomawari/mcp/shared"
 )

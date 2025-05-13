@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/contents"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
 

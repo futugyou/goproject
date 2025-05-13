@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/extensions-ai/abstractions/functions"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
 	"github.com/futugyou/yomawari/mcp"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
