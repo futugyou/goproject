@@ -16,19 +16,18 @@ var _ ITransport = (*StreamableHttpPostTransport)(nil)
 
 type StreamableHttpPostTransport struct {
 	httpBodies      *DuplexPipe
-	incomingChannel chan IJsonRpcMessage
 	sseWriter       *SseWriter
-	pendingRequests map[RequestId]struct{}
+	pendingRequests *RequestId
+	parentTransport *StreamableHttpServerTransport
 	mu              sync.Mutex
 }
 
-func NewStreamableHttpPostTransport(incomingChannel chan IJsonRpcMessage, httpBodies *DuplexPipe) *StreamableHttpPostTransport {
+func NewStreamableHttpPostTransport(parentTransport *StreamableHttpServerTransport, httpBodies *DuplexPipe) *StreamableHttpPostTransport {
 
 	return &StreamableHttpPostTransport{
 		httpBodies:      httpBodies,
-		incomingChannel: incomingChannel,
 		sseWriter:       NewSseWriter(""),
-		pendingRequests: make(map[RequestId]struct{}),
+		parentTransport: parentTransport,
 	}
 }
 
@@ -45,26 +44,28 @@ func (s *StreamableHttpPostTransport) MessageReader() <-chan IJsonRpcMessage {
 
 // SendMessage implements ITransport.
 func (s *StreamableHttpPostTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+	if _, ok := message.(*JsonRpcRequest); ok && s.parentTransport.Stateless {
+		return fmt.Errorf("server to client requests are not supported in stateless mode")
+	}
+
 	return s.sseWriter.SendMessage(ctx, message)
 }
 
 func (s *StreamableHttpPostTransport) Run(ctx context.Context) (bool, error) {
-	if s.incomingChannel != nil {
-		data, err := io.ReadAll(s.httpBodies.Input)
-		if err != nil {
-			return false, err
-		}
-		msg, err := UnmarshalJsonRpcMessage(data)
-		if err != nil {
-			return false, err
-		}
-		if err := s.onMessageReceived(ctx, msg); err != nil {
-			return false, err
-		}
+	data, err := io.ReadAll(s.httpBodies.Input)
+	if err != nil {
+		return false, err
+	}
+	msg, err := UnmarshalJsonRpcMessage(data)
+	if err != nil {
+		return false, err
+	}
+	if err := s.onMessageReceived(ctx, msg); err != nil {
+		return false, err
 	}
 
 	s.mu.Lock()
-	noRequests := len(s.pendingRequests) == 0
+	noRequests := s.pendingRequests == nil || s.pendingRequests.id == nil
 	s.mu.Unlock()
 
 	if noRequests {
@@ -128,25 +129,45 @@ func (s *StreamableHttpPostTransport) onMessageReceived(ctx context.Context, msg
 		return fmt.Errorf("received invalid null message")
 	}
 
-	if condition, ok := msg.(*JsonRpcRequest); ok {
+	if request, ok := msg.(*JsonRpcRequest); ok {
 		s.mu.Lock()
-		s.pendingRequests[*condition.GetId()] = struct{}{}
+		s.pendingRequests = request.GetId()
+		if s.parentTransport != nil && s.parentTransport.Stateless && request.Method == RequestMethods_Initialize && request.Params != nil {
+			var r InitializeRequestParams
+			var initialized bool
+
+			if c, ok := request.Params.(*InitializeRequestParams); ok {
+				r = *c
+				initialized = true
+			} else {
+				data, err := json.Marshal(request.Params)
+				if err == nil {
+					if err := json.Unmarshal(data, &r); err == nil {
+						initialized = true
+					}
+				}
+			}
+
+			if initialized {
+				s.parentTransport.InitializeRequest = r
+			}
+		}
 		s.mu.Unlock()
 	}
 
 	msg.SetRelatedTransport(s)
 
-	s.incomingChannel <- msg
-	if s.incomingChannel == nil {
+	if s.parentTransport == nil || s.parentTransport.incomingChannel == nil {
 		return fmt.Errorf("incoming channel is nil")
 	}
 
 	select {
-	case s.incomingChannel <- msg:
+	case s.parentTransport.incomingChannel <- msg:
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()
 	}
+
 }
 
 func (s *StreamableHttpPostTransport) stopOnFinalResponseFilter(ctx context.Context, mesg chan sse.SseItem[IJsonRpcMessage]) chan sse.SseItem[IJsonRpcMessage] {
@@ -163,14 +184,8 @@ func (s *StreamableHttpPostTransport) stopOnFinalResponseFilter(ctx context.Cont
 				}
 				output <- item
 
-				if res, ok := item.Data.(*JsonRpcResponse); ok {
-					s.mu.Lock()
-					delete(s.pendingRequests, *res.GetId())
-					empty := len(s.pendingRequests) == 0
-					s.mu.Unlock()
-					if empty {
-						return
-					}
+				if res, ok := item.Data.(*JsonRpcResponse); ok && res.Id == s.pendingRequests {
+					return
 				}
 			}
 		}

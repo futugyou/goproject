@@ -11,6 +11,8 @@ var _ ITransport = (*StreamableHttpServerTransport)(nil)
 
 type StreamableHttpServerTransport struct {
 	sseWriter         *SseWriter
+	Stateless         bool
+	InitializeRequest InitializeRequestParams
 	incomingChannel   chan IJsonRpcMessage
 	ctx               context.Context
 	cancelFunc        context.CancelFunc
@@ -44,13 +46,22 @@ func (s *StreamableHttpServerTransport) MessageReader() <-chan IJsonRpcMessage {
 
 // SendMessage implements ITransport.
 func (s *StreamableHttpServerTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+	if s.Stateless {
+		return fmt.Errorf("stateless mode is not supported for GET requests")
+	}
+
 	return s.sseWriter.SendMessage(ctx, message)
 }
 
 func (s *StreamableHttpServerTransport) HandleGetRequest(ctx context.Context, sseResponseStream io.Writer) error {
+	if s.Stateless {
+		return fmt.Errorf("stateless mode is not supported for GET requests")
+	}
+
 	if atomic.SwapInt32(&s.getRequestStarted, 1) != 0 {
 		return fmt.Errorf("session resumption is not yet supported. Please start a new session")
 	}
+
 	// We do not need to reference ctx like in HandlePostRequest, because the session ending completes the sseWriter gracefully.
 	resultCh := s.sseWriter.WriteAll(ctx, sseResponseStream)
 
@@ -64,7 +75,7 @@ func (s *StreamableHttpServerTransport) HandleGetRequest(ctx context.Context, ss
 
 func (s *StreamableHttpServerTransport) HandlePostRequest(ctx context.Context, httpBodies *DuplexPipe) (bool, error) {
 	ctx, _ = mergeContexts(s.ctx, ctx)
-	postTransport := NewStreamableHttpPostTransport(s.incomingChannel, httpBodies)
+	postTransport := NewStreamableHttpPostTransport(s, httpBodies)
 	return postTransport.Run(ctx)
 }
 
