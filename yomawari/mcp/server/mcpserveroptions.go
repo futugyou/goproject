@@ -13,6 +13,7 @@ type McpServerOptions struct {
 	InitializationTimeout time.Duration //  60 sec.
 	ServerInstructions    string
 	ScopeRequests         bool
+	KnownClientInfo       *types.Implementation
 }
 
 func NewMcpServerOptions() *McpServerOptions {

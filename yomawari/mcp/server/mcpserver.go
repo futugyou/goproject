@@ -25,6 +25,8 @@ type McpServer struct {
 	_servicesScopePerRequest bool
 	_toolsChangedDelegate    func()
 	_promptsChangedDelegate  func()
+	_resourceChangedDelegate func()
+	_serverOnlyEndpointName  string
 	EndpointName             string
 	_started                 int32
 	ServerCapabilities       *ServerCapabilities
@@ -48,9 +50,11 @@ func NewMcpServer(itransport transport.ITransport, options McpServerOptions) *Mc
 		BaseMcpEndpoint:          shared.NewBaseMcpEndpoint(),
 		_sessionTransport:        itransport,
 		_servicesScopePerRequest: options.ScopeRequests,
-		EndpointName:             fmt.Sprintf("Server (%s %s)", serverName, version),
+		_serverOnlyEndpointName:  fmt.Sprintf("Server (%s %s)", serverName, version),
 		ServerOptions:            options,
+		ClientInfo:               options.KnownClientInfo,
 	}
+	s.updateEndpointNameWithClientInfo()
 
 	s.setInitializeHandler(&options)
 	s.setToolsHandler(&options)
@@ -63,22 +67,39 @@ func NewMcpServer(itransport transport.ITransport, options McpServerOptions) *Mc
 		s.GetNotificationHandlers().RegisterRange(options.Capabilities.NotificationHandlers)
 	}
 
-	if options.Capabilities != nil && options.Capabilities.Tools != nil && options.Capabilities.Tools.ToolCollection.Count() > 0 {
-		s._toolsChangedDelegate = func() {
-			s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_ToolListChangedNotification, nil))
+	if t, ok := itransport.(*transport.StreamableHttpServerTransport); !ok || !t.Stateless {
+		if options.Capabilities != nil && options.Capabilities.Tools != nil && options.Capabilities.Tools.ToolCollection.Count() > 0 {
+			s._toolsChangedDelegate = func() {
+				s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_ToolListChangedNotification, nil))
+			}
+			options.Capabilities.Tools.ToolCollection.OnChanged(s._toolsChangedDelegate)
 		}
-		options.Capabilities.Tools.ToolCollection.OnChanged(s._toolsChangedDelegate)
-	}
 
-	if options.Capabilities != nil && options.Capabilities.Prompts != nil && options.Capabilities.Prompts.PromptCollection.Count() > 0 {
-		s._promptsChangedDelegate = func() {
-			s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_PromptListChangedNotification, nil))
+		if options.Capabilities != nil && options.Capabilities.Prompts != nil && options.Capabilities.Prompts.PromptCollection.Count() > 0 {
+			s._promptsChangedDelegate = func() {
+				s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_PromptListChangedNotification, nil))
+			}
+			options.Capabilities.Prompts.PromptCollection.OnChanged(s._promptsChangedDelegate)
 		}
-		options.Capabilities.Prompts.PromptCollection.OnChanged(s._promptsChangedDelegate)
+
+		if options.Capabilities != nil && options.Capabilities.Resources != nil && options.Capabilities.Resources.ResourceCollection.Count() > 0 {
+			s._resourceChangedDelegate = func() {
+				s.SendMessage(context.Background(), transport.NewJsonRpcNotification(transport.NotificationMethods_ResourceListChangedNotification, nil))
+			}
+			options.Capabilities.Resources.ResourceCollection.OnChanged(s._resourceChangedDelegate)
+		}
+
 	}
 
 	s.InitializeSession(itransport, true)
 	return s
+}
+func (m *McpServer) updateEndpointNameWithClientInfo() {
+	if m.ClientInfo == nil {
+		return
+	}
+
+	m.EndpointName = fmt.Sprintf("%s, Client (%s %s)", m._serverOnlyEndpointName, m.ClientInfo.Name, m.ClientInfo.Version)
 }
 
 func (m *McpServer) setInitializeHandler(options *McpServerOptions) {
