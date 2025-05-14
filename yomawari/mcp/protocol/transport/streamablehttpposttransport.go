@@ -77,6 +77,7 @@ func (s *StreamableHttpPostTransport) Run(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+//lint:ignore U1000 used by reflection or reserved for future use
 func (s *StreamableHttpPostTransport) onPostBodyReceived(ctx context.Context) error {
 	var buf bytes.Buffer
 	tee := io.TeeReader(s.httpBodies.Input, &buf)
