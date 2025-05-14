@@ -38,7 +38,7 @@ func (d *DestinationBoundMcpServer) Dispose(ctx context.Context) error {
 }
 
 // GetClientCapabilities implements IMcpServer.
-func (d *DestinationBoundMcpServer) GetClientCapabilities() *shared.ClientCapabilities {
+func (d *DestinationBoundMcpServer) GetClientCapabilities() *transport.ClientCapabilities {
 	return d.server.GetClientCapabilities()
 }
 
@@ -63,12 +63,12 @@ func (d *DestinationBoundMcpServer) GetMessageProcessingTask() <-chan struct{} {
 }
 
 // NotifyProgress implements IMcpServer.
-func (d *DestinationBoundMcpServer) NotifyProgress(ctx context.Context, progressToken transport.ProgressToken, progress transport.ProgressNotificationValue) error {
+func (d *DestinationBoundMcpServer) NotifyProgress(ctx context.Context, progressToken types.ProgressToken, progress transport.ProgressNotificationValue) error {
 	return d.server.NotifyProgress(ctx, progressToken, progress)
 }
 
 // RegisterNotificationHandler implements IMcpServer.
-func (d *DestinationBoundMcpServer) RegisterNotificationHandler(method string, handler shared.NotificationHandler) *shared.RegistrationHandle {
+func (d *DestinationBoundMcpServer) RegisterNotificationHandler(method string, handler transport.NotificationHandler) *shared.RegistrationHandle {
 	return d.server.RegisterNotificationHandler(method, handler)
 }
 

@@ -8,15 +8,13 @@ import (
 	"github.com/futugyou/yomawari/mcp/protocol/transport"
 )
 
-type NotificationHandler func(ctx context.Context, notification *transport.JsonRpcNotification) error
-
 type NotificationHandlers struct {
 	mu       sync.RWMutex
 	handlers map[string]*registration
 }
 
 type registration struct {
-	handler   NotificationHandler
+	handler   transport.NotificationHandler
 	temporary bool
 	prev      *registration
 	next      *registration
@@ -34,7 +32,7 @@ func NewNotificationHandlers() *NotificationHandlers {
 	}
 }
 
-func (nh *NotificationHandlers) RegisterRange(handlers map[string]NotificationHandler) {
+func (nh *NotificationHandlers) RegisterRange(handlers map[string]transport.NotificationHandler) {
 	nh.mu.Lock()
 	defer nh.mu.Unlock()
 
@@ -43,7 +41,7 @@ func (nh *NotificationHandlers) RegisterRange(handlers map[string]NotificationHa
 	}
 }
 
-func (nh *NotificationHandlers) Register(method string, handler NotificationHandler, temporary bool) *RegistrationHandle {
+func (nh *NotificationHandlers) Register(method string, handler transport.NotificationHandler, temporary bool) *RegistrationHandle {
 	nh.mu.Lock()
 	defer nh.mu.Unlock()
 
@@ -51,7 +49,7 @@ func (nh *NotificationHandlers) Register(method string, handler NotificationHand
 	return &RegistrationHandle{reg: reg}
 }
 
-func (nh *NotificationHandlers) registerLocked(method string, handler NotificationHandler, temporary bool) *registration {
+func (nh *NotificationHandlers) registerLocked(method string, handler transport.NotificationHandler, temporary bool) *registration {
 	reg := &registration{
 		handler:   handler,
 		temporary: temporary,

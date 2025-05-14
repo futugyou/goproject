@@ -1,11 +1,12 @@
-package shared
+package transport
 
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
+
+type NotificationHandler func(ctx context.Context, notification *JsonRpcNotification) error
 
 // ClientCapabilities represents the capabilities supported by the client.
 type ClientCapabilities struct {
@@ -28,5 +29,5 @@ type SamplingCapability struct {
 
 // IProgressReporter represents a progress notification mechanism
 type IProgressReporter interface {
-	Report(value transport.ProgressNotificationValue)
+	Report(value ProgressNotificationValue)
 }

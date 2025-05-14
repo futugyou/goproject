@@ -126,7 +126,7 @@ func (m *McpSession) handleMessage(ctx context.Context, message transport.IJsonR
 	method := getMethodName(message)
 
 	var startingTimestamp int64 = time.Now().UnixNano()
-	ctx, span := mcp.StartSpanWithJsonRpcData(ctx, m.createActivityName(method), message)
+	ctx, span := transport.StartSpanWithJsonRpcData(ctx, m.createActivityName(method), message)
 	defer span.End()
 
 	tags := []attribute.KeyValue{}
@@ -203,7 +203,7 @@ func (m *McpSession) handleRequest(ctx context.Context, request transport.JsonRp
 	return m._transport.SendMessage(ctx, msg)
 }
 
-func (m *McpSession) RegisterNotificationHandler(method string, handler NotificationHandler) *RegistrationHandle {
+func (m *McpSession) RegisterNotificationHandler(method string, handler transport.NotificationHandler) *RegistrationHandle {
 	return m._notificationHandlers.Register(method, handler, true)
 }
 
@@ -248,7 +248,7 @@ func (m *McpSession) SendRequest(ctx context.Context, request *transport.JsonRpc
 		request.Id = transport.NewRequestIdFromString(fmt.Sprintf("%s-%d", m._id, newId))
 	}
 
-	mcp.PropagatorInject(ctx, request)
+	transport.PropagatorInject(ctx, request)
 
 	ctx, cancelfunc := context.WithCancel(ctx)
 	tcs := tasks.NewTaskCompletionSource[transport.IJsonRpcMessage](ctx, cancelfunc)
@@ -311,7 +311,7 @@ func (m *McpSession) SendMessage(ctx context.Context, message transport.IJsonRpc
 	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
 	defer span.End()
 
-	mcp.PropagatorInject(ctx, message)
+	transport.PropagatorInject(ctx, message)
 
 	tags := []attribute.KeyValue{}
 	m.addStandardTags(&tags, method)

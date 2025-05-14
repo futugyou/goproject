@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/futugyou/yomawari/core/logger"
+	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"github.com/futugyou/yomawari/mcp/protocol/types"
 	"github.com/futugyou/yomawari/mcp/server"
 	"github.com/futugyou/yomawari/mcp/shared"
@@ -17,7 +18,7 @@ type IMcpClient interface {
 	GetServerInstructions() *string
 	Ping(ctx context.Context) error
 	ListTools(ctx context.Context) ([]McpClientTool, error)
-	CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter shared.IProgressReporter) (*types.CallToolResult, error)
+	CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter transport.IProgressReporter) (*types.CallToolResult, error)
 	GetPrompt(ctx context.Context, name string, arguments map[string]interface{}) (*types.GetPromptResult, error)
 	EnumerateTools(ctx context.Context) (<-chan McpClientTool, <-chan error)
 	ListPrompts(ctx context.Context, client IMcpClient) ([]McpClientPrompt, error)

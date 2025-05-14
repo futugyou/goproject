@@ -33,7 +33,7 @@ func (e *BaseMcpEndpoint) GetMcpSession() *McpSession {
 }
 
 // NotifyProgress implements IMcpEndpoint.
-func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken transport.ProgressToken, progress transport.ProgressNotificationValue) error {
+func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken types.ProgressToken, progress transport.ProgressNotificationValue) error {
 	p := transport.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
 	data, err := json.Marshal(p)
 	if err != nil {
@@ -109,7 +109,7 @@ func (e *BaseMcpEndpoint) SendMessage(ctx context.Context, msg transport.IJsonRp
 	return e.session.SendMessage(ctx, msg)
 }
 
-func (e *BaseMcpEndpoint) RegisterNotificationHandler(method string, handler NotificationHandler) *RegistrationHandle {
+func (e *BaseMcpEndpoint) RegisterNotificationHandler(method string, handler transport.NotificationHandler) *RegistrationHandle {
 	if e.session == nil {
 		return nil
 	}

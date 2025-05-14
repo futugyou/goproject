@@ -28,7 +28,7 @@ type McpServer struct {
 	EndpointName             string
 	_started                 int32
 	ServerCapabilities       *ServerCapabilities
-	ClientCapabilities       *shared.ClientCapabilities
+	ClientCapabilities       *transport.ClientCapabilities
 	ClientInfo               *types.Implementation
 	ServerOptions            McpServerOptions
 }
@@ -85,7 +85,7 @@ func (m *McpServer) setInitializeHandler(options *McpServerOptions) {
 	shared.GenericRequestHandlerAdd(
 		m.GetRequestHandlers(),
 		transport.RequestMethods_Initialize,
-		func(ctx context.Context, request *shared.InitializeRequestParams, tran transport.ITransport) (*InitializeResult, error) {
+		func(ctx context.Context, request *transport.InitializeRequestParams, tran transport.ITransport) (*InitializeResult, error) {
 			m.ClientCapabilities = request.Capabilities
 			m.ClientInfo = &request.ClientInfo
 			_endpointName := fmt.Sprintf("%s, Client (%s %s)", m.EndpointName, m.ClientInfo.Name, m.ClientInfo.Version)
@@ -165,7 +165,7 @@ func (m *McpServer) setToolsHandler(options *McpServerOptions) {
 				ToolCollection:   tools,
 			},
 			Completions:          &CompletionsCapability{},
-			NotificationHandlers: map[string]shared.NotificationHandler{},
+			NotificationHandlers: map[string]transport.NotificationHandler{},
 		}
 	} else {
 		m.ServerCapabilities = options.Capabilities
@@ -234,7 +234,7 @@ func (m *McpServer) setPromptsHandler(options *McpServerOptions) {
 			Resources:            options.Capabilities.Resources,
 			Tools:                options.Capabilities.Tools,
 			Completions:          &CompletionsCapability{},
-			NotificationHandlers: map[string]shared.NotificationHandler{},
+			NotificationHandlers: map[string]transport.NotificationHandler{},
 			Prompts: &PromptsCapability{
 				ListChanged:        &listChanged,
 				ListPromptsHandler: listPromptsHandler,
@@ -310,7 +310,7 @@ func (m *McpServer) setPingHandler() {
 }
 
 // GetClientCapabilities implements IMcpServer.
-func (m *McpServer) GetClientCapabilities() *shared.ClientCapabilities {
+func (m *McpServer) GetClientCapabilities() *transport.ClientCapabilities {
 	return m.ClientCapabilities
 }
 

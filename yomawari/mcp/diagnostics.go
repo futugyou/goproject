@@ -3,7 +3,6 @@ package mcp
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/transport"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -45,31 +44,4 @@ func StartServerSpan(ctx context.Context, name string, carrier propagation.TextM
 		trace.WithSpanKind(trace.SpanKindServer),
 		trace.WithLinks(link),
 	)
-}
-
-func StartSpanWithJsonRpcData(ctx context.Context, name string, message transport.IJsonRpcMessage) (context.Context, trace.Span) {
-	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
-	switch re := message.(type) {
-	case *transport.JsonRpcRequest:
-		carrier = re
-	case *transport.JsonRpcNotification:
-		carrier = re
-	}
-	parentCtx := Propagator.Extract(ctx, carrier)
-	link := trace.Link{SpanContext: trace.SpanContextFromContext(parentCtx)}
-	return Tracer.Start(parentCtx, name,
-		trace.WithSpanKind(trace.SpanKindServer),
-		trace.WithLinks(link),
-	)
-}
-
-func PropagatorInject(ctx context.Context, message transport.IJsonRpcMessage) {
-	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
-	switch re := message.(type) {
-	case *transport.JsonRpcRequest:
-		carrier = re
-	case *transport.JsonRpcNotification:
-		carrier = re
-	}
-	Propagator.Inject(ctx, carrier)
 }

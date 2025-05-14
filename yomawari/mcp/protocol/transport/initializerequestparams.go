@@ -1,4 +1,4 @@
-package shared
+package transport
 
 import "github.com/futugyou/yomawari/mcp/protocol/types"
 

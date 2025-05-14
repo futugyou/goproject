@@ -3,10 +3,12 @@ package transport
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/futugyou/yomawari/mcp/protocol/types"
 )
 
 type ProgressNotification struct {
-	ProgressToken    *ProgressToken
+	ProgressToken    *types.ProgressToken
 	Progress         *ProgressNotificationValue
 	NotificationType string
 }
@@ -31,7 +33,7 @@ func (p *ProgressNotification) UnmarshalJSON(data []byte) error {
 		return errors.New("missing required property 'progress'")
 	}
 
-	var token ProgressToken
+	var token types.ProgressToken
 	if err := json.Unmarshal(raw.ProgressToken, &token); err != nil {
 		return err
 	}
@@ -47,10 +49,10 @@ func (p *ProgressNotification) UnmarshalJSON(data []byte) error {
 
 func (p ProgressNotification) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ProgressToken ProgressToken `json:"progressToken"`
-		Progress      float32       `json:"progress"`
-		Total         *float32      `json:"total,omitempty"`
-		Message       *string       `json:"message,omitempty"`
+		ProgressToken types.ProgressToken `json:"progressToken"`
+		Progress      float32             `json:"progress"`
+		Total         *float32            `json:"total,omitempty"`
+		Message       *string             `json:"message,omitempty"`
 	}{
 		ProgressToken: *p.ProgressToken,
 		Progress:      p.Progress.Progress,

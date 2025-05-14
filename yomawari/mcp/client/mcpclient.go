@@ -72,7 +72,7 @@ func NewMcpClient(clientTransport transport.IClientTransport, options McpClientO
 				client.reqHandlers,
 				transport.RequestMethods_SamplingCreateMessage,
 				func(ctx context.Context, request *types.CreateMessageRequestParams, tran transport.ITransport) (*types.CreateMessageResult, error) {
-					var progres shared.IProgressReporter = &shared.NullProgress{}
+					var progres transport.IProgressReporter = &shared.NullProgress{}
 					if request.Meta != nil && request.Meta.ProgressToken != nil {
 						progres = shared.NewTokenProgress(client, *request.Meta.ProgressToken)
 					}
@@ -133,7 +133,7 @@ func (m *McpClient) Connect(ctx context.Context) error {
 	ctx, cancel = context.WithTimeout(ctx, m.options.InitializationTimeout)
 	defer cancel()
 
-	params := shared.InitializeRequestParams{
+	params := transport.InitializeRequestParams{
 		ProtocolVersion: m.options.ProtocolVersion,
 		Capabilities:    m.options.Capabilities,
 	}
@@ -159,7 +159,7 @@ func (m *McpClient) Connect(ctx context.Context) error {
 }
 
 // CallTool implements IMcpClient.
-func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter shared.IProgressReporter) (*types.CallToolResult, error) {
+func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map[string]interface{}, reporter transport.IProgressReporter) (*types.CallToolResult, error) {
 	params := types.CallToolRequestParams{
 		RequestParams: types.RequestParams{},
 		Name:          toolName,
@@ -167,8 +167,8 @@ func (m *McpClient) CallTool(ctx context.Context, toolName string, arguments map
 	}
 
 	if reporter != nil {
-		progressToken := transport.NewProgressTokenFromString(uuid.New().String())
-		var handler shared.NotificationHandler = func(ctx context.Context, notification *transport.JsonRpcNotification) error {
+		progressToken := types.NewProgressTokenFromString(uuid.New().String())
+		var handler transport.NotificationHandler = func(ctx context.Context, notification *transport.JsonRpcNotification) error {
 			var pn transport.ProgressNotification
 			if err := json.Unmarshal(notification.Params, &pn); err != nil {
 				return err
