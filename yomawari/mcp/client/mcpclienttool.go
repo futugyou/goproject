@@ -70,5 +70,5 @@ func (m *McpClientTool) GetName() string {
 
 // Invoke implements functions.AIFunction.
 func (m *McpClientTool) Invoke(ctx context.Context, arguments functions.AIFunctionArguments) (interface{}, error) {
-	return m.client.CallTool(ctx, m.ProtocolTool.Name, arguments.GetArguments(), nil)
+	return m.client.CallTool(ctx, m.ProtocolTool.Name, arguments.Gets(), nil)
 }
