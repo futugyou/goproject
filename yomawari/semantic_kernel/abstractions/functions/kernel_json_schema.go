@@ -20,15 +20,15 @@ type KernelJsonSchema struct {
 }
 
 // ParseOrNull parses a JSON schema or returns nil if empty.
-func ParseOrNull(jsonSchema string) (*KernelJsonSchema, error) {
+func KernelJsonSchemaParseOrNull(jsonSchema string) (*KernelJsonSchema, error) {
 	if jsonSchema == "" {
 		return nil, nil
 	}
-	return Parse(jsonSchema)
+	return KernelJsonSchemaParse(jsonSchema)
 }
 
 // Parse parses a JSON schema string and returns a KernelJsonSchema.
-func Parse(jsonSchema string) (*KernelJsonSchema, error) {
+func KernelJsonSchemaParse(jsonSchema string) (*KernelJsonSchema, error) {
 	var raw json.RawMessage
 	if err := json.Unmarshal([]byte(jsonSchema), &raw); err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func Parse(jsonSchema string) (*KernelJsonSchema, error) {
 }
 
 // ParseFromBytes parses from UTF-8 JSON bytes.
-func ParseFromBytes(jsonSchema []byte) (*KernelJsonSchema, error) {
+func KernelJsonSchemaParseFromBytes(jsonSchema []byte) (*KernelJsonSchema, error) {
 	var raw json.RawMessage
 	if err := json.Unmarshal(jsonSchema, &raw); err != nil {
 		return nil, err
