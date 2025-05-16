@@ -66,19 +66,27 @@ func CreateFunctionJsonSchema(fnType reflect.Type, title string, description str
 	if inferenceOptions.IncludeSchemaKeyword {
 		schema[SchemaPropertyName] = SchemaKeywordUri
 	}
+
 	if title != "" {
 		schema[TitlePropertyName] = title
 	}
+
 	if description != "" {
 		schema[DescriptionPropertyName] = description
 	}
+
 	schema[TypePropertyName] = "object"
 	schema[PropertiesPropertyName] = properties
 	if len(required) > 0 {
 		schema[RequiredPropertyName] = required
 	}
+
 	if inferenceOptions.DisallowAdditionalProperties {
 		schema[AdditionalPropertiesName] = false
+	}
+
+	if inferenceOptions.TransformOptions != nil {
+		schema = transformSchema(schema, *inferenceOptions.TransformOptions)
 	}
 
 	return schema, nil
@@ -91,26 +99,31 @@ func CreateJsonSchema(parameterType reflect.Type, description string, defaultVal
 
 	schema := createJsonSchemaCore(parameterType, "", description, defaultValue, inferenceOptions)
 	if inferenceOptions.TransformOptions != nil {
-		var transformSchema json.RawMessage
-		var err error
-		data, _ := json.Marshal(schema)
-		err = json.Unmarshal(data, &transformSchema)
-		if err != nil {
-			return schema, nil
-		}
-		transformSchema, err = TransformSchema(transformSchema, *inferenceOptions.TransformOptions)
-		if err != nil {
-			return schema, nil
-		}
-		var transformedSchema map[string]interface{}
-		err = json.Unmarshal(transformSchema, &transformedSchema)
-		if err != nil {
-			return schema, nil
-		}
-		schema = transformedSchema
+		schema = transformSchema(schema, *inferenceOptions.TransformOptions)
 	}
 
 	return schema, nil
+}
+
+func transformSchema(schema map[string]interface{}, transformOptions AIJsonSchemaTransformOptions) map[string]interface{} {
+	var transformSchema json.RawMessage
+	var err error
+	data, _ := json.Marshal(schema)
+	err = json.Unmarshal(data, &transformSchema)
+	if err != nil {
+		return schema
+	}
+	transformSchema, err = TransformSchema(transformSchema, transformOptions)
+	if err != nil {
+		return schema
+	}
+	var transformedSchema map[string]interface{}
+	err = json.Unmarshal(transformSchema, &transformedSchema)
+	if err != nil {
+		return schema
+	}
+	schema = transformedSchema
+	return schema
 }
 
 // createJsonSchemaCore generates JSON Schema based on parameter type, name, description, etc. (simplified implementation)
@@ -161,6 +174,7 @@ func createJsonSchemaCore(t reflect.Type, paramName string, description string, 
 		}
 	}
 
+	// TODO: TransformSchemaNode
 	return schema
 }
 
