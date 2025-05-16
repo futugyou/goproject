@@ -64,7 +64,7 @@ func CreateFunctionJsonSchema(fnType reflect.Type, title string, description str
 			paramName = fmt.Sprintf("param%d", i)
 		}
 
-		paramSchema := CreateJsonSchemaCore(inType, paramName, "", nil, inferenceOptions)
+		paramSchema := createJsonSchemaCore(inType, paramName, "", nil, inferenceOptions)
 		properties[paramName] = paramSchema
 		required = append(required, paramName)
 	}
@@ -91,8 +91,22 @@ func CreateFunctionJsonSchema(fnType reflect.Type, title string, description str
 	return schema, nil
 }
 
-// CreateJsonSchemaCore generates JSON Schema based on parameter type, name, description, etc. (simplified implementation)
-func CreateJsonSchemaCore(
+func CreateJsonSchema(
+	parameterType reflect.Type,
+	description string,
+	defaultValue any,
+	inferenceOptions *AIJsonSchemaCreateOptions) (map[string]interface{}, error) {
+	if inferenceOptions == nil {
+		inferenceOptions = DefaultAIJsonSchemaCreateOptions
+	}
+
+	schema := createJsonSchemaCore(parameterType, "", description, defaultValue, inferenceOptions)
+
+	return schema, nil
+}
+
+// createJsonSchemaCore generates JSON Schema based on parameter type, name, description, etc. (simplified implementation)
+func createJsonSchemaCore(
 	t reflect.Type,
 	paramName string,
 	description string,
@@ -102,7 +116,7 @@ func CreateJsonSchemaCore(
 	if options == nil {
 		options = DefaultAIJsonSchemaCreateOptions
 	}
-	
+
 	schema := make(map[string]interface{})
 
 	// base type
@@ -198,7 +212,7 @@ func handleStructType(t reflect.Type, schema map[string]interface{}, options *AI
 
 func handlePointerType(t reflect.Type, schema map[string]interface{}, paramName, description string, defaultVal interface{}, options *AIJsonSchemaCreateOptions) {
 	elemType := t.Elem()
-	elemSchema := CreateJsonSchemaCore(elemType, paramName, description, defaultVal, options)
+	elemSchema := createJsonSchemaCore(elemType, paramName, description, defaultVal, options)
 	schema["anyOf"] = []map[string]interface{}{
 		elemSchema,
 		{"type": "null"},
@@ -207,7 +221,7 @@ func handlePointerType(t reflect.Type, schema map[string]interface{}, paramName,
 
 func handleArrayType(t reflect.Type, schema map[string]interface{}, paramName string, options *AIJsonSchemaCreateOptions) {
 	elemType := t.Elem()
-	elemSchema := CreateJsonSchemaCore(elemType, paramName, "", nil, options)
+	elemSchema := createJsonSchemaCore(elemType, paramName, "", nil, options)
 	schema["type"] = "array"
 	schema["items"] = elemSchema
 }

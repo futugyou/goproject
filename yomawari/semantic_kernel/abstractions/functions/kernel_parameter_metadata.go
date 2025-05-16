@@ -22,7 +22,7 @@ func NewKernelParameterMetadata(name string) *KernelParameterMetadata {
 	}
 }
 
-func InferSchema(parameterType reflect.Type, defaultValue any, name string, description string) InitializedSchema {
+func InferSchema(parameterType reflect.Type, defaultValue any, description string) InitializedSchema {
 	var schema *KernelJsonSchema
 
 	if parameterType != nil {
@@ -42,7 +42,7 @@ func InferSchema(parameterType reflect.Type, defaultValue any, name string, desc
 
 			var err error
 
-			schema, err = buildSchema(parameterType, name, description, defaultValue)
+			schema, err = buildSchema(parameterType, description, defaultValue)
 
 			if err != nil {
 				schema = nil
@@ -57,14 +57,14 @@ func InferSchema(parameterType reflect.Type, defaultValue any, name string, desc
 	return InitializedSchema{Inferred: true}
 }
 
-func buildSchema(parameterType reflect.Type, paramName string, description string, defaultVal interface{}) (*KernelJsonSchema, error) {
-	jsonSchema := utilities.CreateJsonSchemaCore(parameterType, paramName, description, defaultVal, utilities.DefaultAIJsonSchemaCreateOptions)
-	if jsonSchema == nil {
-		return &KernelJsonSchema{}, nil
+func buildSchema(parameterType reflect.Type, description string, defaultVal interface{}) (*KernelJsonSchema, error) {
+	jsonSchema, err := utilities.CreateJsonSchema(parameterType, description, defaultVal, utilities.DefaultAIJsonSchemaCreateOptions)
+	if err != nil {
+		return nil, err
 	}
 	data, err := json.Marshal(jsonSchema)
 	if err != nil {
-		return &KernelJsonSchema{}, err
+		return nil, err
 	}
 
 	return KernelJsonSchemaParseFromBytes(data)
