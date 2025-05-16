@@ -2,6 +2,7 @@ package utilities
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -17,22 +18,6 @@ const (
 	AdditionalPropertiesName = "additionalProperties"
 	SchemaKeywordUri         = "http://json-schema.org/draft-07/schema#"
 )
-
-// AIJsonSchemaCreateOptions defines configuration options when generating JSON Schema
-type AIJsonSchemaCreateOptions struct {
-	IncludeSchemaKeyword         bool
-	IncludeTypeInEnumSchemas     bool
-	DisallowAdditionalProperties bool
-	RequireAllProperties         bool
-}
-
-// DefaultAIJsonSchemaCreateOptions default options
-var DefaultAIJsonSchemaCreateOptions = &AIJsonSchemaCreateOptions{
-	IncludeSchemaKeyword:         true,
-	IncludeTypeInEnumSchemas:     false,
-	DisallowAdditionalProperties: true,
-	RequireAllProperties:         true,
-}
 
 // CreateFunctionJsonSchema generates a JSON Schema based on a function type, title, description, list of parameter names, and inferred options
 // TODO: maybe use https://github.com/invopop/jsonschema is better.
@@ -91,28 +76,37 @@ func CreateFunctionJsonSchema(fnType reflect.Type, title string, description str
 	return schema, nil
 }
 
-func CreateJsonSchema(
-	parameterType reflect.Type,
-	description string,
-	defaultValue any,
-	inferenceOptions *AIJsonSchemaCreateOptions) (map[string]interface{}, error) {
+func CreateJsonSchema(parameterType reflect.Type, description string, defaultValue any, inferenceOptions *AIJsonSchemaCreateOptions) (map[string]interface{}, error) {
 	if inferenceOptions == nil {
 		inferenceOptions = DefaultAIJsonSchemaCreateOptions
 	}
 
 	schema := createJsonSchemaCore(parameterType, "", description, defaultValue, inferenceOptions)
+	if inferenceOptions.TransformOptions != nil {
+		var transformSchema json.RawMessage
+		var err error
+		data, _ := json.Marshal(schema)
+		err = json.Unmarshal(data, &transformSchema)
+		if err != nil {
+			return schema, nil
+		}
+		transformSchema, err = TransformSchema(transformSchema, *inferenceOptions.TransformOptions)
+		if err != nil {
+			return schema, nil
+		}
+		var transformedSchema map[string]interface{}
+		err = json.Unmarshal(transformSchema, &transformedSchema)
+		if err != nil {
+			return schema, nil
+		}
+		schema = transformedSchema
+	}
 
 	return schema, nil
 }
 
 // createJsonSchemaCore generates JSON Schema based on parameter type, name, description, etc. (simplified implementation)
-func createJsonSchemaCore(
-	t reflect.Type,
-	paramName string,
-	description string,
-	defaultVal interface{},
-	options *AIJsonSchemaCreateOptions,
-) map[string]interface{} {
+func createJsonSchemaCore(t reflect.Type, paramName string, description string, defaultVal interface{}, options *AIJsonSchemaCreateOptions) map[string]interface{} {
 	if options == nil {
 		options = DefaultAIJsonSchemaCreateOptions
 	}
