@@ -1,5 +1,7 @@
 package utilities
 
+import "reflect"
+
 type AIJsonSchemaTransformOptions struct {
 	TransformSchemaNode             func(AIJsonSchemaTransformContext, map[string]interface{}) map[string]interface{}
 	ConvertBooleanSchemas           bool
@@ -39,4 +41,28 @@ func (ctx AIJsonSchemaTransformContext) IsCollectionElementSchema() bool {
 func (ctx AIJsonSchemaTransformContext) IsDictionaryValueSchema() bool {
 	path := ctx.path
 	return len(path) >= 1 && path[len(path)-1] == "additionalProperties"
+}
+
+// TODO: reflect AIJsonSchemaCreateContext
+type AIJsonSchemaCreateContext struct {
+	Path                  SchemaPath
+	ParameterName         string
+	Type                  reflect.Type
+	Description           string
+	HasDefaultValue       bool
+	InferenceOptions      InferenceOptions
+	SerializeDefaultValue func() interface{}
+	GetCustomDescription  func() string
+}
+
+type InferenceOptions struct {
+	IncludeSchemaKeyword bool
+	TransformSchemaNode  func(AIJsonSchemaCreateContext, map[string]interface{}) map[string]interface{}
+}
+
+type SchemaPath struct{}
+
+func (p SchemaPath) IsEmpty() bool {
+	// TODO
+	return true
 }
