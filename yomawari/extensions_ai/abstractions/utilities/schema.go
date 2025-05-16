@@ -17,7 +17,15 @@ const (
 	RequiredPropertyName     = "required"
 	AdditionalPropertiesName = "additionalProperties"
 	SchemaKeywordUri         = "http://json-schema.org/draft-07/schema#"
+	RefPropertyName          = "$ref"
+	ItemsPropertyName        = "items"
+	NotPropertyName          = "not"
+	PatternPropertyName      = "pattern"
+	EnumPropertyName         = "enum"
+	DefaultPropertyName      = "default"
 )
+
+var schemaKeywordsDisallowedByVendors []string = []string{"minLength", "maxLength", "pattern", "format"}
 
 // CreateFunctionJsonSchema generates a JSON Schema based on a function type, title, description, list of parameter names, and inferred options
 // TODO: maybe use https://github.com/invopop/jsonschema is better.
@@ -116,13 +124,13 @@ func createJsonSchemaCore(t reflect.Type, paramName string, description string, 
 	// base type
 	switch t.Kind() {
 	case reflect.String:
-		schema["type"] = "string"
+		schema[TypePropertyName] = "string"
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		schema["type"] = "integer"
+		schema[TypePropertyName] = "integer"
 	case reflect.Float32, reflect.Float64:
-		schema["type"] = "number"
+		schema[TypePropertyName] = "number"
 	case reflect.Bool:
-		schema["type"] = "boolean"
+		schema[TypePropertyName] = "boolean"
 	case reflect.Struct:
 		handleStructType(t, schema, options)
 	case reflect.Ptr:
@@ -140,15 +148,15 @@ func createJsonSchemaCore(t reflect.Type, paramName string, description string, 
 
 	// add default value
 	if defaultVal != nil {
-		schema["default"] = defaultVal
+		schema[DefaultPropertyName] = defaultVal
 	}
 
 	// handle enum values
 	if enumValues := getEnumValues(t); len(enumValues) > 0 {
-		schema["enum"] = enumValues
+		schema[EnumPropertyName] = enumValues
 		if options.IncludeTypeInEnumSchemas {
-			if _, exists := schema["type"]; !exists {
-				schema["type"] = detectEnumType(enumValues)
+			if _, exists := schema[TypePropertyName]; !exists {
+				schema[TypePropertyName] = detectEnumType(enumValues)
 			}
 		}
 	}
@@ -194,13 +202,13 @@ func parseDefaultValue(valStr string, t reflect.Type) interface{} {
 
 func handleStructType(t reflect.Type, schema map[string]interface{}, options *AIJsonSchemaCreateOptions) {
 	nestedSchema, _ := CreateFunctionJsonSchema(t, "", "", nil, options)
-	schema["type"] = "object"
-	schema["properties"] = nestedSchema["properties"]
-	if req, ok := nestedSchema["required"]; ok {
-		schema["required"] = req
+	schema[TypePropertyName] = "object"
+	schema[PropertiesPropertyName] = nestedSchema[PropertiesPropertyName]
+	if req, ok := nestedSchema[RequiredPropertyName]; ok {
+		schema[RequiredPropertyName] = req
 	}
 	if options.DisallowAdditionalProperties {
-		schema["additionalProperties"] = false
+		schema[AdditionalPropertiesName] = false
 	}
 }
 
@@ -209,20 +217,20 @@ func handlePointerType(t reflect.Type, schema map[string]interface{}, paramName,
 	elemSchema := createJsonSchemaCore(elemType, paramName, description, defaultVal, options)
 	schema["anyOf"] = []map[string]interface{}{
 		elemSchema,
-		{"type": "null"},
+		{TypePropertyName: "null"},
 	}
 }
 
 func handleArrayType(t reflect.Type, schema map[string]interface{}, paramName string, options *AIJsonSchemaCreateOptions) {
 	elemType := t.Elem()
 	elemSchema := createJsonSchemaCore(elemType, paramName, "", nil, options)
-	schema["type"] = "array"
-	schema["items"] = elemSchema
+	schema[TypePropertyName] = "array"
+	schema[ItemsPropertyName] = elemSchema
 }
 
 func handleMapType(schema map[string]interface{}, _ *AIJsonSchemaCreateOptions) {
-	schema["type"] = "object"
-	schema["additionalProperties"] = true
+	schema[TypePropertyName] = "object"
+	schema[AdditionalPropertiesName] = true
 }
 
 func getEnumValues(_ reflect.Type) []interface{} {
