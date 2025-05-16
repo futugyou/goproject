@@ -3,6 +3,7 @@ package functions
 import "reflect"
 
 type KernelReturnParameterMetadata struct {
+	Name          string
 	Description   string
 	ParameterType reflect.Type
 	schema        KernelJsonSchema
@@ -17,9 +18,10 @@ func KernelReturnParameterMetadataClone(meta KernelReturnParameterMetadata) *Ker
 		Description:   meta.Description,
 		ParameterType: meta.ParameterType,
 		schema:        meta.schema,
+		Name:          meta.Name,
 	}
 }
 
 func (meta KernelReturnParameterMetadata) GetSchema() KernelJsonSchema {
-	return InferSchema(meta.ParameterType, nil, meta.Description).Schema
+	return InferSchema(meta.ParameterType, nil, meta.Name, meta.Description).Schema
 }

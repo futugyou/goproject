@@ -1,6 +1,11 @@
 package functions
 
-import "reflect"
+import (
+	"encoding/json"
+	"reflect"
+
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/utilities"
+)
 
 type KernelParameterMetadata struct {
 	Name          string
@@ -17,9 +22,60 @@ func NewKernelParameterMetadata(name string) *KernelParameterMetadata {
 	}
 }
 
-func InferSchema(parameterType reflect.Type, defaultValue any, description string) InitializedSchema {
-	// TODO: build Schema
+func InferSchema(parameterType reflect.Type, defaultValue any, name string, description string) InitializedSchema {
+	var schema *KernelJsonSchema
+
+	if parameterType != nil {
+		invalidAsGeneric := parameterType.Kind() == reflect.Func ||
+			parameterType.Kind() == reflect.Ptr && parameterType.Elem().Kind() == reflect.UnsafePointer ||
+			parameterType.Kind() == reflect.UnsafePointer ||
+			parameterType.Kind() == reflect.Invalid
+
+		if !invalidAsGeneric {
+			stringDefault := convertToString(defaultValue)
+			if stringDefault != "" {
+				if description != "" {
+					description += " "
+				}
+				description += "(default value: " + stringDefault + ")"
+			}
+
+			var err error
+
+			schema, err = buildSchema(parameterType, name, description, defaultValue)
+
+			if err != nil {
+				schema = nil
+			}
+		}
+	}
+
+	if schema != nil {
+		return InitializedSchema{Inferred: true, Schema: *schema}
+	}
+
 	return InitializedSchema{Inferred: true}
+}
+
+func buildSchema(parameterType reflect.Type, paramName string, description string, defaultVal interface{}) (*KernelJsonSchema, error) {
+	jsonSchema := utilities.CreateJsonSchemaCore(parameterType, paramName, description, defaultVal, utilities.DefaultAIJsonSchemaCreateOptions)
+	if jsonSchema == nil {
+		return &KernelJsonSchema{}, nil
+	}
+	data, err := json.Marshal(jsonSchema)
+	if err != nil {
+		return &KernelJsonSchema{}, err
+	}
+
+	return KernelJsonSchemaParseFromBytes(data)
+}
+
+func convertToString(defaultValue any) string {
+	if condition, ok := defaultValue.(string); ok {
+		return condition
+	}
+
+	return ""
 }
 
 type InitializedSchema struct {
