@@ -47,6 +47,15 @@ func (ge *List[K]) Set(index int, item K) {
 	ge.data[index] = item
 }
 
+func (ge *List[K]) Insert(index int, item K) {
+	if index < 0 || index > len(ge.data) {
+		panic("index out of bounds")
+	}
+	ge.data = append(ge.data, *new(K))
+	copy(ge.data[index+1:], ge.data[index:])
+	ge.data[index] = item
+}
+
 func (ge *List[K]) Remove(item K) bool {
 	for i, d := range ge.data {
 		if d.Hash() == item.Hash() {
@@ -62,6 +71,23 @@ func (ge *List[K]) RemoveAt(index int) {
 		panic("index out of bounds")
 	}
 	ge.data = append(ge.data[:index], ge.data[index+1:]...)
+}
+
+func (ge *List[K]) RemoveRange(index int, end int) {
+	if index < 0 || end > len(ge.data) || index > end {
+		panic("index out of bounds")
+	}
+	ge.data = append(ge.data[:index], ge.data[end:]...)
+}
+
+func (ge *List[K]) ExtractRange(index int, end int) []K {
+	if index < 0 || end > len(ge.data) || index > end {
+		panic("index out of bounds")
+	}
+	removed := make([]K, end-index)
+	copy(removed, ge.data[index:end])
+	ge.data = append(ge.data[:index], ge.data[end:]...)
+	return removed
 }
 
 func (ge *List[K]) IndexOf(item K) int {
