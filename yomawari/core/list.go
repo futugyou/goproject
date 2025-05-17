@@ -8,6 +8,12 @@ type List[K ListItem] struct {
 	data []K
 }
 
+func NewList[K ListItem]() *List[K] {
+	return &List[K]{
+		data: []K{},
+	}
+}
+
 func (ge *List[K]) Count() int {
 	return len(ge.data)
 }

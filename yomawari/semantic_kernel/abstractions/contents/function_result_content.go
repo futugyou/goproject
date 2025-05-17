@@ -35,7 +35,7 @@ func (f FunctionResultContent) ToChatMessage() ChatMessageContent {
 		ModelId:  f.ModelId,
 		Metadata: f.Metadata,
 		Role:     AuthorRoleTool,
-		Items: ChatMessageContentItemCollection{
+		Items: &ChatMessageContentItemCollection{
 			Items: []KernelContent{f},
 		},
 	}

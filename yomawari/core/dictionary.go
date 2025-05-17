@@ -4,6 +4,12 @@ type Dictionary[K comparable, V any] struct {
 	data map[K]V
 }
 
+func NewDictionary[K comparable, V any]() *Dictionary[K, V] {
+	return &Dictionary[K, V]{
+		data: make(map[K]V),
+	}
+}
+
 // Get returns the value associated with the key
 func (a *Dictionary[K, V]) Get(key K) (V, bool) {
 	val, ok := a.data[key]

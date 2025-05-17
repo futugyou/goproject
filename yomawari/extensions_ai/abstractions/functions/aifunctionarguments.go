@@ -13,7 +13,7 @@ type AIFunctionArguments struct {
 // NewAIFunctionArguments creates a new empty AIFunctionArguments instance
 func NewAIFunctionArguments() *AIFunctionArguments {
 	return &AIFunctionArguments{
-		Dictionary: core.Dictionary[string, any]{},
+		Dictionary: *core.NewDictionary[string, any](),
 		Context:    make(map[interface{}]interface{}),
 	}
 }
