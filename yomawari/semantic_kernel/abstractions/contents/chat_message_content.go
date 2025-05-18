@@ -69,7 +69,7 @@ func (ChatMessageContent) Type() string {
 }
 
 func (f ChatMessageContent) Hash() string {
-	return f.Content
+	return f.ToString()
 }
 
 func (f ChatMessageContent) ToString() string {

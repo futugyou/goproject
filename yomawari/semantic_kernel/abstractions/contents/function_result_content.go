@@ -25,6 +25,10 @@ func (f FunctionResultContent) ToString() string {
 	return string(d)
 }
 
+func (c FunctionResultContent) Hash() string {
+	return c.ToString()
+}
+
 func (f FunctionResultContent) GetInnerContent() any {
 	return f.InnerContent
 }

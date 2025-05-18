@@ -34,3 +34,7 @@ func (c StreamingAnnotationContent) ToByteArray() []byte {
 	r, _ := base64.URLEncoding.DecodeString(c.ToString())
 	return r
 }
+
+func (c StreamingAnnotationContent) Hash() string {
+	return c.ToString()
+}

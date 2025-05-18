@@ -25,6 +25,10 @@ func (f BinaryContent) ToString() string {
 	return string(f.Data)
 }
 
+func (c BinaryContent) Hash() string {
+	return c.ToString()
+}
+
 func (f BinaryContent) GetInnerContent() any {
 	return f.InnerContent
 }

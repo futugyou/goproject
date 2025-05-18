@@ -19,6 +19,10 @@ func (f AnnotationContent) ToString() string {
 	return f.Quote
 }
 
+func (c AnnotationContent) Hash() string {
+	return c.ToString()
+}
+
 func (f AnnotationContent) GetInnerContent() any {
 	return f.InnerContent
 }

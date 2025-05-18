@@ -24,6 +24,10 @@ func (f AudioContent) ToString() string {
 	return string(f.Data)
 }
 
+func (c AudioContent) Hash() string {
+	return c.ToString()
+}
+
 func (f AudioContent) GetInnerContent() any {
 	return f.InnerContent
 }

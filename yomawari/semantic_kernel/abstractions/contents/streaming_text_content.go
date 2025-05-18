@@ -27,3 +27,7 @@ func (c StreamingTextContent) ToByteArray() []byte {
 	r, _ := encoding.DecodeString(c.ToString())
 	return r
 }
+
+func (c StreamingTextContent) Hash() string {
+	return c.Text
+}

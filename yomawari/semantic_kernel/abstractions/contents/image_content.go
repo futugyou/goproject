@@ -27,3 +27,7 @@ func (f ImageContent) ToString() string {
 func (f ImageContent) GetInnerContent() any {
 	return f.InnerContent
 }
+
+func (c ImageContent) Hash() string {
+	return c.ToString()
+}

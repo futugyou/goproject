@@ -20,3 +20,7 @@ func (f FileReferenceContent) ToString() string {
 func (f FileReferenceContent) GetInnerContent() any {
 	return f.InnerContent
 }
+
+func (c FileReferenceContent) Hash() string {
+	return c.ToString()
+}

@@ -24,3 +24,7 @@ func (c StreamingFileReferenceContent) ToByteArray() []byte {
 	r, _ := base64.URLEncoding.DecodeString(c.ToString())
 	return r
 }
+
+func (c StreamingFileReferenceContent) Hash() string {
+	return c.FileId
+}

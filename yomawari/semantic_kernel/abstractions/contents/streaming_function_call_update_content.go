@@ -26,3 +26,7 @@ func (c StreamingFunctionCallUpdateContent) ToByteArray() []byte {
 	r, _ := base64.URLEncoding.DecodeString(c.ToString())
 	return r
 }
+
+func (c StreamingFunctionCallUpdateContent) Hash() string {
+	return c.ToString()
+}

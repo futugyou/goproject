@@ -9,6 +9,7 @@ type StreamingKernelContent interface {
 	Type() string
 	ToString() string
 	ToByteArray() []byte
+	Hash() string
 }
 
 func MarshalStreamingKernelContent(con StreamingKernelContent) ([]byte, error) {

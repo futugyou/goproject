@@ -26,6 +26,10 @@ func (f FunctionCallContent) ToString() string {
 	return f.FunctionName
 }
 
+func (c FunctionCallContent) Hash() string {
+	return c.ToString()
+}
+
 func (f FunctionCallContent) GetInnerContent() any {
 	return f.InnerContent
 }

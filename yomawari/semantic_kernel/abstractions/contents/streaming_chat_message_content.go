@@ -61,6 +61,10 @@ func (c StreamingChatMessageContent) ToString() string {
 	return c.Content
 }
 
+func (c StreamingChatMessageContent) Hash() string {
+	return c.Content
+}
+
 func (c StreamingChatMessageContent) ToByteArray() []byte {
 	r, _ := base64.URLEncoding.DecodeString(c.ToString())
 	return r

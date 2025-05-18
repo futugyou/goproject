@@ -9,6 +9,7 @@ type KernelContent interface {
 	Type() string
 	ToString() string
 	GetInnerContent() any
+	Hash() string
 }
 
 func MarshalKernelContent(con KernelContent) ([]byte, error) {

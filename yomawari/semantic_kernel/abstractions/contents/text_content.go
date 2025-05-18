@@ -22,3 +22,7 @@ func (f TextContent) ToString() string {
 func (f TextContent) GetInnerContent() any {
 	return f.InnerContent
 }
+
+func (c TextContent) Hash() string {
+	return c.Text
+}
