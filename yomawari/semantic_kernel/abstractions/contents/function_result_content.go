@@ -1,6 +1,10 @@
 package contents
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/futugyou/yomawari/core"
+)
 
 type FunctionResultContent struct {
 	MimeType     string         `json:"mimeType"`
@@ -40,7 +44,7 @@ func (f FunctionResultContent) ToChatMessage() ChatMessageContent {
 		Metadata: f.Metadata,
 		Role:     AuthorRoleTool,
 		Items: &ChatMessageContentItemCollection{
-			Items: []KernelContent{f},
+			*core.NewList[KernelContent](),
 		},
 	}
 }

@@ -15,7 +15,7 @@ type FunctionCallContentBuilder struct {
 }
 
 func (b *FunctionCallContentBuilder) Append(content StreamingChatMessageContent) {
-	for _, item := range content.Items.Items {
+	for _, item := range content.Items.Items() {
 		if con, ok := item.(StreamingFunctionCallUpdateContent); ok && item.Type() == "streaming-function-call-update" {
 			trackStreamingFunctionCallUpdate(con, b.functionCallIdsByIndex, b.functionNamesByIndex, b.functionArgumentBuildersByIndex)
 		}

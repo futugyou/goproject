@@ -16,7 +16,7 @@ func (a *Dictionary[K, V]) Get(key K) (V, bool) {
 	return val, ok
 }
 
-func (a *Dictionary[K, V]) Gets() map[K]V {
+func (a *Dictionary[K, V]) Items() map[K]V {
 	return a.data
 }
 

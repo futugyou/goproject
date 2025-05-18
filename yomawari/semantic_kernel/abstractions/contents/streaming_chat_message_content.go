@@ -3,15 +3,17 @@ package contents
 import (
 	"encoding/base64"
 	"encoding/json"
+
+	"github.com/futugyou/yomawari/core"
 )
 
-type StreamingChatMessageContentItemCollection struct {
-	Items []StreamingKernelContent `json:"items"`
+type StreamingKernelContentItemCollection struct {
+	core.List[StreamingKernelContent]
 }
 
-func (c StreamingChatMessageContentItemCollection) MarshalJSON() ([]byte, error) {
+func (c StreamingKernelContentItemCollection) MarshalJSON() ([]byte, error) {
 	var rawItems []json.RawMessage
-	for _, item := range c.Items {
+	for _, item := range c.Items() {
 		b, err := MarshalStreamingKernelContent(item)
 		if err != nil {
 			return nil, err
@@ -23,7 +25,7 @@ func (c StreamingChatMessageContentItemCollection) MarshalJSON() ([]byte, error)
 	})
 }
 
-func (c *StreamingChatMessageContentItemCollection) UnmarshalJSON(data []byte) error {
+func (c *StreamingKernelContentItemCollection) UnmarshalJSON(data []byte) error {
 	var raw struct {
 		Items []json.RawMessage `json:"items"`
 	}
@@ -36,21 +38,21 @@ func (c *StreamingChatMessageContentItemCollection) UnmarshalJSON(data []byte) e
 		if err != nil {
 			return err
 		}
-		c.Items = append(c.Items, content)
+		c.Add(content)
 	}
 	return nil
 }
 
 type StreamingChatMessageContent struct {
-	ChoiceIndex  int                                       `json:"choiceIndex"`
-	ModelId      string                                    `json:"modelId"`
-	Metadata     map[string]any                            `json:"metadata"`
-	InnerContent any                                       `json:"-"`
-	Content      string                                    `json:"content"`
-	Items        StreamingChatMessageContentItemCollection `json:"items"`
-	AuthorName   string                                    `json:"authorName"`
-	Role         AuthorRole                                `json:"role"`
-	Encoding     *base64.Encoding                          `json:"-"`
+	ChoiceIndex  int                                  `json:"choiceIndex"`
+	ModelId      string                               `json:"modelId"`
+	Metadata     map[string]any                       `json:"metadata"`
+	InnerContent any                                  `json:"-"`
+	Content      string                               `json:"content"`
+	Items        StreamingKernelContentItemCollection `json:"items"`
+	AuthorName   string                               `json:"authorName"`
+	Role         AuthorRole                           `json:"role"`
+	Encoding     *base64.Encoding                     `json:"-"`
 }
 
 func (StreamingChatMessageContent) Type() string {
@@ -71,7 +73,7 @@ func (c StreamingChatMessageContent) ToByteArray() []byte {
 }
 
 func (c StreamingChatMessageContent) GetContent() string {
-	for _, item := range c.Items.Items {
+	for _, item := range c.Items.Items() {
 		if textContent, ok := item.(StreamingTextContent); ok && item.Type() == "streaming-function-call-update" {
 			return textContent.Text
 		}
@@ -80,10 +82,10 @@ func (c StreamingChatMessageContent) GetContent() string {
 }
 
 func (c *StreamingChatMessageContent) SetContent(content string) {
-	for i, item := range c.Items.Items {
+	for i, item := range c.Items.Items() {
 		if textContent, ok := item.(StreamingTextContent); ok && item.Type() == "streaming-function-call-update" {
 			textContent.Text = content
-			c.Items.Items[i] = textContent
+			c.Items.Set(i, textContent)
 			return
 		}
 	}
@@ -96,5 +98,5 @@ func (c *StreamingChatMessageContent) SetContent(content string) {
 		Text:         content,
 		Encoding:     c.Encoding,
 	}
-	c.Items.Items = append(c.Items.Items, textContent)
+	c.Items.Add(textContent)
 }

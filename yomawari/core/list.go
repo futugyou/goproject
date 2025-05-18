@@ -27,7 +27,7 @@ func (ge *List[K]) AddRange(items []K) {
 }
 
 func (ge *List[K]) Clear() {
-	ge.data = nil
+	ge.data = []K{}
 }
 
 func (ge *List[K]) Contains(item K) bool {
@@ -44,6 +44,10 @@ func (ge *List[K]) Get(index int) K {
 		panic("index out of bounds")
 	}
 	return ge.data[index]
+}
+
+func (ge *List[K]) Items() []K {
+	return ge.data
 }
 
 func (ge *List[K]) Set(index int, item K) {

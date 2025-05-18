@@ -17,13 +17,13 @@ type AddNumbersFunction struct {
 func (f *AddNumbersFunction) Invoke(ctx context.Context, arguments AIFunctionArguments) (interface{}, error) {
 	var a float64
 	var b float64
-	if aVal, ok := arguments.Gets()["a"].(float64); ok {
+	if aVal, ok := arguments.Items()["a"].(float64); ok {
 		a = aVal
 	} else {
 		return nil, fmt.Errorf("invalid arguments for 'a'")
 	}
 
-	if bVal, ok := arguments.Gets()["b"].(float64); ok {
+	if bVal, ok := arguments.Items()["b"].(float64); ok {
 		b = bVal
 	} else {
 		return nil, fmt.Errorf("invalid arguments for 'b'")

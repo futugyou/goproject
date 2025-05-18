@@ -3,6 +3,8 @@ package contents
 import (
 	"encoding/base64"
 	"encoding/json"
+
+	"github.com/futugyou/yomawari/core"
 )
 
 type AuthorRole string
@@ -16,12 +18,12 @@ const (
 )
 
 type ChatMessageContentItemCollection struct {
-	Items []KernelContent `json:"items"`
+	core.List[KernelContent] `json:"items"`
 }
 
 func (c ChatMessageContentItemCollection) MarshalJSON() ([]byte, error) {
 	var rawItems []json.RawMessage
-	for _, item := range c.Items {
+	for _, item := range c.Items() {
 		b, err := MarshalKernelContent(item)
 		if err != nil {
 			return nil, err
@@ -46,7 +48,7 @@ func (c *ChatMessageContentItemCollection) UnmarshalJSON(data []byte) error {
 		if err != nil {
 			return err
 		}
-		c.Items = append(c.Items, content)
+		c.Add(content)
 	}
 	return nil
 }
@@ -82,7 +84,7 @@ func (f ChatMessageContent) GetInnerContent() any {
 
 func (c *ChatMessageContent) GetFunctionCalls() []FunctionCallContent {
 	var result []FunctionCallContent
-	for _, item := range c.Items.Items {
+	for _, item := range c.Items.Items() {
 		if item.Type() == "functionCall" {
 			result = append(result, item.(FunctionCallContent))
 		}
@@ -91,7 +93,7 @@ func (c *ChatMessageContent) GetFunctionCalls() []FunctionCallContent {
 }
 
 func (c ChatMessageContent) GetContent() string {
-	for _, item := range c.Items.Items {
+	for _, item := range c.Items.Items() {
 		if textContent, ok := item.(TextContent); ok && item.Type() == "streaming-function-call-update" {
 			return textContent.Text
 		}
@@ -100,10 +102,10 @@ func (c ChatMessageContent) GetContent() string {
 }
 
 func (c *ChatMessageContent) SetContent(content string) {
-	for i, item := range c.Items.Items {
+	for i, item := range c.Items.Items() {
 		if textContent, ok := item.(TextContent); ok && item.Type() == "streaming-function-call-update" {
 			textContent.Text = content
-			c.Items.Items[i] = textContent
+			c.Items.Set(i, textContent)
 			return
 		}
 	}
@@ -115,5 +117,5 @@ func (c *ChatMessageContent) SetContent(content string) {
 		Text:         content,
 		Encoding:     c.Encoding,
 	}
-	c.Items.Items = append(c.Items.Items, textContent)
+	c.Items.Add(textContent)
 }
