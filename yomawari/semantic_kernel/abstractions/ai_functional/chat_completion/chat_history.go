@@ -5,6 +5,7 @@ import (
 
 	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
+	"golang.org/x/net/context"
 )
 
 type ChatHistory struct {
@@ -78,4 +79,35 @@ func (c *ChatHistory) AddDeveloperMessage(content string) {
 		Role:    contents.AuthorRoleDeveloper,
 		Content: content,
 	})
+}
+
+func (c *ChatHistory) ReduceInPlace(ctx context.Context, reducer IChatHistoryReducer) bool {
+	if reducer == nil {
+		return false
+	}
+
+	reducedHistory, err := reducer.Reduce(ctx, c.Items())
+	if err != nil {
+		return false
+	}
+	if reducedHistory == nil {
+		return false
+	}
+
+	c.Clear()
+	c.AddRange(reducedHistory)
+
+	return true
+}
+
+func (c *ChatHistory) Reduce(ctx context.Context, reducer IChatHistoryReducer) (*ChatHistory, error) {
+	if reducer != nil {
+		reducedHistory, err := reducer.Reduce(ctx, c.Items())
+		if err != nil {
+			return c, err
+		}
+		return NewChatHistoryWithContents(reducedHistory), nil
+	}
+
+	return c, nil
 }
