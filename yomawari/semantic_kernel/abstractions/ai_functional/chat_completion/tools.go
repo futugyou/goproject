@@ -79,3 +79,111 @@ func ToChatMessageList(chatHistory ChatHistory) []chatcompletion.ChatMessage {
 	}
 	return result
 }
+
+func ToChatMessageContent(message chatcompletion.ChatMessage, response *chatcompletion.ChatResponse) contents.ChatMessageContent {
+	result := &contents.ChatMessageContent{
+		Metadata: message.AdditionalProperties,
+		Role:     contents.CreateAuthorRole(string(message.Role)),
+	}
+	if message.AuthorName != nil {
+		result.AuthorName = *message.AuthorName
+	}
+	if response != nil {
+		if response.ModelId != nil {
+			result.ModelId = *response.ModelId
+		}
+		if response.RawRepresentation != nil {
+			result.InnerContent = response.RawRepresentation
+		} else {
+			result.InnerContent = message.RawRepresentation
+		}
+	}
+
+	for _, content := range message.Contents {
+		var resultContent contents.KernelContent
+		switch tc := content.(type) {
+		case aicontents.TextContent:
+			resultContent = &contents.TextContent{
+				ModelId:      result.ModelId,
+				Metadata:     content.GetAdditionalProperties(),
+				InnerContent: content.GetRawRepresentation(),
+				Text:         tc.Text,
+			}
+		case aicontents.DataContent:
+			if tc.MediaTypeStartsWith("image") {
+				resultContent = &contents.ImageContent{
+					ModelId:      result.ModelId,
+					Metadata:     content.GetAdditionalProperties(),
+					InnerContent: content.GetRawRepresentation(),
+					DataUri:      tc.URI,
+					MimeType:     tc.MediaType,
+				}
+			} else if tc.MediaTypeStartsWith("audio") {
+				resultContent = &contents.AudioContent{
+					ModelId:      result.ModelId,
+					Metadata:     content.GetAdditionalProperties(),
+					InnerContent: content.GetRawRepresentation(),
+					DataUri:      tc.URI,
+					MimeType:     tc.MediaType,
+				}
+			} else {
+				resultContent = &contents.BinaryContent{
+					ModelId:      result.ModelId,
+					Metadata:     content.GetAdditionalProperties(),
+					InnerContent: content.GetRawRepresentation(),
+					DataUri:      tc.URI,
+					MimeType:     tc.MediaType,
+				}
+			}
+		case aicontents.UriContent:
+			if tc.MediaTypeStartsWith("image") {
+				resultContent = &contents.ImageContent{
+					ModelId:      result.ModelId,
+					Metadata:     content.GetAdditionalProperties(),
+					InnerContent: content.GetRawRepresentation(),
+					DataUri:      tc.URI,
+					MimeType:     tc.MediaType,
+				}
+			} else if tc.MediaTypeStartsWith("audio") {
+				resultContent = &contents.AudioContent{
+					ModelId:      result.ModelId,
+					Metadata:     content.GetAdditionalProperties(),
+					InnerContent: content.GetRawRepresentation(),
+					DataUri:      tc.URI,
+					MimeType:     tc.MediaType,
+				}
+			} else {
+				resultContent = &contents.BinaryContent{
+					ModelId:      result.ModelId,
+					Metadata:     content.GetAdditionalProperties(),
+					InnerContent: content.GetRawRepresentation(),
+					DataUri:      tc.URI,
+					MimeType:     tc.MediaType,
+				}
+			}
+		case aicontents.FunctionCallContent:
+			resultContent = &contents.FunctionCallContent{
+				ModelId:      result.ModelId,
+				Metadata:     content.GetAdditionalProperties(),
+				Id:           tc.CallId,
+				FunctionName: tc.Name,
+				Arguments:    tc.Arguments,
+				InnerContent: content.GetRawRepresentation(),
+			}
+		case aicontents.FunctionResultContent:
+			resultContent = &contents.FunctionResultContent{
+				ModelId:      result.ModelId,
+				Metadata:     content.GetAdditionalProperties(),
+				CallId:       tc.CallId,
+				Result:       tc.Result,
+				InnerContent: content.GetRawRepresentation(),
+			}
+		}
+
+		if resultContent != nil {
+			result.Items.Add(resultContent)
+		}
+	}
+
+	return *result
+}
