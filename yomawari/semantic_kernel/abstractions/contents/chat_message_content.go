@@ -17,6 +17,23 @@ const (
 	AuthorRoleTool      AuthorRole = "tool"
 )
 
+func CreateAuthorRole(name string) AuthorRole {
+	switch name {
+	case "developer":
+		return AuthorRoleDeveloper
+	case "system":
+		return AuthorRoleSystem
+	case "assistant":
+		return AuthorRoleAssistant
+	case "user":
+		return AuthorRoleUser
+	case "tool":
+		return AuthorRoleTool
+	default:
+		return AuthorRoleUser
+	}
+}
+
 type ChatMessageContentItemCollection struct {
 	core.List[KernelContent] `json:"items"`
 }
