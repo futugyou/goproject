@@ -1,6 +1,8 @@
 package chat_completion
 
 import (
+	"encoding/json"
+
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
@@ -186,4 +188,38 @@ func ToChatMessageContent(message chatcompletion.ChatMessage, response *chatcomp
 	}
 
 	return *result
+}
+
+func ToStreamingChatCompletionUpdate(content contents.StreamingChatMessageContent) *chatcompletion.ChatResponseUpdate {
+	r := chatcompletion.StringToChatRole(string(content.Role))
+	update := &chatcompletion.ChatResponseUpdate{
+		AdditionalProperties: content.Metadata,
+		AuthorName:           &content.AuthorName,
+		ModelId:              &content.ModelId,
+		RawRepresentation:    content,
+		Role:                 &r,
+	}
+
+	for _, item := range content.Items.Items() {
+		var aiContent aicontents.IAIContent
+		switch tc := item.(type) {
+		case contents.StreamingTextContent:
+			aiContent = aicontents.NewTextContent(tc.Text)
+		case contents.StreamingFunctionCallUpdateContent:
+			var a map[string]interface{}
+			json.Unmarshal([]byte(tc.Arguments), &a)
+			aiContent = &aicontents.FunctionCallContent{
+				AIContent: &aicontents.AIContent{},
+				CallId:    tc.CallId,
+				Name:      tc.Name,
+				Arguments: a,
+			}
+		}
+
+		if aiContent != nil {
+			update.Contents = append(update.Contents, aiContent)
+		}
+	}
+
+	return update
 }
