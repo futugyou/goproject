@@ -1,0 +1,259 @@
+package chat_completion
+
+import (
+	"context"
+	"encoding/json"
+
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
+	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions/ai_functional"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions/services"
+)
+
+var _ IChatCompletionService = (*ChatClientChatCompletionService)(nil)
+
+type ChatClientChatCompletionService struct {
+	chatClient chatcompletion.IChatClient
+	inner      *services.DefaultAIService
+}
+
+func NewChatClientChatCompletionService(chatClient chatcompletion.IChatClient, metadata chatcompletion.ChatClientMetadata) *ChatClientChatCompletionService {
+	attrs := map[string]interface{}{}
+	if metadata.ProviderUri != nil {
+		attrs[services.EndpointKey] = *metadata.ProviderUri
+	}
+	if metadata.DefaultModelId != nil {
+		attrs[services.ModelIdKey] = *metadata.DefaultModelId
+	}
+	chat := &ChatClientChatCompletionService{
+		chatClient: chatClient,
+		inner:      services.NewDefaultAIService(attrs),
+	}
+	return chat
+}
+
+// GetApiVersion implements IChatCompletionService.
+func (c *ChatClientChatCompletionService) GetApiVersion() string {
+	return c.inner.GetApiVersion()
+}
+
+// GetAttributes implements IChatCompletionService.
+func (c *ChatClientChatCompletionService) GetAttributes() map[string]interface{} {
+	return c.inner.GetAttributes()
+}
+
+// GetEndpoint implements IChatCompletionService.
+func (c *ChatClientChatCompletionService) GetEndpoint() string {
+	return c.inner.GetEndpoint()
+}
+
+// GetModelId implements IChatCompletionService.
+func (c *ChatClientChatCompletionService) GetModelId() string {
+	return c.inner.GetModelId()
+}
+
+// GetChatMessageContents implements IChatCompletionService.
+func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings ai_functional.PromptExecutionSettings, kernel abstractions.Kernel) ([]contents.ChatMessageContent, error) {
+	completion, err := c.chatClient.GetResponse(ctx, ToChatMessageList(chatHistory), c.ToChatOptions(&executionSettings, kernel))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(completion.Messages) > 0 {
+		for i := 0; i < len(completion.Messages)-1; i++ {
+			chatHistory.Add(ToChatMessageContent(completion.Messages[i], completion))
+		}
+
+		// Return the last message as the result.
+		return []contents.ChatMessageContent{ToChatMessageContent(completion.Messages[len(completion.Messages)-1], completion)}, nil
+	}
+
+	return []contents.ChatMessageContent{}, nil
+}
+
+// GetStreamingChatMessageContents implements IChatCompletionService.
+func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings ai_functional.PromptExecutionSettings, kernel abstractions.Kernel) (<-chan contents.StreamingChatMessageContent, <-chan error) {
+	fcContents := []aicontents.IAIContent{}
+	var role *chatcompletion.ChatRole
+	contentCh := make(chan contents.StreamingChatMessageContent)
+	errCh := make(chan error, 1)
+
+	go func() {
+		defer close(contentCh)
+		defer close(errCh)
+
+		responseCh := c.chatClient.GetStreamingResponse(ctx, ToChatMessageList(chatHistory), c.ToChatOptions(&executionSettings, kernel))
+		select {
+		case <-ctx.Done():
+			errCh <- ctx.Err()
+			return
+		case update, ok := <-responseCh:
+			if !ok {
+				return
+			}
+			if update.Err != nil {
+				errCh <- update.Err
+				return
+			}
+			if role == nil {
+				role = update.Update.Role
+			}
+
+			for _, c := range update.Update.Contents {
+				if cc, ok := c.(aicontents.FunctionCallContent); ok {
+					fcContents = append(fcContents, cc)
+				}
+				if cc, ok := c.(aicontents.FunctionResultContent); ok {
+					fcContents = append(fcContents, cc)
+				}
+			}
+			contentCh <- c.ToStreamingChatMessageContent(*update.Update)
+		}
+	}()
+	message := &chatcompletion.ChatMessage{
+		Role:                 chatcompletion.RoleAssistant,
+		Contents:             fcContents,
+		AdditionalProperties: map[string]interface{}{},
+	}
+	if role != nil {
+		message.Role = *role
+	}
+	chatHistory.Add(ToChatMessageContent(*message, nil))
+	return contentCh, errCh
+}
+
+func (c *ChatClientChatCompletionService) ToStreamingChatMessageContent(update chatcompletion.ChatResponseUpdate) contents.StreamingChatMessageContent {
+	content := &contents.StreamingChatMessageContent{
+		InnerContent: update.RawRepresentation,
+		Metadata:     update.AdditionalProperties,
+	}
+	if update.ModelId != nil {
+		content.ModelId = *update.ModelId
+	}
+	if update.Role != nil {
+		content.Role = contents.CreateAuthorRole(string(*update.Role))
+	}
+
+	for _, item := range update.Contents {
+		var resultContent contents.StreamingKernelContent
+		if tc, ok := item.(aicontents.TextContent); ok {
+			resultContent = &contents.StreamingTextContent{Text: tc.Text}
+		} else if fcc, ok := item.(aicontents.FunctionCallContent); ok {
+			c := &contents.StreamingFunctionCallUpdateContent{CallId: fcc.CallId, Name: fcc.Name}
+			if fcc.Arguments != nil {
+				data, err := json.Marshal(fcc.Arguments)
+				if err == nil {
+					c.Arguments = string(data)
+				}
+			}
+			resultContent = c
+		}
+
+		if resultContent != nil {
+			if update.ModelId != nil {
+				// TODO:
+				// resultContent.SetModelId(*update.ModelId)
+			}
+			content.Items.Add(resultContent)
+		}
+	}
+
+	return *content
+}
+
+func (c *ChatClientChatCompletionService) ToChatOptions(settings *ai_functional.PromptExecutionSettings, kernel abstractions.Kernel) *chatcompletion.ChatOptions {
+	if settings == nil {
+		return nil
+	}
+
+	options := &chatcompletion.ChatOptions{
+		ModelId:              &settings.ModelId,
+		AdditionalProperties: map[string]interface{}{},
+	}
+
+	extensionCopy := make(map[string]interface{})
+	for k, v := range settings.ExtensionData {
+		extensionCopy[k] = v
+	}
+
+	if v, ok := extensionCopy["temperature"].(float64); ok {
+		options.Temperature = &v
+		delete(extensionCopy, "temperature")
+	}
+
+	if v, ok := extensionCopy["top_p"].(float64); ok {
+		options.TopP = &v
+		delete(extensionCopy, "top_p")
+	}
+
+	if v, ok := extensionCopy["top_k"].(int); ok {
+		options.TopK = &v
+		delete(extensionCopy, "top_k")
+	}
+
+	if v, ok := extensionCopy["seed"].(int64); ok {
+		options.Seed = &v
+		delete(extensionCopy, "seed")
+	}
+	if v, ok := extensionCopy["max_tokens"].(int64); ok {
+		options.MaxOutputTokens = &v
+		delete(extensionCopy, "max_tokens")
+	}
+
+	if v, ok := extensionCopy["frequency_penalty"].(float64); ok {
+		options.FrequencyPenalty = &v
+		delete(extensionCopy, "frequency_penalty")
+	}
+
+	if v, ok := extensionCopy["presence_penalty"].(float64); ok {
+		options.PresencePenalty = &v
+		delete(extensionCopy, "presence_penalty")
+	}
+
+	if v, ok := extensionCopy["stop_sequences"].([]string); ok {
+		options.StopSequences = v
+		delete(extensionCopy, "stop_sequences")
+	}
+
+	if v, ok := extensionCopy["response_format"].(string); ok {
+		s := chatcompletion.NewChatResponseFormat(v)
+		options.ResponseFormat = &s
+		delete(extensionCopy, "response_format")
+	}
+	for k, v := range extensionCopy {
+		options.AdditionalProperties[k] = v
+	}
+
+	// if (settings.FunctionChoiceBehavior?.GetConfiguration(new([]) { Kernel = kernel }).Functions is { Count: > 0 } functions)   {
+	//     options.ToolMode = settings.FunctionChoiceBehavior is RequiredFunctionChoiceBehavior ? ChatToolMode.RequireAny : ChatToolMode.Auto;
+	//     options.Tools = functions.Select(f => f.AsAIFunction(kernel)).Cast<AITool>().ToList();
+	// }
+
+	return options
+
+}
+
+func TryConvert[T any](value any) (T, bool) {
+	var typedValue T
+	if value != nil {
+		if typedValue, ok := value.(T); ok {
+			return typedValue, true
+		}
+
+		if jsonValue, ok := value.(map[string]any); ok {
+			result, err := json.Marshal(jsonValue)
+			if err != nil {
+				return typedValue, false
+			}
+			if err := json.Unmarshal(result, &typedValue); err != nil {
+				return typedValue, false
+			}
+			return typedValue, true
+		}
+
+	}
+
+	return typedValue, false
+}

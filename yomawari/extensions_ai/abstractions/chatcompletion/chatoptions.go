@@ -29,6 +29,17 @@ const (
 	JsonFormat ChatResponseFormat = "json"
 )
 
+func NewChatResponseFormat(value string) ChatResponseFormat {
+	switch value {
+	case "text":
+		return TextFormat
+	case "json":
+		return JsonFormat
+	default:
+		return JsonFormat
+	}
+}
+
 type ChatToolMode string
 
 const (

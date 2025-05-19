@@ -18,9 +18,10 @@ type DataContent struct {
 }
 
 // NewDataContent creates a new DataContent from a URI string, optionally providing a media type.
-func NewDataContent(uri string, mediaType string) *DataContent {
+
+func NewDataContentFull(uri string, mediaType string, rawRepresentation interface{}, additionalProperties map[string]interface{}) *DataContent {
 	content := &DataContent{
-		AIContent: NewAIContent(nil, nil),
+		AIContent: NewAIContent(rawRepresentation, additionalProperties),
 		MediaType: mediaType,
 	}
 
@@ -48,6 +49,10 @@ func NewDataContent(uri string, mediaType string) *DataContent {
 	}
 
 	return content
+}
+
+func NewDataContent(uri string, mediaType string) *DataContent {
+	return NewDataContentFull(uri, mediaType, nil, nil)
 }
 
 func NewDataContentWithRefusal(uri string, mediaType string, refusal string) *DataContent {
