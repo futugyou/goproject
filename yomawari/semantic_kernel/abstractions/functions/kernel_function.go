@@ -1,5 +1,8 @@
 package functions
 
-type KernelFunction struct {
-	// TODO
+type KernelFunction interface {
+	GetName() string
+	GetPluginName() string
+	GetAdditionalProperties() map[string]interface{}
+	GetDescription() string
 }
