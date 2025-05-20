@@ -7,6 +7,7 @@ import (
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	aifunctions "github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions/functions"
 )
 
 func ToChatMessage(content contents.ChatMessageContent) chatcompletion.ChatMessage {
@@ -274,31 +275,37 @@ func ToPromptExecutionSettings(options *chatcompletion.ChatOptions) *PromptExecu
 	}
 
 	if len(options.Tools) > 0 {
-		// var fs []functions.KernelFunction
+		var fs []functions.KernelFunction
 		for _, tool := range options.Tools {
-			if _, ok := tool.(aifunctions.AIFunction); ok {
-				// fs = append(fs, fn.AsKernelFunction())
+			if fn, ok := tool.(aifunctions.AIFunction); ok {
+				fs = append(fs, AIFunctionTosKernelFunction(fn))
 			}
 		}
 
 		tm := *options.ToolMode
 		if tm == chatcompletion.AutoMode {
-			// settings.FunctionChoiceBehavior = FunctionChoiceBehaviorAuto(fs, false)
+			settings.FunctionChoiceBehavior = *NewFunctionChoiceBehavior(fs, nil, "auto", false)
 		}
 		if tm == chatcompletion.RequireAnyMode {
-			// if tm.RequiredFunctionName == nil {
-			// 	settings.FunctionChoiceBehavior = FunctionChoiceBehaviorRequired(fs, false)
-			// } else {
-			// var matched []functions.KernelFunction
-			// for _, f := range fs {
-			// 	if f.Name == *tm.RequiredFunctionName {
-			// 		matched = append(matched, f)
-			// 	}
-			// }
-			// settings.FunctionChoiceBehavior = FunctionChoiceBehaviorRequired(matched, false)
-			// }
+			// TODO use struct to reflect chatcompletion.ChatToolMode, need RequiredFunctionName field
+			var requiredFunctionName *string = getRequiredFunctionName() //	tm.RequiredFunctionName
+			if requiredFunctionName == nil {
+				settings.FunctionChoiceBehavior = *NewFunctionChoiceBehavior(fs, nil, "required", false)
+			} else {
+				var matched []functions.KernelFunction
+				for _, f := range fs {
+					if f.GetName() == *requiredFunctionName {
+						matched = append(matched, f)
+					}
+				}
+				settings.FunctionChoiceBehavior = *NewFunctionChoiceBehavior(matched, nil, "required", false)
+			}
 		}
 	}
 
 	return settings
+}
+
+func getRequiredFunctionName() *string {
+	return nil
 }

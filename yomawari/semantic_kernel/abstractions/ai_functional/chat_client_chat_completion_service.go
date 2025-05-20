@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions"
@@ -138,9 +139,9 @@ func (c *ChatClientChatCompletionService) ToStreamingChatMessageContent(update c
 	for _, item := range update.Contents {
 		var resultContent contents.StreamingKernelContent
 		if tc, ok := item.(aicontents.TextContent); ok {
-			resultContent = &contents.StreamingTextContent{Text: tc.Text}
+			resultContent = &contents.StreamingTextContent{Text: tc.Text, ModelId: content.ModelId}
 		} else if fcc, ok := item.(aicontents.FunctionCallContent); ok {
-			c := &contents.StreamingFunctionCallUpdateContent{CallId: fcc.CallId, Name: fcc.Name}
+			c := &contents.StreamingFunctionCallUpdateContent{CallId: fcc.CallId, Name: fcc.Name, ModelId: content.ModelId}
 			if fcc.Arguments != nil {
 				data, err := json.Marshal(fcc.Arguments)
 				if err == nil {
@@ -151,10 +152,6 @@ func (c *ChatClientChatCompletionService) ToStreamingChatMessageContent(update c
 		}
 
 		if resultContent != nil {
-			if update.ModelId != nil {
-				// TODO:
-				// resultContent.SetModelId(*update.ModelId)
-			}
 			content.Items.Add(resultContent)
 		}
 	}
@@ -225,10 +222,17 @@ func (c *ChatClientChatCompletionService) ToChatOptions(settings *PromptExecutio
 		options.AdditionalProperties[k] = v
 	}
 
-	// if (settings.FunctionChoiceBehavior?.GetConfiguration(new([]) { Kernel = kernel }).Functions is { Count: > 0 } functions)   {
-	//     options.ToolMode = settings.FunctionChoiceBehavior is RequiredFunctionChoiceBehavior ? ChatToolMode.RequireAny : ChatToolMode.Auto;
-	//     options.Tools = functions.Select(f => f.AsAIFunction(kernel)).Cast<AITool>().ToList();
-	// }
+	configuration := settings.FunctionChoiceBehavior.GetConfiguration(FunctionChoiceBehaviorConfigurationContext{Kernel: kernel, ChatHistory: ChatHistory{List: *core.NewList[contents.ChatMessageContent]()}})
+	if len(configuration.Functions) > 0 {
+		a := chatcompletion.NoneMode
+		if settings.FunctionChoiceBehavior.GetBehaviorType() == "required" {
+			a = chatcompletion.RequireAnyMode
+		}
+		options.ToolMode = &a
+		for _, f := range configuration.Functions {
+			options.Tools = append(options.Tools, f)
+		}
+	}
 
 	return options
 
