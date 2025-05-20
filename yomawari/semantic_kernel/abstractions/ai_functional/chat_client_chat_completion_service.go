@@ -1,4 +1,4 @@
-package chat_completion
+package ai_functional
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions"
-	"github.com/futugyou/yomawari/semantic_kernel/abstractions/ai_functional"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/services"
 )
@@ -55,7 +54,7 @@ func (c *ChatClientChatCompletionService) GetModelId() string {
 }
 
 // GetChatMessageContents implements IChatCompletionService.
-func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings ai_functional.PromptExecutionSettings, kernel abstractions.Kernel) ([]contents.ChatMessageContent, error) {
+func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings PromptExecutionSettings, kernel abstractions.Kernel) ([]contents.ChatMessageContent, error) {
 	completion, err := c.chatClient.GetResponse(ctx, ToChatMessageList(chatHistory), c.ToChatOptions(&executionSettings, kernel))
 	if err != nil {
 		return nil, err
@@ -74,7 +73,7 @@ func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Con
 }
 
 // GetStreamingChatMessageContents implements IChatCompletionService.
-func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings ai_functional.PromptExecutionSettings, kernel abstractions.Kernel) (<-chan contents.StreamingChatMessageContent, <-chan error) {
+func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings PromptExecutionSettings, kernel abstractions.Kernel) (<-chan contents.StreamingChatMessageContent, <-chan error) {
 	fcContents := []aicontents.IAIContent{}
 	var role *chatcompletion.ChatRole
 	contentCh := make(chan contents.StreamingChatMessageContent)
@@ -163,7 +162,7 @@ func (c *ChatClientChatCompletionService) ToStreamingChatMessageContent(update c
 	return *content
 }
 
-func (c *ChatClientChatCompletionService) ToChatOptions(settings *ai_functional.PromptExecutionSettings, kernel abstractions.Kernel) *chatcompletion.ChatOptions {
+func (c *ChatClientChatCompletionService) ToChatOptions(settings *PromptExecutionSettings, kernel abstractions.Kernel) *chatcompletion.ChatOptions {
 	if settings == nil {
 		return nil
 	}

@@ -1,4 +1,4 @@
-package chat_completion
+package ai_functional
 
 import (
 	"encoding/base64"

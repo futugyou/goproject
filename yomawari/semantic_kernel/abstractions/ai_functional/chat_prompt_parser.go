@@ -1,9 +1,8 @@
-package chat_completion
+package ai_functional
 
 import (
 	"strings"
-
-	"github.com/futugyou/yomawari/semantic_kernel/abstractions/ai_functional"
+ 
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
 )
 
@@ -14,13 +13,13 @@ const TextTagName string = "text"
 
 func ChatPromptParser(prompt string) (chatHistory *ChatHistory, ok bool) {
 	messageTagStart := "<" + MessageTagName
-	var nodes []ai_functional.PromptNode
+	var nodes []PromptNode
 
 	if !strings.Contains(prompt, messageTagStart) {
 		return
 	}
 
-	nodes, ok = ai_functional.XmlPromptParser(prompt)
+	nodes, ok = XmlPromptParser(prompt)
 	if !ok {
 		return
 	}
@@ -29,7 +28,7 @@ func ChatPromptParser(prompt string) (chatHistory *ChatHistory, ok bool) {
 	return
 }
 
-func chatPromptParser(nodes []ai_functional.PromptNode) (*ChatHistory, bool) {
+func chatPromptParser(nodes []PromptNode) (*ChatHistory, bool) {
 	chatHistory := &ChatHistory{}
 
 	for _, node := range nodes {
@@ -41,7 +40,7 @@ func chatPromptParser(nodes []ai_functional.PromptNode) (*ChatHistory, bool) {
 	return chatHistory, chatHistory.Count() > 0
 }
 
-func parseChatNode(node ai_functional.PromptNode) contents.ChatMessageContent {
+func parseChatNode(node PromptNode) contents.ChatMessageContent {
 	items := contents.ChatMessageContentItemCollection{}
 
 	for _, childNode := range node.ChildNodes {
@@ -78,7 +77,7 @@ func parseChatNode(node ai_functional.PromptNode) contents.ChatMessageContent {
 	}
 }
 
-func isValidChatMessage(node ai_functional.PromptNode) bool {
+func isValidChatMessage(node PromptNode) bool {
 	_, ok := node.Attributes[RoleAttributeName]
 	return ok && strings.EqualFold(node.TagName, MessageTagName)
 }

@@ -1,10 +1,11 @@
-package chat_completion
+package ai_functional
 
 import (
 	"encoding/json"
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
+	aifunctions "github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
 )
 
@@ -222,4 +223,82 @@ func ToStreamingChatCompletionUpdate(content contents.StreamingChatMessageConten
 	}
 
 	return update
+}
+func ToPromptExecutionSettings(options *chatcompletion.ChatOptions) *PromptExecutionSettings {
+	if options == nil {
+		return nil
+	}
+
+	settings := &PromptExecutionSettings{
+		ExtensionData: make(map[string]interface{}),
+	}
+
+	if options.ModelId != nil {
+		settings.ModelId = *options.ModelId
+	}
+	if options.Temperature != nil {
+		settings.ExtensionData["temperature"] = *options.Temperature
+	}
+	if options.MaxOutputTokens != nil {
+		settings.ExtensionData["max_tokens"] = *options.MaxOutputTokens
+	}
+	if options.FrequencyPenalty != nil {
+		settings.ExtensionData["frequency_penalty"] = *options.FrequencyPenalty
+	}
+	if options.PresencePenalty != nil {
+		settings.ExtensionData["presence_penalty"] = *options.PresencePenalty
+	}
+	if options.StopSequences != nil {
+		settings.ExtensionData["stop_sequences"] = options.StopSequences
+	}
+	if options.TopP != nil {
+		settings.ExtensionData["top_p"] = *options.TopP
+	}
+	if options.TopK != nil {
+		settings.ExtensionData["top_k"] = *options.TopK
+	}
+	if options.Seed != nil {
+		settings.ExtensionData["seed"] = *options.Seed
+	}
+
+	if options.ResponseFormat != nil {
+		settings.ExtensionData["response_format"] = *options.Seed
+	}
+
+	if options.AdditionalProperties != nil {
+		for k, v := range options.AdditionalProperties {
+			if v != nil {
+				settings.ExtensionData[k] = v
+			}
+		}
+	}
+
+	if len(options.Tools) > 0 {
+		// var fs []functions.KernelFunction
+		for _, tool := range options.Tools {
+			if _, ok := tool.(aifunctions.AIFunction); ok {
+				// fs = append(fs, fn.AsKernelFunction())
+			}
+		}
+
+		tm := *options.ToolMode
+		if tm == chatcompletion.AutoMode {
+			// settings.FunctionChoiceBehavior = FunctionChoiceBehaviorAuto(fs, false)
+		}
+		if tm == chatcompletion.RequireAnyMode {
+			// if tm.RequiredFunctionName == nil {
+			// 	settings.FunctionChoiceBehavior = FunctionChoiceBehaviorRequired(fs, false)
+			// } else {
+			// var matched []functions.KernelFunction
+			// for _, f := range fs {
+			// 	if f.Name == *tm.RequiredFunctionName {
+			// 		matched = append(matched, f)
+			// 	}
+			// }
+			// settings.FunctionChoiceBehavior = FunctionChoiceBehaviorRequired(matched, false)
+			// }
+		}
+	}
+
+	return settings
 }
