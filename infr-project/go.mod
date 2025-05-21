@@ -1,6 +1,6 @@
 module github.com/futugyou/infr-project
 
-go 1.20
+go 1.24
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.9.0
@@ -17,7 +17,7 @@ require (
 	github.com/futugyou/screenshot v0.0.0-00010101000000-000000000000
 	github.com/futugyou/vercel v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
