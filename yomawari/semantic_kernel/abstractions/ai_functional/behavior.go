@@ -35,6 +35,26 @@ func NewFunctionChoiceBehavior(functions []functions.KernelFunction, options *Fu
 	}
 }
 
+var trueBehavior = true
+
+func AutoFunctionChoiceBehavior(functions []functions.KernelFunction, options *FunctionChoiceBehaviorOptions, autoInvoke *bool) *FunctionChoiceBehavior {
+	if autoInvoke == nil {
+		autoInvoke = &trueBehavior
+	}
+	return NewFunctionChoiceBehavior(functions, options, "auto", *autoInvoke)
+}
+
+func RequiredFunctionChoiceBehavior(functions []functions.KernelFunction, options *FunctionChoiceBehaviorOptions, autoInvoke *bool) *FunctionChoiceBehavior {
+	if autoInvoke == nil {
+		autoInvoke = &trueBehavior
+	}
+	return NewFunctionChoiceBehavior(functions, options, "required", *autoInvoke)
+}
+
+func NoneFunctionChoiceBehavior(functions []functions.KernelFunction, options *FunctionChoiceBehaviorOptions) *FunctionChoiceBehavior {
+	return NewFunctionChoiceBehavior(functions, options, "none", false)
+}
+
 func (f *FunctionChoiceBehavior) GetBehaviorType() string {
 	if f == nil {
 		return ""
