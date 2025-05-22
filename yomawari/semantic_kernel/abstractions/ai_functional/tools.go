@@ -3,6 +3,7 @@ package ai_functional
 import (
 	"encoding/json"
 
+	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	aifunctions "github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
@@ -308,4 +309,12 @@ func ToPromptExecutionSettings(options *chatcompletion.ChatOptions) *PromptExecu
 
 func getRequiredFunctionName() *string {
 	return nil
+}
+
+func ToChatHistory(chatMessages []chatcompletion.ChatMessage) ChatHistory {
+	c := &ChatHistory{List: *core.NewList[contents.ChatMessageContent]()}
+	for _, v := range chatMessages {
+		c.Add(ToChatMessageContent(v, nil))
+	}
+	return *c
 }
