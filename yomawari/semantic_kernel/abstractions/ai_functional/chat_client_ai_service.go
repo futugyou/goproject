@@ -10,7 +10,7 @@ import (
 type ChatClientAIService struct {
 	chatClient         chatcompletion.IChatClient
 	internalAttributes map[string]interface{}
-	defaultAIService   services.DefaultAIService
+	services.DefaultAIService
 }
 
 func NewChatClientAIService(chatClient chatcompletion.IChatClient, meta chatcompletion.ChatClientMetadata) *ChatClientAIService {
@@ -28,7 +28,7 @@ func NewChatClientAIService(chatClient chatcompletion.IChatClient, meta chatcomp
 		s.internalAttributes["ProviderUri"] = *meta.ProviderUri
 	}
 
-	s.defaultAIService = *services.NewDefaultAIService(s.internalAttributes)
+	s.DefaultAIService = *services.NewDefaultAIService(s.internalAttributes)
 	return s
 }
 
@@ -40,24 +40,4 @@ func (c *ChatClientAIService) GetResponse(ctx context.Context, chatMessages []ch
 // GetStreamingResponse implements chatcompletion.IChatClient.
 func (c *ChatClientAIService) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
 	return c.chatClient.GetStreamingResponse(ctx, chatMessages, options)
-}
-
-// GetApiVersion implements services.IAIService.
-func (c *ChatClientAIService) GetApiVersion() string {
-	return c.defaultAIService.GetApiVersion()
-}
-
-// GetAttributes implements services.IAIService.
-func (c *ChatClientAIService) GetAttributes() map[string]interface{} {
-	return c.defaultAIService.GetAttributes()
-}
-
-// GetEndpoint implements services.IAIService.
-func (c *ChatClientAIService) GetEndpoint() string {
-	return c.defaultAIService.GetEndpoint()
-}
-
-// GetModelId implements services.IAIService.
-func (c *ChatClientAIService) GetModelId() string {
-	return c.defaultAIService.GetModelId()
 }
