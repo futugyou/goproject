@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 
 	"github.com/futugyou/yomawari/core"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
+	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 )
 
 type StreamingKernelContentItemCollection struct {
@@ -99,4 +101,38 @@ func (c *StreamingChatMessageContent) SetContent(content string) {
 		Encoding:     c.Encoding,
 	}
 	c.Items.Add(textContent)
+}
+
+func (content *StreamingChatMessageContent) ToStreamingChatCompletionUpdate() *chatcompletion.ChatResponseUpdate {
+	r := chatcompletion.StringToChatRole(string(content.Role))
+	update := &chatcompletion.ChatResponseUpdate{
+		AdditionalProperties: content.Metadata,
+		AuthorName:           &content.AuthorName,
+		ModelId:              &content.ModelId,
+		RawRepresentation:    content,
+		Role:                 &r,
+	}
+
+	for _, item := range content.Items.Items() {
+		var aiContent aicontents.IAIContent
+		switch tc := item.(type) {
+		case StreamingTextContent:
+			aiContent = aicontents.NewTextContent(tc.Text)
+		case StreamingFunctionCallUpdateContent:
+			var a map[string]interface{}
+			json.Unmarshal([]byte(tc.Arguments), &a)
+			aiContent = &aicontents.FunctionCallContent{
+				AIContent: &aicontents.AIContent{},
+				CallId:    tc.CallId,
+				Name:      tc.Name,
+				Arguments: a,
+			}
+		}
+
+		if aiContent != nil {
+			update.Contents = append(update.Contents, aiContent)
+		}
+	}
+
+	return update
 }

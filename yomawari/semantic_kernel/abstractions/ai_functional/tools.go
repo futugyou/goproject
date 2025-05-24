@@ -1,8 +1,6 @@
 package ai_functional
 
 import (
-	"encoding/json"
-
 	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	aicontents "github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
@@ -10,80 +8,6 @@ import (
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/functions"
 )
-
-func ToChatMessage(content contents.ChatMessageContent) chatcompletion.ChatMessage {
-	message := &chatcompletion.ChatMessage{
-		AdditionalProperties: content.Metadata,
-		AuthorName:           &content.AuthorName,
-		RawRepresentation:    content.InnerContent,
-	}
-
-	message.Role = chatcompletion.StringToChatRole(string(content.Role))
-
-	for _, item := range content.Items.Items() {
-		var aiContent aicontents.IAIContent
-
-		switch tc := item.(type) {
-		case contents.TextContent:
-			aiContent = aicontents.NewTextContent(tc.Text)
-		case contents.ImageContent:
-			if len(tc.DataUri) > 0 {
-				aiContent = aicontents.NewDataContent(tc.DataUri, tc.MimeType)
-			}
-
-			if len(tc.Uri.String()) > 0 {
-				mimeType := "image/*"
-				if len(tc.MimeType) > 0 {
-					mimeType = tc.MimeType
-				}
-				aiContent = aicontents.UriContent{URI: tc.Uri.String(), MediaType: mimeType}
-			}
-
-		case contents.AudioContent:
-			if len(tc.DataUri) > 0 {
-				aiContent = aicontents.NewDataContent(tc.DataUri, tc.MimeType)
-			}
-
-			if len(tc.Uri.String()) > 0 {
-				mimeType := "audio/*"
-				if len(tc.MimeType) > 0 {
-					mimeType = tc.MimeType
-				}
-				aiContent = aicontents.UriContent{URI: tc.Uri.String(), MediaType: mimeType}
-			}
-		case contents.BinaryContent:
-			if len(tc.DataUri) > 0 {
-				aiContent = aicontents.NewDataContent(tc.DataUri, tc.MimeType)
-			}
-
-			if len(tc.Uri.String()) > 0 {
-				mimeType := "application/octet-stream"
-				if len(tc.MimeType) > 0 {
-					mimeType = tc.MimeType
-				}
-				aiContent = aicontents.UriContent{URI: tc.Uri.String(), MediaType: mimeType}
-			}
-		case contents.FunctionCallContent:
-			aiContent = aicontents.FunctionCallContent{CallId: tc.Id, Name: tc.FunctionName, Arguments: tc.Arguments}
-		case contents.FunctionResultContent:
-			aiContent = aicontents.FunctionResultContent{CallId: tc.CallId, Result: tc.Result}
-		}
-
-		if aiContent != nil {
-			message.Contents = append(message.Contents, aiContent)
-		}
-	}
-
-	return *message
-}
-
-func ToChatMessageList(chatHistory ChatHistory) []chatcompletion.ChatMessage {
-	result := []chatcompletion.ChatMessage{}
-	for _, v := range chatHistory.Items() {
-		result = append(result, ToChatMessage(v))
-	}
-	return result
-}
 
 func ToChatMessageContent(message chatcompletion.ChatMessage, response *chatcompletion.ChatResponse) contents.ChatMessageContent {
 	result := &contents.ChatMessageContent{
@@ -193,39 +117,6 @@ func ToChatMessageContent(message chatcompletion.ChatMessage, response *chatcomp
 	return *result
 }
 
-func ToStreamingChatCompletionUpdate(content contents.StreamingChatMessageContent) *chatcompletion.ChatResponseUpdate {
-	r := chatcompletion.StringToChatRole(string(content.Role))
-	update := &chatcompletion.ChatResponseUpdate{
-		AdditionalProperties: content.Metadata,
-		AuthorName:           &content.AuthorName,
-		ModelId:              &content.ModelId,
-		RawRepresentation:    content,
-		Role:                 &r,
-	}
-
-	for _, item := range content.Items.Items() {
-		var aiContent aicontents.IAIContent
-		switch tc := item.(type) {
-		case contents.StreamingTextContent:
-			aiContent = aicontents.NewTextContent(tc.Text)
-		case contents.StreamingFunctionCallUpdateContent:
-			var a map[string]interface{}
-			json.Unmarshal([]byte(tc.Arguments), &a)
-			aiContent = &aicontents.FunctionCallContent{
-				AIContent: &aicontents.AIContent{},
-				CallId:    tc.CallId,
-				Name:      tc.Name,
-				Arguments: a,
-			}
-		}
-
-		if aiContent != nil {
-			update.Contents = append(update.Contents, aiContent)
-		}
-	}
-
-	return update
-}
 func ToPromptExecutionSettings(options *chatcompletion.ChatOptions) *PromptExecutionSettings {
 	if options == nil {
 		return nil

@@ -56,7 +56,7 @@ func (c *ChatClientChatCompletionService) GetModelId() string {
 
 // GetChatMessageContents implements IChatCompletionService.
 func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings PromptExecutionSettings, kernel abstractions.Kernel) ([]contents.ChatMessageContent, error) {
-	completion, err := c.chatClient.GetResponse(ctx, ToChatMessageList(chatHistory), c.ToChatOptions(&executionSettings, kernel))
+	completion, err := c.chatClient.GetResponse(ctx, chatHistory.ToChatMessageList(), c.ToChatOptions(&executionSettings, kernel))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx co
 		defer close(contentCh)
 		defer close(errCh)
 
-		responseCh := c.chatClient.GetStreamingResponse(ctx, ToChatMessageList(chatHistory), c.ToChatOptions(&executionSettings, kernel))
+		responseCh := c.chatClient.GetStreamingResponse(ctx, chatHistory.ToChatMessageList(), c.ToChatOptions(&executionSettings, kernel))
 		select {
 		case <-ctx.Done():
 			errCh <- ctx.Err()

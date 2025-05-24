@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 
 	"github.com/futugyou/yomawari/core"
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
 	"golang.org/x/net/context"
 )
@@ -110,4 +111,12 @@ func (c *ChatHistory) Reduce(ctx context.Context, reducer IChatHistoryReducer) (
 	}
 
 	return c, nil
+}
+
+func (chatHistory *ChatHistory) ToChatMessageList() []chatcompletion.ChatMessage {
+	result := []chatcompletion.ChatMessage{}
+	for _, v := range chatHistory.Items() {
+		result = append(result, v.ToChatMessage())
+	}
+	return result
 }
