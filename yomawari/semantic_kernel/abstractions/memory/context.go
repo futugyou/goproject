@@ -8,6 +8,7 @@ import (
 	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions/contents"
 )
 
 type AIContext struct {
@@ -138,4 +139,16 @@ func (a *AggregateAIContextProvider) ModelInvoking(ctx context.Context, newMessa
 	aiContext.Instructions = strings.Join(instructions, "\n")
 
 	return aiContext, nil
+}
+
+func (a *AggregateAIContextProvider) MessageContentAdding(ctx context.Context, conversationId string, newMessage contents.ChatMessageContent) error {
+	return a.MessageAdding(ctx, conversationId, newMessage.ToChatMessage())
+}
+
+func (a *AggregateAIContextProvider) ContentModelInvoking(ctx context.Context, newMessages []contents.ChatMessageContent) (*AIContext, error) {
+	messages := []chatcompletion.ChatMessage{}
+	for _, v := range newMessages {
+		messages = append(messages, v.ToChatMessage())
+	}
+	return a.ModelInvoking(ctx, messages)
 }
