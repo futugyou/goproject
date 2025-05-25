@@ -4,21 +4,20 @@ import (
 	"context"
 
 	"github.com/futugyou/yomawari/semantic_kernel/abstractions"
-	"github.com/futugyou/yomawari/semantic_kernel/abstractions/memory"
 )
 
 type ITextEmbeddingGenerationService interface {
 	GenerateEmbedding(ctx context.Context, text string, kernel *abstractions.Kernel) ([]float32, error)
 }
 
-var _ memory.ISemanticTextMemory = (*SemanticTextMemory)(nil)
+var _ abstractions.ISemanticTextMemory = (*SemanticTextMemory)(nil)
 
 type SemanticTextMemory struct {
 	embeddingGenerator ITextEmbeddingGenerationService
-	storage            memory.IMemoryStore
+	storage            abstractions.IMemoryStore
 }
 
-func NewSemanticTextMemory(storage memory.IMemoryStore, embeddingGenerator ITextEmbeddingGenerationService) *SemanticTextMemory {
+func NewSemanticTextMemory(storage abstractions.IMemoryStore, embeddingGenerator ITextEmbeddingGenerationService) *SemanticTextMemory {
 	return &SemanticTextMemory{
 		storage:            storage,
 		embeddingGenerator: embeddingGenerator,
@@ -39,7 +38,7 @@ func (s *SemanticTextMemory) SaveInformation(
 		return "", err
 	}
 
-	data := memory.LocalRecord(id, text, description, embedding, additionalMetadata, nil, nil)
+	data := abstractions.LocalRecord(id, text, description, embedding, additionalMetadata, nil, nil)
 	if f, err := s.storage.DoesCollectionExist(ctx, collection); err == nil && !f {
 		s.storage.CreateCollection(ctx, collection)
 	}
@@ -48,12 +47,12 @@ func (s *SemanticTextMemory) SaveInformation(
 }
 
 // Get implements memory.ISemanticTextMemory.
-func (s *SemanticTextMemory) Get(ctx context.Context, collection string, key string, withEmbedding bool, kernel *abstractions.Kernel) (*memory.MemoryQueryResult, error) {
+func (s *SemanticTextMemory) Get(ctx context.Context, collection string, key string, withEmbedding bool, kernel *abstractions.Kernel) (*abstractions.MemoryQueryResult, error) {
 	record, err := s.storage.Get(ctx, collection, key, withEmbedding)
 	if err != nil {
 		return nil, err
 	}
-	r := memory.FromMemoryRecord(*record, 1)
+	r := abstractions.FromMemoryRecord(*record, 1)
 	return &r, nil
 }
 
@@ -84,7 +83,7 @@ func (s *SemanticTextMemory) SaveReference(ctx context.Context, collection strin
 		return "", err
 	}
 
-	data := memory.ReferenceRecord(externalId, externalSourceName, description, embedding, additionalMetadata, nil, nil)
+	data := abstractions.ReferenceRecord(externalId, externalSourceName, description, embedding, additionalMetadata, nil, nil)
 
 	if f, err := s.storage.DoesCollectionExist(ctx, collection); err == nil && !f {
 		s.storage.CreateCollection(ctx, collection)
@@ -94,9 +93,9 @@ func (s *SemanticTextMemory) SaveReference(ctx context.Context, collection strin
 }
 
 // Search implements memory.ISemanticTextMemory.
-func (s *SemanticTextMemory) Search(ctx context.Context, collection string, query string, limit int, minRelevanceScore float64, withEmbeddings bool, kernel *abstractions.Kernel) (<-chan memory.MemoryQueryResult, <-chan error) {
+func (s *SemanticTextMemory) Search(ctx context.Context, collection string, query string, limit int, minRelevanceScore float64, withEmbeddings bool, kernel *abstractions.Kernel) (<-chan abstractions.MemoryQueryResult, <-chan error) {
 	queryEmbedding, err := s.embeddingGenerator.GenerateEmbedding(ctx, query, kernel)
-	resultCh := make(chan memory.MemoryQueryResult)
+	resultCh := make(chan abstractions.MemoryQueryResult)
 	errorCh := make(chan error, 1)
 
 	if err != nil {
@@ -140,7 +139,7 @@ func (s *SemanticTextMemory) Search(ctx context.Context, collection string, quer
 				if ok {
 					return
 				}
-				resultCh <- memory.FromMemoryRecord(res.Record, res.Score)
+				resultCh <- abstractions.FromMemoryRecord(res.Record, res.Score)
 			}
 		}
 	}()

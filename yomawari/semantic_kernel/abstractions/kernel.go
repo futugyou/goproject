@@ -1,5 +1,6 @@
 package abstractions
 
 type Kernel struct {
-	// TODO: Add fields
+	data    map[string]any
+	plugins KernelPluginCollection
 }

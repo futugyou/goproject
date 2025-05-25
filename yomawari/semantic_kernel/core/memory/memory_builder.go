@@ -3,11 +3,11 @@ package memory
 import (
 	"net/http"
 
-	"github.com/futugyou/yomawari/semantic_kernel/abstractions/memory"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions"
 )
 
 type MemoryBuilder struct {
-	memoryStoreFactory         func() memory.IMemoryStore
+	memoryStoreFactory         func() abstractions.IMemoryStore
 	embeddingGenerationFactory func() ITextEmbeddingGenerationService
 	httpClient                 *http.Client
 }
@@ -38,18 +38,18 @@ func WithHttpClient(client *http.Client) MemoryOption {
 	}
 }
 
-func WithMemoryStore(store memory.IMemoryStore) MemoryOption {
+func WithMemoryStore(store abstractions.IMemoryStore) MemoryOption {
 	return func(b *MemoryBuilder) {
 		if store == nil {
 			panic("store cannot be nil")
 		}
-		b.memoryStoreFactory = func() memory.IMemoryStore {
+		b.memoryStoreFactory = func() abstractions.IMemoryStore {
 			return store
 		}
 	}
 }
 
-func WithMemoryStoreFactory(factory func() memory.IMemoryStore) MemoryOption {
+func WithMemoryStoreFactory(factory func() abstractions.IMemoryStore) MemoryOption {
 	return func(b *MemoryBuilder) {
 		if factory == nil {
 			panic("factory cannot be nil")
@@ -58,12 +58,12 @@ func WithMemoryStoreFactory(factory func() memory.IMemoryStore) MemoryOption {
 	}
 }
 
-func WithMemoryStoreFactoryWithHttp(factory func(*http.Client) memory.IMemoryStore) MemoryOption {
+func WithMemoryStoreFactoryWithHttp(factory func(*http.Client) abstractions.IMemoryStore) MemoryOption {
 	return func(b *MemoryBuilder) {
 		if factory == nil {
 			panic("factory cannot be nil")
 		}
-		b.memoryStoreFactory = func() memory.IMemoryStore {
+		b.memoryStoreFactory = func() abstractions.IMemoryStore {
 			return factory(b.httpClient)
 		}
 	}
