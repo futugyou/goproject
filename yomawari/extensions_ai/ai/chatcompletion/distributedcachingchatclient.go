@@ -3,6 +3,7 @@ package chatcompletion
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
@@ -25,6 +26,9 @@ func NewDistributedCachingChatClient(
 }
 
 func (client *DistributedCachingChatClient) ReadCache(ctx context.Context, key string) (*chatcompletion.ChatResponse, error) {
+	if client.storage == nil {
+		return nil, fmt.Errorf("storage is nil")
+	}
 	cache, err := client.storage.Get(ctx, key)
 	if err != nil {
 		return nil, err
@@ -39,6 +43,9 @@ func (client *DistributedCachingChatClient) ReadCache(ctx context.Context, key s
 }
 
 func (client *DistributedCachingChatClient) ReadCacheStreaming(ctx context.Context, key string) ([]chatcompletion.ChatResponseUpdate, error) {
+	if client.storage == nil {
+		return nil, fmt.Errorf("storage is nil")
+	}
 	cache, err := client.storage.Get(ctx, key)
 	if err != nil {
 		return nil, err
@@ -53,6 +60,9 @@ func (client *DistributedCachingChatClient) ReadCacheStreaming(ctx context.Conte
 }
 
 func (client *DistributedCachingChatClient) WriteCache(ctx context.Context, key string, value chatcompletion.ChatResponse) error {
+	if client.storage == nil {
+		return fmt.Errorf("storage is nil")
+	}
 	cache, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -62,6 +72,9 @@ func (client *DistributedCachingChatClient) WriteCache(ctx context.Context, key 
 }
 
 func (client *DistributedCachingChatClient) WriteCacheStreaming(ctx context.Context, key string, value []chatcompletion.ChatResponseUpdate) error {
+	if client.storage == nil {
+		return fmt.Errorf("storage is nil")
+	}
 	cache, err := json.Marshal(value)
 	if err != nil {
 		return err

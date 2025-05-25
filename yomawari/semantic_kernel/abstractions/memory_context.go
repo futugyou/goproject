@@ -37,7 +37,7 @@ func (a *AggregateAIContextProvider) Add(aiContextProvider AIContextProvider) {
 }
 
 func (a *AggregateAIContextProvider) AddFromServiceProvider(serviceProvider core.IServiceProvider) {
-	p := core.GetService[AIContextProvider](serviceProvider)
+	p, _ := core.GetService[AIContextProvider](serviceProvider)
 	if p != nil {
 		a.Providers = append(a.Providers, p)
 	}

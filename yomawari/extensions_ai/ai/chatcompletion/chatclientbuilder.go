@@ -80,7 +80,7 @@ func (b *ChatClientBuilder) ConfigureOptions(configure func(*chatcompletion.Chat
 func (b *ChatClientBuilder) UseDistributedCache(storage core.IDistributedCache, configure func(*DistributedCachingChatClient)) *ChatClientBuilder {
 	b.Use(func(innerClient chatcompletion.IChatClient, sp core.IServiceProvider) chatcompletion.IChatClient {
 		if storage == nil {
-			storage = core.GetService[core.IDistributedCache](sp)
+			storage, _ = core.GetService[core.IDistributedCache](sp)
 		}
 
 		var chatClient = NewDistributedCachingChatClient(innerClient, storage)
@@ -107,8 +107,8 @@ func (b *ChatClientBuilder) UseFunctionInvocation(configure func(*FunctionInvoki
 
 func (b *ChatClientBuilder) UseLogging(configure func(*LoggingChatClient)) *ChatClientBuilder {
 	return b.Use(func(client chatcompletion.IChatClient, services core.IServiceProvider) chatcompletion.IChatClient {
-		logger := core.GetService[logger.Logger](services)
-		metadata := core.GetService[*chatcompletion.ChatClientMetadata](services)
+		logger, _ := core.GetService[logger.Logger](services)
+		metadata, _ := core.GetService[*chatcompletion.ChatClientMetadata](services)
 		logclient := NewLoggingChatClient(
 			client,
 			logger,
@@ -125,7 +125,7 @@ func (b *ChatClientBuilder) UseLogging(configure func(*LoggingChatClient)) *Chat
 
 func (b *ChatClientBuilder) UseOpenTelemetry(configure func(*OpenTelemetryChatClient)) *ChatClientBuilder {
 	return b.Use(func(client chatcompletion.IChatClient, services core.IServiceProvider) chatcompletion.IChatClient {
-		metadata := core.GetService[*chatcompletion.ChatClientMetadata](services)
+		metadata, _ := core.GetService[*chatcompletion.ChatClientMetadata](services)
 		otelclient := NewOpenTelemetryChatClient(
 			client,
 			metadata,

@@ -3,6 +3,7 @@ package embeddings
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/futugyou/yomawari/core"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/embeddings"
@@ -25,6 +26,9 @@ func NewDistributedCachingEmbeddingGenerator[TInput any, TEmbedding embeddings.I
 }
 
 func (client *DistributedCachingEmbeddingGenerator[TInput, TEmbedding]) ReadCache(ctx context.Context, key string) (*TEmbedding, error) {
+	if client.storage == nil {
+		return nil, fmt.Errorf("storage is nil")
+	}
 	cache, err := client.storage.Get(ctx, key)
 	if err != nil {
 		return nil, err
@@ -39,6 +43,9 @@ func (client *DistributedCachingEmbeddingGenerator[TInput, TEmbedding]) ReadCach
 }
 
 func (client *DistributedCachingEmbeddingGenerator[TInput, TEmbedding]) WriteCache(ctx context.Context, key string, value TEmbedding) error {
+	if client.storage == nil {
+		return fmt.Errorf("storage is nil")
+	}
 	cache, err := json.Marshal(value)
 	if err != nil {
 		return err

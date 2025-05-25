@@ -86,7 +86,7 @@ func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseDistributedCache(
 ) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
 	b.Use(func(innerClient embeddings.IEmbeddingGenerator[TInput, TEmbedding], sp core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
 		if storage == nil {
-			storage = core.GetService[core.IDistributedCache](sp)
+			storage, _ = core.GetService[core.IDistributedCache](sp)
 		}
 
 		var chatClient = NewDistributedCachingEmbeddingGenerator[TInput, TEmbedding](innerClient, storage)
@@ -101,8 +101,8 @@ func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseDistributedCache(
 
 func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseLogging(configure func(*LoggingEmbeddingGenerator[TInput, TEmbedding])) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
 	return b.Use(func(client embeddings.IEmbeddingGenerator[TInput, TEmbedding], services core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
-		logger := core.GetService[logger.Logger](services)
-		metadata := core.GetService[*embeddings.EmbeddingGeneratorMetadata](services)
+		logger, _ := core.GetService[logger.Logger](services)
+		metadata, _ := core.GetService[*embeddings.EmbeddingGeneratorMetadata](services)
 		logclient := NewLoggingEmbeddingGenerator[TInput, TEmbedding](
 			client,
 			logger,
@@ -119,7 +119,7 @@ func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseLogging(configure fun
 
 func (b *EmbeddingGeneratorBuilder[TInput, TEmbedding]) UseOpenTelemetry(configure func(*OpenTelemetryEmbeddingGenerator[TInput, TEmbedding])) *EmbeddingGeneratorBuilder[TInput, TEmbedding] {
 	return b.Use(func(client embeddings.IEmbeddingGenerator[TInput, TEmbedding], services core.IServiceProvider) embeddings.IEmbeddingGenerator[TInput, TEmbedding] {
-		metadata := core.GetService[*embeddings.EmbeddingGeneratorMetadata](services)
+		metadata, _ := core.GetService[*embeddings.EmbeddingGeneratorMetadata](services)
 		otelclient := NewOpenTelemetryEmbeddingGenerator[TInput, TEmbedding](
 			client,
 			metadata,

@@ -50,8 +50,8 @@ func (b *SpeechToTextClientBuilder) UseWithoutPrivider(factory func(speechtotext
 
 func (b *SpeechToTextClientBuilder) UseLogging(configure func(*LoggingSpeechToTextClient)) *SpeechToTextClientBuilder {
 	return b.Use(func(client speechtotext.ISpeechToTextClient, services core.IServiceProvider) speechtotext.ISpeechToTextClient {
-		logger := core.GetService[logger.Logger](services)
-		metadata := core.GetService[*speechtotext.SpeechToTextClientMetadata](services)
+		logger, _ := core.GetService[logger.Logger](services)
+		metadata, _ := core.GetService[*speechtotext.SpeechToTextClientMetadata](services)
 		logclient := NewLoggingSpeechToTextClient(
 			client,
 			logger,

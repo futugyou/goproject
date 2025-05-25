@@ -27,6 +27,10 @@ func NewLoggingEmbeddingGenerator[TInput any, TEmbedding embeddings.IEmbedding](
 }
 
 func (client *LoggingEmbeddingGenerator[TInput, TEmbedding]) Generate(ctx context.Context, values []TInput, options *embeddings.EmbeddingGenerationOptions) (*embeddings.GeneratedEmbeddings[TEmbedding], error) {
+	if client.logger == nil {
+		return client.DelegatingEmbeddingGenerator.Generate(ctx, values, options)
+	}
+
 	if client.logger.IsOutputLevelEnabled(logger.DebugLevel) {
 		if client.logger.IsOutputLevelEnabled(logger.TraceLevel) {
 			client.logger.Tracef("%s invoked: %s. Options: %s. Metadata: %s.",
