@@ -1,8 +1,13 @@
 package functions
 
+import (
+	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
+	"github.com/futugyou/yomawari/semantic_kernel/abstractions"
+)
+
 type KernelFunction interface {
-	GetName() string
+	functions.AIFunction
 	GetPluginName() string
-	GetAdditionalProperties() map[string]interface{}
-	GetDescription() string
+	GetMetadata() KernelFunctionMetadata
+	WithKernel(kernel *abstractions.Kernel, pluginName *string) KernelFunction
 }
