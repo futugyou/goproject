@@ -26,3 +26,7 @@ type AutoFunctionInvocationContext struct {
 	Result                functions.FunctionResult
 	Terminate             bool
 }
+
+type IAutoFunctionInvocationFilter interface {
+	OnAutoFunctionInvocation(context AutoFunctionInvocationContext, next func(AutoFunctionInvocationContext) error) error
+}
