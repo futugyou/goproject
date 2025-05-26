@@ -1,10 +1,10 @@
 module github.com/futugyou/yomawari
 
-go 1.20
+go 1.23.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.3
-	github.com/beevik/etree v1.4.0
+	github.com/beevik/etree v1.5.1
 	github.com/google/uuid v1.6.0
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	github.com/openai/openai-go v0.1.0-alpha.53
