@@ -11,6 +11,7 @@ type KernelPlugin interface {
 	Description() string
 	FunctionCount() int
 	GetFunction(name string) (KernelFunction, error)
+	GetFunctions() []KernelFunction
 	TryGetFunction(name string) (KernelFunction, bool)
 	Contains(name string) bool
 	ContainsFunc(function KernelFunction) bool
@@ -53,6 +54,14 @@ func (p *BaseKernelPlugin) GetFunction(name string) (KernelFunction, error) {
 		return fn, nil
 	}
 	return nil, fmt.Errorf("function '%s' not found in plugin '%s'", name, p.name)
+}
+
+func (p *BaseKernelPlugin) GetFunctions() []KernelFunction {
+	result := []KernelFunction{}
+	for _, v := range p.functions {
+		result = append(result, v)
+	}
+	return result
 }
 
 func (p *BaseKernelPlugin) TryGetFunction(name string) (KernelFunction, bool) {
