@@ -1,6 +1,10 @@
 package abstractions
 
-import "github.com/futugyou/yomawari/core"
+import (
+	"fmt"
+
+	"github.com/futugyou/yomawari/core"
+)
 
 type KernelPluginCollection struct {
 	*core.Dictionary[string, KernelPlugin]
@@ -33,4 +37,12 @@ func (c *KernelPluginCollection) AddRange(plugins []KernelPlugin) {
 
 func (c *KernelPluginCollection) Remove(plugin KernelPlugin) {
 	c.Dictionary.Remove(plugin.Name())
+}
+
+func (c *KernelPluginCollection) GetFunction(pluginName string, functionName string) (KernelFunction, error) {
+	result, ok := c.Dictionary.Get(pluginName)
+	if !ok {
+		return nil, fmt.Errorf("plugin '%s' not found", pluginName)
+	}
+	return result.GetFunction(functionName)
 }
