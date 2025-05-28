@@ -100,13 +100,13 @@ func (f *FunctionChoiceBehavior) GetFunctions(functionFQNs []string, kernel *Ker
 
 	if len(functionFQNs) > 0 {
 		for _, functionFQN := range functionFQNs {
-			_ = utilities.ParseFunctionName(functionFQN, FunctionNameSeparator)
-			// TODO: A complete kernel definition is required
+			nameParts := utilities.ParseFunctionName(functionFQN, FunctionNameSeparator)
 			if kernel != nil {
-				// if function, ok := kernel.Plugins.TryGetFunction(nameParts.PluginName, nameParts.Name); ok {
-				// 	availableFunctions = append(availableFunctions, function)
-				// 	continue
-				// }
+				plugins := kernel.GetPlugins()
+				if function, err := plugins.GetFunction(nameParts.PluginName, nameParts.Name); err != nil {
+					availableFunctions = append(availableFunctions, function)
+					continue
+				}
 			}
 
 			// If auto-invocation is requested and no function is found in the kernel, fail early.
@@ -114,13 +114,12 @@ func (f *FunctionChoiceBehavior) GetFunctions(functionFQNs []string, kernel *Ker
 				return nil, fmt.Errorf("the specified function %s is not available in the kernel", functionFQN)
 			}
 
-			// // TODO: A complete KernelFunction definition is required
 			var function *KernelFunction
-			for _, _ = range f.Functions {
-				// if v.Name == nameParts.Name && v.PluginName == nameParts.PluginName {
-				// 	function = &v
-				// 	break
-				// }
+			for _, v := range f.functions {
+				if v.GetName() == nameParts.Name && v.GetPluginName() == nameParts.PluginName {
+					function = &v
+					break
+				}
 			}
 			if function != nil {
 				availableFunctions = append(availableFunctions, *function)
@@ -132,9 +131,9 @@ func (f *FunctionChoiceBehavior) GetFunctions(functionFQNs []string, kernel *Ker
 	} else if len(functionFQNs) == 0 {
 		return availableFunctions, nil
 	} else if kernel != nil {
-		// for _, plugin := range kernel.Plugins {
-		// 	availableFunctions = append(availableFunctions, plugin)
-		// }
+		for _, plugin := range kernel.GetPlugins().Items() {
+			availableFunctions = append(availableFunctions, plugin.GetFunctions()...)
+		}
 	}
 
 	return availableFunctions, nil
