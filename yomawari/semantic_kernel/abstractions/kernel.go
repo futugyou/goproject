@@ -1,6 +1,7 @@
 package abstractions
 
 import (
+	"context"
 	"sync"
 
 	"github.com/futugyou/yomawari/core"
@@ -98,4 +99,77 @@ func (k *Kernel) GetDatas() map[string]any {
 		}
 	})
 	return k.data
+}
+
+func (k *Kernel) OnFunctionInvocation(ctx context.Context, function KernelFunction, arguments KernelArguments, functionResult FunctionResult, isStreaming bool, functionCallback func(FunctionInvocationContext) error) (*FunctionInvocationContext, error) {
+	ctx, cancelFunc := context.WithCancel(ctx)
+	con := &FunctionInvocationContext{
+		Ctx:         ctx,
+		CancelFunc:  cancelFunc,
+		IsStreaming: isStreaming,
+		Kernel:      *k,
+		Function:    function,
+		Arguments:   arguments,
+		Result:      functionResult,
+	}
+	return con, k.invokeFilterOrFunction(k.functionInvocationFilters, functionCallback, *con, 0)
+}
+
+func (k *Kernel) invokeFilterOrFunction(functionFilters []IFunctionInvocationFilter, functionCallback func(FunctionInvocationContext) error, context FunctionInvocationContext, index int) error {
+	if len(functionFilters) > 0 && index < len(functionFilters) {
+		next := func(context FunctionInvocationContext) error {
+			return k.invokeFilterOrFunction(functionFilters, functionCallback, context, index+1)
+		}
+		return functionFilters[index].OnFunctionInvocation(context, next)
+	} else {
+		return functionCallback(context)
+	}
+}
+
+func (k *Kernel) OnPromptRender(ctx context.Context, function KernelFunction, arguments KernelArguments, isStreaming bool, executionSettings PromptExecutionSettings, functionCallback func(PromptRenderContext) error) (*PromptRenderContext, error) {
+	ctx, cancelFunc := context.WithCancel(ctx)
+	con := &PromptRenderContext{
+		Ctx:               ctx,
+		CancelFunc:        cancelFunc,
+		IsStreaming:       isStreaming,
+		Kernel:            *k,
+		Function:          function,
+		Arguments:         arguments,
+		ExecutionSettings: executionSettings,
+	}
+	return con, k.invokeFilterOrPromptRender(k.promptRenderFilters, functionCallback, *con, 0)
+}
+
+func (k *Kernel) invokeFilterOrPromptRender(functionFilters []IPromptRenderFilter, functionCallback func(PromptRenderContext) error, context PromptRenderContext, index int) error {
+	if len(functionFilters) > 0 && index < len(functionFilters) {
+		next := func(context PromptRenderContext) error {
+			return k.invokeFilterOrPromptRender(functionFilters, functionCallback, context, index+1)
+		}
+		return functionFilters[index].OnPromptRender(context, next)
+	} else {
+		return functionCallback(context)
+	}
+}
+
+func (k *Kernel) Invoke(ctx context.Context, pluginName string, functionName string, arguments KernelArguments) (*FunctionResult, error) {
+	function, err := k.plugins.GetFunction(pluginName, functionName)
+	if err != nil {
+		return nil, err
+	}
+
+	return function.InvokeFunction(ctx, *k, arguments)
+}
+
+func (k *Kernel) InvokeStreaming(ctx context.Context, pluginName string, functionName string, arguments KernelArguments) (<-chan StreamingKernelContent, <-chan error) {
+	resultCh := make(chan StreamingKernelContent)
+	errCh := make(chan error, 1)
+	defer close(resultCh)
+	defer close(errCh)
+	function, err := k.plugins.GetFunction(pluginName, functionName)
+	if err != nil {
+		errCh <- err
+		return resultCh, errCh
+	}
+
+	return function.InvokeStreaming(ctx, *k, arguments)
 }
