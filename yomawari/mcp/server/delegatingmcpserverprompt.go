@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IMcpServerPrompt = (*DelegatingMcpServerPrompt)(nil)
@@ -19,7 +19,7 @@ func NewDelegatingMcpServerPrompt(innerPrompt IMcpServerPrompt) *DelegatingMcpSe
 }
 
 // Get implements IMcpServerPrompt.
-func (d *DelegatingMcpServerPrompt) Get(ctx context.Context, request RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error) {
+func (d *DelegatingMcpServerPrompt) Get(ctx context.Context, request RequestContext[*protocol.GetPromptRequestParams]) (*protocol.GetPromptResult, error) {
 	return d.innerPrompt.Get(ctx, request)
 }
 
@@ -29,6 +29,6 @@ func (d *DelegatingMcpServerPrompt) GetId() string {
 }
 
 // GetProtocolPrompt implements IMcpServerPrompt.
-func (d *DelegatingMcpServerPrompt) GetProtocolPrompt() *types.Prompt {
+func (d *DelegatingMcpServerPrompt) GetProtocolPrompt() *protocol.Prompt {
 	return d.innerPrompt.GetProtocolPrompt()
 }

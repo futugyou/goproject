@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IMcpServerResource = (*DelegatingMcpServerResource)(nil)
@@ -24,16 +24,16 @@ func (d *DelegatingMcpServerResource) GetId() string {
 }
 
 // GetProtocolResource implements IMcpServerResource.
-func (d *DelegatingMcpServerResource) GetProtocolResource() *types.Resource {
+func (d *DelegatingMcpServerResource) GetProtocolResource() *protocol.Resource {
 	return d.delegate.GetProtocolResource()
 }
 
 // GetProtocolResourceTemplate implements IMcpServerResource.
-func (d *DelegatingMcpServerResource) GetProtocolResourceTemplate() types.ResourceTemplate {
+func (d *DelegatingMcpServerResource) GetProtocolResourceTemplate() protocol.ResourceTemplate {
 	return d.delegate.GetProtocolResourceTemplate()
 }
 
 // Read implements IMcpServerResource.
-func (d *DelegatingMcpServerResource) Read(ctx context.Context, request RequestContext[*types.ReadResourceRequestParams]) (*types.ReadResourceResult, error) {
+func (d *DelegatingMcpServerResource) Read(ctx context.Context, request RequestContext[*protocol.ReadResourceRequestParams]) (*protocol.ReadResourceResult, error) {
 	return d.delegate.Read(ctx, request)
 }

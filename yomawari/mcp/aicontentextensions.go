@@ -6,13 +6,13 @@ import (
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
-func ResourceContentsToAIContent(content types.IResourceContents) contents.IAIContent {
+func ResourceContentsToAIContent(content protocol.IResourceContents) contents.IAIContent {
 	var c contents.IAIContent
 	switch content := content.(type) {
-	case *types.BlobResourceContents:
+	case *protocol.BlobResourceContents:
 		decoded, err := base64.URLEncoding.DecodeString(content.Blob)
 		if err != nil {
 			mimeType := "application/octet-stream"
@@ -24,7 +24,7 @@ func ResourceContentsToAIContent(content types.IResourceContents) contents.IAICo
 			c = d
 		}
 
-	case *types.TextResourceContents:
+	case *protocol.TextResourceContents:
 		d := contents.NewTextContent(content.Text)
 		d.AddAdditionalProperty("uri", content.Uri)
 		c = d
@@ -32,7 +32,7 @@ func ResourceContentsToAIContent(content types.IResourceContents) contents.IAICo
 	return c
 }
 
-func ContentToAIContent(content types.Content) contents.IAIContent {
+func ContentToAIContent(content protocol.Content) contents.IAIContent {
 	var c contents.IAIContent
 
 	if (content.Type == "image" || content.Type == "audio") && content.MimeType != nil && content.Data != nil {
@@ -53,33 +53,33 @@ func ContentToAIContent(content types.Content) contents.IAIContent {
 	return c
 }
 
-func ChatMessageToPromptMessages(chatMessage chatcompletion.ChatMessage) []types.PromptMessage {
-	r := types.RoleAssistant
+func ChatMessageToPromptMessages(chatMessage chatcompletion.ChatMessage) []protocol.PromptMessage {
+	r := protocol.RoleAssistant
 	if chatMessage.Role == chatcompletion.RoleUser {
-		r = types.RoleUser
+		r = protocol.RoleUser
 	}
-	messages := []types.PromptMessage{}
+	messages := []protocol.PromptMessage{}
 
 	for _, content := range chatMessage.Contents {
 		if c, ok := content.(contents.TextContent); ok {
-			messages = append(messages, types.PromptMessage{Role: r, Content: AIContentToContent(c)})
+			messages = append(messages, protocol.PromptMessage{Role: r, Content: AIContentToContent(c)})
 		}
 		if c, ok := content.(contents.DataContent); ok {
-			messages = append(messages, types.PromptMessage{Role: r, Content: AIContentToContent(c)})
+			messages = append(messages, protocol.PromptMessage{Role: r, Content: AIContentToContent(c)})
 		}
 	}
 	return messages
 }
 
-func AIContentToContent(content contents.IAIContent) types.Content {
+func AIContentToContent(content contents.IAIContent) protocol.Content {
 	switch content := content.(type) {
 	case *contents.TextContent:
-		return types.Content{
+		return protocol.Content{
 			Type: "text",
 			Text: &content.Text,
 		}
 	case *contents.DataContent:
-		c := types.Content{
+		c := protocol.Content{
 			Type:     "resource",
 			MimeType: &content.MediaType,
 		}
@@ -97,14 +97,14 @@ func AIContentToContent(content contents.IAIContent) types.Content {
 			data = []byte{}
 		}
 		d := string(data)
-		return types.Content{
+		return protocol.Content{
 			Type: "text",
 			Text: &d,
 		}
 	}
 }
 
-func ResourceContentsListToAIContents(cont []types.IResourceContents) []contents.IAIContent {
+func ResourceContentsListToAIContents(cont []protocol.IResourceContents) []contents.IAIContent {
 	list := []contents.IAIContent{}
 	for _, content := range cont {
 		list = append(list, ResourceContentsToAIContent(content))
@@ -112,7 +112,7 @@ func ResourceContentsListToAIContents(cont []types.IResourceContents) []contents
 	return list
 }
 
-func ListContentToAIContents(cont []types.Content) []contents.IAIContent {
+func ListContentToAIContents(cont []protocol.Content) []contents.IAIContent {
 	list := []contents.IAIContent{}
 	for _, content := range cont {
 		list = append(list, ContentToAIContent(content))
@@ -120,7 +120,7 @@ func ListContentToAIContents(cont []types.Content) []contents.IAIContent {
 	return list
 }
 
-func ToChatMessages(promptResult types.GetPromptResult) []chatcompletion.ChatMessage {
+func ToChatMessages(promptResult protocol.GetPromptResult) []chatcompletion.ChatMessage {
 	list := []chatcompletion.ChatMessage{}
 	for _, v := range promptResult.Messages {
 		list = append(list, PromptMessageToChatMessage(v))
@@ -128,9 +128,9 @@ func ToChatMessages(promptResult types.GetPromptResult) []chatcompletion.ChatMes
 	return list
 }
 
-func PromptMessageToChatMessage(promptMessage types.PromptMessage) chatcompletion.ChatMessage {
+func PromptMessageToChatMessage(promptMessage protocol.PromptMessage) chatcompletion.ChatMessage {
 	role := chatcompletion.RoleAssistant
-	if promptMessage.Role == types.RoleUser {
+	if promptMessage.Role == protocol.RoleUser {
 		role = chatcompletion.RoleUser
 	}
 	return chatcompletion.ChatMessage{

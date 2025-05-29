@@ -3,19 +3,19 @@ package client
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 type McpClientResourceTemplate struct {
 	client                   IMcpClient
-	ProtocolResourceTemplate types.ResourceTemplate
+	ProtocolResourceTemplate protocol.ResourceTemplate
 	UriTemplate              string
 	Name                     string
 	Description              *string
 	MimeTyp                  *string
 }
 
-func NewMcpClientResourceTemplate(client IMcpClient, protocolResourceTemplate types.ResourceTemplate) *McpClientResourceTemplate {
+func NewMcpClientResourceTemplate(client IMcpClient, protocolResourceTemplate protocol.ResourceTemplate) *McpClientResourceTemplate {
 	return &McpClientResourceTemplate{
 		client:                   client,
 		ProtocolResourceTemplate: protocolResourceTemplate,
@@ -26,6 +26,6 @@ func NewMcpClientResourceTemplate(client IMcpClient, protocolResourceTemplate ty
 	}
 }
 
-func (m *McpClientResourceTemplate) Read(ctx context.Context, arguments map[string]interface{}) (*types.ReadResourceResult, error) {
+func (m *McpClientResourceTemplate) Read(ctx context.Context, arguments map[string]interface{}) (*protocol.ReadResourceResult, error) {
 	return m.client.ReadResourceWithUriAndArguments(ctx, m.UriTemplate, arguments)
 }

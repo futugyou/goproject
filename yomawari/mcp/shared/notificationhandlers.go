@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/futugyou/yomawari/mcp/protocol/transport"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 type NotificationHandlers struct {
@@ -14,7 +14,7 @@ type NotificationHandlers struct {
 }
 
 type registration struct {
-	handler   transport.NotificationHandler
+	handler   protocol.NotificationHandler
 	temporary bool
 	prev      *registration
 	next      *registration
@@ -32,7 +32,7 @@ func NewNotificationHandlers() *NotificationHandlers {
 	}
 }
 
-func (nh *NotificationHandlers) RegisterRange(handlers map[string]transport.NotificationHandler) {
+func (nh *NotificationHandlers) RegisterRange(handlers map[string]protocol.NotificationHandler) {
 	nh.mu.Lock()
 	defer nh.mu.Unlock()
 
@@ -41,7 +41,7 @@ func (nh *NotificationHandlers) RegisterRange(handlers map[string]transport.Noti
 	}
 }
 
-func (nh *NotificationHandlers) Register(method string, handler transport.NotificationHandler, temporary bool) *RegistrationHandle {
+func (nh *NotificationHandlers) Register(method string, handler protocol.NotificationHandler, temporary bool) *RegistrationHandle {
 	nh.mu.Lock()
 	defer nh.mu.Unlock()
 
@@ -49,7 +49,7 @@ func (nh *NotificationHandlers) Register(method string, handler transport.Notifi
 	return &RegistrationHandle{reg: reg}
 }
 
-func (nh *NotificationHandlers) registerLocked(method string, handler transport.NotificationHandler, temporary bool) *registration {
+func (nh *NotificationHandlers) registerLocked(method string, handler protocol.NotificationHandler, temporary bool) *registration {
 	reg := &registration{
 		handler:   handler,
 		temporary: temporary,
@@ -66,7 +66,7 @@ func (nh *NotificationHandlers) registerLocked(method string, handler transport.
 	return reg
 }
 
-func (nh *NotificationHandlers) InvokeHandlers(ctx context.Context, method string, notification *transport.JsonRpcNotification) error {
+func (nh *NotificationHandlers) InvokeHandlers(ctx context.Context, method string, notification *protocol.JsonRpcNotification) error {
 	nh.mu.RLock()
 	head, exists := nh.handlers[method]
 	if !exists {
@@ -113,7 +113,7 @@ func (r *registration) isDisposed() bool {
 	return r.disposed
 }
 
-func (r *registration) invoke(ctx context.Context, notification *transport.JsonRpcNotification) error {
+func (r *registration) invoke(ctx context.Context, notification *protocol.JsonRpcNotification) error {
 	if !r.temporary {
 		return r.handler(ctx, notification)
 	}

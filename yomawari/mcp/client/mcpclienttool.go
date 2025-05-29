@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ functions.AIFunction = &McpClientTool{}
@@ -16,10 +16,10 @@ type McpClientTool struct {
 	client               IMcpClient
 	name                 string
 	description          *string
-	ProtocolTool         types.Tool
+	ProtocolTool         protocol.Tool
 }
 
-func NewMcpClientTool(client IMcpClient, name string, description *string, protocolTool types.Tool) *McpClientTool {
+func NewMcpClientTool(client IMcpClient, name string, description *string, protocolTool protocol.Tool) *McpClientTool {
 	return &McpClientTool{
 		additionalProperties: map[string]interface{}{"Strict": false},
 		client:               client,

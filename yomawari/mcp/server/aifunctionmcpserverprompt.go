@@ -9,14 +9,14 @@ import (
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
 	"github.com/futugyou/yomawari/mcp"
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IMcpServerPrompt = (*AIFunctionMcpServerPrompt)(nil)
 
 type AIFunctionMcpServerPrompt struct {
 	AIFunction     functions.AIFunction
-	ProtocolPrompt *types.Prompt
+	ProtocolPrompt *protocol.Prompt
 }
 
 // GetId implements IMcpServerPrompt.
@@ -29,7 +29,7 @@ func (m *AIFunctionMcpServerPrompt) GetId() string {
 }
 
 // GetProtocolPrompt implements IMcpServerPrompt.
-func (m *AIFunctionMcpServerPrompt) GetProtocolPrompt() *types.Prompt {
+func (m *AIFunctionMcpServerPrompt) GetProtocolPrompt() *protocol.Prompt {
 	if m == nil {
 		return nil
 	}
@@ -38,7 +38,7 @@ func (m *AIFunctionMcpServerPrompt) GetProtocolPrompt() *types.Prompt {
 }
 
 func PromptCreate(function functions.AIFunction, options McpServerPromptCreateOptions) AIFunctionMcpServerPrompt {
-	args := []types.PromptArgument{}
+	args := []protocol.PromptArgument{}
 	requiredList := []string{}
 	if requireds, ok := function.GetJsonSchema()["required"].(json.RawMessage); ok {
 		json.Unmarshal(requireds, &requiredList)
@@ -58,7 +58,7 @@ func PromptCreate(function functions.AIFunction, options McpServerPromptCreateOp
 						break
 					}
 				}
-				args = append(args, types.PromptArgument{
+				args = append(args, protocol.PromptArgument{
 					Name:        property.Name,
 					Description: &property.Description,
 					Required:    &required,
@@ -67,7 +67,7 @@ func PromptCreate(function functions.AIFunction, options McpServerPromptCreateOp
 		}
 	}
 
-	prompt := &types.Prompt{
+	prompt := &protocol.Prompt{
 		Arguments:   args,
 		Description: options.Description,
 	}
@@ -110,7 +110,7 @@ func createPromptCreateOption(options McpServerPromptCreateOptions, methodInfo r
 	return op
 }
 
-func (m *AIFunctionMcpServerPrompt) Get(ctx context.Context, request RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error) {
+func (m *AIFunctionMcpServerPrompt) Get(ctx context.Context, request RequestContext[*protocol.GetPromptRequestParams]) (*protocol.GetPromptResult, error) {
 	if m == nil || m.AIFunction == nil {
 		return nil, fmt.Errorf("ai function is nil")
 	}
@@ -141,39 +141,39 @@ func (m *AIFunctionMcpServerPrompt) Get(ctx context.Context, request RequestCont
 	}
 	switch r := result.(type) {
 	case *string:
-		return &types.GetPromptResult{
+		return &protocol.GetPromptResult{
 			Description: m.ProtocolPrompt.Description,
-			Messages: []types.PromptMessage{{
-				Content: types.Content{
+			Messages: []protocol.PromptMessage{{
+				Content: protocol.Content{
 					Type: "text",
 					Text: r,
 				},
-				Role: types.RoleUser,
+				Role: protocol.RoleUser,
 			}},
 		}, nil
-	case *types.GetPromptResult:
+	case *protocol.GetPromptResult:
 		return r, nil
-	case *types.PromptMessage:
-		return &types.GetPromptResult{
+	case *protocol.PromptMessage:
+		return &protocol.GetPromptResult{
 			Description: m.ProtocolPrompt.Description,
-			Messages:    []types.PromptMessage{*r},
+			Messages:    []protocol.PromptMessage{*r},
 		}, nil
-	case []types.PromptMessage:
-		return &types.GetPromptResult{
+	case []protocol.PromptMessage:
+		return &protocol.GetPromptResult{
 			Description: m.ProtocolPrompt.Description,
 			Messages:    r,
 		}, nil
 	case *chatcompletion.ChatMessage:
-		return &types.GetPromptResult{
+		return &protocol.GetPromptResult{
 			Description: m.ProtocolPrompt.Description,
 			Messages:    mcp.ChatMessageToPromptMessages(*r),
 		}, nil
 	case []chatcompletion.ChatMessage:
-		msg := []types.PromptMessage{}
+		msg := []protocol.PromptMessage{}
 		for _, r := range r {
 			msg = append(msg, mcp.ChatMessageToPromptMessages(r)...)
 		}
-		return &types.GetPromptResult{
+		return &protocol.GetPromptResult{
 			Description: m.ProtocolPrompt.Description,
 			Messages:    msg,
 		}, nil

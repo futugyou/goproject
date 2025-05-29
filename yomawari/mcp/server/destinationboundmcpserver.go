@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/mcp/protocol/transport"
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 	"github.com/futugyou/yomawari/mcp/shared"
 )
 
@@ -14,10 +13,10 @@ var _ IMcpServer = (*DestinationBoundMcpServer)(nil)
 
 type DestinationBoundMcpServer struct {
 	server    *McpServer
-	transport transport.ITransport
+	transport protocol.ITransport
 }
 
-func NewDestinationBoundMcpServer(server *McpServer, transport transport.ITransport) *DestinationBoundMcpServer {
+func NewDestinationBoundMcpServer(server *McpServer, transport protocol.ITransport) *DestinationBoundMcpServer {
 	return &DestinationBoundMcpServer{
 		server:    server,
 		transport: transport,
@@ -38,12 +37,12 @@ func (d *DestinationBoundMcpServer) Dispose(ctx context.Context) error {
 }
 
 // GetClientCapabilities implements IMcpServer.
-func (d *DestinationBoundMcpServer) GetClientCapabilities() *transport.ClientCapabilities {
+func (d *DestinationBoundMcpServer) GetClientCapabilities() *protocol.ClientCapabilities {
 	return d.server.GetClientCapabilities()
 }
 
 // GetClientInfo implements IMcpServer.
-func (d *DestinationBoundMcpServer) GetClientInfo() *types.Implementation {
+func (d *DestinationBoundMcpServer) GetClientInfo() *protocol.Implementation {
 	return d.server.GetClientInfo()
 }
 
@@ -63,22 +62,22 @@ func (d *DestinationBoundMcpServer) GetMessageProcessingTask() <-chan struct{} {
 }
 
 // NotifyProgress implements IMcpServer.
-func (d *DestinationBoundMcpServer) NotifyProgress(ctx context.Context, progressToken types.ProgressToken, progress transport.ProgressNotificationValue) error {
+func (d *DestinationBoundMcpServer) NotifyProgress(ctx context.Context, progressToken protocol.ProgressToken, progress protocol.ProgressNotificationValue) error {
 	return d.server.NotifyProgress(ctx, progressToken, progress)
 }
 
 // RegisterNotificationHandler implements IMcpServer.
-func (d *DestinationBoundMcpServer) RegisterNotificationHandler(method string, handler transport.NotificationHandler) *shared.RegistrationHandle {
+func (d *DestinationBoundMcpServer) RegisterNotificationHandler(method string, handler protocol.NotificationHandler) *shared.RegistrationHandle {
 	return d.server.RegisterNotificationHandler(method, handler)
 }
 
 // RequestRoots implements IMcpServer.
-func (d *DestinationBoundMcpServer) RequestRoots(ctx context.Context, request types.ListRootsRequestParams) (*types.ListRootsResult, error) {
+func (d *DestinationBoundMcpServer) RequestRoots(ctx context.Context, request protocol.ListRootsRequestParams) (*protocol.ListRootsResult, error) {
 	return d.server.RequestRoots(ctx, request)
 }
 
 // RequestSampling implements IMcpServer.
-func (d *DestinationBoundMcpServer) RequestSampling(ctx context.Context, request types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
+func (d *DestinationBoundMcpServer) RequestSampling(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
 	return d.server.RequestSampling(ctx, request)
 }
 
@@ -93,18 +92,18 @@ func (d *DestinationBoundMcpServer) Run(ctx context.Context) error {
 }
 
 // SendMessage implements IMcpServer.
-func (d *DestinationBoundMcpServer) SendMessage(ctx context.Context, msg transport.IJsonRpcMessage) error {
+func (d *DestinationBoundMcpServer) SendMessage(ctx context.Context, msg protocol.IJsonRpcMessage) error {
 	msg.SetRelatedTransport(d.transport)
 	return d.server.SendMessage(ctx, msg)
 }
 
 // SendNotification implements IMcpServer.
-func (d *DestinationBoundMcpServer) SendNotification(ctx context.Context, notification transport.JsonRpcNotification) error {
+func (d *DestinationBoundMcpServer) SendNotification(ctx context.Context, notification protocol.JsonRpcNotification) error {
 	return d.server.SendNotification(ctx, notification)
 }
 
 // SendRequest implements IMcpServer.
-func (d *DestinationBoundMcpServer) SendRequest(ctx context.Context, req *transport.JsonRpcRequest) (*transport.JsonRpcResponse, error) {
+func (d *DestinationBoundMcpServer) SendRequest(ctx context.Context, req *protocol.JsonRpcRequest) (*protocol.JsonRpcResponse, error) {
 	req.SetRelatedTransport(d.transport)
 	return d.server.SendRequest(ctx, req)
 }

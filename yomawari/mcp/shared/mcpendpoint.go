@@ -11,8 +11,7 @@ import (
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/mcp"
-	"github.com/futugyou/yomawari/mcp/protocol/transport"
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IMcpEndpoint = (*BaseMcpEndpoint)(nil)
@@ -33,18 +32,18 @@ func (e *BaseMcpEndpoint) GetMcpSession() *McpSession {
 }
 
 // NotifyProgress implements IMcpEndpoint.
-func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken types.ProgressToken, progress transport.ProgressNotificationValue) error {
-	p := transport.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
+func (e *BaseMcpEndpoint) NotifyProgress(ctx context.Context, progressToken protocol.ProgressToken, progress protocol.ProgressNotificationValue) error {
+	p := protocol.ProgressNotification{ProgressToken: &progressToken, Progress: &progress}
 	data, err := json.Marshal(p)
 	if err != nil {
 		return err
 	}
-	notification := transport.NewJsonRpcNotification(transport.NotificationMethods_ProgressNotification, data)
+	notification := protocol.NewJsonRpcNotification(protocol.NotificationMethods_ProgressNotification, data)
 	return e.SendNotification(ctx, *notification)
 }
 
 // SendNotification implements IMcpEndpoint.
-func (e *BaseMcpEndpoint) SendNotification(ctx context.Context, notification transport.JsonRpcNotification) error {
+func (e *BaseMcpEndpoint) SendNotification(ctx context.Context, notification protocol.JsonRpcNotification) error {
 	return e.SendMessage(ctx, &notification)
 }
 
@@ -72,11 +71,11 @@ func (e *BaseMcpEndpoint) GetNotificationHandlers() *NotificationHandlers {
 	return e.notifHandlers
 }
 
-func (e *BaseMcpEndpoint) InitializeSession(transport transport.ITransport, isServer bool) {
+func (e *BaseMcpEndpoint) InitializeSession(transport protocol.ITransport, isServer bool) {
 	e.session = NewMcpSession(isServer, transport, e.endpointName, e.reqHandlers, e.notifHandlers)
 }
 
-func (e *BaseMcpEndpoint) StartSession(ctx context.Context, transport transport.ITransport) {
+func (e *BaseMcpEndpoint) StartSession(ctx context.Context, transport protocol.ITransport) {
 	childCtx, cancel := context.WithCancel(ctx)
 	e.sessionCts = cancel
 
@@ -95,21 +94,21 @@ func (e *BaseMcpEndpoint) CancelSession() {
 	}
 }
 
-func (e *BaseMcpEndpoint) SendRequest(ctx context.Context, req *transport.JsonRpcRequest) (*transport.JsonRpcResponse, error) {
+func (e *BaseMcpEndpoint) SendRequest(ctx context.Context, req *protocol.JsonRpcRequest) (*protocol.JsonRpcResponse, error) {
 	if e == nil || e.session == nil {
 		return nil, errors.New("session not initialized")
 	}
 	return e.session.SendRequest(ctx, req)
 }
 
-func (e *BaseMcpEndpoint) SendMessage(ctx context.Context, msg transport.IJsonRpcMessage) error {
+func (e *BaseMcpEndpoint) SendMessage(ctx context.Context, msg protocol.IJsonRpcMessage) error {
 	if e == nil || e.session == nil {
 		return errors.New("session not initialized")
 	}
 	return e.session.SendMessage(ctx, msg)
 }
 
-func (e *BaseMcpEndpoint) RegisterNotificationHandler(method string, handler transport.NotificationHandler) *RegistrationHandle {
+func (e *BaseMcpEndpoint) RegisterNotificationHandler(method string, handler protocol.NotificationHandler) *RegistrationHandle {
 	if e.session == nil {
 		return nil
 	}
@@ -143,13 +142,13 @@ func (e *BaseMcpEndpoint) disposeUnsynchronized(ctx context.Context) error {
 	return nil
 }
 
-func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request types.CreateMessageRequestParams) (*types.CreateMessageResult, error) {
-	req := transport.NewJsonRpcRequest(transport.RequestMethods_SamplingCreateMessage, request, nil)
+func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
+	req := protocol.NewJsonRpcRequest(protocol.RequestMethods_SamplingCreateMessage, request, nil)
 	resp, err := e.SendRequest(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	var result types.CreateMessageResult
+	var result protocol.CreateMessageResult
 	if err := json.Unmarshal(resp.Result, &result); err != nil {
 		return nil, err
 	}
@@ -157,7 +156,7 @@ func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request types.Cre
 }
 
 func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
-	samplingMessages := []types.SamplingMessage{}
+	samplingMessages := []protocol.SamplingMessage{}
 	var systemPrompt *strings.Builder
 	for _, message := range messages {
 		if message.Role == chatcompletion.RoleSystem {
@@ -172,15 +171,15 @@ func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, me
 		}
 
 		if message.Role == chatcompletion.RoleUser || message.Role == chatcompletion.RoleAssistant {
-			role := types.RoleUser
+			role := protocol.RoleUser
 			if message.Role == chatcompletion.RoleAssistant {
-				role = types.RoleAssistant
+				role = protocol.RoleAssistant
 			}
 			for _, content := range message.Contents {
 				switch con := content.(type) {
 				case *contents.TextContent:
-					samplingMessages = append(samplingMessages, types.SamplingMessage{
-						Content: types.Content{
+					samplingMessages = append(samplingMessages, protocol.SamplingMessage{
+						Content: protocol.Content{
 							Type: "text",
 							Text: &con.Text,
 						},
@@ -193,8 +192,8 @@ func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, me
 							t = "audio"
 						}
 						decoded := base64.URLEncoding.EncodeToString(con.Data)
-						samplingMessages = append(samplingMessages, types.SamplingMessage{
-							Content: types.Content{
+						samplingMessages = append(samplingMessages, protocol.SamplingMessage{
+							Content: protocol.Content{
 								Type:     t,
 								MimeType: &con.MediaType,
 								Data:     &decoded,
@@ -207,18 +206,18 @@ func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, me
 		}
 	}
 
-	var modelPreferences types.ModelPreferences
+	var modelPreferences protocol.ModelPreferences
 	if options != nil && options.ModelId != nil {
-		modelPreferences = types.ModelPreferences{
-			Hints: []types.ModelHint{{
+		modelPreferences = protocol.ModelPreferences{
+			Hints: []protocol.ModelHint{{
 				Name: options.ModelId,
 			}},
 		}
 	}
 
 	systemPromptString := systemPrompt.String()
-	request := types.CreateMessageRequestParams{
-		RequestParams:    types.RequestParams{},
+	request := protocol.CreateMessageRequestParams{
+		RequestParams:    protocol.RequestParams{},
 		MaxTokens:        options.MaxOutputTokens,
 		Messages:         samplingMessages,
 		Metadata:         nil,
@@ -236,10 +235,10 @@ func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, me
 	message := &chatcompletion.ChatMessage{
 		Contents: []contents.IAIContent{mcp.ContentToAIContent(result.Content)},
 	}
-	if result.Role == types.RoleUser {
+	if result.Role == protocol.RoleUser {
 		message.Role = chatcompletion.RoleUser
 	}
-	if result.Role == types.RoleAssistant {
+	if result.Role == protocol.RoleAssistant {
 		message.Role = chatcompletion.RoleAssistant
 	}
 	resp := chatcompletion.NewChatResponse(nil, message)

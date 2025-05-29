@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IMcpServerTool = (*DelegatingMcpServerTool)(nil)
@@ -24,11 +24,11 @@ func (d *DelegatingMcpServerTool) GetId() string {
 }
 
 // GetProtocolTool implements IMcpServerTool.
-func (d *DelegatingMcpServerTool) GetProtocolTool() *types.Tool {
+func (d *DelegatingMcpServerTool) GetProtocolTool() *protocol.Tool {
 	return d.innerTool.GetProtocolTool()
 }
 
 // Invoke implements IMcpServerTool.
-func (d *DelegatingMcpServerTool) Invoke(ctx context.Context, request RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error) {
+func (d *DelegatingMcpServerTool) Invoke(ctx context.Context, request RequestContext[*protocol.CallToolRequestParams]) (*protocol.CallToolResult, error) {
 	return d.innerTool.Invoke(ctx, request)
 }

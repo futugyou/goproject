@@ -3,23 +3,23 @@ package server
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 type McpServerHandlers struct {
-	ListToolsHandler   func(context.Context, RequestContext[*types.ListToolsRequestParams]) (*types.ListToolsResult, error)
-	CallToolHandler    func(context.Context, RequestContext[*types.CallToolRequestParams]) (*types.CallToolResult, error)
-	ListPromptsHandler func(context.Context, RequestContext[*types.ListPromptsRequestParams]) (*types.ListPromptsResult, error)
-	GetPromptHandler   func(context.Context, RequestContext[*types.GetPromptRequestParams]) (*types.GetPromptResult, error)
+	ListToolsHandler   func(context.Context, RequestContext[*protocol.ListToolsRequestParams]) (*protocol.ListToolsResult, error)
+	CallToolHandler    func(context.Context, RequestContext[*protocol.CallToolRequestParams]) (*protocol.CallToolResult, error)
+	ListPromptsHandler func(context.Context, RequestContext[*protocol.ListPromptsRequestParams]) (*protocol.ListPromptsResult, error)
+	GetPromptHandler   func(context.Context, RequestContext[*protocol.GetPromptRequestParams]) (*protocol.GetPromptResult, error)
 
-	ListResourceTemplatesHandler    func(ctx context.Context, req RequestContext[*types.ListResourceTemplatesRequestParams]) (*types.ListResourceTemplatesResult, error) `json:"-"`
-	ListResourcesHandler            func(ctx context.Context, req RequestContext[*types.ListResourcesRequestParams]) (*types.ListResourcesResult, error)                 `json:"-"`
-	ReadResourceHandler             func(ctx context.Context, req RequestContext[*types.ReadResourceRequestParams]) (*types.ReadResourceResult, error)                   `json:"-"`
-	SubscribeToResourcesHandler     func(ctx context.Context, req RequestContext[*types.SubscribeRequestParams]) (*types.EmptyResult, error)                             `json:"-"`
-	UnsubscribeFromResourcesHandler func(ctx context.Context, req RequestContext[*types.UnsubscribeRequestParams]) (*types.EmptyResult, error)
+	ListResourceTemplatesHandler    func(ctx context.Context, req RequestContext[*protocol.ListResourceTemplatesRequestParams]) (*protocol.ListResourceTemplatesResult, error) `json:"-"`
+	ListResourcesHandler            func(ctx context.Context, req RequestContext[*protocol.ListResourcesRequestParams]) (*protocol.ListResourcesResult, error)                 `json:"-"`
+	ReadResourceHandler             func(ctx context.Context, req RequestContext[*protocol.ReadResourceRequestParams]) (*protocol.ReadResourceResult, error)                   `json:"-"`
+	SubscribeToResourcesHandler     func(ctx context.Context, req RequestContext[*protocol.SubscribeRequestParams]) (*protocol.EmptyResult, error)                             `json:"-"`
+	UnsubscribeFromResourcesHandler func(ctx context.Context, req RequestContext[*protocol.UnsubscribeRequestParams]) (*protocol.EmptyResult, error)
 
-	CompleteHandler        func(context.Context, RequestContext[*types.CompleteRequestParams]) (*types.CompleteResult, error)
-	SetLoggingLevelHandler func(context.Context, RequestContext[*types.SetLevelRequestParams]) (*types.EmptyResult, error)
+	CompleteHandler        func(context.Context, RequestContext[*protocol.CompleteRequestParams]) (*protocol.CompleteResult, error)
+	SetLoggingLevelHandler func(context.Context, RequestContext[*protocol.SetLevelRequestParams]) (*protocol.EmptyResult, error)
 }
 
 func (h *McpServerHandlers) OverwriteWithSetHandlers(option *McpServerOptions) {

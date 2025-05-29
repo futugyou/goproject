@@ -3,22 +3,22 @@ package client
 import (
 	"context"
 
-	"github.com/futugyou/yomawari/mcp/protocol/types"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 type McpClientPrompt struct {
-	prompt types.Prompt
+	prompt protocol.Prompt
 	client IMcpClient
 }
 
-func NewMcpClientPrompt(prompt types.Prompt, client IMcpClient) *McpClientPrompt {
+func NewMcpClientPrompt(prompt protocol.Prompt, client IMcpClient) *McpClientPrompt {
 	return &McpClientPrompt{
 		prompt: prompt,
 		client: client,
 	}
 }
 
-func (p *McpClientPrompt) GetPrompt() *types.Prompt {
+func (p *McpClientPrompt) GetPrompt() *protocol.Prompt {
 	return &p.prompt
 }
 
@@ -30,6 +30,6 @@ func (p *McpClientPrompt) GetDescription() *string {
 	return p.prompt.Description
 }
 
-func (p *McpClientPrompt) Get(ctx context.Context, arguments map[string]interface{}) (*types.GetPromptResult, error) {
+func (p *McpClientPrompt) Get(ctx context.Context, arguments map[string]interface{}) (*protocol.GetPromptResult, error) {
 	return p.client.GetPrompt(ctx, p.prompt.Name, arguments)
 }
