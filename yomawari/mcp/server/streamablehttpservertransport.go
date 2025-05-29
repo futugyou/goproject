@@ -7,12 +7,13 @@ import (
 	"sync/atomic"
 
 	"github.com/futugyou/yomawari/mcp/protocol"
+	"github.com/futugyou/yomawari/mcp/shared"
 )
 
 var _ protocol.ITransport = (*StreamableHttpServerTransport)(nil)
 
 type StreamableHttpServerTransport struct {
-	sseWriter         *protocol.SseWriter
+	sseWriter         *shared.SseWriter
 	Stateless         bool
 	InitializeRequest protocol.InitializeRequestParams
 	incomingChannel   chan protocol.IJsonRpcMessage
@@ -29,7 +30,7 @@ func (s *StreamableHttpServerTransport) GetTransportKind() protocol.TransportKin
 func NewStreamableHttpServerTransport() *StreamableHttpServerTransport {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	return &StreamableHttpServerTransport{
-		sseWriter:         protocol.NewSseWriter(""),
+		sseWriter:         shared.NewSseWriter(""),
 		incomingChannel:   make(chan protocol.IJsonRpcMessage),
 		ctx:               ctx,
 		cancelFunc:        cancelFunc,
@@ -80,7 +81,7 @@ func (s *StreamableHttpServerTransport) HandleGetRequest(ctx context.Context, ss
 	}
 }
 
-func (s *StreamableHttpServerTransport) HandlePostRequest(ctx context.Context, httpBodies *protocol.DuplexPipe) (bool, error) {
+func (s *StreamableHttpServerTransport) HandlePostRequest(ctx context.Context, httpBodies *shared.DuplexPipe) (bool, error) {
 	ctx, _ = protocol.MergeContexts(s.ctx, ctx)
 	postTransport := NewStreamableHttpPostTransport(s, httpBodies)
 	return postTransport.Run(ctx)

@@ -10,14 +10,15 @@ import (
 	"sync"
 
 	"github.com/futugyou/yomawari/mcp/protocol"
+	"github.com/futugyou/yomawari/mcp/shared"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
 
 var _ protocol.ITransport = (*StreamableHttpPostTransport)(nil)
 
 type StreamableHttpPostTransport struct {
-	httpBodies      *protocol.DuplexPipe
-	sseWriter       *protocol.SseWriter
+	httpBodies      *shared.DuplexPipe
+	sseWriter       *shared.SseWriter
 	pendingRequests *protocol.RequestId
 	parentTransport *StreamableHttpServerTransport
 	mu              sync.Mutex
@@ -28,11 +29,11 @@ func (s *StreamableHttpPostTransport) GetTransportKind() protocol.TransportKind 
 	return protocol.TransportKindHttp
 }
 
-func NewStreamableHttpPostTransport(parentTransport *StreamableHttpServerTransport, httpBodies *protocol.DuplexPipe) *StreamableHttpPostTransport {
+func NewStreamableHttpPostTransport(parentTransport *StreamableHttpServerTransport, httpBodies *shared.DuplexPipe) *StreamableHttpPostTransport {
 
 	return &StreamableHttpPostTransport{
 		httpBodies:      httpBodies,
-		sseWriter:       protocol.NewSseWriter(""),
+		sseWriter:       shared.NewSseWriter(""),
 		parentTransport: parentTransport,
 	}
 }

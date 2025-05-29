@@ -1,4 +1,4 @@
-package protocol
+package shared
 
 import (
 	"bufio"
@@ -8,23 +8,24 @@ import (
 	"io"
 	"sync"
 
+	"github.com/futugyou/yomawari/mcp/protocol"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
 
 type SseWriter struct {
-	messages        chan sse.SseItem[IJsonRpcMessage]
+	messages        chan sse.SseItem[protocol.IJsonRpcMessage]
 	mu              sync.Mutex
 	ctx             context.Context
 	cancelFunc      context.CancelFunc
 	messageEndpoint string
 	task            chan error
 	disposed        bool
-	MessageFilter   func(ctx context.Context, mesg chan sse.SseItem[IJsonRpcMessage]) chan sse.SseItem[IJsonRpcMessage]
+	MessageFilter   func(ctx context.Context, mesg chan sse.SseItem[protocol.IJsonRpcMessage]) chan sse.SseItem[protocol.IJsonRpcMessage]
 }
 
 func NewSseWriter(messageEndpoint string) *SseWriter {
 	return &SseWriter{
-		messages:        make(chan sse.SseItem[IJsonRpcMessage]),
+		messages:        make(chan sse.SseItem[protocol.IJsonRpcMessage]),
 		messageEndpoint: messageEndpoint,
 	}
 }
@@ -45,7 +46,7 @@ func (s *SseWriter) WriteAll(ctx context.Context, sseResponseStream io.Writer) c
 
 	if len(s.messageEndpoint) > 0 {
 		select {
-		case s.messages <- *sse.NewSseItem[IJsonRpcMessage](nil, "endpoint"):
+		case s.messages <- *sse.NewSseItem[protocol.IJsonRpcMessage](nil, "endpoint"):
 		default:
 			s.task <- fmt.Errorf("you must call RunAsync before calling SendMessage")
 			return s.task
@@ -68,13 +69,13 @@ func (s *SseWriter) WriteAll(ctx context.Context, sseResponseStream io.Writer) c
 	return s.task
 }
 
-func (s *SseWriter) writeJsonRpcMessageToBuffer() sse.ItemFormatter[IJsonRpcMessage] {
-	return func(item sse.SseItem[IJsonRpcMessage], writer *bufio.Writer) error {
+func (s *SseWriter) writeJsonRpcMessageToBuffer() sse.ItemFormatter[protocol.IJsonRpcMessage] {
+	return func(item sse.SseItem[protocol.IJsonRpcMessage], writer *bufio.Writer) error {
 		if item.EventType == "endpoint" && len(s.messageEndpoint) > 0 {
 			_, err := fmt.Fprintf(writer, "%s", base64.URLEncoding.EncodeToString([]byte(s.messageEndpoint)))
 			return err
 		}
-		d, err := MarshalJsonRpcMessage(item.Data)
+		d, err := protocol.MarshalJsonRpcMessage(item.Data)
 		if err != nil {
 			return err
 		}
@@ -83,7 +84,7 @@ func (s *SseWriter) writeJsonRpcMessageToBuffer() sse.ItemFormatter[IJsonRpcMess
 	}
 }
 
-func (s *SseWriter) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (s *SseWriter) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	if message == nil {
 		return fmt.Errorf("message is nil")
 	}
@@ -97,7 +98,7 @@ func (s *SseWriter) SendMessage(ctx context.Context, message IJsonRpcMessage) er
 
 	var err error
 	select {
-	case s.messages <- *sse.NewSseItem[IJsonRpcMessage](message, "message"):
+	case s.messages <- *sse.NewSseItem[protocol.IJsonRpcMessage](message, "message"):
 	default:
 		err = fmt.Errorf("something went wrong sending the message")
 	}

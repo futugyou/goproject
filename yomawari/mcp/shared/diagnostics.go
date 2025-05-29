@@ -1,8 +1,9 @@
-package protocol
+package shared
 
 import (
 	"context"
 
+	"github.com/futugyou/yomawari/mcp/protocol"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
@@ -18,12 +19,12 @@ var (
 
 var Propagator = otel.GetTextMapPropagator()
 
-func StartSpanWithJsonRpcData(ctx context.Context, name string, message IJsonRpcMessage) (context.Context, trace.Span) {
+func StartSpanWithJsonRpcData(ctx context.Context, name string, message protocol.IJsonRpcMessage) (context.Context, trace.Span) {
 	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
 	switch re := message.(type) {
-	case *JsonRpcRequest:
+	case *protocol.JsonRpcRequest:
 		carrier = re
-	case *JsonRpcNotification:
+	case *protocol.JsonRpcNotification:
 		carrier = re
 	}
 	parentCtx := Propagator.Extract(ctx, carrier)
@@ -34,12 +35,12 @@ func StartSpanWithJsonRpcData(ctx context.Context, name string, message IJsonRpc
 	)
 }
 
-func PropagatorInject(ctx context.Context, message IJsonRpcMessage) {
+func PropagatorInject(ctx context.Context, message protocol.IJsonRpcMessage) {
 	var carrier propagation.TextMapCarrier = propagation.MapCarrier{}
 	switch re := message.(type) {
-	case *JsonRpcRequest:
+	case *protocol.JsonRpcRequest:
 		carrier = re
-	case *JsonRpcNotification:
+	case *protocol.JsonRpcNotification:
 		carrier = re
 	}
 	Propagator.Inject(ctx, carrier)

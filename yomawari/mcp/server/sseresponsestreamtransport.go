@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/futugyou/yomawari/mcp/protocol"
+	"github.com/futugyou/yomawari/mcp/shared"
 )
 
 var _ protocol.ITransport = (*SseResponseStreamTransport)(nil)
@@ -19,7 +20,7 @@ type SseResponseStreamTransport struct {
 
 	isConnected bool
 	mu          sync.Mutex
-	sseWriter   *protocol.SseWriter
+	sseWriter   *shared.SseWriter
 }
 
 // GetTransportKind implements ITransport.
@@ -36,7 +37,7 @@ func NewSseResponseStreamTransport(sseResponseStream io.Writer, messageEndpoint 
 		sseResponseStream: sseResponseStream,
 		messageEndpoint:   messageEndpoint,
 		incomingChannel:   make(chan protocol.IJsonRpcMessage, 1), // Buffered channel
-		sseWriter:         protocol.NewSseWriter(messageEndpoint),
+		sseWriter:         shared.NewSseWriter(messageEndpoint),
 	}
 }
 

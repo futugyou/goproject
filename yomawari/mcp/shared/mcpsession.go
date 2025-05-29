@@ -116,7 +116,7 @@ func (m *McpSession) handleMessage(ctx context.Context, message protocol.IJsonRp
 	method := getMethodName(message)
 
 	var startingTimestamp int64 = time.Now().UnixNano()
-	ctx, span := protocol.StartSpanWithJsonRpcData(ctx, m.createActivityName(method), message)
+	ctx, span := StartSpanWithJsonRpcData(ctx, m.createActivityName(method), message)
 	defer span.End()
 
 	tags := []attribute.KeyValue{}
@@ -238,7 +238,7 @@ func (m *McpSession) SendRequest(ctx context.Context, request *protocol.JsonRpcR
 		request.Id = protocol.NewRequestIdFromString(fmt.Sprintf("%s-%d", m._id, newId))
 	}
 
-	protocol.PropagatorInject(ctx, request)
+	PropagatorInject(ctx, request)
 
 	ctx, cancelfunc := context.WithCancel(ctx)
 	tcs := tasks.NewTaskCompletionSource[protocol.IJsonRpcMessage](ctx, cancelfunc)
@@ -301,7 +301,7 @@ func (m *McpSession) SendMessage(ctx context.Context, message protocol.IJsonRpcM
 	ctx, span := mcp.Tracer.Start(ctx, m.createActivityName(method))
 	defer span.End()
 
-	protocol.PropagatorInject(ctx, message)
+	PropagatorInject(ctx, message)
 
 	tags := []attribute.KeyValue{}
 	m.addStandardTags(&tags, method)
