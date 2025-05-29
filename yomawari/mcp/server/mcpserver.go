@@ -66,7 +66,7 @@ func NewMcpServer(itransport protocol.ITransport, options McpServerOptions) *Mcp
 		s.GetNotificationHandlers().RegisterRange(options.Capabilities.NotificationHandlers)
 	}
 
-	if t, ok := itransport.(*protocol.StreamableHttpServerTransport); !ok || !t.Stateless {
+	if t, ok := itransport.(*StreamableHttpServerTransport); !ok || !t.Stateless {
 		if options.Capabilities != nil && options.Capabilities.Tools != nil && options.Capabilities.Tools.ToolCollection.Count() > 0 {
 			s._toolsChangedDelegate = func() {
 				s.SendMessage(context.Background(), protocol.NewJsonRpcNotification(protocol.NotificationMethods_ToolListChangedNotification, nil))

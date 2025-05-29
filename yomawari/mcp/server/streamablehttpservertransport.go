@@ -1,34 +1,36 @@
-package protocol
+package server
 
 import (
 	"context"
 	"fmt"
 	"io"
 	"sync/atomic"
+
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
-var _ ITransport = (*StreamableHttpServerTransport)(nil)
+var _ protocol.ITransport = (*StreamableHttpServerTransport)(nil)
 
 type StreamableHttpServerTransport struct {
-	sseWriter         *SseWriter
+	sseWriter         *protocol.SseWriter
 	Stateless         bool
-	InitializeRequest InitializeRequestParams
-	incomingChannel   chan IJsonRpcMessage
+	InitializeRequest protocol.InitializeRequestParams
+	incomingChannel   chan protocol.IJsonRpcMessage
 	ctx               context.Context
 	cancelFunc        context.CancelFunc
 	getRequestStarted int32
 }
 
 // GetTransportKind implements ITransport.
-func (s *StreamableHttpServerTransport) GetTransportKind() TransportKind {
-	return TransportKindHttp
+func (s *StreamableHttpServerTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindHttp
 }
 
 func NewStreamableHttpServerTransport() *StreamableHttpServerTransport {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	return &StreamableHttpServerTransport{
-		sseWriter:         NewSseWriter(""),
-		incomingChannel:   make(chan IJsonRpcMessage),
+		sseWriter:         protocol.NewSseWriter(""),
+		incomingChannel:   make(chan protocol.IJsonRpcMessage),
 		ctx:               ctx,
 		cancelFunc:        cancelFunc,
 		getRequestStarted: 0,
@@ -45,12 +47,12 @@ func (s *StreamableHttpServerTransport) Close() error {
 }
 
 // MessageReader implements ITransport.
-func (s *StreamableHttpServerTransport) MessageReader() <-chan IJsonRpcMessage {
+func (s *StreamableHttpServerTransport) MessageReader() <-chan protocol.IJsonRpcMessage {
 	return s.incomingChannel
 }
 
 // SendMessage implements ITransport.
-func (s *StreamableHttpServerTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (s *StreamableHttpServerTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	if s.Stateless {
 		return fmt.Errorf("stateless mode is not supported for GET requests")
 	}
@@ -78,8 +80,8 @@ func (s *StreamableHttpServerTransport) HandleGetRequest(ctx context.Context, ss
 	}
 }
 
-func (s *StreamableHttpServerTransport) HandlePostRequest(ctx context.Context, httpBodies *DuplexPipe) (bool, error) {
-	ctx, _ = MergeContexts(s.ctx, ctx)
+func (s *StreamableHttpServerTransport) HandlePostRequest(ctx context.Context, httpBodies *protocol.DuplexPipe) (bool, error) {
+	ctx, _ = protocol.MergeContexts(s.ctx, ctx)
 	postTransport := NewStreamableHttpPostTransport(s, httpBodies)
 	return postTransport.Run(ctx)
 }

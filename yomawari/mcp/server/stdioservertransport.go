@@ -1,10 +1,11 @@
-package protocol
+package server
 
 import (
 	"bufio"
 	"os"
 
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 type StdioServerTransport struct {
@@ -22,6 +23,6 @@ func NewStdioServerTransport(serverName string, logger logging.Logger) *StdioSer
 	return t
 }
 
-func (t *StdioServerTransport) GetTransportKind() TransportKind {
-	return TransportKindStdio
+func (t *StdioServerTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindStdio
 }

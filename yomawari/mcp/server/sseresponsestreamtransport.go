@@ -1,28 +1,30 @@
-package protocol
+package server
 
 import (
 	"context"
 	"fmt"
 	"io"
 	"sync"
+
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
-var _ ITransport = (*SseResponseStreamTransport)(nil)
+var _ protocol.ITransport = (*SseResponseStreamTransport)(nil)
 
 type SseResponseStreamTransport struct {
 	sseResponseStream io.Writer
 	messageEndpoint   string
 
-	incomingChannel chan IJsonRpcMessage
+	incomingChannel chan protocol.IJsonRpcMessage
 
 	isConnected bool
 	mu          sync.Mutex
-	sseWriter   *SseWriter
+	sseWriter   *protocol.SseWriter
 }
 
 // GetTransportKind implements ITransport.
-func (t *SseResponseStreamTransport) GetTransportKind() TransportKind {
-	return TransportKindSse
+func (t *SseResponseStreamTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindSse
 }
 
 func NewSseResponseStreamTransport(sseResponseStream io.Writer, messageEndpoint string) *SseResponseStreamTransport {
@@ -33,8 +35,8 @@ func NewSseResponseStreamTransport(sseResponseStream io.Writer, messageEndpoint 
 	return &SseResponseStreamTransport{
 		sseResponseStream: sseResponseStream,
 		messageEndpoint:   messageEndpoint,
-		incomingChannel:   make(chan IJsonRpcMessage, 1), // Buffered channel
-		sseWriter:         NewSseWriter(messageEndpoint),
+		incomingChannel:   make(chan protocol.IJsonRpcMessage, 1), // Buffered channel
+		sseWriter:         protocol.NewSseWriter(messageEndpoint),
 	}
 }
 
@@ -57,12 +59,12 @@ func (t *SseResponseStreamTransport) Close() error {
 }
 
 // MessageReader implements I
-func (s *SseResponseStreamTransport) MessageReader() <-chan IJsonRpcMessage {
+func (s *SseResponseStreamTransport) MessageReader() <-chan protocol.IJsonRpcMessage {
 	return s.incomingChannel
 }
 
 // SendMessage implements I
-func (t *SseResponseStreamTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (t *SseResponseStreamTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	return t.sseWriter.SendMessage(ctx, message)
 }
 
@@ -84,7 +86,7 @@ func (t *SseResponseStreamTransport) Run(ctx context.Context) error {
 }
 
 // OnMessageReceived handles incoming JSON-RPC messages
-func (t *SseResponseStreamTransport) OnMessageReceived(ctx context.Context, message IJsonRpcMessage) error {
+func (t *SseResponseStreamTransport) OnMessageReceived(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	t.mu.Lock()
 	if !t.isConnected {
 		t.mu.Unlock()

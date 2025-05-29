@@ -1,4 +1,4 @@
-package protocol
+package server
 
 import (
 	"bufio"
@@ -10,16 +10,17 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
-var _ ITransport = (*StreamServerTransport)(nil)
+var _ protocol.ITransport = (*StreamServerTransport)(nil)
 var (
 	newlineBytes = []byte("\n")
 )
 
 // StreamServerTransport provides a server transport implemented around a pair of input/output streams.
 type StreamServerTransport struct {
-	TransportBase
+	*protocol.TransportBase
 	logger logging.Logger
 
 	inputReader  *bufio.Reader
@@ -36,13 +37,13 @@ type StreamServerTransport struct {
 }
 
 // GetTransportKind implements ITransport.
-func (t *StreamServerTransport) GetTransportKind() TransportKind {
-	return TransportKindStream
+func (t *StreamServerTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindStream
 }
 
 // MessageReader implements ITransport.
 // Subtle: this method shadows the method (TransportBase).MessageReader of StreamServerTransport.TransportBase.
-func (t *StreamServerTransport) MessageReader() <-chan IJsonRpcMessage {
+func (t *StreamServerTransport) MessageReader() <-chan protocol.IJsonRpcMessage {
 	panic("unimplemented")
 }
 
@@ -58,7 +59,7 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 	ctx, cancel := context.WithCancel(context.Background())
 
 	t := &StreamServerTransport{
-		TransportBase:     *ServerTransportBase(),
+		TransportBase:     protocol.ServerTransportBase(),
 		logger:            logger,
 		inputReader:       bufio.NewReader(inputStream),
 		outputStream:      outputStream,
@@ -80,7 +81,7 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 }
 
 // SendMessage sends a JSON-RPC message through the
-func (t *StreamServerTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (t *StreamServerTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	if !t.IsConnected() {
 		t.logger.TransportNotConnected(t.endpointName)
 		return fmt.Errorf("transport is not connected")
@@ -90,7 +91,7 @@ func (t *StreamServerTransport) SendMessage(ctx context.Context, message IJsonRp
 	defer t.sendLock.Unlock()
 
 	messageID := "(no id)"
-	if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
+	if msgWithID, ok := message.(protocol.IJsonRpcMessageWithId); ok {
 		messageWithId := msgWithID.GetId()
 		messageID = messageWithId.String()
 	}
@@ -147,8 +148,8 @@ func (t *StreamServerTransport) readMessages() {
 
 			t.logger.TransportReceivedMessage(t.endpointName, string(line))
 
-			var message IJsonRpcMessage
-			if m, err := UnmarshalJsonRpcMessage(line); err != nil {
+			var message protocol.IJsonRpcMessage
+			if m, err := protocol.UnmarshalJsonRpcMessage(line); err != nil {
 				t.logger.TransportMessageParseFailed(t.endpointName, string(line), err)
 				continue
 			} else {
@@ -156,7 +157,7 @@ func (t *StreamServerTransport) readMessages() {
 			}
 
 			messageID := "(no id)"
-			if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
+			if msgWithID, ok := message.(protocol.IJsonRpcMessageWithId); ok {
 				messageWithId := msgWithID.GetId()
 				messageID = messageWithId.String()
 			}
@@ -202,11 +203,11 @@ func (t *StreamServerTransport) Close() error {
 func (t *StreamServerTransport) IsConnected() bool {
 	t.connectedMutex.RLock()
 	defer t.connectedMutex.RUnlock()
-	return t.isConnected
+	return t.TransportBase.IsConnected()
 }
 
 func (t *StreamServerTransport) SetConnected(connected bool) {
 	t.connectedMutex.Lock()
 	defer t.connectedMutex.Unlock()
-	t.isConnected = connected
+	t.TransportBase.SetConnected(connected)
 }

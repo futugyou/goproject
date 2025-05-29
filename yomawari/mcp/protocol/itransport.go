@@ -11,9 +11,6 @@ type ITransport interface {
 	GetTransportKind() TransportKind
 }
 
-const TransportTypesStdIo string = "stdio"
-const TransportTypesSse string = "sse"
-
 type TransportKind string
 
 var TransportKindUnknown TransportKind = "unknownTransport"
