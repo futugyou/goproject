@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"bytes"
@@ -11,11 +11,12 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/configuration"
+	"github.com/futugyou/yomawari/mcp/protocol"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
 
 type SseClientSessionTransport struct {
-	TransportBase
+	*protocol.TransportBase
 	httpClient            *http.Client
 	Options               *SseClientTransportOptions
 	SseEndpoint           *url.URL
@@ -43,10 +44,7 @@ func NewSseClientSessionTransport(serverConfig *configuration.McpServerConfig, o
 	sseEndpoint, _ := url.Parse(serverConfig.Location)
 	ctx, cancel := context.WithCancel(context.Background())
 	transport := &SseClientSessionTransport{
-		TransportBase: TransportBase{
-			messageChannel: make(chan IJsonRpcMessage),
-			isConnected:    false,
-		},
+		TransportBase:         protocol.ClientTransportBase(),
 		httpClient:            httpClient,
 		Options:               options,
 		SseEndpoint:           sseEndpoint,
@@ -60,8 +58,12 @@ func NewSseClientSessionTransport(serverConfig *configuration.McpServerConfig, o
 	return transport
 }
 
+func (t *SseClientSessionTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindSse
+}
+
 func (t *SseClientSessionTransport) Connect(ctx context.Context) error {
-	if t.isConnected {
+	if t.IsConnected() {
 		return fmt.Errorf("transport is already connected")
 	}
 
@@ -114,7 +116,7 @@ func (s *SseClientSessionTransport) ProcessSseMessage(ctx context.Context, data 
 		return nil
 	}
 
-	message, err := UnmarshalJsonRpcMessage([]byte(data))
+	message, err := protocol.UnmarshalJsonRpcMessage([]byte(data))
 	if err != nil {
 		return err
 	}
@@ -126,11 +128,11 @@ func (s *SseClientSessionTransport) ProcessSseMessage(ctx context.Context, data 
 func (s *SseClientSessionTransport) receiveMessages(ctx context.Context) error {
 	defer close(s.receiveTaskCompleted)
 	defer func() {
-		s.isConnected = false
+		s.SetConnected(false)
 	}()
 	reconnectAttempts := 0
 
-	for !s.isConnected && ctx.Err() == nil {
+	for !s.IsConnected() && ctx.Err() == nil {
 		err := s.connectAndProcessMessages(ctx)
 		if err != nil {
 			if ctx.Err() != nil {
@@ -218,18 +220,18 @@ func (t *SseClientSessionTransport) Close() error {
 	return nil
 }
 
-func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (t *SseClientSessionTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	if t.messageEndpoint == nil {
 		return fmt.Errorf("transport not connected")
 	}
 
-	data, err := MarshalJsonRpcMessage(message)
+	data, err := protocol.MarshalJsonRpcMessage(message)
 	if err != nil {
 		return fmt.Errorf("failed to serialize message: %w", err)
 	}
 
 	var messageId = "(no id)"
-	if msgWithId, ok := message.(IJsonRpcMessageWithId); ok {
+	if msgWithId, ok := message.(protocol.IJsonRpcMessageWithId); ok {
 		id := msgWithId.GetId()
 		if id != nil {
 			messageId = id.String()

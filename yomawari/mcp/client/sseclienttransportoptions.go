@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"net/url"

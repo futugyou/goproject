@@ -1,10 +1,11 @@
-package protocol
+package client
 
 import (
 	"context"
 	"net/http"
 
 	"github.com/futugyou/yomawari/mcp/configuration"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IClientTransport = (*SseClientTransport)(nil)
@@ -55,7 +56,7 @@ func NewSseClientTransport(serverConfig *configuration.McpServerConfig, options 
 }
 
 // Connect implements IClientTransport.
-func (s *SseClientTransport) Connect(ctx context.Context) (ITransport, error) {
+func (s *SseClientTransport) Connect(ctx context.Context) (protocol.ITransport, error) {
 	if s.options.UseStreamableHttp {
 		return NewStreamableHttpClientSessionTransport(s.httpClient, s.options, s.name), nil
 	}

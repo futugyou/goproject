@@ -11,10 +11,22 @@ type TransportBase struct {
 	Name           string
 }
 
-func NewTransportBase() *TransportBase {
+// GetTransportKind implements ITransport.
+func (t *TransportBase) GetTransportKind() TransportKind {
+	panic("unimplemented")
+}
+
+func ServerTransportBase() *TransportBase {
 	return &TransportBase{
 		messageChannel: make(chan IJsonRpcMessage),
 		isConnected:    true,
+	}
+}
+
+func ClientTransportBase() *TransportBase {
+	return &TransportBase{
+		messageChannel: make(chan IJsonRpcMessage),
+		isConnected:    false,
 	}
 }
 
@@ -63,3 +75,19 @@ func (t *TransportBase) SetConnected(isConnected bool) {
 }
 
 var _ ITransport = (*TransportBase)(nil)
+
+func MergeContexts(ctx1, ctx2 context.Context) (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		select {
+		case <-ctx1.Done():
+			cancel()
+		case <-ctx2.Done():
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
+
+	return ctx, cancel
+}

@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 type StdioClientSessionTransport struct {
@@ -24,7 +25,7 @@ func NewStdioClientSessionTransport(options *StdioClientTransportOptions, cmd *e
 	}
 }
 
-func (t *StdioClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (t *StdioClientSessionTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	if t.cmd.ProcessState != nil && t.cmd.ProcessState.Exited() {
 		t.logger.TransportNotConnected(t.EndpointName)
 		return fmt.Errorf("transport is not connected")
@@ -58,4 +59,8 @@ func (t *StdioClientSessionTransport) Close() error {
 	}
 
 	return t.StreamClientSessionTransport.Close()
+}
+
+func (t *StdioClientSessionTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindStdio
 }

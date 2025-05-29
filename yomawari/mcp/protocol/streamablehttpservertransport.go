@@ -19,6 +19,11 @@ type StreamableHttpServerTransport struct {
 	getRequestStarted int32
 }
 
+// GetTransportKind implements ITransport.
+func (s *StreamableHttpServerTransport) GetTransportKind() TransportKind {
+	return TransportKindHttp
+}
+
 func NewStreamableHttpServerTransport() *StreamableHttpServerTransport {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	return &StreamableHttpServerTransport{
@@ -74,23 +79,7 @@ func (s *StreamableHttpServerTransport) HandleGetRequest(ctx context.Context, ss
 }
 
 func (s *StreamableHttpServerTransport) HandlePostRequest(ctx context.Context, httpBodies *DuplexPipe) (bool, error) {
-	ctx, _ = mergeContexts(s.ctx, ctx)
+	ctx, _ = MergeContexts(s.ctx, ctx)
 	postTransport := NewStreamableHttpPostTransport(s, httpBodies)
 	return postTransport.Run(ctx)
-}
-
-func mergeContexts(ctx1, ctx2 context.Context) (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(context.Background())
-
-	go func() {
-		select {
-		case <-ctx1.Done():
-			cancel()
-		case <-ctx2.Done():
-			cancel()
-		case <-ctx.Done():
-		}
-	}()
-
-	return ctx, cancel
 }

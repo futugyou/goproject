@@ -21,3 +21,7 @@ func NewStdioServerTransport(serverName string, logger logging.Logger) *StdioSer
 	}
 	return t
 }
+
+func (t *StdioServerTransport) GetTransportKind() TransportKind {
+	return TransportKindStdio
+}

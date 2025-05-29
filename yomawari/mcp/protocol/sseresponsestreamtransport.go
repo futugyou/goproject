@@ -20,6 +20,11 @@ type SseResponseStreamTransport struct {
 	sseWriter   *SseWriter
 }
 
+// GetTransportKind implements ITransport.
+func (t *SseResponseStreamTransport) GetTransportKind() TransportKind {
+	return TransportKindSse
+}
+
 func NewSseResponseStreamTransport(sseResponseStream io.Writer, messageEndpoint string) *SseResponseStreamTransport {
 	if messageEndpoint == "" {
 		messageEndpoint = "/message"

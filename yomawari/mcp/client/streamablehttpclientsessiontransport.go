@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"bytes"
@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/futugyou/yomawari/mcp/protocol"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
 
 type StreamableHttpClientSessionTransport struct {
-	TransportBase
+	*protocol.TransportBase
 	httpClient   *http.Client
 	Options      *SseClientTransportOptions
 	ctx          context.Context
@@ -31,12 +32,10 @@ func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *S
 		options = &SseClientTransportOptions{}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
+	base := protocol.ClientTransportBase()
+	base.Name = name
 	transport := &StreamableHttpClientSessionTransport{
-		TransportBase: TransportBase{
-			messageChannel: make(chan IJsonRpcMessage),
-			isConnected:    false,
-			Name:           name,
-		},
+		TransportBase:  base,
 		httpClient:     httpClient,
 		Options:        options,
 		ctx:            ctx,
@@ -48,11 +47,15 @@ func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *S
 	return transport
 }
 
-func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
-	var err error
-	ctx, _ = mergeContexts(t.ctx, ctx)
+func (t *StreamableHttpClientSessionTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindSse
+}
 
-	data, err := MarshalJsonRpcMessage(message)
+func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
+	var err error
+	ctx, _ = protocol.MergeContexts(t.ctx, ctx)
+
+	data, err := protocol.MarshalJsonRpcMessage(message)
 	if err != nil {
 		return fmt.Errorf("failed to serialize message: %w", err)
 	}
@@ -75,14 +78,14 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var rpcMessage IJsonRpcMessage
-	var rpcRequest *JsonRpcRequest
+	var rpcMessage protocol.IJsonRpcMessage
+	var rpcRequest *protocol.JsonRpcRequest
 
 	switch resp.Header.Get("Content-Type") {
 	case "application/json":
 		rpcMessage, err = t.processResponse(ctx, resp)
 	case "text/event-stream":
-		if condition, ok := message.(*JsonRpcRequest); ok && condition != nil {
+		if condition, ok := message.(*protocol.JsonRpcRequest); ok && condition != nil {
 			rpcRequest = condition
 		}
 		rpcMessage, err = t.processSseResponse(ctx, resp, rpcRequest)
@@ -96,11 +99,11 @@ func (t *StreamableHttpClientSessionTransport) SendMessage(ctx context.Context, 
 		return nil
 	}
 
-	if messageWithId, ok := rpcMessage.(IJsonRpcMessageWithId); !ok || messageWithId.GetId().String() != rpcRequest.GetId().String() {
+	if messageWithId, ok := rpcMessage.(protocol.IJsonRpcMessageWithId); !ok || messageWithId.GetId().String() != rpcRequest.GetId().String() {
 		return fmt.Errorf("streamable HTTP POST response completed without a reply to request with ID: %s", rpcRequest.GetId().String())
 	}
 
-	if _, ok := rpcMessage.(*JsonRpcResponse); ok && rpcRequest.Method == RequestMethods_Initialize {
+	if _, ok := rpcMessage.(*protocol.JsonRpcResponse); ok && rpcRequest.Method == protocol.RequestMethods_Initialize {
 		t.mcpSessionId = resp.Header.Get("mcp-session-id")
 		go t.receiveUnsolicitedMessages()
 	}
@@ -136,13 +139,13 @@ func CopyAdditionalHeaders(req *http.Request, additionalHeaders map[string]strin
 	}
 }
 
-func (t *StreamableHttpClientSessionTransport) processResponse(ctx context.Context, resp *http.Response) (IJsonRpcMessage, error) {
+func (t *StreamableHttpClientSessionTransport) processResponse(ctx context.Context, resp *http.Response) (protocol.IJsonRpcMessage, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	rpcMessage, err := UnmarshalJsonRpcMessage(body)
+	rpcMessage, err := protocol.UnmarshalJsonRpcMessage(body)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +157,7 @@ func (t *StreamableHttpClientSessionTransport) processResponse(ctx context.Conte
 	return rpcMessage, nil
 }
 
-func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Context, resp *http.Response, rpcRequest *JsonRpcRequest) (IJsonRpcMessage, error) {
+func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Context, resp *http.Response, rpcRequest *protocol.JsonRpcRequest) (protocol.IJsonRpcMessage, error) {
 	sseWriter := sse.CreateSseParser(resp.Body)
 	eventCh, errCh := sseWriter.EnumerateStream(ctx)
 
@@ -176,7 +179,7 @@ func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Co
 
 			switch event.EventType {
 			case "message":
-				rpcMessage, err := UnmarshalJsonRpcMessage([]byte(event.Data))
+				rpcMessage, err := protocol.UnmarshalJsonRpcMessage([]byte(event.Data))
 				if err != nil {
 					return nil, err
 				}
@@ -186,7 +189,7 @@ func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Co
 					return nil, err
 				}
 
-				if rpcMessageWithId, ok := rpcMessage.(IJsonRpcMessageWithId); ok && rpcMessageWithId != nil {
+				if rpcMessageWithId, ok := rpcMessage.(protocol.IJsonRpcMessageWithId); ok && rpcMessageWithId != nil {
 					if rpcMessageWithId.GetId().String() == rpcRequestId {
 						return rpcMessageWithId, nil
 					}

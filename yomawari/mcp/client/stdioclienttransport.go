@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"bytes"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/futugyou/yomawari/mcp/configuration"
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IClientTransport = (*StdioClientTransport)(nil)
@@ -55,7 +56,7 @@ func convertEnvVars(envVars map[string]string) []string {
 }
 
 // Connect implements IClientTransport.
-func (s *StdioClientTransport) Connect(context.Context) (ITransport, error) {
+func (s *StdioClientTransport) Connect(context.Context) (protocol.ITransport, error) {
 	endpointName := fmt.Sprintf("Client (stdio) for (%s: %s)", s.serverConfig.Id, s.serverConfig.Name)
 	fmt.Println("Connecting:", endpointName)
 

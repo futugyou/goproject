@@ -35,6 +35,17 @@ type StreamServerTransport struct {
 	connectedMutex    sync.RWMutex
 }
 
+// GetTransportKind implements ITransport.
+func (t *StreamServerTransport) GetTransportKind() TransportKind {
+	return TransportKindStream
+}
+
+// MessageReader implements ITransport.
+// Subtle: this method shadows the method (TransportBase).MessageReader of StreamServerTransport.TransportBase.
+func (t *StreamServerTransport) MessageReader() <-chan IJsonRpcMessage {
+	panic("unimplemented")
+}
+
 // NewStreamServerTransport creates a new StreamServerTransport with explicit input/output streams.
 func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, serverName string, logger logging.Logger) *StreamServerTransport {
 	if inputStream == nil {
@@ -47,7 +58,7 @@ func NewStreamServerTransport(inputStream io.Reader, outputStream io.Writer, ser
 	ctx, cancel := context.WithCancel(context.Background())
 
 	t := &StreamServerTransport{
-		TransportBase:     *NewTransportBase(),
+		TransportBase:     *ServerTransportBase(),
 		logger:            logger,
 		inputReader:       bufio.NewReader(inputStream),
 		outputStream:      outputStream,

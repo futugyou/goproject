@@ -22,7 +22,7 @@ var _ IMcpClient = (*McpClient)(nil)
 
 type McpClient struct {
 	*shared.BaseMcpEndpoint
-	clientTransport  protocol.IClientTransport
+	clientTransport  IClientTransport
 	options          McpClientOptions
 	sessionTransport protocol.ITransport
 	reqHandlers      *shared.RequestHandlers
@@ -39,7 +39,7 @@ type McpClient struct {
 	EndpointName       string
 }
 
-func CreateMcpClient(ctx context.Context, clientTransport protocol.IClientTransport, options McpClientOptions) (*McpClient, error) {
+func CreateMcpClient(ctx context.Context, clientTransport IClientTransport, options McpClientOptions) (*McpClient, error) {
 	client := NewMcpClient(clientTransport, options)
 	err := client.Connect(ctx)
 	if err != nil {
@@ -49,7 +49,7 @@ func CreateMcpClient(ctx context.Context, clientTransport protocol.IClientTransp
 	return client, nil
 }
 
-func NewMcpClient(clientTransport protocol.IClientTransport, options McpClientOptions) *McpClient {
+func NewMcpClient(clientTransport IClientTransport, options McpClientOptions) *McpClient {
 	client := &McpClient{
 		BaseMcpEndpoint: shared.NewBaseMcpEndpoint(),
 		clientTransport: clientTransport,

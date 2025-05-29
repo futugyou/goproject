@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
 var _ IClientTransport = (*StreamClientTransport)(nil)
@@ -40,7 +41,7 @@ func NewStreamClientTransport(serverInput io.Writer, serverOutput io.Reader, log
 }
 
 // Connect creates a new client session transport using the configured streams.
-func (t *StreamClientTransport) Connect(ctx context.Context) (ITransport, error) {
+func (t *StreamClientTransport) Connect(ctx context.Context) (protocol.ITransport, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 

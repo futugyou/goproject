@@ -22,6 +22,11 @@ type StreamableHttpPostTransport struct {
 	mu              sync.Mutex
 }
 
+// GetTransportKind implements ITransport.
+func (s *StreamableHttpPostTransport) GetTransportKind() TransportKind {
+	return TransportKindHttp
+}
+
 func NewStreamableHttpPostTransport(parentTransport *StreamableHttpServerTransport, httpBodies *DuplexPipe) *StreamableHttpPostTransport {
 
 	return &StreamableHttpPostTransport{

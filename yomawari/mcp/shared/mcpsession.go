@@ -37,21 +37,11 @@ type McpSession struct {
 }
 
 func NewMcpSession(isServer bool, transp protocol.ITransport, endpointName string, requestHandlers *RequestHandlers, notificationHandlers *NotificationHandlers) *McpSession {
-	_transportKind := "unknownTransport"
-	switch transp.(type) {
-	case *protocol.StdioClientSessionTransport, *protocol.StdioServerTransport:
-		_transportKind = "stdio"
-	case *protocol.StreamClientSessionTransport, *protocol.StreamServerTransport:
-		_transportKind = "stream"
-	case *protocol.SseClientSessionTransport, *protocol.SseResponseStreamTransport:
-		_transportKind = "sse"
-	case *protocol.StreamableHttpServerTransport, *protocol.StreamableHttpPostTransport, *protocol.StreamableHttpClientSessionTransport:
-		_transportKind = "http"
-	}
+	transportKind := transp.GetTransportKind()
 
 	return &McpSession{
 		_isServer:                 isServer,
-		_transportKind:            _transportKind,
+		_transportKind:            string(transportKind),
 		_transport:                transp,
 		_requestHandlers:          requestHandlers,
 		_notificationHandlers:     notificationHandlers,

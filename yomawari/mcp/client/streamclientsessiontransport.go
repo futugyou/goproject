@@ -1,4 +1,4 @@
-package protocol
+package client
 
 import (
 	"bufio"
@@ -10,13 +10,14 @@ import (
 	"time"
 
 	"github.com/futugyou/yomawari/mcp/logging"
+	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
-var _ ITransport = (*StreamClientSessionTransport)(nil)
+var _ protocol.ITransport = (*StreamClientSessionTransport)(nil)
 
 // StreamClientSessionTransport represents an active client session
 type StreamClientSessionTransport struct {
-	TransportBase
+	*protocol.TransportBase
 	logger logging.Logger
 
 	serverOutput *bufio.Reader
@@ -31,6 +32,10 @@ type StreamClientSessionTransport struct {
 	readLoopCompleted chan struct{}
 }
 
+func (t *StreamClientSessionTransport) GetTransportKind() protocol.TransportKind {
+	return protocol.TransportKindHttp
+}
+
 // NewStreamClientSessionTransport creates a new StreamClientSessionTransport.
 func NewStreamClientSessionTransport(
 	serverInput io.Writer,
@@ -40,10 +45,7 @@ func NewStreamClientSessionTransport(
 ) *StreamClientSessionTransport {
 	ctx, cancel := context.WithCancel(context.Background())
 	t := &StreamClientSessionTransport{
-		TransportBase: TransportBase{
-			messageChannel: make(chan IJsonRpcMessage),
-			isConnected:    false,
-		},
+		TransportBase:     protocol.ClientTransportBase(),
 		logger:            logger,
 		serverOutput:      bufio.NewReader(serverOutput),
 		serverInput:       serverInput,
@@ -60,13 +62,13 @@ func NewStreamClientSessionTransport(
 func (t *StreamClientSessionTransport) IsConnected() bool {
 	t.connectedMu.RLock()
 	defer t.connectedMu.RUnlock()
-	return t.isConnected
+	return t.IsConnected()
 }
 
 func (t *StreamClientSessionTransport) SetConnected(connected bool) {
 	t.connectedMu.Lock()
 	defer t.connectedMu.Unlock()
-	t.isConnected = connected
+	t.TransportBase.SetConnected(connected)
 }
 
 // Close closes the transport and releases resources.
@@ -126,8 +128,8 @@ func (t *StreamClientSessionTransport) readMessages() {
 
 			t.logger.TransportReceivedMessage(t.EndpointName, string(line))
 
-			var message IJsonRpcMessage
-			if m, err := UnmarshalJsonRpcMessage(line); err != nil {
+			var message protocol.IJsonRpcMessage
+			if m, err := protocol.UnmarshalJsonRpcMessage(line); err != nil {
 				t.logger.TransportMessageParseFailed(t.EndpointName, string(line), err)
 				continue
 			} else {
@@ -135,7 +137,7 @@ func (t *StreamClientSessionTransport) readMessages() {
 			}
 
 			messageID := "(no id)"
-			if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
+			if msgWithID, ok := message.(protocol.IJsonRpcMessageWithId); ok {
 				messageWithId := msgWithID.GetId()
 				messageID = messageWithId.String()
 			}
@@ -149,7 +151,7 @@ func (t *StreamClientSessionTransport) readMessages() {
 }
 
 // SendMessageAsync implements ITransport.
-func (t *StreamClientSessionTransport) SendMessage(ctx context.Context, message IJsonRpcMessage) error {
+func (t *StreamClientSessionTransport) SendMessage(ctx context.Context, message protocol.IJsonRpcMessage) error {
 	if !t.IsConnected() {
 		t.logger.TransportNotConnected(t.EndpointName)
 		return fmt.Errorf("transport is not connected")
@@ -159,7 +161,7 @@ func (t *StreamClientSessionTransport) SendMessage(ctx context.Context, message 
 	defer t.sendLock.Unlock()
 
 	messageID := "(no id)"
-	if msgWithID, ok := message.(IJsonRpcMessageWithId); ok {
+	if msgWithID, ok := message.(protocol.IJsonRpcMessageWithId); ok {
 		messageWithId := msgWithID.GetId()
 		messageID = messageWithId.String()
 	}
