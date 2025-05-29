@@ -40,7 +40,7 @@ func NewStreamableHttpClientSessionTransport(httpClient *http.Client, options *S
 		Options:        options,
 		ctx:            ctx,
 		cancelFunc:     cancel,
-		getReceiveTask: make(chan struct{}),
+		getReceiveTask: nil,
 		disposed:       false,
 	}
 	transport.SetConnected(true)
@@ -119,12 +119,17 @@ func (t *StreamableHttpClientSessionTransport) Close() error {
 
 	t.cancelFunc()
 
-	select {
-	case <-t.getReceiveTask:
-	case <-time.After(5 * time.Second):
+	if t.getReceiveTask != nil {
+		select {
+		case <-t.getReceiveTask:
+		case <-time.After(5 * time.Second):
+		}
 	}
 
-	t.SetConnected(false)
+	if t.Options.HttpTransportMode != HttpTransportModeAutoDetect || t.getReceiveTask != nil {
+		t.SetConnected(false)
+	}
+
 	return nil
 }
 
@@ -200,6 +205,7 @@ func (t *StreamableHttpClientSessionTransport) processSseResponse(ctx context.Co
 }
 
 func (t *StreamableHttpClientSessionTransport) receiveUnsolicitedMessages() {
+	t.getReceiveTask = make(chan struct{})
 	defer close(t.getReceiveTask)
 	req, err := http.NewRequestWithContext(t.ctx, http.MethodGet, t.Options.Endpoint.String(), nil)
 	if err != nil {

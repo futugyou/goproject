@@ -62,7 +62,7 @@ func NewStreamClientSessionTransport(
 func (t *StreamClientSessionTransport) IsConnected() bool {
 	t.connectedMu.RLock()
 	defer t.connectedMu.RUnlock()
-	return t.IsConnected()
+	return t.TransportBase.IsConnected()
 }
 
 func (t *StreamClientSessionTransport) SetConnected(connected bool) {

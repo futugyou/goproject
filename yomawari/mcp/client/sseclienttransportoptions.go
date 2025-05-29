@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+type HttpTransportMode string
+
+var HttpTransportModeAutoDetect HttpTransportMode = "AutoDetect"
+var HttpTransportModeStreamableHttp HttpTransportMode = "StreamableHttp"
+var HttpTransportModeSse HttpTransportMode = "Sse"
+
 type SseClientTransportOptions struct {
 	Endpoint             url.URL
 	Name                 *string
@@ -12,7 +18,7 @@ type SseClientTransportOptions struct {
 	AdditionalHeaders    map[string]string
 	MaxReconnectAttempts int
 	ReconnectDelay       time.Duration
-	UseStreamableHttp    bool
+	HttpTransportMode    HttpTransportMode
 }
 
 func NewSseClientTransportOptions() *SseClientTransportOptions {
@@ -21,5 +27,6 @@ func NewSseClientTransportOptions() *SseClientTransportOptions {
 		AdditionalHeaders:    map[string]string{},
 		MaxReconnectAttempts: 3,
 		ReconnectDelay:       5 * time.Second,
+		HttpTransportMode:    HttpTransportModeAutoDetect,
 	}
 }

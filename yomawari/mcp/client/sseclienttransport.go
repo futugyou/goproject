@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/futugyou/yomawari/mcp/configuration"
@@ -57,10 +58,22 @@ func NewSseClientTransport(serverConfig *configuration.McpServerConfig, options 
 
 // Connect implements IClientTransport.
 func (s *SseClientTransport) Connect(ctx context.Context) (protocol.ITransport, error) {
-	if s.options.UseStreamableHttp {
-		return NewStreamableHttpClientSessionTransport(s.httpClient, s.options, s.name), nil
-	}
 
+	switch s.options.HttpTransportMode {
+	case HttpTransportModeAutoDetect:
+		// TODO: AutoDetectingClientSessionTransport
+		// return NewAutoDetectingClientSessionTransport(s.options, s.httpClient, s.name), nil
+		return nil, nil
+	case HttpTransportModeStreamableHttp:
+		return NewStreamableHttpClientSessionTransport(s.httpClient, s.options, s.name), nil
+	case HttpTransportModeSse:
+		return s.connectSseTransport(ctx)
+	default:
+		return nil, fmt.Errorf("unsupported transport mode: %s", s.options.HttpTransportMode)
+	}
+}
+
+func (s *SseClientTransport) connectSseTransport(ctx context.Context) (protocol.ITransport, error) {
 	sessionTransport := NewSseClientSessionTransport(s.serverConfig, s.options, s.httpClient)
 	err := sessionTransport.Connect(ctx)
 	if err != nil {
