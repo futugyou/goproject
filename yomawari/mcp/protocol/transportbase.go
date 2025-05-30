@@ -16,6 +16,17 @@ func (t *TransportBase) GetTransportKind() TransportKind {
 	panic("unimplemented")
 }
 
+func NewTransportBase(name string, messageChannel chan IJsonRpcMessage) *TransportBase {
+	if messageChannel == nil {
+		messageChannel = make(chan IJsonRpcMessage)
+	}
+	return &TransportBase{
+		Name:           name,
+		messageChannel: messageChannel,
+		isConnected:    false,
+	}
+}
+
 func ServerTransportBase() *TransportBase {
 	return &TransportBase{
 		messageChannel: make(chan IJsonRpcMessage),

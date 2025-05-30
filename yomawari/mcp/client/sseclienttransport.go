@@ -61,9 +61,7 @@ func (s *SseClientTransport) Connect(ctx context.Context) (protocol.ITransport, 
 
 	switch s.options.HttpTransportMode {
 	case HttpTransportModeAutoDetect:
-		// TODO: AutoDetectingClientSessionTransport
-		// return NewAutoDetectingClientSessionTransport(s.options, s.httpClient, s.name), nil
-		return nil, nil
+		return NewAutoDetectingClientSessionTransport(s.httpClient, s.options, s.name), nil
 	case HttpTransportModeStreamableHttp:
 		return NewStreamableHttpClientSessionTransport(s.httpClient, s.options, s.name), nil
 	case HttpTransportModeSse:
@@ -74,7 +72,7 @@ func (s *SseClientTransport) Connect(ctx context.Context) (protocol.ITransport, 
 }
 
 func (s *SseClientTransport) connectSseTransport(ctx context.Context) (protocol.ITransport, error) {
-	sessionTransport := NewSseClientSessionTransport(s.serverConfig, s.options, s.httpClient)
+	sessionTransport := NewSseClientSessionTransport(s.name, s.options, s.httpClient, nil)
 	err := sessionTransport.Connect(ctx)
 	if err != nil {
 		return nil, err

@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/futugyou/yomawari/mcp/configuration"
 	"github.com/futugyou/yomawari/mcp/protocol"
 	"github.com/futugyou/yomawari/runtime/sse"
 )
@@ -23,7 +22,6 @@ type SseClientSessionTransport struct {
 	messageEndpoint       *url.URL
 	ctx                   context.Context
 	cancelFunc            context.CancelFunc
-	serverConfig          *configuration.McpServerConfig
 	connectionEstablished chan bool
 	EndpointName          string
 	disposed              bool
@@ -31,28 +29,24 @@ type SseClientSessionTransport struct {
 	receiveTaskCompleted chan struct{}
 }
 
-func NewSseClientSessionTransport(serverConfig *configuration.McpServerConfig, options *SseClientTransportOptions, httpClient *http.Client) *SseClientSessionTransport {
+func NewSseClientSessionTransport(endpointName string, options *SseClientTransportOptions, httpClient *http.Client, messageChannel chan protocol.IJsonRpcMessage) *SseClientSessionTransport {
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
-	if serverConfig == nil {
-		serverConfig = &configuration.McpServerConfig{}
-	}
+
 	if options == nil {
 		options = &SseClientTransportOptions{}
 	}
-	sseEndpoint, _ := url.Parse(serverConfig.Location)
 	ctx, cancel := context.WithCancel(context.Background())
 	transport := &SseClientSessionTransport{
-		TransportBase:         protocol.ClientTransportBase(),
+		TransportBase:         protocol.NewTransportBase(endpointName, messageChannel),
 		httpClient:            httpClient,
 		Options:               options,
-		SseEndpoint:           sseEndpoint,
+		SseEndpoint:           &options.Endpoint,
 		ctx:                   ctx,
 		cancelFunc:            cancel,
-		serverConfig:          serverConfig,
 		connectionEstablished: make(chan bool),
-		EndpointName:          fmt.Sprintf("Client (SSE) for (%s: %s)", serverConfig.Id, serverConfig.Name),
+		EndpointName:          endpointName,
 		receiveTaskCompleted:  make(chan struct{}),
 	}
 	return transport
