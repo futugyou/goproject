@@ -2,15 +2,10 @@ package shared
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"strings"
 	"sync"
 
-	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
-	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
-	"github.com/futugyou/yomawari/mcp"
 	"github.com/futugyou/yomawari/mcp/protocol"
 )
 
@@ -140,130 +135,4 @@ func (e *BaseMcpEndpoint) disposeUnsynchronized(ctx context.Context) error {
 
 	e.session.Dispose()
 	return nil
-}
-
-func (e *BaseMcpEndpoint) Elicit(ctx context.Context, request protocol.ElicitRequestParams) (*protocol.ElicitResult, error) {
-	req := protocol.NewJsonRpcRequest(protocol.RequestMethods_ElicitationCreate, request, nil)
-	resp, err := e.SendRequest(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	var result protocol.ElicitResult
-	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (e *BaseMcpEndpoint) Sample(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
-	req := protocol.NewJsonRpcRequest(protocol.RequestMethods_SamplingCreateMessage, request, nil)
-	resp, err := e.SendRequest(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	var result protocol.CreateMessageResult
-	if err := json.Unmarshal(resp.Result, &result); err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func (e *BaseMcpEndpoint) SampleWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
-	samplingMessages := []protocol.SamplingMessage{}
-	var systemPrompt *strings.Builder
-	for _, message := range messages {
-		if message.Role == chatcompletion.RoleSystem {
-			if systemPrompt == nil {
-				systemPrompt = &strings.Builder{}
-			} else {
-				systemPrompt.WriteString("\n")
-			}
-
-			systemPrompt.WriteString(message.Text())
-			continue
-		}
-
-		if message.Role == chatcompletion.RoleUser || message.Role == chatcompletion.RoleAssistant {
-			role := protocol.RoleUser
-			if message.Role == chatcompletion.RoleAssistant {
-				role = protocol.RoleAssistant
-			}
-			for _, content := range message.Contents {
-				switch con := content.(type) {
-				case *contents.TextContent:
-					samplingMessages = append(samplingMessages, protocol.SamplingMessage{
-						Content: protocol.Content{
-							Type: "text",
-							Text: &con.Text,
-						},
-						Role: role,
-					})
-				case *contents.DataContent:
-					if con.MediaTypeStartsWith("image") || con.MediaTypeStartsWith("audio") {
-						t := "image"
-						if con.MediaTypeStartsWith("audio") {
-							t = "audio"
-						}
-						decoded := base64.URLEncoding.EncodeToString(con.Data)
-						samplingMessages = append(samplingMessages, protocol.SamplingMessage{
-							Content: protocol.Content{
-								Type:     t,
-								MimeType: &con.MediaType,
-								Data:     &decoded,
-							},
-							Role: role,
-						})
-					}
-				}
-			}
-		}
-	}
-
-	var modelPreferences protocol.ModelPreferences
-	if options != nil && options.ModelId != nil {
-		modelPreferences = protocol.ModelPreferences{
-			Hints: []protocol.ModelHint{{
-				Name: options.ModelId,
-			}},
-		}
-	}
-
-	systemPromptString := systemPrompt.String()
-	request := protocol.CreateMessageRequestParams{
-		RequestParams:    protocol.RequestParams{},
-		MaxTokens:        options.MaxOutputTokens,
-		Messages:         samplingMessages,
-		Metadata:         nil,
-		ModelPreferences: modelPreferences,
-		StopSequences:    options.StopSequences,
-		SystemPrompt:     &systemPromptString,
-		Temperature:      options.Temperature,
-	}
-
-	result, err := e.Sample(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	message := &chatcompletion.ChatMessage{
-		Contents: []contents.IAIContent{mcp.ContentToAIContent(result.Content)},
-	}
-	if result.Role == protocol.RoleUser {
-		message.Role = chatcompletion.RoleUser
-	}
-	if result.Role == protocol.RoleAssistant {
-		message.Role = chatcompletion.RoleAssistant
-	}
-	resp := chatcompletion.NewChatResponse(nil, message)
-	if result.StopReason != nil {
-		if *result.StopReason == "maxTokens" {
-			t := chatcompletion.ReasonLength
-			resp.FinishReason = &t
-		} else {
-
-			t := chatcompletion.ReasonStop
-			resp.FinishReason = &t
-		}
-	}
-	return resp, nil
 }
