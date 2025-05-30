@@ -11,6 +11,7 @@ type ClientCapabilities struct {
 	Experimental         map[string]interface{} `json:"experimental,omitempty"`
 	Roots                *RootsCapability       `json:"roots,omitempty"`
 	Sampling             *SamplingCapability    `json:"sampling,omitempty"`
+	Elicitation          *ElicitationCapability `json:"elicitation,omitempty"`
 	NotificationHandlers map[string]NotificationHandler
 }
 

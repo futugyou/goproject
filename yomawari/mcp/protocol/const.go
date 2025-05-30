@@ -57,3 +57,5 @@ const RequestMethods_CompletionComplete string = "completion/complete"
 const RequestMethods_SamplingCreateMessage string = "sampling/createMessage"
 
 const RequestMethods_Initialize string = "initialize"
+
+const RequestMethods_ElicitationCreate string = "elicitation/create"

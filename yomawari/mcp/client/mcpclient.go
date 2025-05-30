@@ -93,6 +93,18 @@ func NewMcpClient(clientTransport IClientTransport, options McpClientOptions) *M
 				nil,
 			)
 		}
+
+		if capabilities.Elicitation != nil && capabilities.Elicitation.ElicitationHandler != nil {
+			shared.GenericRequestHandlerAdd(
+				client.reqHandlers,
+				protocol.RequestMethods_ElicitationCreate,
+				func(ctx context.Context, request *protocol.ElicitRequestParams, tran protocol.ITransport) (*protocol.ElicitResult, error) {
+					return capabilities.Elicitation.ElicitationHandler(ctx, request)
+				},
+				nil,
+				nil,
+			)
+		}
 	}
 	return client
 }

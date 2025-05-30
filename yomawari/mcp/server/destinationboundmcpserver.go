@@ -76,14 +76,14 @@ func (d *DestinationBoundMcpServer) RequestRoots(ctx context.Context, request pr
 	return d.server.RequestRoots(ctx, request)
 }
 
-// RequestSampling implements IMcpServer.
-func (d *DestinationBoundMcpServer) RequestSampling(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
-	return d.server.RequestSampling(ctx, request)
+// Sample implements IMcpServer.
+func (d *DestinationBoundMcpServer) Sample(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
+	return d.server.Sample(ctx, request)
 }
 
-// RequestSamplingWithChatMessage implements IMcpServer.
-func (d *DestinationBoundMcpServer) RequestSamplingWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
-	return d.server.RequestSamplingWithChatMessage(ctx, messages, options)
+// SampleWithChatMessage implements IMcpServer.
+func (d *DestinationBoundMcpServer) SampleWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+	return d.server.SampleWithChatMessage(ctx, messages, options)
 }
 
 // Run implements IMcpServer.
@@ -106,4 +106,8 @@ func (d *DestinationBoundMcpServer) SendNotification(ctx context.Context, notifi
 func (d *DestinationBoundMcpServer) SendRequest(ctx context.Context, req *protocol.JsonRpcRequest) (*protocol.JsonRpcResponse, error) {
 	req.SetRelatedTransport(d.transport)
 	return d.server.SendRequest(ctx, req)
+}
+
+func (e *DestinationBoundMcpServer) Elicit(ctx context.Context, request protocol.ElicitRequestParams) (*protocol.ElicitResult, error) {
+	return e.server.Elicit(ctx, request)
 }

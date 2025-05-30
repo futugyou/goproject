@@ -142,7 +142,20 @@ func (e *BaseMcpEndpoint) disposeUnsynchronized(ctx context.Context) error {
 	return nil
 }
 
-func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
+func (e *BaseMcpEndpoint) Elicit(ctx context.Context, request protocol.ElicitRequestParams) (*protocol.ElicitResult, error) {
+	req := protocol.NewJsonRpcRequest(protocol.RequestMethods_ElicitationCreate, request, nil)
+	resp, err := e.SendRequest(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	var result protocol.ElicitResult
+	if err := json.Unmarshal(resp.Result, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (e *BaseMcpEndpoint) Sample(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error) {
 	req := protocol.NewJsonRpcRequest(protocol.RequestMethods_SamplingCreateMessage, request, nil)
 	resp, err := e.SendRequest(ctx, req)
 	if err != nil {
@@ -155,7 +168,7 @@ func (e *BaseMcpEndpoint) RequestSampling(ctx context.Context, request protocol.
 	return &result, nil
 }
 
-func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
+func (e *BaseMcpEndpoint) SampleWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
 	samplingMessages := []protocol.SamplingMessage{}
 	var systemPrompt *strings.Builder
 	for _, message := range messages {
@@ -227,7 +240,7 @@ func (e *BaseMcpEndpoint) RequestSamplingWithChatMessage(ctx context.Context, me
 		Temperature:      options.Temperature,
 	}
 
-	result, err := e.RequestSampling(ctx, request)
+	result, err := e.Sample(ctx, request)
 	if err != nil {
 		return nil, err
 	}

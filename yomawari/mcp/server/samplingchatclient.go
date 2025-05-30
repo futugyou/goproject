@@ -18,7 +18,7 @@ func NewSamplingChatClient(server IMcpServer) *SamplingChatClient {
 
 // GetResponse implements chatcompletion.IChatClient.
 func (s *SamplingChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
-	return s.server.RequestSamplingWithChatMessage(ctx, chatMessages, options)
+	return s.server.SampleWithChatMessage(ctx, chatMessages, options)
 }
 
 // GetStreamingResponse implements chatcompletion.IChatClient.

@@ -14,8 +14,9 @@ type IMcpServer interface {
 	GetClientInfo() *protocol.Implementation
 	GetMcpServerOptions() *McpServerOptions
 	Run(ctx context.Context) error
-	RequestSampling(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error)
-	RequestSamplingWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error)
+	Sample(ctx context.Context, request protocol.CreateMessageRequestParams) (*protocol.CreateMessageResult, error)
+	Elicit(ctx context.Context, request protocol.ElicitRequestParams) (*protocol.ElicitResult, error)
+	SampleWithChatMessage(ctx context.Context, messages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error)
 	AsSamplingChatClient() (chatcompletion.IChatClient, error)
 	RequestRoots(ctx context.Context, request protocol.ListRootsRequestParams) (*protocol.ListRootsResult, error)
 }
