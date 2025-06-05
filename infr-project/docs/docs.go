@@ -1829,6 +1829,9 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 3
                 },
+                "imageData": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 50,
@@ -2414,6 +2417,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "imageData": {
+                    "type": "string"
+                },
                 "is_deleted": {
                     "type": "boolean"
                 },
@@ -2699,6 +2705,9 @@ const docTemplate = `{
                 "data": {
                     "type": "string",
                     "minLength": 3
+                },
+                "imageData": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string",

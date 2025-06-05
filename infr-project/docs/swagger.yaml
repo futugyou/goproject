@@ -158,6 +158,8 @@ definitions:
       data:
         minLength: 3
         type: string
+      imageData:
+        type: string
       name:
         maxLength: 50
         minLength: 3
@@ -561,6 +563,8 @@ definitions:
         type: string
       id:
         type: string
+      imageData:
+        type: string
       is_deleted:
         type: boolean
       name:
@@ -763,6 +767,8 @@ definitions:
     properties:
       data:
         minLength: 3
+        type: string
+      imageData:
         type: string
       name:
         maxLength: 50
