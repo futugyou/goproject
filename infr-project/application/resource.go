@@ -37,7 +37,7 @@ func (s *ResourceService) CreateResource(ctx context.Context, aux models.CreateR
 	var res *resource.Resource
 	resourceType := resource.GetResourceType(aux.Type)
 	if err := s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
-		res = resource.NewResource(aux.Name, resourceType, aux.Data, aux.Tags)
+		res = resource.NewResource(aux.Name, resourceType, aux.Data, aux.ImageData, aux.Tags)
 		return s.service.SaveSnapshotAndEvent(ctx, res)
 	}); err != nil {
 		return nil, err

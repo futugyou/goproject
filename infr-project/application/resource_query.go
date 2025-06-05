@@ -80,6 +80,7 @@ func (s *ResourceQueryService) convertData(data resourcequery.Resource) models.R
 		CreatedAt: data.CreatedAt,
 		UpdatedAt: data.UpdatedAt,
 		Tags:      data.Tags,
+		ImageData: data.ImageData,
 	}
 }
 
@@ -98,6 +99,7 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data m
 				Name:      data.Name,
 				Type:      data.Type,
 				Data:      data.Data,
+				ImageData: data.ImageData,
 				Version:   data.ResourceVersion,
 				IsDelete:  false,
 				CreatedAt: data.CreatedAt,
@@ -115,6 +117,7 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data m
 			res.Name = data.Name
 			res.Type = data.Type
 			res.Data = data.Data
+			res.ImageData = data.ImageData
 			res.Tags = data.Tags
 		case "ResourceNameChanged":
 			res.Name = data.Name

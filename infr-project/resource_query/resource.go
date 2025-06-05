@@ -11,6 +11,7 @@ type Resource struct {
 	Name             string    `bson:"name"`
 	Type             string    `bson:"type"`
 	Data             string    `bson:"data"`
+	ImageData        string    `bson:"imageData"`
 	Version          int       `bson:"version"`
 	IsDelete         bool      `bson:"is_deleted"`
 	CreatedAt        time.Time `bson:"created_at"`

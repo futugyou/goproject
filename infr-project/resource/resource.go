@@ -16,13 +16,14 @@ type Resource struct {
 	Name      string
 	Type      ResourceType
 	Data      string
+	ImageData string
 	Tags      []string
 	IsDeleted bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func NewResource(name string, resourceType ResourceType, data string, tags []string) *Resource {
+func NewResource(name string, resourceType ResourceType, data string, imageData string,tags []string) *Resource {
 	r := &Resource{
 		AggregateWithEventSourcing: domain.AggregateWithEventSourcing{
 			Aggregate: domain.Aggregate{
@@ -33,6 +34,7 @@ func NewResource(name string, resourceType ResourceType, data string, tags []str
 		Name:      name,
 		Type:      resourceType,
 		Data:      data,
+		ImageData: imageData,
 		Tags:      tags,
 		CreatedAt: time.Now().UTC(),
 	}
