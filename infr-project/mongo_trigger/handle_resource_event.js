@@ -19,7 +19,7 @@ exports = async function (changeEvent) {
     console.log("resourceChangeEvent: ", JSON.stringify(resourceChangeEvent));
     const resourceId = resourceChangeEvent.id;
     const updateFields = { id: resourceId };
-    const fieldsToCopy = ['name', 'version', 'type', 'data', 'tags'];
+    const fieldsToCopy = ['name', 'version', 'type', 'data', 'tags', 'imageData'];
     fieldsToCopy.forEach(field => {
         if (field in resourceChangeEvent) {
             updateFields[field] = resourceChangeEvent[field];
@@ -108,7 +108,7 @@ async function initializeResourceQueryCollection() {
             if ('created_at' in latestEvent) resourceQuery.updated_at = latestEvent.created_at;
 
             // Loop through fields in latestEvent and add them to resourceQuery if present
-            const fieldsToCopy = ['name', 'version', 'type', 'data', 'tags'];
+            const fieldsToCopy = ['name', 'version', 'type', 'data', 'tags', 'imageData'];
             events.forEach(re => {
                 fieldsToCopy.forEach(field => {
                     if (field in re) {
