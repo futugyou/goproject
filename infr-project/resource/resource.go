@@ -6,8 +6,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/google/uuid"
-
 	domain "github.com/futugyou/infr-project/domain"
 )
 
@@ -24,23 +22,10 @@ type Resource struct {
 }
 
 func NewResource(name string, resourceType ResourceType, data string, imageData string, tags []string) *Resource {
-	r := &Resource{
-		AggregateWithEventSourcing: domain.AggregateWithEventSourcing{
-			Aggregate: domain.Aggregate{
-				Id: uuid.New().String(),
-			},
-			Version: 1,
-		},
-		Name:      name,
-		Type:      resourceType,
-		Data:      data,
-		ImageData: imageData,
-		Tags:      tags,
-		CreatedAt: time.Now().UTC(),
-	}
-
-	event := NewResourceCreatedEvent(r)
+	r := &Resource{}
+	event := NewResourceCreatedEvent(name, resourceType, data, imageData, tags)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r
 }
 
@@ -58,12 +43,9 @@ func (r *Resource) ChangeName(name string) (*Resource, error) {
 		return r, err
 	}
 
-	r.Version = r.Version + 1
-	r.CreatedAt = time.Now().UTC()
-	r.Name = name
-
-	event := NewResourceNameChangedEvent(r)
+	event := NewResourceNameChangedEvent(r.Id, name, r.Version)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r, nil
 }
 
@@ -73,13 +55,9 @@ func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource
 		return r, err
 	}
 
-	r.Version = r.Version + 1
-	r.CreatedAt = time.Now().UTC()
-	r.Type = resourceType
-	r.Data = data
-
-	event := NewResourceTypeChangedEvent(r)
+	event := NewResourceTypeChangedEvent(r.Id, r.Version, resourceType, data)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r, nil
 }
 
@@ -89,12 +67,9 @@ func (r *Resource) ChangeData(data string) (*Resource, error) {
 		return r, err
 	}
 
-	r.Version = r.Version + 1
-	r.CreatedAt = time.Now().UTC()
-	r.Data = data
-
-	event := NewResourceDataChangedEvent(r)
+	event := NewResourceDataChangedEvent(r.Id, r.Version, data)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r, nil
 }
 
@@ -104,12 +79,9 @@ func (r *Resource) ChangeTags(tags []string) (*Resource, error) {
 		return r, err
 	}
 
-	r.Version = r.Version + 1
-	r.CreatedAt = time.Now().UTC()
-	r.Tags = tags
-
-	event := NewResourceTagsChangedEvent(r)
+	event := NewResourceTagsChangedEvent(r.Id, r.Version, tags)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r, nil
 }
 
@@ -118,16 +90,9 @@ func (r *Resource) ChangeResource(name string, resourceType ResourceType, data s
 		return r, err
 	}
 
-	r.Version = r.Version + 1
-	r.IsDeleted = false
-	r.Name = name
-	r.Type = resourceType
-	r.Data = data
-	r.ImageData = imageData
-	r.Tags = tags
-
-	event := NewResourceUpdatedEvent(r)
+	event := NewResourceUpdatedEvent(r.Id, r.Version, name, resourceType, data, imageData, tags)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r, nil
 }
 
@@ -136,11 +101,9 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 		return r, err
 	}
 
-	r.Version = r.Version + 1
-	r.IsDeleted = true
-
-	event := NewResourceDeletedEvent(r)
+	event := NewResourceDeletedEvent(r.Id, r.Version)
 	r.AddDomainEvent(event)
+	r.Apply(event)
 	return r, nil
 }
 

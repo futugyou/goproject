@@ -6,6 +6,7 @@ import (
 	"time"
 
 	domain "github.com/futugyou/infr-project/domain"
+	"github.com/google/uuid"
 )
 
 type IResourceEvent interface {
@@ -28,19 +29,19 @@ func (e ResourceCreatedEvent) EventType() string {
 	return "ResourceCreated"
 }
 
-func NewResourceCreatedEvent(r *Resource) *ResourceCreatedEvent {
+func NewResourceCreatedEvent(name string, resourceType ResourceType, data string, imageData string, tags []string) *ResourceCreatedEvent {
 	return &ResourceCreatedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
-				CreatedAt:       r.CreatedAt,
+				Id:              uuid.New().String(),
+				ResourceVersion: 1,
+				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		Name: r.Name,
-		Type: r.Type.String(),
-		Data: r.Data,
-		Tags: r.Tags,
+		Name: name,
+		Type: resourceType.String(),
+		Data: data,
+		Tags: tags,
 	}
 }
 
@@ -59,14 +60,14 @@ func (e ResourceUpdatedEvent) EventType() string {
 	return "ResourceUpdated"
 }
 
-func NewResourceUpdatedEvent(r *Resource) *ResourceUpdatedEvent {
+func NewResourceUpdatedEvent(id string, version int, name string, resourceType ResourceType, data string, imageData string, tags []string) *ResourceUpdatedEvent {
 	return &ResourceUpdatedEvent{
-		ResourceEvent: ResourceEvent{DomainEvent: domain.DomainEvent{Id: r.Id, ResourceVersion: r.Version, CreatedAt: time.Now().UTC()}},
-		Name:          r.Name,
-		Type:          r.Type.String(),
-		Data:          r.Data,
-		ImageData:     r.ImageData,
-		Tags:          r.Tags,
+		ResourceEvent: ResourceEvent{DomainEvent: domain.DomainEvent{Id: id, ResourceVersion: version + 1, CreatedAt: time.Now().UTC()}},
+		Name:          name,
+		Type:          resourceType.String(),
+		Data:          data,
+		ImageData:     imageData,
+		Tags:          tags,
 	}
 }
 
@@ -78,12 +79,12 @@ func (e ResourceDeletedEvent) EventType() string {
 	return "ResourceDeleted"
 }
 
-func NewResourceDeletedEvent(r *Resource) *ResourceDeletedEvent {
+func NewResourceDeletedEvent(id string, version int) *ResourceDeletedEvent {
 	return &ResourceDeletedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
+				Id:              id,
+				ResourceVersion: version + 1,
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
@@ -100,16 +101,16 @@ func (e ResourceNameChangedEvent) EventType() string {
 	return "ResourceNameChanged"
 }
 
-func NewResourceNameChangedEvent(r *Resource) *ResourceNameChangedEvent {
+func NewResourceNameChangedEvent(id string, name string, version int) *ResourceNameChangedEvent {
 	return &ResourceNameChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
+				Id:              id,
+				ResourceVersion: version + 1,
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		Name: r.Name,
+		Name: name,
 	}
 }
 
@@ -123,16 +124,16 @@ func (e ResourceDataChangedEvent) EventType() string {
 	return "ResourceDataChanged"
 }
 
-func NewResourceDataChangedEvent(r *Resource) *ResourceDataChangedEvent {
+func NewResourceDataChangedEvent(id string, version int, data string) *ResourceDataChangedEvent {
 	return &ResourceDataChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
+				Id:              id,
+				ResourceVersion: version + 1,
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		Data: r.Data,
+		Data: data,
 	}
 }
 
@@ -146,38 +147,40 @@ func (e ResourceTagsChangedEvent) EventType() string {
 	return "ResourceTagsChanged"
 }
 
-func NewResourceTagsChangedEvent(r *Resource) *ResourceTagsChangedEvent {
+func NewResourceTagsChangedEvent(id string, version int, tags []string) *ResourceTagsChangedEvent {
 	return &ResourceTagsChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
+				Id:              id,
+				ResourceVersion: version + 1,
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		Tags: r.Tags,
+		Tags: tags,
 	}
 }
 
 type ResourceTypeChangedEvent struct {
 	ResourceEvent `bson:",inline"`
 	Type          string `bson:"type"`
+	Data          string `bson:"data"`
 }
 
 func (e ResourceTypeChangedEvent) EventType() string {
 	return "ResourceTypeChanged"
 }
 
-func NewResourceTypeChangedEvent(r *Resource) *ResourceTypeChangedEvent {
+func NewResourceTypeChangedEvent(id string, version int, typee ResourceType, data string) *ResourceTypeChangedEvent {
 	return &ResourceTypeChangedEvent{
 		ResourceEvent: ResourceEvent{
 			DomainEvent: domain.DomainEvent{
-				Id:              r.Id,
-				ResourceVersion: r.Version,
+				Id:              id,
+				ResourceVersion: version + 1,
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		Type: r.Type.String(),
+		Type: typee.String(),
+		Data: data,
 	}
 }
 
