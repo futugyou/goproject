@@ -61,6 +61,7 @@ func (p *ResourceUpdatedProcessor) EventApply(r *Resource, event domain.IDomainE
 	r.Version = e.Version()
 	r.Data = e.Data
 	r.Tags = e.Tags
+	r.ImageData = e.ImageData
 	r.UpdatedAt = e.CreatedAt
 }
 
