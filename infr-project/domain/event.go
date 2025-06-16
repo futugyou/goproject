@@ -11,6 +11,7 @@ type IDomainEvent interface {
 
 // IDomainEventHolder represents an entity that can hold and clear domain events.
 type IDomainEventHolder[Event IDomainEvent] interface {
+	IAggregateRoot
 	AddDomainEvent(event Event)
 	ClearDomainEvents()
 	DomainEvents() []Event

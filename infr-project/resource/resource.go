@@ -24,8 +24,7 @@ type Resource struct {
 func NewResource(name string, resourceType ResourceType, data string, imageData string, tags []string) *Resource {
 	r := &Resource{}
 	event := NewResourceCreatedEvent(name, resourceType, data, imageData, tags)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r
 }
 
@@ -44,8 +43,8 @@ func (r *Resource) ChangeName(name string) (*Resource, error) {
 	}
 
 	event := NewResourceNameChangedEvent(r.Id, name, r.Version)
-	r.raise(event)
-	return r, nil
+	err := r.raise(event)
+	return r, err
 }
 
 // Discuss: type should not be changed after creation
@@ -55,8 +54,8 @@ func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource
 	}
 
 	event := NewResourceTypeChangedEvent(r.Id, r.Version, resourceType, data)
-	r.raise(event)
-	return r, nil
+	err := r.raise(event)
+	return r, err
 }
 
 // Deprecated: Use ChangeResource.
@@ -66,8 +65,8 @@ func (r *Resource) ChangeData(data string) (*Resource, error) {
 	}
 
 	event := NewResourceDataChangedEvent(r.Id, r.Version, data)
-	r.raise(event)
-	return r, nil
+	err := r.raise(event)
+	return r, err
 }
 
 // Deprecated: Use ChangeResource.
@@ -77,8 +76,8 @@ func (r *Resource) ChangeTags(tags []string) (*Resource, error) {
 	}
 
 	event := NewResourceTagsChangedEvent(r.Id, r.Version, tags)
-	r.raise(event)
-	return r, nil
+	err := r.raise(event)
+	return r, err
 }
 
 func (r *Resource) ChangeResource(name string, resourceType ResourceType, data string, imageData string, tags []string) (*Resource, error) {
@@ -87,8 +86,8 @@ func (r *Resource) ChangeResource(name string, resourceType ResourceType, data s
 	}
 
 	event := NewResourceUpdatedEvent(r.Id, r.Version, name, resourceType, data, imageData, tags)
-	r.raise(event)
-	return r, nil
+	err := r.raise(event)
+	return r, err
 }
 
 func (r *Resource) DeleteResource() (*Resource, error) {
@@ -97,8 +96,8 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 	}
 
 	event := NewResourceDeletedEvent(r.Id, r.Version)
-	r.raise(event)
-	return r, nil
+	err := r.raise(event)
+	return r, err
 }
 
 func (r *Resource) AggregateName() string {
@@ -114,7 +113,17 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 	return errors.New("event type not supported")
 }
 
-func (r *Resource) raise(event IResourceEvent) {
+func (r *Resource) Replay(events []domain.IDomainEvent) error {
+	for _, event := range events {
+		if err := r.Apply(event); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *Resource) raise(event IResourceEvent) error {
 	r.AddDomainEvent(event)
-	r.Apply(event)
+	return r.Apply(event)
 }

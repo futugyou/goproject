@@ -2,9 +2,9 @@ package domain
 
 // IEventSourcing extends IAggregate with event sourcing specific methods, including versioning.
 type IEventSourcing interface {
-	IAggregateRoot
 	IDomainEventHolder[IDomainEvent]
 	Apply(event IDomainEvent) error
+	Replay(events []IDomainEvent) error
 	AggregateVersion() int
 }
 
@@ -23,7 +23,11 @@ func (b *AggregateWithEventSourcing) ClearDomainEvents() {
 }
 
 func (b *AggregateWithEventSourcing) DomainEvents() []IDomainEvent {
-	return b.domainEvents
+	// Return a copy to avoid external modification of the original slice.
+	// If the following method has too much impact on performance, use return b.domainEvents directly.
+	eventsCopy := make([]IDomainEvent, len(b.domainEvents))
+	copy(eventsCopy, b.domainEvents)
+	return eventsCopy
 }
 
 func (b *AggregateWithEventSourcing) AggregateVersion() int {
