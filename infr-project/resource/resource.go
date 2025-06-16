@@ -44,8 +44,7 @@ func (r *Resource) ChangeName(name string) (*Resource, error) {
 	}
 
 	event := NewResourceNameChangedEvent(r.Id, name, r.Version)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r, nil
 }
 
@@ -56,8 +55,7 @@ func (r *Resource) ChangeType(resourceType ResourceType, data string) (*Resource
 	}
 
 	event := NewResourceTypeChangedEvent(r.Id, r.Version, resourceType, data)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r, nil
 }
 
@@ -68,8 +66,7 @@ func (r *Resource) ChangeData(data string) (*Resource, error) {
 	}
 
 	event := NewResourceDataChangedEvent(r.Id, r.Version, data)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r, nil
 }
 
@@ -80,8 +77,7 @@ func (r *Resource) ChangeTags(tags []string) (*Resource, error) {
 	}
 
 	event := NewResourceTagsChangedEvent(r.Id, r.Version, tags)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r, nil
 }
 
@@ -91,8 +87,7 @@ func (r *Resource) ChangeResource(name string, resourceType ResourceType, data s
 	}
 
 	event := NewResourceUpdatedEvent(r.Id, r.Version, name, resourceType, data, imageData, tags)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r, nil
 }
 
@@ -102,8 +97,7 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 	}
 
 	event := NewResourceDeletedEvent(r.Id, r.Version)
-	r.AddDomainEvent(event)
-	r.Apply(event)
+	r.raise(event)
 	return r, nil
 }
 
@@ -118,4 +112,9 @@ func (r *Resource) Apply(event domain.IDomainEvent) error {
 	}
 
 	return errors.New("event type not supported")
+}
+
+func (r *Resource) raise(event IResourceEvent) {
+	r.AddDomainEvent(event)
+	r.Apply(event)
 }
