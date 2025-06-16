@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	tool "github.com/futugyou/extensions"
-
 	domain "github.com/futugyou/infr-project/domain"
 	infra "github.com/futugyou/infr-project/infrastructure"
 	"github.com/futugyou/infr-project/resource"
@@ -54,40 +52,17 @@ func (s *ResourceService) UpdateResource(ctx context.Context, id string, aux mod
 
 	source := *res
 	oldVersion := source.Version
-	var aggregate *resource.Resource
-	var aggregates = make([]resource.Resource, 0)
-	if source.Data != aux.Data {
-		if aggregate, err = source.ChangeData(aux.Data); err != nil {
-			return err
-		}
-		aggregates = append(aggregates, *aggregate)
-	}
-
-	if source.Name != aux.Name {
-		if aggregate, err = source.ChangeName(aux.Name); err != nil {
-			return err
-		}
-		aggregates = append(aggregates, *aggregate)
-	}
-
-	if !tool.StringArrayCompare(aux.Tags, source.Tags) {
-		if aggregate, err = source.ChangeTags(aux.Tags); err != nil {
-			return err
-		}
-		aggregates = append(aggregates, *aggregate)
+	aggregate, err := source.ChangeResource(aux.Name, resource.GetResourceType(aux.Type), aux.Data, aux.ImageData, aux.Tags)
+	if err != nil {
+		return err
 	}
 
 	if aggregate == nil || oldVersion == aggregate.Version {
 		return fmt.Errorf("the data in the resource has not changed")
 	}
 
-	var aggs = make([]*resource.Resource, 0)
-	for i := 0; i < len(aggregates); i++ {
-		aggs = append(aggs, &aggregates[i])
-	}
-
 	return s.service.withUnitOfWork(ctx, func(ctx context.Context) error {
-		return s.service.SaveSnapshotAndEvent2(ctx, aggs)
+		return s.service.SaveSnapshotAndEvent(ctx, aggregate)
 	})
 }
 

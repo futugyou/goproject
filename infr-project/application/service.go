@@ -127,32 +127,13 @@ func (es *ApplicationService[Event, EventSourcing]) RetrieveLatestVersion(ctx co
 	return es.domainService.RetrieveLatestVersion(*aggregate, events)
 }
 
-// this method can not handle mutile version change
-// eg. if version changed form 4 to 7, than event 4567 will be stored, but the snapshot(version 6) will not stored,
-// because the current aggregate version is 7, and needStoreSnapshot will return false(7%5==1)
 func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent(ctx context.Context, aggregate EventSourcing) error {
-	// es := aggregate.DomainEvents()
-	// events := make([]Event, 0)
-	// for i := 0; i < len(es); i++ {
-	// 	ev, ok := es[i].(Event)
-	// 	if !ok {
-	// 		return fmt.Errorf("expected type Event but got %T", es[i])
-	// 	}
-	// 	events = append(events, ev)
-	// }
-
-	// if s.needStoreSnapshot(aggregate) {
-	// 	if err := s.snapshotStore.SaveSnapshot(ctx, aggregate); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// return s.eventStore.Save(ctx, events)
-	return s.SaveSnapshotAndEvent2(ctx, []EventSourcing{aggregate})
+	return s.SaveSnapshotAndMutileEvents(ctx, []EventSourcing{aggregate})
 }
 
 // this method can handle mutle version change
-func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndEvent2(ctx context.Context, aggregates []EventSourcing) error {
+// PS: According to the current design, one operation will not generate multiple events, so the logic(foreach) of this method is unnecessary.
+func (s *ApplicationService[Event, EventSourcing]) SaveSnapshotAndMutileEvents(ctx context.Context, aggregates []EventSourcing) error {
 	es := aggregates[len(aggregates)-1].DomainEvents()
 	events := make([]Event, 0)
 	for i := 0; i < len(es); i++ {
