@@ -23,6 +23,7 @@ type ResourceCreatedEvent struct {
 	Type          string   `bson:"type"`
 	Data          string   `bson:"data"`
 	Tags          []string `bson:"tags"`
+	ImageData     string   `bson:"imageData"`
 }
 
 func (e ResourceCreatedEvent) EventType() string {
@@ -38,10 +39,11 @@ func NewResourceCreatedEvent(name string, resourceType ResourceType, data string
 				CreatedAt:       time.Now().UTC(),
 			},
 		},
-		Name: name,
-		Type: resourceType.String(),
-		Data: data,
-		Tags: tags,
+		Name:      name,
+		Type:      resourceType.String(),
+		Data:      data,
+		Tags:      tags,
+		ImageData: imageData,
 	}
 }
 
