@@ -47,7 +47,6 @@ func NewResourceCreatedEvent(name string, resourceType ResourceType, data string
 	}
 }
 
-// Deprecated: Use a specific resource event type, cannot delete because data already exists
 type ResourceUpdatedEvent struct {
 	ResourceEvent `bson:",inline"`
 	Name          string `bson:"name"`
@@ -103,6 +102,7 @@ func (e ResourceNameChangedEvent) EventType() string {
 	return "ResourceNameChanged"
 }
 
+// Deprecated: Use NewResourceUpdatedEvent.
 func NewResourceNameChangedEvent(id string, name string, version int) *ResourceNameChangedEvent {
 	return &ResourceNameChangedEvent{
 		ResourceEvent: ResourceEvent{
@@ -126,6 +126,7 @@ func (e ResourceDataChangedEvent) EventType() string {
 	return "ResourceDataChanged"
 }
 
+// Deprecated: Use NewResourceUpdatedEvent.
 func NewResourceDataChangedEvent(id string, version int, data string) *ResourceDataChangedEvent {
 	return &ResourceDataChangedEvent{
 		ResourceEvent: ResourceEvent{
@@ -149,6 +150,7 @@ func (e ResourceTagsChangedEvent) EventType() string {
 	return "ResourceTagsChanged"
 }
 
+// Deprecated: Use NewResourceUpdatedEvent.
 func NewResourceTagsChangedEvent(id string, version int, tags []string) *ResourceTagsChangedEvent {
 	return &ResourceTagsChangedEvent{
 		ResourceEvent: ResourceEvent{

@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"reflect"
+	"time"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -21,129 +23,231 @@ import (
 	infra "github.com/futugyou/infr-project/infrastructure_mongo"
 	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
 	screenshot "github.com/futugyou/infr-project/infrastructure_screenshot"
+	"github.com/futugyou/infr-project/resource"
 	models "github.com/futugyou/infr-project/view_models"
 )
 
 func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
-	// cors
+	// Handle CORS preflight
 	if extensions.Cors(w, r) {
 		return
 	}
 
 	op := r.URL.Query().Get("optype")
 	version := r.URL.Query().Get("version")
-	if len(version) == 0 {
+	if version == "" {
 		version = "v1"
 	}
 
 	ctrl := controller.NewController()
+
 	switch version {
 	case "v1":
-		switch op {
-		case "event":
-			eventHandler(ctrl, r, w)
-		case "webhook":
-			handleWebhook(ctrl, r, w)
-		case "qstash":
-			handleQstash(ctrl, r, w)
-		default:
-			w.Write([]byte("page not found"))
-			w.WriteHeader(404)
-		}
+		handleV1(op, ctrl, r, w)
 	case "v2":
-		switch op {
-		case "webhook":
-			handleWebhook(ctrl, r, w)
-		default:
-			w.Write([]byte("page not found"))
-			w.WriteHeader(404)
-		}
+		handleV2(op, ctrl, r, w)
 	default:
-		w.Write([]byte("page not found"))
-		w.WriteHeader(404)
+		writeNotFound(w)
 	}
+}
+
+func handleV1(op string, ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	switch op {
+	case "event":
+		eventHandler(ctrl, r, w)
+	case "webhook":
+		handleWebhook(ctrl, r, w)
+	case "qstash":
+		handleQstash(ctrl, r, w)
+	default:
+		writeNotFound(w)
+	}
+}
+
+func handleV2(op string, ctrl *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	switch op {
+	case "webhook":
+		handleWebhook(ctrl, r, w)
+	default:
+		writeNotFound(w)
+	}
+}
+
+func writeNotFound(w http.ResponseWriter) {
+	http.Error(w, "page not found", http.StatusNotFound)
+}
+
+func writeInternalServerError(w http.ResponseWriter, msg string, err error) {
+	log.Printf("%s: %v", msg, err)
+	http.Error(w, err.Error(), http.StatusInternalServerError)
 }
 
 func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
 	ctx := r.Context()
-	bearer := r.Header.Get("Authorization")
-	if bearer != os.Getenv("TRIGGER_AUTH_KEY") {
-		w.Write([]byte("Authorization code error"))
-		w.WriteHeader(500)
+	if r.Header.Get("Authorization") != os.Getenv("TRIGGER_AUTH_KEY") {
+		http.Error(w, "Authorization code error", http.StatusInternalServerError)
 		return
 	}
+
 	var event models.TriggerEvent
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		writeInternalServerError(w, "decode error", err)
 		return
 	}
 
 	service, err := createResourceQueryService(ctx)
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		writeInternalServerError(w, "service creation error", err)
 		return
 	}
 
 	dataType := getDataType(event.TableName)
 	if dataType == nil {
-		w.Write([]byte("can not find data type"))
-		w.WriteHeader(500)
+		http.Error(w, "cannot find data type", http.StatusInternalServerError)
 		return
 	}
 
-	dataBytes, err := json.Marshal(event.Data)
-	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
-		return
-	}
-
+	// Decode `event.Data` dynamically
+	dataBytes, _ := json.Marshal(event.Data)
 	dataInstance := reflect.New(dataType).Interface()
-
 	if err := json.Unmarshal(dataBytes, dataInstance); err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		writeInternalServerError(w, "unmarshal dynamic data error", err)
 		return
 	}
 
 	if resourceData, ok := dataInstance.(*models.ResourceChangeData); ok {
-		if err = service.HandleResourceChanged(ctx, *resourceData); err != nil {
-			w.Write([]byte(err.Error()))
-			w.WriteHeader(500)
-			return
+		if err := service.HandleResourceChanged(ctx, *resourceData); err != nil {
+			writeInternalServerError(w, "handle resource changed error", err)
 		}
 	} else {
+		// Unknown event data structure
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("can not find event handler"))
-		w.WriteHeader(200)
 	}
 }
 
+func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	ctrl := controller.NewWebhookController()
+	ctrl.ProviderWebhookCallback(w, r)
+}
+
+func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
+	query := r.URL.Query()
+	event := query.Get("event")
+	if event == "" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	ctx := r.Context()
+	bodyBytes, err := io.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		writeInternalServerError(w, "read body error", err)
+		return
+	}
+
+	// Handle events via typed switch
+	switch event {
+	case "upsert_project":
+		handleEvent(bodyBytes, w, func(data []byte) error {
+			var evt models.PlatformProjectUpsertEvent
+			if err := json.Unmarshal(data, &evt); err != nil {
+				return err
+			}
+			service, err := createPlatformService(ctx)
+			if err != nil {
+				return err
+			}
+			return service.HandlePlatformProjectUpsert(ctx, evt)
+		})
+
+	case "ResourceCreated":
+		handleEvent(bodyBytes, w, func(data []byte) error {
+			var evt resource.ResourceCreatedEvent
+			if err := json.Unmarshal(data, &evt); err != nil {
+				return err
+			}
+			service, err := createResourceQueryService(ctx)
+			if err != nil {
+				return err
+			}
+			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData)
+			return service.HandleResourceChanged(ctx, changeData)
+		})
+
+	case "ResourceUpdated":
+		handleEvent(bodyBytes, w, func(data []byte) error {
+			var evt resource.ResourceUpdatedEvent
+			if err := json.Unmarshal(data, &evt); err != nil {
+				return err
+			}
+			service, err := createResourceQueryService(ctx)
+			if err != nil {
+				return err
+			}
+			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData)
+			return service.HandleResourceChanged(ctx, changeData)
+		})
+
+	case "ResourceDeleted":
+		handleEvent(bodyBytes, w, func(data []byte) error {
+			var evt resource.ResourceDeletedEvent
+			if err := json.Unmarshal(data, &evt); err != nil {
+				return err
+			}
+			service, err := createResourceQueryService(ctx)
+			if err != nil {
+				return err
+			}
+			return service.HandleResourceChanged(ctx, models.ResourceChangeData{
+				Id:              evt.Id,
+				ResourceVersion: evt.ResourceVersion,
+				EventType:       event,
+				CreatedAt:       evt.CreatedAt,
+			})
+		})
+
+	case "vault_changed":
+		// Reserved for future use
+	default:
+		http.Error(w, "unknown event", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func handleEvent(data []byte, w http.ResponseWriter, handler func([]byte) error) {
+	if err := handler(data); err != nil {
+		writeInternalServerError(w, "event handler error", err)
+	}
+}
+
+// createResourceQueryService constructs ResourceQueryService
 func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("query_db_name"),
 		ConnectString: os.Getenv("query_mongodb_url"),
 	}
 
-	mongoclient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
+	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := tool.RedisClient(os.Getenv("REDIS_URL"))
+	redisClient, err := tool.RedisClient(os.Getenv("REDIS_URL"))
 	if err != nil {
 		return nil, err
 	}
 
-	queryRepo := infra.NewResourceQueryRepository(mongoclient, config)
-
-	unitOfWork, err := infra.NewMongoUnitOfWork(mongoclient)
+	queryRepo := infra.NewResourceQueryRepository(mongoClient, config)
+	unitOfWork, err := infra.NewMongoUnitOfWork(mongoClient)
 	if err != nil {
 		return nil, err
 	}
 
-	return application.NewResourceQueryService(queryRepo, client, unitOfWork), nil
+	return application.NewResourceQueryService(queryRepo, redisClient, unitOfWork), nil
 }
 
 func getDataType(tableName string) reflect.Type {
@@ -155,48 +259,22 @@ func getDataType(tableName string) reflect.Type {
 	}
 }
 
-func handleWebhook(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	ctrl := controller.NewWebhookController()
-	ctrl.ProviderWebhookCallback(w, r)
+// convertToChangeData creates ResourceChangeData from fields
+func convertToChangeData(id string, version int, eventType string, createdAt time.Time, name, typ, data, imageData string) models.ResourceChangeData {
+	return models.ResourceChangeData{
+		Id:              id,
+		ResourceVersion: version,
+		EventType:       eventType,
+		CreatedAt:       createdAt,
+		Name:            name,
+		Type:            typ,
+		Data:            data,
+		ImageData:       imageData,
+		Tags:            []string{},
+	}
 }
 
-func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWriter) {
-	query := r.URL.Query()
-	if len(query["event"]) == 0 {
-		w.WriteHeader(200)
-		return
-	}
-
-	ctx := r.Context()
-	var err error
-	bodyBytes, _ := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	event := query["event"][0]
-
-	switch event {
-	case "upsert_project":
-		var data models.PlatformProjectUpsertEvent
-		if err = json.Unmarshal(bodyBytes, &data); err != nil {
-			w.WriteHeader(500)
-			return
-		}
-
-		service, err := createPlatformService(ctx)
-		if err != nil {
-			w.WriteHeader(500)
-			return
-		}
-
-		if err = service.HandlePlatformProjectUpsert(ctx, data); err != nil {
-			w.WriteHeader(500)
-			return
-		}
-	case "vault_changed":
-	}
-
-	w.WriteHeader(200)
-}
-
+// createPlatformService constructs PlatformService
 func createPlatformService(ctx context.Context) (*application.PlatformService, error) {
 	config := infra.DBConfig{
 		DBName:        os.Getenv("db_name"),
@@ -220,8 +298,13 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 
 	repo := infra.NewPlatformRepository(client, config)
 	vaultRepo := infra.NewVaultRepository(client, config)
-	eventPublisher := publisher.NewQStashEventPulisher(os.Getenv("QSTASH_TOKEN"), os.Getenv("QSTASH_DESTINATION"))
+	eventPublisher := publisher.NewQStashEventPulisher(
+		os.Getenv("QSTASH_TOKEN"),
+		os.Getenv("QSTASH_DESTINATION"),
+	)
+
 	vaultService := application.NewVaultService(unitOfWork, vaultRepo, eventPublisher)
 	ss := screenshot.NewScreenshot()
+
 	return application.NewPlatformService(unitOfWork, repo, vaultService, redisClient, eventPublisher, ss), nil
 }
