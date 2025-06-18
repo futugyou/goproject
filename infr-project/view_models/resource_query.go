@@ -24,5 +24,6 @@ type ResourceView struct {
 	IsDelete  bool      `json:"is_deleted" redis:"is_deleted"`
 	CreatedAt time.Time `json:"created_at" redis:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" redis:"updated_at"`
-	Tags      []string  `json:"tags" redis:"tags"`
+	Tags      []string  `json:"tags" redis:"-"`
+	TagString string    `json:"-" redis:"tags"`
 }

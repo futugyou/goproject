@@ -33,6 +33,9 @@ func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.Re
 	resourceViews, _ := tool.RedisListHashWithLua[models.ResourceView](ctx, s.client, "ResourceView:", 100)
 
 	if len(resourceViews) > 0 {
+		for i := 0; i < len(resourceViews); i++ {
+			resourceViews[i].Tags = strings.Split(resourceViews[i].TagString, ",")
+		}
 		return resourceViews, nil
 	}
 
@@ -53,6 +56,7 @@ func (s *ResourceQueryService) GetResource(ctx context.Context, id string) (*mod
 	var viewData models.ResourceView
 	s.client.HGetAll(ctx, "ResourceView:"+id).Scan(&viewData)
 	if len(viewData.Id) > 0 {
+		viewData.Tags = strings.Split(viewData.TagString, ",")
 		return &viewData, nil
 	}
 
@@ -81,6 +85,7 @@ func (s *ResourceQueryService) convertData(data resourcequery.Resource) models.R
 		UpdatedAt: data.UpdatedAt,
 		Tags:      data.Tags,
 		ImageData: data.ImageData,
+		TagString: strings.Join(data.Tags, ","),
 	}
 }
 
