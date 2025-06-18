@@ -50,6 +50,7 @@ func (p *ResourceCreatedProcessor) EventApply(r *Resource, event domain.IDomainE
 	r.Name = e.Name
 	r.Type = GetResourceType(e.Type)
 	r.Data = e.Data
+	r.ImageData = e.ImageData
 	r.Tags = e.Tags
 }
 
