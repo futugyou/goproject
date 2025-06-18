@@ -172,7 +172,7 @@ func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 			if err != nil {
 				return err
 			}
-			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData)
+			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData, evt.Tags)
 			return service.HandleResourceChanged(ctx, changeData)
 		})
 
@@ -186,7 +186,7 @@ func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 			if err != nil {
 				return err
 			}
-			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData)
+			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData, evt.Tags)
 			return service.HandleResourceChanged(ctx, changeData)
 		})
 
@@ -260,7 +260,7 @@ func getDataType(tableName string) reflect.Type {
 }
 
 // convertToChangeData creates ResourceChangeData from fields
-func convertToChangeData(id string, version int, eventType string, createdAt time.Time, name, typ, data, imageData string) models.ResourceChangeData {
+func convertToChangeData(id string, version int, eventType string, createdAt time.Time, name, typ, data, imageData string, tags []string) models.ResourceChangeData {
 	return models.ResourceChangeData{
 		Id:              id,
 		ResourceVersion: version,
@@ -270,7 +270,7 @@ func convertToChangeData(id string, version int, eventType string, createdAt tim
 		Type:            typ,
 		Data:            data,
 		ImageData:       imageData,
-		Tags:            []string{},
+		Tags:            tags,
 	}
 }
 
