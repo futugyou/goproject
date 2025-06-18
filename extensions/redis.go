@@ -32,7 +32,6 @@ func RedisScanHashAll[T any](ctx context.Context, client *redis.Client, prefix s
 }
 
 var HashAllLueScript = redis.NewScript(`
-	local cjson = require "cjson"
 	local keys = redis.call("SCAN", 0, "MATCH", ARGV[1], "COUNT", ARGV[2])
 	local results = {}
 	for _, key in ipairs(keys[2]) do
@@ -47,8 +46,6 @@ var HashAllLueScript = redis.NewScript(`
 `)
 
 var HashAllLueScript2 = redis.NewScript(`
-	local cjson = require "cjson"
-
 	local results = {}
 	local missing_keys = {}
 

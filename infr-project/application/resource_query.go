@@ -30,8 +30,8 @@ func NewResourceQueryService(repository resourcequery.IResourceRepository, clien
 }
 
 func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]models.ResourceView, error) {
+	// ignore error
 	resourceViews, _ := tool.RedisListHashWithLua[models.ResourceView](ctx, s.client, "ResourceView:", 100)
-
 	if len(resourceViews) > 0 {
 		for i := 0; i < len(resourceViews); i++ {
 			resourceViews[i].Tags = strings.Split(resourceViews[i].TagString, ",")
@@ -56,25 +56,30 @@ func (s *ResourceQueryService) GetResource(ctx context.Context, id string) (*mod
 	var viewData models.ResourceView
 	s.client.HGetAll(ctx, "ResourceView:"+id).Scan(&viewData)
 	if len(viewData.Id) > 0 {
-		viewData.Tags = strings.Split(viewData.TagString, ",")
+		if len(viewData.TagString) > 0 {
+			if strings.Contains(viewData.TagString, ",") {
+				viewData.Tags = strings.Split(viewData.TagString, ",")
+			} else {
+				viewData.Tags = []string{viewData.TagString}
+			}
+		}
 		return &viewData, nil
 	}
 
-	// Since redis is operated in HandleResourceChanged, the general program does not run here
-	// BUT, redis may have cleared the data, or an error occurred during handling HandleResourceChanged
 	data, err := s.repository.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	viewData = s.convertData(*data)
+	// ignore error
 	s.client.HSet(ctx, "ResourceView:"+id, viewData).Result()
 
 	return &viewData, nil
 }
 
 func (s *ResourceQueryService) convertData(data resourcequery.Resource) models.ResourceView {
-	return models.ResourceView{
+	v := models.ResourceView{
 		Id:        data.Id,
 		Name:      data.Name,
 		Type:      data.Type,
@@ -85,8 +90,11 @@ func (s *ResourceQueryService) convertData(data resourcequery.Resource) models.R
 		UpdatedAt: data.UpdatedAt,
 		Tags:      data.Tags,
 		ImageData: data.ImageData,
-		TagString: strings.Join(data.Tags, ","),
 	}
+	if len(data.Tags) > 0 {
+		v.TagString = strings.Join(data.Tags, ",")
+	}
+	return v
 }
 
 func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data models.ResourceChangeData) error {
@@ -152,7 +160,8 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data m
 		}
 
 		viewData := s.convertData(*res)
-		_, err = s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
+		// ignore error
+		s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
 		return err
 	})
 }

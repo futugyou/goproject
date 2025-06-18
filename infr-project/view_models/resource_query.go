@@ -25,5 +25,5 @@ type ResourceView struct {
 	CreatedAt time.Time `json:"created_at" redis:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" redis:"updated_at"`
 	Tags      []string  `json:"tags" redis:"-"`
-	TagString string    `json:"-" redis:"tags"`
+	TagString string    `json:"-" redis:"tag_string"`
 }
