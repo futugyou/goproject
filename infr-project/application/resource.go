@@ -110,6 +110,7 @@ func convertResourceEntityToViewModel(src *resource.Resource) *models.ResourceVi
 		Name:      src.Name,
 		Type:      src.Type.String(),
 		Data:      src.Data,
+		ImageData: src.ImageData,
 		Version:   src.Version,
 		IsDelete:  src.IsDeleted,
 		CreatedAt: src.CreatedAt,
