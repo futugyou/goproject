@@ -52,7 +52,7 @@ func (s *ResourceService) UpdateResource(ctx context.Context, id string, aux mod
 
 	source := *res
 	oldVersion := source.Version
-	aggregate, err := source.ChangeResource(aux.Name, resource.GetResourceType(aux.Type), aux.Data, aux.ImageData, aux.Tags)
+	aggregate, err := source.ChangeResource(aux.Name, source.Type, aux.Data, aux.ImageData, aux.Tags)
 	if err != nil {
 		return err
 	}
