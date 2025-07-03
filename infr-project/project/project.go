@@ -18,6 +18,7 @@ type Project struct {
 	Platforms       []ProjectPlatform
 	Designs         []ProjectDesign
 	Tags            []string
+	TechStack       []string       `json:"tech_stack,omitempty"`
 	CoverImageURL   string         `json:"cover_image_url,omitempty"`
 	LogoURL         string         `json:"logo_url,omitempty"`
 	TopologyDiagram *Diagram       `json:"topology_diagram,omitempty"`
