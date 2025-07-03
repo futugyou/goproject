@@ -43,8 +43,8 @@ type ProjectView struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	State       string            `json:"state"`
-	StartDate   *time.Time        `json:"start_date"`
-	EndDate     *time.Time        `json:"end_date"`
+	StartDate   *time.Time        `json:"start_time"`
+	EndDate     *time.Time        `json:"end_time"`
 	Platforms   []ProjectPlatform `json:"platforms"`
 	Designs     []ProjectDesign   `json:"designs"`
 	Tags        []string          `json:"tags"`

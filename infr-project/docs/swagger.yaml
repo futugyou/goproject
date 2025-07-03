@@ -529,7 +529,7 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.ProjectDesign'
         type: array
-      end_date:
+      end_time:
         type: string
       id:
         type: string
@@ -539,7 +539,7 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.ProjectPlatform'
         type: array
-      start_date:
+      start_time:
         type: string
       state:
         type: string

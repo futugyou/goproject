@@ -2354,7 +2354,7 @@
                         "$ref": "#/definitions/viewmodels.ProjectDesign"
                     }
                 },
-                "end_date": {
+                "end_time": {
                     "type": "string"
                 },
                 "id": {
@@ -2369,7 +2369,7 @@
                         "$ref": "#/definitions/viewmodels.ProjectPlatform"
                     }
                 },
-                "start_date": {
+                "start_time": {
                     "type": "string"
                 },
                 "state": {

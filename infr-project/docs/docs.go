@@ -2365,7 +2365,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.ProjectDesign"
                     }
                 },
-                "end_date": {
+                "end_time": {
                     "type": "string"
                 },
                 "id": {
@@ -2380,7 +2380,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.ProjectPlatform"
                     }
                 },
-                "start_date": {
+                "start_time": {
                     "type": "string"
                 },
                 "state": {
