@@ -10,14 +10,20 @@ import (
 
 type Project struct {
 	domain.Aggregate
-	Name        string
-	Description string
-	State       ProjectState
-	StartDate   *time.Time
-	EndDate     *time.Time
-	Platforms   []ProjectPlatform
-	Designs     []ProjectDesign
-	Tags        []string
+	Name            string
+	Description     string
+	State           ProjectState
+	StartDate       *time.Time
+	EndDate         *time.Time
+	Platforms       []ProjectPlatform
+	Designs         []ProjectDesign
+	Tags            []string
+	CoverImageURL   string         `json:"cover_image_url,omitempty"`
+	LogoURL         string         `json:"logo_url,omitempty"`
+	TopologyDiagram *Diagram       `json:"topology_diagram,omitempty"`
+	Milestones      []Milestone    `json:"milestones,omitempty"`
+	ActivityStats   *ActivityStats `json:"activity_stats,omitempty"`
+	DefaultVersion  string         `json:"default_version"`
 }
 
 func (r Project) AggregateName() string {
