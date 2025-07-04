@@ -1,9 +1,13 @@
 package service
 
-import "time"
+import (
+	"time"
+
+	"github.com/futugyou/infr-project/domain"
+)
 
 type Service struct {
-	ID                   string                  `json:"id"`
+	domain.Aggregate
 	Name                 string                  `json:"name"`
 	Description          string                  `json:"description"`
 	TechStack            []string                `json:"tech_stack,omitempty"`
@@ -13,28 +17,29 @@ type Service struct {
 	DependsOn            []string                `json:"depends_on,omitempty"`
 	ExternalDependencies []ServiceDependency     `json:"external_dependencies,omitempty"`
 	MockResponses        []APIMockEntry          `json:"mock_responses,omitempty"`
-	FlowDiagram          *FlowDiagram            `json:"flow_diagram,omitempty"`
-	ActivityStats        *ServiceActivityStats   `json:"activity_stats,omitempty"`
+	ArchDiagram          *ArchDiagram            `json:"arch_diagram,omitempty"`
+	ActivityStats        *ActivityStats          `json:"activity_stats,omitempty"`
 	Versions             []ServiceVersion        `json:"versions,omitempty"`
 	DefaultVersion       string                  `json:"default_version"`
 }
 
-type FlowDiagram struct {
-	Type            string `json:"type"`
-	Description     string `json:"description,omitempty"`
+func (r Service) AggregateName() string {
+	return "services"
+}
+
+type ArchDiagram struct {
 	ResourceId      string `bson:"resource_id"`
 	ResourceVersion int    `bson:"resource_version"`
 }
 
 type ServiceResource struct {
-	Type            string `json:"type"`
-	Description     string `json:"description,omitempty"`
 	ResourceId      string `bson:"resource_id"`
 	ResourceVersion int    `bson:"resource_version"`
+	Type            string `json:"type"` // FlowChart er doc eg.
 }
 
 type ServiceVersion struct {
-	ID        string          `json:"id"`
+	ID        string          `json:"id"` // service_id+'@'+version eg. XXXXX@1.0.2
 	ServiceID string          `json:"service_id"`
 	Version   string          `json:"version"`
 	CreatedAt time.Time       `json:"created_at"`
@@ -42,14 +47,18 @@ type ServiceVersion struct {
 	Snapshot  ServiceSnapshot `json:"snapshot"`
 }
 
+// When the following four properties change significantly, it can choose to create a new `ServiceVersion`.
+// especially `ArchDiagram` and `Documents`
 type ServiceSnapshot struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	TechStack   []string          `json:"tech_stack"`
-	Documents   []ServiceResource `json:"documents"`
+	ArchDiagram *ArchDiagram      `json:"arch_diagram,omitempty"`
+	Documents   []ServiceResource `json:"documents,omitempty"`
 }
 
-type ServiceActivityStats struct {
+// Currently there is only github information.
+// Considering that the services are archived, it may be necessary to find new dimensions.
+type ActivityStats struct {
 	Commits      int `json:"commits"`
 	Pulls        int `json:"pulls"`
 	Releases     int `json:"releases"`
@@ -65,16 +74,22 @@ type DeploymentEnvironment struct {
 }
 
 type ServicePlatform struct {
-	PlatformId  string            `bson:"platform_id"`
-	ProjectId   string            `bson:"project_id"`
-	Name        string            `json:"name"`
-	Provider    string            `json:"provider"`
-	Endpoint    string            `json:"endpoint"`
-	Description string            `json:"description,omitempty"`
-	Config      map[string]string `json:"config,omitempty"`
-	Services    []string          `json:"services"` // aks, gke, etc
+	PlatformId string   `bson:"platform_id"` // eg. github id
+	ProjectId  string   `bson:"project_id"`  // eg. github responsitory id/name
+	Services   []string `json:"services"`    // responsitory, aks, gke, etc
 }
 
+//	{
+//		"name": "Redis",
+//		"type": "Cache",
+//		"provider": "RedisLabs",
+//		"endpoint": "redis://cache:6379",
+//		"config": {
+//		  "ttl": "30s"
+//		}
+//	}
+//
+// If it to display third-party dependencies that are not declared in the `Platform`, you can use `ServiceDependency`
 type ServiceDependency struct {
 	Name        string            `json:"name"`
 	Type        string            `json:"type"`
