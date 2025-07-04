@@ -2312,11 +2312,11 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "resources": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.ProjectResource"
-                    }
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_version": {
+                    "type": "integer"
                 }
             }
         },
@@ -2333,22 +2333,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "project_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.ProjectResource": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "resource_id": {
                     "type": "string"
                 }
             }
@@ -2608,25 +2592,18 @@ const docTemplate = `{
         },
         "viewmodels.UpdateProjectDesignRequest": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "description": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 3
+                    "type": "string"
                 },
                 "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
+                    "type": "string"
                 },
-                "resources": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.ProjectResource"
-                    }
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_version": {
+                    "type": "integer"
                 }
             }
         },

@@ -494,10 +494,10 @@ definitions:
         type: string
       name:
         type: string
-      resources:
-        items:
-          $ref: '#/definitions/viewmodels.ProjectResource'
-        type: array
+      resource_id:
+        type: string
+      resource_version:
+        type: integer
     type: object
   viewmodels.ProjectPlatform:
     properties:
@@ -509,17 +509,6 @@ definitions:
         type: string
       project_id:
         type: string
-    type: object
-  viewmodels.ProjectResource:
-    properties:
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      resource_id:
-        type: string
-    required:
-    - name
     type: object
   viewmodels.ProjectView:
     properties:
@@ -701,19 +690,13 @@ definitions:
   viewmodels.UpdateProjectDesignRequest:
     properties:
       description:
-        maxLength: 500
-        minLength: 3
         type: string
       name:
-        maxLength: 50
-        minLength: 3
         type: string
-      resources:
-        items:
-          $ref: '#/definitions/viewmodels.ProjectResource'
-        type: array
-    required:
-    - name
+      resource_id:
+        type: string
+      resource_version:
+        type: integer
     type: object
   viewmodels.UpdateProjectPlatformRequest:
     properties:
