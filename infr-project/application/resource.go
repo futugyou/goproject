@@ -80,6 +80,16 @@ func (s *ResourceService) AllVersionResource(ctx context.Context, id string) ([]
 	return result, nil
 }
 
+// show resource data for the specified version
+func (s *ResourceService) ResourceWithVersion(ctx context.Context, id string, version int) (*models.ResourceView, error) {
+	re, err := s.service.RetrieveSpecificVersion(ctx, id, version)
+	if err != nil {
+		return nil, err
+	}
+
+	return convertResourceEntityToViewModel(*re), nil
+}
+
 func (s *ResourceService) DeleteResource(ctx context.Context, id string) error {
 	res, err := s.service.RetrieveLatestVersion(ctx, id)
 	if err != nil {
