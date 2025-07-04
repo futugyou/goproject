@@ -28,14 +28,10 @@ type UpdateProjectPlatformRequest struct {
 }
 
 type UpdateProjectDesignRequest struct {
-	Name        string            `json:"name" validate:"required,min=3,max=50"`
-	Description string            `json:"description" validate:"min=3,max=500"`
-	Resources   []ProjectResource `json:"resources"`
-}
-
-type ProjectResource struct {
-	ResourceId string `json:"resource_id"`
-	Name       string `json:"name" validate:"required,min=3,max=50"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	ResourceId      string `json:"resource_id"`
+	ResourceVersion int    `json:"resource_version"`
 }
 
 type ProjectView struct {
@@ -58,7 +54,8 @@ type ProjectPlatform struct {
 }
 
 type ProjectDesign struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Resources   []ProjectResource `json:"resources"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	ResourceId      string `json:"resource_id"`
+	ResourceVersion int    `json:"resource_version"`
 }
