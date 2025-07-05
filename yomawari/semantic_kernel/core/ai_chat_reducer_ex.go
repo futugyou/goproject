@@ -44,3 +44,58 @@ func LocateSummarizationBoundary(chatHistory []abstractions.ChatMessageContent, 
 
 	return len(chatHistory)
 }
+
+func LocateSafeReductionIndex(chatHistory []abstractions.ChatMessageContent, targetCount int, thresholdCount *int, offsetCount int, hasSystemMessage bool) int {
+	if hasSystemMessage {
+		targetCount = targetCount - 1
+	}
+
+	thresholdCut := 0
+	if thresholdCount != nil {
+		thresholdCut = *thresholdCount
+	}
+
+	thresholdIndex := len(chatHistory) - thresholdCut - targetCount
+
+	if thresholdIndex <= offsetCount {
+		return -1
+	}
+
+	// Compute the index of truncation target
+	messageIndex := len(chatHistory) - targetCount
+
+	// Skip function related content
+	for messageIndex >= 0 {
+		containsFuncContent := false
+
+		for _, v := range chatHistory[messageIndex].Items.Items() {
+			if _, ok := v.(abstractions.FunctionCallContent); ok {
+				containsFuncContent = true
+				break
+			}
+			if _, ok := v.(abstractions.FunctionResultContent); ok {
+				containsFuncContent = true
+				break
+			}
+		}
+
+		if !containsFuncContent {
+			break
+		}
+
+		messageIndex--
+	}
+
+	// Capture the earliest non-function related message
+	targetIndex := messageIndex
+
+	// Scan for user message within truncation range to maximize chat cohesion
+	for messageIndex >= thresholdIndex {
+		// A user message provides a superb truncation point
+		if chatHistory[messageIndex].Role == abstractions.AuthorRoleUser {
+			return messageIndex
+		}
+		messageIndex = messageIndex - 1
+	}
+	return targetIndex
+}
