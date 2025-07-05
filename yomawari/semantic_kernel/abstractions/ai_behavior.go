@@ -78,7 +78,7 @@ func (f *FunctionChoiceBehavior) GetConfiguration(context FunctionChoiceBehavior
 		choice = FunctionChoiceNone
 	}
 
-	fs, err := f.GetFunctions(f.Functions, &context.Kernel, f.autoInvoke)
+	fs, err := f.GetFunctions(f.Functions, context.Kernel, f.autoInvoke)
 	if err != nil {
 		fs = []KernelFunction{}
 	}

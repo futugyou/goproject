@@ -52,8 +52,8 @@ func (c *ChatClientChatCompletionService) GetModelId() string {
 }
 
 // GetChatMessageContents implements IChatCompletionService.
-func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings PromptExecutionSettings, kernel Kernel) ([]ChatMessageContent, error) {
-	completion, err := c.chatClient.GetResponse(ctx, chatHistory.ToChatMessageList(), c.ToChatOptions(&executionSettings, kernel))
+func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings *PromptExecutionSettings, kernel *Kernel) ([]ChatMessageContent, error) {
+	completion, err := c.chatClient.GetResponse(ctx, chatHistory.ToChatMessageList(), c.ToChatOptions(executionSettings, kernel))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *ChatClientChatCompletionService) GetChatMessageContents(ctx context.Con
 }
 
 // GetStreamingChatMessageContents implements IChatCompletionService.
-func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings PromptExecutionSettings, kernel Kernel) (<-chan StreamingChatMessageContent, <-chan error) {
+func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx context.Context, chatHistory ChatHistory, executionSettings *PromptExecutionSettings, kernel *Kernel) (<-chan StreamingChatMessageContent, <-chan error) {
 	fcContents := []aicontents.IAIContent{}
 	var role *chatcompletion.ChatRole
 	contentCh := make(chan StreamingChatMessageContent)
@@ -81,7 +81,7 @@ func (c *ChatClientChatCompletionService) GetStreamingChatMessageContents(ctx co
 		defer close(contentCh)
 		defer close(errCh)
 
-		responseCh := c.chatClient.GetStreamingResponse(ctx, chatHistory.ToChatMessageList(), c.ToChatOptions(&executionSettings, kernel))
+		responseCh := c.chatClient.GetStreamingResponse(ctx, chatHistory.ToChatMessageList(), c.ToChatOptions(executionSettings, kernel))
 		select {
 		case <-ctx.Done():
 			errCh <- ctx.Err()
@@ -156,7 +156,7 @@ func (c *ChatClientChatCompletionService) ToStreamingChatMessageContent(update c
 	return *content
 }
 
-func (c *ChatClientChatCompletionService) ToChatOptions(settings *PromptExecutionSettings, kernel Kernel) *chatcompletion.ChatOptions {
+func (c *ChatClientChatCompletionService) ToChatOptions(settings *PromptExecutionSettings, kernel *Kernel) *chatcompletion.ChatOptions {
 	if settings == nil {
 		return nil
 	}

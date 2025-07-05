@@ -1,8 +1,8 @@
 package abstractions
- 
+
 type FunctionChoiceBehaviorConfigurationContext struct {
 	ChatHistory          ChatHistory
-	Kernel               Kernel
+	Kernel               *Kernel
 	RequestSequenceIndex int
 }
 
