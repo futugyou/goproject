@@ -32,3 +32,15 @@ func ExtractChatMessageContent(chatHistory []abstractions.ChatMessageContent, st
 
 	return result
 }
+
+func LocateSummarizationBoundary(chatHistory []abstractions.ChatMessageContent, summaryKey string) int {
+	for i := 0; i < len(chatHistory); i++ {
+		if chatHistory[i].Metadata == nil {
+			if _, ok := chatHistory[i].Metadata[summaryKey]; ok {
+				return i
+			}
+		}
+	}
+
+	return len(chatHistory)
+}
