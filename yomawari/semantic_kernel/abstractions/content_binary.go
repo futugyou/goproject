@@ -1,6 +1,10 @@
 package abstractions
 
-import "net/url"
+import (
+	"fmt"
+	"net/url"
+	"os"
+)
 
 // A general binary data processing method is needed for use in audio/image, etc.
 type BinaryContent struct {
@@ -31,4 +35,21 @@ func (c BinaryContent) Hash() string {
 
 func (f BinaryContent) GetInnerContent() any {
 	return f.InnerContent
+}
+
+func (f *BinaryContent) WriteToFile(filePath string, overwrite bool) error {
+	if len(filePath) == 0 {
+		return fmt.Errorf("filePath is empty")
+	}
+
+	_, err := os.Stat(filePath)
+	if err == nil && !overwrite {
+		return fmt.Errorf("file exists")
+	}
+
+	if !f.CanRead() {
+		return fmt.Errorf("no content to write to file")
+	}
+
+	return os.WriteFile(filePath, f.Data, 0644)
 }
