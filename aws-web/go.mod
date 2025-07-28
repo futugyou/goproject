@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.45.4
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.53.1
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.44.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.235.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.236.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.46.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.60.1
 	github.com/aws/aws-sdk-go-v2/service/efs v1.36.3
@@ -24,7 +24,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.53.1
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.53.2
 
 require github.com/aws/aws-sdk-go-v2/service/route53 v1.53.1
 
