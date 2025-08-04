@@ -32,10 +32,10 @@ require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.36.1
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.47.2
 
-require github.com/aws/aws-sdk-go-v2/service/iot v1.66.0
+require github.com/aws/aws-sdk-go-v2/service/iot v1.66.1
 
 require (
-	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.28.1
+	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.28.2
 	go.mongodb.org/mongo-driver v1.17.4
 )
 
