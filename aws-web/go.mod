@@ -35,7 +35,7 @@ require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.48.0
 require github.com/aws/aws-sdk-go-v2/service/iot v1.67.0
 
 require (
-	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.29.0
+	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.30.0
 	go.mongodb.org/mongo-driver v1.17.4
 )
 
