@@ -16,7 +16,7 @@ jobs:
       name: Preview – fake
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Tour
         run: go mod tidy && go build .
