@@ -7,9 +7,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.31.2
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.6
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.48.2
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.56.2
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.57.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.49.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.245.2
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.246.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.49.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.63.2
 	github.com/aws/aws-sdk-go-v2/service/efs v1.40.1
@@ -35,7 +35,7 @@ require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.50.0
 require github.com/aws/aws-sdk-go-v2/service/iot v1.68.2
 
 require (
-	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.31.2
+	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.32.0
 	go.mongodb.org/mongo-driver v1.17.4
 )
 
