@@ -4,19 +4,19 @@ go 1.23.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.38.1
-	github.com/aws/aws-sdk-go-v2/config v1.31.2
-	github.com/aws/aws-sdk-go-v2/credentials v1.18.6
-	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.48.2
+	github.com/aws/aws-sdk-go-v2/config v1.31.3
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.7
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.49.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.57.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.49.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.246.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.247.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.49.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.63.2
 	github.com/aws/aws-sdk-go-v2/service/efs v1.40.1
 	github.com/aws/aws-sdk-go-v2/service/iam v1.47.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.87.1
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.3
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.63.2
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.64.0
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
@@ -26,9 +26,9 @@ require (
 
 require github.com/aws/aws-sdk-go-v2/service/configservice v1.57.0
 
-require github.com/aws/aws-sdk-go-v2/service/route53 v1.56.2
+require github.com/aws/aws-sdk-go-v2/service/route53 v1.57.0
 
-require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.38.2
+require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.39.0
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.50.0
 
@@ -60,7 +60,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.28.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.33.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.34.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.38.0 // indirect
 	github.com/aws/smithy-go v1.22.5 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
