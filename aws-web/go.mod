@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.49.2
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.57.2
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.50.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.249.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.250.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.50.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.63.4
 	github.com/aws/aws-sdk-go-v2/service/efs v1.40.3
@@ -26,7 +26,7 @@ require (
 
 require github.com/aws/aws-sdk-go-v2/service/configservice v1.57.2
 
-require github.com/aws/aws-sdk-go-v2/service/route53 v1.57.2
+require github.com/aws/aws-sdk-go-v2/service/route53 v1.58.0
 
 require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.39.2
 
