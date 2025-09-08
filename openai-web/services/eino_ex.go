@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,14 +15,15 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-type ChatHistoryModel struct {
-	Id            string `json:"id,omitempty" bson:"id,omitempty"`
-	SystemMessage string `json:"system_message,omitempty" bson:"system_message,omitempty"`
-	UserMessage   string `json:"user_message,omitempty" bson:"user_message,omitempty"`
-	History       string `json:"history,omitempty" bson:"history,omitempty"`
+type ConversationModel struct {
+	Id            string    `json:"id,omitempty" bson:"id,omitempty"`
+	SystemMessage string    `json:"system_message,omitempty" bson:"system_message,omitempty"`
+	UserMessage   string    `json:"user_message,omitempty" bson:"user_message,omitempty"`
+	History       string    `json:"history,omitempty" bson:"history,omitempty"`
+	LastUpdated   time.Time `json:"last_updated,omitempty" bson:"last_updated,omitempty"`
 }
 
-func SaveMessages(ctx context.Context, model ChatHistoryModel) error {
+func SaveConversation(ctx context.Context, model ConversationModel) error {
 	db_name := os.Getenv("db_name")
 	uri := os.Getenv("mongodb_url")
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
@@ -30,7 +32,7 @@ func SaveMessages(ctx context.Context, model ChatHistoryModel) error {
 	}
 
 	db := client.Database(db_name)
-	coll := db.Collection("eino_chat_history")
+	coll := db.Collection("eino_conversation")
 	opt := options.Update().SetUpsert(true)
 	filter := bson.D{{Key: "id", Value: model.Id}}
 
