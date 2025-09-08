@@ -16,6 +16,36 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
+type EinoService struct {
+	db    *mongo.Database
+	chain *gemini.ChatModel
+}
+
+func (e *EinoService) Init(ctx context.Context, client *mongo.Client, chain *gemini.ChatModel) *EinoService {
+	var err error
+	if client == nil {
+		db_name := os.Getenv("db_name")
+		uri := os.Getenv("mongodb_url")
+		client, err = mongo.Connect(ctx, options.Client().ApplyURI(uri))
+		if err != nil {
+			return e
+		}
+
+		e.db = client.Database(db_name)
+	}
+
+	if chain == nil {
+		chain, err = getGeminiModel(ctx)
+		if err != nil {
+			return e
+		}
+
+		e.chain = chain
+	}
+
+	return e
+}
+
 type ConversationModel struct {
 	Id            string    `json:"id,omitempty" bson:"id,omitempty"`
 	SystemMessage string    `json:"system_message,omitempty" bson:"system_message,omitempty"`
@@ -24,15 +54,8 @@ type ConversationModel struct {
 	LastUpdated   time.Time `json:"last_updated,omitempty" bson:"last_updated,omitempty"`
 }
 
-func SaveConversation(ctx context.Context, model ConversationModel) error {
-	db_name := os.Getenv("db_name")
-	uri := os.Getenv("mongodb_url")
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		return err
-	}
-
-	db := client.Database(db_name)
+func (e *EinoService) SaveConversation(ctx context.Context, model ConversationModel) error {
+	db := e.db
 	coll := db.Collection("eino_conversation")
 	opt := options.Update().SetUpsert(true)
 	filter := bson.D{{Key: "id", Value: model.Id}}
@@ -46,16 +69,9 @@ func SaveConversation(ctx context.Context, model ConversationModel) error {
 	return nil
 }
 
-func GetConversation(ctx context.Context, id string) (*ConversationModel, error) {
-	db_name := os.Getenv("db_name")
-	uri := os.Getenv("mongodb_url")
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	if err != nil {
-		return nil, err
-	}
-
+func (e *EinoService) GetConversation(ctx context.Context, id string) (*ConversationModel, error) {
 	model := &ConversationModel{}
-	db := client.Database(db_name)
+	db := e.db
 	coll := db.Collection("eino_conversation")
 	filter := bson.D{{Key: "id", Value: id}}
 	opts := &options.FindOneOptions{}
@@ -70,7 +86,7 @@ func GetConversation(ctx context.Context, id string) (*ConversationModel, error)
 	return model, nil
 }
 
-func GeneralLLMRunner(ctx context.Context, chatModel *gemini.ChatModel, userMsg string, systemMsg *string, useHistory bool, vs map[string]any) (*schema.Message, error) {
+func (e *EinoService) GeneralLLMRunner(ctx context.Context, userMsg string, systemMsg *string, useHistory bool, vs map[string]any) (*schema.Message, error) {
 	templates := []schema.MessagesTemplate{}
 	if systemMsg != nil {
 		templates = append(templates, schema.SystemMessage(*systemMsg))
@@ -84,10 +100,10 @@ func GeneralLLMRunner(ctx context.Context, chatModel *gemini.ChatModel, userMsg 
 	if err != nil {
 		return nil, err
 	}
-	return chatModel.Generate(ctx, messages)
+	return e.chain.Generate(ctx, messages)
 }
 
-func GetGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {
+func getGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	modelid := os.Getenv("GEMINI_MODEL_ID")
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
