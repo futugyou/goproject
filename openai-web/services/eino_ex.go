@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -43,6 +44,30 @@ func SaveConversation(ctx context.Context, model ConversationModel) error {
 	}
 
 	return nil
+}
+
+func GetConversation(ctx context.Context, id string) (*ConversationModel, error) {
+	db_name := os.Getenv("db_name")
+	uri := os.Getenv("mongodb_url")
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		return nil, err
+	}
+
+	model := &ConversationModel{}
+	db := client.Database(db_name)
+	coll := db.Collection("eino_conversation")
+	filter := bson.D{{Key: "id", Value: id}}
+	opts := &options.FindOneOptions{}
+	if err := coll.FindOne(ctx, filter, opts).Decode(model); err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, fmt.Errorf("can not find conversation with id: %s", id)
+		} else {
+			return nil, err
+		}
+	}
+
+	return model, nil
 }
 
 func GeneralLLMRunner(ctx context.Context, chatModel *gemini.ChatModel, userMsg string, systemMsg *string, useHistory bool, vs map[string]any) (*schema.Message, error) {
