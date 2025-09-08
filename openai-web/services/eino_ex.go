@@ -4,12 +4,44 @@ import (
 	"context"
 	"os"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/genai"
 
 	"github.com/cloudwego/eino-ext/components/model/gemini"
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/schema"
 )
+
+type ChatHistoryModel struct {
+	Id            string `json:"id,omitempty" bson:"id,omitempty"`
+	SystemMessage string `json:"system_message,omitempty" bson:"system_message,omitempty"`
+	UserMessage   string `json:"user_message,omitempty" bson:"user_message,omitempty"`
+	History       string `json:"history,omitempty" bson:"history,omitempty"`
+}
+
+func SaveMessages(ctx context.Context, model ChatHistoryModel) error {
+	db_name := os.Getenv("db_name")
+	uri := os.Getenv("mongodb_url")
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		return err
+	}
+
+	db := client.Database(db_name)
+	coll := db.Collection("eino_chat_history")
+	opt := options.Update().SetUpsert(true)
+	filter := bson.D{{Key: "id", Value: model.Id}}
+
+	if _, err := coll.UpdateOne(ctx, filter, bson.M{
+		"$set": model,
+	}, opt); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func GeneralLLMRunner(ctx context.Context, chatModel *gemini.ChatModel, userMsg string, systemMsg *string, useHistory bool, vs map[string]any) (*schema.Message, error) {
 	templates := []schema.MessagesTemplate{}
