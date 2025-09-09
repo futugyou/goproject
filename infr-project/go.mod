@@ -27,8 +27,8 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.8.0
 	github.com/swaggo/files v1.0.1
-	github.com/swaggo/gin-swagger v1.6.0
-	github.com/swaggo/swag v1.16.4
+	github.com/swaggo/gin-swagger v1.6.1
+	github.com/swaggo/swag v1.16.6
 	go.mongodb.org/mongo-driver v1.17.3
 	golang.org/x/oauth2 v0.31.0
 )
