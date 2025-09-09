@@ -13,7 +13,9 @@ import (
 
 	"github.com/cloudwego/eino-ext/components/model/gemini"
 	"github.com/cloudwego/eino/components/prompt"
+	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
+	"github.com/futugyousuzu/go-openai-web/models"
 )
 
 type EinoService struct {
@@ -101,6 +103,74 @@ func (e *EinoService) GeneralLLMRunner(ctx context.Context, userMsg string, syst
 		return nil, err
 	}
 	return e.chain.Generate(ctx, messages)
+}
+
+func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, input map[string]any) (*schema.Message, error) {
+	g := compose.NewGraph[map[string]any, *schema.Message]()
+	// TODO：Need to fill slowly
+	for _, node := range model.Nodes {
+		switch node.Type {
+		case "branch":
+		case "model":
+		case "template":
+		case "doc":
+		case "embed":
+		case "graph":
+		case "indexer":
+		case "lambda":
+		case "loader":
+		case "passthrough":
+		case "retriever":
+		case "tools":
+		}
+	}
+
+	for _, edge := range model.Edges {
+		g.AddEdge(edge.Source, edge.Target)
+	}
+
+	starts, ends := findStartAndEnd(model.Edges)
+	for _, edge := range starts {
+		g.AddEdge(compose.START, edge)
+	}
+
+	for _, edge := range ends {
+		g.AddEdge(edge, compose.END)
+	}
+
+	r, err := g.Compile(ctx, compose.WithMaxRunSteps(10))
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Invoke(ctx, input)
+}
+
+// Currently there can only be one start and one end
+func findStartAndEnd(edges []models.Edge) (starts []string, ends []string) {
+	sourceSet := make(map[string]struct{})
+	targetSet := make(map[string]struct{})
+
+	for _, e := range edges {
+		sourceSet[e.Source] = struct{}{}
+		targetSet[e.Target] = struct{}{}
+	}
+
+	// start node: appears in sourceSet but not in targetSet
+	for s := range sourceSet {
+		if _, ok := targetSet[s]; !ok {
+			starts = append(starts, s)
+		}
+	}
+
+	// end node: appears in targetSet but not in sourceSet
+	for t := range targetSet {
+		if _, ok := sourceSet[t]; !ok {
+			ends = append(ends, t)
+		}
+	}
+
+	return
 }
 
 func getGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {
