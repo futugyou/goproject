@@ -15,7 +15,9 @@ import (
 	embedding "github.com/cloudwego/eino-ext/components/embedding/gemini"
 	"github.com/cloudwego/eino-ext/components/model/gemini"
 	"github.com/cloudwego/eino/components/document"
+	"github.com/cloudwego/eino/components/indexer"
 	"github.com/cloudwego/eino/components/prompt"
+	"github.com/cloudwego/eino/components/retriever"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 	"github.com/futugyousuzu/go-openai-web/models"
@@ -120,40 +122,69 @@ func (e *EinoService) GeneralLLMRunner(ctx context.Context, userMsg string, syst
 
 func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, input map[string]any) (*schema.Message, error) {
 	g := compose.NewGraph[map[string]any, *schema.Message]()
-	// TODO：Need to fill slowly
+	// TODO: Need some built-in Functional Node
 	for _, node := range model.Nodes {
 		switch node.Type {
 		case "branch":
-			g.AddBranch(node.ID, getGraphBranch(node))
+			n, err := e.getGraphBranch(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddBranch(node.ID, n)
 		case "model":
 			g.AddChatModelNode(node.ID, e.chain)
 		case "template":
-			role := schema.System
-			if r, ok := node.Data["role"].(schema.RoleType); ok && len(r) > 0 {
-				role = r
+			n, err := e.getChatTemplateNode(ctx, node)
+			if err != nil {
+				return nil, err
 			}
-			if content, ok := node.Data["content"].(string); ok && len(content) > 0 {
-				chatTemplate := prompt.FromMessages(schema.FString, &schema.Message{
-					Role:    role,
-					Content: content,
-				})
-				g.AddChatTemplateNode(node.ID, chatTemplate)
-			}
-
+			g.AddChatTemplateNode(node.ID, n)
 		case "doc":
-			if transformer, ok := node.Data["transformer"].(string); ok && len(transformer) > 0 {
-				tran := e.getTransformer(ctx, transformer)
-				g.AddDocumentTransformerNode(node.ID, tran)
+			n, err := e.getDocumentTransformerNode(ctx, node)
+			if err != nil {
+				return nil, err
 			}
+			g.AddDocumentTransformerNode(node.ID, n)
 		case "embed":
 			g.AddEmbeddingNode(node.ID, e.embed)
 		case "graph":
+			n, err := e.getGraphNode(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddGraphNode(node.ID, n)
 		case "indexer":
+			n, err := e.getIndexerNode(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddIndexerNode(node.ID, n)
 		case "lambda":
+			n, err := e.getLambdaNode(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddLambdaNode(node.ID, n)
 		case "loader":
+			n, err := e.getLoaderNode(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddLoaderNode(node.ID, n)
 		case "passthrough":
+			g.AddPassthroughNode(node.ID)
 		case "retriever":
+			n, err := e.getRetrieverNode(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddRetrieverNode(node.ID, n)
 		case "tools":
+			n, err := e.getToolsNode(ctx, node)
+			if err != nil {
+				return nil, err
+			}
+			g.AddToolsNode(node.ID, n)
 		}
 	}
 
@@ -178,17 +209,63 @@ func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, i
 	return r.Invoke(ctx, input)
 }
 
-// TODO:
+func (e *EinoService) getToolsNode(ctx context.Context, node models.Node) (*compose.ToolsNode, error) {
+	panic("unimplemented")
+}
+
+func (e *EinoService) getRetrieverNode(ctx context.Context, node models.Node) (retriever.Retriever, error) {
+	panic("unimplemented")
+}
+
+func (e *EinoService) getLoaderNode(ctx context.Context, node models.Node) (document.Loader, error) {
+	panic("unimplemented")
+}
+
+func (e *EinoService) getLambdaNode(ctx context.Context, node models.Node) (*compose.Lambda, error) {
+	panic("unimplemented")
+}
+
+func (e *EinoService) getGraphNode(ctx context.Context, node models.Node) (compose.AnyGraph, error) {
+	panic("unimplemented")
+}
+
+func (e *EinoService) getDocumentTransformerNode(ctx context.Context, node models.Node) (document.Transformer, error) {
+	if transformer, ok := node.Data["transformer"].(string); ok && len(transformer) > 0 {
+		tran := e.getTransformer(ctx, transformer)
+		return tran, nil
+	}
+
+	return nil, fmt.Errorf("invalid document transformer node: %s", node.ID)
+}
+
+func (e *EinoService) getChatTemplateNode(ctx context.Context, node models.Node) (prompt.ChatTemplate, error) {
+	role := schema.System
+	if r, ok := node.Data["role"].(schema.RoleType); ok && len(r) > 0 {
+		role = r
+	}
+	if content, ok := node.Data["content"].(string); ok && len(content) > 0 {
+		return prompt.FromMessages(schema.FString, &schema.Message{
+			Role:    role,
+			Content: content,
+		}), nil
+	}
+
+	return nil, fmt.Errorf("invalid chat template node: %s", node.ID)
+}
+
+func (e *EinoService) getIndexerNode(ctx context.Context, node models.Node) (indexer.Indexer, error) {
+	panic("unimplemented")
+}
+
 func (e *EinoService) getTransformer(ctx context.Context, transformer string) document.Transformer {
 	markdownSplitter, _ := markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{})
 	return markdownSplitter
 }
 
-// TODO: Need some built-in GraphBranch
-func getGraphBranch(node models.Node) *compose.GraphBranch {
+func (e *EinoService) getGraphBranch(ctx context.Context, node models.Node) (*compose.GraphBranch, error) {
 	return compose.NewGraphBranch(func(ctx context.Context, in map[string]any) (string, error) {
 		return "", nil
-	}, map[string]bool{})
+	}, map[string]bool{}), nil
 }
 
 // Currently there can only be one start and one end
