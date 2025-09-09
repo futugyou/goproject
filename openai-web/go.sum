@@ -47,6 +47,10 @@ github.com/cloudwego/base64x v0.1.5 h1:XPciSp1xaq2VCSt6lF0phncD4koWyULpl5bUxbfCy
 github.com/cloudwego/base64x v0.1.5/go.mod h1:0zlkT4Wn5C6NdauXdJRhSKRlJvmclQ1hhJgA0rcu/8w=
 github.com/cloudwego/eino v0.4.8 h1:wptTU24tQad1mFCHw0+4zSzH+p8dLEBk6HtggPlcvP0=
 github.com/cloudwego/eino v0.4.8/go.mod h1:1TDlOmwGSsbCJaWB92w9YLZi2FL0WRZoRcD4eMvqikg=
+github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20250905035413-86dbae6351d5 h1:uzgE1I+w9ayRGKaTekmVdyZFlygNAgO7lC/e51B627Y=
+github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20250905035413-86dbae6351d5/go.mod h1:HZNxjGsgkN+1jsXdcKR8TwnE7J3W5C8aqX/hwWyAOoU=
+github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20250905035413-86dbae6351d5 h1:mE00+wsvQKg5X42JIg3iCCJBVM4SILGobC8X0Qv08Y8=
+github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20250905035413-86dbae6351d5/go.mod h1:mz3PGQenODaRelcH+lmX012PAHT8vnuHsiL6EgFw3FA=
 github.com/cloudwego/eino-ext/components/model/gemini v0.1.6 h1:OL0Aibzmh1vuzblZEuy4BeacJvRB6XzVbNUG0UJFhVc=
 github.com/cloudwego/eino-ext/components/model/gemini v0.1.6/go.mod h1:yWVzN9Y5TU9MERRStVnfa28uXQbbAk+z/2SCi+G32Vc=
 github.com/cloudwego/iasm v0.2.0/go.mod h1:8rXZaNYT2n95jn+zTI1sDr+IgcD2GVs0nlbbQPiEFhY=
@@ -292,6 +296,8 @@ go.mongodb.org/mongo-driver v1.16.1 h1:rIVLL3q0IHM39dvE+z2ulZLp9ENZKThVfuvN/IiN4
 go.mongodb.org/mongo-driver v1.16.1/go.mod h1:oB6AhJQvFQL4LEHyXi6aJzQJtBiTQHiAd83l0GdFaiw=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
 go.opencensus.io v0.24.0/go.mod h1:vNK8G9p7aAivkbmorf4v+7Hgx+Zs0yY+0fOtgBfjQKo=
+go.uber.org/mock v0.4.0 h1:VcM4ZOtdbR4f6VXfiOpwpVJDL6lCReaZ6mw31wqh7KU=
+go.uber.org/mock v0.4.0/go.mod h1:a6FSlNadKUHUa9IP5Vyt1zh4fC7uAwxMutEAscFbkZc=
 golang.org/x/arch v0.12.0 h1:UsYJhbzPYGsT0HbEdmYcqtCv8UNGvnaL561NnIUvaKg=
 golang.org/x/arch v0.12.0/go.mod h1:FEVrYAQjsQXMVJ1nsMoVVXPZg6p2JE2mx8psSWTDQys=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
@@ -364,8 +370,8 @@ golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8T
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 google.golang.org/appengine v1.1.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9YwlJXL52JkM=
 google.golang.org/appengine v1.4.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
-google.golang.org/genai v1.13.0 h1:LRhwx5PU+bXhfnXyPEHu2kt9yc+MpvuYbajxSorOJjg=
-google.golang.org/genai v1.13.0/go.mod h1:QPj5NGJw+3wEOHg+PrsWwJKvG6UC84ex5FR7qAYsN/M=
+google.golang.org/genai v1.18.0 h1:fTmK7y30CO0CL8xRyyFSjTkd1MNbYUeFUehvDyU/2gQ=
+google.golang.org/genai v1.18.0/go.mod h1:QPj5NGJw+3wEOHg+PrsWwJKvG6UC84ex5FR7qAYsN/M=
 google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=
 google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55/go.mod h1:DMBHOl98Agz4BDEuKkezgsaosCRResVns1a3J2ZsMNc=
 google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013/go.mod h1:NbSheEEYHJ7i3ixzK3sjbqSGDJWnxyFXZblF3eUsNvo=

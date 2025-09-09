@@ -11,7 +11,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/genai"
 
+	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown"
+	embedding "github.com/cloudwego/eino-ext/components/embedding/gemini"
 	"github.com/cloudwego/eino-ext/components/model/gemini"
+	"github.com/cloudwego/eino/components/document"
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
@@ -21,9 +24,10 @@ import (
 type EinoService struct {
 	db    *mongo.Database
 	chain *gemini.ChatModel
+	embed *embedding.Embedder
 }
 
-func (e *EinoService) Init(ctx context.Context, client *mongo.Client, chain *gemini.ChatModel) *EinoService {
+func (e *EinoService) Init(ctx context.Context, client *mongo.Client, chain *gemini.ChatModel, embed *embedding.Embedder) *EinoService {
 	var err error
 	if client == nil {
 		db_name := os.Getenv("db_name")
@@ -37,12 +41,21 @@ func (e *EinoService) Init(ctx context.Context, client *mongo.Client, chain *gem
 	}
 
 	if chain == nil {
-		chain, err = getGeminiModel(ctx)
+		chain, err = e.getGeminiModel(ctx)
 		if err != nil {
 			return e
 		}
 
 		e.chain = chain
+	}
+
+	if embed == nil {
+		embed, err = e.getGeminiEmbeddingModel(ctx)
+		if err != nil {
+			return e
+		}
+
+		e.embed = embed
 	}
 
 	return e
@@ -111,10 +124,29 @@ func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, i
 	for _, node := range model.Nodes {
 		switch node.Type {
 		case "branch":
+			g.AddBranch(node.ID, getGraphBranch(node))
 		case "model":
+			g.AddChatModelNode(node.ID, e.chain)
 		case "template":
+			role := schema.System
+			if r, ok := node.Data["role"].(schema.RoleType); ok && len(r) > 0 {
+				role = r
+			}
+			if content, ok := node.Data["content"].(string); ok && len(content) > 0 {
+				chatTemplate := prompt.FromMessages(schema.FString, &schema.Message{
+					Role:    role,
+					Content: content,
+				})
+				g.AddChatTemplateNode(node.ID, chatTemplate)
+			}
+
 		case "doc":
+			if transformer, ok := node.Data["transformer"].(string); ok && len(transformer) > 0 {
+				tran := e.getTransformer(ctx, transformer)
+				g.AddDocumentTransformerNode(node.ID, tran)
+			}
 		case "embed":
+			g.AddEmbeddingNode(node.ID, e.embed)
 		case "graph":
 		case "indexer":
 		case "lambda":
@@ -146,6 +178,19 @@ func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, i
 	return r.Invoke(ctx, input)
 }
 
+// TODO:
+func (e *EinoService) getTransformer(ctx context.Context, transformer string) document.Transformer {
+	markdownSplitter, _ := markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{})
+	return markdownSplitter
+}
+
+// TODO: Need some built-in GraphBranch
+func getGraphBranch(node models.Node) *compose.GraphBranch {
+	return compose.NewGraphBranch(func(ctx context.Context, in map[string]any) (string, error) {
+		return "", nil
+	}, map[string]bool{})
+}
+
 // Currently there can only be one start and one end
 func findStartAndEnd(edges []models.Edge) (starts []string, ends []string) {
 	sourceSet := make(map[string]struct{})
@@ -173,7 +218,7 @@ func findStartAndEnd(edges []models.Edge) (starts []string, ends []string) {
 	return
 }
 
-func getGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {
+func (e *EinoService) getGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	modelid := os.Getenv("GEMINI_MODEL_ID")
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
@@ -190,5 +235,22 @@ func getGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {
 			IncludeThoughts: true,
 			ThinkingBudget:  nil,
 		},
+	})
+}
+
+func (e *EinoService) getGeminiEmbeddingModel(ctx context.Context) (*embedding.Embedder, error) {
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	modelid := os.Getenv("GEMINI_EMBEDDING_MODEL_ID")
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey: apiKey,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return embedding.NewEmbedder(ctx, &embedding.EmbeddingConfig{
+		Client:   client,
+		Model:    modelid,
+		TaskType: "RETRIEVAL_QUERY",
 	})
 }

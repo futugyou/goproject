@@ -6,6 +6,8 @@ require github.com/beego/beego/v2 v2.3.0
 
 require (
 	github.com/cloudwego/eino v0.4.8
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20250905035413-86dbae6351d5
+	github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/model/gemini v0.1.6
 	github.com/devfeel/mapper v0.7.13
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
@@ -13,7 +15,7 @@ require (
 	github.com/openai/openai-go v0.1.0-alpha.53
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/smartystreets/goconvey v1.8.1
-	google.golang.org/genai v1.13.0
+	google.golang.org/genai v1.18.0
 )
 
 require (
