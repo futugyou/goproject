@@ -20,11 +20,13 @@ import (
 	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic"
 	embedding "github.com/cloudwego/eino-ext/components/embedding/gemini"
 	"github.com/cloudwego/eino-ext/components/model/gemini"
+	"github.com/cloudwego/eino-ext/components/tool/googlesearch"
 	"github.com/cloudwego/eino/components/document"
 	"github.com/cloudwego/eino/components/document/parser"
 	"github.com/cloudwego/eino/components/indexer"
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/components/retriever"
+	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 	"github.com/futugyousuzu/go-openai-web/models"
@@ -224,7 +226,25 @@ func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, i
 }
 
 func (e *EinoService) getToolsNode(ctx context.Context, node models.Node) (*compose.ToolsNode, error) {
-	panic("unimplemented")
+	tools := []tool.BaseTool{}
+	if googletool, ok := node.Data["googletool"].(string); ok && len(googletool) > 0 {
+		googleTool, err := googlesearch.NewTool(ctx, &googlesearch.Config{
+			APIKey:         os.Getenv("GOOGLE_API_KEY"),
+			SearchEngineID: os.Getenv("GOOGLE_SEARCH_ENGINE_ID"),
+		})
+		if err != nil {
+			return nil, err
+		}
+		tools = append(tools, googleTool)
+	}
+
+	if len(tools) > 0 {
+		return compose.NewToolNode(ctx, &compose.ToolsNodeConfig{
+			Tools: tools,
+		})
+	}
+	
+	return nil, fmt.Errorf("invalid tool node: %s", node.ID)
 }
 
 func (e *EinoService) getRetrieverNode(ctx context.Context, node models.Node) (retriever.Retriever, error) {
@@ -250,7 +270,7 @@ func (e *EinoService) getLoaderNode(ctx context.Context, node models.Node) (docu
 				loaderParser, _ = xlsx.NewXlsxParser(ctx, &xlsx.Config{})
 			}
 		}
-		
+
 		switch loader {
 		case "url":
 			loaderConfig := &url.LoaderConfig{
