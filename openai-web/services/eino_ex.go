@@ -20,6 +20,7 @@ import (
 	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic"
 	embedding "github.com/cloudwego/eino-ext/components/embedding/gemini"
 	"github.com/cloudwego/eino-ext/components/model/gemini"
+	"github.com/cloudwego/eino-ext/components/tool/duckduckgo/v2"
 	"github.com/cloudwego/eino-ext/components/tool/googlesearch"
 	mcpp "github.com/cloudwego/eino-ext/components/tool/mcp"
 	"github.com/cloudwego/eino/components/document"
@@ -230,7 +231,7 @@ func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, i
 
 func (e *EinoService) getToolsNode(ctx context.Context, node models.Node) (*compose.ToolsNode, error) {
 	tools := []tool.BaseTool{}
-	if googletool, ok := node.Data["googletool"].(string); ok && len(googletool) > 0 {
+	if googletool, ok := node.Data["googlesearch"].(string); ok && len(googletool) > 0 {
 		googleTool, err := googlesearch.NewTool(ctx, &googlesearch.Config{
 			APIKey:         os.Getenv("GOOGLE_API_KEY"),
 			SearchEngineID: os.Getenv("GOOGLE_SEARCH_ENGINE_ID"),
@@ -239,6 +240,14 @@ func (e *EinoService) getToolsNode(ctx context.Context, node models.Node) (*comp
 			return nil, err
 		}
 		tools = append(tools, googleTool)
+	}
+
+	if googletool, ok := node.Data["duckduckgo"].(string); ok && len(googletool) > 0 {
+		searchTool, err := duckduckgo.NewTextSearchTool(ctx, &duckduckgo.Config{})
+		if err != nil {
+			return nil, err
+		}
+		tools = append(tools, searchTool)
 	}
 
 	if mcptoolurl, ok := node.Data["mcptoolurl"].(string); ok && len(mcptoolurl) > 0 {

@@ -15,6 +15,7 @@ require (
 	github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic v0.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/model/gemini v0.1.6
+	github.com/cloudwego/eino-ext/components/tool/duckduckgo/v2 v2.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/tool/googlesearch v0.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/tool/mcp v0.0.4
 	github.com/devfeel/mapper v0.7.13
@@ -34,8 +35,8 @@ require (
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
-	github.com/PuerkitoBio/goquery v1.8.1 // indirect
-	github.com/andybalholm/cascadia v1.3.1 // indirect
+	github.com/PuerkitoBio/goquery v1.10.3 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
@@ -44,6 +45,7 @@ require (
 	github.com/carmel/gooxml v0.0.0-20220216072414-40ff56130850 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/cloudwego/eino-ext/components/document/parser/html v0.0.0-20241224063832-9fbcc0e56c28 // indirect
+	github.com/corpix/uarand v0.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/dslipak/pdf v0.0.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
