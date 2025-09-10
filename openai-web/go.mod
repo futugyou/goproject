@@ -16,9 +16,11 @@ require (
 	github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/model/gemini v0.1.6
 	github.com/cloudwego/eino-ext/components/tool/googlesearch v0.0.0-20250905035413-86dbae6351d5
+	github.com/cloudwego/eino-ext/components/tool/mcp v0.0.4
 	github.com/devfeel/mapper v0.7.13
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
+	github.com/mark3labs/mcp-go v0.33.0
 	github.com/openai/openai-go v0.1.0-alpha.53
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/smartystreets/goconvey v1.8.1
@@ -88,6 +90,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
 	github.com/smarty/assertions v1.15.0 // indirect
+	github.com/spf13/cast v1.7.1 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
@@ -98,6 +101,7 @@ require (
 	github.com/xuri/excelize/v2 v2.9.0 // indirect
 	github.com/xuri/nfp v0.0.0-20240318013403-ab9948c2c4a7 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect
 	go.opentelemetry.io/otel v1.29.0 // indirect

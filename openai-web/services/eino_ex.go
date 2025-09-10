@@ -21,6 +21,7 @@ import (
 	embedding "github.com/cloudwego/eino-ext/components/embedding/gemini"
 	"github.com/cloudwego/eino-ext/components/model/gemini"
 	"github.com/cloudwego/eino-ext/components/tool/googlesearch"
+	mcpp "github.com/cloudwego/eino-ext/components/tool/mcp"
 	"github.com/cloudwego/eino/components/document"
 	"github.com/cloudwego/eino/components/document/parser"
 	"github.com/cloudwego/eino/components/indexer"
@@ -30,6 +31,8 @@ import (
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 	"github.com/futugyousuzu/go-openai-web/models"
+	"github.com/mark3labs/mcp-go/client"
+	"github.com/mark3labs/mcp-go/mcp"
 )
 
 type EinoService struct {
@@ -238,12 +241,38 @@ func (e *EinoService) getToolsNode(ctx context.Context, node models.Node) (*comp
 		tools = append(tools, googleTool)
 	}
 
+	if mcptoolurl, ok := node.Data["mcptoolurl"].(string); ok && len(mcptoolurl) > 0 {
+		cli, err := client.NewSSEMCPClient(mcptoolurl)
+		if err != nil {
+			return nil, err
+		}
+		err = cli.Start(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		initRequest := mcp.InitializeRequest{}
+		initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
+		initRequest.Params.ClientInfo = mcp.Implementation{
+			Name:    "enio-client",
+			Version: "1.0.0",
+		}
+
+		_, err = cli.Initialize(ctx, initRequest)
+		if err != nil {
+			return nil, err
+		}
+
+		mcpTools, err := mcpp.GetTools(ctx, &mcpp.Config{Cli: cli})
+		tools = append(tools, mcpTools...)
+	}
+
 	if len(tools) > 0 {
 		return compose.NewToolNode(ctx, &compose.ToolsNodeConfig{
 			Tools: tools,
 		})
 	}
-	
+
 	return nil, fmt.Errorf("invalid tool node: %s", node.ID)
 }
 
