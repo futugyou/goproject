@@ -1,6 +1,7 @@
 package models
 
 type FlowGraph struct {
+	ID       string   `json:"id" bson:"id"`
 	Nodes    []Node   `json:"nodes" bson:"nodes"`
 	Edges    []Edge   `json:"edges" bson:"edges"`
 	Viewport Viewport `json:"viewport" bson:"viewport"`

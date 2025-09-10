@@ -71,36 +71,43 @@ type ConversationModel struct {
 	LastUpdated   time.Time `json:"last_updated,omitempty" bson:"last_updated,omitempty"`
 }
 
-func (e *EinoService) SaveConversation(ctx context.Context, model ConversationModel) error {
-	db := e.db
-	coll := db.Collection("eino_conversation")
+func (e *EinoService) saveModel(ctx context.Context, collection string, idKey string, idValue any, model any) error {
+	coll := e.db.Collection(collection)
 	opt := options.Update().SetUpsert(true)
-	filter := bson.D{{Key: "id", Value: model.Id}}
+	filter := bson.D{{Key: idKey, Value: idValue}}
 
-	if _, err := coll.UpdateOne(ctx, filter, bson.M{
-		"$set": model,
-	}, opt); err != nil {
-		return err
+	_, err := coll.UpdateOne(ctx, filter, bson.M{"$set": model}, opt)
+	return err
+}
+
+func (e *EinoService) SaveConversation(ctx context.Context, model ConversationModel) error {
+	return e.saveModel(ctx, "eino_conversation", "id", model.Id, model)
+}
+
+func (e *EinoService) SaveFlowGraph(ctx context.Context, model models.FlowGraph) error {
+	return e.saveModel(ctx, "eino_flowgraph", "id", model.ID, model)
+}
+
+func getModel[T any](ctx context.Context, db *mongo.Database, collection string, id string) (*T, error) {
+	coll := db.Collection(collection)
+	filter := bson.D{{Key: "id", Value: id}}
+
+	var model T
+	if err := coll.FindOne(ctx, filter).Decode(&model); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("can not find %s with id: %s", collection, id)
+		}
+		return nil, err
 	}
-
-	return nil
+	return &model, nil
 }
 
 func (e *EinoService) GetConversation(ctx context.Context, id string) (*ConversationModel, error) {
-	model := &ConversationModel{}
-	db := e.db
-	coll := db.Collection("eino_conversation")
-	filter := bson.D{{Key: "id", Value: id}}
-	opts := &options.FindOneOptions{}
-	if err := coll.FindOne(ctx, filter, opts).Decode(model); err != nil {
-		if err.Error() == "mongo: no documents in result" {
-			return nil, fmt.Errorf("can not find conversation with id: %s", id)
-		} else {
-			return nil, err
-		}
-	}
+	return getModel[ConversationModel](ctx, e.db, "eino_conversation", id)
+}
 
-	return model, nil
+func (e *EinoService) GetFlowGraph(ctx context.Context, id string) (*models.FlowGraph, error) {
+	return getModel[models.FlowGraph](ctx, e.db, "eino_flowgraph", id)
 }
 
 func (e *EinoService) GeneralLLMRunner(ctx context.Context, userMsg string, systemMsg *string, useHistory bool, vs map[string]any) (*schema.Message, error) {
