@@ -12,6 +12,8 @@ import (
 	"google.golang.org/genai"
 
 	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown"
+	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/recursive"
+	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic"
 	embedding "github.com/cloudwego/eino-ext/components/embedding/gemini"
 	"github.com/cloudwego/eino-ext/components/model/gemini"
 	"github.com/cloudwego/eino/components/document"
@@ -238,8 +240,25 @@ func (e *EinoService) getGraphNode(ctx context.Context, node models.Node) (compo
 
 func (e *EinoService) getDocumentTransformerNode(ctx context.Context, node models.Node) (document.Transformer, error) {
 	if transformer, ok := node.Data["transformer"].(string); ok && len(transformer) > 0 {
-		tran := e.getTransformer(ctx, transformer)
-		return tran, nil
+		switch transformer {
+		case "markdown":
+			headers := map[string]string{
+				"#":   "h1",
+				"##":  "h2",
+				"###": "h3",
+			}
+			if h, ok := node.Data["transformer_header"].(map[string]string); ok {
+				headers = h
+			}
+			return markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{Headers: headers, TrimHeaders: false})
+		case "semantic":
+			return semantic.NewSplitter(ctx, &semantic.Config{
+				Embedding: e.embed,
+			})
+		case "recursive":
+			return recursive.NewSplitter(ctx, &recursive.Config{ChunkSize: 1000, OverlapSize: 200})
+		}
+
 	}
 
 	return nil, fmt.Errorf("invalid document transformer node: %s", node.ID)
@@ -262,11 +281,6 @@ func (e *EinoService) getChatTemplateNode(ctx context.Context, node models.Node)
 
 func (e *EinoService) getIndexerNode(ctx context.Context, node models.Node) (indexer.Indexer, error) {
 	panic("unimplemented")
-}
-
-func (e *EinoService) getTransformer(ctx context.Context, transformer string) document.Transformer {
-	markdownSplitter, _ := markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{})
-	return markdownSplitter
 }
 
 func (e *EinoService) getGraphBranch(ctx context.Context, node models.Node) (*compose.GraphBranch, error) {
