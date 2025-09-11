@@ -28,7 +28,7 @@ jobs:
           go-version: '1.20'
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@41.7.8
+        run: npm install --global vercel@44.2.7
         working-directory: ${{env.working-directory}}
 
       - name: Pull Vercel Environment Information
