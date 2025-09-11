@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -8,10 +8,11 @@ import (
 	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/recursive"
 	"github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic"
 	"github.com/cloudwego/eino/components/document"
+	"github.com/cloudwego/eino/components/embedding"
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
-func (e *EinoService) getDocumentTransformerNode(ctx context.Context, node models.Node) (document.Transformer, error) {
+func getDocumentTransformerNode(ctx context.Context, node models.Node, embed embedding.Embedder) (document.Transformer, error) {
 	if transformer, ok := node.Data["transformer"].(string); ok && len(transformer) > 0 {
 		switch transformer {
 		case "markdown":
@@ -26,7 +27,7 @@ func (e *EinoService) getDocumentTransformerNode(ctx context.Context, node model
 			return markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{Headers: headers, TrimHeaders: false})
 		case "semantic":
 			return semantic.NewSplitter(ctx, &semantic.Config{
-				Embedding: e.embed,
+				Embedding: embed,
 			})
 		case "recursive":
 			return recursive.NewSplitter(ctx, &recursive.Config{ChunkSize: 1000, OverlapSize: 200})

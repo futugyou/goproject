@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-func (e *EinoService) getToolsNode(ctx context.Context, node models.Node) (*compose.ToolsNode, error) {
+func getToolsNode(ctx context.Context, node models.Node) (*compose.ToolsNode, error) {
 	tools := []tool.BaseTool{}
 	if googletool, ok := node.Data["googlesearch"].(string); ok && len(googletool) > 0 {
 		googleTool, err := googlesearch.NewTool(ctx, &googlesearch.Config{

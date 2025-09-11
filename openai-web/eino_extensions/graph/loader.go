@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
-func (e *EinoService) getLoaderNode(ctx context.Context, node models.Node) (document.Loader, error) {
+func getLoaderNode(ctx context.Context, node models.Node) (document.Loader, error) {
 	if loader, ok := node.Data["loader"].(string); ok && len(loader) > 0 {
 		var loaderParser parser.Parser = nil
 		if p, ok := node.Data["parser"].(string); ok && len(p) > 0 {

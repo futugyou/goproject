@@ -16,6 +16,7 @@ import (
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
+	"github.com/futugyousuzu/go-openai-web/eino_extensions/graph"
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
@@ -122,136 +123,22 @@ func (e *EinoService) GeneralLLMRunner(ctx context.Context, userMsg string, syst
 	}
 	return e.chain.Generate(ctx, messages)
 }
+
 func (e *EinoService) GraphRunner(ctx context.Context, model models.FlowGraph, input map[string]any) (*schema.Message, error) {
 	g := compose.NewGraph[map[string]any, *schema.Message]()
 
-	if err := e.addNodesToGraph(ctx, g, model.Nodes); err != nil {
+	if err := graph.AddNodesToGraph(ctx, g, model.Nodes, e.embed, e.chain); err != nil {
 		return nil, err
 	}
 
-	e.addEdgesToGraph(g, model.Edges)
-	
+	graph.AddEdgesToGraph(g, model.Edges)
+
 	r, err := g.Compile(ctx, compose.WithMaxRunSteps(10))
 	if err != nil {
 		return nil, err
 	}
 
 	return r.Invoke(ctx, input)
-}
-
-func (e *EinoService) addNodesToGraph(ctx context.Context, g *compose.Graph[map[string]any, *schema.Message], nodes []models.Node) error {
-	for _, node := range nodes {
-		switch node.Type {
-		case "branch":
-			n, err := e.getGraphBranch(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddBranch(node.ID, n)
-		case "template":
-			n, err := e.getChatTemplateNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddChatTemplateNode(node.ID, n)
-		case "doc":
-			n, err := e.getDocumentTransformerNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddDocumentTransformerNode(node.ID, n)
-		case "embed":
-			g.AddEmbeddingNode(node.ID, e.embed)
-		case "graph":
-			n, err := e.getGraphNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddGraphNode(node.ID, n)
-		case "indexer":
-			n, err := e.getIndexerNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddIndexerNode(node.ID, n)
-		case "lambda":
-			n, err := e.getLambdaNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddLambdaNode(node.ID, n)
-		case "loader":
-			n, err := e.getLoaderNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddLoaderNode(node.ID, n)
-		case "model":
-			g.AddChatModelNode(node.ID, e.chain)
-		case "passthrough":
-			g.AddPassthroughNode(node.ID)
-		case "retriever":
-			n, err := e.getRetrieverNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddRetrieverNode(node.ID, n)
-		case "tools":
-			n, err := e.getToolsNode(ctx, node)
-			if err != nil {
-				return err
-			}
-			g.AddToolsNode(node.ID, n)
-		default:
-			// Optionally handle unknown types
-			return fmt.Errorf("unknown node type: %s", node.Type)
-		}
-	}
-
-	return nil
-}
-
-func (e *EinoService) addEdgesToGraph(g *compose.Graph[map[string]any, *schema.Message], edges []models.Edge) {
-	for _, edge := range edges {
-		g.AddEdge(edge.Source, edge.Target)
-	}
-
-	starts, ends := findStartAndEnd(edges)
-	for _, edge := range starts {
-		g.AddEdge(compose.START, edge)
-	}
-
-	for _, edge := range ends {
-		g.AddEdge(edge, compose.END)
-	}
-}
- 
-
-// Currently there can only be one start and one end
-func findStartAndEnd(edges []models.Edge) (starts []string, ends []string) {
-	sourceSet := make(map[string]struct{})
-	targetSet := make(map[string]struct{})
-
-	for _, e := range edges {
-		sourceSet[e.Source] = struct{}{}
-		targetSet[e.Target] = struct{}{}
-	}
-
-	// start node: appears in sourceSet but not in targetSet
-	for s := range sourceSet {
-		if _, ok := targetSet[s]; !ok {
-			starts = append(starts, s)
-		}
-	}
-
-	// end node: appears in targetSet but not in sourceSet
-	for t := range targetSet {
-		if _, ok := sourceSet[t]; !ok {
-			ends = append(ends, t)
-		}
-	}
-
-	return
 }
 
 func (e *EinoService) getGeminiModel(ctx context.Context) (*gemini.ChatModel, error) {

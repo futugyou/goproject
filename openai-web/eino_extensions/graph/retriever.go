@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -7,6 +7,6 @@ import (
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
-func (e *EinoService) getRetrieverNode(ctx context.Context, node models.Node) (retriever.Retriever, error) {
+func getRetrieverNode(ctx context.Context, node models.Node) (retriever.Retriever, error) {
 	panic("unimplemented")
 }

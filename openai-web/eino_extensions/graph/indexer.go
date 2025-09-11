@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -7,6 +7,6 @@ import (
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
-func (e *EinoService) getIndexerNode(ctx context.Context, node models.Node) (indexer.Indexer, error) {
+func getIndexerNode(ctx context.Context, node models.Node) (indexer.Indexer, error) {
 	panic("unimplemented")
 }

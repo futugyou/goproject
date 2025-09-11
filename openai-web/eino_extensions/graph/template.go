@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
-func (e *EinoService) getChatTemplateNode(ctx context.Context, node models.Node) (prompt.ChatTemplate, error) {
+func getChatTemplateNode(ctx context.Context, node models.Node) (prompt.ChatTemplate, error) {
 	role := schema.System
 	if r, ok := node.Data["role"].(schema.RoleType); ok && len(r) > 0 {
 		role = r

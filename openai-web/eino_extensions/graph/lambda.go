@@ -1,4 +1,4 @@
-package services
+package graph
 
 import (
 	"context"
@@ -7,6 +7,6 @@ import (
 	"github.com/futugyousuzu/go-openai-web/models"
 )
 
-func (e *EinoService) getLambdaNode(ctx context.Context, node models.Node) (*compose.Lambda, error) {
+func getLambdaNode(ctx context.Context, node models.Node) (*compose.Lambda, error) {
 	panic("unimplemented")
 }
