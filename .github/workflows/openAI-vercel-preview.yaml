@@ -1,9 +1,20 @@
 name: OpenAI Vercel Preview Deployment
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_OPENAI_WEB_ID }}
+
 on:
   workflow_dispatch:
+      go-version:
+        description: "Go version"
+        required: false
+        default: "1.23"
+      vercel-cli-version:
+        description: "Vercel CLI version"
+        required: false
+        default: "47.1.4"
+      install-go:
+        description: "Whether to install the specified Go version"
+        required: false
+        type: boolean
+        default: true
   schedule:
   - cron: '20 22 * * *'
   push:
@@ -12,24 +23,32 @@ on:
     paths: 
     - 'openai-web/**'
     - '.github/workflows/openAI-vercel-preview.yaml'
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_OPENAI_WEB_ID }}
+  GO_VERSION: ${{ github.event.inputs.go-version || '1.23' }}
+  VERCEL_CLI_VERSION: ${{ github.event.inputs.vercel-cli-version || '47.1.4' }}
+  INSTALL_GO: ${{ github.event.inputs.install-go || true }}
+  working-directory: ./openai-web
+
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
     environment:
       name: Preview – openai-web
-    env:
-      working-directory: ./openai-web
 
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions/setup-go@v5
+        if: ${{ env.INSTALL_GO }}
         with:
-          go-version: '1.20'
-      
+          go-version: ${{ env.GO_VERSION }}
+
       - name: Install Vercel CLI
-        run: npm i -g vercel
-        working-directory: ${{env.working-directory}}
+        run: npm i -g vercel@${{ env.VERCEL_CLI_VERSION }}
+        working-directory: ${{ env.working-directory }}
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
