@@ -228,7 +228,6 @@ type implOptions struct {
 }
 
 // WithFilterQuery redis filter query.
-// see: https://redis.io/docs/latest/develop/interact/search-and-query/advanced-concepts/vectors/#filters
 func WithFilterQuery(filter string) retriever.Option {
 	return retriever.WrapImplSpecificOptFn(func(o *implOptions) {
 		o.FilterQuery = filter
