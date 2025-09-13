@@ -63,7 +63,7 @@ func AddNodesToGraph(ctx context.Context, g *compose.Graph[map[string]any, *sche
 		case "passthrough":
 			g.AddPassthroughNode(node.ID)
 		case "retriever":
-			n, err := getRetrieverNode(ctx, node)
+			n, err := getRetrieverNode(ctx, node, embed)
 			if err != nil {
 				return err
 			}
