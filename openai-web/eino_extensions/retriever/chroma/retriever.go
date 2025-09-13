@@ -156,7 +156,7 @@ func (r *Retriever) makeEmbeddingCtx(ctx context.Context, emb embedding.Embedder
 	return callbacks.ReuseHandlers(ctx, runInfo)
 }
 
-const typ = "Chroma"
+const typ = "chroma"
 
 // GetType returns the type of the retriever.
 func (r *Retriever) GetType() string {

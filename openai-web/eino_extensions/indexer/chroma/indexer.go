@@ -99,7 +99,7 @@ func (i *Indexer) Store(ctx context.Context, docs []*schema.Document, opts ...in
 
 // GetType returns the indexer's type.
 func (i *Indexer) GetType() string {
-	return "Chroma"
+	return "chroma"
 }
 
 // IsCallbacksEnabled checks if callbacks are enabled.

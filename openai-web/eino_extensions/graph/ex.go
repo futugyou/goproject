@@ -41,7 +41,7 @@ func AddNodesToGraph(ctx context.Context, g *compose.Graph[map[string]any, *sche
 			}
 			g.AddGraphNode(node.ID, n)
 		case "indexer":
-			n, err := getIndexerNode(ctx, node)
+			n, err := getIndexerNode(ctx, node, embed)
 			if err != nil {
 				return err
 			}
