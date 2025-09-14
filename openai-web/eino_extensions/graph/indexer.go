@@ -20,13 +20,8 @@ func getIndexerNode(ctx context.Context, node models.Node, embedding embedding.E
 	if idx, ok := node.Data["indexer"].(string); ok && len(idx) > 0 {
 		switch idx {
 		case "chroma":
-			client, err := getChromaClient(ctx)
-			if err != nil {
-				return nil, err
-			}
 			return chroma.NewIndexer(ctx, &chroma.IndexerConfig{
 				Embedding: embedding,
-				Client:    client,
 			})
 		case "mongo":
 			client, err := getMongodbClient(ctx)
