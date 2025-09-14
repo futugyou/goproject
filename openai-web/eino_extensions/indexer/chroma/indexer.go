@@ -31,15 +31,15 @@ func NewIndexer(ctx context.Context, config *IndexerConfig) (*Indexer, error) {
 	}
 
 	collectionName := "eino-collection"
-	emb := &EinoEmbedderAdapter{embedder: config.Embedding}
+	// emb := &EinoEmbedderAdapter{embedder: config.Embedding}
 
-	collection, err := config.Client.GetCollection(ctx, collectionName, emb)
+	collection, err := config.Client.GetCollection(ctx, collectionName, nil)
 	if err != nil {
 		// If the collection doesn't exist, create it.
 		// NOTE: The `embeddings` parameter is for the collection's embedding function.
 		// Here, we can directly pass our embedder if it wraps a Chroma-compatible one.
 		// Alternatively, if the Chroma server handles embedding, we'd pass nil or a name.
-		collection, err = config.Client.CreateCollection(ctx, collectionName, nil, false, emb, "")
+		collection, err = config.Client.CreateCollection(ctx, collectionName, nil, false, nil, "")
 		if err != nil {
 			return nil, fmt.Errorf("failed to get or create collection: %w", err)
 		}
