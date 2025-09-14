@@ -16,13 +16,8 @@ func getRetrieverNode(ctx context.Context, node models.Node, embedding embedding
 	if idx, ok := node.Data["retriever"].(string); ok && len(idx) > 0 {
 		switch idx {
 		case "chroma":
-			client, err := getChromaClient(ctx)
-			if err != nil {
-				return nil, err
-			}
 			return chroma.NewRetriever(ctx, &chroma.RetrieverConfig{
 				Embedding:      embedding,
-				Client:         client,
 				CollectionName: os.Getenv("retriever_collection"),
 			})
 		case "mongo":

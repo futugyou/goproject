@@ -3,9 +3,9 @@ package chroma
 import (
 	"context"
 	"fmt"
+	"os"
 
-	chroma_go "github.com/amikos-tech/chroma-go"
-	"github.com/amikos-tech/chroma-go/types"
+	chroma_go "github.com/amikos-tech/chroma-go/pkg/api/v2"
 	"github.com/cloudwego/eino/callbacks"
 	"github.com/cloudwego/eino/components"
 	"github.com/cloudwego/eino/components/embedding"
@@ -21,7 +21,7 @@ const (
 // RetrieverConfig holds the configuration for the ChromaDB retriever.
 type RetrieverConfig struct {
 	// Client is the ChromaDB client.
-	Client *chroma_go.Client
+	client chroma_go.Client
 	// CollectionName is the name of the ChromaDB collection to search.
 	CollectionName string
 	// TopK is the number of results to return. Default 5.
@@ -34,7 +34,7 @@ type RetrieverConfig struct {
 type Retriever struct {
 	config *RetrieverConfig
 	// col is the ChromaDB collection object, initialized in NewRetriever.
-	col *chroma_go.Collection
+	col chroma_go.Collection
 }
 
 // NewRetriever creates a new ChromaDB-based Retriever.
@@ -42,11 +42,6 @@ func NewRetriever(ctx context.Context, config *RetrieverConfig) (*Retriever, err
 	if config.Embedding == nil {
 		return nil, fmt.Errorf("[NewRetriever] embedding not provided for chroma retriever")
 	}
-
-	if config.Client == nil {
-		return nil, fmt.Errorf("[NewRetriever] chroma client not provided")
-	}
-
 	if config.CollectionName == "" {
 		return nil, fmt.Errorf("[NewRetriever] collection name not provided")
 	}
@@ -55,10 +50,25 @@ func NewRetriever(ctx context.Context, config *RetrieverConfig) (*Retriever, err
 		config.TopK = defaultTopK
 	}
 
-	// Get the collection from the client.
-	col, err := config.Client.GetCollection(ctx, config.CollectionName, nil)
+	client, err := chroma_go.NewHTTPClient(
+		chroma_go.WithBaseURL(os.Getenv("chroma_base_url")),
+		chroma_go.WithDatabaseAndTenant(os.Getenv("chroma_database"), os.Getenv("chroma_tenant")),
+		chroma_go.WithAuth(chroma_go.NewBasicAuthCredentialsProvider(os.Getenv("chroma_user"), os.Getenv("chroma_password"))),
+	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get collection %s: %w", config.CollectionName, err)
+		return nil, err
+	}
+
+	config.client = client
+	emb := &EinoEmbedderAdapter{embedder: config.Embedding}
+	col, err := config.client.GetOrCreateCollection(
+		ctx,
+		config.CollectionName,
+		chroma_go.WithEmbeddingFunctionCreate(emb),
+		chroma_go.WithIfNotExistsCreate(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get or create collection: %w", err)
 	}
 
 	return &Retriever{
@@ -76,8 +86,8 @@ func (r *Retriever) Retrieve(ctx context.Context, query string, opts ...retrieve
 
 	ctx = callbacks.EnsureRunInfo(ctx, r.GetType(), components.ComponentOfRetriever)
 	ctx = callbacks.OnStart(ctx, &retriever.CallbackInput{
-		Query:  query,
-		TopK:   *co.TopK,
+		Query:          query,
+		TopK:           *co.TopK,
 		ScoreThreshold: co.ScoreThreshold,
 	})
 	defer func() {
@@ -86,56 +96,41 @@ func (r *Retriever) Retrieve(ctx context.Context, query string, opts ...retrieve
 		}
 	}()
 
-	// The query text to search for, passed as a slice.
-	queryTexts := []string{query}
-
-	// The number of results to return.
-	nResults := int32(*co.TopK)
-
-	// The metadata filter, which is an optional map. Pass nil if no filter is provided.
-	var whereFilter map[string]interface{}
-	if io.FilterQuery != nil {
-		whereFilter = io.FilterQuery
-	}
-
-	// Document content filter, which is not used in this retriever.
-	whereDocuments := make(map[string]interface{})
-
-	// What data to include in the response.
-	include := []types.QueryEnum{types.IDocuments, types.IMetadatas, types.IDistances}
-
-	// Call the Query method with the correct parameters.
-	result, err := r.col.Query(
-		ctx,
-		queryTexts,
-		nResults,
-		whereFilter,
-		whereDocuments,
-		include,
-	)
+	result, err := r.col.Query(ctx,
+		chroma_go.WithQueryTexts(query),
+		chroma_go.WithNResults(int(*co.TopK)),
+		chroma_go.WithIncludeQuery(chroma_go.IncludeMetadatas, chroma_go.IncludeDocuments, chroma_go.IncludeEmbeddings),
+		chroma_go.WithWhereQuery(io.FilterQuery))
 	if err != nil {
 		return nil, err
 	}
 
 	// The Query method returns a list of results for each query. We only have one.
-	if len(result.Ids) == 0 || len(result.Ids[0]) == 0 {
+	if len(result.GetIDGroups()) == 0 {
 		callbacks.OnEnd(ctx, &retriever.CallbackOutput{Docs: docs})
 		return docs, nil
 	}
 
 	// Parse the results into eino schema.
-	for i := range result.Ids[0] {
+	for i := range result.GetIDGroups()[0] {
 		doc := &schema.Document{
-			ID:       result.Ids[0][i],
+			ID:       (string)(result.GetIDGroups()[0][i]),
 			Content:  "",
-			MetaData: result.Metadatas[0][i],
+			MetaData: make(map[string]any),
+		}
+		if impl, ok := result.GetMetadatasGroups()[0][i].(*chroma_go.DocumentMetadataImpl); ok {
+			keys := impl.Keys()
+			for _, key := range keys {
+				if v, ok := impl.GetRaw(key); ok {
+					doc.MetaData[key] = v
+				}
+			}
+		}
+		// The documents field is a list of strings.
+		if len(result.GetDocumentsGroups()[0]) > i {
+			doc.Content = result.GetDocumentsGroups()[0][i].ContentString()
 		}
 
-		// The documents field is a list of strings.
-		if len(result.Documents[0]) > i {
-			doc.Content = result.Documents[0][i]
-		}
-		
 		docs = append(docs, doc)
 	}
 
@@ -167,13 +162,14 @@ func (r *Retriever) GetType() string {
 func (r *Retriever) IsCallbacksEnabled() bool {
 	return true
 }
+
 type implOptions struct {
-	FilterQuery map[string]any
+	FilterQuery chroma_go.WhereFilter
 }
- 
+
 // WithFilter provides a filter query for ChromaDB.
 // The filter must be a valid map[string]any, e.g., map[string]any{"$eq": map[string]any{"category": "tech"}}.
-func WithFilter(filter map[string]any) retriever.Option {
+func WithFilter(filter chroma_go.WhereFilter) retriever.Option {
 	return retriever.WrapImplSpecificOptFn(func(o *implOptions) {
 		o.FilterQuery = filter
 	})
