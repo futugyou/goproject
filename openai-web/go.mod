@@ -5,7 +5,7 @@ go 1.23.0
 require github.com/beego/beego/v2 v2.3.0
 
 require (
-	github.com/amikos-tech/chroma-go v0.2.4
+	github.com/amikos-tech/chroma-go v0.2.5-0.20250824112845-8567de6edf62
 	github.com/cloudwego/eino v0.4.8
 	github.com/cloudwego/eino-ext/components/document/loader/url v0.0.0-20250905035413-86dbae6351d5
 	github.com/cloudwego/eino-ext/components/document/parser/docx v0.0.0-20250905035413-86dbae6351d5
@@ -37,7 +37,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
-	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/PuerkitoBio/goquery v1.10.3 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
@@ -60,6 +59,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.7.0 // indirect

@@ -3,6 +3,7 @@ package chroma
 import (
 	"context"
 	"fmt"
+	"os"
 
 	chroma_go "github.com/amikos-tech/chroma-go/pkg/api/v2"
 
@@ -29,19 +30,25 @@ func NewIndexer(ctx context.Context, config *IndexerConfig) (*Indexer, error) {
 	}
 
 	collectionName := "eino-collection"
-	opts := []chroma_go.ClientOption{}
-	client, err := chroma_go.NewHTTPClient(opts...)
+
+	client, err := chroma_go.NewHTTPClient(
+		chroma_go.WithBaseURL(os.Getenv("chroma_base_url")),
+		chroma_go.WithDatabaseAndTenant(os.Getenv("chroma_database"), os.Getenv("chroma_tenant")),
+		chroma_go.WithAuth(chroma_go.NewBasicAuthCredentialsProvider(os.Getenv("chroma_user"), os.Getenv("chroma_password"))),
+	)
 	if err != nil {
 		return nil, err
 	}
 	config.client = client
 
 	emb := &EinoEmbedderAdapter{embedder: config.Embedding}
-	getopts := []chroma_go.CreateCollectionOption{
+
+	collection, err := config.client.GetOrCreateCollection(
+		ctx,
+		collectionName,
 		chroma_go.WithEmbeddingFunctionCreate(emb),
 		chroma_go.WithIfNotExistsCreate(),
-	}
-	collection, err := config.client.GetOrCreateCollection(ctx, collectionName, getopts...)
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get or create collection: %w", err)
 	}
@@ -84,13 +91,13 @@ func (i *Indexer) Store(ctx context.Context, docs []*schema.Document, opts ...in
 	if err != nil {
 		return nil, err
 	}
-	addopts := []chroma_go.CollectionAddOption{
+	err = i.collection.Add(
+		ctx,
 		chroma_go.WithEmbeddings(chromaEmbeddings...),
 		chroma_go.WithTexts(documents...),
 		chroma_go.WithIDs(ids...),
 		chroma_go.WithMetadatas(metadatas...),
-	}
-	err = i.collection.Add(ctx, addopts...)
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add documents to chroma: %w", err)
 	}
