@@ -59,6 +59,9 @@ func getToolsNode(ctx context.Context, node models.Node) (*compose.ToolsNode, er
 		}
 
 		mcpTools, err := mcpp.GetTools(ctx, &mcpp.Config{Cli: cli})
+		if err != nil {
+			return nil, err
+		}
 		tools = append(tools, mcpTools...)
 	}
 
