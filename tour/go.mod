@@ -61,7 +61,7 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/swaggest/jsonschema-go v0.3.78
-	github.com/swaggest/openapi-go v0.2.59
+	github.com/swaggest/openapi-go v0.2.60
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
