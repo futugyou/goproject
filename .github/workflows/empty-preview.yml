@@ -8,6 +8,11 @@ on:
     - 'tour/**'
     - 'k8sbuilder/**'
     - 'container/**'
+    - 'alphavantage-server/**'
+    - 'aws-web/**'
+    - 'identity-center/**'
+    - 'openai-web/**'
+    - 'infr-project/**'
     - '.github/workflows/empty-preview.yaml'
 jobs:
   Deploy-Preview:
@@ -17,16 +22,73 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      
-      - name: Tour
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            tour:
+              - 'tour/**'
+              - '.github/workflows/empty-preview.yaml'
+            k8sbuilder:
+              - 'k8sbuilder/**'
+              - '.github/workflows/empty-preview.yaml'
+            container:
+              - 'container/**'
+              - '.github/workflows/empty-preview.yaml'
+            alphavantage:
+              - 'alphavantage-server/**'
+              - '.github/workflows/empty-preview.yaml'
+            aws:
+              - 'aws-web/**'
+              - '.github/workflows/empty-preview.yaml'
+            identity:
+              - 'identity-center/**'
+              - '.github/workflows/empty-preview.yaml'
+            openai:
+              - 'openai-web/**'
+              - '.github/workflows/empty-preview.yaml'
+            infr:
+              - 'infr-project/**'
+              - '.github/workflows/empty-preview.yaml'
+
+      - name: tour
+        if: steps.changes.outputs.tour == 'true'
         run: go mod tidy && go build .
         working-directory: ./tour
-      
-      - name: K8sbuilder
+
+      - name: k8sbuilder
+        if: steps.changes.outputs.k8sbuilder == 'true'
         run: go mod tidy && go build ./cmd/main.go
         working-directory: ./k8sbuilder
-      
-      - name: Container
-        run:  go mod tidy && go build -o mindocker .
+
+      - name: container
+        if: steps.changes.outputs.container == 'true'
+        run: go mod tidy && go build -o mindocker .
         working-directory: ./container
+
+      - name: alphavantage
+        if: steps.changes.outputs.alphavantage == 'true'
+        run: go mod tidy && go build .
+        working-directory: ./alphavantage-server
+
+      - name: aws
+        if: steps.changes.outputs.aws == 'true'
+        run: go mod tidy && go build .
+        working-directory: ./aws-web
+
+      - name: identity
+        if: steps.changes.outputs.identity == 'true'
+        run: go mod tidy && go build .
+        working-directory: ./identity-center
+
+      - name: openai
+        if: steps.changes.outputs.openai == 'true'
+        run: go mod tidy && go build .
+        working-directory: ./openai-web
+
+      - name: infr
+        if: steps.changes.outputs.infr == 'true'
+        run: go mod tidy && go build .
+        working-directory: ./infr-project
+  
         
