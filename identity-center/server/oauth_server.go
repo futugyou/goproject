@@ -1,6 +1,9 @@
 package server
 
 import (
+	"fmt"
+	"regexp"
+
 	_ "github.com/joho/godotenv/autoload"
 
 	"context"
@@ -25,11 +28,22 @@ import (
 
 var OAuthServer *server.Server
 
+func maskMongoURI(uri string) string {
+	reUser := regexp.MustCompile(`(?m)(mongodb\+srv://)([^@]+)@`)
+	uri = reUser.ReplaceAllString(uri, "${1}****@")
+	reCluster := regexp.MustCompile(`(cluster\d*\.)[^.]+`)
+	uri = reCluster.ReplaceAllString(uri, "${1}****")
+	return uri
+}
+
 func init() {
 	mongodb_uri := os.Getenv("mongodb_url")
 	mongodb_name := os.Getenv("db_name")
 	signed_key_id := os.Getenv("signed_key_id")
 	signed_key := os.Getenv("signed_key")
+
+	mask_url := maskMongoURI(mongodb_uri)
+	fmt.Println("mongo url: " + mask_url)
 
 	token.NewJwksStore().CreateJwks(context.Background(), signed_key_id)
 

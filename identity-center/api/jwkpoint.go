@@ -9,8 +9,9 @@ import (
 )
 
 func Jwks(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	store := token.NewJwksStore()
-	result, _ := store.GetPublicJwksList(r.Context())
+	result, _ := store.GetPublicJwksList(ctx)
 	w.Write([]byte(result))
 	w.WriteHeader(200)
 }

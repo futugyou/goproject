@@ -11,7 +11,8 @@ import (
 )
 
 func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-	store, err := session.Start(r.Context(), w, r)
+	ctx := r.Context()
+	store, err := session.Start(ctx, w, r)
 	if err != nil {
 		fmt.Println("something error, sid: " + store.SessionID() + ", info: " + err.Error())
 		return
@@ -32,8 +33,8 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	}
 
 	// loginid := uid.(string)
-	// userstore := NewUserStore()
-	// user, _ := userstore.GetLoginInfo(r.Context(), loginid)
+	// userstore := NewUserStore(ctx)
+	// user, _ := userstore.GetLoginInfo(ctx, loginid)
 	// userID = user.UserID
 	userID = uid.(string)
 	store.Delete("LoggedInUserID")
@@ -53,7 +54,7 @@ func AuthorizeScopeHandler(w http.ResponseWriter, r *http.Request) (scope string
 }
 
 func PasswordAuthorizationHandler(ctx context.Context, clientID, username, password string) (userID string, err error) {
-	store := user.NewUserStore()
+	store := user.NewUserStore(ctx)
 	user, err := store.Login(ctx, username, password)
 	if err == nil {
 		userID = user.UserID

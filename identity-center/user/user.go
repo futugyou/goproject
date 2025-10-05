@@ -52,7 +52,7 @@ func init() {
 		return
 	}
 
-	store := NewUserStore()
+	store := NewUserStore(context.TODO())
 	if store == nil {
 		fmt.Println("failed to init user store")
 		return
@@ -80,17 +80,17 @@ func init() {
 	}
 }
 
-func NewUserStore() *MongoUserStore {
+func NewUserStore(ctx context.Context) *MongoUserStore {
 	db := os.Getenv("db_name")
 	url := os.Getenv("mongodb_url")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
 	if err != nil {
 		fmt.Println("mongo connect failed:", err)
 		return nil
 	}
 
 	// ping
-	if err := client.Ping(context.TODO(), readpref.Primary()); err != nil {
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		fmt.Println("mongo ping failed:", err)
 		return nil
 	}

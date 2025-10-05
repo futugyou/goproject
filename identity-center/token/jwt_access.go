@@ -79,7 +79,7 @@ func (a *JWTAccessGenerate) Token(ctx context.Context, data *oauth2.GenerateBasi
 	}
 
 	// set some claim
-	userstore := user.NewUserStore()
+	userstore := user.NewUserStore(ctx)
 	user, err := userstore.GetByUID(ctx, data.UserID)
 	if err != nil {
 		fmt.Printf("failed to get user data: %s\n", err)

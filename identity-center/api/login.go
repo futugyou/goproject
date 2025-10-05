@@ -10,7 +10,8 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	store, err := session.Start(r.Context(), w, r)
+	ctx := r.Context()
+	store, err := session.Start(ctx, w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -26,8 +27,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
-		userstore := user.NewUserStore()
-		user, err := userstore.Login(r.Context(), username, password)
+		userstore := user.NewUserStore(ctx)
+		user, err := userstore.Login(ctx, username, password)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
