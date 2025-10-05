@@ -35,15 +35,26 @@ type MongoJwksStore struct {
 	client         *mongo.Client
 }
 
+const coll_name string = "oauth2_jwks"
+
 func NewJwksStore() *MongoJwksStore {
 	db := os.Getenv("db_name")
-	u_name := "oauth2_jwks"
 	url := os.Getenv("mongodb_url")
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
 
 	return &MongoJwksStore{
 		DBName:         db,
-		CollectionName: u_name,
+		CollectionName: coll_name,
+		client:         client,
+	}
+}
+
+func NewJwksStoreWithMongoClient(client *mongo.Client) *MongoJwksStore {
+	db := os.Getenv("db_name")
+
+	return &MongoJwksStore{
+		DBName:         db,
+		CollectionName: coll_name,
 		client:         client,
 	}
 }

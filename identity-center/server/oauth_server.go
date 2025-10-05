@@ -5,6 +5,9 @@ import (
 	"regexp"
 
 	_ "github.com/joho/godotenv/autoload"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"context"
 	"io"
@@ -20,7 +23,7 @@ import (
 
 	session "github.com/go-session/session/v3"
 
-	"github.com/futugyousuzu/identity/mongo"
+	mongostore "github.com/futugyousuzu/identity/mongo"
 	sessionstore "github.com/futugyousuzu/identity/session"
 	assets "github.com/futugyousuzu/identity/static"
 	"github.com/futugyousuzu/identity/token"
@@ -43,12 +46,26 @@ func init() {
 	signed_key := os.Getenv("signed_key")
 
 	mask_url := maskMongoURI(mongodb_uri)
-	fmt.Println("mongo url: " + mask_url)
+	fmt.Printf("masked mongo url is %s, mongodb name is %s .\n", mask_url, mongodb_name)
 
-	token.NewJwksStore().CreateJwks(context.Background(), signed_key_id)
+	ctx := context.Background()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongodb_uri))
+	if err != nil {
+		fmt.Println("mongo connect failed:", err)
+		return
+	}
+
+	// ping
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+		fmt.Println("mongo ping failed:", err)
+		return
+	}
+
+	token.NewJwksStoreWithMongoClient(client).CreateJwks(ctx, signed_key_id)
 
 	session.InitManager(
-		session.SetStore(sessionstore.NewStore(mongodb_uri, mongodb_name, "session")),
+		session.SetStore(sessionstore.NewStoreWithMongoClient(client, mongodb_name, "session")),
 	)
 
 	manager := manage.NewDefaultManager()
@@ -58,18 +75,12 @@ func init() {
 	// manager.MustTokenStorage(store.NewMemoryTokenStore())
 
 	manager.MapTokenStorage(
-		mongo.NewTokenStore(mongo.NewConfig(
-			mongodb_uri,
-			mongodb_name,
-		)),
+		mongostore.NewTokenStoreWithclient(client, mongodb_name),
 	)
 	// generate jwt access token
 	manager.MapAccessGenerate(token.NewJWTAccessGenerate(signed_key_id, []byte(signed_key), jwa.RS256))
 
-	clientStore := mongo.NewClientStore(mongo.NewConfig(
-		mongodb_uri,
-		mongodb_name,
-	))
+	clientStore := mongostore.NewClientStoreWithclient(client, mongodb_name)
 
 	initClient(clientStore)
 	manager.MapClientStorage(clientStore)

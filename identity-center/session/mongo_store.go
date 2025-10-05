@@ -25,6 +25,14 @@ func NewStore(url, dbName, cName string) session.ManagerStore {
 	return newManagerStore(url, dbName, cName)
 }
 
+func NewStoreWithMongoClient(client *mongo.Client, dbName, cName string) session.ManagerStore {
+	return &managerStore{
+		client: client,
+		dbName: dbName,
+		cName:  cName,
+	}
+}
+
 func newManagerStore(url, dbName, cName string) *managerStore {
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
 
