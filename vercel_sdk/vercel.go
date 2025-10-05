@@ -22,6 +22,7 @@ type VercelClient struct {
 	EdgeConfig     *EdgeService
 	Integrations   *IntegrationService
 	LogDrains      *LogDrainService
+	Log            *LogService
 	ProjectMembers *MemberService
 	Projects       *ProjectService
 	Secrets        *SecretService
@@ -76,6 +77,7 @@ func (c *VercelClient) initialize() {
 	c.EdgeConfig = (*EdgeService)(&c.common)
 	c.Integrations = (*IntegrationService)(&c.common)
 	c.LogDrains = (*LogDrainService)(&c.common)
+	c.Log = (*LogService)(&c.common)
 	c.ProjectMembers = (*MemberService)(&c.common)
 	c.Projects = (*ProjectService)(&c.common)
 	c.Secrets = (*SecretService)(&c.common)
