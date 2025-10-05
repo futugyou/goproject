@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -45,34 +47,58 @@ type MongoUserStore struct {
 }
 
 func init() {
+	ifNeed := os.Getenv("need_user_init")
+	if ifNeed != "true" {
+		return
+	}
+
 	store := NewUserStore()
+	if store == nil {
+		fmt.Println("failed to init user store")
+		return
+	}
+
 	id := os.Getenv("init_user_id")
 	name := os.Getenv("init_user_name")
 	passwod := os.Getenv("init_user_password")
-	email := os.Getenv("init_user_email")
-	brth := os.Getenv("init_user_brth")
-	phone := os.Getenv("init_user_phone")
-	store.CreateUser(context.Background(), User{
+	if id == "" || name == "" || passwod == "" {
+		fmt.Println("required env vars missing")
+		return
+	}
+
+	if err := store.CreateUser(context.Background(), User{
 		ID:       id,
 		Name:     name,
 		Password: passwod,
-		Email:    email,
-		Birth:    brth,
-		Phone:    phone,
-	})
+		Email:    os.Getenv("init_user_email"),
+		Birth:    os.Getenv("init_user_brth"),
+		Phone:    os.Getenv("init_user_phone"),
+	}); err != nil {
+		fmt.Println("create init user failed:", err)
+	} else {
+		fmt.Println("init user ok.")
+	}
 }
 
 func NewUserStore() *MongoUserStore {
 	db := os.Getenv("db_name")
-	u_name := "oauth2_users"
-	l_name := "oauth2_login"
 	url := os.Getenv("mongodb_url")
-	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(url))
+	if err != nil {
+		fmt.Println("mongo connect failed:", err)
+		return nil
+	}
+
+	// ping
+	if err := client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		fmt.Println("mongo ping failed:", err)
+		return nil
+	}
 
 	return &MongoUserStore{
 		DBName:                  db,
-		UserCollectionName:      u_name,
-		UserLoginCollectionName: l_name,
+		UserCollectionName:      "oauth2_users",
+		UserLoginCollectionName: "oauth2_login",
 		client:                  client,
 	}
 }
