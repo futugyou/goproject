@@ -3,7 +3,7 @@ module github.com/futugyou/infr-project
 go 1.24.0
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.12.0
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.0
 	github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets v1.4.0
 	github.com/ThreeDotsLabs/watermill v1.3.4
 	github.com/aws/aws-sdk-go-v2 v1.39.2
