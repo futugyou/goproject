@@ -1,8 +1,10 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
+	"slices"
 	"text/template"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -151,4 +153,15 @@ func DumpRequest(writer io.Writer, header string, r *http.Request) error {
 	writer.Write([]byte("\n" + header + ": \n"))
 	writer.Write(data)
 	return nil
+}
+
+func GetBaseUrl(r *http.Request) string {
+	forwarded_hosts_string := os.Getenv("forwarded_hosts")
+	forwarded_hosts := make([]string, 0)
+	json.Unmarshal([]byte(forwarded_hosts_string), &forwarded_hosts)
+	if slices.Contains(forwarded_hosts, r.Header.Get("X-Forwarded-Host")) {
+		return "/identity"
+	}
+
+	return ""
 }

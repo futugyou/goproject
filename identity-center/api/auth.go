@@ -18,11 +18,18 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	base := server.GetBaseUrl(r)
 	if _, ok := store.Get("LoggedInUserID"); !ok {
-		w.Header().Set("Location", "/login")
+		w.Header().Set("Location", base+"/login")
 		w.WriteHeader(http.StatusFound)
 		return
 	}
 
-	server.OutputHTML(w, r, "auth.html")
+	// server.OutputHTML(w, r, "auth.html")
+	
+	data := map[string]interface{}{ 
+		"Base":    base,
+	}
+
+	server.OutputHTMLWithData(w, r, "auth.html", data)
 }

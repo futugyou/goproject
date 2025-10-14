@@ -17,6 +17,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	base := server.GetBaseUrl(r)
 	if r.Method == "POST" {
 		if r.Form == nil {
 			if err := r.ParseForm(); err != nil {
@@ -37,7 +38,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		store.Set("LoggedInUserID", user.UserID)
 		store.Save()
 
-		w.Header().Set("Location", "/auth")
+		w.Header().Set("Location", base+"/auth")
 		w.WriteHeader(http.StatusFound)
 		return
 	}
@@ -45,6 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// server.OutputHTML(w, r, "login.html")
 	data := map[string]interface{}{
 		"Headers": r.Header,
+		"Base":    base,
 	}
 
 	server.OutputHTMLWithData(w, r, "login.html", data)
