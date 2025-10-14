@@ -42,5 +42,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server.OutputHTML(w, r, "login.html")
+	// server.OutputHTML(w, r, "login.html")
+	data := map[string]interface{}{
+		"Headers": r.Header,
+	}
+
+	server.OutputHTMLWithData(w, r, "login.html", data)
 }

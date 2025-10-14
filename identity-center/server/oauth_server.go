@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"regexp"
+	"text/template"
 
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -113,6 +114,33 @@ func OutputHTML(w http.ResponseWriter, req *http.Request, filename string) {
 	defer file.Close()
 	fi, _ := file.Stat()
 	http.ServeContent(w, req, filename, fi.ModTime(), file.(io.ReadSeeker))
+}
+
+func OutputHTMLWithData(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
+	a := &assets.Assets
+	file, err := a.Open(filename)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	tmpl, err := template.New(filename).Parse(string(content))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+
+	tmpl.Execute(w, data)
 }
 
 func DumpRequest(writer io.Writer, header string, r *http.Request) error {
