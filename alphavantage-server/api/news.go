@@ -26,23 +26,20 @@ func News(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repository := news.NewNewsRepository(config)
-	var datas []news.NewsEntity
-	var err error
-
-	if ticker == "" {
-		page := core.Paging{
-			Page:      1,
-			Limit:     1000,
-			SortField: "time_published",
-			Direct:    "DESC",
-		}
-		datas, err = repository.GetWithPaging(ctx, &page)
-	} else {
-		datas, err = repository.GetWithFilter(ctx, []core.DataFilterItem{{
+	filter := []core.DataFilterItem{}
+	if len(ticker) > 0 {
+		filter = append(filter, core.DataFilterItem{
 			Key:   "ticker_sentiment",
-			Value: map[string]interface{}{"$elemMatch": map[string]interface{}{"$eq": ticker}},
-		}})
+			Value: map[string]any{"$elemMatch": map[string]any{"$eq": ticker}},
+		})
 	}
+	page := core.Paging{
+		Page:      1,
+		Limit:     1000,
+		SortField: "time_published",
+		Direct:    "DESC",
+	}
+	datas, err := repository.GetWithFilterAndPaging(ctx, filter, &page)
 
 	if err != nil {
 		w.Write([]byte(err.Error()))
