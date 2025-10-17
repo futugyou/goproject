@@ -35,7 +35,6 @@ func main() {
 
 	var _ embeddings.IEmbeddingGenerator[string, embeddings.EmbeddingT[float64]] = (*openai.OpenAIEmbeddingGenerator[embeddings.EmbeddingT[float64]])(nil)
 	var _ chatcompletion.IChatClient = (*openai.OpenAIChatClient)(nil)
-	var _ chatcompletion.IChatClient = (*openai.OpenAIAssistantClient)(nil)
 	var _ chatcompletion.IChatClient = (*openai.OpenAIResponseChatClient)(nil)
 
 	var _ ai.ITextEmbeddingGenerator = (*coreai.NoEmbeddingGenerator)(nil)

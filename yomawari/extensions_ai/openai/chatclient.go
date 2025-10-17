@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
-	rawopenai "github.com/openai/openai-go"
+	rawopenai "github.com/openai/openai-go/v3"
 )
 
 type OpenAIChatClient struct {
@@ -27,7 +27,7 @@ func NewOpenAIChatClient(openAIClient *rawopenai.Client, modelId *string) *OpenA
 
 func (client *OpenAIChatClient) GetResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) (*chatcompletion.ChatResponse, error) {
 	request := ToOpenAIChatRequest(options)
-	request.Messages = rawopenai.F(ToOpenAIMessages(chatMessages))
+	request.Messages = ToOpenAIMessages(chatMessages)
 	response, err := client.openAIClient.Chat.Completions.New(ctx, *request)
 	if err != nil {
 		return nil, err
@@ -38,10 +38,10 @@ func (client *OpenAIChatClient) GetResponse(ctx context.Context, chatMessages []
 func (client *OpenAIChatClient) GetStreamingResponse(ctx context.Context, chatMessages []chatcompletion.ChatMessage, options *chatcompletion.ChatOptions) <-chan chatcompletion.ChatStreamingResponse {
 	result := make(chan chatcompletion.ChatStreamingResponse)
 	request := ToOpenAIChatRequest(options)
-	request.Messages = rawopenai.F(ToOpenAIMessages(chatMessages))
+	request.Messages = ToOpenAIMessages(chatMessages)
 	stream := client.openAIClient.Chat.Completions.NewStreaming(ctx, *request)
 
-	var toolCallsCache = ToolCallsCache{data: make(map[string]rawopenai.ChatCompletionChunkChoicesDeltaToolCall)}
+	var toolCallsCache = ToolCallsCache{data: make(map[string]rawopenai.ChatCompletionChunkChoiceDeltaToolCall)}
 
 	go func() {
 		defer close(result)

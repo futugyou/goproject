@@ -9,7 +9,8 @@ import (
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/speechtotext"
-	rawopenai "github.com/openai/openai-go"
+	rawopenai "github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/packages/param"
 )
 
 var _ speechtotext.ISpeechToTextClient = (*OpenAISpeechToTextClient)(nil)
@@ -49,9 +50,10 @@ func (o *OpenAISpeechToTextClient) GetText(ctx context.Context, audioSpeechStrea
 	}
 	prompt := ""
 	language := ""
-	var responseFormat rawopenai.AudioResponseFormat = "json"
+	var responseFormat rawopenai.AudioTranslationNewParamsResponseFormat = "json"
+	var responseFormat2 rawopenai.AudioResponseFormat = "json"
 	var temperature float64 = 0.0
-	var granularities []rawopenai.AudioTranscriptionNewParamsTimestampGranularity = []rawopenai.AudioTranscriptionNewParamsTimestampGranularity{}
+	var granularities []string = []string{}
 	startTime := time.Now().UTC()
 	if options != nil && options.AdditionalProperties != nil {
 		if v, ok := options.AdditionalProperties["Temperature"].(float64); ok {
@@ -62,14 +64,19 @@ func (o *OpenAISpeechToTextClient) GetText(ctx context.Context, audioSpeechStrea
 			switch v {
 			case "text":
 				responseFormat = "text"
+				responseFormat2 = "text"
 			case "srt":
 				responseFormat = "srt"
+				responseFormat2 = "srt"
 			case "verbose_json":
 				responseFormat = "verbose_json"
+				responseFormat2 = "verbose_json"
 			case "vtt":
 				responseFormat = "vtt"
+				responseFormat2 = "vtt"
 			default:
 				responseFormat = "json"
+				responseFormat2 = "json"
 			}
 		}
 		if v, ok := options.AdditionalProperties["Prompt"].(string); ok {
@@ -78,9 +85,9 @@ func (o *OpenAISpeechToTextClient) GetText(ctx context.Context, audioSpeechStrea
 		if v, ok := options.AdditionalProperties["TimestampGranularities"].(string); ok {
 			switch v {
 			case "word":
-				granularities = []rawopenai.AudioTranscriptionNewParamsTimestampGranularity{rawopenai.AudioTranscriptionNewParamsTimestampGranularityWord}
+				granularities = []string{"word"}
 			case "segment":
-				granularities = []rawopenai.AudioTranscriptionNewParamsTimestampGranularity{rawopenai.AudioTranscriptionNewParamsTimestampGranularitySegment}
+				granularities = []string{"segment"}
 			}
 		}
 	}
@@ -89,13 +96,13 @@ func (o *OpenAISpeechToTextClient) GetText(ctx context.Context, audioSpeechStrea
 	if IsTranslationRequest(options) {
 		var reader io.Reader = audioSpeechStream
 		body := rawopenai.AudioTranscriptionNewParams{
-			File:                   rawopenai.F(reader),
-			Model:                  rawopenai.F(modelid),
-			Language:               rawopenai.F(language),
-			Prompt:                 rawopenai.F(prompt),
-			ResponseFormat:         rawopenai.F(responseFormat),
-			Temperature:            rawopenai.F(temperature),
-			TimestampGranularities: rawopenai.F(granularities),
+			File:                   reader,
+			Model:                  modelid,
+			Language:               param.NewOpt(language),
+			Prompt:                 param.NewOpt(prompt),
+			ResponseFormat:         responseFormat2,
+			Temperature:            param.NewOpt(temperature),
+			TimestampGranularities: granularities,
 		}
 		res, err := o.openAIClient.Audio.Transcriptions.New(ctx, body)
 		if err != nil {
@@ -105,11 +112,11 @@ func (o *OpenAISpeechToTextClient) GetText(ctx context.Context, audioSpeechStrea
 	} else {
 		var reader io.Reader = audioSpeechStream
 		body := rawopenai.AudioTranslationNewParams{
-			File:           rawopenai.F(reader),
-			Model:          rawopenai.F(modelid),
-			Prompt:         rawopenai.F(prompt),
-			ResponseFormat: rawopenai.F(responseFormat),
-			Temperature:    rawopenai.F(temperature),
+			File:           reader,
+			Model:          modelid,
+			Prompt:         param.NewOpt(prompt),
+			ResponseFormat: responseFormat,
+			Temperature:    param.NewOpt(temperature),
 		}
 		res, err := o.openAIClient.Audio.Translations.New(ctx, body)
 		if err != nil {

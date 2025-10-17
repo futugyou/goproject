@@ -2,7 +2,6 @@ package openai
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -11,8 +10,10 @@ import (
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/contents"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/embeddings"
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/functions"
-	rawopenai "github.com/openai/openai-go"
-	"github.com/openai/openai-go/shared"
+	rawopenai "github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/packages/param"
+	"github.com/openai/openai-go/v3/shared"
+	"github.com/openai/openai-go/v3/shared/constant"
 )
 
 // Conversion functions
@@ -31,76 +32,140 @@ func ToOpenAIMessages(chatMessages []chatcompletion.ChatMessage) []rawopenai.Cha
 }
 
 func ToOpenAIMessage(chatMessage chatcompletion.ChatMessage) rawopenai.ChatCompletionMessageParamUnion {
-	result := rawopenai.ChatCompletionMessageParam{}
+	result := rawopenai.ChatCompletionMessageParamUnion{}
+
+	name := ""
+	if chatMessage.AuthorName != nil {
+		name = *chatMessage.AuthorName
+	}
 
 	var role string = (string)(chatMessage.Role)
-	result.Role = rawopenai.F(rawopenai.ChatCompletionMessageParamRole(role))
-	if chatMessage.AuthorName != nil {
-		result.Name = rawopenai.F(*chatMessage.AuthorName)
-	}
-	result.Content = rawopenai.F(ToOpenAIContents(chatMessage.Contents, role))
-	if v, ok := chatMessage.AdditionalProperties["Refusal"].(string); ok {
-		result.Refusal = rawopenai.F(v)
-	}
-
-	if role == "assistant" {
-		tools := []rawopenai.ChatCompletionMessageToolCallParam{}
+	conts := ToOpenAIContents(chatMessage.Contents, role)
+	switch role {
+	case "developer":
+		content := rawopenai.ChatCompletionDeveloperMessageParamContentUnion{}
+		for i := 0; i < len(conts); i++ {
+			content.OfArrayOfContentParts = append(content.OfArrayOfContentParts, rawopenai.ChatCompletionContentPartTextParam{Text: conts[i].Content})
+		}
+		result.OfDeveloper = &rawopenai.ChatCompletionDeveloperMessageParam{
+			Name:    param.NewOpt(name),
+			Content: content,
+		}
+	case "system":
+		content := rawopenai.ChatCompletionSystemMessageParamContentUnion{}
+		for i := 0; i < len(conts); i++ {
+			content.OfArrayOfContentParts = append(content.OfArrayOfContentParts, rawopenai.ChatCompletionContentPartTextParam{Text: conts[i].Content})
+		}
+		result.OfSystem = &rawopenai.ChatCompletionSystemMessageParam{
+			Name:    param.NewOpt(name),
+			Content: content,
+		}
+	case "assistant":
+		content := rawopenai.ChatCompletionAssistantMessageParamContentUnion{}
+		for i := 0; i < len(conts); i++ {
+			content.OfArrayOfContentParts = append(content.OfArrayOfContentParts,
+				rawopenai.ChatCompletionAssistantMessageParamContentArrayOfContentPartUnion{
+					OfText: &rawopenai.ChatCompletionContentPartTextParam{
+						Text: conts[i].Content,
+					},
+				},
+			)
+		}
+		result.OfAssistant = &rawopenai.ChatCompletionAssistantMessageParam{
+			Name:    param.NewOpt(name),
+			Content: content,
+		}
+	case "tool":
+		content := rawopenai.ChatCompletionToolMessageParamContentUnion{}
+		for i := 0; i < len(conts); i++ {
+			content.OfArrayOfContentParts = append(content.OfArrayOfContentParts, rawopenai.ChatCompletionContentPartTextParam{Text: conts[i].Content})
+		}
+		toolid := ""
 		for _, con := range chatMessage.Contents {
 			if c, ok := con.(*contents.FunctionCallContent); ok {
-				if d, err := json.Marshal(c.Arguments); err != nil {
-					sf := rawopenai.ChatCompletionMessageToolCallParam{
-						ID: rawopenai.F(c.CallId),
-						Function: rawopenai.F(rawopenai.ChatCompletionMessageToolCallFunctionParam{
-							Arguments: rawopenai.F(string(d)),
-							Name:      rawopenai.F(c.Name),
-						}),
-						Type: rawopenai.F(rawopenai.ChatCompletionMessageToolCallTypeFunction),
-					}
-					tools = append(tools, sf)
+				if len(c.CallId) > 0 {
+					toolid = c.CallId
+					break
 				}
 			}
 		}
-		var tool interface{} = tools
-		result.ToolCalls = rawopenai.F(tool)
+		result.OfTool = &rawopenai.ChatCompletionToolMessageParam{
+			ToolCallID: toolid,
+			Content:    content,
+		}
+	default:
+		content := rawopenai.ChatCompletionUserMessageParamContentUnion{}
+		for i := 0; i < len(conts); i++ {
+			switch conts[i].Type {
+			case "image":
+				content.OfArrayOfContentParts = append(content.OfArrayOfContentParts,
+					rawopenai.ChatCompletionContentPartUnionParam{
+						OfImageURL: &rawopenai.ChatCompletionContentPartImageParam{
+							ImageURL: rawopenai.ChatCompletionContentPartImageImageURLParam{
+								URL:    conts[i].Content,
+								Detail: "auto",
+							},
+						},
+					},
+				)
+			case "audio":
+				content.OfArrayOfContentParts = append(content.OfArrayOfContentParts,
+					rawopenai.ChatCompletionContentPartUnionParam{
+						OfInputAudio: &rawopenai.ChatCompletionContentPartInputAudioParam{
+							InputAudio: rawopenai.ChatCompletionContentPartInputAudioInputAudioParam{
+								Data:   conts[i].Content,
+								Format: conts[i].Format,
+							},
+						},
+					},
+				)
+			default:
+				content.OfArrayOfContentParts = append(content.OfArrayOfContentParts,
+					rawopenai.ChatCompletionContentPartUnionParam{
+						OfText: &rawopenai.ChatCompletionContentPartTextParam{
+							Text: conts[i].Content},
+					},
+				)
+			}
+
+		}
+		result.OfUser = &rawopenai.ChatCompletionUserMessageParam{
+			Name:    param.NewOpt(name),
+			Content: content,
+		}
+
 	}
 
 	return result
 }
 
-func ToOpenAIContents(cons []contents.IAIContent, role string) interface{} {
-	result := []rawopenai.ChatCompletionContentPartUnionParam{}
+type ContentInfo struct {
+	Content string
+	Type    string
+	Format  string
+}
+
+func ToOpenAIContents(cons []contents.IAIContent, role string) []ContentInfo {
+	result := []ContentInfo{}
 	for _, v := range cons {
 		switch con := v.(type) {
 		case *contents.TextContent:
-			result = append(result, rawopenai.TextPart(con.Text))
+			result = append(result, ContentInfo{Content: con.Text, Type: "text"})
 		case *contents.UriContent:
 			if con.MediaTypeStartsWith("image") {
-				result = append(result, rawopenai.ImagePart(con.URI))
+				result = append(result, ContentInfo{Content: con.URI, Type: "image"})
 			}
 		case *contents.DataContent:
 			if con.MediaTypeStartsWith("image") {
-				result = append(result, rawopenai.ImagePart(con.GetURI()))
-			}
-			if con.MediaTypeStartsWith("audio") {
-				var format rawopenai.ChatCompletionContentPartInputAudioInputAudioFormat
-				if con.MediaTypeStartsWith("audio/mpeg") {
-					format = rawopenai.ChatCompletionContentPartInputAudioInputAudioFormatMP3
-				} else if con.MediaTypeStartsWith("audio/wav") {
-					format = rawopenai.ChatCompletionContentPartInputAudioInputAudioFormatWAV
+				result = append(result, ContentInfo{Content: con.GetURI(), Type: "image"})
+			} else if con.MediaTypeStartsWith("audio") {
+				format := "mp3"
+				if con.MediaTypeStartsWith("audio/wav") {
+					format = "wav"
 				}
-
-				if len(format) == 0 {
-					break
-				}
-
-				audio := rawopenai.ChatCompletionContentPartInputAudioParam{
-					InputAudio: rawopenai.F(rawopenai.ChatCompletionContentPartInputAudioInputAudioParam{
-						Data:   rawopenai.F(con.GetURI()),
-						Format: rawopenai.F(format),
-					}),
-					Type: rawopenai.F(rawopenai.ChatCompletionContentPartInputAudioTypeInputAudio),
-				}
-				result = append(result, audio)
+				result = append(result, ContentInfo{Content: con.GetURI(), Type: "audio", Format: format})
+			} else {
+				result = append(result, ContentInfo{Content: string(con.Data), Type: "text"})
 			}
 		}
 	}
@@ -113,112 +178,65 @@ func ToOpenAIChatRequest(options *chatcompletion.ChatOptions) *rawopenai.ChatCom
 		return result
 	}
 	if options.ModelId != nil {
-		result.Model = rawopenai.F(*options.ModelId)
+		result.Model = shared.ChatModel(*options.ModelId)
 	}
 	if options.FrequencyPenalty != nil {
-		result.FrequencyPenalty = rawopenai.F(*options.FrequencyPenalty)
+		result.FrequencyPenalty = param.NewOpt(*options.FrequencyPenalty)
 	}
 	if options.MaxOutputTokens != nil {
-		result.MaxCompletionTokens = rawopenai.F(*options.MaxOutputTokens)
+		result.MaxCompletionTokens = param.NewOpt(*options.MaxOutputTokens)
 	}
 	if options.PresencePenalty != nil {
-		result.PresencePenalty = rawopenai.F(*options.PresencePenalty)
+		result.PresencePenalty = param.NewOpt(*options.PresencePenalty)
 	}
 	if options.Seed != nil {
-		result.Seed = rawopenai.F(*options.Seed)
+		result.Seed = param.NewOpt(*options.Seed)
 	}
 	if options.Temperature != nil {
-		result.Temperature = rawopenai.F(*options.Temperature)
+		result.Temperature = param.NewOpt(*options.Temperature)
 	}
 	if options.TopP != nil {
-		result.TopP = rawopenai.F(*options.TopP)
+		result.TopP = param.NewOpt(*options.TopP)
 	}
 	if options.AllowMultipleToolCalls != nil {
-		result.ParallelToolCalls = rawopenai.F(*options.AllowMultipleToolCalls)
-	}
-	var defaultFormat rawopenai.ChatCompletionNewParamsResponseFormatUnion = rawopenai.ChatCompletionNewParamsResponseFormat{
-		Type: rawopenai.F(rawopenai.ChatCompletionNewParamsResponseFormatTypeJSONObject),
-	}
-	// TODO: json schema is not implement
-	if options.ResponseFormat != nil && *options.ResponseFormat == chatcompletion.TextFormat {
-		defaultFormat = rawopenai.ChatCompletionNewParamsResponseFormatUnion(rawopenai.ChatCompletionNewParamsResponseFormat{
-			Type: rawopenai.F(rawopenai.ChatCompletionNewParamsResponseFormatTypeText),
-		})
+		result.ParallelToolCalls = param.NewOpt(*options.AllowMultipleToolCalls)
 	}
 
-	result.ResponseFormat = rawopenai.F(defaultFormat)
-
-	if len(options.StopSequences) > 0 {
-		var stop rawopenai.ChatCompletionNewParamsStopUnion = rawopenai.ChatCompletionNewParamsStopArray(options.StopSequences)
-		result.Stop = rawopenai.F(stop)
-	}
-
-	for _, tool := range options.Tools {
-		tools := []rawopenai.ChatCompletionToolParam{}
-		if v, ok := tool.(functions.AIFunction); ok {
-			t := ToOpenAIChatCompletionToolParam(v)
-			tools = append(tools, t)
-		}
-		result.Tools = rawopenai.F(tools)
-	}
-
-	if options.ToolMode != nil {
-		var choice rawopenai.ChatCompletionToolChoiceOptionUnionParam = rawopenai.ChatCompletionToolChoiceOptionAutoNone
-		switch *options.ToolMode {
-		case chatcompletion.AutoMode:
-			choice = rawopenai.ChatCompletionToolChoiceOptionAutoAuto
-		case chatcompletion.RequireAnyMode:
-			choice = rawopenai.ChatCompletionToolChoiceOptionAutoRequired
-		}
-		result.ToolChoice = rawopenai.F(choice)
-	}
-
-	if v, ok := options.AdditionalProperties["Audio"].(rawopenai.ChatCompletionAudioParam); ok {
-		result.Audio = rawopenai.F(v)
-	}
 	if v, ok := options.AdditionalProperties["User"].(string); ok {
-		result.User = rawopenai.F(v)
+		result.User = param.NewOpt(v)
 	}
-	if v, ok := options.AdditionalProperties["LogitBias"].(map[string]int64); ok {
-		result.LogitBias = rawopenai.F(v)
+
+	if v, ok := options.AdditionalProperties["ReasoningEffort"].(string); ok {
+		result.ReasoningEffort = shared.ReasoningEffort(v)
 	}
-	if v, ok := options.AdditionalProperties["Metadata"].(shared.MetadataParam); ok {
-		result.Metadata = rawopenai.F(v)
-	}
-	if v, ok := options.AdditionalProperties["Prediction"].(rawopenai.ChatCompletionPredictionContentParam); ok {
-		result.Prediction = rawopenai.F(v)
-	}
-	if v, ok := options.AdditionalProperties["ReasoningEffort"].(rawopenai.ChatCompletionReasoningEffort); ok {
-		result.ReasoningEffort = rawopenai.F(v)
-	}
-	if v, ok := options.AdditionalProperties["Modalities"].([]rawopenai.ChatCompletionModality); ok {
-		result.Modalities = rawopenai.F(v)
+	if v, ok := options.AdditionalProperties["Modalities"].([]string); ok {
+		result.Modalities = v
 	}
 	if v, ok := options.AdditionalProperties["Store"].(bool); ok {
-		result.Store = rawopenai.F(v)
+		result.Store = param.NewOpt(v)
 	}
 	if v, ok := options.AdditionalProperties["TopLogprobs"].(int64); ok {
-		result.TopLogprobs = rawopenai.F(v)
+		result.TopLogprobs = param.NewOpt(v)
 	}
 	return result
 }
 
-func ToOpenAIChatCompletionToolParam(v functions.AIFunction) rawopenai.ChatCompletionToolParam {
+func ToOpenAIChatCompletionToolUnionParam(v functions.AIFunction) rawopenai.ChatCompletionToolUnionParam {
 	var m shared.FunctionParameters = v.GetJsonSchema()
 	strict := false
 	if v, ok := v.GetAdditionalProperties()["strictJsonSchema"].(bool); ok {
 		strict = v
 	}
-	pa := shared.FunctionDefinitionParam{
-		Name:        rawopenai.F(v.GetName()),
-		Description: rawopenai.F(v.GetDescription()),
-		Strict:      rawopenai.F(strict),
-		Parameters:  rawopenai.F(m),
-	}
+	pa := &rawopenai.ChatCompletionFunctionToolParam{
+		Function: shared.FunctionDefinitionParam{
+			Name:        v.GetName(),
+			Description: param.NewOpt(v.GetDescription()),
+			Strict:      param.NewOpt(strict),
+			Parameters:  m,
+		}}
 
-	p := rawopenai.ChatCompletionToolParam{
-		Function: rawopenai.F(pa),
-		Type:     rawopenai.F(rawopenai.ChatCompletionToolTypeFunction),
+	p := rawopenai.ChatCompletionToolUnionParam{
+		OfFunction: pa,
 	}
 
 	return p
@@ -279,7 +297,7 @@ func ToChatMessage(v rawopenai.ChatCompletionMessage) chatcompletion.ChatMessage
 	return message
 }
 
-func ToChatRole(v rawopenai.ChatCompletionMessageRole) chatcompletion.ChatRole {
+func ToChatRole(v constant.Assistant) chatcompletion.ChatRole {
 	role := (string)(v)
 	switch role {
 	case "system":
@@ -344,7 +362,7 @@ func ToChatResponseUpdate(response *rawopenai.ChatCompletionChunk) *chatcompleti
 
 type ToolCallsCache struct {
 	sync.Mutex
-	data map[string]rawopenai.ChatCompletionChunkChoicesDeltaToolCall
+	data map[string]rawopenai.ChatCompletionChunkChoiceDeltaToolCall
 }
 
 func ToChatResponseUpdateWithFunctions(response *rawopenai.ChatCompletionChunk, toolCallsCache *ToolCallsCache) *chatcompletion.ChatResponseUpdate {
@@ -461,23 +479,23 @@ func ToOpenAIEmbeddingParams(values []string, options *embeddings.EmbeddingGener
 	if options == nil || len(values) == 0 {
 		return nil
 	}
-	var i rawopenai.EmbeddingNewParamsInputUnion = rawopenai.EmbeddingNewParamsInputArrayOfStrings(values)
+	var i rawopenai.EmbeddingNewParamsInputUnion = rawopenai.EmbeddingNewParamsInputUnion{OfArrayOfStrings: values}
 	result := &rawopenai.EmbeddingNewParams{
-		Input:      rawopenai.F(i),
-		Model:      rawopenai.F(*options.ModelId),
-		Dimensions: rawopenai.F(*options.Dimensions),
+		Input:      i,
+		Model:      rawopenai.EmbeddingModel(*options.ModelId),
+		Dimensions: param.NewOpt(*options.Dimensions),
 	}
 
 	if v, ok := options.AdditionalProperties["encoding_format"].(string); ok {
 		if v == "base64" {
-			result.EncodingFormat = rawopenai.F(rawopenai.EmbeddingNewParamsEncodingFormatBase64)
+			result.EncodingFormat = "base64"
 		} else {
-			result.EncodingFormat = rawopenai.F(rawopenai.EmbeddingNewParamsEncodingFormatFloat)
+			result.EncodingFormat = "float"
 		}
 
 	}
 	if v, ok := options.AdditionalProperties["user"].(string); ok {
-		result.User = rawopenai.F(v)
+		result.User = param.NewOpt(v)
 	}
 	return result
 }
@@ -498,7 +516,7 @@ func ToGeneratedEmbeddings(res *rawopenai.CreateEmbeddingResponse) *embeddings.G
 			Vector: v.Embedding,
 		})
 	}
-	result := embeddings.NewGeneratedEmbeddingsFromCollection[embeddings.EmbeddingT[float64]](emb)
+	result := embeddings.NewGeneratedEmbeddingsFromCollection(emb)
 	result.Usage = &abstractions.UsageDetails{
 		InputTokenCount: &res.Usage.PromptTokens,
 		TotalTokenCount: &res.Usage.TotalTokens,
@@ -506,80 +524,7 @@ func ToGeneratedEmbeddings(res *rawopenai.CreateEmbeddingResponse) *embeddings.G
 	return result
 }
 
-func ToChatResponseUpdateFromAssistantStreamEvent(evt rawopenai.AssistantStreamEvent, threadId **string, responseId **string, modelId **string) (*chatcompletion.ChatResponseUpdate, error) {
-	response := &chatcompletion.ChatResponseUpdate{AdditionalProperties: map[string]interface{}{}, Contents: []contents.IAIContent{}}
-	role := chatcompletion.RoleAssistant
-	switch data := evt.Data.(type) {
-	case rawopenai.Thread:
-		if *threadId == nil {
-			*threadId = &data.ID
-		}
-	case rawopenai.Run:
-		if *threadId == nil {
-			*threadId = &data.ThreadID
-		}
-		if *responseId == nil {
-			*responseId = &data.ID
-		}
-		if *modelId == nil {
-			*modelId = &data.Model
-		}
-		created := time.Unix(data.CreatedAt, 0)
-		response.ModelId = *modelId
-		response.CreatedAt = &created
-		response.ResponseId = *responseId
-		response.AuthorName = &data.AssistantID
-		response.Role = &role
-		response.ChatThreadId = *threadId
-		response.RawRepresentation = data
-		response.Contents = append(response.Contents, GetUsageContent(data.Usage))
-		for _, tool := range data.RequiredAction.SubmitToolOutputs.ToolCalls {
-			call, err := json.Marshal([]string{data.ID, tool.ID})
-			if err != nil {
-				continue
-			}
-			var arguments map[string]interface{}
-			err = json.Unmarshal([]byte(tool.Function.Arguments), &arguments)
-			if err != nil {
-				continue
-			}
-			response.Contents = append(response.Contents, contents.FunctionCallContent{
-				AIContent: contents.NewAIContent(nil, nil),
-				CallId:    string(call),
-				Name:      tool.Function.Name,
-				Arguments: arguments,
-			})
-		}
-	case rawopenai.RunStep:
-	case rawopenai.RunStepDeltaEvent:
-	case rawopenai.MessageDeltaEvent:
-	case rawopenai.Message:
-		if data.Role == rawopenai.MessageRoleUser {
-			role = chatcompletion.RoleUser
-		}
-		created := time.Unix(data.CreatedAt, 0)
-		response.ModelId = *modelId
-		response.ChatThreadId = *threadId
-		response.CreatedAt = &created
-		response.ResponseId = *responseId
-		response.AuthorName = &data.AssistantID
-		response.RawRepresentation = data
-
-		for _, con := range data.Content {
-			content := convertContent(con)
-			if content != nil {
-				response.Contents = append(response.Contents, content)
-			}
-		}
-	case shared.ErrorObject:
-		return nil, fmt.Errorf(data.Message)
-	default:
-	}
-
-	return response, nil
-}
-
-func convertContent(con rawopenai.MessageContent) contents.IAIContent {
+func ConvertContent(con rawopenai.MessageContentUnion) contents.IAIContent {
 	if len(con.ImageURL.URL) > 0 {
 		return contents.NewDataContentWithRefusal(con.ImageURL.URL, "image", con.Refusal)
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/chatcompletion"
-	rawopenai "github.com/openai/openai-go"
+	rawopenai "github.com/openai/openai-go/v3"
 )
 
 // TODO: OpenAI official golang sdk has not yet implemented the responses interface

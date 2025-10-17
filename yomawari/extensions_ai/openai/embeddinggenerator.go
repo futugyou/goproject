@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/futugyou/yomawari/extensions_ai/abstractions/embeddings"
-	rawopenai "github.com/openai/openai-go"
+	rawopenai "github.com/openai/openai-go/v3"
 )
 
 type OpenAIEmbeddingGenerator[TEmbedding embeddings.EmbeddingT[float64]] struct {
