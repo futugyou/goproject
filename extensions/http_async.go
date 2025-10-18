@@ -34,7 +34,7 @@ func (c *httpClient) GetAsync(path string) (<-chan *HttpResponse, <-chan error) 
 
 		req, _ := http.NewRequest("GET", c.createSubpath(path), nil)
 		req.Header.Set("Content-Type", "application/json")
-		if c.customeHeader != nil && len(c.customeHeader) > 0 {
+		if len(c.customeHeader) > 0 {
 			for key, value := range c.customeHeader {
 				req.Header.Set(key, value)
 			}
@@ -102,7 +102,7 @@ func (c *httpClient) doRequestAsync(path, method string, request interface{}) (<
 
 		req, _ := http.NewRequest(method, c.createSubpath(path), body)
 		req.Header.Set("Content-Type", "application/json")
-		if c.customeHeader != nil && len(c.customeHeader) > 0 {
+		if len(c.customeHeader) > 0 {
 			for key, value := range c.customeHeader {
 				req.Header.Set(key, value)
 			}
