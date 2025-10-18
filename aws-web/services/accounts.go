@@ -8,6 +8,8 @@ import (
 
 	"log"
 
+	tool "github.com/futugyou/extensions"
+
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
 	"github.com/futugyousuzu/goproject/awsgolang/repository"
@@ -41,10 +43,10 @@ func (a *AccountService) GetAllAccounts(ctx context.Context) []model.UserAccount
 	for _, entity := range entities {
 		accounts = append(accounts, model.UserAccount{
 			Id:              entity.Id,
-			AccessKeyId:     entity.AccessKeyId,
+			AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
 			Alias:           entity.Alias,
 			Region:          entity.Region,
-			SecretAccessKey: entity.SecretAccessKey,
+			SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
 			Valid:           entity.Valid,
 			CreatedAt:       time.Unix(entity.CreatedAt, 0),
 		})
@@ -63,10 +65,10 @@ func (a *AccountService) GetAccountsByPaging(ctx context.Context, paging core.Pa
 	for _, entity := range entities {
 		accounts = append(accounts, model.UserAccount{
 			Id:              entity.Id,
-			AccessKeyId:     entity.AccessKeyId,
+			AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
 			Alias:           entity.Alias,
 			Region:          entity.Region,
-			SecretAccessKey: entity.SecretAccessKey,
+			SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
 			Valid:           entity.Valid,
 			CreatedAt:       time.Unix(entity.CreatedAt, 0),
 		})
@@ -145,10 +147,10 @@ func (a *AccountService) GetAccountByID(ctx context.Context, id string) *model.U
 
 	account := &model.UserAccount{
 		Id:              entity.Id,
-		AccessKeyId:     entity.AccessKeyId,
+		AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
 		Alias:           entity.Alias,
 		Region:          entity.Region,
-		SecretAccessKey: entity.SecretAccessKey,
+		SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
 		Valid:           entity.Valid,
 		CreatedAt:       time.Unix(entity.CreatedAt, 0),
 	}
@@ -164,10 +166,10 @@ func (a *AccountService) GetAccountByAlias(ctx context.Context, alias string) *m
 
 	account := &model.UserAccount{
 		Id:              entity.Id,
-		AccessKeyId:     entity.AccessKeyId,
+		AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
 		Alias:           entity.Alias,
 		Region:          entity.Region,
-		SecretAccessKey: entity.SecretAccessKey,
+		SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
 		Valid:           entity.Valid,
 		CreatedAt:       time.Unix(entity.CreatedAt, 0),
 	}
