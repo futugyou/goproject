@@ -50,7 +50,7 @@ func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
 
 	accountService := services.NewAccountService()
 	account := accountService.GetAccountByID(r.Context(), accountId)
-	if account == nil {
+	if account == nil || !account.Valid {
 		w.Write([]byte("You may use a wrong 'Account-Id', please check."))
 		w.WriteHeader(400)
 		return false

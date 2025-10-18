@@ -21,10 +21,6 @@ func Account(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !verceltool.AuthForVercel(w, r) {
-		return
-	}
-
 	operatetype := r.URL.Query().Get("type")
 	switch operatetype {
 	case "getall":
@@ -41,6 +37,9 @@ func Account(w http.ResponseWriter, r *http.Request) {
 }
 
 func createAccount(w http.ResponseWriter, r *http.Request) {
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
 	var account model.UserAccount
 
 	err := json.NewDecoder(r.Body).Decode(&account)
@@ -62,8 +61,11 @@ func createAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteAccount(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
 
+	id := r.URL.Query().Get("id")
 	accountService := services.NewAccountService()
 
 	err := accountService.DeleteAccount(r.Context(), id)
@@ -109,8 +111,11 @@ func getAllAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateAccount(w http.ResponseWriter, r *http.Request) {
-	var account model.UserAccount
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
 
+	var account model.UserAccount
 	err := json.NewDecoder(r.Body).Decode(&account)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
