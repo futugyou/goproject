@@ -18,10 +18,6 @@ func KeyValue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !verceltool.AuthForVercel(w, r) {
-		return
-	}
-
 	operatetype := r.URL.Query().Get("type")
 	switch operatetype {
 	case "getall":
@@ -36,8 +32,11 @@ func KeyValue(w http.ResponseWriter, r *http.Request) {
 }
 
 func createKeyValue(w http.ResponseWriter, r *http.Request) {
-	var keyValue model.KeyValue
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
 
+	var keyValue model.KeyValue
 	err := json.NewDecoder(r.Body).Decode(&keyValue)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

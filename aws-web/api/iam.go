@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/futugyousuzu/goproject/awsgolang/services"
-	verceltool "github.com/futugyousuzu/goproject/awsgolang/vercel"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
 
 	"github.com/futugyou/extensions"
@@ -15,10 +14,6 @@ import (
 
 func IAM(w http.ResponseWriter, r *http.Request) {
 	if extensions.Cors(w, r) {
-		return
-	}
-
-	if !verceltool.AuthForVercel(w, r) {
 		return
 	}
 

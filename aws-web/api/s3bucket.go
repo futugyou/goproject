@@ -22,10 +22,6 @@ func S3bucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !verceltool.AuthForVercel(w, r) {
-		return
-	}
-
 	operatetype := r.URL.Query().Get("type")
 	switch operatetype {
 	case "getBucket":
@@ -70,6 +66,10 @@ func getS3bucketItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloadFile(w http.ResponseWriter, r *http.Request) {
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
+
 	service := services.NewS3bucketService()
 	bucketName := r.URL.Query().Get("bucketName")
 	accountId := r.URL.Query().Get("accountId")

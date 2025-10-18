@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/iam"
+	tool "github.com/futugyou/extensions"
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	model "github.com/futugyousuzu/goproject/awsgolang/viewmodel"
@@ -51,11 +52,13 @@ func (s *IAMService) SearchIAMData(ctx context.Context, filter model.IAMDataFilt
 		}
 
 		for _, key := range listkeys.AccessKeyMetadata {
-			data.Keys = append(data.Keys, model.IAMDataKey{
-				Key:        *key.AccessKeyId,
-				Status:     string(key.Status),
-				CreateDate: *key.CreateDate,
-			})
+			if key.AccessKeyId != nil {
+				data.Keys = append(data.Keys, model.IAMDataKey{
+					Key:        tool.MaskString(*key.AccessKeyId, 5, 0.5),
+					Status:     string(key.Status),
+					CreateDate: *key.CreateDate,
+				})
+			}
 		}
 
 		result = append(result, data)
