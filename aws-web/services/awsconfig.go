@@ -26,6 +26,18 @@ func NewAwsConfigService() *AwsConfigService {
 	}
 }
 
+func NewAwsConfigServiceWithTableNames(configTableName string, relTableName string) *AwsConfigService {
+	config := mongorepo.DBConfig{
+		DBName:        os.Getenv("db_name"),
+		ConnectString: os.Getenv("mongodb_url"),
+	}
+
+	return &AwsConfigService{
+		repository:    mongorepo.NewAwsConfigRepositoryWithTableName(config, configTableName),
+		relRepository: mongorepo.NewAwsConfigRelationshipRepositoryWithTableName(config, relTableName),
+	}
+}
+
 func (a *AwsConfigService) GetResourceGraph(ctx context.Context) model.ResourceGraph {
 	configs, _ := a.repository.GetAll(ctx)
 	ships, _ := a.relRepository.GetAll(ctx)

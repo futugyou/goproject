@@ -28,6 +28,8 @@ func KeyValue(w http.ResponseWriter, r *http.Request) {
 		createKeyValue(w, r)
 	case "awsconfig":
 		getResourceGraph(w, r)
+	case "newconfig":
+		getNewResourceGraph(w, r)
 	}
 }
 
@@ -67,6 +69,14 @@ func getAllKeyValue(w http.ResponseWriter, r *http.Request) {
 
 func getResourceGraph(w http.ResponseWriter, r *http.Request) {
 	config := services.NewAwsConfigService()
+	res := config.GetResourceGraph(r.Context())
+	body, _ := json.Marshal(res)
+	w.Write(body)
+	w.WriteHeader(200)
+}
+
+func getNewResourceGraph(w http.ResponseWriter, r *http.Request) {
+	config := services.NewAwsConfigServiceWithTableNames("awsconfig_new", "awsconfig_new_relationship")
 	res := config.GetResourceGraph(r.Context())
 	body, _ := json.Marshal(res)
 	w.Write(body)
