@@ -62,6 +62,18 @@ type AuthMongoDBClient struct {
 	OauthConfig oauth2.Config
 }
 
+type TokenVerifyResponse struct {
+	Audience   []string
+	Expiration time.Time
+	IssuedAt   time.Time
+	Issuer     string
+	JwtID      string
+	NotBefore  time.Time
+	Subject    string
+	Headers    map[string]interface{}
+	Scopes     string
+}
+
 func NewAuthMongoDBClient(opts AuthOptions) *AuthMongoDBClient {
 	if opts.DbName == nil {
 		opts.DbName = &oauth_client_request_info_db_name
@@ -128,38 +140,58 @@ func (a *AuthMongoDBClient) VerifyToken(w http.ResponseWriter, r *http.Request, 
 }
 
 func (a *AuthMongoDBClient) VerifyTokenString(w http.ResponseWriter, r *http.Request, authorization string) bool {
-	set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
+	_, err := a.Verify(r.Context(), authorization)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return false
+	}
+
+	return true
+}
+
+func (a *AuthMongoDBClient) Verify(ctx context.Context, authorization string) (*TokenVerifyResponse, error) {
+	if len(authorization) == 0 {
+		return nil, fmt.Errorf("authorization is empty")
+	}
+
+	set, err := jwk.Fetch(ctx, a.Options.AuthServerURL+".well-known/jwks.json")
+	if err != nil {
+		return nil, err
 	}
 
 	tok, err := jwt.Parse([]byte(authorization), jwt.WithKeySet(set))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return false
+		return nil, err
+	}
+	reponse := &TokenVerifyResponse{}
+	if scope, ok := tok.Get("scope"); ok {
+		if scope, ok := scope.(string); ok {
+			reponse.Scopes = scope
+		}
 	}
 
-	// "scope" can get from tok.PrivateClaims() or directly
-	scope, _ := tok.Get("scope")
-	fmt.Println(scope)
-
-	fmt.Println(tok.Issuer())
-	fmt.Println(tok.JwtID())
-	fmt.Println(tok.Subject())
-	for k, v := range tok.PrivateClaims() {
-		fmt.Println(k, v)
-	}
+	reponse.Issuer = tok.Issuer()
+	reponse.Expiration = tok.Expiration()
+	reponse.IssuedAt = tok.IssuedAt()
+	reponse.NotBefore = tok.NotBefore()
+	reponse.Audience = tok.Audience()
+	reponse.JwtID = tok.JwtID()
+	reponse.Subject = tok.Subject()
+	reponse.Headers = tok.PrivateClaims()
 
 	//jws
 	msg, _ := jws.Parse([]byte(authorization))
 	for _, v := range msg.Signatures() {
-		fmt.Println(v.ProtectedHeaders().KeyID())
-		fmt.Println(v.ProtectedHeaders().Algorithm())
-		fmt.Println(v.ProtectedHeaders().Get("x-example"))
+		if d, err := v.ProtectedHeaders().AsMap(ctx); err != nil {
+			for key, v := range d {
+				if _, ok := reponse.Headers[key]; !ok {
+					reponse.Headers[key] = v
+				}
+			}
+		}
 	}
 
-	return true
+	return reponse, nil
 }
 
 func (a *AuthMongoDBClient) saveToken(ctx context.Context, token *oauth2.Token) error {
