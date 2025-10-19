@@ -17,3 +17,4 @@ jobs:
           mongodb_url: '${{ secrets.MONGODBURL }}' 
           db_name: '${{ secrets.MONGODBNAME }}' 
           accountid: '${{ secrets.ACCOUNTID }}' 
+          aws_config_sync: '${{ secrets.AWS_CONFIG_SYNC }}'

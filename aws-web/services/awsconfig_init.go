@@ -73,15 +73,19 @@ func convertToRawData(rawdata []string) []model.AwsConfigRawData {
 
 func initAwsEnv(ctx context.Context) bool {
 	accountService := NewAccountService()
-	accountid := os.Getenv("accountid")
-	if len(accountid) == 0 {
-		log.Println("can not find accountid from env.")
-		return false
+	accounts := accountService.GetAllAccounts(ctx)
+	var account *model.UserAccount
+	for _, acc := range accounts {
+		if !acc.Valid {
+			continue
+		}
+		// TODO: THERE IS ONLY ONE VALID ACCOUNT, SO WE CAN USE THIS
+		account = &acc
+		break
 	}
 
-	account := accountService.GetAccountByID(ctx, accountid)
-	if account == nil || !account.Valid {
-		log.Printf("can not find accountid:%s from db.", accountid)
+	if account == nil {
+		log.Println("can not find a valid account from db.")
 		return false
 	}
 

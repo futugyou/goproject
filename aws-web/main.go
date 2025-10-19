@@ -54,9 +54,10 @@ func SyncData() {
 	secService := services.NewEcsClusterService()
 	secService.SyncAllEcsServices(ctx)
 
-	// current data is useful, no need to update
-	// config := services.NewAwsConfigService()
-	// config.SyncResourcesByConfig()
+	if os.Getenv("aws_config_sync") == "true" {
+		config := services.NewAwsConfigServiceWithTableNames("awsconfig_new", "awsconfig_new_relationship")
+		config.SyncResourcesByConfig(ctx)
+	}
 
 	s3Service := services.NewS3bucketService()
 	s3Service.InitData(ctx)

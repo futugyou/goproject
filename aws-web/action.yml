@@ -11,6 +11,8 @@ inputs:
   db_name:
     description: "mongodb name"
     required: true
+  aws_config_sync:
+    description: "aws config sync flag"
   accountid:
     description: "accountid" 
 
@@ -21,5 +23,6 @@ runs:
     db_name: "${{ inputs.db_name }}"
     mongodb_url: "${{ inputs.mongodb_url }}"
     accountid: "${{ inputs.accountid }}"
+    aws_config_sync: "${{ inputs.aws_config_sync }}"
   args:
   - "-call=${{ inputs.call }}"
