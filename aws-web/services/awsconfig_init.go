@@ -73,7 +73,7 @@ func convertToRawData(rawdata []string) []model.AwsConfigRawData {
 
 func initAwsEnv(ctx context.Context) bool {
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts(ctx)
+	accounts := accountService.GetAllAccounts(ctx, false)
 	var account *model.UserAccount
 	for _, acc := range accounts {
 		if !acc.Valid {

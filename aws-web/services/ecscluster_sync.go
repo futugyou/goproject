@@ -15,7 +15,7 @@ import (
 func (e *EcsClusterService) SyncAllEcsServices(ctx context.Context) {
 	log.Println("start..")
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts(ctx)
+	accounts := accountService.GetAllAccounts(ctx, false)
 	services := make([]entity.EcsServiceEntity, 0)
 	for _, account := range accounts {
 		if !account.Valid {

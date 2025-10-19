@@ -22,7 +22,7 @@ func NewSSMService() *SSMService {
 
 func (s *SSMService) SearchSSMData(ctx context.Context, filter model.SSMDataFilter) ([]model.SSMData, error) {
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId, false)
 	if !account.Valid {
 		return nil, fmt.Errorf("account %s is expired", account.Id)
 	}

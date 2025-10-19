@@ -41,13 +41,13 @@ func (e *EcsClusterService) GetAllServices(ctx context.Context, paging core.Pagi
 	accountService := NewAccountService()
 	if len(filter.AccountId) > 0 {
 		entityfilter.AccountId = filter.AccountId
-		account := accountService.GetAccountByID(ctx, filter.AccountId)
+		account := accountService.GetAccountByID(ctx, filter.AccountId, false)
 		if account == nil {
 			return nil, errors.New("account not found")
 		}
 		accounts = append(accounts, *account)
 	} else {
-		accounts = accountService.GetAllAccounts(ctx)
+		accounts = accountService.GetAllAccounts(ctx, false)
 		if len(accounts) == 0 {
 			return nil, errors.New("account not found")
 		}
@@ -91,7 +91,7 @@ func (e *EcsClusterService) GetServiceDetailById(ctx context.Context, id string)
 	}
 
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, entity.AccountId)
+	account := accountService.GetAccountByID(ctx, entity.AccountId, false)
 
 	if !account.Valid {
 		return nil, fmt.Errorf("account %s is expired", account.Id)
@@ -170,7 +170,7 @@ func (e *EcsClusterService) CompareTaskDefinitions(ctx context.Context, compare 
 	}
 
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, entity.AccountId)
+	account := accountService.GetAccountByID(ctx, entity.AccountId, false)
 	if !account.Valid {
 		return nil, fmt.Errorf("account %s is expired", account.Id)
 	}

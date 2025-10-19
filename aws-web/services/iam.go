@@ -21,7 +21,7 @@ func NewIAMService() *IAMService {
 
 func (s *IAMService) SearchIAMData(ctx context.Context, filter model.IAMDataFilter) ([]model.IAMData, error) {
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId, false)
 	if !account.Valid {
 		return nil, fmt.Errorf("account %s is expired", account.Id)
 	}

@@ -36,7 +36,7 @@ func NewParameterService() *ParameterService {
 
 func (a *ParameterService) GetAllParameters(ctx context.Context) []model.ParameterViewModel {
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts(ctx)
+	accounts := accountService.GetAllAccounts(ctx, false)
 
 	parameters := make([]model.ParameterViewModel, 0)
 	entities, err := a.repository.GetAll(ctx)
@@ -66,9 +66,9 @@ func (a *ParameterService) GetParametersByCondition(ctx context.Context, paging 
 	var account *model.UserAccount
 	var accounts = make([]model.UserAccount, 0)
 	if len(filter.AccountAlias) > 0 {
-		account = accountService.GetAccountByAlias(ctx, filter.AccountAlias)
+		account = accountService.GetAccountByAlias(ctx, filter.AccountAlias, false)
 	} else {
-		accounts = accountService.GetAllAccounts(ctx)
+		accounts = accountService.GetAllAccounts(ctx, false)
 	}
 
 	parameters := make([]model.ParameterViewModel, 0)
@@ -135,7 +135,7 @@ func (a *ParameterService) GetParameterByID(ctx context.Context, id string, mask
 
 	// fill account alias
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, entity.AccountId)
+	account := accountService.GetAccountByID(ctx, entity.AccountId, false)
 	if account == nil {
 		return parameter
 	}
@@ -223,7 +223,7 @@ func (a *ParameterService) SyncParameterByID(ctx context.Context, id string) err
 
 	// account
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, parameter.AccountId)
+	account := accountService.GetAccountByID(ctx, parameter.AccountId, false)
 	if account == nil || !account.Valid {
 		return errors.New("account not found")
 	}

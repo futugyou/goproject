@@ -17,7 +17,7 @@ func (s *S3bucketService) InitData(ctx context.Context) {
 	log.Println("s3 sync start..")
 
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts(ctx)
+	accounts := accountService.GetAllAccounts(ctx, false)
 
 	entities := make([]entity.S3bucketEntity, 0)
 	items := make([]entity.S3bucketItemEntity, 0)

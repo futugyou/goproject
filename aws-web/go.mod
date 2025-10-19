@@ -19,7 +19,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.66.0
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
-	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 )
@@ -86,7 +85,5 @@ require (
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 )
-
-replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
 
 replace github.com/futugyou/extensions v0.0.0-00010101000000-000000000000 => ../extensions

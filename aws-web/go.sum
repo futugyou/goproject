@@ -86,8 +86,6 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/r
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/dlclark/regexp2 v1.11.2 h1:/u628IuisSTwri5/UKloiIsH8+qF2Pu7xEQX+yIKg68=
 github.com/dlclark/regexp2 v1.11.2/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
-github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998 h1:iHkJb0RUhMA+XF+5ZNpqBLEKc/FoNRkiTFfLtoxYdMs=
-github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998/go.mod h1:8am2np31WuppN3J9jhakwGKFvHwyTNwTU/5aIVaz4U4=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/gobuffalo/attrs v0.0.0-20190224210810-a9411de4debd/go.mod h1:4duuawTqi2wkkpB4ePgWMaai6/Kc6WEz83bhFwpHzj0=
 github.com/gobuffalo/depgen v0.0.0-20190329151759-d478694a28d3/go.mod h1:3STtPUQYuzV0gBVOY3vy6CfMm/ljR4pABfrTeHNLHUY=

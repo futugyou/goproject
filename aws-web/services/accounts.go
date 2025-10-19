@@ -33,7 +33,7 @@ func NewAccountService() *AccountService {
 	}
 }
 
-func (a *AccountService) GetAllAccounts(ctx context.Context) []model.UserAccount {
+func (a *AccountService) GetAllAccounts(ctx context.Context, masked bool) []model.UserAccount {
 	accounts := make([]model.UserAccount, 0)
 	entities, err := a.repository.GetAll(ctx)
 	if err != nil {
@@ -41,44 +41,36 @@ func (a *AccountService) GetAllAccounts(ctx context.Context) []model.UserAccount
 	}
 
 	for _, entity := range entities {
-		account := accountEntityToViewModel(entity, false)
+		account := accountEntityToViewModel(entity, masked)
 		accounts = append(accounts, *account)
 	}
 
 	return accounts
 }
 
-func (a *AccountService) GetAllAccountsWithMask(ctx context.Context) []model.UserAccount {
-	accounts := make([]model.UserAccount, 0)
-	entities, err := a.repository.GetAll(ctx)
+func (a *AccountService) GetAccountByID(ctx context.Context, id string, masked bool) *model.UserAccount {
+	entity, err := a.repository.Get(ctx, id)
 	if err != nil {
-		return accounts
+		return nil
 	}
 
-	for _, entity := range entities {
-		account := accountEntityToViewModel(entity, true)
-		accounts = append(accounts, *account)
-	}
+	account := accountEntityToViewModel(entity, masked)
 
-	return accounts
+	return account
 }
 
-func (a *AccountService) GetAccountsByPaging(ctx context.Context, paging core.Paging) []model.UserAccount {
-	accounts := make([]model.UserAccount, 0)
-	entities, err := a.repository.Paging(ctx, paging)
+func (a *AccountService) GetAccountByAlias(ctx context.Context, alias string, masked bool) *model.UserAccount {
+	entity, err := a.repository.GetAccountByAlias(ctx, alias)
 	if err != nil {
-		return accounts
+		return nil
 	}
 
-	for _, entity := range entities {
-		account := accountEntityToViewModel(entity, false)
-		accounts = append(accounts, *account)
-	}
+	account := accountEntityToViewModel(entity, masked)
 
-	return accounts
+	return account
 }
 
-func (a *AccountService) GetAccountsByPagingWithMask(ctx context.Context, paging core.Paging) []model.UserAccount {
+func (a *AccountService) GetAccountsByPaging(ctx context.Context, paging core.Paging, masked bool) []model.UserAccount {
 	accounts := make([]model.UserAccount, 0)
 	entities, err := a.repository.Paging(ctx, paging)
 	if err != nil {
@@ -86,7 +78,7 @@ func (a *AccountService) GetAccountsByPagingWithMask(ctx context.Context, paging
 	}
 
 	for _, entity := range entities {
-		account := accountEntityToViewModel(entity, true)
+		account := accountEntityToViewModel(entity, masked)
 		accounts = append(accounts, *account)
 	}
 
@@ -153,39 +145,6 @@ func (a *AccountService) DeleteAccount(ctx context.Context, id string) error {
 	}
 
 	return nil
-}
-
-func (a *AccountService) GetAccountByID(ctx context.Context, id string) *model.UserAccount {
-	entity, err := a.repository.Get(ctx, id)
-	if err != nil {
-		return nil
-	}
-
-	account := accountEntityToViewModel(entity, false)
-
-	return account
-}
-
-func (a *AccountService) GetAccountByIDWithMask(ctx context.Context, id string) *model.UserAccount {
-	entity, err := a.repository.Get(ctx, id)
-	if err != nil {
-		return nil
-	}
-
-	account := accountEntityToViewModel(entity, true)
-
-	return account
-}
-
-func (a *AccountService) GetAccountByAlias(ctx context.Context, alias string) *model.UserAccount {
-	entity, err := a.repository.GetAccountByAlias(ctx, alias)
-	if err != nil {
-		return nil
-	}
-
-	account := accountEntityToViewModel(entity, false)
-
-	return account
 }
 
 func accountEntityToViewModel(entity *entity.AccountEntity, masked bool) *model.UserAccount {

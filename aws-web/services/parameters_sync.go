@@ -16,7 +16,7 @@ import (
 func (a *ParameterService) SyncAllParameter(ctx context.Context) {
 	log.Println("start..")
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts(ctx)
+	accounts := accountService.GetAllAccounts(ctx, false)
 
 	entities := make([]entity.ParameterEntity, 0)
 	logs := make([]entity.ParameterLogEntity, 0)

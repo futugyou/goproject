@@ -46,7 +46,7 @@ func (s *S3bucketService) GetS3Buckets(ctx context.Context, paging core.Paging, 
 	}
 
 	accountService := NewAccountService()
-	accounts := accountService.GetAllAccounts(ctx)
+	accounts := accountService.GetAllAccounts(ctx, false)
 
 	for _, entity := range entities {
 		idx := slices.IndexFunc(accounts, func(c model.UserAccount) bool { return c.Id == entity.AccountId })
@@ -70,7 +70,7 @@ func (s *S3bucketService) GetS3Buckets(ctx context.Context, paging core.Paging, 
 func (s *S3bucketService) GetS3BucketItems(ctx context.Context, filter model.S3BucketItemFilter) []model.S3BucketItemViewModel {
 	result := make([]model.S3BucketItemViewModel, 0)
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId, false)
 	if !account.Valid {
 		return nil
 	}
@@ -108,7 +108,7 @@ func (s *S3bucketService) GetS3BucketItems(ctx context.Context, filter model.S3B
 
 func (s *S3bucketService) GetS3BucketFile(ctx context.Context, filter model.S3BucketFileFilter) (*s3.GetObjectOutput, error) {
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId, false)
 	if !account.Valid {
 		return nil, fmt.Errorf("account %s is expired", account.Id)
 	}
@@ -119,7 +119,7 @@ func (s *S3bucketService) GetS3BucketFile(ctx context.Context, filter model.S3Bu
 
 func (s *S3bucketService) GetS3FileUrl(ctx context.Context, filter model.S3BucketFileFilter) model.S3BucketUrlViewModel {
 	accountService := NewAccountService()
-	account := accountService.GetAccountByID(ctx, filter.AccountId)
+	account := accountService.GetAccountByID(ctx, filter.AccountId, false)
 	if !account.Valid {
 		return model.S3BucketUrlViewModel{Url: ""}
 	}

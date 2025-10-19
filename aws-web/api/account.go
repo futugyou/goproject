@@ -78,11 +78,12 @@ func deleteAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAccount(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	accountService := services.NewAccountService()
 
 	id := r.URL.Query().Get("id")
-
-	account := accountService.GetAccountByID(r.Context(), id)
+	_, err := verceltool.Verify(ctx, r.Header.Get("Authorization"))
+	account := accountService.GetAccountByID(ctx, id, err != nil)
 
 	body, _ := json.Marshal(account)
 	w.Write(body)
@@ -98,11 +99,13 @@ func getAllAccount(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.ParseInt(pageString, 10, 64)
 	limit, _ := strconv.ParseInt(limitString, 10, 64)
 
+	ctx := r.Context()
+	_, err := verceltool.Verify(ctx, r.Header.Get("Authorization"))
 	if page != 0 && limit != 0 {
 		paging := core.Paging{Page: page, Limit: limit}
-		accounts = accountService.GetAccountsByPaging(r.Context(), paging)
+		accounts = accountService.GetAccountsByPaging(ctx, paging, err != nil)
 	} else {
-		accounts = accountService.GetAllAccounts(r.Context())
+		accounts = accountService.GetAllAccounts(ctx, err != nil)
 	}
 
 	body, _ := json.Marshal(accounts)
