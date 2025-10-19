@@ -104,6 +104,10 @@ func downloadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func getgetS3bucketItemUrl(w http.ResponseWriter, r *http.Request) {
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
+
 	service := services.NewS3bucketService()
 	bucketName := r.URL.Query().Get("bucketName")
 	accountId := r.URL.Query().Get("accountId")

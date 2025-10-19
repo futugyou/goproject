@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	tool "github.com/futugyou/extensions"
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/core"
 	"github.com/futugyousuzu/goproject/awsgolang/entity"
@@ -60,7 +61,7 @@ func (a *ParameterService) GetAllParameters(ctx context.Context) []model.Paramet
 	return parameters
 }
 
-func (a *ParameterService) GetParametersByCondition(ctx context.Context, paging core.Paging, filter model.ParameterFilter) []model.ParameterViewModel {
+func (a *ParameterService) GetParametersByCondition(ctx context.Context, paging core.Paging, filter model.ParameterFilter, masked bool) []model.ParameterViewModel {
 	accountService := NewAccountService()
 	var account *model.UserAccount
 	var accounts = make([]model.UserAccount, 0)
@@ -92,8 +93,7 @@ func (a *ParameterService) GetParametersByCondition(ctx context.Context, paging 
 		if idx != -1 && idx < len(accounts) {
 			alias = accounts[idx].Alias
 		}
-
-		parameters = append(parameters, model.ParameterViewModel{
+		parameter := model.ParameterViewModel{
 			Id:           entity.Id,
 			AccountId:    entity.AccountId,
 			AccountAlias: alias,
@@ -101,13 +101,18 @@ func (a *ParameterService) GetParametersByCondition(ctx context.Context, paging 
 			Key:          entity.Key,
 			Version:      entity.Version,
 			OperateAt:    time.Unix(entity.OperateAt, 0),
-		})
+		}
+
+		if masked {
+			parameter.Value = tool.MaskString(parameter.Value, 5, 0.5)
+		}
+		parameters = append(parameters, parameter)
 	}
 
 	return parameters
 }
 
-func (a *ParameterService) GetParameterByID(ctx context.Context, id string) *model.ParameterDetailViewModel {
+func (a *ParameterService) GetParameterByID(ctx context.Context, id string, masked bool) *model.ParameterDetailViewModel {
 	// get parameter from db
 	entity, err := a.repository.GetByObjectId(ctx, id)
 	if err != nil {
@@ -122,6 +127,10 @@ func (a *ParameterService) GetParameterByID(ctx context.Context, id string) *mod
 		Value:     entity.Value,
 		Version:   entity.Version,
 		OperateAt: time.Unix(entity.OperateAt, 0),
+	}
+
+	if masked {
+		parameter.Value = tool.MaskString(parameter.Value, 5, 0.5)
 	}
 
 	// fill account alias
@@ -148,6 +157,10 @@ func (a *ParameterService) GetParameterByID(ctx context.Context, id string) *mod
 				Version:      logs[i].Version,
 				OperateAt:    time.Unix(logs[i].OperateAt, 0),
 			}
+
+			if masked {
+				history[i].Value = tool.MaskString(history[i].Value, 5, 0.5)
+			}
 		}
 
 		parameter.History = history
@@ -169,6 +182,9 @@ func (a *ParameterService) GetParameterByID(ctx context.Context, id string) *mod
 		OperateAt: *details[0].LastModifiedDate,
 	}
 
+	if masked {
+		current.Value = tool.MaskString(current.Value, 5, 0.5)
+	}
 	parameter.Current = current
 
 	return parameter

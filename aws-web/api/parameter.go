@@ -21,10 +21,6 @@ func Parameter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !verceltool.AuthForVercel(w, r) {
-		return
-	}
-
 	operatetype := r.URL.Query().Get("type")
 	switch operatetype {
 	case "compare":
@@ -39,6 +35,10 @@ func Parameter(w http.ResponseWriter, r *http.Request) {
 }
 
 func compareParameter(w http.ResponseWriter, r *http.Request) {
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
+
 	parameterService := services.NewParameterService()
 
 	sourceid := r.URL.Query().Get("sourceid")
@@ -60,7 +60,8 @@ func compareParameter(w http.ResponseWriter, r *http.Request) {
 func getParameter(w http.ResponseWriter, r *http.Request) {
 	parameterService := services.NewParameterService()
 	id := r.URL.Query().Get("id")
-	parameter := parameterService.GetParameterByID(r.Context(), id)
+	_, err := verceltool.Verify(r.Context(), r.Header.Get("Authorization"))
+	parameter := parameterService.GetParameterByID(r.Context(), id, err != nil)
 
 	body, _ := json.Marshal(parameter)
 	w.Write(body)
@@ -94,7 +95,8 @@ func getallParameter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paging := core.Paging{Page: page, Limit: limit}
-	parameters = parameterService.GetParametersByCondition(r.Context(), paging, filer)
+	_, err := verceltool.Verify(r.Context(), r.Header.Get("Authorization"))
+	parameters = parameterService.GetParametersByCondition(r.Context(), paging, filer, err != nil)
 
 	body, _ := json.Marshal(parameters)
 	w.Write(body)
@@ -102,6 +104,10 @@ func getallParameter(w http.ResponseWriter, r *http.Request) {
 }
 
 func syncParameter(w http.ResponseWriter, r *http.Request) {
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
+
 	parameterService := services.NewParameterService()
 
 	var sync model.SyncModel

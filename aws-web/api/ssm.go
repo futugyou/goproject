@@ -18,19 +18,19 @@ func SSM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !verceltool.AuthForVercel(w, r) {
-		return
-	}
-
 	operatetype := r.URL.Query().Get("type")
 	switch operatetype {
 	case "search":
 		searchSSMData(w, r)
 	}
 }
-func searchSSMData(w http.ResponseWriter, r *http.Request) {
-	service := services.NewSSMService()
 
+func searchSSMData(w http.ResponseWriter, r *http.Request) {
+	if !verceltool.AuthForVercel(w, r) {
+		return
+	}
+
+	service := services.NewSSMService()
 	accountId := r.URL.Query().Get("accountId")
 	name := r.URL.Query().Get("name")
 	filter := model.SSMDataFilter{AccountId: accountId, Name: name}

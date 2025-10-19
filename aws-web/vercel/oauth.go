@@ -1,6 +1,7 @@
 package verceltool
 
 import (
+	"context"
 	"fmt"
 	"html"
 	"strings"
@@ -10,20 +11,25 @@ import (
 
 	"github.com/futugyousuzu/goproject/awsgolang/awsenv"
 	"github.com/futugyousuzu/goproject/awsgolang/services"
-	oauthService "github.com/futugyousuzu/identity/client"
+
+	"github.com/futugyou/extensions"
 )
 
 func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
-	accountId := r.Header.Get("Account-Id")
 	bearer := r.Header.Get("Authorization")
-
-	if len(accountId) == 0 || len(bearer) == 0 {
-		w.Write([]byte("This request NEED both 'Authorization' and 'Account-Id' in header."))
-		w.WriteHeader(400)
+	_, err := Verify(r.Context(), bearer)
+	if err != nil {
+		w.Write([]byte("Auth error, you can get token again and try again."))
+		w.WriteHeader(401)
 		return false
 	}
 
-	authOptions := oauthService.AuthOptions{
+	return true
+}
+
+func Verify(ctx context.Context, authorization string) (*extensions.TokenVerifyResponse, error) {
+	db_name := os.Getenv("db_name")
+	authOptions := extensions.AuthOptions{
 		AuthServerURL: os.Getenv("auth_server_url"),
 		ClientID:      os.Getenv("client_id"),
 		ClientSecret:  os.Getenv("client_secret"),
@@ -32,19 +38,18 @@ func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
 		AuthURL:       os.Getenv("auth_url"),
 		TokenURL:      os.Getenv("token_url"),
 		DbUrl:         os.Getenv("mongodb_url"),
-		DbName:        os.Getenv("db_name"),
+		DbName:        &db_name,
 	}
 
-	oauthsvc := oauthService.NewAuthService(authOptions)
-	bearer = strings.ReplaceAll(bearer, "Bearer ", "")
-	verifyResult := oauthsvc.VerifyTokenString(w, r, bearer)
-	if !verifyResult {
-		w.Write([]byte("Auth error, you can get token again and try again."))
-		w.WriteHeader(401)
-		return false
-	}
+	oauthsvc := extensions.NewAuthMongoDBClient(authOptions)
+	bearer := strings.ReplaceAll(authorization, "Bearer ", "")
+	return oauthsvc.Verify(ctx, bearer)
+}
 
-	if accountId == "aws-account-id-magic-code" {
+func CheckAccountForVercel(w http.ResponseWriter, r *http.Request) bool {
+	accountId := r.Header.Get("Account-Id")
+
+	if len(accountId) == 0 || accountId == "aws-account-id-magic-code" {
 		return true
 	}
 
@@ -56,7 +61,7 @@ func AuthForVercel(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	err := awsenv.CfgWithProfile(account.AccessKeyId, account.SecretAccessKey)
+	err := awsenv.CfgWithProfileAndRegion(account.AccessKeyId, account.SecretAccessKey, account.Region)
 	if err != nil {
 		fmt.Fprintf(w, "The AWS SECRET associated with the account {%q} is incorrect.", html.EscapeString(accountId))
 		w.WriteHeader(400)

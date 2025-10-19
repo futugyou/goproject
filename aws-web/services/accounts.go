@@ -199,7 +199,6 @@ func accountEntityToViewModel(entity *entity.AccountEntity, masked bool) *model.
 		CreatedAt:       time.Unix(entity.CreatedAt, 0),
 	}
 	if masked {
-		account.AccessKeyId = tool.MaskString(account.AccessKeyId, 5, 0.5)
 		account.SecretAccessKey = tool.MaskString(account.SecretAccessKey, 5, 0.5)
 	}
 	return account
