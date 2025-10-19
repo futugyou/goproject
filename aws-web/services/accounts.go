@@ -41,15 +41,23 @@ func (a *AccountService) GetAllAccounts(ctx context.Context) []model.UserAccount
 	}
 
 	for _, entity := range entities {
-		accounts = append(accounts, model.UserAccount{
-			Id:              entity.Id,
-			AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
-			Alias:           entity.Alias,
-			Region:          entity.Region,
-			SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
-			Valid:           entity.Valid,
-			CreatedAt:       time.Unix(entity.CreatedAt, 0),
-		})
+		account := accountEntityToViewModel(entity, false)
+		accounts = append(accounts, *account)
+	}
+
+	return accounts
+}
+
+func (a *AccountService) GetAllAccountsWithMask(ctx context.Context) []model.UserAccount {
+	accounts := make([]model.UserAccount, 0)
+	entities, err := a.repository.GetAll(ctx)
+	if err != nil {
+		return accounts
+	}
+
+	for _, entity := range entities {
+		account := accountEntityToViewModel(entity, true)
+		accounts = append(accounts, *account)
 	}
 
 	return accounts
@@ -63,15 +71,23 @@ func (a *AccountService) GetAccountsByPaging(ctx context.Context, paging core.Pa
 	}
 
 	for _, entity := range entities {
-		accounts = append(accounts, model.UserAccount{
-			Id:              entity.Id,
-			AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
-			Alias:           entity.Alias,
-			Region:          entity.Region,
-			SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
-			Valid:           entity.Valid,
-			CreatedAt:       time.Unix(entity.CreatedAt, 0),
-		})
+		account := accountEntityToViewModel(entity, false)
+		accounts = append(accounts, *account)
+	}
+
+	return accounts
+}
+
+func (a *AccountService) GetAccountsByPagingWithMask(ctx context.Context, paging core.Paging) []model.UserAccount {
+	accounts := make([]model.UserAccount, 0)
+	entities, err := a.repository.Paging(ctx, paging)
+	if err != nil {
+		return accounts
+	}
+
+	for _, entity := range entities {
+		account := accountEntityToViewModel(entity, true)
+		accounts = append(accounts, *account)
 	}
 
 	return accounts
@@ -145,15 +161,18 @@ func (a *AccountService) GetAccountByID(ctx context.Context, id string) *model.U
 		return nil
 	}
 
-	account := &model.UserAccount{
-		Id:              entity.Id,
-		AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
-		Alias:           entity.Alias,
-		Region:          entity.Region,
-		SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
-		Valid:           entity.Valid,
-		CreatedAt:       time.Unix(entity.CreatedAt, 0),
+	account := accountEntityToViewModel(entity, false)
+
+	return account
+}
+
+func (a *AccountService) GetAccountByIDWithMask(ctx context.Context, id string) *model.UserAccount {
+	entity, err := a.repository.Get(ctx, id)
+	if err != nil {
+		return nil
 	}
+
+	account := accountEntityToViewModel(entity, true)
 
 	return account
 }
@@ -164,15 +183,24 @@ func (a *AccountService) GetAccountByAlias(ctx context.Context, alias string) *m
 		return nil
 	}
 
+	account := accountEntityToViewModel(entity, false)
+
+	return account
+}
+
+func accountEntityToViewModel(entity *entity.AccountEntity, masked bool) *model.UserAccount {
 	account := &model.UserAccount{
 		Id:              entity.Id,
-		AccessKeyId:     tool.MaskString(entity.AccessKeyId, 5, 0.5),
+		AccessKeyId:     entity.AccessKeyId,
 		Alias:           entity.Alias,
 		Region:          entity.Region,
-		SecretAccessKey: tool.MaskString(entity.SecretAccessKey, 5, 0.5),
+		SecretAccessKey: entity.SecretAccessKey,
 		Valid:           entity.Valid,
 		CreatedAt:       time.Unix(entity.CreatedAt, 0),
 	}
-
+	if masked {
+		account.AccessKeyId = tool.MaskString(account.AccessKeyId, 5, 0.5)
+		account.SecretAccessKey = tool.MaskString(account.SecretAccessKey, 5, 0.5)
+	}
 	return account
 }
