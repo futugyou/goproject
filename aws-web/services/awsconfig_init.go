@@ -45,6 +45,7 @@ func (a *AwsConfigService) SyncResourcesByConfig(ctx context.Context) {
 		return
 	}
 
+	// TODO: Get incremental data
 	// 2. get data from aws config
 	rawdataStringList := getAwsConfigData(ctx)
 	if len(rawdataStringList) == 0 {
@@ -176,6 +177,7 @@ func (a *AwsConfigService) commonDataExec(ctx context.Context, rawDatas []model.
 
 	// 5.2 remove duplicate
 	ships = RemoveDuplicateRelationShip(ships)
+	resources = RemoveDuplicateConfig(resources)
 
 	log.Println("resources count: ", len(resources))
 	log.Println("relationships count: ", len(ships))
@@ -183,6 +185,9 @@ func (a *AwsConfigService) commonDataExec(ctx context.Context, rawDatas []model.
 		return
 	}
 
+	// TODO: Only process incremental data
+	// On hold. The current way to obtain data is to obtain the full amount.
+	// If you want to do incremental processing, it is best to start from the source.
 	// 6. delete all
 	err := a.repository.DeleteAll(ctx)
 	if err != nil {

@@ -26,6 +26,20 @@ func RemoveDuplicateRelationShip(ships []entity.AwsConfigRelationshipEntity) []e
 	return result
 }
 
+func RemoveDuplicateConfig(entities []entity.AwsConfigEntity) []entity.AwsConfigEntity {
+	uniqueMap := make(map[string]entity.AwsConfigEntity)
+	var result []entity.AwsConfigEntity
+
+	for _, entity := range entities {
+		if _, exists := uniqueMap[entity.ID]; !exists {
+			uniqueMap[entity.ID] = entity
+			result = append(result, entity)
+		}
+	}
+
+	return result
+}
+
 func CreateAwsConfigRelationshipEntity(data model.AwsConfigRawData, configs []entity.AwsConfigEntity) []entity.AwsConfigRelationshipEntity {
 	lists := make([]entity.AwsConfigRelationshipEntity, 0)
 
