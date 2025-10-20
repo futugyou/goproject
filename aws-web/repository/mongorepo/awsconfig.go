@@ -22,7 +22,7 @@ func NewAwsConfigRepository(config DBConfig) *AwsConfigRepository {
 }
 
 func NewAwsConfigRepositoryWithTableName(config DBConfig, tableName string) *AwsConfigRepository {
-	baseRepo := NewMongoRepository[entity.AwsConfigEntity, string](config)
+	baseRepo := NewMongoRepositoryWithCollectionName[entity.AwsConfigEntity, string](config, tableName)
 	return &AwsConfigRepository{tableName: tableName, MongoRepository: baseRepo}
 }
 
@@ -38,7 +38,7 @@ func NewAwsConfigRelationshipRepository(config DBConfig) *AwsConfigRelationshipR
 }
 
 func NewAwsConfigRelationshipRepositoryWithTableName(config DBConfig, tableName string) *AwsConfigRelationshipRepository {
-	baseRepo := NewMongoRepository[entity.AwsConfigRelationshipEntity, string](config)
+	baseRepo := NewMongoRepositoryWithCollectionName[entity.AwsConfigRelationshipEntity, string](config, tableName)
 	return &AwsConfigRelationshipRepository{tableName: tableName, MongoRepository: baseRepo}
 }
 
