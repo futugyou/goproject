@@ -20,21 +20,41 @@ type DBConfig struct {
 }
 
 type MongoRepository[E core.IEntity, K any] struct {
-	DBName string
-	Client *mongo.Client
+	DBName         string
+	Client         *mongo.Client
+	CollectionName string
 }
 
 func NewMongoRepository[E core.IEntity, K any](config DBConfig) *MongoRepository[E, K] {
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
 	return &MongoRepository[E, K]{
-		DBName: config.DBName,
-		Client: client,
+		DBName:         config.DBName,
+		Client:         client,
+		CollectionName: "",
 	}
 }
 
-func (s *MongoRepository[E, K]) Delete(ctx context.Context, id K) error {
+func NewMongoRepositoryWithCollectionName[E core.IEntity, K any](config DBConfig, collectionName string) *MongoRepository[E, K] {
+	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.ConnectString))
+	return &MongoRepository[E, K]{
+		DBName:         config.DBName,
+		Client:         client,
+		CollectionName: collectionName,
+	}
+}
+
+func (s *MongoRepository[E, K]) getcollectionName() string {
+	if len(s.CollectionName) > 0 {
+		return s.CollectionName
+	}
 	obj := new(E)
-	c := s.Client.Database(s.DBName).Collection((*obj).GetType())
+	return (*obj).GetType()
+}
+
+func (s *MongoRepository[E, K]) Delete(ctx context.Context, id K) error {
+	collectionName := s.getcollectionName()
+
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 	filter := bson.D{{Key: "_id", Value: id}}
 	result, err := c.DeleteOne(ctx, filter)
 	if err != nil {
@@ -46,8 +66,9 @@ func (s *MongoRepository[E, K]) Delete(ctx context.Context, id K) error {
 }
 
 func (s *MongoRepository[E, K]) Get(ctx context.Context, id K) (*E, error) {
+	collectionName := s.getcollectionName()
 	entity := new(E)
-	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 
 	filter := bson.D{{Key: "_id", Value: id}}
 	err := c.FindOne(ctx, filter).Decode(&entity)
@@ -64,9 +85,9 @@ func (s *MongoRepository[E, K]) GetByObjectId(ctx context.Context, id K) (*E, er
 	if !ok {
 		return nil, fmt.Errorf("%v can not convert to string", id)
 	}
-
+	collectionName := s.getcollectionName()
 	entity := new(E)
-	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 	objID, _ := primitive.ObjectIDFromHex(stringid)
 
 	filter := bson.D{{Key: "_id", Value: objID}}
@@ -81,8 +102,8 @@ func (s *MongoRepository[E, K]) GetByObjectId(ctx context.Context, id K) (*E, er
 
 func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]*E, error) {
 	result := make([]*E, 0)
-	entity := new(E)
-	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+	collectionName := s.getcollectionName()
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 
 	filter := bson.D{}
 	cursor, err := c.Find(ctx, filter)
@@ -104,7 +125,8 @@ func (s *MongoRepository[E, K]) GetAll(ctx context.Context) ([]*E, error) {
 }
 
 func (s *MongoRepository[E, K]) Insert(ctx context.Context, obj E) error {
-	c := s.Client.Database(s.DBName).Collection(obj.GetType())
+	collectionName := s.getcollectionName()
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 	result, err := c.InsertOne(ctx, obj)
 	if err != nil {
 		log.Println(err)
@@ -116,7 +138,8 @@ func (s *MongoRepository[E, K]) Insert(ctx context.Context, obj E) error {
 }
 
 func (s *MongoRepository[E, K]) Update(ctx context.Context, obj E, id K) error {
-	c := s.Client.Database(s.DBName).Collection(obj.GetType())
+	collectionName := s.getcollectionName()
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 	opt := options.Update().SetUpsert(true)
 	doc, err := flatbson.Flatten(obj)
 	if err != nil {
@@ -142,8 +165,8 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E) error
 		return nil
 	}
 
-	item := items[0]
-	c := s.Client.Database(s.DBName).Collection(item.GetType())
+	collectionName := s.getcollectionName()
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 	entitys := make([]interface{}, len(items))
 	for i := 0; i < len(items); i++ {
 		entitys[i] = items[i]
@@ -160,8 +183,8 @@ func (s *MongoRepository[E, K]) InsertMany(ctx context.Context, items []E) error
 
 func (s *MongoRepository[E, K]) Paging(ctx context.Context, page core.Paging) ([]*E, error) {
 	result := make([]*E, 0)
-	entity := new(E)
-	c := s.Client.Database(s.DBName).Collection((*entity).GetType())
+	collectionName := s.getcollectionName()
+	c := s.Client.Database(s.DBName).Collection(collectionName)
 
 	filter := bson.D{}
 	var skip int64 = (page.Page - 1) * page.Limit
@@ -197,8 +220,7 @@ func (s *MongoRepository[E, K]) BulkOperate(ctx context.Context, models []mongo.
 		return nil
 	}
 
-	entity := new(E)
-	tableName := (*entity).GetType()
+	tableName := s.getcollectionName()
 	c := s.Client.Database(s.DBName).Collection(tableName)
 	opts := options.BulkWrite().SetOrdered(false)
 	results, err := c.BulkWrite(ctx, models, opts)
