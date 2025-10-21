@@ -127,6 +127,29 @@ func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*mo
 	}
 }
 
+func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName string) ([]models.PlatformProviderProject, error) {
+	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
+	src, err := tool.HandleAsync(ctx, srcCh, errCh)
+	if err != nil {
+		return nil, err
+	}
+
+	if src == nil {
+		return nil, fmt.Errorf("no platform data found")
+	}
+
+	result := []models.PlatformProviderProject{}
+	if provider, err := s.getPlatformProvider(ctx, *src); err == nil {
+		projects, _ := s.getProviderProjects(ctx, provider, *src)
+		for _, pro := range projects {
+			project := s.convertProviderProjectToModel(pro)
+			result = append(result, project)
+		}
+	}
+
+	return result, nil
+}
+
 func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, data models.UpdatePlatformRequest) (*models.PlatformDetailView, error) {
 	return s.updatePlatform(ctx, idOrName, "UpdatePlatform", func(plat *platform.Platform) error {
 		if plat.IsDeleted {

@@ -35,6 +35,8 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 			createPlatform(ctrl, r, w)
 		case "get":
 			getPlatform(ctrl, r, w)
+		case "provider_projects":
+			getProviderProjectList(ctrl, r, w)
 		case "update":
 			updatePlatform(ctrl, r, w)
 		case "delete":
@@ -177,6 +179,11 @@ func updatePlatform(ctrl *controller.PlatformController, r *http.Request, w http
 func getPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	id := r.URL.Query().Get("id")
 	ctrl.GetPlatform(id, w, r)
+}
+
+func getProviderProjectList(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
+	id := r.URL.Query().Get("id")
+	ctrl.GetProviderProjectList(id, w, r)
 }
 
 func getPlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {

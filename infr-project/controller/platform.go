@@ -49,6 +49,12 @@ func (c *PlatformController) GetPlatform(idOrName string, w http.ResponseWriter,
 	})
 }
 
+func (c *PlatformController) GetProviderProjectList(idOrName string, w http.ResponseWriter, r *http.Request) {
+	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
+		return service.GetProviderProjectList(ctx, idOrName)
+	})
+}
+
 func (c *PlatformController) GetPlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
 	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
 		return service.GetPlatformProject(ctx, idOrName, projectId)

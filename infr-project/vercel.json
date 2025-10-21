@@ -146,6 +146,20 @@
             }
         },
         {
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/provider_projects",
+            "dest": "/api/platform.go?id=$id&optype=provider_projects&version=$version",
+            "methods": [
+                "GET",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
             "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)",
             "dest": "/api/platform.go?id=$id&optype=update&version=$version",
             "methods": [

@@ -492,6 +492,41 @@
                 }
             }
         },
+        "/v1/platform/{id}/provider_projects": {
+            "get": {
+                "description": "get platform provider project list by id or name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "get platform provider project list by id or name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID or Name",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/viewmodels.PlatformProviderProject"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/platform/{id}/recovery": {
             "post": {
                 "description": "recovery platform",
