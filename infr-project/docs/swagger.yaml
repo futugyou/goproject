@@ -613,6 +613,10 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Secret'
         type: array
+      tags:
+        items:
+          type: string
+        type: array
       url:
         maxLength: 150
         minLength: 3

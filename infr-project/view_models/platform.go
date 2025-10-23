@@ -29,6 +29,7 @@ type UpdatePlatformProjectRequest struct {
 	Secrets           []Secret   `json:"secrets" validate:"required"` // only Key and VaultId in request
 	Description       string     `json:"description" validate:"required,min=3,max=250"`
 	Properties        []Property `json:"properties" validate:"required"`
+	Tags              []string   `json:"tags"`
 	ProviderProjectId string     `json:"provider_project_id"`
 	Operate           string     `json:"operate" validate:"oneof=upsert sync"`
 	ImportWebhooks    bool       `json:"import_webhooks"`

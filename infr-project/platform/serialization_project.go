@@ -98,6 +98,18 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.Webhooks = webhooks
 	}
 
+	if value, ok := m["tags"].([]string); ok {
+		r.Tags = value
+	} else if value, ok := m["tags"].(primitive.A); ok {
+		tags := make([]string, 0)
+		for _, item := range value {
+			if tag, ok := item.(string); ok {
+				tags = append(tags, tag)
+			}
+		}
+		r.Tags = tags
+	}
+
 	return nil
 }
 
@@ -122,6 +134,7 @@ func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
 		"description":         r.Description,
 		"image_data":          r.ImageData,
 		"image_url":           r.ImageUrl,
+		"tags":                r.Tags,
 	}
 
 	return m

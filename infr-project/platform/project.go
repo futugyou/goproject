@@ -14,6 +14,7 @@ type PlatformProject struct {
 	ImageUrl          string
 	Webhooks          []Webhook
 	ProviderProjectId string
+	Tags              []string
 }
 
 func (s PlatformProject) GetKey() string {
@@ -43,6 +44,12 @@ func WithProjectDescription(description string) ProjectOption {
 func WithProviderProjectId(providerProjectId string) ProjectOption {
 	return func(w *PlatformProject) {
 		w.ProviderProjectId = providerProjectId
+	}
+}
+
+func WithProjectTags(tags []string) ProjectOption {
+	return func(w *PlatformProject) {
+		w.Tags = tags
 	}
 }
 
@@ -99,6 +106,11 @@ func (w *PlatformProject) UpdateImageData(imageData []byte) *PlatformProject {
 
 func (w *PlatformProject) UpdateImageUrl(url string) *PlatformProject {
 	w.ImageUrl = url
+	return w
+}
+
+func (w *PlatformProject) UpdateTags(tags []string) *PlatformProject {
+	w.Tags = tags
 	return w
 }
 

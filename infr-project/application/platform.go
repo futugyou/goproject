@@ -458,6 +458,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		projectDb.UpdateUrl(project.Url)
 		projectDb.UpdateSecrets(secrets)
 		projectDb.UpdateProviderProjectId(project.ProviderProjectId)
+		projectDb.UpdateTags(project.Tags)
 	} else {
 		projectDb = platform.NewPlatformProject(
 			projectId,
@@ -467,6 +468,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 			platform.WithProjectSecrets(secrets),
 			platform.WithProjectDescription(project.Description),
 			platform.WithProviderProjectId(project.ProviderProjectId),
+			platform.WithProjectTags(project.Tags),
 		)
 
 		if len(projectDb.Url) > 0 {

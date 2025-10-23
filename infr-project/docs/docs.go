@@ -2532,6 +2532,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Secret"
                     }
                 },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "url": {
                     "type": "string",
                     "maxLength": 150,
