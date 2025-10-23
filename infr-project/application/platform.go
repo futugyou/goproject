@@ -139,12 +139,19 @@ func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName s
 	}
 
 	result := []models.PlatformProviderProject{}
-	if provider, err := s.getPlatformProvider(ctx, *src); err == nil {
-		projects, _ := s.getProviderProjects(ctx, provider, *src)
-		for _, pro := range projects {
-			project := s.convertProviderProjectToModel(pro)
-			result = append(result, project)
-		}
+	provider, err := s.getPlatformProvider(ctx, *src)
+	if err != nil {
+		return nil, err
+	}
+
+	projects, err := s.getProviderProjects(ctx, provider, *src)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pro := range projects {
+		project := s.convertProviderProjectToModel(pro)
+		result = append(result, project)
 	}
 
 	return result, nil
