@@ -426,6 +426,34 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
+func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrName string) error {
+	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
+	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	if err != nil {
+		return err
+	}
+	provider, err := s.getPlatformProvider(ctx, *plat)
+	if err != nil {
+		return err
+	}
+	projects, err := s.getProviderProjects(ctx, provider, *plat)
+	if err != nil {
+		return err
+	}
+
+	if len(plat.Projects) == 0 && len(projects) > 0 {
+		plat.Projects = map[string]platform.PlatformProject{}
+		for _, project := range projects {
+			plat.Projects[project.ID] = s.convertProviderProjectToEntity(project)
+		}
+	}
+
+	return s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
+		errCh := s.repository.UpdateAsync(ctx, *plat)
+		return tool.HandleErrorAsync(ctx, errCh)
+	})
+}
+
 func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
 	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
 	plat, err := tool.HandleAsync(ctx, platCh, errCh)
