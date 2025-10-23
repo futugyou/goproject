@@ -17,6 +17,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 	v1.GET("/platform", searchPlatforms)
 	v1.GET("/platform/:id", getPlatform)
 	v1.GET("/platform/:id/provider_projects", getProviderProjectList)
+	v1.POST("/platform/:id/import", importProjectsFromProvider)
 
 	v1.POST("/platform", createPlatform)
 	v1.PUT("/platform/:id", updatePlatform)
@@ -247,4 +248,16 @@ func getProviderProjectList(c *gin.Context) {
 func getPlatformProject(c *gin.Context) {
 	ctrl := controller.NewPlatformController()
 	ctrl.GetPlatformProject(c.Param("id"), c.Param("project_id"), c.Writer, c.Request)
+}
+
+// @Summary import platform provider projects by id or name
+// @Description import platform provider projects by id or name
+// @Tags Platform
+// @Accept json
+// @Produce json
+// @Param id path string true "Platform ID or Name"
+// @Router /v1/platform/{id}/import [post]
+func importProjectsFromProvider(c *gin.Context) {
+	ctrl := controller.NewPlatformController()
+	ctrl.ImportProjectsFromProvider(c.Param("id"), c.Writer, c.Request)
 }

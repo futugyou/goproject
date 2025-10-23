@@ -246,6 +246,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/platform/{id}/import": {
+            "post": {
+                "description": "import platform provider projects by id or name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Platform"
+                ],
+                "summary": "import platform provider projects by id or name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform ID or Name",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/v1/platform/{id}/project": {
             "post": {
                 "description": "create platform project",

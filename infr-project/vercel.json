@@ -160,6 +160,20 @@
             }
         },
         {
+            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/import",
+            "dest": "/api/platform.go?id=$id&optype=import&version=$version",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
             "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)",
             "dest": "/api/platform.go?id=$id&optype=update&version=$version",
             "methods": [

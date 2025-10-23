@@ -1030,6 +1030,23 @@ paths:
       summary: update platform
       tags:
       - Platform
+  /v1/platform/{id}/import:
+    post:
+      consumes:
+      - application/json
+      description: import platform provider projects by id or name
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: import platform provider projects by id or name
+      tags:
+      - Platform
   /v1/platform/{id}/project:
     post:
       consumes:

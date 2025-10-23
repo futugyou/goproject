@@ -55,6 +55,22 @@ func (c *PlatformController) GetProviderProjectList(idOrName string, w http.Resp
 	})
 }
 
+func (c *PlatformController) ImportProjectsFromProvider(idOrName string, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	service, err := createPlatformService(ctx)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+	err = service.ImportProjectsFromProvider(ctx, idOrName)
+	if err != nil {
+		handleError(w, err, 500)
+		return
+	}
+
+	writeJSONResponse(w, nil, 200)
+}
+
 func (c *PlatformController) GetPlatformProject(idOrName string, projectId string, w http.ResponseWriter, r *http.Request) {
 	handleRequest(w, r, createPlatformService, func(ctx context.Context, service *application.PlatformService, _ struct{}) (interface{}, error) {
 		return service.GetPlatformProject(ctx, idOrName, projectId)
