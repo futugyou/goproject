@@ -4,32 +4,32 @@ go 1.23.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.39.3
-	github.com/aws/aws-sdk-go-v2/config v1.31.13
-	github.com/aws/aws-sdk-go-v2/credentials v1.18.17
-	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.51.2
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.58.3
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.52.0
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.257.2
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.50.6
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.65.2
+	github.com/aws/aws-sdk-go-v2/config v1.31.14
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.18
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.51.3
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.58.4
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.52.1
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.258.0
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.50.7
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.65.3
 	github.com/aws/aws-sdk-go-v2/service/efs v1.40.9
-	github.com/aws/aws-sdk-go-v2/service/iam v1.47.8
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.5
-	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.10
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.66.0
+	github.com/aws/aws-sdk-go-v2/service/iam v1.48.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.6
+	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.11
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.66.1
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.58.3
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.58.4
 
-require github.com/aws/aws-sdk-go-v2/service/route53 v1.58.5
+require github.com/aws/aws-sdk-go-v2/service/route53 v1.59.0
 
-require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.39.7
+require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.39.8
 
-require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.51.1
+require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.51.2
 
 require github.com/aws/aws-sdk-go-v2/service/iot v1.69.6
 
@@ -60,7 +60,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.29.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.38.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.38.8 // indirect
 	github.com/aws/smithy-go v1.23.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
