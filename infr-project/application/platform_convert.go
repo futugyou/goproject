@@ -413,6 +413,7 @@ func (s *PlatformService) convertProviderProjectToModel(providerProject platform
 	projectModel.BadgeURL = providerProject.BadgeURL
 	projectModel.BadgeMarkdown = providerProject.BadgeMarkDown
 	projectModel.Properties = s.mapToModelProperty(providerProject.Properties)
+	projectModel.Tags = providerProject.Tags
 
 	return projectModel
 }

@@ -109,6 +109,7 @@ type PlatformProviderProject struct {
 	Deployments          []Deployment          `json:"deployments"`
 	BadgeURL             string                `json:"badge_url"`
 	BadgeMarkdown        string                `json:"badge_markdown"`
+	Tags                 []string              `json:"tags"`
 }
 
 type EnvironmentVariable struct {

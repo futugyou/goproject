@@ -454,6 +454,10 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      tags:
+        items:
+          type: string
+        type: array
       url:
         type: string
       webhooks:

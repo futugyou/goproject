@@ -2286,6 +2286,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "url": {
                     "type": "string"
                 },

@@ -44,6 +44,7 @@ type Project struct {
 	Deployments          map[string]Deployment          // circleci don't have
 	BadgeURL             string
 	BadgeMarkDown        string
+	Tags                 []string
 }
 
 func (w *Project) GetProperties() map[string]string {
