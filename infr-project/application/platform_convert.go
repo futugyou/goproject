@@ -417,3 +417,25 @@ func (s *PlatformService) convertProviderProjectToModel(providerProject platform
 
 	return projectModel
 }
+
+func (s *PlatformService) convertProviderProjectToEntity(providerProject platformProvider.Project) platform.PlatformProject {
+	projectModel := platform.NewPlatformProject(providerProject.ID, providerProject.Name, providerProject.Url,
+		platform.WithProjectProperties(s.convertPlatformPropertiesToEntity(providerProject.Properties)),
+		platform.WithProjectDescription(providerProject.Description),
+		platform.WithProjectTags(providerProject.Tags),
+		platform.WithProviderProjectId(providerProject.ID),
+	)
+
+	return *projectModel
+}
+
+func (s *PlatformService) convertPlatformPropertiesToEntity(properties map[string]string) map[string]platform.Property {
+	entityProperties := map[string]platform.Property{}
+	for key, v := range properties {
+		entityProperties[key] = platform.Property{
+			Key:   key,
+			Value: v,
+		}
+	}
+	return entityProperties
+}
