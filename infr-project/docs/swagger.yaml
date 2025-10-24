@@ -454,6 +454,8 @@ definitions:
         items:
           $ref: '#/definitions/viewmodels.Property'
         type: array
+      readme:
+        type: string
       tags:
         items:
           type: string

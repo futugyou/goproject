@@ -2311,6 +2311,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/viewmodels.Property"
                     }
                 },
+                "readme": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
