@@ -481,6 +481,15 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 		}
 	}
 
+	bMap := make(map[string]struct{})
+
+	for _, v := range plat.Projects {
+		if _,ok:= bMap[v.ProviderProjectId];ok {
+			return fmt.Errorf("provider project id: %s is duplicated")
+		}
+		bMap[v.ProviderProjectId] = struct{}{}
+	}
+
 	return s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
 		errCh := s.repository.UpdateAsync(ctx, *plat)
 		return tool.HandleErrorAsync(ctx, errCh)
