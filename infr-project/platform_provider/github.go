@@ -3,6 +3,7 @@ package platform_provider
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -172,6 +173,11 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			return
 		}
 
+		branch := repository.GetDefaultBranch()
+		if branch == "" {
+			branch = "master"
+		}
+
 		wfs := map[string]Workflow{}
 		opts := &github.ListOptions{Page: 1, PerPage: 1000}
 		if workflows, _, err := g.client.Actions.ListWorkflows(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
@@ -288,7 +294,7 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 
 		runs := map[string]WorkflowRun{}
 		if gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
-			Branch:      repository.GetDefaultBranch(),
+			Branch:      branch,
 			ListOptions: github.ListOptions{Page: 1, PerPage: 20},
 		}); err != nil {
 			log.Println(err.Error())
@@ -307,6 +313,8 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 			}
 		}
 
+		readme, _ := g.getGithubReadmeMarkdown(ctx, GITHUB_OWNER, filter.Name, branch)
+
 		project := g.buildGithubProject(repository)
 		project.WebHooks = hooks
 		project.EnvironmentVariables = envs
@@ -314,9 +322,59 @@ func (g *GithubClient) GetProjectAsync(ctx context.Context, filter ProjectFilter
 		project.WorkflowRuns = runs
 		project.Deployments = deployments
 		project.Environments = environments
+		project.Readme = readme
 		resultChan <- &project
 	}()
 	return resultChan, errorChan
+}
+
+func (g *GithubClient) getGithubReadmeMarkdown(ctx context.Context, owner, repo, branch string) (string, error) {
+	readme, _, err := g.client.Repositories.GetReadme(ctx, owner, repo, &github.RepositoryContentGetOptions{Ref: branch})
+	if err != nil {
+		return "", fmt.Errorf("failed to get README: %w", err)
+	}
+
+	content, err := readme.GetContent()
+	if err != nil {
+		return "", fmt.Errorf("failed to decode README content: %w", err)
+	}
+
+	content = fixRelativeLinks(content, owner, repo, branch)
+
+	return content, nil
+}
+
+func fixRelativeLinks(markdown, owner, repo, branch string) string {
+	baseRawURL := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s/", owner, repo, branch)
+	baseBlobURL := fmt.Sprintf("https://github.com/%s/%s/blob/%s/", owner, repo, branch)
+
+	imgRe := regexp.MustCompile(`!\[([^\]]*)]\(([^)]+)\)`)
+	markdown = imgRe.ReplaceAllStringFunc(markdown, func(match string) string {
+		sub := imgRe.FindStringSubmatch(match)
+		if len(sub) < 3 {
+			return match
+		}
+		url := sub[2]
+		if regexp.MustCompile(`(?i)^https?://`).MatchString(url) {
+			return match
+		}
+		return fmt.Sprintf("![%s](%s%s)", sub[1], baseRawURL, url)
+	})
+
+	linkRe := regexp.MustCompile(`\[([^\]]+)]\(([^)]+)\)`)
+	markdown = linkRe.ReplaceAllStringFunc(markdown, func(match string) string {
+		sub := linkRe.FindStringSubmatch(match)
+		if len(sub) < 3 {
+			return match
+		}
+		url := sub[2]
+		if regexp.MustCompile(`(?i)^https?://`).MatchString(url) {
+			return match
+		}
+		return fmt.Sprintf("[%s](%s%s)", sub[1], baseBlobURL, url)
+	})
+
+	return markdown
 }
 
 func (g *GithubClient) buildGithubCommonBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {

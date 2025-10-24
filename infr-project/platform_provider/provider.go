@@ -45,6 +45,7 @@ type Project struct {
 	BadgeURL             string
 	BadgeMarkDown        string
 	Tags                 []string
+	Readme               string
 }
 
 func (w *Project) GetProperties() map[string]string {
