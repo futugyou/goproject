@@ -448,10 +448,36 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 		return err
 	}
 
-	if len(plat.Projects) == 0 && len(projects) > 0 {
+	if len(projects) == 0 {
+		return fmt.Errorf("no provider project found in %s", plat.Provider.String())
+	}
+
+	if len(plat.Projects) == 0 {
 		plat.Projects = map[string]platform.PlatformProject{}
 		for _, project := range projects {
 			plat.Projects[project.ID] = s.convertProviderProjectToEntity(project)
+		}
+	} else {
+		for _, project := range projects {
+			find := false
+			for _, entity := range plat.Projects {
+				// The following situations are considered to be `link`
+				// 1. already `linked`: ProviderProjectId = ID
+				// 2. name is the same, this is a normal situation
+				// 3. ID is the same, linked, then cancel(ProviderProjectId is ""), then link again
+				if entity.ProviderProjectId == project.ID || entity.Name == project.Name || entity.Id == project.ID {
+					find = true
+					rawProject := plat.Projects[project.ID]
+					rawProject.ProviderProjectId = project.ID
+					plat.Projects[project.ID] = rawProject
+					break
+				}
+			}
+			if find {
+				continue
+			}
+			newProject := s.convertProviderProjectToEntity(project)
+			plat.Projects[project.ID] = newProject
 		}
 	}
 
