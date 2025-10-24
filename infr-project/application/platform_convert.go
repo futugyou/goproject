@@ -414,6 +414,7 @@ func (s *PlatformService) convertProviderProjectToModel(providerProject platform
 	projectModel.BadgeMarkdown = providerProject.BadgeMarkDown
 	projectModel.Properties = s.mapToModelProperty(providerProject.Properties)
 	projectModel.Tags = providerProject.Tags
+	projectModel.Readme = providerProject.Readme
 
 	return projectModel
 }
