@@ -1,51 +1,76 @@
 # Golang Service
 
-Projects in this monorepo are either `frequently used` or `frequently updated`,
-some of them are deployed in **Vercel**.
+## 1. Project Overview
 
-The Older projects have been moved to [goproject-archived](https://github.com/futugyou/goproject-archived).
+This monorepo contains projects that are either **frequently used** or **frequently updated**,
+some of which are deployed on **Vercel**.
 
-## Project Description
+Older projects have been moved to [goproject-archived](https://github.com/futugyou/goproject-archived).
 
-- **algorithm**/**design-pattern**: Some `algorithm` questions and `design pattern`
-I did in the early years are basically not updated at present.
+## 2. Project Description
 
-- **alphavantage-server**: Use [Alphavantage](www.alphavantage.co/premium/) to obtain data,
-and provide API interface to [React](https://github.com/futugyou/react-project),
-mainly for `React` to display reports.
+### 2.1 Main Projects
 
-- **aws-web**: Interact with AWS, the most important of which is `AppConfig`,
-which provides data for the [React](https://github.com/futugyou/react-project) `network topology diagram`.
+- **`alphavantage-server`**:
+Uses [Alphavantage](https://www.alphavantage.co/premium/) to obtain data
+and provides an API interface for
+[React](https://github.com/futugyou/react-project),
+mainly for displaying reports.
 
-- **container**: Use golang to write `container` functions`, I don’t remember the original link.
+- **`aws-web`**: Interacts with AWS, primarily using `AppConfig` to provide data for the
+[React](https://github.com/futugyou/react-project) **network topology diagram**.
 
-- **identity-center**: Simple identity center for user login in projects like React.
-Planned to be reimplemented in `identity-server`, currently on hold.
+- **`identity-center`**: A simple identity center for user login in projects like React.
+Planned to be reimplemented as `identity-server` (currently on hold).
 
-- **identity-mongo**: Using `MongoDB` to store `identity-center`.
+- **`infr-project`**: The original `infr-project` based on `DDD`. Currently being restructured;
+in the future, it will be used only for **Vercel** deployment.
 
-- **infr-project**: The original `infr project`, which is a `DDD` project.
-Currently undergoing reconstruction, it will only be used for **vercel** deployment in the future.
+- **`openai-web`**: Previously used to test the OpenAI SDK;
+no updates have been made since switching to the official SDK.
 
-- **k8sbuilder**: `k8sbuilder` example, not updated yet.
+### 2.2 Other Projects
 
-- **openai-web**: Previously used to test the OpenAI SDK,
-and has not been updated since switching to the `official SDK`.
+- **`algorithm` / `design-pattern`**:
+Early works on `algorithm` problems and `design patterns`; mostly not updated currently.
 
-- **tour**: For `go generate`, providing several simple functions.
+- **`container`**: A `container` written in Go; the original link is not remembered.
 
-- **other**: SDK or 'phonetic translation'.
+- **`identity-mongo`**: Stores data for `identity-center` using **MongoDB**.
 
-## CircleCI/Sync Service/Dependabot Status
+- **`k8sbuilder`**: Example project for `k8sbuilder`; not updated yet.
+
+- **`tour`**: Provides several simple functions using `go generate`.
+
+- **`other`**: Miscellaneous SDKs or tools for phonetic translation.
+
+## 3. Deployment Architecture
+
+- **Platform**: Vercel
+
+- **CI/CD**: CircleCI for builds/tests, GitHub Actions for deployment (**currently non-functional**)
+
+- **Monitoring & Status**: CircleCI Insights and GitHub Actions badges
+
+## 4. Roadmap
+
+- [ ] **`identity-center` → `identity-server`**: Reimplement to improve functionality.
+
+- [ ] **`infr-project`**: Restructure for both unified and individual deployments.
+
+- [ ] **Monitoring**: Front-end projects are already connected to Grafana Cloud and Honeycomb.io;
+back-end integration pending.
+
+## 5. CircleCI/Sync Service/Dependabot Status
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/futugyou/goproject/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/futugyou/goproject/tree/master)
 [![Alphavantage Data](https://github.com/futugyou/goproject/actions/workflows/alphavantage-data.yml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/alphavantage-data.yml)
 [![SyncData](https://github.com/futugyou/goproject/actions/workflows/syncdata.yml/badge.svg?branch=master)](https://github.com/futugyou/goproject/actions/workflows/syncdata.yml)
 [![Dependabot](https://github.com/futugyou/goproject/actions/workflows/dependabot-auto.yml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/dependabot-auto.yml)
 
-## CircleCI Insights
+## 6. CircleCI Insights
 
-<details>
+<details open>
 
 <summary style="font-size: 18px; font-weight: bold;">Infr Project Service</summary>
 
@@ -53,7 +78,7 @@ and has not been updated since switching to the `official SDK`.
 
 </details>
 
-<details>
+<details open>
 
 <summary style="font-size: 18px; font-weight: bold;">AWS Service</summary>
 
@@ -61,7 +86,7 @@ and has not been updated since switching to the `official SDK`.
 
 </details>
 
-<details>
+<details open>
 
 <summary style="font-size: 18px; font-weight: bold;">Identity Service</summary>
 
@@ -69,7 +94,7 @@ and has not been updated since switching to the `official SDK`.
 
 </details>
 
-<details>
+<details open>
 
 <summary style="font-size: 18px; font-weight: bold;">OpenAI Service</summary>
 
@@ -77,7 +102,7 @@ and has not been updated since switching to the `official SDK`.
 
 </details>
 
-<details>
+<details open>
 
 <summary style="font-size: 18px; font-weight: bold;">Alphavantage Service</summary>
 
@@ -85,7 +110,7 @@ and has not been updated since switching to the `official SDK`.
 
 </details>
 
-## GitHub Actions: Vercel Deployment Status
+## 7. GitHub Actions: Vercel Deployment Status
 
 <details>
 
