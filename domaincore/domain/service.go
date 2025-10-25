@@ -31,24 +31,48 @@ func (ds *DomainService[E, ES]) RetrieveSpecificVersion(aggregate ES, events []E
 		return nil, errors.New("invalid version number, must be non-negative")
 	}
 
-	for _, event := range events {
-		eventVersion := event.Version()
-		if eventVersion > aggregate.AggregateVersion() && eventVersion <= version {
-			aggregate.Apply(event)
-			if aggregate.AggregateVersion() == version {
-				break
-			}
-		} else if eventVersion > version {
-			break // Stop processing if the event's version surpasses the target version
-		}
+	if err := ds.applyEventsUntilVersion(aggregate, events, version); err != nil {
+		return nil, err
 	}
 
-	// After applying events, check if the current version of the aggregate matches the requested version
 	if aggregate.AggregateVersion() != version {
 		return nil, errors.New("the requested version is not available")
 	}
 
 	return &aggregate, nil
+}
+
+func (ds *DomainService[E, ES]) applyEventsUntilVersion(
+	aggregate ES,
+	events []E,
+	targetVersion int,
+) error {
+	for _, event := range events {
+		// Event version exceeds target version, stop immediately
+		if event.Version() > targetVersion {
+			break
+		}
+
+		// Event doesn't need to be applied, skip
+		if !ds.shouldApplyEvent(event, aggregate, targetVersion) {
+			continue
+		}
+
+		// Apply event
+		aggregate.Apply(event)
+
+		// Target version reached, stop loop
+		if aggregate.AggregateVersion() == targetVersion {
+			break
+		}
+	}
+	return nil
+}
+
+func (ds *DomainService[E, ES]) shouldApplyEvent(event E, aggregate ES, targetVersion int) bool {
+	eventVersion := event.Version()
+	currentVersion := aggregate.AggregateVersion()
+	return eventVersion > currentVersion && eventVersion <= targetVersion
 }
 
 func (ds *DomainService[E, ES]) RetrieveLatestVersion(aggregate ES, events []E) (*ES, error) {
