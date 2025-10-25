@@ -2,8 +2,7 @@
 
 ## 1. Project Overview
 
-This monorepo contains projects that are either **frequently used** or **frequently updated**,
-some of which are deployed on **Vercel**.
+This monorepo contains projects that are either **frequently used** or **frequently updated**, some of which are deployed on **Vercel**.
 
 Older projects have been moved to [goproject-archived](https://github.com/futugyou/goproject-archived).
 
@@ -11,28 +10,19 @@ Older projects have been moved to [goproject-archived](https://github.com/futugy
 
 ### 2.1 Main Projects
 
-- **`alphavantage-server`**:
-Uses [Alphavantage](https://www.alphavantage.co/premium/) to obtain data
-and provides an API interface for
-[React](https://github.com/futugyou/react-project),
-mainly for displaying reports.
+- **`alphavantage-server`**: Uses [Alphavantage](https://www.alphavantage.co/premium/) to obtain data and provides an API interface for [React](https://github.com/futugyou/react-project), mainly for displaying reports.
 
-- **`aws-web`**: Interacts with AWS, primarily using `AppConfig` to provide data for the
-[React](https://github.com/futugyou/react-project) **network topology diagram**.
+- **`aws-web`**: Interacts with AWS, primarily using `AppConfig` to provide data for the [React](https://github.com/futugyou/react-project) **network topology diagram**.
 
-- **`identity-center`**: A simple identity center for user login in projects like React.
-Planned to be reimplemented as `identity-server` (currently on hold).
+- **`identity-center`**: A simple identity center for user login in projects like React. Planned to be reimplemented as `identity-server` (currently on hold).
 
-- **`infr-project`**: The original `infr-project` based on `DDD`. Currently being restructured;
-in the future, it will be used only for **Vercel** deployment.
+- **`infr-project`**: The original `infr-project` based on `DDD`. Currently being restructured; in the future, it will be used only for **Vercel** deployment.
 
-- **`openai-web`**: Previously used to test the OpenAI SDK;
-no updates have been made since switching to the official SDK.
+- **`openai-web`**: Previously used to test the OpenAI SDK; no updates have been made since switching to the official SDK.
 
 ### 2.2 Other Projects
 
-- **`algorithm` / `design-pattern`**:
-Early works on `algorithm` problems and `design patterns`; mostly not updated currently.
+- **`algorithm` / `design-pattern`**: Early works on `algorithm` problems and `design patterns`; mostly not updated currently.
 
 - **`container`**: A `container` written in Go; the original link is not remembered.
 
@@ -58,8 +48,7 @@ Early works on `algorithm` problems and `design patterns`; mostly not updated cu
 
 - [ ] **`infr-project`**: Restructure for both unified and individual deployments.
 
-- [ ] **Monitoring**: Front-end projects are already connected to Grafana Cloud and Honeycomb.io;
-back-end integration pending.
+- [ ] **Monitoring**: Front-end projects are already connected to Grafana Cloud and Honeycomb.io; back-end integration pending.
 
 ## 5. CircleCI/Sync Service/Dependabot Status
 

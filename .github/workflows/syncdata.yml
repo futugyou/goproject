@@ -1,4 +1,4 @@
-name: syncdata
+name: AWS Data Sync
 
 on:
  workflow_dispatch:
