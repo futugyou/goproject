@@ -32,7 +32,7 @@ Older projects have been moved to [goproject-archived](https://github.com/futugy
 
 - **`tour`**: Provides several simple functions using `go generate`.
 
-- **`other`**: Miscellaneous SDKs or tools for phonetic translation.
+- **`other`**: Miscellaneous SDKs..
 
 ## 3. Deployment Architecture
 
@@ -99,7 +99,7 @@ Older projects have been moved to [goproject-archived](https://github.com/futugy
 
 </details>
 
-## 7. GitHub Actions: Vercel Deployment Status
+## 7. GitHub Actions: Vercel Deployment Status (`Archived`)
 
 <details>
 
