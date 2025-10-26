@@ -50,7 +50,7 @@ Older projects have been moved to [goproject-archived](https://github.com/futugy
 
 - [ ] **Monitoring**: Front-end projects are already connected to Grafana Cloud and Honeycomb.io; back-end integration pending.
 
-## 5. CircleCI/Sync Service/Dependabot Status
+## 5. CircleCI & Github Actions Status
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/futugyou/goproject/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/futugyou/goproject/tree/master)
 [![Alphavantage Data](https://github.com/futugyou/goproject/actions/workflows/alphavantage-data.yml/badge.svg)](https://github.com/futugyou/goproject/actions/workflows/alphavantage-data.yml)
