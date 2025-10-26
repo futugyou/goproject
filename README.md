@@ -12,7 +12,7 @@ Older projects have been moved to [goproject-archived](https://github.com/futugy
 
 - **`alphavantage-server`**: Uses [Alphavantage](https://www.alphavantage.co/premium/) to obtain data and provides an API interface for [React](https://github.com/futugyou/react-project), mainly for displaying reports.
 
-- **`aws-web`**: Interacts with AWS, primarily using `AppConfig` to provide data for the [React](https://github.com/futugyou/react-project) **network topology diagram**.
+- **`aws-web`**: Interacts with AWS, primarily using `Aws Config` to provide data for the [React](https://github.com/futugyou/react-project) **network topology diagram**.
 
 - **`identity-center`**: A simple identity center for user login in projects like React. Planned to be reimplemented as `identity-server` (currently on hold).
 
