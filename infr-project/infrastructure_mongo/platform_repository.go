@@ -41,40 +41,6 @@ func (s *PlatformRepository) SearchPlatforms(ctx context.Context, filter platfor
 	return s.BaseRepository.GetWithCondition(ctx, condition)
 }
 
-func (s *PlatformRepository) GetPlatformByNameAsync(ctx context.Context, name string) (<-chan *platform.Platform, <-chan error) {
-	var page, size int = 1, 1
-	condition := extensions.NewSearch(&page, &size, nil, map[string]interface{}{"name": name})
-	resultChan := make(chan *platform.Platform, 1)
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
-
-		result, err := s.BaseRepository.GetWithConditionAsync(ctx, condition)
-		select {
-		case datas := <-result:
-			if len(datas) == 0 {
-				errorChan <- fmt.Errorf("%s with name %s", extensions.Data_Not_Found_Message, name)
-			} else {
-				resultChan <- (&datas[0])
-			}
-		case errM := <-err:
-			errorChan <- errM
-		case <-ctx.Done():
-			errorChan <- fmt.Errorf("GetPlatformByNameAsync timeout, name %s", name)
-		}
-	}()
-
-	return resultChan, errorChan
-}
-
-func (s *PlatformRepository) SearchPlatformsAsync(ctx context.Context, filter platform.PlatformSearch) (<-chan []platform.Platform, <-chan error) {
-	f := s.buildSearchFilter(filter)
-	condition := extensions.NewSearch(&filter.Page, &filter.Size, nil, f)
-	return s.BaseRepository.GetWithConditionAsync(ctx, condition)
-}
-
 func (s *PlatformRepository) buildSearchFilter(search platform.PlatformSearch) map[string]interface{} {
 	filter := map[string]interface{}{}
 
@@ -108,23 +74,4 @@ func (s *PlatformRepository) GetPlatformByIdOrName(ctx context.Context, idOrName
 	}
 
 	return src, nil
-}
-
-func (s *PlatformRepository) GetPlatformByIdOrNameAsync(ctx context.Context, idOrName string) (<-chan *platform.Platform, <-chan error) {
-	resultChan := make(chan *platform.Platform, 1)
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
-
-		result, err := s.GetPlatformByIdOrName(ctx, idOrName)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-		resultChan <- result
-	}()
-
-	return resultChan, errorChan
 }

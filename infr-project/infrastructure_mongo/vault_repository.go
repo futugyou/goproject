@@ -22,37 +22,29 @@ func NewVaultRepository(client *mongo.Client, config DBConfig) *VaultRepository 
 	}
 }
 
-func (r *VaultRepository) InsertMultipleVaultAsync(ctx context.Context, vaults []vault.Vault) <-chan error {
-	errorChan := make(chan error, 1)
+func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []vault.Vault) error {
 	if len(vaults) == 0 {
-		errorChan <- fmt.Errorf("not data need insert")
-		return errorChan
+		return fmt.Errorf("not data need insert")
 	}
 
-	go func() {
-		defer close(errorChan)
-
-		c := r.Client.Database(r.DBName).Collection(vaults[0].AggregateName())
-		documents := make([]interface{}, 0)
-		for i := 0; i < len(vaults); i++ {
-			documents = append(documents, vaults[i])
-		}
-		_, err := c.InsertMany(ctx, documents)
-		errorChan <- err
-	}()
-
-	return errorChan
+	c := r.Client.Database(r.DBName).Collection(vaults[0].AggregateName())
+	documents := make([]interface{}, 0)
+	for i := 0; i < len(vaults); i++ {
+		documents = append(documents, vaults[i])
+	}
+	_, err := c.InsertMany(ctx, documents)
+	return err
 }
 
-func (r *VaultRepository) GetVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) GetVaultByIds(ctx context.Context, ids []string) ([]vault.Vault, error) {
 	condition := extensions.NewSearch(nil, nil, nil, map[string]interface{}{"id": bson.M{"$in": ids}})
-	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
+	return r.BaseRepository.GetWithCondition(ctx, condition)
 }
 
-func (r *VaultRepository) SearchVaultsAsync(ctx context.Context, req []vault.VaultSearch, page *int, size *int) (<-chan []vault.Vault, <-chan error) {
+func (r *VaultRepository) SearchVaults(ctx context.Context, req []vault.VaultSearch, page *int, size *int) ([]vault.Vault, error) {
 	filter := buildSearchFilter(req)
 	condition := extensions.NewSearch(page, size, nil, filter)
-	return r.BaseRepository.GetWithConditionAsync(ctx, condition)
+	return r.BaseRepository.GetWithCondition(ctx, condition)
 }
 
 func buildSearchFilter(reqs []vault.VaultSearch) map[string]interface{} {

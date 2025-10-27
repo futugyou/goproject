@@ -16,13 +16,13 @@ import (
 
 type VaultService struct {
 	innerService   *AppService
-	repository     vault.IVaultRepositoryAsync
+	repository     vault.IVaultRepository
 	eventPublisher infra.IEventPublisher
 }
 
 func NewVaultService(
 	unitOfWork domain.IUnitOfWork,
-	repository vault.IVaultRepositoryAsync,
+	repository vault.IVaultRepository,
 	eventPublisher infra.IEventPublisher,
 ) *VaultService {
 	return &VaultService{
@@ -39,34 +39,27 @@ type VaultSearchQuery struct {
 }
 
 func (s *VaultService) SearchVaults(ctx context.Context, query VaultSearchQuery) ([]models.VaultView, error) {
-	src, err := s.repository.SearchVaultsAsync(ctx, query.Filters, &query.Page, &query.Size)
-	select {
-	case datas := <-src:
-		result := make([]models.VaultView, len(datas))
-		for i := 0; i < len(datas); i++ {
-			result[i] = convertVaultToVaultView(datas[i])
-		}
-		return result, nil
-	case errM := <-err:
-		return nil, errM
-	case <-ctx.Done():
-		return nil, fmt.Errorf("SearchVaults timeout: %w", ctx.Err())
+	datas, err := s.repository.SearchVaults(ctx, query.Filters, &query.Page, &query.Size)
+	if err != nil {
+		return nil, err
 	}
+
+	result := make([]models.VaultView, len(datas))
+	for i := 0; i < len(datas); i++ {
+		result[i] = convertVaultToVaultView(datas[i])
+	}
+	return result, nil
 }
 
 func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (string, error) {
-	src, err := s.repository.GetAsync(ctx, vaultId)
-	select {
-	case data := <-src:
-		if data == nil {
-			return "", fmt.Errorf("vault with id: %s is not exist", vaultId)
-		}
-		return data.Value, nil
-	case errM := <-err:
-		return "", errM
-	case <-ctx.Done():
-		return "", fmt.Errorf("ShowVaultRawValue timeout: %w", ctx.Err())
+	src, err := s.repository.Get(ctx, vaultId)
+	if err != nil {
+		return "", err
 	}
+	if src == nil {
+		return "", fmt.Errorf("vault with id: %s is not exist", vaultId)
+	}
+	return src.Value, nil
 }
 
 func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaultsRequest) (*models.CreateVaultsResponse, error) {
@@ -113,28 +106,19 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux models.CreateVaults
 			})
 		}
 
-		checksCh, errCh := s.repository.SearchVaultsAsync(ctx, filter, nil, nil)
-		select {
-		case datas := <-checksCh:
-			if len(datas) > 0 {
-				return nil, fmt.Errorf("some vaults are already existed, check again")
-			}
-		case errM := <-errCh:
-			return nil, errM
-		case <-ctx.Done():
-			return nil, fmt.Errorf("CreateVaults timeout: %w", ctx.Err())
+		datas, err := s.repository.SearchVaults(ctx, filter, nil, nil)
+		if err != nil {
+			return nil, err
+		}
+		if len(datas) > 0 {
+			return nil, fmt.Errorf("some vaults are already existed, check again")
 		}
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.InsertMultipleVaultAsync(ctx, entities)
-		select {
-		case err := <-errCh:
-			if err != nil {
-				return err
-			}
-		case <-ctx.Done():
-			return fmt.Errorf("CreateVaults timeout: %w", ctx.Err())
+		err := s.repository.InsertMultipleVault(ctx, entities)
+		if err != nil {
+			return err
 		}
 
 		if storageMedia == vault.StorageMediaLocal.String() {
@@ -186,25 +170,21 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 
 	var data *vault.Vault
 	filter := generateChangeVaultSearchFilter(aux.Data, id)
-	vaultCh, errCh := s.repository.SearchVaultsAsync(ctx, filter, nil, nil)
-	select {
-	case datas := <-vaultCh:
-		if len(datas) == 0 || (len(datas) == 1 && id != datas[0].Id) {
-			return nil, fmt.Errorf("id %s are not existed", id)
+	datas, err := s.repository.SearchVaults(ctx, filter, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	if len(datas) == 0 || (len(datas) == 1 && id != datas[0].Id) {
+		return nil, fmt.Errorf("id %s are not existed", id)
+	}
+	if len(datas) > 1 && !aux.ForceInsert {
+		return nil, fmt.Errorf("vaults with 'key+storage_media+vault_type+type_identity' was already existed, check again")
+	}
+	for _, da := range datas {
+		if da.Id == id {
+			data = &da
+			break
 		}
-		if len(datas) > 1 && !aux.ForceInsert {
-			return nil, fmt.Errorf("vaults with 'key+storage_media+vault_type+type_identity' was already existed, check again")
-		}
-		for _, da := range datas {
-			if da.Id == id {
-				data = &da
-				break
-			}
-		}
-	case errM := <-errCh:
-		return nil, errM
-	case <-ctx.Done():
-		return nil, fmt.Errorf("ChangeVault timeout: %w", ctx.Err())
 	}
 
 	if data == nil {
@@ -215,14 +195,9 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 
 	if data.HasChange() {
 		if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-			errCh = s.repository.UpdateAsync(ctx, *data)
-			select {
-			case err := <-errCh:
-				if err != nil {
-					return err
-				}
-			case <-ctx.Done():
-				return fmt.Errorf("ChangeVault timeout: %w", ctx.Err())
+			err = s.repository.Update(ctx, *data)
+			if err != nil {
+				return err
 			}
 
 			s.eventPublisher.PublishCommon(ctx, data, "vault_changed")
@@ -243,14 +218,9 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux models.Ch
 }
 
 func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, error) {
-	vaCh, errCh := s.repository.GetAsync(ctx, vaultId)
-	var va *vault.Vault
-	select {
-	case <-ctx.Done():
-		return false, fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
-	case err := <-errCh:
+	va, err := s.repository.Get(ctx, vaultId)
+	if err != nil {
 		return false, err
-	case va = <-vaCh:
 	}
 
 	if va == nil {
@@ -258,14 +228,9 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.DeleteAsync(ctx, vaultId)
-		select {
-		case err := <-errCh:
-			if err != nil {
-				return err
-			}
-		case <-ctx.Done():
-			return fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
+		err := s.repository.Delete(ctx, vaultId)
+		if err != nil {
+			return err
 		}
 
 		if va.StorageMedia == vault.StorageMediaLocal {
@@ -312,13 +277,7 @@ func (s *VaultService) ImportVaults(ctx context.Context, aux models.ImportVaults
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.InsertMultipleVaultAsync(ctx, entities)
-		select {
-		case err := <-errCh:
-			return err
-		case <-ctx.Done():
-			return fmt.Errorf("DeleteVault timeout: %w", ctx.Err())
-		}
+		return s.repository.InsertMultipleVault(ctx, entities)
 	}); err != nil {
 		return nil, err
 	}

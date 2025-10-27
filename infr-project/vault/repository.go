@@ -17,9 +17,9 @@ type VaultSearch struct {
 	Tags         []string
 }
 
-type IVaultRepositoryAsync interface {
-	domain.IRepositoryAsync[Vault]
-	InsertMultipleVaultAsync(ctx context.Context, vaults []Vault) <-chan error
-	GetVaultByIdsAsync(ctx context.Context, ids []string) (<-chan []Vault, <-chan error)
-	SearchVaultsAsync(ctx context.Context, filter []VaultSearch, page *int, size *int) (<-chan []Vault, <-chan error)
+type IVaultRepository interface {
+	domain.IRepository[Vault]
+	InsertMultipleVault(ctx context.Context, vaults []Vault) error
+	GetVaultByIds(ctx context.Context, ids []string) ([]Vault, error)
+	SearchVaults(ctx context.Context, filter []VaultSearch, page *int, size *int) ([]Vault, error)
 }

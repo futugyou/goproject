@@ -23,7 +23,7 @@ import (
 
 type PlatformService struct {
 	innerService   *AppService
-	repository     platform.IPlatformRepositoryAsync
+	repository     platform.IPlatformRepository
 	vaultService   *VaultService
 	client         *redis.Client
 	eventPublisher infra.IEventPublisher
@@ -32,7 +32,7 @@ type PlatformService struct {
 
 func NewPlatformService(
 	unitOfWork domain.IUnitOfWork,
-	repository platform.IPlatformRepositoryAsync,
+	repository platform.IPlatformRepository,
 	vaultService *VaultService,
 	client *redis.Client,
 	eventPublisher infra.IEventPublisher,
@@ -69,8 +69,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 	}
 
 	// check name
-	resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, aux.Name)
-	resdb, err := tool.HandleAsync(ctx, resCh, errCh)
+	resdb, err := s.repository.GetPlatformByName(ctx, aux.Name)
 	if resdb != nil {
 		return nil, fmt.Errorf("name: %s is existed", aux.Name)
 	}
@@ -89,8 +88,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux models.CreateP
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.InsertAsync(ctx, *res)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Insert(ctx, *res)
 	}); err != nil {
 		return nil, err
 	}
@@ -108,8 +106,7 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 		Size:      request.Size,
 	}
 
-	srcCh, errCh := s.repository.SearchPlatformsAsync(ctx, filter)
-	src, err := tool.HandleAsync(ctx, srcCh, errCh)
+	src, err := s.repository.SearchPlatforms(ctx, filter)
 
 	if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
 		return nil, err
@@ -119,17 +116,16 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request models.Se
 }
 
 func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*models.PlatformDetailView, error) {
-	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	if src, err := tool.HandleAsync(ctx, srcCh, errCh); err != nil {
+	src, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
+	if err != nil {
 		return nil, err
-	} else {
-		return s.convertPlatformEntityToViewModel(ctx, src)
 	}
+	return s.convertPlatformEntityToViewModel(ctx, src)
+
 }
 
 func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName string) ([]models.PlatformProviderProject, error) {
-	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	src, err := tool.HandleAsync(ctx, srcCh, errCh)
+	src, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return nil, err
 	}
@@ -164,19 +160,12 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, d
 		}
 
 		if plat.Name != data.Name {
-			resCh, errCh := s.repository.GetPlatformByNameAsync(ctx, data.Name)
-			var res *platform.Platform
-			select {
-			case res = <-resCh:
-				if res.Id != plat.Id {
-					return fmt.Errorf("name: %s is existed", data.Name)
-				}
-			case err := <-errCh:
-				if !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
-					return err
-				}
-			case <-ctx.Done():
-				return fmt.Errorf("UpdatePlatform timeout: %w", ctx.Err())
+			res, err := s.repository.GetPlatformByName(ctx, data.Name)
+			if err != nil && !strings.HasPrefix(err.Error(), extensions.Data_Not_Found_Message) {
+				return err
+			}
+			if res.Id != plat.Id {
+				return fmt.Errorf("name: %s is existed", data.Name)
 			}
 
 			if _, err := plat.UpdateName(data.Name); err != nil {
@@ -244,8 +233,7 @@ func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string)
 }
 
 func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _ string, fn func(*platform.Platform) error) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return nil, err
 	}
@@ -255,8 +243,7 @@ func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	}); err != nil {
 		return nil, err
 	}
@@ -266,8 +253,7 @@ func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _
 
 // this method is considered deprecated. we should create a webhook through the project callback.
 func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, projectId string, hook models.UpdatePlatformWebhookRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return nil, err
 	}
@@ -312,8 +298,7 @@ func (s *PlatformService) UpsertWebhook(ctx context.Context, idOrName string, pr
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	}); err != nil {
 		return nil, err
 	}
@@ -392,12 +377,10 @@ func (s *PlatformService) handlingProviderWebhookCreation(ctx context.Context, p
 }
 
 func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.RemoveWebhookRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, request.PlatformId)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, request.PlatformId)
 	if err != nil {
 		return nil, err
 	}
-
 	project, exists := plat.Projects[request.ProjectId]
 	if !exists {
 		return nil, fmt.Errorf("projectId: %s is not existed in %s", request.ProjectId, request.PlatformId)
@@ -424,8 +407,7 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	}); err != nil {
 		return nil, err
 	}
@@ -434,8 +416,7 @@ func (s *PlatformService) RemoveWebhook(ctx context.Context, request models.Remo
 }
 
 func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrName string) error {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return err
 	}
@@ -491,14 +472,12 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	}
 
 	return s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	})
 }
 
 func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, projectId string, project models.UpdatePlatformProjectRequest) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return nil, err
 	}
@@ -565,8 +544,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	}); err != nil {
 		return nil, err
 	}
@@ -575,8 +553,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 }
 
 func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) (*models.PlatformDetailView, error) {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, idOrName)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return nil, err
 	}
@@ -586,8 +563,7 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 	}
 
 	if err := s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	}); err != nil {
 		return nil, err
 	}
@@ -595,9 +571,8 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 	return s.convertPlatformEntityToViewModel(ctx, plat)
 }
 
-func (s *PlatformService) GetPlatformProject(ctx context.Context, platformIdOrName string, projectId string) (*models.PlatformProject, error) {
-	srcCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, platformIdOrName)
-	src, err := tool.HandleAsync(ctx, srcCh, errCh)
+func (s *PlatformService) GetPlatformProject(ctx context.Context, idOrName string, projectId string) (*models.PlatformProject, error) {
+	src, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
 		return nil, err
 	}
@@ -652,8 +627,7 @@ func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src p
 }
 
 func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event models.PlatformProjectUpsertEvent) error {
-	platCh, errCh := s.repository.GetPlatformByIdOrNameAsync(ctx, event.PlatformId)
-	plat, err := tool.HandleAsync(ctx, platCh, errCh)
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, event.PlatformId)
 	if err != nil {
 		return err
 	}
@@ -697,8 +671,7 @@ func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event
 	plat.UpdateProject(*project)
 
 	return s.innerService.withUnitOfWork(ctx, func(ctx context.Context) error {
-		errCh := s.repository.UpdateAsync(ctx, *plat)
-		return tool.HandleErrorAsync(ctx, errCh)
+		return s.repository.Update(ctx, *plat)
 	})
 }
 
