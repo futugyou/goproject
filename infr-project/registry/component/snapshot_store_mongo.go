@@ -21,7 +21,7 @@ func init() {
 		}
 		client, _ := mongo.Connect(ctx, mongo_options.Client().ApplyURI(config.ConnectString))
 		return infrastructure_mongo.NewMongoSnapshotStore[domain.IEventSourcing](client, config)
-	}, func(ctx context.Context, option options.Options) infrastructure.ISnapshotStoreAsync[domain.IEventSourcing] {
+	}, func(ctx context.Context, option options.Options) infrastructure.ISnapshotStore[domain.IEventSourcing] {
 		config := infrastructure_mongo.DBConfig{
 			DBName:        option.DBName,
 			ConnectString: option.MongoDBURL,

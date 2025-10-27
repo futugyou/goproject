@@ -12,7 +12,7 @@ import (
 type Registry struct {
 	Options     *options.Options
 	stores      map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]
-	storeAsyncs map[string]func(context.Context, options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent]
+	storeAsyncs map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]
 }
 
 var DefaultRegistry *Registry = NewRegistry()
@@ -21,13 +21,13 @@ func NewRegistry() *Registry {
 	return &Registry{
 		Options:     &options.Options{},
 		stores:      map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]{},
-		storeAsyncs: map[string]func(context.Context, options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent]{},
+		storeAsyncs: map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]{},
 	}
 }
 
 func (s *Registry) RegisterComponent(
 	componentFactory func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent],
-	componentAsyncFactory func(context.Context, options.Options) infrastructure.IEventStoreAsync[domain.IDomainEvent],
+	componentAsyncFactory func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent],
 	names ...string,
 ) {
 	for _, name := range names {
@@ -36,7 +36,7 @@ func (s *Registry) RegisterComponent(
 	}
 }
 
-func (s *Registry) Create(ctx context.Context) (infrastructure.IEventStore[domain.IDomainEvent], infrastructure.IEventStoreAsync[domain.IDomainEvent], error) {
+func (s *Registry) Create(ctx context.Context) (infrastructure.IEventStore[domain.IDomainEvent], infrastructure.IEventStore[domain.IDomainEvent], error) {
 	if s.Options == nil {
 		return nil, nil, fmt.Errorf("options is nil")
 	}

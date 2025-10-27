@@ -13,7 +13,7 @@ import (
 func init() {
 	snapshot_store.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) infrastructure.ISnapshotStore[domain.IEventSourcing] {
 		return infrastructure_memory.NewMemorySnapshotStore[domain.IEventSourcing]()
-	}, func(ctx context.Context, option options.Options) infrastructure.ISnapshotStoreAsync[domain.IEventSourcing] {
+	}, func(ctx context.Context, option options.Options) infrastructure.ISnapshotStore[domain.IEventSourcing] {
 		return infrastructure_memory.NewMemorySnapshotStore[domain.IEventSourcing]()
 	}, "memory")
 }
