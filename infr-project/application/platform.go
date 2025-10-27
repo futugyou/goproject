@@ -592,7 +592,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, idOrName strin
 	}
 }
 
-func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) *platformProvider.Project {
+func (s *PlatformService) getProviderProjectWithCache(ctx context.Context, src platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProvider) *platformProvider.Project {
 	providerProject := &platformProvider.Project{}
 	redisKey := fmt.Sprintf("platform_%s_project_%s", src.Id, project.Id)
 	if data, err := s.client.Get(ctx, redisKey).Result(); err != nil {
@@ -685,7 +685,7 @@ func (s *PlatformService) setupWebhookWithSecrets(ctx context.Context, providerH
 }
 
 func (s *PlatformService) createProviderProjectIfNeeded(ctx context.Context, event models.PlatformProjectUpsertEvent,
-	plat platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProviderAsync) (*platformProvider.Project, error) {
+	plat platform.Platform, project platform.PlatformProject, provider platformProvider.IPlatformProvider) (*platformProvider.Project, error) {
 
 	providerProject := s.getProviderProjectWithCache(ctx, plat, project, provider)
 	if providerProject == nil || len(providerProject.ID) == 0 {

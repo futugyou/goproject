@@ -169,7 +169,7 @@ func (s *PlatformService) convertToPlatformViews(src []platform.Platform) []mode
 	return result
 }
 
-func (s *PlatformService) getPlatformProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProviderAsync, error) {
+func (s *PlatformService) getPlatformProvider(ctx context.Context, src platform.Platform) (platformProvider.IPlatformProvider, error) {
 	vaultId, err := src.ProviderVaultInfo()
 	if err != nil {
 		return nil, err
@@ -183,7 +183,7 @@ func (s *PlatformService) getPlatformProvider(ctx context.Context, src platform.
 	return platformProvider.PlatformProviderFactory(src.Provider.String(), token)
 }
 
-func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProviderAsync, src platform.Platform) ([]platformProvider.Project, error) {
+func (s *PlatformService) getProviderProjects(ctx context.Context, provider platformProvider.IPlatformProvider, src platform.Platform) ([]platformProvider.Project, error) {
 	parameters := make(map[string]string)
 	for _, v := range src.Properties {
 		parameters[v.Key] = v.Value
@@ -192,11 +192,10 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, provider plat
 		Parameters: parameters,
 	}
 
-	resCh, errCh := provider.ListProjectAsync(ctx, filter)
-	return tool.HandleAsync(ctx, resCh, errCh)
+	return provider.ListProject(ctx, filter)
 }
 
-func (s *PlatformService) createProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, properties map[string]platform.Property) (*platformProvider.Project, error) {
+func (s *PlatformService) createProviderProject(ctx context.Context, provider platformProvider.IPlatformProvider, name string, properties map[string]platform.Property) (*platformProvider.Project, error) {
 	request := platformProvider.CreateProjectRequest{
 		Name:       name,
 		Parameters: map[string]string{},
@@ -206,21 +205,19 @@ func (s *PlatformService) createProviderProject(ctx context.Context, provider pl
 		request.Parameters[v.Key] = v.Value
 	}
 
-	resCh, errCh := provider.CreateProjectAsync(ctx, request)
-	return tool.HandleAsync(ctx, resCh, errCh)
+	return provider.CreateProject(ctx, request)
 }
 
-func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync, webhookId string, properties map[string]string) error {
+func (s *PlatformService) deleteProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProvider, webhookId string, properties map[string]string) error {
 	request := platformProvider.DeleteWebHookRequest{
 		WebHookId:  webhookId,
 		Parameters: properties,
 	}
 
-	errCh := provider.DeleteWebHookAsync(ctx, request)
-	return tool.HandleErrorAsync(ctx, errCh)
+	return provider.DeleteWebHook(ctx, request)
 }
 
-func (s *PlatformService) createProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProviderAsync,
+func (s *PlatformService) createProviderWebhook(ctx context.Context, provider platformProvider.IPlatformProvider,
 	platformId string, projectId string, url string, name string, secret string) (*platformProvider.WebHook, error) {
 	request := platformProvider.CreateWebHookRequest{
 		PlatformId: platformId,
@@ -234,8 +231,7 @@ func (s *PlatformService) createProviderWebhook(ctx context.Context, provider pl
 		},
 	}
 
-	resCh, errCh := provider.CreateWebHookAsync(ctx, request)
-	return tool.HandleAsync(ctx, resCh, errCh)
+	return provider.CreateWebHook(ctx, request)
 }
 
 func mergePropertiesToMap(propertiesList ...map[string]platform.Property) map[string]string {
@@ -250,11 +246,6 @@ func mergePropertiesToMap(propertiesList ...map[string]platform.Property) map[st
 	return properties
 }
 
-func (s *PlatformService) getProviderUser(ctx context.Context, provider platformProvider.IPlatformProviderAsync) (*platformProvider.User, error) {
-	resCh, errCh := provider.GetUserAsync(ctx)
-	return tool.HandleAsync(ctx, resCh, errCh)
-}
-
 func (s *PlatformService) determineProviderStatus(ctx context.Context, res *platform.Platform) bool {
 	provider, err := s.getPlatformProvider(ctx, *res)
 	if err != nil {
@@ -262,7 +253,7 @@ func (s *PlatformService) determineProviderStatus(ctx context.Context, res *plat
 		return false
 	}
 
-	user, err := s.getProviderUser(ctx, provider)
+	user, err := provider.GetUser(ctx)
 	if err != nil {
 		log.Println(err.Error())
 		return false
@@ -276,13 +267,13 @@ func (s *PlatformService) determineProviderStatus(ctx context.Context, res *plat
 	return true
 }
 
-func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProviderAsync, name string, parameters map[string]string) (*platformProvider.Project, error) {
+func (s *PlatformService) getProviderProject(ctx context.Context, provider platformProvider.IPlatformProvider, name string, parameters map[string]string) (*platformProvider.Project, error) {
 	filter := platformProvider.ProjectFilter{
 		Parameters: parameters,
 		Name:       name,
 	}
-	resCh, errCh := provider.GetProjectAsync(ctx, filter)
-	return tool.HandleAsync(ctx, resCh, errCh)
+
+	return provider.GetProject(ctx, filter)
 }
 
 func (*PlatformService) mapToModelProperty(providerProperties map[string]string) []models.Property {

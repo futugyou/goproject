@@ -2,7 +2,7 @@ package platform_provider
 
 import "fmt"
 
-func PlatformProviderFactory(provider string, token string) (IPlatformProviderAsync, error) {
+func PlatformProviderFactory(provider string, token string) (IPlatformProvider, error) {
 	if provider == "circleci" {
 		client, err := NewCircleClient(token)
 		return client, err

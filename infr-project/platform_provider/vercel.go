@@ -27,207 +27,174 @@ const VercelProjectUrl = "https://vercel.com/%s/%s"
 
 // Optional. TEAM_SLUG TEAM_ID in CreateProjectRequest 'Parameters',
 // default value ” ”.
-func (g *VercelClient) CreateProjectAsync(ctx context.Context, request CreateProjectRequest) (<-chan *Project, <-chan error) {
-	resultChan := make(chan *Project, 1)
-	errorChan := make(chan error, 1)
+func (g *VercelClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
+	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
+	req := vercel.UpsertProjectRequest{
+		Name: request.Name,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
 
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
+	vercelProject, err := g.client.Projects.CreateProject(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
-		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
-		req := vercel.UpsertProjectRequest{
-			Name: request.Name,
-			BaseUrlParameter: vercel.BaseUrlParameter{
-				TeamSlug: &team_slug,
-				TeamId:   &team_id,
-			},
-		}
+	url := ""
+	if len(team_slug) > 0 {
+		url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
+	}
 
-		vercelProject, err := g.client.Projects.CreateProject(ctx, req)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		url := ""
-		if len(team_slug) > 0 {
-			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
-		}
-
-		resultChan <- &Project{
-			ID:   vercelProject.Id,
-			Name: vercelProject.Name,
-			Url:  url,
-		}
-	}()
-
-	return resultChan, errorChan
+	return &Project{
+		ID:   vercelProject.Id,
+		Name: vercelProject.Name,
+		Url:  url,
+	}, nil
 }
 
 // Optional. TEAM_SLUG TEAM_ID in CreateProjectRequest 'Parameters',
 // default value ” ”.
-func (g *VercelClient) ListProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan []Project, <-chan error) {
-	resultChan := make(chan []Project, 1)
-	errorChan := make(chan error, 1)
+func (g *VercelClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
+	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
+	request := vercel.ListProjectParameter{
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+	vercelProjects, err := g.client.Projects.ListProject(ctx, request)
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
-
-		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
-		request := vercel.ListProjectParameter{
-			BaseUrlParameter: vercel.BaseUrlParameter{
-				TeamSlug: &team_slug,
-				TeamId:   &team_id,
-			},
-		}
-		vercelProjects, err := g.client.Projects.ListProject(ctx, request)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		projects := []Project{}
-		for _, project := range vercelProjects.Projects {
-			url := ""
-			if len(team_slug) > 0 {
-				url = fmt.Sprintf(VercelProjectUrl, team_slug, project.Name)
-			}
-
-			properties := map[string]string{}
-			environments := []string{}
-			for key, v := range project.Targets {
-				environments = append(environments, key)
-				k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
-				properties[k] = strings.Join(v.Alias, ",")
-			}
-
-			readState := ""
-			if target, ok := project.Targets["production"]; ok {
-				readState = target.ReadyState
-			}
-
-			badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
-			projects = append(projects, Project{
-				ID:                   project.Id,
-				Name:                 project.Name,
-				Url:                  url,
-				Properties:           properties,
-				EnvironmentVariables: g.buildVercelEnv(project.Env),
-				Environments:         environments,
-				Deployments:          g.buildVercelDeploymentWithLatest(project.LatestDeployments, url),
-				BadgeURL:             badgeURL,
-				BadgeMarkDown:        badgeMarkdown,
-			})
-		}
-
-		resultChan <- projects
-	}()
-
-	return resultChan, errorChan
-}
-
-func (g *VercelClient) GetProjectAsync(ctx context.Context, filter ProjectFilter) (<-chan *Project, <-chan error) {
-	resultChan := make(chan *Project, 1)
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
-
-		team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
-		request := vercel.GetProjectParameter{
-			IdOrName: filter.Name,
-			BaseUrlParameter: vercel.BaseUrlParameter{
-				TeamSlug: &team_slug,
-				TeamId:   &team_id,
-			},
-		}
-		vercelProject, err := g.client.Projects.GetProject(ctx, request)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		hooks := []WebHook{}
-		req := vercel.ListWebhookParameter{
-			ProjectId: &vercelProject.Id,
-			BaseUrlParameter: vercel.BaseUrlParameter{
-				TeamSlug: &team_slug,
-				TeamId:   &team_id,
-			},
-		}
-		if vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, req); err != nil {
-			log.Println(err.Error())
-		} else {
-			for _, hook := range vercelHooks {
-				paras := map[string]string{}
-				paras["SigningSecret"] = hook.Secret
-				hooks = append(hooks, WebHook{
-					ID:         hook.Id,
-					Name:       hook.Id,
-					Url:        hook.Url,
-					Events:     hook.Events,
-					Activate:   true,
-					Parameters: paras,
-				})
-			}
+	projects := []Project{}
+	for _, project := range vercelProjects.Projects {
+		url := ""
+		if len(team_slug) > 0 {
+			url = fmt.Sprintf(VercelProjectUrl, team_slug, project.Name)
 		}
 
 		properties := map[string]string{}
 		environments := []string{}
-		for key, v := range vercelProject.Targets {
+		for key, v := range project.Targets {
 			environments = append(environments, key)
 			k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
 			properties[k] = strings.Join(v.Alias, ",")
 		}
 
 		readState := ""
-		if target, ok := vercelProject.Targets["production"]; ok {
+		if target, ok := project.Targets["production"]; ok {
 			readState = target.ReadyState
 		}
 
-		url := ""
-		if len(team_slug) > 0 {
-			url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
-		}
-
-		deploymentRequestLimit := "20"
-		deploymentRequest := vercel.ListDeploymentParameter{
-			Limit:     &deploymentRequestLimit,
-			ProjectId: &vercelProject.Id,
-			BaseUrlParameter: vercel.BaseUrlParameter{
-				TeamSlug: &team_slug,
-				TeamId:   &team_id,
-			},
-		}
-
-		deployments := map[string]Deployment{}
-		if depls, err := g.client.Deployments.ListDeployment(ctx, deploymentRequest); err != nil {
-			log.Println(err.Error())
-		} else {
-			deployments = g.buildVercelDeployment(depls.Deployments, url)
-		}
-
 		badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
-		project := &Project{
-			ID:                   vercelProject.Id,
-			Name:                 vercelProject.Name,
+		projects = append(projects, Project{
+			ID:                   project.Id,
+			Name:                 project.Name,
 			Url:                  url,
-			WebHooks:             hooks,
 			Properties:           properties,
-			EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
-			Deployments:          deployments, //g.buildVercelDeployment(vercelProject.LatestDeployments, url),
-			BadgeURL:             badgeURL,
+			EnvironmentVariables: g.buildVercelEnv(project.Env),
 			Environments:         environments,
+			Deployments:          g.buildVercelDeploymentWithLatest(project.LatestDeployments, url),
+			BadgeURL:             badgeURL,
 			BadgeMarkDown:        badgeMarkdown,
+		})
+	}
+
+	return projects, nil
+}
+
+func (g *VercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
+	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
+	request := vercel.GetProjectParameter{
+		IdOrName: filter.Name,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+	vercelProject, err := g.client.Projects.GetProject(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	hooks := []WebHook{}
+	req := vercel.ListWebhookParameter{
+		ProjectId: &vercelProject.Id,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+	if vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, req); err != nil {
+		log.Println(err.Error())
+	} else {
+		for _, hook := range vercelHooks {
+			paras := map[string]string{}
+			paras["SigningSecret"] = hook.Secret
+			hooks = append(hooks, WebHook{
+				ID:         hook.Id,
+				Name:       hook.Id,
+				Url:        hook.Url,
+				Events:     hook.Events,
+				Activate:   true,
+				Parameters: paras,
+			})
 		}
+	}
 
-		resultChan <- project
-	}()
+	properties := map[string]string{}
+	environments := []string{}
+	for key, v := range vercelProject.Targets {
+		environments = append(environments, key)
+		k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
+		properties[k] = strings.Join(v.Alias, ",")
+	}
 
-	return resultChan, errorChan
+	readState := ""
+	if target, ok := vercelProject.Targets["production"]; ok {
+		readState = target.ReadyState
+	}
+
+	url := ""
+	if len(team_slug) > 0 {
+		url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
+	}
+
+	deploymentRequestLimit := "20"
+	deploymentRequest := vercel.ListDeploymentParameter{
+		Limit:     &deploymentRequestLimit,
+		ProjectId: &vercelProject.Id,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+
+	deployments := map[string]Deployment{}
+	if depls, err := g.client.Deployments.ListDeployment(ctx, deploymentRequest); err != nil {
+		log.Println(err.Error())
+	} else {
+		deployments = g.buildVercelDeployment(depls.Deployments, url)
+	}
+
+	badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
+	project := &Project{
+		ID:                   vercelProject.Id,
+		Name:                 vercelProject.Name,
+		Url:                  url,
+		WebHooks:             hooks,
+		Properties:           properties,
+		EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
+		Deployments:          deployments, //g.buildVercelDeployment(vercelProject.LatestDeployments, url),
+		BadgeURL:             badgeURL,
+		Environments:         environments,
+		BadgeMarkDown:        badgeMarkdown,
+	}
+
+	return project, nil
 }
 
 func (*VercelClient) buildVercelBadge(lable string, url string, readyState string) (badgeUrl string, badgeMarkDown string) {
@@ -303,51 +270,40 @@ func (g *VercelClient) buildVercelDeploymentWithLatest(vercelDeployments []verce
 	return deployments
 }
 
-func (g *VercelClient) CreateWebHookAsync(ctx context.Context, request CreateWebHookRequest) (<-chan *WebHook, <-chan error) {
-	resultChan := make(chan *WebHook, 1)
-	errorChan := make(chan error, 1)
+func (g *VercelClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
+	team_slug, team_id := "", ""
+	events := request.WebHook.Events
+	if len(events) == 0 {
+		events = []string{"deployment.succeeded"}
+	} else {
+		events = Intersect(events, vercel.WebHookEvent)
+	}
 
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
+	req := vercel.CreateWebhookRequest{
+		Events:     events,
+		Url:        request.WebHook.Url,
+		ProjectIds: []string{request.ProjectId},
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+	vercelHook, err := g.client.Webhooks.CreateWebhook(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
-		team_slug, team_id := "", ""
-		events := request.WebHook.Events
-		if len(events) == 0 {
-			events = []string{"deployment.succeeded"}
-		} else {
-			events = Intersect(events, vercel.WebHookEvent)
-		}
+	paras := map[string]string{}
+	paras["SigningSecret"] = vercelHook.Secret
+	hook := &WebHook{
+		ID:         vercelHook.Id,
+		Name:       request.WebHook.Name,
+		Url:        vercelHook.Url,
+		Events:     vercelHook.Events,
+		Parameters: paras,
+	}
 
-		req := vercel.CreateWebhookRequest{
-			Events:     events,
-			Url:        request.WebHook.Url,
-			ProjectIds: []string{request.ProjectId},
-			BaseUrlParameter: vercel.BaseUrlParameter{
-				TeamSlug: &team_slug,
-				TeamId:   &team_id,
-			},
-		}
-		vercelHook, err := g.client.Webhooks.CreateWebhook(ctx, req)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		paras := map[string]string{}
-		paras["SigningSecret"] = vercelHook.Secret
-		hook := &WebHook{
-			ID:         vercelHook.Id,
-			Name:       request.WebHook.Name,
-			Url:        vercelHook.Url,
-			Events:     vercelHook.Events,
-			Parameters: paras,
-		}
-
-		resultChan <- hook
-	}()
-
-	return resultChan, errorChan
+	return hook, nil
 }
 
 func (g *VercelClient) getTeamSlugAndId(ctx context.Context, parameters map[string]string) (team_slug string, team_id string, err error) {
@@ -359,47 +315,34 @@ func (g *VercelClient) getTeamSlugAndId(ctx context.Context, parameters map[stri
 	}
 
 	if len(team_slug) == 0 && len(team_id) == 0 {
-		teamCh, errCh := g.getDefaultTeam(ctx)
-		select {
-		case team := <-teamCh:
-			if team != nil {
-				team_slug = team.Slug
-				team_id = team.Id
-			}
-		case err = <-errCh:
-		case <-ctx.Done():
-			err = fmt.Errorf("context timeout")
-		}
-	}
-	return
-}
-
-func (g *VercelClient) getDefaultTeam(ctx context.Context) (<-chan *VercelTeam, <-chan error) {
-	resultChan := make(chan *VercelTeam, 1)
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
-
-		team := new(VercelTeam)
-		request := vercel.ListTeamParameter{}
-		teams, err := g.client.Teams.ListTeam(ctx, request)
-		if err != nil {
-			errorChan <- err
+		team, er := g.getDefaultTeam(ctx)
+		if er != nil {
+			err = er
 			return
 		}
 
-		if len(teams.Teams) > 0 {
-			team.Slug = teams.Teams[0].Slug
-			team.Id = teams.Teams[0].Id
-			team.Name = teams.Teams[0].Name
-		}
+		team_slug = team.Slug
+		team_id = team.Id
+	}
 
-		resultChan <- team
-	}()
+	return
+}
 
-	return resultChan, errorChan
+func (g *VercelClient) getDefaultTeam(ctx context.Context) (*VercelTeam, error) {
+	team := new(VercelTeam)
+	request := vercel.ListTeamParameter{}
+	teams, err := g.client.Teams.ListTeam(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(teams.Teams) > 0 {
+		team.Slug = teams.Teams[0].Slug
+		team.Id = teams.Teams[0].Id
+		team.Name = teams.Teams[0].Name
+	}
+
+	return team, nil
 }
 
 type VercelTeam struct {
@@ -408,42 +351,26 @@ type VercelTeam struct {
 	Name string
 }
 
-func (g *VercelClient) DeleteWebHookAsync(ctx context.Context, request DeleteWebHookRequest) <-chan error {
-	errorChan := make(chan error, 1)
+func (g *VercelClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
 	req := vercel.DeleteWebhookRequest{
 		WebhookId: request.WebHookId,
 	}
 
-	go func() {
-		defer close(errorChan)
-		_, err := g.client.Webhooks.DeleteWebhook(ctx, req)
-		errorChan <- err
-	}()
+	_, err := g.client.Webhooks.DeleteWebhook(ctx, req)
 
-	return errorChan
+	return err
 }
 
-func (g *VercelClient) GetUserAsync(ctx context.Context) (<-chan *User, <-chan error) {
-	resultChan := make(chan *User, 1)
-	errorChan := make(chan error, 1)
+func (g *VercelClient) GetUser(ctx context.Context) (*User, error) {
+	vercelUser, err := g.client.User.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
+	user := &User{
+		ID:   vercelUser.Id,
+		Name: vercelUser.Name,
+	}
 
-		vercelUser, err := g.client.User.GetUser(ctx)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		user := &User{
-			ID:   vercelUser.Id,
-			Name: vercelUser.Name,
-		}
-
-		resultChan <- user
-	}()
-
-	return resultChan, errorChan
+	return user, nil
 }
