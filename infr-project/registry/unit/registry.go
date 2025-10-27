@@ -11,7 +11,7 @@ import (
 type Registry struct {
 	Options     *options.Options
 	events      map[string]func(context.Context, options.Options) domain.IUnitOfWork
-	eventAsyncs map[string]func(context.Context, options.Options) domain.IUnitOfWorkAsync
+	eventAsyncs map[string]func(context.Context, options.Options) domain.IUnitOfWork
 }
 
 var DefaultRegistry *Registry = NewRegistry()
@@ -20,13 +20,13 @@ func NewRegistry() *Registry {
 	return &Registry{
 		Options:     &options.Options{},
 		events:      map[string]func(context.Context, options.Options) domain.IUnitOfWork{},
-		eventAsyncs: map[string]func(context.Context, options.Options) domain.IUnitOfWorkAsync{},
+		eventAsyncs: map[string]func(context.Context, options.Options) domain.IUnitOfWork{},
 	}
 }
 
 func (s *Registry) RegisterComponent(
 	componentFactory func(context.Context, options.Options) domain.IUnitOfWork,
-	componentAsyncFactory func(context.Context, options.Options) domain.IUnitOfWorkAsync,
+	componentAsyncFactory func(context.Context, options.Options) domain.IUnitOfWork,
 	names ...string,
 ) {
 	for _, name := range names {
@@ -35,7 +35,7 @@ func (s *Registry) RegisterComponent(
 	}
 }
 
-func (s *Registry) Create(ctx context.Context) (domain.IUnitOfWork, domain.IUnitOfWorkAsync, error) {
+func (s *Registry) Create(ctx context.Context) (domain.IUnitOfWork, domain.IUnitOfWork, error) {
 	if s.Options == nil {
 		return nil, nil, fmt.Errorf("options is nil")
 	}

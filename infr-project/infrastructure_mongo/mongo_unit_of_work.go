@@ -17,7 +17,7 @@ func NewMongoUnitOfWork(client *mongo.Client) (*MongoUnitOfWork, error) {
 	return &MongoUnitOfWork{client: client, nestedLevel: 0}, nil
 }
 
-func (u *MongoUnitOfWork) Start(ctx context.Context) (context.Context, error) {
+func (u *MongoUnitOfWork) BeginTransaction(ctx context.Context) (context.Context, error) {
 	if u.client == nil {
 		return nil, errors.New("client not initialized")
 	}
@@ -62,49 +62,4 @@ func (u *MongoUnitOfWork) Rollback(ctx context.Context) error {
 	err := u.clientSession.AbortTransaction(ctx)
 	u.clientSession.EndSession(ctx)
 	return err
-}
-
-func (u *MongoUnitOfWork) StartAsync(ctx context.Context) (<-chan context.Context, <-chan error) {
-	resultChan := make(chan context.Context, 1)
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(resultChan)
-		defer close(errorChan)
-
-		result, err := u.Start(ctx)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-		resultChan <- result
-	}()
-
-	return resultChan, errorChan
-}
-
-func (u *MongoUnitOfWork) CommitAsync(ctx context.Context) <-chan error {
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(errorChan)
-
-		err := u.Commit(ctx)
-		errorChan <- err
-	}()
-
-	return errorChan
-}
-
-func (u *MongoUnitOfWork) RollbackAsync(ctx context.Context) <-chan error {
-	errorChan := make(chan error, 1)
-
-	go func() {
-		defer close(errorChan)
-
-		err := u.Rollback(ctx)
-		errorChan <- err
-	}()
-
-	return errorChan
 }

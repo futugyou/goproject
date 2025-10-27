@@ -85,7 +85,7 @@ type CommonHandler struct {
 }
 
 func (s *CommonHandler) withUnitOfWork(ctx context.Context, fn func(ctx context.Context) error) error {
-	ctx, err := s.unitOfWork.Start(ctx)
+	ctx, err := s.unitOfWork.BeginTransaction(ctx)
 	if err != nil {
 		return err
 	}
