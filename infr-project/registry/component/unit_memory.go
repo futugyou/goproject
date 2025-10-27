@@ -12,7 +12,5 @@ import (
 func init() {
 	unit.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) domain.IUnitOfWork {
 		return memory.NewMemoryUnitOfWork()
-	}, func(ctx context.Context, option options.Options) domain.IUnitOfWork {
-		return memory.NewMemoryUnitOfWork()
 	}, "memory")
 }

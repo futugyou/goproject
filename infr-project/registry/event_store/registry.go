@@ -10,43 +10,37 @@ import (
 )
 
 type Registry struct {
-	Options     *options.Options
-	stores      map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]
-	storeAsyncs map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]
+	Options *options.Options
+	stores  map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]
 }
 
 var DefaultRegistry *Registry = NewRegistry()
 
 func NewRegistry() *Registry {
 	return &Registry{
-		Options:     &options.Options{},
-		stores:      map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]{},
-		storeAsyncs: map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]{},
+		Options: &options.Options{},
+		stores:  map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]{},
 	}
 }
 
 func (s *Registry) RegisterComponent(
 	componentFactory func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent],
-	componentAsyncFactory func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent],
 	names ...string,
 ) {
 	for _, name := range names {
 		s.stores[fmt.Sprintf("event-store-%s", name)] = componentFactory
-		s.storeAsyncs[fmt.Sprintf("event-store-async-%s", name)] = componentAsyncFactory
 	}
 }
 
-func (s *Registry) Create(ctx context.Context) (infrastructure.IEventStore[domain.IDomainEvent], infrastructure.IEventStore[domain.IDomainEvent], error) {
+func (s *Registry) Create(ctx context.Context) (infrastructure.IEventStore[domain.IDomainEvent], error) {
 	if s.Options == nil {
-		return nil, nil, fmt.Errorf("options is nil")
+		return nil, fmt.Errorf("options is nil")
 	}
 
 	name := s.Options.StoreType
 	if method, ok := s.stores[fmt.Sprintf("event-store-%s", name)]; ok {
-		if methodasync, ok2 := s.storeAsyncs[fmt.Sprintf("event-store-async-%s", name)]; ok2 {
-			return method(ctx, *s.Options), methodasync(ctx, *s.Options), nil
-		}
+		return method(ctx, *s.Options), nil
 	}
 
-	return nil, nil, fmt.Errorf("couldn't find event store %s", name)
+	return nil, fmt.Errorf("couldn't find event store %s", name)
 }

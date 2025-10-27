@@ -13,7 +13,5 @@ import (
 func init() {
 	event_store.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
 		return infrastructure_memory.NewMemoryEventStore[domain.IDomainEvent]()
-	}, func(ctx context.Context, option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
-		return infrastructure_memory.NewMemoryEventStore[domain.IDomainEvent]()
 	}, "memory")
 }

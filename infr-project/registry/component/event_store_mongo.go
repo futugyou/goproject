@@ -25,12 +25,5 @@ func init() {
 		}
 		client, _ := mongo.Connect(ctx, mongo_options.Client().ApplyURI(config.ConnectString))
 		return infrastructure_mongo.NewMongoEventStore(client, config, "resource_events", create)
-	}, func(ctx context.Context, option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
-		config := infrastructure_mongo.DBConfig{
-			DBName:        option.DBName,
-			ConnectString: option.MongoDBURL,
-		}
-		client, _ := mongo.Connect(ctx, mongo_options.Client().ApplyURI(config.ConnectString))
-		return infrastructure_mongo.NewMongoEventStore(client, config, "resource_events", create)
 	}, "mongo")
 }
