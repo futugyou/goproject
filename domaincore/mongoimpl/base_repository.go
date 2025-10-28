@@ -97,7 +97,7 @@ func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggreg
 	return nil
 }
 
-func (s *BaseRepository[Aggregate]) GetWithCondition(ctx context.Context, condition *domain.QueryOptions) ([]Aggregate, error) {
+func (s *BaseRepository[Aggregate]) Find(ctx context.Context, condition *domain.QueryOptions) ([]Aggregate, error) {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 
 	result := make([]Aggregate, 0)
