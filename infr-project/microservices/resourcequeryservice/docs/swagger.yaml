@@ -1,0 +1,68 @@
+definitions:
+  viewmodel.ResourceView:
+    properties:
+      created_at:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      imageData:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/resource:
+    get:
+      consumes:
+      - application/json
+      description: get all resources
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.ResourceView'
+            type: array
+      summary: get all resources
+      tags:
+      - Resource
+  /v1/resource/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ResourceView'
+      summary: get resource
+      tags:
+      - Resource
+swagger: "2.0"
