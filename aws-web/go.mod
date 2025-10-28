@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.51.0
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.65.4
 	github.com/aws/aws-sdk-go-v2/service/efs v1.40.10
-	github.com/aws/aws-sdk-go-v2/service/iam v1.48.1
+	github.com/aws/aws-sdk-go-v2/service/iam v1.49.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.7
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.12
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.66.2
