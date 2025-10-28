@@ -14,7 +14,7 @@ require (
 	github.com/go-openapi/spec v0.22.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/spf13/cobra v1.10.1
-	go.mongodb.org/mongo-driver v1.17.4
+	go.mongodb.org/mongo-driver v1.17.6
 	golang.org/x/text v0.30.0
 )
 
