@@ -18,10 +18,9 @@ require (
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.2.1 // indirect
-	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
-	github.com/bytedance/sonic v1.14.1 // indirect
-	github.com/bytedance/sonic/loader v0.3.0 // indirect
+	github.com/bytedance/sonic v1.14.2 // indirect
+	github.com/bytedance/sonic/loader v0.4.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chidiwilliams/flatbson v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
@@ -63,12 +62,11 @@ require (
 	github.com/quic-go/quic-go v0.55.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/ugorji/go/codec v1.3.0 // indirect
+	github.com/ugorji/go/codec v1.3.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	go.uber.org/mock v0.5.2 // indirect
 	golang.org/x/arch v0.20.0 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/mod v0.27.0 // indirect
@@ -83,8 +81,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/futugyou/domaincore v1.0.0 => ../../../domaincore
-
-replace github.com/futugyou/domaincore/mongoimpl v1.0.0 => ../../../domaincore/mongoimpl
-
-replace github.com/futugyou/extensions v1.0.0 => ../../../extensions
+replace (
+	github.com/futugyou/domaincore v1.0.0 => ../../../domaincore
+	github.com/futugyou/domaincore/mongoimpl v1.0.0 => ../../../domaincore/mongoimpl
+	github.com/futugyou/extensions v1.0.0 => ../../../extensions
+)

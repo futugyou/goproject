@@ -57,7 +57,7 @@ func (s *ResourceQueryService) GetAllResources(ctx context.Context) ([]viewmodel
 func (s *ResourceQueryService) GetResource(ctx context.Context, id string) (*viewmodel.ResourceView, error) {
 	var viewData viewmodel.ResourceView
 	s.client.HGetAll(ctx, "ResourceView:"+id).Scan(&viewData)
-	if len(viewData.Id) > 0 {
+	if len(viewData.ID) > 0 {
 		if len(viewData.TagString) > 0 {
 			if strings.Contains(viewData.TagString, ",") {
 				viewData.Tags = strings.Split(viewData.TagString, ",")
@@ -82,7 +82,7 @@ func (s *ResourceQueryService) GetResource(ctx context.Context, id string) (*vie
 
 func (s *ResourceQueryService) convertData(data domain.Resource) viewmodel.ResourceView {
 	v := viewmodel.ResourceView{
-		Id:        data.Id,
+		ID:        data.ID,
 		Name:      data.Name,
 		Type:      data.Type,
 		Data:      data.Data,
@@ -100,7 +100,7 @@ func (s *ResourceQueryService) convertData(data domain.Resource) viewmodel.Resou
 }
 
 func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data viewmodel.ResourceChangeData) error {
-	res, err := s.repository.FindByID(ctx, data.Id)
+	res, err := s.repository.FindByID(ctx, data.ID)
 	if err != nil && !strings.HasPrefix(err.Error(), domaincore.DATA_NOT_FOUND_MESSAGE) {
 		return err
 	}
@@ -109,7 +109,7 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data v
 		if data.EventType == "ResourceCreated" {
 			res = &domain.Resource{
 				Aggregate: domaincore.Aggregate{
-					Id: data.Id,
+					ID: data.ID,
 				},
 				Name:      data.Name,
 				Type:      data.Type,
@@ -146,7 +146,7 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data v
 	}
 
 	if res == nil {
-		return fmt.Errorf("resource can not find, ID is %s", data.Id)
+		return fmt.Errorf("resource can not find, ID is %s", data.ID)
 	}
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
@@ -163,7 +163,7 @@ func (s *ResourceQueryService) HandleResourceChanged(ctx context.Context, data v
 
 		viewData := s.convertData(*res)
 		// ignore error
-		s.client.HSet(ctx, "ResourceView:"+viewData.Id, viewData).Result()
+		s.client.HSet(ctx, "ResourceView:"+viewData.ID, viewData).Result()
 		return err
 	})
 }

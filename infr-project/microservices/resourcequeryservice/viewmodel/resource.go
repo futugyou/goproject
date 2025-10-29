@@ -3,7 +3,7 @@ package viewmodel
 import "time"
 
 type ResourceChangeData struct {
-	Id              string    `json:"id"`
+	ID              string    `json:"id"`
 	ResourceVersion int       `json:"version"`
 	EventType       string    `json:"event_type"`
 	CreatedAt       time.Time `json:"created_at"`
@@ -15,7 +15,7 @@ type ResourceChangeData struct {
 }
 
 type ResourceView struct {
-	Id        string    `json:"id" redis:"id"`
+	ID        string    `json:"id" redis:"id"`
 	Name      string    `json:"name" redis:"name"`
 	Type      string    `json:"type" redis:"type"`
 	Data      string    `json:"data" redis:"data"`
