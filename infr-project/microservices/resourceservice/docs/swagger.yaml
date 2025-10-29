@@ -1,0 +1,172 @@
+definitions:
+  viewmodel.CreateResourceRequest:
+    properties:
+      data:
+        minLength: 3
+        type: string
+      imageData:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type:
+        enum:
+        - DrawIO
+        - Markdown
+        - Excalidraw
+        - Plate
+        type: string
+    required:
+    - data
+    - name
+    type: object
+  viewmodel.CreateResourceResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  viewmodel.ResourceView:
+    properties:
+      created_at:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      imageData:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  viewmodel.UpdateResourceRequest:
+    properties:
+      data:
+        minLength: 3
+        type: string
+      imageData:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - data
+    - name
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/resource:
+    post:
+      consumes:
+      - application/json
+      description: create resource
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.CreateResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.CreateResourceResponse'
+      summary: create resource
+      tags:
+      - Resource
+  /v1/resource/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: delete resource
+      tags:
+      - Resource
+    put:
+      consumes:
+      - application/json
+      description: update resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.UpdateResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: update resource
+      tags:
+      - Resource
+  /v1/resource/{id}/history:
+    get:
+      consumes:
+      - application/json
+      description: get resource change history
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.ResourceView'
+            type: array
+      summary: get resource change history
+      tags:
+      - Resource
+swagger: "2.0"
