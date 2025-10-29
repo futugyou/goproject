@@ -5,6 +5,10 @@ import (
 	"reflect"
 )
 
+type Cloner[T any] interface {
+	Clone() T
+}
+
 type DomainService[E DomainEvent, ES EventSourcing] struct {
 }
 
@@ -17,11 +21,14 @@ func (ds *DomainService[E, ES]) RetrieveAllVersions(aggregate ES, events []E) ([
 	for _, event := range events {
 		aggregate.Apply(event)
 
-		aggregateValue := reflect.ValueOf(aggregate).Elem()
-		tmp := reflect.New(aggregateValue.Type()).Interface().(ES)
-		reflect.ValueOf(tmp).Elem().Set(aggregateValue)
-
-		aggregates = append(aggregates, tmp)
+		if cloner, ok := any(aggregate).(Cloner[ES]); ok {
+			aggregates = append(aggregates, cloner.Clone())
+		} else {
+			aggregateValue := reflect.ValueOf(aggregate).Elem()
+			tmp := reflect.New(aggregateValue.Type()).Interface().(ES)
+			reflect.ValueOf(tmp).Elem().Set(aggregateValue)
+			aggregates = append(aggregates, tmp)
+		}
 	}
 	return aggregates, nil
 }

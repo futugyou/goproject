@@ -7,9 +7,9 @@ type AggregateRoot interface {
 }
 
 type Aggregate struct {
-	Id string
+	ID string `bson:"id" redis:"id" json:"id"`
 }
 
 func (a Aggregate) AggregateId() string {
-	return a.Id
+	return a.ID
 }

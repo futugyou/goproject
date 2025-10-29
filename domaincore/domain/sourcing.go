@@ -6,7 +6,6 @@ type EventSourcing interface {
 	Apply(event DomainEvent) error
 	Replay(events []DomainEvent) error
 	AggregateVersion() int
-	Clone() EventSourcing
 }
 
 type AggregateWithEventSourcing struct {

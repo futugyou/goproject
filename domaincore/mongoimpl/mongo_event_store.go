@@ -95,8 +95,8 @@ func (s *MongoEventStore[Event]) Save(ctx context.Context, events []Event) (err 
 	}()
 
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
-	entities := make([]interface{}, len(events))
-	for i := 0; i < len(events); i++ {
+	entities := make([]any, len(events))
+	for i := range events {
 		eventType := events[i].EventType()
 		eventMap, err := flatbson.Flatten(events[i])
 		if err != nil {
