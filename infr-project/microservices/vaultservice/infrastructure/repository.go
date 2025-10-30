@@ -42,13 +42,13 @@ func (r *VaultRepository) GetVaultByIds(ctx context.Context, ids []string) ([]do
 	return r.BaseRepository.Find(ctx, condition)
 }
 
-func (r *VaultRepository) SearchVaults(ctx context.Context, req []domain.VaultSearch, page *int, size *int) ([]domain.Vault, error) {
-	filter := buildSearchFilter(req)
-	condition := domaincore.NewQueryOptions(page, size, nil, filter)
+func (r *VaultRepository) SearchVaults(ctx context.Context, query domain.VaultQuery) ([]domain.Vault, error) {
+	filter := buildSearchFilter(query.Filters)
+	condition := domaincore.NewQueryOptions(query.Page, query.Size, nil, filter)
 	return r.BaseRepository.Find(ctx, condition)
 }
 
-func buildSearchFilter(reqs []domain.VaultSearch) map[string]any {
+func buildSearchFilter(reqs []domain.VaultFilter) map[string]any {
 	filter := map[string]any{}
 	if len(reqs) == 0 {
 		return filter
