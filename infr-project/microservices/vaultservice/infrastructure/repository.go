@@ -30,7 +30,7 @@ func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []doma
 
 	c := r.Client.Database(r.DBName).Collection(vaults[0].AggregateName())
 	documents := make([]any, 0)
-	for i := 0; i < len(vaults); i++ {
+	for i := range vaults {
 		documents = append(documents, vaults[i])
 	}
 	_, err := c.InsertMany(ctx, documents)
