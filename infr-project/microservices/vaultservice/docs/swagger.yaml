@@ -1,0 +1,405 @@
+definitions:
+  viewmodel.ChangeVaultItem:
+    properties:
+      description:
+        maxLength: 250
+        minLength: 3
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    type: object
+  viewmodel.ChangeVaultRequest:
+    properties:
+      force_insert:
+        type: boolean
+      vault_data:
+        $ref: '#/definitions/viewmodel.ChangeVaultItem'
+    type: object
+  viewmodel.CreateVaultModel:
+    properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    required:
+    - key
+    - value
+    type: object
+  viewmodel.CreateVaultRequest:
+    properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      force_insert:
+        type: boolean
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    required:
+    - key
+    - value
+    type: object
+  viewmodel.CreateVaultsRequest:
+    properties:
+      force_insert:
+        type: boolean
+      vaults:
+        items:
+          $ref: '#/definitions/viewmodel.CreateVaultModel'
+        type: array
+    required:
+    - vaults
+    type: object
+  viewmodel.CreateVaultsResponse:
+    properties:
+      vaults:
+        items:
+          $ref: '#/definitions/viewmodel.VaultView'
+        type: array
+    type: object
+  viewmodel.ImportVaultsRequest:
+    properties:
+      storage_media:
+        enum:
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    type: object
+  viewmodel.ImportVaultsResponse:
+    properties:
+      vaults:
+        items:
+          $ref: '#/definitions/viewmodel.VaultView'
+        type: array
+    type: object
+  viewmodel.VaultView:
+    properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      id:
+        type: string
+      key:
+        type: string
+      mask_value:
+        type: string
+      storage_media:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        type: string
+      vault_type:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/import_vault:
+    post:
+      consumes:
+      - application/json
+      description: import vault from provider
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.ImportVaultsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ImportVaultsResponse'
+      summary: import vault from provider
+      tags:
+      - Vault
+  /v1/vault:
+    get:
+      consumes:
+      - application/json
+      description: get vault
+      parameters:
+      - description: Key - Fuzzy Search
+        in: query
+        name: key
+        type: string
+      - description: Storage Media
+        in: query
+        name: storage_media
+        type: string
+      - collectionFormat: csv
+        description: Tags
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - description: Type Identity
+        in: query
+        name: type_identity
+        type: string
+      - description: Vault Type
+        in: query
+        name: vault_type
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 100
+        description: Page size
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.VaultView'
+            type: array
+      summary: get vault
+      tags:
+      - Vault
+    post:
+      consumes:
+      - application/json
+      description: create vault
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.CreateVaultRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.VaultView'
+      summary: create vault
+      tags:
+      - Vault
+  /v1/vault/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete vault
+      parameters:
+      - description: vault ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: delete vault
+      tags:
+      - Vault
+    put:
+      consumes:
+      - application/json
+      description: update vault
+      parameters:
+      - description: vault ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.ChangeVaultRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.VaultView'
+      summary: update vault
+      tags:
+      - Vault
+  /v1/vault/{id}/show:
+    post:
+      consumes:
+      - application/json
+      description: show vault value
+      parameters:
+      - description: vault ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: show vault value
+      tags:
+      - Vault
+  /v1/vault/batch:
+    post:
+      consumes:
+      - application/json
+      description: batch create vault
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.CreateVaultsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.CreateVaultsResponse'
+      summary: batch create vault
+      tags:
+      - Vault
+swagger: "2.0"

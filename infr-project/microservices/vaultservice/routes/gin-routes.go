@@ -6,16 +6,19 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	docs "github.com/futugyou/vaultservice/docs"
 	v1 "github.com/futugyou/vaultservice/routes/v1"
 )
 
 func NewGinRoute() *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
+	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Title = "Vault Swagger Doc"
+	docs.SwaggerInfo.Version = "v1.0.0"
 
 	v1api := router.Group("/api/v1")
 	{
-		// resource routes
 		v1.ConfigVaultRoutes(v1api)
 	}
 
