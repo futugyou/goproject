@@ -3,8 +3,6 @@ package v1
 import (
 	"context"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -127,37 +125,11 @@ func showVaultRawValue(c *gin.Context) {
 // @Success 200 {array} viewmodel.VaultView
 // @Router /v1/vault [get]
 func getVault(c *gin.Context) {
-	key := c.Query("key")
-	storageMedia := c.Query("storage_media")
-	tags := strings.FieldsFunc(c.Query("tags"), func(r rune) bool {
-		return r == ','
-	})
-	if len(tags) == 1 && tags[0] == "" {
-		tags = nil
-	}
-	typeIdentity := c.Query("type_identity")
-	vaultType := c.Query("vault_type")
+	var req viewmodel.SearchVaultsRequest
 
-	page := c.DefaultQuery("page", "1")
-	size := c.DefaultQuery("size", "100")
-
-	pageInt, err := strconv.Atoi(page)
-	if err != nil {
-		pageInt = 1
-	}
-
-	sizeInt, err := strconv.Atoi(size)
-	if err != nil {
-		sizeInt = 100
-	}
-	request := viewmodel.SearchVaultsRequest{
-		Key:          key,
-		StorageMedia: storageMedia,
-		VaultType:    vaultType,
-		TypeIdentity: typeIdentity,
-		Tags:         tags,
-		Page:         pageInt,
-		Size:         sizeInt,
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	ctx := c.Request.Context()
@@ -167,11 +139,12 @@ func getVault(c *gin.Context) {
 		return
 	}
 
-	data, err := service.SearchVaults(ctx, request)
+	data, err := service.SearchVaults(ctx, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, data)
 }
 
