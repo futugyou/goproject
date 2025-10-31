@@ -12,12 +12,12 @@ import (
 	"github.com/hashicorp/hcp-sdk-go/httpclient"
 )
 
-type VaultClient struct {
+type hashicorpClient struct {
 	http vault.ClientService
 	opts *options.Options
 }
 
-func NewVaultClient(opts *options.Options) (*VaultClient, error) {
+func newVaultClient(opts *options.Options) (*hashicorpClient, error) {
 	var configs []config.HCPConfigOption
 	if len(opts.HcpClientID) > 0 && len(opts.HcpClientSecret) > 0 {
 		configs = append(configs, config.WithClientCredentials(opts.HcpClientID, opts.HcpClientSecret))
@@ -43,13 +43,13 @@ func NewVaultClient(opts *options.Options) (*VaultClient, error) {
 
 	// Import versioned client for each service.
 	vaultClient := vault.New(cl, nil)
-	return &VaultClient{
+	return &hashicorpClient{
 		http: vaultClient,
 		opts: opts,
 	}, err
 }
 
-func (s *VaultClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
+func (s *hashicorpClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	params := &vault.OpenAppSecretParams{
 		AppName:                s.opts.HcpAppName,
 		LocationOrganizationID: s.opts.HcpOrganizationID,
@@ -76,7 +76,7 @@ func (s *VaultClient) Search(ctx context.Context, key string) (*ProviderVault, e
 	return nil, fmt.Errorf("can not found secret with name %s in hashicorp", key)
 }
 
-func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
+func (s *hashicorpClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
 	params := &vault.OpenAppSecretsParams{
 		AppName:                s.opts.HcpAppName,
 		LocationOrganizationID: s.opts.HcpOrganizationID,
@@ -116,7 +116,7 @@ func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 	return nil, fmt.Errorf("can not found secret with prefix %s in hashicorp", prefix)
 }
 
-func (s *VaultClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+func (s *hashicorpClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
 	params := &vault.OpenAppSecretsParams{
 		AppName:                s.opts.HcpAppName,
 		LocationOrganizationID: s.opts.HcpOrganizationID,
@@ -149,7 +149,7 @@ func (s *VaultClient) BatchSearch(ctx context.Context, keys []string) (map[strin
 	return providerVaults, nil
 }
 
-func (s *VaultClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
+func (s *hashicorpClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
 	params := &vault.CreateAppKVSecretParams{
 		AppName:                s.opts.HcpAppName,
 		LocationOrganizationID: s.opts.HcpOrganizationID,
@@ -178,7 +178,7 @@ func (s *VaultClient) Upsert(ctx context.Context, key string, value string) (*Pr
 	return nil, fmt.Errorf("call hashicorp ok, but same thing error, try to find detail in hashicorp cloud")
 }
 
-func (s *VaultClient) Delete(ctx context.Context, key string) error {
+func (s *hashicorpClient) Delete(ctx context.Context, key string) error {
 	params := &vault.DeleteAppSecretParams{
 		AppName:                s.opts.HcpAppName,
 		LocationOrganizationID: s.opts.HcpOrganizationID,

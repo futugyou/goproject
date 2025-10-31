@@ -13,11 +13,11 @@ import (
 	"github.com/futugyou/vaultservice/options"
 )
 
-type AzureClient struct {
+type azureClient struct {
 	client *azsecrets.Client
 }
 
-func NewAzureClient(opts *options.Options) (*AzureClient, error) {
+func newAzureClient(opts *options.Options) (*azureClient, error) {
 	var cred azcore.TokenCredential
 	var err error
 	if len(opts.AzureClientID) > 0 && len(opts.AzureClientSecret) > 0 && len(opts.AzureTenantID) > 0 {
@@ -35,12 +35,12 @@ func NewAzureClient(opts *options.Options) (*AzureClient, error) {
 		log.Fatal(err)
 	}
 
-	return &AzureClient{
+	return &azureClient{
 		client: client,
 	}, nil
 }
 
-func (s *AzureClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
+func (s *azureClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	resp, err := s.client.GetSecret(ctx, key, "", nil)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (s *AzureClient) Search(ctx context.Context, key string) (*ProviderVault, e
 	return nil, fmt.Errorf("can not found secret with name %s in Azure", key)
 }
 
-func (s *AzureClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
+func (s *azureClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
 	var providerVaults = map[string]ProviderVault{}
 	var keys = []string{}
 	pager := s.client.NewListSecretPropertiesPager(nil)
@@ -76,7 +76,7 @@ func (s *AzureClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 	return providerVaults, nil
 }
 
-func (s *AzureClient) concurrencySearch(ctx context.Context, keys []string, providerVaults map[string]ProviderVault) {
+func (s *azureClient) concurrencySearch(ctx context.Context, keys []string, providerVaults map[string]ProviderVault) {
 	var wg sync.WaitGroup
 	concurrencyLimit := 5
 	sem := make(chan struct{}, concurrencyLimit)
@@ -102,7 +102,7 @@ func (s *AzureClient) concurrencySearch(ctx context.Context, keys []string, prov
 	}
 }
 
-func (s *AzureClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+func (s *azureClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
 	var providerVaults = map[string]ProviderVault{}
 	var awskeys = []string{}
 	pager := s.client.NewListSecretPropertiesPager(nil)
@@ -125,7 +125,7 @@ func (s *AzureClient) BatchSearch(ctx context.Context, keys []string) (map[strin
 	return providerVaults, nil
 }
 
-func (s *AzureClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
+func (s *azureClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
 	resp, err := s.client.SetSecret(ctx, key, azsecrets.SetSecretParameters{Value: &value}, nil)
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (s *AzureClient) Upsert(ctx context.Context, key string, value string) (*Pr
 	}, nil
 }
 
-func (s *AzureClient) Delete(ctx context.Context, key string) error {
+func (s *azureClient) Delete(ctx context.Context, key string) error {
 	_, err := s.client.DeleteSecret(ctx, key, nil)
 	return err
 }

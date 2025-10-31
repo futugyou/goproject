@@ -12,15 +12,15 @@ func VaultProviderFactory(provider string, opts *options.Options) (VaultProvider
 	}
 
 	if provider == "AWS" {
-		return NewAWSClient(opts)
+		return newAWSClient(opts)
 	}
 
 	if provider == "HCP" {
-		return NewVaultClient(opts)
+		return newVaultClient(opts)
 	}
 
 	if provider == "AzureVault" {
-		return NewAzureClient(opts)
+		return newAzureClient(opts)
 	}
 
 	return nil, fmt.Errorf("provider type %s is not support", provider)

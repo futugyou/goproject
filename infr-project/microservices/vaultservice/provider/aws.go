@@ -13,12 +13,12 @@ import (
 	"github.com/futugyou/vaultservice/options"
 )
 
-type AWSClient struct {
+type awsClient struct {
 	svc *ssm.Client
 }
 
 // aws ssm path like '/Finance/Prod/IAD/WinServ2016/license33'
-func NewAWSClient(opts *options.Options) (*AWSClient, error) {
+func newAWSClient(opts *options.Options) (*awsClient, error) {
 	var cfg aws.Config
 	var err error
 	if len(opts.AwsAccessKeyID) > 0 && len(opts.AwsSecretAccessKey) > 0 {
@@ -39,12 +39,12 @@ func NewAWSClient(opts *options.Options) (*AWSClient, error) {
 		cfg.Region = opts.AwsRegion
 	}
 
-	return &AWSClient{
+	return &awsClient{
 		svc: ssm.NewFromConfig(cfg),
 	}, nil
 }
 
-func (s *AWSClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
+func (s *awsClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	input := &ssm.GetParameterInput{
 		Name:           aws.String(key),
 		WithDecryption: aws.Bool(true),
@@ -63,7 +63,7 @@ func (s *AWSClient) Search(ctx context.Context, key string) (*ProviderVault, err
 	return nil, fmt.Errorf("can not found secret with name %s in aws", key)
 }
 
-func (s *AWSClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
+func (s *awsClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
 	var providerVaults = map[string]ProviderVault{}
 	var nextToken *string = nil
 	for {
@@ -93,7 +93,7 @@ func (s *AWSClient) PrefixSearch(ctx context.Context, prefix string) (map[string
 	return providerVaults, nil
 }
 
-func (s *AWSClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
+func (s *awsClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
 	var providerVaults = map[string]ProviderVault{}
 	input := &ssm.GetParametersInput{
 		Names:          keys,
@@ -113,7 +113,7 @@ func (s *AWSClient) BatchSearch(ctx context.Context, keys []string) (map[string]
 	return providerVaults, nil
 }
 
-func (s *AWSClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
+func (s *awsClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
 	putInput := &ssm.PutParameterInput{
 		Name:      aws.String(key),
 		Value:     aws.String(value),
@@ -132,7 +132,7 @@ func (s *AWSClient) Upsert(ctx context.Context, key string, value string) (*Prov
 	}, nil
 }
 
-func (s *AWSClient) Delete(ctx context.Context, key string) error {
+func (s *awsClient) Delete(ctx context.Context, key string) error {
 	input := ssm.DeleteParameterInput{
 		Name: aws.String(key),
 	}
