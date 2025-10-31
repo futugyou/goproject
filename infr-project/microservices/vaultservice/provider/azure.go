@@ -4,25 +4,33 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"sync"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets"
+	"github.com/futugyou/vaultservice/options"
 )
 
 type AzureClient struct {
 	client *azsecrets.Client
 }
 
-func NewAzureClient() (*AzureClient, error) {
-	cred, err := azidentity.NewDefaultAzureCredential(nil)
+func NewAzureClient(opts *options.Options) (*AzureClient, error) {
+	var cred azcore.TokenCredential
+	var err error
+	if len(opts.AzureClientID) > 0 && len(opts.AzureClientSecret) > 0 && len(opts.AzureTenantID) > 0 {
+		cred, err = azidentity.NewClientSecretCredential(opts.AzureTenantID, opts.AzureClientID, opts.AzureClientSecret, nil)
+	} else {
+		cred, err = azidentity.NewDefaultAzureCredential(nil)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := azsecrets.NewClient(os.Getenv("AZURE_VAULT_URL"), cred, nil)
+	client, err := azsecrets.NewClient(opts.AzureVaultURL, cred, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,8 +7,10 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
+	"github.com/futugyou/vaultservice/options"
 )
 
 type AWSClient struct {
@@ -16,11 +18,27 @@ type AWSClient struct {
 }
 
 // aws ssm path like '/Finance/Prod/IAD/WinServ2016/license33'
-func NewAWSClient() (*AWSClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.Background())
+func NewAWSClient(opts *options.Options) (*AWSClient, error) {
+	var cfg aws.Config
+	var err error
+	if len(opts.AwsAccessKeyID) > 0 && len(opts.AwsSecretAccessKey) > 0 {
+		cfg, err = config.LoadDefaultConfig(context.TODO(),
+			config.WithCredentialsProvider(
+				credentials.NewStaticCredentialsProvider(opts.AwsAccessKeyID, opts.AwsSecretAccessKey, ""),
+			),
+		)
+	} else {
+		cfg, err = config.LoadDefaultConfig(context.Background())
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
+	if len(opts.AwsRegion) > 0 {
+		cfg.Region = opts.AwsRegion
+	}
+
 	return &AWSClient{
 		svc: ssm.NewFromConfig(cfg),
 	}, nil

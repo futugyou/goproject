@@ -12,6 +12,7 @@ import (
 	tool "github.com/futugyou/extensions"
 
 	"github.com/futugyou/vaultservice/domain"
+	"github.com/futugyou/vaultservice/options"
 	"github.com/futugyou/vaultservice/provider"
 	"github.com/futugyou/vaultservice/viewmodel"
 )
@@ -20,17 +21,20 @@ type VaultService struct {
 	innerService   *coreapp.AppService
 	repository     domain.VaultRepository
 	eventPublisher coreinfr.EventDispatcher
+	opts           *options.Options
 }
 
 func NewVaultService(
 	unitOfWork coredomain.UnitOfWork,
 	repository domain.VaultRepository,
 	eventPublisher coreinfr.EventDispatcher,
+	opts *options.Options,
 ) *VaultService {
 	return &VaultService{
 		innerService:   coreapp.NewAppService(unitOfWork),
 		repository:     repository,
 		eventPublisher: eventPublisher,
+		opts:           opts,
 	}
 }
 
@@ -60,7 +64,7 @@ func (s *VaultService) SearchVaults(ctx context.Context, request viewmodel.Searc
 	if err != nil {
 		return nil, err
 	}
-	
+
 	result := make([]viewmodel.VaultView, len(datas))
 	for i := range datas {
 		result[i] = convertVaultToVaultView(datas[i])
@@ -389,7 +393,7 @@ func convertVaultToVaultView(entity domain.Vault) viewmodel.VaultView {
 }
 
 func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type string, key string) error {
-	p, err := provider.VaultProviderFactory(provider_type)
+	p, err := provider.VaultProviderFactory(provider_type, s.opts)
 	if err != nil {
 		return err
 	}
@@ -398,7 +402,7 @@ func (s *VaultService) deleteVaultInProvider(ctx context.Context, provider_type 
 }
 
 func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type string, datas map[string]string) error {
-	p, err := provider.VaultProviderFactory(provider_type)
+	p, err := provider.VaultProviderFactory(provider_type, s.opts)
 	if err != nil {
 		return err
 	}
@@ -437,7 +441,7 @@ func (s *VaultService) upsertVaultInProvider(ctx context.Context, provider_type 
 }
 
 func (s *VaultService) searchVaultInProvider(ctx context.Context, provider_type string, prefix string) (map[string]provider.ProviderVault, error) {
-	p, err := provider.VaultProviderFactory(provider_type)
+	p, err := provider.VaultProviderFactory(provider_type, s.opts)
 	if err != nil {
 		return nil, err
 	}

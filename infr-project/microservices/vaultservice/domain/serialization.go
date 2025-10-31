@@ -2,12 +2,12 @@ package domain
 
 import (
 	"encoding/json"
-	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	tool "github.com/futugyou/extensions"
+	"github.com/futugyou/vaultservice/options"
 )
 
 func (w Vault) MarshalJSON() ([]byte, error) {
@@ -28,7 +28,7 @@ func (r Vault) commonMarshal(marshal func(any) ([]byte, error)) ([]byte, error) 
 		"description":   r.Description,
 	}
 
-	if value, err := tool.AesCTREncrypt(r.Value, os.Getenv("Encrypt_Key")); err != nil {
+	if value, err := tool.AesCTREncrypt(r.Value, options.GlobalOptions.EncryptKey); err != nil {
 		return nil, err
 	} else {
 		m["value"] = value
@@ -84,7 +84,7 @@ func (w *Vault) commonUnmarshal(data []byte, unmarshal func([]byte, any) error) 
 	}
 
 	if value, ok := m["value"].(string); ok {
-		if value, err := tool.AesCTRDecrypt(value, os.Getenv("Encrypt_Key")); err != nil {
+		if value, err := tool.AesCTRDecrypt(value, options.GlobalOptions.EncryptKey); err != nil {
 			return err
 		} else {
 			w.Value = value

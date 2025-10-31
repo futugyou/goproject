@@ -252,5 +252,7 @@ func createVaultService(ctx context.Context) (*application.VaultService, error) 
 	}
 
 	eventPublisher := qstashdispatcherimpl.NewQStashEventDispatcher(option.QstashToken, option.QstashDestination)
-	return application.NewVaultService(unitOfWork, queryRepo, eventPublisher), nil
+
+	opts := options.New()
+	return application.NewVaultService(unitOfWork, queryRepo, eventPublisher, opts), nil
 }

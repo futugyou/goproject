@@ -3,10 +3,10 @@ package provider
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/futugyou/vaultservice/options"
 	vault "github.com/hashicorp/hcp-sdk-go/clients/cloud-vault-secrets/stable/2023-06-13/client/secret_service"
 	"github.com/hashicorp/hcp-sdk-go/config"
 	"github.com/hashicorp/hcp-sdk-go/httpclient"
@@ -14,12 +14,18 @@ import (
 
 type VaultClient struct {
 	http vault.ClientService
+	opts *options.Options
 }
 
-func NewVaultClient() (*VaultClient, error) {
-	hcpConfig, err := config.NewHCPConfig(
-		config.FromEnv(),
-	)
+func NewVaultClient(opts *options.Options) (*VaultClient, error) {
+	var configs []config.HCPConfigOption
+	if len(opts.HcpClientID) > 0 && len(opts.HcpClientSecret) > 0 {
+		configs = append(configs, config.WithClientCredentials(opts.HcpClientID, opts.HcpClientSecret))
+	} else {
+		configs = append(configs, config.FromEnv())
+	}
+
+	hcpConfig, err := config.NewHCPConfig(configs...)
 	if err != nil {
 		return nil, err
 	}
@@ -39,14 +45,15 @@ func NewVaultClient() (*VaultClient, error) {
 	vaultClient := vault.New(cl, nil)
 	return &VaultClient{
 		http: vaultClient,
+		opts: opts,
 	}, err
 }
 
 func (s *VaultClient) Search(ctx context.Context, key string) (*ProviderVault, error) {
 	params := &vault.OpenAppSecretParams{
-		AppName:                os.Getenv("HCP_APP_NAME"),
-		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
-		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		AppName:                s.opts.HcpAppName,
+		LocationOrganizationID: s.opts.HcpOrganizationID,
+		LocationProjectID:      s.opts.HcpProjectID,
 		SecretName:             key,
 		Context:                ctx,
 	}
@@ -71,9 +78,9 @@ func (s *VaultClient) Search(ctx context.Context, key string) (*ProviderVault, e
 
 func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[string]ProviderVault, error) {
 	params := &vault.OpenAppSecretsParams{
-		AppName:                os.Getenv("HCP_APP_NAME"),
-		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
-		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		AppName:                s.opts.HcpAppName,
+		LocationOrganizationID: s.opts.HcpOrganizationID,
+		LocationProjectID:      s.opts.HcpProjectID,
 		Context:                ctx,
 	}
 	var result *vault.OpenAppSecretsOK
@@ -111,9 +118,9 @@ func (s *VaultClient) PrefixSearch(ctx context.Context, prefix string) (map[stri
 
 func (s *VaultClient) BatchSearch(ctx context.Context, keys []string) (map[string]ProviderVault, error) {
 	params := &vault.OpenAppSecretsParams{
-		AppName:                os.Getenv("HCP_APP_NAME"),
-		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
-		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		AppName:                s.opts.HcpAppName,
+		LocationOrganizationID: s.opts.HcpOrganizationID,
+		LocationProjectID:      s.opts.HcpProjectID,
 		Context:                ctx,
 	}
 	var result *vault.OpenAppSecretsOK
@@ -144,9 +151,9 @@ func (s *VaultClient) BatchSearch(ctx context.Context, keys []string) (map[strin
 
 func (s *VaultClient) Upsert(ctx context.Context, key string, value string) (*ProviderVault, error) {
 	params := &vault.CreateAppKVSecretParams{
-		AppName:                os.Getenv("HCP_APP_NAME"),
-		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
-		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		AppName:                s.opts.HcpAppName,
+		LocationOrganizationID: s.opts.HcpOrganizationID,
+		LocationProjectID:      s.opts.HcpProjectID,
 		Context:                ctx,
 		Body: vault.CreateAppKVSecretBody{
 			Name:  key,
@@ -173,9 +180,9 @@ func (s *VaultClient) Upsert(ctx context.Context, key string, value string) (*Pr
 
 func (s *VaultClient) Delete(ctx context.Context, key string) error {
 	params := &vault.DeleteAppSecretParams{
-		AppName:                os.Getenv("HCP_APP_NAME"),
-		LocationOrganizationID: os.Getenv("HCP_ORGANIZATION_ID"),
-		LocationProjectID:      os.Getenv("HCP_PROJECT_ID"),
+		AppName:                s.opts.HcpAppName,
+		LocationOrganizationID: s.opts.HcpOrganizationID,
+		LocationProjectID:      s.opts.HcpProjectID,
 		Context:                ctx,
 		SecretName:             key,
 	}
