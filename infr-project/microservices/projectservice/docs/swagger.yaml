@@ -1,0 +1,284 @@
+definitions:
+  viewmodel.CreateProjectRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      end_time:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      start_time:
+        type: string
+      state:
+        enum:
+        - preparing
+        - processing
+        - finished
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - description
+    - name
+    type: object
+  viewmodel.ProjectDesign:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      resource_id:
+        type: string
+      resource_version:
+        type: integer
+    type: object
+  viewmodel.ProjectPlatform:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      platform_id:
+        type: string
+      project_id:
+        type: string
+    type: object
+  viewmodel.ProjectView:
+    properties:
+      description:
+        type: string
+      designs:
+        items:
+          $ref: '#/definitions/viewmodel.ProjectDesign'
+        type: array
+      end_time:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      platforms:
+        items:
+          $ref: '#/definitions/viewmodel.ProjectPlatform'
+        type: array
+      start_time:
+        type: string
+      state:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  viewmodel.UpdateProjectDesignRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      resource_id:
+        type: string
+      resource_version:
+        type: integer
+    type: object
+  viewmodel.UpdateProjectPlatformRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      platform_id:
+        maxLength: 50
+        minLength: 3
+        type: string
+      project_id:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - platform_id
+    - project_id
+    type: object
+  viewmodel.UpdateProjectRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      end_time:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      start_time:
+        type: string
+      state:
+        enum:
+        - preparing
+        - processing
+        - finished
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/project:
+    get:
+      consumes:
+      - application/json
+      description: get all project
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.ProjectView'
+            type: array
+      summary: get all project
+      tags:
+      - Project
+    post:
+      consumes:
+      - application/json
+      description: create project
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ProjectView'
+      summary: create project
+      tags:
+      - Project
+  /v1/project/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ProjectView'
+      summary: get project
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      description: update project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ProjectView'
+      summary: update project
+      tags:
+      - Project
+  /v1/project/{id}/design:
+    put:
+      consumes:
+      - application/json
+      description: update project design
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/viewmodel.UpdateProjectDesignRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ProjectView'
+      summary: update project design
+      tags:
+      - Project
+  /v1/project/{id}/platform:
+    put:
+      consumes:
+      - application/json
+      description: update project platform
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/viewmodel.UpdateProjectPlatformRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.ProjectView'
+      summary: update project platform
+      tags:
+      - Project
+swagger: "2.0"
