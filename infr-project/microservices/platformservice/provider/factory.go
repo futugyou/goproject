@@ -1,18 +1,21 @@
 package provider
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
-func PlatformProviderFactory(provider string, token string) (IPlatformProvider, error) {
+func PlatformProviderFactory(ctx context.Context, provider string, token string) (IPlatformProvider, error) {
 	if provider == "circleci" {
-		client, err := NewCircleClient(token)
+		client, err := newCircleClient(ctx, token)
 		return client, err
 	}
 	if provider == "github" {
-		client, err := NewGithubClient(token)
+		client, err := newGithubClient(ctx, token)
 		return client, err
 	}
 	if provider == "vercel" {
-		client, err := NewVercelClient(token)
+		client, err := newVercelClient(ctx, token)
 		return client, err
 	}
 	return nil, fmt.Errorf("provider type %s is not support", provider)

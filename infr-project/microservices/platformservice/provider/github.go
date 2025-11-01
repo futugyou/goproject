@@ -16,51 +16,52 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var GITHUB_BRANCH = "master"
-var GITHUB_PRIVATE = true
-var GITHUB_OWNER = ""
-
-type GithubClient struct {
-	client *github.Client
+type githubClient struct {
+	client  *github.Client
+	branch  string
+	private bool
+	owner   string
 }
 
-func NewGithubClient(token string) (*GithubClient, error) {
-	ctx := context.Background()
+func newGithubClient(ctx context.Context, token string) (*githubClient, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
-
 	client := github.NewClient(tc)
-	return &GithubClient{
-		client,
+
+	return &githubClient{
+		client:  client,
+		branch:  "master",
+		private: true,
+		owner:   "",
 	}, nil
 }
 
 // Need GITHUB_BRANCH, GITHUB_PRIVATE, GITHUB_OWNER in CreateProjectRequest 'Parameters',
 // default value 'master', 'true', ”.
 // repository name use CreateProjectRequest 'Name'.
-func (g *GithubClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
+func (g *githubClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
 	if value, ok := request.Parameters["GITHUB_BRANCH"]; ok && len(value) > 0 {
-		GITHUB_BRANCH = value
+		g.branch = value
 	}
 	if privateString, ok := request.Parameters["GITHUB_PRIVATE"]; ok {
 		if value, err := strconv.ParseBool(privateString); err != nil {
-			GITHUB_PRIVATE = value
+			g.private = value
 		}
 	}
 	if value, ok := request.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
-		GITHUB_OWNER = value
+		g.owner = value
 	}
 	repo := &github.Repository{
 		Name:          github.String(request.Name),
-		DefaultBranch: github.String(GITHUB_BRANCH),
-		MasterBranch:  github.String(GITHUB_BRANCH),
-		Private:       github.Bool(GITHUB_PRIVATE),
+		DefaultBranch: github.String(g.branch),
+		MasterBranch:  github.String(g.branch),
+		Private:       github.Bool(g.private),
 		AutoInit:      github.Bool(true),
 	}
 
-	repository, _, err := g.client.Repositories.Create(ctx, GITHUB_OWNER, repo)
+	repository, _, err := g.client.Repositories.Create(ctx, g.owner, repo)
 	if err != nil {
 		return nil, err
 	}
@@ -71,14 +72,14 @@ func (g *GithubClient) CreateProject(ctx context.Context, request CreateProjectR
 	}, nil
 }
 
-func (g *GithubClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
+func (g *githubClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
 	if value, ok := filter.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
-		GITHUB_OWNER = value
+		g.owner = value
 	}
 
 	var repos []*github.Repository
 	var err error
-	if len(GITHUB_OWNER) > 0 {
+	if len(g.owner) > 0 {
 		opts := &github.RepositoryListByUserOptions{
 			Type:      "owner",
 			Sort:      "pushed",
@@ -87,7 +88,7 @@ func (g *GithubClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 				PerPage: 1000,
 			},
 		}
-		repos, _, err = g.client.Repositories.ListByUser(ctx, GITHUB_OWNER, opts)
+		repos, _, err = g.client.Repositories.ListByUser(ctx, g.owner, opts)
 	} else {
 		opts := &github.RepositoryListByAuthenticatedUserOptions{
 			Type:      "all",
@@ -113,7 +114,7 @@ func (g *GithubClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 	return result, nil
 }
 
-func (g *GithubClient) buildGithubProject(repo *github.Repository) Project {
+func (g *githubClient) buildGithubProject(repo *github.Repository) Project {
 	badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetHTMLURL())
 	paras := map[string]string{}
 	paras["GITHUB_REPO"] = repo.GetName()
@@ -138,24 +139,24 @@ func (g *GithubClient) buildGithubProject(repo *github.Repository) Project {
 // default value ”.
 // repository name use ProjectFilter 'Name'.
 // github webhook config will set in hook Parameters, it include 'ContentType' 'InsecureSSL' 'Secret' 'URL'
-func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
+func (g *githubClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
 	if value, ok := filter.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
-		GITHUB_OWNER = value
+		g.owner = value
 	}
 
-	repository, _, err := g.client.Repositories.Get(ctx, GITHUB_OWNER, filter.Name)
+	repository, _, err := g.client.Repositories.Get(ctx, g.owner, filter.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	branch := repository.GetDefaultBranch()
-	if branch == "" {
-		branch = "master"
+	g.branch = repository.GetDefaultBranch()
+	if g.branch == "" {
+		g.branch = "master"
 	}
 
 	wfs := map[string]Workflow{}
 	opts := &github.ListOptions{Page: 1, PerPage: 1000}
-	if workflows, _, err := g.client.Actions.ListWorkflows(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
+	if workflows, _, err := g.client.Actions.ListWorkflows(ctx, g.owner, filter.Name, opts); err != nil {
 		log.Println(err.Error())
 	} else {
 		for _, v := range workflows.Workflows {
@@ -177,7 +178,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 				workflow.BadgeMarkdown = fmt.Sprintf("[![%s](%s)](https://github.com/%s/%s/actions/workflows/%s)",
 					v.GetName(),
 					v.GetBadgeURL(),
-					GITHUB_OWNER,
+					g.owner,
 					filter.Name,
 					path,
 				)
@@ -187,7 +188,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	hooks := []WebHook{}
-	if githooks, _, err := g.client.Repositories.ListHooks(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
+	if githooks, _, err := g.client.Repositories.ListHooks(ctx, g.owner, filter.Name, opts); err != nil {
 		log.Println(err.Error())
 	} else {
 		for _, hook := range githooks {
@@ -215,7 +216,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	envs := map[string]EnvironmentVariable{}
-	if gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, GITHUB_OWNER, filter.Name, opts); err != nil {
+	if gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, g.owner, filter.Name, opts); err != nil {
 		log.Println(err.Error())
 	} else {
 		for _, v := range gitSecrets.Secrets {
@@ -235,7 +236,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 
 	deployments := map[string]Deployment{}
 	// this api can not get deployment status, may be need graphql.
-	if gitDeployments, _, err := g.client.Repositories.ListDeployments(ctx, GITHUB_OWNER, filter.Name, &github.DeploymentsListOptions{
+	if gitDeployments, _, err := g.client.Repositories.ListDeployments(ctx, g.owner, filter.Name, &github.DeploymentsListOptions{
 		ListOptions: github.ListOptions{Page: 1, PerPage: 20},
 	}); err != nil {
 		log.Println(err.Error())
@@ -257,7 +258,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	environments := []string{}
-	if gitRuns, _, err := g.client.Repositories.ListEnvironments(ctx, GITHUB_OWNER, filter.Name, &github.EnvironmentListOptions{
+	if gitRuns, _, err := g.client.Repositories.ListEnvironments(ctx, g.owner, filter.Name, &github.EnvironmentListOptions{
 		ListOptions: github.ListOptions{Page: 1, PerPage: 20},
 	}); err != nil {
 		log.Println(err.Error())
@@ -268,8 +269,8 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	runs := map[string]WorkflowRun{}
-	if gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, GITHUB_OWNER, filter.Name, &github.ListWorkflowRunsOptions{
-		Branch:      branch,
+	if gitRuns, _, err := g.client.Actions.ListRepositoryWorkflowRuns(ctx, g.owner, filter.Name, &github.ListWorkflowRunsOptions{
+		Branch:      g.branch,
 		ListOptions: github.ListOptions{Page: 1, PerPage: 20},
 	}); err != nil {
 		log.Println(err.Error())
@@ -288,7 +289,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 		}
 	}
 
-	readme, _ := g.getGithubReadmeMarkdown(ctx, GITHUB_OWNER, filter.Name, branch)
+	readme, _ := g.getGithubReadmeMarkdown(ctx, g.owner, filter.Name, g.branch)
 
 	project := g.buildGithubProject(repository)
 	project.WebHooks = hooks
@@ -302,7 +303,7 @@ func (g *GithubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	return &project, nil
 }
 
-func (g *GithubClient) getGithubReadmeMarkdown(ctx context.Context, owner, repo, branch string) (string, error) {
+func (g *githubClient) getGithubReadmeMarkdown(ctx context.Context, owner, repo, branch string) (string, error) {
 	readme, _, err := g.client.Repositories.GetReadme(ctx, owner, repo, &github.RepositoryContentGetOptions{Ref: branch})
 	if err != nil {
 		return "", fmt.Errorf("failed to get README: %w", err)
@@ -351,7 +352,7 @@ func fixRelativeLinks(markdown, owner, repo, branch string) string {
 	return markdown
 }
 
-func (g *GithubClient) buildGithubCommonBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {
+func (g *githubClient) buildGithubCommonBadge(name string, status string, url string) (badgeUrl string, badgeMarkDown string) {
 	name = extensions.Sanitize2String(name, " ")
 	color := "red"
 	switch status {
@@ -367,7 +368,7 @@ func (g *GithubClient) buildGithubCommonBadge(name string, status string, url st
 	return
 }
 
-func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) (badgeUrl string, badgeMarkDown string) {
+func (g *githubClient) buildGithubProjectBadge(archived bool, url string) (badgeUrl string, badgeMarkDown string) {
 	badgeUrl = fmt.Sprintf(CommonProjectBadge, "status", "Unarchived", "brightgreen", "github", url)
 	if archived {
 		badgeUrl = fmt.Sprintf(CommonProjectBadge, "status", "Archived", "red", "github", url)
@@ -378,7 +379,7 @@ func (g *GithubClient) buildGithubProjectBadge(archived bool, url string) (badge
 }
 
 // if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
-func (g *GithubClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
+func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
 	config := &github.HookConfig{
 		ContentType: github.String("json"),
 		InsecureSSL: github.String("1"),
@@ -425,9 +426,8 @@ func (g *GithubClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	return hook, nil
 }
 
-// Need GITHUB_OWNER in DeleteWebHookRequest 'Parameters'
-// Need GITHUB_REPO in DeleteWebHookRequest 'Parameters',
-func (g *GithubClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
+// Need GITHUB_OWNER and GITHUB_REPO in DeleteWebHookRequest 'Parameters'
+func (g *githubClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
 	webHookId, err := strconv.ParseInt(request.WebHookId, 10, 64)
 	if err != nil {
 		return err
@@ -452,7 +452,7 @@ func (g *GithubClient) DeleteWebHook(ctx context.Context, request DeleteWebHookR
 	return err
 }
 
-func (g *GithubClient) GetUser(ctx context.Context) (*User, error) {
+func (g *githubClient) GetUser(ctx context.Context) (*User, error) {
 	githubUser, _, err := g.client.Users.Get(ctx, "")
 	if err != nil {
 		return nil, err

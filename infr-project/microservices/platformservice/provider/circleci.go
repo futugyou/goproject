@@ -10,39 +10,39 @@ import (
 	"github.com/futugyou/circleci"
 )
 
-type CircleClient struct {
+type circleClient struct {
 	client *circleci.CircleciClient
 	token  string
 }
 
-func NewCircleClient(token string) (*CircleClient, error) {
+func newCircleClient(_ context.Context, token string) (*circleClient, error) {
 	client := circleci.NewClientV2(token)
-	return &CircleClient{
+	return &circleClient{
 		client,
 		token,
 	}, nil
 }
 
-func NewCircleClientV1(token string) (*CircleClient, error) {
+func newCircleClientV1(token string) (*circleClient, error) {
 	client := circleci.NewClientV1(token)
-	return &CircleClient{
+	return &circleClient{
 		client,
 		token,
 	}, nil
 }
 
-const CircleciProjectUrl = "https://app.circleci.com/pipelines/%s/%s/%s"
-const CircleciProjectBadge = "https://dl.circleci.com/status-badge/img/%s/%s/%s/tree/%s.svg?style=svg"
-const CircleciProjectBadgeFull = "[![CircleCI](https://dl.circleci.com/status-badge/img/%s/%s/%s/tree/%s.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/%s/%s/%s/tree/%s)"
-const CircleciWorkflowBadge = "https://dl.circleci.com/insights-snapshot/%s/%s/%s/%s/%s/badge.svg?window=30d"
-const CircleciWorkflowBadgeFull = "[![CircleCI](https://dl.circleci.com/insights-snapshot/%s/%s/%s/%s/%s/badge.svg?window=30d)](https://app.circleci.com/insights/%s/%s/%s/workflows/%s/overview?branch=%s&reporting-window=last-30-days&insights-snapshot=true)"
+const circleciProjectUrl = "https://app.circleci.com/pipelines/%s/%s/%s"
+const circleciProjectBadge = "https://dl.circleci.com/status-badge/img/%s/%s/%s/tree/%s.svg?style=svg"
+const circleciProjectBadgeFull = "[![CircleCI](https://dl.circleci.com/status-badge/img/%s/%s/%s/tree/%s.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/%s/%s/%s/tree/%s)"
+const circleciWorkflowBadge = "https://dl.circleci.com/insights-snapshot/%s/%s/%s/%s/%s/badge.svg?window=30d"
+const circleciWorkflowBadgeFull = "[![CircleCI](https://dl.circleci.com/insights-snapshot/%s/%s/%s/%s/%s/badge.svg?window=30d)](https://app.circleci.com/insights/%s/%s/%s/workflows/%s/overview?branch=%s&reporting-window=last-30-days&insights-snapshot=true)"
 
-var CircleciVCSMapping = map[string]string{"gh": "github", "bb": "bitbucket"}
-var CircleciBadgeVCSMapping = map[string]string{"github": "gh", "bitbucket": "bb"}
+var circleciVCSMapping = map[string]string{"gh": "github", "bb": "bitbucket"}
+var circleciBadgeVCSMapping = map[string]string{"github": "gh", "bitbucket": "bb"}
 
 // Parameters MUST include org_slug. eg. gh/demo
 // Parameters can set circleci_project_url. eg. https://app.circleci.com/pipelines/%s/%s/%s
-func (g *CircleClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
+func (g *circleClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
 	org_slug := ""
 	if org, ok := request.Parameters["org_slug"]; ok {
 		org_slug = org
@@ -63,11 +63,11 @@ func (g *CircleClient) CreateProject(ctx context.Context, request CreateProjectR
 	url := ""
 	if len(orgSplit) == 2 {
 		_, vcs_full := g.getCircleciVCS(orgSplit[0])
-		circleciProjectUrl := CircleciProjectUrl
+		circleciUrl := circleciProjectUrl
 		if url, ok := request.Parameters["circleci_project_url"]; ok {
-			circleciProjectUrl = url
+			circleciUrl = url
 		}
-		url = fmt.Sprintf(circleciProjectUrl, vcs_full, orgSplit[1], project.Name)
+		url = fmt.Sprintf(circleciUrl, vcs_full, orgSplit[1], project.Name)
 	}
 
 	return &Project{
@@ -79,8 +79,8 @@ func (g *CircleClient) CreateProject(ctx context.Context, request CreateProjectR
 
 // For now circleci api v2 do not include list project api,
 // So, we need use api v1.1
-func (g *CircleClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
-	client, err := NewCircleClientV1(g.token)
+func (g *circleClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
+	client, err := newCircleClientV1(g.token)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (g *CircleClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 		return nil, err
 	}
 
-	url := CircleciProjectUrl
+	url := circleciProjectUrl
 	if u, ok := filter.Parameters["circleci_project_url"]; ok {
 		url = u
 	}
@@ -105,7 +105,7 @@ func (g *CircleClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 
 // Need org_slug in ProjectFilter 'Parameters'
 // circleci webhook will set some other information in hook Parameters, it include 'Scope' 'SigningSecret' 'VerifyTLS'
-func (g *CircleClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
+func (g *circleClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
 	org_slug := ""
 	if org, ok := filter.Parameters["org_slug"]; ok {
 		org_slug = org
@@ -120,7 +120,7 @@ func (g *CircleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 
 	vcs, vcs_full := g.getCircleciVCS(circleciProject.VcsInfo.Provider)
 
-	url_format := CircleciProjectUrl
+	url_format := circleciProjectUrl
 	if url, ok := filter.Parameters["circleci_project_url"]; ok {
 		url_format = url
 	}
@@ -216,7 +216,7 @@ func (g *CircleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 }
 
 // if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
-func (g *CircleClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
+func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
 	secret := ""
 	if s, ok := request.WebHook.Parameters["SigningSecret"]; ok && len(s) > 0 {
 		secret = s
@@ -264,12 +264,12 @@ func (g *CircleClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	return webHook, nil
 }
 
-func (g *CircleClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
+func (g *circleClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
 	_, err := g.client.Webhook.DeleteWebhook(ctx, request.WebHookId)
 	return err
 }
 
-func (g *CircleClient) GetUser(ctx context.Context) (*User, error) {
+func (g *circleClient) GetUser(ctx context.Context) (*User, error) {
 	circleUser, err := g.client.User.GetUserInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -283,14 +283,14 @@ func (g *CircleClient) GetUser(ctx context.Context) (*User, error) {
 	return user, nil
 }
 
-func (g *CircleClient) getCircleciVCS(vcsString string) (vcs string, vcs_full string) {
+func (g *circleClient) getCircleciVCS(vcsString string) (vcs string, vcs_full string) {
 	vcsString = strings.ToLower(vcsString)
-	if v, ok := CircleciVCSMapping[vcsString]; ok {
+	if v, ok := circleciVCSMapping[vcsString]; ok {
 		vcs = vcsString
 		vcs_full = v
 	}
 
-	if v, ok := CircleciBadgeVCSMapping[vcsString]; ok {
+	if v, ok := circleciBadgeVCSMapping[vcsString]; ok {
 		vcs = v
 		vcs_full = vcsString
 	}
@@ -298,21 +298,21 @@ func (g *CircleClient) getCircleciVCS(vcsString string) (vcs string, vcs_full st
 	return vcs, vcs_full
 }
 
-func (*CircleClient) buildProjectBadge(vcs string, user string, repo string, branch string) (badgeUrl string, badgeMarkDown string) {
-	badgeUrl = fmt.Sprintf(CircleciProjectBadge, vcs, user, repo, branch)
-	badgeMarkDown = fmt.Sprintf(CircleciProjectBadgeFull, vcs, user, repo, branch, vcs, user, repo, branch)
+func (*circleClient) buildProjectBadge(vcs string, user string, repo string, branch string) (badgeUrl string, badgeMarkDown string) {
+	badgeUrl = fmt.Sprintf(circleciProjectBadge, vcs, user, repo, branch)
+	badgeMarkDown = fmt.Sprintf(circleciProjectBadgeFull, vcs, user, repo, branch, vcs, user, repo, branch)
 	return
 }
 
-func (*CircleClient) buildWorkflowBadge(vcs string, vcs_full string, org_name string, project_name string, workflow_name string, branch string) (badgeUrl string, badgeMarkDown string) {
-	badgeUrl = fmt.Sprintf(CircleciWorkflowBadge,
+func (*circleClient) buildWorkflowBadge(vcs string, vcs_full string, org_name string, project_name string, workflow_name string, branch string) (badgeUrl string, badgeMarkDown string) {
+	badgeUrl = fmt.Sprintf(circleciWorkflowBadge,
 		vcs,
 		org_name,
 		project_name,
 		branch,
 		workflow_name,
 	)
-	badgeMarkDown = fmt.Sprintf(CircleciWorkflowBadgeFull, vcs,
+	badgeMarkDown = fmt.Sprintf(circleciWorkflowBadgeFull, vcs,
 		org_name,
 		project_name,
 		branch,
@@ -326,7 +326,7 @@ func (*CircleClient) buildWorkflowBadge(vcs string, vcs_full string, org_name st
 	return
 }
 
-func (*CircleClient) buildProjectUrl(org_slug string, url_format string, vcs_full string, name string) string {
+func (*circleClient) buildProjectUrl(org_slug string, url_format string, vcs_full string, name string) string {
 	url := ""
 	orgSplit := strings.Split(org_slug, "/")
 	if len(orgSplit) == 2 {
@@ -336,7 +336,7 @@ func (*CircleClient) buildProjectUrl(org_slug string, url_format string, vcs_ful
 	return url
 }
 
-func (g *CircleClient) buildProject(pro circleci.ProjectListItem, url string) Project {
+func (g *circleClient) buildProject(pro circleci.ProjectListItem, url string) Project {
 	vcs, vcs_full := g.getCircleciVCS(pro.VcsType)
 	badgeURL, badgeMarkdown := g.buildProjectBadge(vcs, pro.Username, pro.Reponame, pro.DefaultBranch)
 
@@ -352,7 +352,7 @@ func (g *CircleClient) buildProject(pro circleci.ProjectListItem, url string) Pr
 	}
 }
 
-func (g *CircleClient) buildWrokflow(vcs string, vcs_full string, pro circleci.ProjectListItem) map[string]WorkflowRun {
+func (g *circleClient) buildWrokflow(vcs string, vcs_full string, pro circleci.ProjectListItem) map[string]WorkflowRun {
 	default_branch := pro.DefaultBranch
 	branchInfo := pro.Branches[default_branch]
 

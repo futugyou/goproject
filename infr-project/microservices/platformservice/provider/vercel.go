@@ -12,22 +12,22 @@ import (
 	"github.com/futugyou/vercel"
 )
 
-type VercelClient struct {
+type vercelClient struct {
 	client *vercel.VercelClient
 }
 
-func NewVercelClient(token string) (*VercelClient, error) {
+func newVercelClient(_ context.Context, token string) (*vercelClient, error) {
 	client := vercel.NewClient(token)
-	return &VercelClient{
+	return &vercelClient{
 		client,
 	}, nil
 }
 
-const VercelProjectUrl = "https://vercel.com/%s/%s"
+const vercelProjectUrl = "https://vercel.com/%s/%s"
 
 // Optional. TEAM_SLUG TEAM_ID in CreateProjectRequest 'Parameters',
 // default value ” ”.
-func (g *VercelClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
+func (g *vercelClient) CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error) {
 	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
 	req := vercel.UpsertProjectRequest{
 		Name: request.Name,
@@ -44,7 +44,7 @@ func (g *VercelClient) CreateProject(ctx context.Context, request CreateProjectR
 
 	url := ""
 	if len(team_slug) > 0 {
-		url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
+		url = fmt.Sprintf(vercelProjectUrl, team_slug, vercelProject.Name)
 	}
 
 	return &Project{
@@ -56,7 +56,7 @@ func (g *VercelClient) CreateProject(ctx context.Context, request CreateProjectR
 
 // Optional. TEAM_SLUG TEAM_ID in CreateProjectRequest 'Parameters',
 // default value ” ”.
-func (g *VercelClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
+func (g *vercelClient) ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error) {
 	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
 	request := vercel.ListProjectParameter{
 		BaseUrlParameter: vercel.BaseUrlParameter{
@@ -73,7 +73,7 @@ func (g *VercelClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 	for _, project := range vercelProjects.Projects {
 		url := ""
 		if len(team_slug) > 0 {
-			url = fmt.Sprintf(VercelProjectUrl, team_slug, project.Name)
+			url = fmt.Sprintf(vercelProjectUrl, team_slug, project.Name)
 		}
 
 		properties := map[string]string{}
@@ -106,7 +106,7 @@ func (g *VercelClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 	return projects, nil
 }
 
-func (g *VercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
+func (g *vercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*Project, error) {
 	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
 	request := vercel.GetProjectParameter{
 		IdOrName: filter.Name,
@@ -160,7 +160,7 @@ func (g *VercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 
 	url := ""
 	if len(team_slug) > 0 {
-		url = fmt.Sprintf(VercelProjectUrl, team_slug, vercelProject.Name)
+		url = fmt.Sprintf(vercelProjectUrl, team_slug, vercelProject.Name)
 	}
 
 	deploymentRequestLimit := "20"
@@ -197,7 +197,7 @@ func (g *VercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	return project, nil
 }
 
-func (*VercelClient) buildVercelBadge(lable string, url string, readyState string) (badgeUrl string, badgeMarkDown string) {
+func (*vercelClient) buildVercelBadge(lable string, url string, readyState string) (badgeUrl string, badgeMarkDown string) {
 	lable = strings.ReplaceAll(lable, "-", "%20")
 	badgeUrl = fmt.Sprintf(CommonProjectBadge, lable, "Norecord", "red", "vercel", url)
 	if readyState == "READY" {
@@ -210,7 +210,7 @@ func (*VercelClient) buildVercelBadge(lable string, url string, readyState strin
 	return
 }
 
-func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]EnvironmentVariable {
+func (*vercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]EnvironmentVariable {
 	envs := map[string]EnvironmentVariable{}
 	for _, v := range vercelEnvs {
 		envs[v.ID] = EnvironmentVariable{
@@ -225,7 +225,7 @@ func (*VercelClient) buildVercelEnv(vercelEnvs []vercel.Env) map[string]Environm
 	return envs
 }
 
-func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.Deployment, url string) map[string]Deployment {
+func (g *vercelClient) buildVercelDeployment(vercelDeployments []vercel.Deployment, url string) map[string]Deployment {
 	deployments := map[string]Deployment{}
 	for _, v := range vercelDeployments {
 		if v.Target == nil || len(v.Name) == 0 || len(v.ReadyState) == 0 {
@@ -248,7 +248,7 @@ func (g *VercelClient) buildVercelDeployment(vercelDeployments []vercel.Deployme
 	return deployments
 }
 
-func (g *VercelClient) buildVercelDeploymentWithLatest(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
+func (g *vercelClient) buildVercelDeploymentWithLatest(vercelDeployments []vercel.LatestDeployment, url string) map[string]Deployment {
 	deployments := map[string]Deployment{}
 	for _, v := range vercelDeployments {
 		if len(v.Name) == 0 || len(v.Target) == 0 || len(v.ReadyState) == 0 {
@@ -270,7 +270,7 @@ func (g *VercelClient) buildVercelDeploymentWithLatest(vercelDeployments []verce
 	return deployments
 }
 
-func (g *VercelClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
+func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
 	team_slug, team_id := "", ""
 	events := request.WebHook.Events
 	if len(events) == 0 {
@@ -306,7 +306,7 @@ func (g *VercelClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	return hook, nil
 }
 
-func (g *VercelClient) getTeamSlugAndId(ctx context.Context, parameters map[string]string) (team_slug string, team_id string, err error) {
+func (g *vercelClient) getTeamSlugAndId(ctx context.Context, parameters map[string]string) (team_slug string, team_id string, err error) {
 	if value, ok := parameters["TEAM_SLUG"]; ok {
 		team_slug = value
 	}
@@ -328,7 +328,7 @@ func (g *VercelClient) getTeamSlugAndId(ctx context.Context, parameters map[stri
 	return
 }
 
-func (g *VercelClient) getDefaultTeam(ctx context.Context) (*VercelTeam, error) {
+func (g *vercelClient) getDefaultTeam(ctx context.Context) (*VercelTeam, error) {
 	team := new(VercelTeam)
 	request := vercel.ListTeamParameter{}
 	teams, err := g.client.Teams.ListTeam(ctx, request)
@@ -351,7 +351,7 @@ type VercelTeam struct {
 	Name string
 }
 
-func (g *VercelClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
+func (g *vercelClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
 	req := vercel.DeleteWebhookRequest{
 		WebhookId: request.WebHookId,
 	}
@@ -361,7 +361,7 @@ func (g *VercelClient) DeleteWebHook(ctx context.Context, request DeleteWebHookR
 	return err
 }
 
-func (g *VercelClient) GetUser(ctx context.Context) (*User, error) {
+func (g *vercelClient) GetUser(ctx context.Context) (*User, error) {
 	vercelUser, err := g.client.User.GetUser(ctx)
 	if err != nil {
 		return nil, err
