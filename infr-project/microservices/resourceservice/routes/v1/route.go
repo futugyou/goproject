@@ -10,7 +10,7 @@ import (
 	"github.com/futugyou/domaincore/qstashdispatcherimpl"
 
 	"github.com/futugyou/resourceservice/application"
-	"github.com/futugyou/resourceservice/domain"
+	"github.com/futugyou/resourceservice/infrastructure"
 	"github.com/futugyou/resourceservice/options"
 
 	"github.com/futugyou/resourceservice/viewmodel"
@@ -141,18 +141,8 @@ func createResourceService(ctx context.Context) (*application.ResourceService, e
 		return nil, err
 	}
 
-	eventStoreConfig := mongoimpl.DBConfig{
-		DBName:         option.DBName,
-		CollectionName: "resource_events",
-	}
-
-	eventStore := mongoimpl.NewMongoEventStore(mongoclient, eventStoreConfig, domain.CreateEvent)
-
-	snapshotStoreConfig := mongoimpl.DBConfig{
-		DBName:         option.DBName,
-		CollectionName: "resources",
-	}
-	snapshotStore := mongoimpl.NewMongoSnapshotStore[*domain.Resource](mongoclient, snapshotStoreConfig)
+	eventStore := infrastructure.NewResourceEventStore(mongoclient, option)
+	snapshotStore := infrastructure.NewResourceSnapshotStore(mongoclient, option)
 
 	unitOfWork, err := mongoimpl.NewMongoUnitOfWork(mongoclient)
 	if err != nil {
