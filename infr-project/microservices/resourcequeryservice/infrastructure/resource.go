@@ -15,6 +15,9 @@ type ResourceQueryRepository struct {
 }
 
 func NewResourceQueryRepository(client *mongo.Client, config mongoimpl.DBConfig) *ResourceQueryRepository {
+	if config.CollectionName == "" {
+		config.CollectionName = "resources_query"
+	}
 	return &ResourceQueryRepository{
 		BaseRepository: *mongoimpl.NewBaseRepository[domain.Resource](client, config),
 	}

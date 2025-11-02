@@ -27,10 +27,6 @@ type Project struct {
 	DefaultVersion  string         `json:"default_version"`
 }
 
-func (r Project) AggregateName() string {
-	return "projects"
-}
-
 func NewProject(name string, description string, state ProjectState, start *time.Time, end *time.Time, tags []string) *Project {
 	return &Project{
 		Aggregate: domain.Aggregate{

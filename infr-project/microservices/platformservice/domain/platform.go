@@ -241,10 +241,6 @@ func (w *Platform) ProviderVaultInfo() (string, error) {
 	return vaultId, nil
 }
 
-func (r Platform) AggregateName() string {
-	return "platforms"
-}
-
 func (w *Platform) checkPlatformProviderSecrets(secretMap map[string]Secret) error {
 	switch w.Provider {
 	case PlatformProviderCircleci:

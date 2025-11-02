@@ -16,12 +16,8 @@ type MongoSnapshotStore[EventSourcing domain.EventSourcing] struct {
 }
 
 func NewMongoSnapshotStore[EventSourcing domain.EventSourcing](client *mongo.Client, config DBConfig) *MongoSnapshotStore[EventSourcing] {
-	collectionName := config.CollectionName
-	if collectionName == "" {
-		collectionName = (*new(EventSourcing)).AggregateName()
-	}
 	return &MongoSnapshotStore[EventSourcing]{
-		CollectionName: collectionName,
+		CollectionName: config.CollectionName,
 		DBName:         config.DBName,
 		Client:         client,
 	}

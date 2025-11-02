@@ -137,17 +137,22 @@ func createResource(c *gin.Context) {
 func createResourceService(ctx context.Context) (*application.ResourceService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
-	config := mongoimpl.DBConfig{
-		DBName:         option.DBName,
-		CollectionName: "resource_events",
-	}
-
 	if err != nil {
 		return nil, err
 	}
 
-	eventStore := mongoimpl.NewMongoEventStore(mongoclient, config, domain.CreateEvent)
-	snapshotStore := mongoimpl.NewMongoSnapshotStore[*domain.Resource](mongoclient, config)
+	eventStoreConfig := mongoimpl.DBConfig{
+		DBName:         option.DBName,
+		CollectionName: "resource_events",
+	}
+
+	eventStore := mongoimpl.NewMongoEventStore(mongoclient, eventStoreConfig, domain.CreateEvent)
+
+	snapshotStoreConfig := mongoimpl.DBConfig{
+		DBName:         option.DBName,
+		CollectionName: "resources",
+	}
+	snapshotStore := mongoimpl.NewMongoSnapshotStore[*domain.Resource](mongoclient, snapshotStoreConfig)
 
 	unitOfWork, err := mongoimpl.NewMongoUnitOfWork(mongoclient)
 	if err != nil {

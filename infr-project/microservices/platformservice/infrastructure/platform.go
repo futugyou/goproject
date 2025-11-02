@@ -19,6 +19,9 @@ type PlatformRepository struct {
 }
 
 func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *PlatformRepository {
+	if config.CollectionName == "" {
+		config.CollectionName = "platforms"
+	}
 	return &PlatformRepository{
 		BaseRepository: *mongoimpl.NewBaseRepository[domain.Platform](client, config),
 	}

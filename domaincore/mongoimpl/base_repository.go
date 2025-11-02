@@ -23,14 +23,9 @@ type BaseRepository[Aggregate domain.AggregateRoot] struct {
 }
 
 func NewBaseRepository[Aggregate domain.AggregateRoot](client *mongo.Client, config DBConfig) *BaseRepository[Aggregate] {
-	collectionName := config.CollectionName
-	if collectionName == "" {
-		collectionName = (*new(Aggregate)).AggregateName()
-	}
-
 	return &BaseRepository[Aggregate]{
 		DBName:         config.DBName,
-		CollectionName: collectionName,
+		CollectionName: config.CollectionName,
 		Client:         client,
 	}
 }

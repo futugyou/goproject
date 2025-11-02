@@ -85,10 +85,6 @@ func NewVault(key string, value string, opts ...VaultOption) *Vault {
 	return vault
 }
 
-func (r Vault) AggregateName() string {
-	return "vaults"
-}
-
 func (v *Vault) UpdateKey(key string) error {
 	if v.Key != key {
 		v.Key = key

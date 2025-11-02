@@ -18,7 +18,3 @@ type Resource struct {
 	UpdatedAt        time.Time `bson:"updated_at"`
 	Tags             []string  `bson:"tags"`
 }
-
-func (r Resource) AggregateName() string {
-	return "resources_query"
-}

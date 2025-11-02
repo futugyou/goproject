@@ -75,10 +75,6 @@ func (r *Resource) DeleteResource() (*Resource, error) {
 	return r, err
 }
 
-func (r *Resource) AggregateName() string {
-	return "resources"
-}
-
 func (r *Resource) Apply(event domain.DomainEvent) error {
 	if processor, ok := ResourceEventProcessors[reflect.TypeOf(event)]; ok {
 		processor.EventApply(r, event)

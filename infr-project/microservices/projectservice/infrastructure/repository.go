@@ -17,6 +17,9 @@ type ProjectRepository struct {
 }
 
 func NewProjectRepository(client *mongo.Client, config mongoimpl.DBConfig) *ProjectRepository {
+	if config.CollectionName == "" {
+		config.CollectionName = "projects"
+	}
 	return &ProjectRepository{
 		BaseRepository: *mongoimpl.NewBaseRepository[domain.Project](client, config),
 	}

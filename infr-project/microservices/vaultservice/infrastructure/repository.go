@@ -18,6 +18,9 @@ type VaultRepository struct {
 }
 
 func NewVaultRepository(client *mongo.Client, config mongoimpl.DBConfig) *VaultRepository {
+	if config.CollectionName == "" {
+		config.CollectionName = "vaults"
+	}
 	return &VaultRepository{
 		BaseRepository: *mongoimpl.NewBaseRepository[domain.Vault](client, config),
 	}
@@ -28,7 +31,7 @@ func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []doma
 		return fmt.Errorf("not data need insert")
 	}
 
-	c := r.Client.Database(r.DBName).Collection(vaults[0].AggregateName())
+	c := r.Client.Database(r.DBName).Collection(r.CollectionName)
 	documents := make([]any, 0)
 	for i := range vaults {
 		documents = append(documents, vaults[i])
