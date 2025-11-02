@@ -201,14 +201,14 @@ func (w *Platform) RemoveProject(projectId string) (*Platform, error) {
 	}
 }
 
-func (w *Platform) UpdateWebhook(projectId string, hook Webhook) (*Platform, error) {
+func (w *Platform) UpdateWebhook(projectId string, hook *Webhook) (*Platform, error) {
 	if err := w.stateCheck(); err != nil {
 		return nil, err
 	}
 
 	if project, exists := w.Projects[projectId]; exists {
 		projectPointer := &project
-		projectPointer.UpsertWebhook(hook)
+		projectPointer.UpdateWebhook(hook)
 		w.Projects[projectId] = *projectPointer
 		return w, nil
 	} else {
@@ -216,30 +216,13 @@ func (w *Platform) UpdateWebhook(projectId string, hook Webhook) (*Platform, err
 	}
 }
 
-func (w *Platform) RemoveWebhook(projectId string, hookName string) (*Platform, error) {
-	if err := w.stateCheck(); err != nil {
-		return nil, err
-	}
-
-	if project, exists := w.Projects[projectId]; exists {
-		projectPointer := &project
-		if err := projectPointer.RemoveWebhook(hookName); err != nil {
-			return nil, err
-		}
-		w.Projects[projectId] = *projectPointer
-		return w, nil
-	} else {
-		return nil, fmt.Errorf("project id: %s does not exist", projectId)
-	}
-}
-
-func (w *Platform) GetWebhook(projectId string, hookName string) (*Webhook, error) {
+func (w *Platform) GetWebhook(projectId string) *Webhook {
 	project, exists := w.Projects[projectId]
 	if !exists {
-		return nil, fmt.Errorf("project id: %s does not exist", projectId)
+		return nil
 	}
 
-	return project.GetWebhook(hookName)
+	return project.GetWebhook()
 }
 
 func (w *Platform) ProviderVaultInfo() (string, error) {

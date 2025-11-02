@@ -2,7 +2,6 @@ package domain
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,7 +13,7 @@ func (r *PlatformProject) MarshalJSON() ([]byte, error) {
 }
 
 func (r *PlatformProject) UnmarshalJSON(data []byte) error {
-	var m map[string]interface{}
+	var m map[string]any
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
@@ -27,7 +26,7 @@ func (r *PlatformProject) MarshalBSON() ([]byte, error) {
 }
 
 func (r *PlatformProject) UnmarshalBSON(data []byte) error {
-	var m map[string]interface{}
+	var m map[string]any
 	if err := bson.Unmarshal(data, &m); err != nil {
 		return err
 	}
@@ -35,7 +34,7 @@ func (r *PlatformProject) UnmarshalBSON(data []byte) error {
 	return makePlatformProjectEntity(r, m, bson.Marshal, bson.Unmarshal)
 }
 
-func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, marshal func(interface{}) ([]byte, error), unmarshal func([]byte, any) error) error {
+func makePlatformProjectEntity(r *PlatformProject, m map[string]any, marshal func(any) ([]byte, error), unmarshal func([]byte, any) error) error {
 	if value, ok := m["id"].(string); ok {
 		r.ID = value
 	}
@@ -60,10 +59,6 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.ImageUrl = value
 	}
 
-	if value, ok := m["image_data"].(primitive.Binary); ok {
-		r.ImageData = value.Data
-	}
-
 	if value, ok := m["properties"].(primitive.A); ok {
 		properties, err := parseArrayToMap[Property](value, marshal, unmarshal)
 		if err != nil {
@@ -80,22 +75,11 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 		r.Secrets = secrets
 	}
 
-	if value, ok := m["webhooks"].(primitive.A); ok {
-		var webhooks []Webhook
-		for _, item := range value {
-			jsonBytes, err := marshal(item)
-			if err != nil {
-				return fmt.Errorf("failed to marshal item: %v", err)
-			}
-
-			var webhook Webhook
-			if err := unmarshal(jsonBytes, &webhook); err != nil {
-				return fmt.Errorf("failed to unmarshal item to Webhook: %v", err)
-			}
-
-			webhooks = append(webhooks, webhook)
-		}
-		r.Webhooks = webhooks
+	if raw, ok := m["webhook"].(primitive.M); ok {
+		bytes, _ := bson.Marshal(raw)
+		var webhook Webhook
+		_ = bson.Unmarshal(bytes, &webhook)
+		r.Webhook = &webhook
 	}
 
 	if value, ok := m["tags"].([]string); ok {
@@ -113,7 +97,7 @@ func makePlatformProjectEntity(r *PlatformProject, m map[string]interface{}, mar
 	return nil
 }
 
-func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
+func makePlatformProjectMap(r *PlatformProject) map[string]any {
 	properties := make([]Property, 0, len(r.Properties))
 	for _, k := range r.Properties {
 		properties = append(properties, k)
@@ -123,18 +107,20 @@ func makePlatformProjectMap(r *PlatformProject) map[string]interface{} {
 	for _, k := range r.Secrets {
 		secrets = append(secrets, k)
 	}
-	m := map[string]interface{}{
+	m := map[string]any{
 		"id":                  r.ID,
 		"name":                r.Name,
 		"url":                 r.Url,
 		"properties":          properties,
 		"secrets":             secrets,
-		"webhooks":            r.Webhooks,
 		"provider_project_id": r.ProviderProjectId,
 		"description":         r.Description,
-		"image_data":          r.ImageData,
 		"image_url":           r.ImageUrl,
 		"tags":                r.Tags,
+	}
+
+	if r.Webhook != nil {
+		m["webhook"] = r.Webhook
 	}
 
 	return m

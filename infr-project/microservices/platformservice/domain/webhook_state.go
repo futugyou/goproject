@@ -19,20 +19,23 @@ func (c webhookState) String() string {
 
 // Constants for the different webhook states.
 const (
-	WebhookInit     webhookState = "Init"
 	WebhookCreating webhookState = "Creating"
 	WebhookReady    webhookState = "Ready"
+	WebhookFailed   webhookState = "Failed"
+	WebhookDeleted  webhookState = "Deleted"
 )
 
 func GetWebhookState(rType string) WebhookState {
 	switch rType {
-	case "Init":
-		return WebhookInit
 	case "Creating":
 		return WebhookCreating
 	case "Ready":
 		return WebhookReady
+	case "Failed":
+		return WebhookFailed
+	case "Deleted":
+		return WebhookDeleted
 	default:
-		return WebhookInit
+		return WebhookCreating
 	}
 }
