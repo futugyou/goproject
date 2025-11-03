@@ -92,16 +92,49 @@ func (s *BaseCRUD[Aggregate]) Update(ctx context.Context, aggregate Aggregate) e
 	return nil
 }
 
+func buildMongoFilter(input any) bson.D {
+	switch val := input.(type) {
+	case map[string]any:
+		if len(val) == 1 {
+			for k, v := range val {
+				switch k {
+				case "$or", "$and", "$nor":
+					arr := bson.A{}
+					if subList, ok := v.([]any); ok {
+						for _, sub := range subList {
+							arr = append(arr, buildMongoFilter(sub))
+						}
+					}
+					return bson.D{{Key: k, Value: arr}}
+				}
+			}
+		}
+
+		doc := bson.D{}
+		for k, v := range val {
+			doc = append(doc, bson.E{Key: k, Value: v})
+		}
+		return doc
+
+	default:
+		return bson.D{}
+	}
+}
+
 func (s *BaseCRUD[Aggregate]) Find(ctx context.Context, condition *domain.QueryOptions) ([]Aggregate, error) {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
-
 	result := make([]Aggregate, 0)
 
 	filter := bson.D{}
 	op := options.Find()
+
 	if condition != nil {
-		for key, val := range condition.Filters {
-			filter = append(filter, bson.E{Key: key, Value: val})
+		if condition.LogicFilter != nil {
+			filter = buildMongoFilter(condition.LogicFilter)
+		} else if len(condition.Filters) > 0 {
+			for key, val := range condition.Filters {
+				filter = append(filter, bson.E{Key: key, Value: val})
+			}
 		}
 
 		var skip int64 = (int64)((condition.Page - 1) * condition.Limit)
