@@ -11,7 +11,7 @@ import (
 )
 
 type ResourceQueryRepository struct {
-	mongoimpl.BaseRepository[domain.Resource]
+	mongoimpl.BaseCRUD[domain.Resource]
 }
 
 func NewResourceQueryRepository(client *mongo.Client, config mongoimpl.DBConfig) *ResourceQueryRepository {
@@ -19,14 +19,14 @@ func NewResourceQueryRepository(client *mongo.Client, config mongoimpl.DBConfig)
 		config.CollectionName = "resources_query"
 	}
 	return &ResourceQueryRepository{
-		BaseRepository: *mongoimpl.NewBaseRepository[domain.Resource](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Resource](client, config),
 	}
 }
 
 func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*domain.Resource, error) {
 	var page, size int = 1, 1
 	condition := domaincore.NewQueryOptions(&page, &size, nil, map[string]any{"name": name})
-	ent, err := r.BaseRepository.Find(ctx, condition)
+	ent, err := r.Find(ctx, condition)
 	if err != nil {
 		return nil, err
 	}
@@ -38,5 +38,5 @@ func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name st
 
 func (r *ResourceQueryRepository) GetAllResource(ctx context.Context, page *int, size *int) ([]domain.Resource, error) {
 	condition := domaincore.NewQueryOptions(page, size, nil, nil)
-	return r.BaseRepository.Find(ctx, condition)
+	return r.Find(ctx, condition)
 }

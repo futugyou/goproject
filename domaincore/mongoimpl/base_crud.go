@@ -16,21 +16,21 @@ type DBConfig struct {
 	CollectionName string
 }
 
-type BaseRepository[Aggregate domain.AggregateRoot] struct {
+type BaseCRUD[Aggregate domain.AggregateRoot] struct {
 	DBName         string
 	CollectionName string
 	Client         *mongo.Client
 }
 
-func NewBaseRepository[Aggregate domain.AggregateRoot](client *mongo.Client, config DBConfig) *BaseRepository[Aggregate] {
-	return &BaseRepository[Aggregate]{
+func NewBaseCRUD[Aggregate domain.AggregateRoot](client *mongo.Client, config DBConfig) *BaseCRUD[Aggregate] {
+	return &BaseCRUD[Aggregate]{
 		DBName:         config.DBName,
 		CollectionName: config.CollectionName,
 		Client:         client,
 	}
 }
 
-func (s *BaseRepository[Aggregate]) FindByID(ctx context.Context, id string) (*Aggregate, error) {
+func (s *BaseCRUD[Aggregate]) FindByID(ctx context.Context, id string) (*Aggregate, error) {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 
 	filter := bson.D{{Key: "id", Value: id}}
@@ -47,7 +47,7 @@ func (s *BaseRepository[Aggregate]) FindByID(ctx context.Context, id string) (*A
 	return agg, nil
 }
 
-func (s *BaseRepository[Aggregate]) Delete(ctx context.Context, id string) error {
+func (s *BaseCRUD[Aggregate]) Delete(ctx context.Context, id string) error {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 
 	filter := bson.D{{Key: "id", Value: id}}
@@ -59,7 +59,7 @@ func (s *BaseRepository[Aggregate]) Delete(ctx context.Context, id string) error
 	return nil
 }
 
-func (s *BaseRepository[Aggregate]) SoftDelete(ctx context.Context, id string) error {
+func (s *BaseCRUD[Aggregate]) SoftDelete(ctx context.Context, id string) error {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 
 	filter := bson.D{{Key: "id", Value: id}}
@@ -72,13 +72,13 @@ func (s *BaseRepository[Aggregate]) SoftDelete(ctx context.Context, id string) e
 	return nil
 }
 
-func (s *BaseRepository[Aggregate]) Insert(ctx context.Context, aggregate Aggregate) error {
+func (s *BaseCRUD[Aggregate]) Insert(ctx context.Context, aggregate Aggregate) error {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 	_, err := c.InsertOne(ctx, aggregate)
 	return err
 }
 
-func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggregate) error {
+func (s *BaseCRUD[Aggregate]) Update(ctx context.Context, aggregate Aggregate) error {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 	opt := options.Update().SetUpsert(true)
 
@@ -92,7 +92,7 @@ func (s *BaseRepository[Aggregate]) Update(ctx context.Context, aggregate Aggreg
 	return nil
 }
 
-func (s *BaseRepository[Aggregate]) Find(ctx context.Context, condition *domain.QueryOptions) ([]Aggregate, error) {
+func (s *BaseCRUD[Aggregate]) Find(ctx context.Context, condition *domain.QueryOptions) ([]Aggregate, error) {
 	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
 
 	result := make([]Aggregate, 0)

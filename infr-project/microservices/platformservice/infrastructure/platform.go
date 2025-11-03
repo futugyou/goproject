@@ -15,7 +15,7 @@ import (
 )
 
 type PlatformRepository struct {
-	mongoimpl.BaseRepository[domain.Platform]
+	mongoimpl.BaseCRUD[domain.Platform]
 }
 
 func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *PlatformRepository {
@@ -23,7 +23,7 @@ func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *Pla
 		config.CollectionName = "platforms"
 	}
 	return &PlatformRepository{
-		BaseRepository: *mongoimpl.NewBaseRepository[domain.Platform](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Platform](client, config),
 	}
 }
 

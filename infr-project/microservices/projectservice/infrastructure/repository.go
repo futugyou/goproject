@@ -13,7 +13,7 @@ import (
 )
 
 type ProjectRepository struct {
-	mongoimpl.BaseRepository[domain.Project]
+	mongoimpl.BaseCRUD[domain.Project]
 }
 
 func NewProjectRepository(client *mongo.Client, config mongoimpl.DBConfig) *ProjectRepository {
@@ -21,14 +21,14 @@ func NewProjectRepository(client *mongo.Client, config mongoimpl.DBConfig) *Proj
 		config.CollectionName = "projects"
 	}
 	return &ProjectRepository{
-		BaseRepository: *mongoimpl.NewBaseRepository[domain.Project](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Project](client, config),
 	}
 }
 
 func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (*domain.Project, error) {
 	var page, size int = 1, 1
 	condition := coredomain.NewQueryOptions(&page, &size, nil, map[string]interface{}{"name": name})
-	ent, err := s.BaseRepository.Find(ctx, condition)
+	ent, err := s.Find(ctx, condition)
 	if err != nil {
 		return nil, err
 	}
@@ -40,5 +40,5 @@ func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (
 
 func (s *ProjectRepository) GetAllProject(ctx context.Context, page *int, size *int) ([]domain.Project, error) {
 	condition := coredomain.NewQueryOptions(page, size, nil, nil)
-	return s.BaseRepository.Find(ctx, condition)
+	return s.Find(ctx, condition)
 }

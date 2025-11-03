@@ -14,7 +14,7 @@ import (
 )
 
 type VaultRepository struct {
-	mongoimpl.BaseRepository[domain.Vault]
+	mongoimpl.BaseCRUD[domain.Vault]
 }
 
 func NewVaultRepository(client *mongo.Client, config mongoimpl.DBConfig) *VaultRepository {
@@ -22,7 +22,7 @@ func NewVaultRepository(client *mongo.Client, config mongoimpl.DBConfig) *VaultR
 		config.CollectionName = "vaults"
 	}
 	return &VaultRepository{
-		BaseRepository: *mongoimpl.NewBaseRepository[domain.Vault](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Vault](client, config),
 	}
 }
 
@@ -42,13 +42,13 @@ func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []doma
 
 func (r *VaultRepository) GetVaultByIds(ctx context.Context, ids []string) ([]domain.Vault, error) {
 	condition := domaincore.NewQueryOptions(nil, nil, nil, map[string]any{"id": bson.M{"$in": ids}})
-	return r.BaseRepository.Find(ctx, condition)
+	return r.Find(ctx, condition)
 }
 
 func (r *VaultRepository) SearchVaults(ctx context.Context, query domain.VaultQuery) ([]domain.Vault, error) {
 	filter := buildSearchFilter(query.Filters)
 	condition := domaincore.NewQueryOptions(query.Page, query.Size, nil, filter)
-	return r.BaseRepository.Find(ctx, condition)
+	return r.Find(ctx, condition)
 }
 
 func buildSearchFilter(reqs []domain.VaultFilter) map[string]any {
