@@ -28,7 +28,10 @@ func NewResourceQueryRepository(client *mongo.Client, config mongoimpl.DBConfig)
 
 func (r *ResourceQueryRepository) GetResourceByName(ctx context.Context, name string) (*domain.Resource, error) {
 	var page, size int = 1, 1
-	condition := domaincore.NewQueryOptions(&page, &size, nil, map[string]any{"name": name})
+	query := domaincore.NewQuery().
+		Eq("name", name).
+		Build()
+	condition := domaincore.NewQueryOptions(&page, &size, nil, query)
 	ent, err := r.Find(ctx, condition)
 	if err != nil {
 		return nil, err

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	coredomain "github.com/futugyou/domaincore/domain"
@@ -32,7 +31,10 @@ func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *Pla
 
 func (s *PlatformRepository) GetPlatformByName(ctx context.Context, name string) (*domain.Platform, error) {
 	var page, size int = 1, 1
-	condition := coredomain.NewQueryOptions(&page, &size, nil, map[string]any{"name": name})
+	query := coredomain.NewQuery().
+		Eq("name", name).
+		Build()
+	condition := coredomain.NewQueryOptions(&page, &size, nil, query)
 	ent, err := s.Find(ctx, condition)
 	if err != nil {
 		return nil, err
@@ -49,26 +51,54 @@ func (s *PlatformRepository) SearchPlatforms(ctx context.Context, filter domain.
 	return s.Find(ctx, condition)
 }
 
-func (s *PlatformRepository) buildSearchFilter(search domain.PlatformSearch) map[string]any {
-	filter := map[string]any{}
+func (s *PlatformRepository) buildSearchFilter(search domain.PlatformSearch) coredomain.FilterExpr {
+	var filters []coredomain.FilterExpr
 
 	if search.Name != "" {
 		if search.NameFuzzy {
-			filter["name"] = bson.D{{Key: "$regex", Value: search.Name}, {Key: "$options", Value: "i"}}
+			filters = append(filters, coredomain.Like{
+				Field:           "name",
+				Pattern:         search.Name,
+				CaseInsensitive: true,
+			})
 		} else {
-			filter["name"] = search.Name
+			filters = append(filters, coredomain.Eq{
+				Field: "name",
+				Value: search.Name,
+			})
 		}
 	}
 
 	if search.Activate != nil {
-		filter["activate"] = &search.Activate
+		filters = append(filters, coredomain.Eq{
+			Field: "activate",
+			Value: *search.Activate,
+		})
 	}
 
 	if len(search.Tags) > 0 {
-		filter["tags"] = bson.D{{Key: "$in", Value: search.Tags}}
+		filters = append(filters, coredomain.In{
+			Field:  "tags",
+			Values: anySlice(search.Tags),
+		})
 	}
 
-	return filter
+	if len(filters) == 0 {
+		return nil
+	}
+
+	if len(filters) == 1 {
+		return filters[0]
+	}
+	return coredomain.And(filters)
+}
+
+func anySlice(slice []string) []any {
+	res := make([]any, len(slice))
+	for i, v := range slice {
+		res[i] = v
+	}
+	return res
 }
 
 func (s *PlatformRepository) GetPlatformByIdOrName(ctx context.Context, idOrName string) (*domain.Platform, error) {

@@ -30,7 +30,10 @@ func NewProjectRepository(client *mongo.Client, config mongoimpl.DBConfig) *Proj
 
 func (s *ProjectRepository) GetProjectByName(ctx context.Context, name string) (*domain.Project, error) {
 	var page, size int = 1, 1
-	condition := coredomain.NewQueryOptions(&page, &size, nil, map[string]interface{}{"name": name})
+	query := coredomain.NewQuery().
+		Eq("name", name).
+		Build()
+	condition := coredomain.NewQueryOptions(&page, &size, nil, query)
 	ent, err := s.Find(ctx, condition)
 	if err != nil {
 		return nil, err

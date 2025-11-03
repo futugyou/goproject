@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/futugyou/vaultservice/domain"
@@ -44,7 +43,10 @@ func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []doma
 }
 
 func (r *VaultRepository) GetVaultByIds(ctx context.Context, ids []string) ([]domain.Vault, error) {
-	condition := domaincore.NewQueryOptions(nil, nil, nil, map[string]any{"id": bson.M{"$in": ids}})
+	query := domaincore.NewQuery().
+		In("id", ids).
+		Build()
+	condition := domaincore.NewQueryOptions(nil, nil, nil, query)
 	return r.Find(ctx, condition)
 }
 
@@ -54,56 +56,90 @@ func (r *VaultRepository) SearchVaults(ctx context.Context, query domain.VaultQu
 	return r.Find(ctx, condition)
 }
 
-func buildSearchFilter(reqs []domain.VaultFilter) map[string]any {
-	filter := map[string]any{}
+func buildSearchFilter(reqs []domain.VaultFilter) domaincore.FilterExpr {
 	if len(reqs) == 0 {
-		return filter
+		return nil
 	}
 
-	orConditions := bson.A{}
+	var orConditions []domaincore.FilterExpr
+
 	for _, req := range reqs {
-		andConditions := bson.D{}
+		var andConditions []domaincore.FilterExpr
 
 		if req.ID != "" {
-			andConditions = append(andConditions, bson.E{Key: "id", Value: req.ID})
+			andConditions = append(andConditions, domaincore.Eq{
+				Field: "id",
+				Value: req.ID,
+			})
 		}
 
 		if req.Description != "" {
-			andConditions = append(andConditions, bson.E{Key: "description", Value: bson.D{{Key: "$regex", Value: req.Description}, {Key: "$options", Value: "i"}}})
+			andConditions = append(andConditions, domaincore.Like{
+				Field:           "description",
+				Pattern:         req.Description,
+				CaseInsensitive: true,
+			})
 		}
 
 		if req.Key != "" {
 			if req.KeyFuzzy {
-				andConditions = append(andConditions, bson.E{Key: "key", Value: bson.D{{Key: "$regex", Value: req.Key}, {Key: "$options", Value: "i"}}})
+				andConditions = append(andConditions, domaincore.Like{
+					Field:           "key",
+					Pattern:         req.Key,
+					CaseInsensitive: true,
+				})
 			} else {
-				andConditions = append(andConditions, bson.E{Key: "key", Value: req.Key})
+				andConditions = append(andConditions, domaincore.Eq{
+					Field: "key",
+					Value: req.Key,
+				})
 			}
 		}
 
 		if req.StorageMedia != "" {
-			andConditions = append(andConditions, bson.E{Key: "storage_media", Value: req.StorageMedia})
+			andConditions = append(andConditions, domaincore.Eq{
+				Field: "storage_media",
+				Value: req.StorageMedia,
+			})
 		}
 
 		if req.VaultType != "" {
-			andConditions = append(andConditions, bson.E{Key: "vault_type", Value: req.VaultType})
+			andConditions = append(andConditions, domaincore.Eq{
+				Field: "vault_type",
+				Value: req.VaultType,
+			})
 		}
 
 		if req.TypeIdentity != "" {
-			andConditions = append(andConditions, bson.E{Key: "type_identity", Value: req.TypeIdentity})
+			andConditions = append(andConditions, domaincore.Eq{
+				Field: "type_identity",
+				Value: req.TypeIdentity,
+			})
 		}
 
 		if len(req.Tags) > 0 {
-			andConditions = append(andConditions, bson.E{Key: "tags", Value: bson.D{{Key: "$in", Value: req.Tags}}})
+			values := make([]any, len(req.Tags))
+			for i, v := range req.Tags {
+				values[i] = v
+			}
+			andConditions = append(andConditions, domaincore.In{
+				Field:  "tags",
+				Values: values,
+			})
 		}
 
-		if len(andConditions) > 0 {
-			orConditions = append(orConditions, andConditions)
+		if len(andConditions) == 1 {
+			orConditions = append(orConditions, andConditions[0])
+		} else if len(andConditions) > 1 {
+			orConditions = append(orConditions, domaincore.And(andConditions))
 		}
 	}
 
-	if len(orConditions) > 0 {
-		filter["$or"] = orConditions
+	if len(orConditions) == 0 {
+		return nil
+	} else if len(orConditions) == 1 {
+		return orConditions[0]
+	} else {
+		return domaincore.Or(orConditions)
 	}
-
-	return filter
 }
