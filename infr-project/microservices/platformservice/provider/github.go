@@ -66,7 +66,7 @@ func (g *githubClient) CreateProject(ctx context.Context, request CreateProjectR
 		return nil, err
 	}
 	return &Project{
-		ID:   repository.GetName(), // gitHub repository uses name more often than id
+		ID:   fmt.Sprintf("%d", repository.GetID()),
 		Name: repository.GetName(),
 		Url:  repository.GetHTMLURL(),
 	}, nil
@@ -123,7 +123,7 @@ func (g *githubClient) buildGithubProject(repo *github.Repository) Project {
 	paras["FORKS"] = fmt.Sprintf("%d", repo.GetForksCount())
 	paras["WATCHS"] = fmt.Sprintf("%d", repo.GetStargazersCount())
 	return Project{
-		ID:            repo.GetName(),
+		ID:            fmt.Sprintf("%d", repo.GetID()),
 		Name:          repo.GetName(),
 		Url:           repo.GetHTMLURL(),
 		Description:   repo.GetDescription(),
