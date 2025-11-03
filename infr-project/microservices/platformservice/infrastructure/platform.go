@@ -22,8 +22,11 @@ func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *Pla
 	if config.CollectionName == "" {
 		config.CollectionName = "platforms"
 	}
+
+	getID := func(a domain.Platform) string { return a.AggregateId() }
+
 	return &PlatformRepository{
-		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Platform](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD(client, config, getID),
 	}
 }
 

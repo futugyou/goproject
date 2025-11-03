@@ -20,8 +20,11 @@ func NewProjectRepository(client *mongo.Client, config mongoimpl.DBConfig) *Proj
 	if config.CollectionName == "" {
 		config.CollectionName = "projects"
 	}
+
+	getID := func(a domain.Project) string { return a.AggregateId() }
+
 	return &ProjectRepository{
-		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Project](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD(client, config, getID),
 	}
 }
 

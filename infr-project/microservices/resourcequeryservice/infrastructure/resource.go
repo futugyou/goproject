@@ -18,8 +18,11 @@ func NewResourceQueryRepository(client *mongo.Client, config mongoimpl.DBConfig)
 	if config.CollectionName == "" {
 		config.CollectionName = "resources_query"
 	}
+
+	getID := func(a domain.Resource) string { return a.AggregateId() }
+
 	return &ResourceQueryRepository{
-		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Resource](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD(client, config, getID),
 	}
 }
 

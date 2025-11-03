@@ -21,8 +21,11 @@ func NewVaultRepository(client *mongo.Client, config mongoimpl.DBConfig) *VaultR
 	if config.CollectionName == "" {
 		config.CollectionName = "vaults"
 	}
+
+	getID := func(a domain.Vault) string { return a.AggregateId() }
+
 	return &VaultRepository{
-		BaseCRUD: *mongoimpl.NewBaseCRUD[domain.Vault](client, config),
+		BaseCRUD: *mongoimpl.NewBaseCRUD(client, config, getID),
 	}
 }
 
