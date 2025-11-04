@@ -17,6 +17,7 @@ updates:
       time: "02:30"
     ignore:
       - dependency-name: "github.com/ThreeDotsLabs/watermill"
+      - dependency-name: "github.com/hashicorp/go-slug"
     groups:
       hashicorp:
         patterns:

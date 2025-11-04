@@ -1,6 +1,6 @@
 module github.com/futugyou/infr-project
 
-go 1.25
+go 1.24.0
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.0
@@ -21,7 +21,7 @@ require (
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
-	github.com/hashicorp/go-slug v0.17.0
+	github.com/hashicorp/go-slug v0.16.8
 	github.com/hashicorp/go-tfe v1.95.0
 	github.com/hashicorp/hcp-sdk-go v0.162.0
 	github.com/joho/godotenv v1.5.1
