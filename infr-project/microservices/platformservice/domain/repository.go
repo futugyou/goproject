@@ -18,6 +18,9 @@ type PlatformSearch struct {
 type PlatformRepository interface {
 	domain.Repository[Platform]
 	GetPlatformByName(ctx context.Context, name string) (*Platform, error)
-	SearchPlatforms(ctx context.Context, filter PlatformSearch) ([]Platform, error)
 	GetPlatformByIdOrName(ctx context.Context, name string) (*Platform, error)
+	SearchPlatforms(ctx context.Context, filter PlatformSearch) ([]Platform, error)
+	GetPlatformProjects(ctx context.Context, platformID string) ([]PlatformProject, error)
+	GetPlatformProjectByProjectID(ctx context.Context, platformID string, projectID string) (*PlatformProject, error)
+	UpdateProject(ctx context.Context, platformID string, project PlatformProject) error
 }
