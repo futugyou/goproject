@@ -4,6 +4,7 @@ import "github.com/futugyou/platformservice/domain"
 
 type ProjectEntity struct {
 	ID                   string            `bson:"id"`
+	PlatformID           string            `bson:"platform_id"`
 	Name                 string            `bson:"name"`
 	Url                  string            `bson:"url"`
 	Description          string            `bson:"description"`
@@ -60,9 +61,10 @@ func (*ProjectMapper) ToDomain(p *ProjectEntity) *domain.PlatformProject {
 	}
 }
 
-func (*ProjectMapper) ToEntity(project *domain.PlatformProject) *ProjectEntity {
+func (*ProjectMapper) ToEntity(platformID string, project *domain.PlatformProject) *ProjectEntity {
 	p := &ProjectEntity{}
 	p.ID = project.ID
+	p.PlatformID = platformID
 	p.Name = project.Name
 	p.Url = project.Url
 	p.Description = project.Description
