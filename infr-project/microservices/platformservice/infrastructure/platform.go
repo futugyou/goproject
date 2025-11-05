@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	coredomain "github.com/futugyou/domaincore/domain"
@@ -17,6 +18,8 @@ import (
 type PlatformRepository struct {
 	*dao.PlatformDao
 	*dao.ProjectDao
+	client *mongo.Client
+	config mongoimpl.DBConfig
 }
 
 func (p *PlatformRepository) Delete(ctx context.Context, id string) error {
@@ -43,22 +46,64 @@ func (p *PlatformRepository) Find(ctx context.Context, options *coredomain.Query
 	return platforms, nil
 }
 
+type PlatformWithProjects struct {
+	entity.PlatformEntity `bson:",inline"`
+	Projects              []entity.ProjectEntity `bson:"projects"`
+}
+
 // may by use $lookup
 func (p *PlatformRepository) FindByID(ctx context.Context, id string) (*domain.Platform, error) {
-	platdata, err := p.PlatformDao.FindByID(ctx, id)
-	if err != nil {
-		return nil, err
+	filter := bson.D{{Key: "id", Value: id}}
+
+	return p.useAggregateSearch(ctx, filter, id)
+}
+
+func (p *PlatformRepository) useAggregateSearch(ctx context.Context, filter bson.D, id string) (*domain.Platform, error) {
+	coll := p.client.Database(p.config.DBName).Collection("platforms")
+	pipeline := mongo.Pipeline{
+		{{Key: "$match", Value: filter}},
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "platform_projects"},
+			{Key: "localField", Value: "id"},
+			{Key: "foreignField", Value: "platform_id"},
+			{Key: "as", Value: "projects"},
+		}}},
+		{{Key: "$limit", Value: 1}},
 	}
 
-	projectDatas, err := p.ProjectDao.GetPlatformProjects(ctx, id)
+	cursor, err := coll.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("aggregate operate error: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	var out PlatformWithProjects
+	if cursor.Next(ctx) {
+		if err := cursor.Decode(&out); err != nil {
+			return nil, fmt.Errorf("decode error: %w", err)
+		}
+	}
+
+	if len(out.ID) == 0 {
+		return nil, fmt.Errorf("platform %s not found", id)
+	}
+
+	platdata := &entity.PlatformEntity{
+		ID:          out.ID,
+		Name:        out.Name,
+		Description: out.Description,
+		Url:         out.Url,
+		Provider:    out.Provider,
+		Properties:  out.Properties,
+		Secrets:     out.Secrets,
+		Tags:        out.Tags,
+		IsDeleted:   out.IsDeleted,
 	}
 
 	mapper := &entity.PlatformMapper{}
 	result := *mapper.ToDomain(platdata)
 	projectMapper := &entity.ProjectMapper{}
-	for _, proj := range projectDatas {
+	for _, proj := range out.Projects {
 		pro := projectMapper.ToDomain(&proj)
 		result.Projects[pro.ID] = *pro
 	}
@@ -66,14 +111,25 @@ func (p *PlatformRepository) FindByID(ctx context.Context, id string) (*domain.P
 	return &result, err
 }
 
-func (p *PlatformRepository) GetPlatformByIdOrName(ctx context.Context, name string) (*domain.Platform, error) {
-	datas, err := p.PlatformDao.Find(ctx, coredomain.NewQueryOptions(nil, nil, nil, coredomain.NewQuery().Eq("name", name).Or(coredomain.NewQuery().Eq("id", name)).Build()))
+func (p *PlatformRepository) GetPlatformByIdOrName(ctx context.Context, idOrName string) (*domain.Platform, error) {
+	filter := bson.D{
+		{Key: "$or", Value: bson.A{
+			bson.D{{Key: "id", Value: idOrName}},
+			bson.D{{Key: "name", Value: idOrName}},
+		}},
+	}
+
+	return p.useAggregateSearch(ctx, filter, idOrName)
+}
+
+func (p *PlatformRepository) GetPlatformByIdOrNameWithoutProjects(ctx context.Context, idOrName string) (*domain.Platform, error) {
+	datas, err := p.PlatformDao.Find(ctx, coredomain.NewQueryOptions(nil, nil, nil, coredomain.NewQuery().Eq("name", idOrName).Or(coredomain.NewQuery().Eq("id", idOrName)).Build()))
 	if err != nil {
 		return nil, err
 	}
 
 	if len(datas) == 0 {
-		return nil, fmt.Errorf("platform %s not found", name)
+		return nil, fmt.Errorf("platform %s not found", idOrName)
 	}
 
 	mapper := &entity.PlatformMapper{}
@@ -174,6 +230,8 @@ func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *Pla
 	return &PlatformRepository{
 		PlatformDao: plat,
 		ProjectDao:  proj,
+		client:      client,
+		config:      config,
 	}
 }
 
