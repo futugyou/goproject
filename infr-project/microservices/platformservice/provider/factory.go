@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func PlatformProviderFactory(ctx context.Context, provider string, token string) (IPlatformProvider, error) {
+func PlatformProviderFactory(ctx context.Context, provider string, token string) (PlatformProvider, error) {
 	if provider == "circleci" {
 		client, err := newCircleClient(ctx, token)
 		return client, err

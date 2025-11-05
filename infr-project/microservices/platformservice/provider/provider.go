@@ -142,7 +142,7 @@ type User struct {
 // Although the CreateProject method is provided, it is best not to use it.
 // The DeleteProject method is not provided because it is more dangerous.
 // The DeleteWebHook method is provided because it is less dangerous
-type IPlatformProvider interface {
+type PlatformProvider interface {
 	CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error)
 	// no webhook info
 	ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error)
