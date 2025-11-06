@@ -9,9 +9,9 @@ import (
 	coredomain "github.com/futugyou/domaincore/domain"
 	coreinfr "github.com/futugyou/domaincore/infrastructure"
 
+	"github.com/futugyou/platformservice/application/service"
 	"github.com/futugyou/platformservice/assembler"
 	"github.com/futugyou/platformservice/domain"
-
 	"github.com/futugyou/platformservice/viewmodel"
 )
 
@@ -19,17 +19,20 @@ type PlatformService struct {
 	innerService   *coreapp.AppService
 	repository     domain.PlatformRepository
 	eventPublisher coreinfr.EventDispatcher
+	vaultService   service.VaultService
 }
 
 func NewPlatformService(
 	unitOfWork coredomain.UnitOfWork,
 	repository domain.PlatformRepository,
 	eventPublisher coreinfr.EventDispatcher,
+	vaultService service.VaultService,
 ) *PlatformService {
 	return &PlatformService{
 		innerService:   coreapp.NewAppService(unitOfWork),
 		repository:     repository,
 		eventPublisher: eventPublisher,
+		vaultService:   vaultService,
 	}
 }
 
@@ -39,8 +42,11 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.Crea
 		properties[v.Key] = domain.Property(v)
 	}
 
-	// TODO: get secrets from vault
-	secrets := map[string]domain.Secret{}
+	secretMapper := assembler.SecretAssembler{}
+	secrets, err := secretMapper.ToModel(ctx, s.vaultService, aux.Secrets)
+	if err != nil {
+		return nil, err
+	}
 
 	res, err := domain.NewPlatform(
 		aux.Name,

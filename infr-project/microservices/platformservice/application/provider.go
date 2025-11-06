@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/futugyou/platformservice/domain"
@@ -30,12 +31,15 @@ func (s *PlatformService) determineProviderStatus(ctx context.Context, res *doma
 }
 
 func (s *PlatformService) getPlatformProvider(ctx context.Context, src domain.Platform) (provider.PlatformProvider, error) {
-	_, err := src.ProviderVaultInfo()
+	vaultId, err := src.ProviderVaultInfo()
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: get vault
+	token, err := s.vaultService.ShowVaultRawValue(ctx, vaultId)
+	if err != nil {
+		return nil, fmt.Errorf("get platform provider token error, vaultId is %s, message %s", vaultId, err.Error())
+	}
 
-	return nil, err
+	return provider.PlatformProviderFactory(ctx, src.Provider.String(), token)
 }
