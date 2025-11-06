@@ -41,3 +41,20 @@ func (a *PlatformAssembler) ToPlatformDetailView(d *domain.Platform) *viewmodel.
 		Projects:  []viewmodel.PlatformProject{},
 	}
 }
+
+func (a *PlatformAssembler) ToPlatformViews(platforms []domain.Platform) []viewmodel.PlatformView {
+	result := []viewmodel.PlatformView{}
+	for _, platform := range platforms {
+		result = append(result, viewmodel.PlatformView{
+			ID:        platform.ID,
+			Name:      platform.Name,
+			Activate:  platform.Activate,
+			Url:       platform.Url,
+			Tags:      platform.Tags,
+			IsDeleted: platform.IsDeleted,
+			Provider:  platform.Provider.String(),
+		})
+	}
+
+	return result
+}

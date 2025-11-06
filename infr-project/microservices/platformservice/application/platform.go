@@ -90,3 +90,24 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.Crea
 
 	return mapper.ToPlatformDetailView(res), err
 }
+
+func (s *PlatformService) SearchPlatforms(ctx context.Context, request viewmodel.SearchPlatformsRequest) ([]viewmodel.PlatformView, error) {
+	filter := domain.PlatformSearch{
+		Name:      request.Name,
+		NameFuzzy: false,
+		Activate:  request.Activate,
+		Tags:      request.Tags,
+		Page:      request.Page,
+		Size:      request.Size,
+	}
+
+	platforms, err := s.repository.SearchPlatforms(ctx, filter)
+
+	if err != nil && !strings.HasPrefix(err.Error(), coredomain.DATA_NOT_FOUND_MESSAGE) {
+		return nil, err
+	}
+
+	mapper := assembler.PlatformAssembler{}
+
+	return mapper.ToPlatformViews(platforms), nil
+}
