@@ -8,7 +8,7 @@ require (
 	github.com/ThreeDotsLabs/watermill v1.3.4
 	github.com/aws/aws-sdk-go-v2 v1.39.6
 	github.com/aws/aws-sdk-go-v2/config v1.31.17
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.66.4
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.67.0
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/circleci v1.0.0
 	github.com/futugyou/extensions v1.0.0
