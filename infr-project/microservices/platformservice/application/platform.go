@@ -132,5 +132,34 @@ func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*vi
 		return mapper.ToPlatformDetailView(res), nil
 	}
 
-	return s.toPlatformDetailViewWithProjects(mapper,res, projects), err
+	return s.toPlatformDetailViewWithProjects(mapper, res, projects), err
+}
+
+func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName string) ([]viewmodel.PlatformProviderProject, error) {
+	src, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
+	if err != nil {
+		return nil, err
+	}
+
+	if src == nil {
+		return nil, fmt.Errorf("no platform data found")
+	}
+
+	result := []viewmodel.PlatformProviderProject{}
+	provider, err := s.getPlatformProvider(ctx, *src)
+	if err != nil {
+		return nil, err
+	}
+
+	projects, err := s.getProviderProjects(ctx, provider, *src)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pro := range projects {
+		project := s.convertProviderProjectToModel(pro)
+		result = append(result, project)
+	}
+
+	return result, nil
 }
