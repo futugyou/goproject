@@ -163,3 +163,110 @@ func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName s
 
 	return result, nil
 }
+
+func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, data viewmodel.UpdatePlatformRequest) (*viewmodel.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, idOrName, "UpdatePlatform", func(plat *domain.Platform) error {
+		if plat.IsDeleted {
+			return fmt.Errorf("id: %s was already deleted", plat.ID)
+		}
+
+		if plat.Name != data.Name {
+			res, err := s.repository.GetPlatformByName(ctx, data.Name)
+			if err != nil && !strings.HasPrefix(err.Error(), coredomain.DATA_NOT_FOUND_MESSAGE) {
+				return err
+			}
+			if res.ID != plat.ID {
+				return fmt.Errorf("name: %s is existed", data.Name)
+			}
+
+			if _, err := plat.UpdateName(data.Name); err != nil {
+				return err
+			}
+		}
+
+		if _, err := plat.UpdateUrl(data.Url); err != nil {
+			return err
+		}
+
+		if _, err := plat.UpdateTags(data.Tags); err != nil {
+			return err
+		}
+
+		if _, err := plat.UpdateProvider(domain.GetPlatformProvider(data.Provider)); err != nil {
+			return err
+		}
+
+		if plat.Provider != domain.PlatformProviderOther {
+			status := s.determineProviderStatus(ctx, plat)
+			if status {
+				plat.Enable()
+			} else {
+				plat.Disable()
+			}
+		}
+
+		newProperty := map[string]domain.Property{}
+		for _, v := range data.Properties {
+			newProperty[v.Key] = domain.Property{
+				Key:   v.Key,
+				Value: v.Value,
+			}
+		}
+		if _, err := plat.UpdateProperties(newProperty); err != nil {
+			return err
+		}
+
+		secretMapper := assembler.SecretAssembler{}
+		newSecrets, err := secretMapper.ToModel(ctx, s.vaultService, data.Secrets)
+		if err != nil {
+			return err
+		}
+
+		if _, err := plat.UpdateSecrets(newSecrets); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *PlatformService) DeletePlatform(ctx context.Context, idOrName string) (*viewmodel.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, idOrName, "DeletePlatform", func(plat *domain.Platform) error {
+		if _, err := plat.Delete(); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string) (*viewmodel.PlatformDetailView, error) {
+	return s.updatePlatform(ctx, idOrName, "RecoveryPlatform", func(plat *domain.Platform) error {
+		if _, err := plat.Recovery(); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _ string, fn func(*domain.Platform) error) (*viewmodel.PlatformDetailView, error) {
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := fn(plat); err != nil {
+		return nil, err
+	}
+
+	if err := s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+		return s.repository.Update(ctx, *plat)
+	}); err != nil {
+		return nil, err
+	}
+
+	mapper := assembler.PlatformAssembler{}
+
+	return mapper.ToPlatformDetailView(plat), err
+}
