@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	coreapp "github.com/futugyou/domaincore/application"
@@ -110,4 +111,26 @@ func (s *PlatformService) SearchPlatforms(ctx context.Context, request viewmodel
 	mapper := assembler.PlatformAssembler{}
 
 	return mapper.ToPlatformViews(platforms), nil
+}
+
+func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*viewmodel.PlatformDetailView, error) {
+	res, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
+	if err != nil {
+		return nil, err
+	}
+
+	mapper := assembler.PlatformAssembler{}
+	provider, err := s.getPlatformProvider(ctx, *res)
+	if err != nil {
+		log.Println(err.Error())
+		return mapper.ToPlatformDetailView(res), nil
+	}
+
+	projects, err := s.getProviderProjects(ctx, provider, *res)
+	if err != nil {
+		log.Println(err.Error())
+		return mapper.ToPlatformDetailView(res), nil
+	}
+
+	return s.toPlatformDetailViewWithProjects(mapper,res, projects), err
 }
