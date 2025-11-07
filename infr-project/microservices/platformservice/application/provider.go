@@ -131,3 +131,18 @@ func (*PlatformService) mapToModelProperty(providerProperties map[string]string)
 
 	return properties
 }
+
+func (s *PlatformService) convertProviderProjectToSimpleModel(providerProject provider.Project) viewmodel.PlatformProviderProject {
+	projectModel := viewmodel.PlatformProviderProject{
+		ID:            providerProject.ID,
+		Name:          providerProject.Name,
+		Description:   providerProject.Description,
+		Url:           providerProject.Url,
+		BadgeURL:      providerProject.BadgeURL,
+		BadgeMarkdown: providerProject.BadgeMarkDown,
+		Tags:          providerProject.Tags,
+		Readme:        providerProject.Readme,
+	}
+
+	return projectModel
+}

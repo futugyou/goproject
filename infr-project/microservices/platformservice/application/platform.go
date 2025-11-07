@@ -157,7 +157,7 @@ func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName s
 	}
 
 	for _, pro := range projects {
-		project := s.convertProviderProjectToModel(pro)
+		project := s.convertProviderProjectToSimpleModel(pro)
 		result = append(result, project)
 	}
 
