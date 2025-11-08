@@ -3,13 +3,16 @@ package application
 import (
 	"context"
 	"fmt"
+	"log"
 	"slices"
+	"strings"
 
 	tool "github.com/futugyou/extensions"
 
 	"github.com/futugyou/platformservice/assembler"
 	"github.com/futugyou/platformservice/domain"
 	platformprovider "github.com/futugyou/platformservice/provider"
+	"github.com/futugyou/platformservice/viewmodel"
 )
 
 func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrName string, providerProjectIDs []string) error {
@@ -79,6 +82,82 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.repository.SyncProjects(ctx, plat.ID, projects)
+	})
+}
+
+func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, projectID string, project viewmodel.UpdatePlatformProjectRequest) error {
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
+	if err != nil {
+		return err
+	}
+
+	if len(projectID) == 0 {
+		projectID = tool.Sanitize2String(strings.ToLower(project.Name), "_")
+	}
+
+	properties := map[string]domain.Property{}
+	for _, v := range project.Properties {
+		properties[v.Key] = domain.Property(v)
+	}
+
+	secretMapper := assembler.SecretAssembler{}
+	secrets, err := secretMapper.ToModel(ctx, s.vaultService, project.Secrets)
+	if err != nil {
+		return err
+	}
+
+	var projectDb *domain.PlatformProject
+	screenshot := false
+	if proj, ok := plat.Projects[projectID]; ok {
+		projectDb = &proj
+		if len(project.Url) > 0 && (projectDb.Url != project.Url || len(projectDb.ImageUrl) == 0) {
+			screenshot = true
+		}
+
+		projectDb.UpdateName(project.Name)
+		projectDb.UpdateDescription(project.Description)
+		projectDb.UpdateProperties(properties)
+		projectDb.UpdateUrl(project.Url)
+		projectDb.UpdateSecrets(secrets)
+		projectDb.UpdateProviderProjectId(project.ProviderProjectID)
+		projectDb.UpdateTags(project.Tags)
+	} else {
+		projectDb = domain.NewPlatformProject(
+			projectID,
+			project.Name,
+			project.Url,
+			domain.WithProjectProperties(properties),
+			domain.WithProjectSecrets(secrets),
+			domain.WithProjectDescription(project.Description),
+			domain.WithProviderProjectId(project.ProviderProjectID),
+			domain.WithProjectTags(project.Tags),
+		)
+
+		if len(projectDb.Url) > 0 {
+			screenshot = true
+		}
+	}
+
+	if _, err = plat.UpdateProject(*projectDb); err != nil {
+		return err
+	}
+
+	if project.Operate == "sync" || project.ImportWebhooks || screenshot {
+		event := &viewmodel.PlatformProjectUpsertEvent{
+			PlatformID:            plat.ID,
+			ProjectID:             projectID,
+			CreateProviderProject: project.Operate == "sync",
+			ImportWebhooks:        project.ImportWebhooks,
+			EventName:             "upsert_project",
+			Screenshot:            screenshot,
+		}
+		if err := s.eventPublisher.DispatchIntegrationEvent(ctx, event); err != nil {
+			log.Println(err.Error())
+		}
+	}
+
+	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+		return s.repository.Update(ctx, *plat)
 	})
 }
 

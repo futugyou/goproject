@@ -182,3 +182,7 @@ type PlatformProjectUpsertEvent struct {
 	ImportWebhooks        bool   `json:"import_webhooks"` // If the provider has a webhook for infr-project, import all of them. If there is none, create one for infr-project.
 	EventName             string `json:"event_name"`
 }
+
+func (e *PlatformProjectUpsertEvent) EventType() string {
+	return "upsert_project"
+}
