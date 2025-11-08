@@ -21,30 +21,30 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	if err != nil {
 		return err
 	}
-	projects, err := s.getProviderProjects(ctx, provider, *plat)
+	providerProjects, err := s.getProviderProjects(ctx, provider, *plat)
 	if err != nil {
 		return err
 	}
 
-	if len(projects) == 0 {
-		return fmt.Errorf("no provider project found in %s", plat.Provider.String())
-	}
-
-	projects = tool.ArrayFilter(projects, func(project platformprovider.Project) bool {
+	providerProjects = tool.ArrayFilter(providerProjects, func(project platformprovider.Project) bool {
 		if len(providerProjectIDs) == 0 {
 			return true
 		}
 		return slices.Contains(providerProjectIDs, project.ID)
 	})
 
+	if len(providerProjects) == 0 {
+		return fmt.Errorf("no provider project found in %s", plat.Provider.String())
+	}
+
 	projectMapper := assembler.ProjectAssembler{}
 	if len(plat.Projects) == 0 {
 		plat.Projects = map[string]domain.PlatformProject{}
-		for _, project := range projects {
+		for _, project := range providerProjects {
 			plat.Projects[project.ID] = *projectMapper.ToDomain(&project)
 		}
 	} else {
-		for _, project := range projects {
+		for _, project := range providerProjects {
 			find := false
 			for _, entity := range plat.Projects {
 				// The following situations are considered to be `link`
@@ -68,15 +68,16 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	}
 
 	bMap := make(map[string]struct{})
-
+	projects := []domain.PlatformProject{}
 	for _, v := range plat.Projects {
 		if _, ok := bMap[v.ProviderProjectId]; ok {
 			return fmt.Errorf("provider project id: %s is duplicated", v.ProviderProjectId)
 		}
 		bMap[v.ProviderProjectId] = struct{}{}
+		projects = append(projects, v)
 	}
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
-		return s.repository.Update(ctx, *plat)
+		return s.repository.SyncProjects(ctx, plat.ID, projects)
 	})
 }
