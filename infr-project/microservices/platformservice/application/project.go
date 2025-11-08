@@ -81,3 +81,18 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 		return s.repository.SyncProjects(ctx, plat.ID, projects)
 	})
 }
+
+func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) error {
+	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
+	if err != nil {
+		return err
+	}
+
+	if _, err := plat.RemoveProject(projectId); err != nil {
+		return err
+	}
+
+	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+		return s.repository.DeleteProject(ctx, plat.ID, projectId)
+	})
+}
