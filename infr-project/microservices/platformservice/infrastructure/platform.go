@@ -223,6 +223,20 @@ func (p *PlatformRepository) UpdateProject(ctx context.Context, platformID strin
 	return p.ProjectDao.Update(ctx, *projectData)
 }
 
+func (p *PlatformRepository) DeleteProject(ctx context.Context, platformID string, projectID string) error {
+	return p.ProjectDao.Delete(ctx, projectID)
+}
+
+func (p *PlatformRepository) SyncProjects(ctx context.Context, platformID string, projects []domain.PlatformProject) error {
+	projMapper := &entity.ProjectMapper{}
+	projectEntities := []entity.ProjectEntity{}
+	for _, v := range projects {
+		projectEntities = append(projectEntities, *projMapper.ToEntity(platformID, &v))
+	}
+
+	return p.ProjectDao.SyncProjects(ctx, platformID, projectEntities)
+}
+
 func NewPlatformRepository(client *mongo.Client, config mongoimpl.DBConfig) *PlatformRepository {
 	plat := dao.NewPlatformDao(client, config)
 	proj := dao.NewProjectDao(client, config)

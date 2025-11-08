@@ -80,3 +80,57 @@ func (s *ProjectDao) MultipleInsert(ctx context.Context, datas []entity.ProjectE
 
 	return nil
 }
+
+func (s *ProjectDao) SyncProjects(ctx context.Context, platformID string, projects []entity.ProjectEntity) error {
+	existingProjects, err := s.GetPlatformProjects(ctx, platformID)
+	if err != nil {
+		return err
+	}
+
+	coll := s.Client.Database(s.DBName).Collection(s.CollectionName)
+
+	existingIDs := make(map[string]struct{})
+	for _, doc := range existingProjects {
+		existingIDs[doc.ID] = struct{}{}
+	}
+
+	var models []mongo.WriteModel
+	newIDs := make(map[string]struct{})
+
+	for _, p := range projects {
+		p.PlatformID = platformID
+
+		newIDs[p.ID] = struct{}{}
+
+		filter := bson.M{"id": p.ID, "platform_id": platformID}
+		update := bson.M{"$set": p}
+
+		model := mongo.NewUpdateOneModel().
+			SetFilter(filter).
+			SetUpdate(update).
+			SetUpsert(true)
+		models = append(models, model)
+	}
+
+	for oldID := range existingIDs {
+		if _, stillExists := newIDs[oldID]; !stillExists {
+			delFilter := bson.M{"id": oldID, "platform_id": platformID}
+			models = append(models, mongo.NewDeleteOneModel().SetFilter(delFilter))
+		}
+	}
+
+	if len(models) == 0 {
+		return nil
+	}
+
+	opts := options.BulkWrite().SetOrdered(false)
+	result, err := coll.BulkWrite(ctx, models, opts)
+	if err != nil {
+		return fmt.Errorf("bulk write failed: %w", err)
+	}
+
+	fmt.Printf("[SyncProjects] platform=%s | inserted=%d updated=%d deleted=%d upserted=%d\n",
+		platformID, result.InsertedCount, result.ModifiedCount, result.DeletedCount, result.UpsertedCount)
+
+	return nil
+}

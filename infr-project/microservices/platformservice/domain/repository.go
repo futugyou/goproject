@@ -23,5 +23,7 @@ type PlatformRepository interface {
 	SearchPlatforms(ctx context.Context, filter PlatformSearch) ([]Platform, error)
 	GetPlatformProjects(ctx context.Context, platformID string) ([]PlatformProject, error)
 	GetPlatformProjectByProjectID(ctx context.Context, platformID string, projectID string) (*PlatformProject, error)
+	SyncProjects(ctx context.Context, platformID string, projects []PlatformProject) error
 	UpdateProject(ctx context.Context, platformID string, project PlatformProject) error
+	DeleteProject(ctx context.Context, platformID string, projectID string) error
 }
