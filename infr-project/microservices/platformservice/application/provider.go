@@ -48,6 +48,19 @@ func (s *PlatformService) getPlatformProvider(ctx context.Context, src domain.Pl
 	return provider.PlatformProviderFactory(ctx, src.Provider.String(), token)
 }
 
+func (s *PlatformService) createProviderProject(ctx context.Context, platformProvider provider.PlatformProvider, name string, properties map[string]domain.Property) (*provider.Project, error) {
+	request := provider.CreateProjectRequest{
+		Name:       name,
+		Parameters: map[string]string{},
+	}
+
+	for _, v := range properties {
+		request.Parameters[v.Key] = v.Value
+	}
+
+	return platformProvider.CreateProject(ctx, request)
+}
+
 func (s *PlatformService) getProviderProjects(ctx context.Context, prov provider.PlatformProvider, src domain.Platform) ([]provider.Project, error) {
 	parameters := make(map[string]string)
 	for _, v := range src.Properties {
