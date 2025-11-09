@@ -60,13 +60,13 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, prov provider
 	return prov.ListProject(ctx, filter)
 }
 
-func (a *PlatformService) toPlatformDetailViewWithProjects(mapper assembler.PlatformAssembler, d *domain.Platform, projects []provider.Project) *viewmodel.PlatformDetailView {
+func (a *PlatformService) toPlatformDetailViewWithProviderProjects(mapper assembler.PlatformAssembler, d *domain.Platform, projects []provider.Project) *viewmodel.PlatformDetailView {
 	platform := mapper.ToPlatformDetailView(d)
 	for i := range platform.Projects {
 		for _, v := range projects {
 			if platform.Projects[i].ProviderProjectID == v.ID {
 				platform.Projects[i].Followed = true
-				platform.Projects[i].ProviderProject = a.convertProviderProjectToModel(v)
+				platform.Projects[i].ProviderProject = a.convertProviderProjectToSimpleModel(&v)
 				break
 			}
 		}
@@ -75,8 +75,8 @@ func (a *PlatformService) toPlatformDetailViewWithProjects(mapper assembler.Plat
 	return platform
 }
 
-func (s *PlatformService) convertProviderProjectToModel(providerProject provider.Project) viewmodel.PlatformProviderProject {
-	projectModel := viewmodel.PlatformProviderProject{
+func (s *PlatformService) convertProviderProjectToModel(providerProject *provider.Project) *viewmodel.PlatformProviderProject {
+	projectModel := &viewmodel.PlatformProviderProject{
 		ID:                   providerProject.ID,
 		Name:                 providerProject.Name,
 		Description:          providerProject.Description,
@@ -132,8 +132,8 @@ func (*PlatformService) mapToModelProperty(providerProperties map[string]string)
 	return properties
 }
 
-func (s *PlatformService) convertProviderProjectToSimpleModel(providerProject provider.Project) viewmodel.PlatformProviderProject {
-	projectModel := viewmodel.PlatformProviderProject{
+func (s *PlatformService) convertProviderProjectToSimpleModel(providerProject *provider.Project) *viewmodel.PlatformProviderProject {
+	projectModel := &viewmodel.PlatformProviderProject{
 		ID:            providerProject.ID,
 		Name:          providerProject.Name,
 		Description:   providerProject.Description,
@@ -145,4 +145,25 @@ func (s *PlatformService) convertProviderProjectToSimpleModel(providerProject pr
 	}
 
 	return projectModel
+}
+
+func (s *PlatformService) getProviderProject(ctx context.Context, platformProvider provider.PlatformProvider, name string, parameters map[string]string) (*provider.Project, error) {
+	filter := provider.ProjectFilter{
+		Parameters: parameters,
+		Name:       name,
+	}
+
+	return platformProvider.GetProject(ctx, filter)
+}
+
+func mergePropertiesToMap(propertiesList ...map[string]domain.Property) map[string]string {
+	properties := make(map[string]string)
+	for _, propertyMap := range propertiesList {
+		for _, v := range propertyMap {
+			if _, ok := properties[v.Key]; !ok {
+				properties[v.Key] = v.Value
+			}
+		}
+	}
+	return properties
 }

@@ -175,3 +175,35 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 		return s.repository.DeleteProject(ctx, plat.ID, projectId)
 	})
 }
+
+func (s *PlatformService) GetPlatformProject(ctx context.Context, idOrName string, projectId string) (*viewmodel.PlatformProject, error) {
+	src, err := s.repository.GetPlatformByIdOrNameWithoutProjects(ctx, idOrName)
+	if err != nil {
+		return nil, err
+	}
+
+	project, err := s.repository.GetPlatformProjectByProjectID(ctx, src.ID, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	projectMapper := assembler.ProjectAssembler{}
+	projectModel := projectMapper.ToViewModel(project)
+
+	if len(project.ProviderProjectID) > 0 {
+		platformProvider, err := s.getPlatformProvider(ctx, *src)
+		if err != nil {
+			return nil, err
+		}
+
+		parameters := mergePropertiesToMap(project.Properties, src.Properties)
+		providerProject, err := s.getProviderProject(ctx, platformProvider, project.ProviderProjectID, parameters)
+		if err != nil {
+			return nil, err
+		}
+
+		projectModel.ProviderProject = s.convertProviderProjectToModel(providerProject)
+	}
+
+	return projectModel, nil
+}

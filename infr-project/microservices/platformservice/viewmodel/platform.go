@@ -92,7 +92,7 @@ type PlatformProject struct {
 	Webhook           *Webhook                `json:"webhook"`
 	ProviderProjectID string                  `json:"provider_project_id"`
 	Followed          bool                    `json:"followed"`
-	ProviderProject   PlatformProviderProject `json:"provider_project"`
+	ProviderProject   *PlatformProviderProject `json:"provider_project"`
 }
 
 type PlatformProviderProject struct {

@@ -126,13 +126,13 @@ func (s *PlatformService) GetPlatform(ctx context.Context, idOrName string) (*vi
 		return mapper.ToPlatformDetailView(res), nil
 	}
 
-	projects, err := s.getProviderProjects(ctx, provider, *res)
+	providerProjects, err := s.getProviderProjects(ctx, provider, *res)
 	if err != nil {
 		log.Println(err.Error())
 		return mapper.ToPlatformDetailView(res), nil
 	}
 
-	return s.toPlatformDetailViewWithProjects(mapper, res, projects), err
+	return s.toPlatformDetailViewWithProviderProjects(mapper, res, providerProjects), err
 }
 
 func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName string) ([]viewmodel.PlatformProviderProject, error) {
@@ -157,8 +157,8 @@ func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName s
 	}
 
 	for _, pro := range projects {
-		project := s.convertProviderProjectToSimpleModel(pro)
-		result = append(result, project)
+		project := s.convertProviderProjectToSimpleModel(&pro)
+		result = append(result, *project)
 	}
 
 	return result, nil
