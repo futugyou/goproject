@@ -85,12 +85,11 @@ type PlatformProject struct {
 	ID                string                  `json:"id"`
 	Name              string                  `json:"name"`
 	Url               string                  `json:"url"`
-	ImageData         []byte                  `json:"image_data"`
 	ImageUrl          string                  `json:"image_url"`
 	Description       string                  `json:"description"`
 	Properties        []Property              `json:"properties"`
 	Secrets           []Secret                `json:"secrets"`
-	Webhooks          []Webhook               `json:"webhooks"`
+	Webhook           *Webhook                `json:"webhook"`
 	ProviderProjectID string                  `json:"provider_project_id"`
 	Followed          bool                    `json:"followed"`
 	ProviderProject   PlatformProviderProject `json:"provider_project"`
@@ -101,7 +100,7 @@ type PlatformProviderProject struct {
 	Name                 string                `json:"name"`
 	Url                  string                `json:"url"`
 	Description          string                `json:"description"`
-	WebHooks             []Webhook             `json:"webhooks"`
+	WebHook              *Webhook              `json:"webhook"`
 	Properties           []Property            `json:"properties"`
 	EnvironmentVariables []EnvironmentVariable `json:"environment_variables"`
 	Environments         []string              `json:"environments"`

@@ -54,10 +54,10 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 				// 1. already `linked`: ProviderProjectId = ID
 				// 2. name is the same, this is a normal situation
 				// 3. ID is the same, linked, then cancel(ProviderProjectId is ""), then link again
-				if entity.ProviderProjectId == project.ID || entity.Name == project.Name || entity.ID == project.ID {
+				if entity.ProviderProjectID == project.ID || entity.Name == project.Name || entity.ID == project.ID {
 					find = true
 					rawProject := plat.Projects[project.ID]
-					rawProject.ProviderProjectId = project.ID
+					rawProject.ProviderProjectID = project.ID
 					plat.Projects[project.ID] = rawProject
 					break
 				}
@@ -73,10 +73,10 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	bMap := make(map[string]struct{})
 	projects := []domain.PlatformProject{}
 	for _, v := range plat.Projects {
-		if _, ok := bMap[v.ProviderProjectId]; ok {
-			return fmt.Errorf("provider project id: %s is duplicated", v.ProviderProjectId)
+		if _, ok := bMap[v.ProviderProjectID]; ok {
+			return fmt.Errorf("provider project id: %s is duplicated", v.ProviderProjectID)
 		}
-		bMap[v.ProviderProjectId] = struct{}{}
+		bMap[v.ProviderProjectID] = struct{}{}
 		projects = append(projects, v)
 	}
 
@@ -119,7 +119,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		projectDb.UpdateProperties(properties)
 		projectDb.UpdateUrl(project.Url)
 		projectDb.UpdateSecrets(secrets)
-		projectDb.UpdateProviderProjectId(project.ProviderProjectID)
+		projectDb.UpdateProviderProjectID(project.ProviderProjectID)
 		projectDb.UpdateTags(project.Tags)
 	} else {
 		projectDb = domain.NewPlatformProject(
@@ -129,7 +129,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 			domain.WithProjectProperties(properties),
 			domain.WithProjectSecrets(secrets),
 			domain.WithProjectDescription(project.Description),
-			domain.WithProviderProjectId(project.ProviderProjectID),
+			domain.WithProviderProjectID(project.ProviderProjectID),
 			domain.WithProjectTags(project.Tags),
 		)
 

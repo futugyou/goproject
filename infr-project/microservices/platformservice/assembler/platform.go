@@ -8,6 +8,17 @@ import (
 type PlatformAssembler struct{}
 
 func (a *PlatformAssembler) ToPlatformDetailView(d *domain.Platform) *viewmodel.PlatformDetailView {
+	mapper := ProjectAssembler{}
+	projects := mapper.ToViewModels(func() []domain.PlatformProject {
+		if d.Projects == nil {
+			return []domain.PlatformProject{}
+		}
+		result := []domain.PlatformProject{}
+		for _, p := range d.Projects {
+			result = append(result, p)
+		}
+		return result
+	}())
 	return &viewmodel.PlatformDetailView{
 		ID:       d.ID,
 		Name:     d.Name,
@@ -38,7 +49,7 @@ func (a *PlatformAssembler) ToPlatformDetailView(d *domain.Platform) *viewmodel.
 		}(),
 		Activate:  d.Activate,
 		IsDeleted: d.IsDeleted,
-		Projects:  []viewmodel.PlatformProject{},
+		Projects:  projects,
 	}
 }
 

@@ -10,7 +10,7 @@ type PlatformProject struct {
 	Secrets           map[string]Secret
 	ImageUrl          string
 	Webhook           *Webhook
-	ProviderProjectId string
+	ProviderProjectID string
 	Tags              []string
 }
 
@@ -38,9 +38,9 @@ func WithProjectDescription(description string) ProjectOption {
 	}
 }
 
-func WithProviderProjectId(providerProjectId string) ProjectOption {
+func WithProviderProjectID(providerProjectId string) ProjectOption {
 	return func(w *PlatformProject) {
-		w.ProviderProjectId = providerProjectId
+		w.ProviderProjectID = providerProjectId
 	}
 }
 
@@ -81,8 +81,8 @@ func (w *PlatformProject) UpdateUrl(url string) *PlatformProject {
 	return w
 }
 
-func (w *PlatformProject) UpdateProviderProjectId(id string) *PlatformProject {
-	w.ProviderProjectId = id
+func (w *PlatformProject) UpdateProviderProjectID(id string) *PlatformProject {
+	w.ProviderProjectID = id
 	return w
 }
 
@@ -138,11 +138,11 @@ func (w *PlatformProject) GetDescription() string {
 	return w.Description
 }
 
-func (w *PlatformProject) GeProviderProjectId() string {
+func (w *PlatformProject) GetProviderProjectID() string {
 	if w == nil {
 		return ""
 	}
-	return w.ProviderProjectId
+	return w.ProviderProjectID
 }
 
 func (w *PlatformProject) GetProperties() map[string]Property {

@@ -11,7 +11,7 @@ type ProjectEntity struct {
 	Properties           map[string]string `bson:"properties"`
 	Secrets              []SecretEntity    `bson:"secrets"`
 	ImageUrl             string            `bson:"image_url"`
-	ProviderProjectId    string            `bson:"provider_project_id"`
+	ProviderProjectID    string            `bson:"provider_project_id"`
 	Tags                 []string          `bson:"tags"`
 	WebhookID            string            `bson:"webhook_id"`
 	WebhookUrl           string            `bson:"webhook_url"`
@@ -49,7 +49,7 @@ func (*ProjectMapper) ToDomain(p *ProjectEntity) *domain.PlatformProject {
 		Properties:        properties,
 		Secrets:           secrets,
 		ImageUrl:          p.ImageUrl,
-		ProviderProjectId: p.ProviderProjectId,
+		ProviderProjectID: p.ProviderProjectID,
 		Tags:              p.Tags,
 		Webhook: &domain.Webhook{
 			ID:            p.WebhookID,
@@ -85,7 +85,7 @@ func (*ProjectMapper) ToEntity(platformID string, project *domain.PlatformProjec
 	}
 
 	p.ImageUrl = project.ImageUrl
-	p.ProviderProjectId = project.ProviderProjectId
+	p.ProviderProjectID = project.ProviderProjectID
 	p.Tags = project.Tags
 
 	if project.Webhook != nil {
