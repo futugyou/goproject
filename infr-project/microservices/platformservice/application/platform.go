@@ -37,7 +37,7 @@ func NewPlatformService(
 	}
 }
 
-func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.CreatePlatformRequest) (*viewmodel.PlatformDetailView, error) {
+func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.CreatePlatformRequest) error {
 	properties := map[string]domain.Property{}
 	for _, v := range aux.Properties {
 		properties[v.Key] = domain.Property(v)
@@ -46,7 +46,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.Crea
 	secretMapper := assembler.SecretAssembler{}
 	secrets, err := secretMapper.ToModel(ctx, s.vaultService, aux.Secrets)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	res, err := domain.NewPlatform(
@@ -59,17 +59,17 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.Crea
 	)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// check name
 	resdb, err := s.repository.GetPlatformByName(ctx, aux.Name)
 	if resdb != nil {
-		return nil, fmt.Errorf("name: %s is existed", aux.Name)
+		return fmt.Errorf("name: %s is existed", aux.Name)
 	}
 
 	if err != nil && !strings.HasPrefix(err.Error(), coredomain.DATA_NOT_FOUND_MESSAGE) {
-		return nil, err
+		return err
 	}
 
 	if res.Provider != domain.PlatformProviderOther {
@@ -81,15 +81,9 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.Crea
 		}
 	}
 
-	if err := s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.repository.Insert(ctx, *res)
-	}); err != nil {
-		return nil, err
-	}
-
-	mapper := assembler.PlatformAssembler{}
-
-	return mapper.ToPlatformDetailView(res), err
+	})
 }
 
 func (s *PlatformService) SearchPlatforms(ctx context.Context, request viewmodel.SearchPlatformsRequest) ([]viewmodel.PlatformView, error) {
@@ -164,7 +158,7 @@ func (s *PlatformService) GetProviderProjectList(ctx context.Context, idOrName s
 	return result, nil
 }
 
-func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, data viewmodel.UpdatePlatformRequest) (*viewmodel.PlatformDetailView, error) {
+func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, data viewmodel.UpdatePlatformRequest) error {
 	return s.updatePlatform(ctx, idOrName, "UpdatePlatform", func(plat *domain.Platform) error {
 		if plat.IsDeleted {
 			return fmt.Errorf("id: %s was already deleted", plat.ID)
@@ -230,7 +224,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, d
 	})
 }
 
-func (s *PlatformService) DeletePlatform(ctx context.Context, idOrName string) (*viewmodel.PlatformDetailView, error) {
+func (s *PlatformService) DeletePlatform(ctx context.Context, idOrName string) error {
 	return s.updatePlatform(ctx, idOrName, "DeletePlatform", func(plat *domain.Platform) error {
 		if _, err := plat.Delete(); err != nil {
 			return err
@@ -240,7 +234,7 @@ func (s *PlatformService) DeletePlatform(ctx context.Context, idOrName string) (
 	})
 }
 
-func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string) (*viewmodel.PlatformDetailView, error) {
+func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string) error {
 	return s.updatePlatform(ctx, idOrName, "RecoveryPlatform", func(plat *domain.Platform) error {
 		if _, err := plat.Recovery(); err != nil {
 			return err
@@ -250,23 +244,17 @@ func (s *PlatformService) RecoveryPlatform(ctx context.Context, idOrName string)
 	})
 }
 
-func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _ string, fn func(*domain.Platform) error) (*viewmodel.PlatformDetailView, error) {
+func (s *PlatformService) updatePlatform(ctx context.Context, idOrName string, _ string, fn func(*domain.Platform) error) error {
 	plat, err := s.repository.GetPlatformByIdOrName(ctx, idOrName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err := fn(plat); err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.repository.Update(ctx, *plat)
-	}); err != nil {
-		return nil, err
-	}
-
-	mapper := assembler.PlatformAssembler{}
-
-	return mapper.ToPlatformDetailView(plat), err
+	})
 }
