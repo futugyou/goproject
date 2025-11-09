@@ -7,6 +7,8 @@ require (
 	github.com/futugyou/domaincore v1.0.0
 	github.com/futugyou/domaincore/mongoimpl v1.0.0
 	github.com/futugyou/extensions v1.0.0
+	github.com/futugyou/gofile v1.0.0
+	github.com/futugyou/screenshot v1.0.0
 	github.com/futugyou/vercel v1.0.0
 	github.com/google/go-github/v66 v66.0.0
 	github.com/google/uuid v1.6.0
@@ -50,5 +52,7 @@ replace (
 	github.com/futugyou/domaincore v1.0.0 => ../../../domaincore
 	github.com/futugyou/domaincore/mongoimpl v1.0.0 => ../../../domaincore/mongoimpl
 	github.com/futugyou/extensions v1.0.0 => ../../../extensions
+	github.com/futugyou/gofile v1.0.0 => ../../../gofile_sdk
+	github.com/futugyou/screenshot v1.0.0 => ../../../screenshot_sdk
 	github.com/futugyou/vercel v1.0.0 => ../../../vercel_sdk
 )

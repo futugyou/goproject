@@ -21,6 +21,7 @@ type PlatformService struct {
 	repository     domain.PlatformRepository
 	eventPublisher coreinfr.EventDispatcher
 	vaultService   service.VaultService
+	screenshot     service.Screenshot
 }
 
 func NewPlatformService(
@@ -28,12 +29,14 @@ func NewPlatformService(
 	repository domain.PlatformRepository,
 	eventPublisher coreinfr.EventDispatcher,
 	vaultService service.VaultService,
+	screenshot service.Screenshot,
 ) *PlatformService {
 	return &PlatformService{
 		innerService:   coreapp.NewAppService(unitOfWork),
 		repository:     repository,
 		eventPublisher: eventPublisher,
 		vaultService:   vaultService,
+		screenshot:     screenshot,
 	}
 }
 
