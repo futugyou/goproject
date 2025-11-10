@@ -15,6 +15,12 @@ import (
 	"github.com/futugyou/projectservice/viewmodel"
 )
 
+type Response struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+}
+
 func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/project", createProject)
 	v1.GET("/project/:id", getProject)
@@ -31,28 +37,37 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodel.UpdateProjectDesignRequest true "Request body"
-// @Success 200 {object} viewmodel.ProjectView
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := []viewmodel.UpdateProjectDesignRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	data, err := service.UpdateProjectDesign(ctx, c.Param("id"), aux)
+	err = service.UpdateProjectDesign(ctx, c.Param("id"), aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, data)
+	
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary update project platform
@@ -62,28 +77,37 @@ func updateProjectDesign(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body []viewmodel.UpdateProjectPlatformRequest true "Request body"
-// @Success 200 {object} viewmodel.ProjectView
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/project/{id}/platform [put]
 func updateProjectPlatform(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := []viewmodel.UpdateProjectPlatformRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	data, err := service.UpdateProjectPlatform(ctx, c.Param("id"), aux)
+	err = service.UpdateProjectPlatform(ctx, c.Param("id"), aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, data)
+
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary update project
@@ -93,28 +117,37 @@ func updateProjectPlatform(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Param request body viewmodel.UpdateProjectRequest true "Request body"
-// @Success 200 {object} viewmodel.ProjectView
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/project/{id} [put]
 func updateProject(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.UpdateProjectRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	data, err := service.UpdateProject(ctx, c.Param("id"), aux)
+	err = service.UpdateProject(ctx, c.Param("id"), aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, data)
+
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary create project
@@ -123,27 +156,36 @@ func updateProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodel.CreateProjectRequest true "Request body"
-// @Success 200 {object} viewmodel.ProjectView
+// @Success 200 {object} viewmodel.CreateProjectResponse "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/project [post]
 func createProject(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.CreateProjectRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.CreateProject(ctx, aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+
 	c.JSON(http.StatusOK, data)
 }
 
@@ -153,29 +195,39 @@ func createProject(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {array} viewmodel.ProjectView
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/project [get]
 func getAllProject(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+	
 	pageStr := c.Query("page")
 	sizeStr := c.Query("size")
 	var page *int
 	if p, err := strconv.Atoi(pageStr); err != nil && p > 0 {
 		page = &p
 	}
+
 	var size *int
 	if p, err := strconv.Atoi(sizeStr); err != nil && p > 0 {
 		size = &p
 	}
+
 	datas, err := service.GetAllProject(ctx, page, size)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+
 	c.JSON(http.StatusOK, datas)
 }
 
@@ -186,19 +238,27 @@ func getAllProject(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Project ID"
 // @Success 200 {object} viewmodel.ProjectView
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/project/{id} [get]
 func getProject(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createProjectService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+
 	datas, err := service.GetProject(ctx, c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+
 	c.JSON(http.StatusOK, datas)
 }
 

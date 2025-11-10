@@ -11,6 +11,10 @@ type CreateProjectRequest struct {
 	EndTime      *time.Time `json:"end_time"`
 }
 
+type CreateProjectResponse struct {
+	ID string `json:"id"`
+}
+
 type UpdateProjectRequest struct {
 	Name         string     `json:"name" validate:"min=3,max=50"`
 	Description  string     `json:"description" validate:"min=3,max=500"`

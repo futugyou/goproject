@@ -1,4 +1,12 @@
 definitions:
+  v1.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
   viewmodel.CreateProjectRequest:
     properties:
       description:
@@ -26,6 +34,11 @@ definitions:
     required:
     - description
     - name
+    type: object
+  viewmodel.CreateProjectResponse:
+    properties:
+      id:
+        type: string
     type: object
   viewmodel.ProjectDesign:
     properties:
@@ -152,6 +165,14 @@ paths:
             items:
               $ref: '#/definitions/viewmodel.ProjectView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: get all project
       tags:
       - Project
@@ -170,9 +191,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodel.ProjectView'
+            $ref: '#/definitions/viewmodel.CreateProjectResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: create project
       tags:
       - Project
@@ -194,6 +223,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/viewmodel.ProjectView'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: get project
       tags:
       - Project
@@ -217,9 +254,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodel.ProjectView'
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: update project
       tags:
       - Project
@@ -246,9 +291,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodel.ProjectView'
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: update project design
       tags:
       - Project
@@ -275,9 +328,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodel.ProjectView'
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: update project platform
       tags:
       - Project

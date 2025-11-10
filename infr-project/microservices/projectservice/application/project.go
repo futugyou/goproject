@@ -28,7 +28,7 @@ func NewProjectService(
 	}
 }
 
-func (s *ProjectService) CreateProject(ctx context.Context, request viewmodel.CreateProjectRequest) (*viewmodel.ProjectView, error) {
+func (s *ProjectService) CreateProject(ctx context.Context, request viewmodel.CreateProjectRequest) (*viewmodel.CreateProjectResponse, error) {
 	res, err := s.repository.GetProjectByName(ctx, request.Name)
 	if err != nil && !strings.HasPrefix(err.Error(), coredomain.DATA_NOT_FOUND_MESSAGE) {
 		return nil, err
@@ -38,7 +38,7 @@ func (s *ProjectService) CreateProject(ctx context.Context, request viewmodel.Cr
 		return nil, fmt.Errorf("name: %s is existed", request.Name)
 	}
 
-	if err = s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+	if err := s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		res = domain.NewProject(request.Name, request.Description,
 			domain.GetProjectState(request.ProjectState), request.StartTime, request.EndTime, request.Tags)
 		return s.repository.Insert(ctx, *res)
@@ -46,7 +46,7 @@ func (s *ProjectService) CreateProject(ctx context.Context, request viewmodel.Cr
 		return nil, err
 	}
 
-	return convertProjectEntityToViewModel(res), nil
+	return &viewmodel.CreateProjectResponse{ID: res.ID}, nil
 }
 
 func (s *ProjectService) GetAllProject(ctx context.Context, page *int, size *int) ([]viewmodel.ProjectView, error) {
@@ -69,10 +69,10 @@ func (s *ProjectService) GetProject(ctx context.Context, id string) (*viewmodel.
 	return convertProjectEntityToViewModel(res), nil
 }
 
-func (s *ProjectService) UpdateProject(ctx context.Context, id string, data viewmodel.UpdateProjectRequest) (*viewmodel.ProjectView, error) {
+func (s *ProjectService) UpdateProject(ctx context.Context, id string, data viewmodel.UpdateProjectRequest) error {
 	proj, err := s.repository.FindByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	proj.ChangeName(data.Name)
@@ -89,17 +89,14 @@ func (s *ProjectService) UpdateProject(ctx context.Context, id string, data view
 	}
 
 	proj.ChangeTags(data.Tags)
-	if err = s.repository.Update(ctx, *proj); err != nil {
-		return nil, err
-	}
 
-	return convertProjectEntityToViewModel(proj), nil
+	return s.repository.Update(ctx, *proj)
 }
 
-func (s *ProjectService) UpdateProjectPlatform(ctx context.Context, id string, datas []viewmodel.UpdateProjectPlatformRequest) (*viewmodel.ProjectView, error) {
+func (s *ProjectService) UpdateProjectPlatform(ctx context.Context, id string, datas []viewmodel.UpdateProjectPlatformRequest) error {
 	proj, err := s.repository.FindByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	platforms := make([]domain.ProjectPlatform, 0)
@@ -113,17 +110,13 @@ func (s *ProjectService) UpdateProjectPlatform(ctx context.Context, id string, d
 	}
 
 	proj.UpdatePlatform(platforms)
-	if err = s.repository.Update(ctx, *proj); err != nil {
-		return nil, err
-	}
-
-	return convertProjectEntityToViewModel(proj), nil
+	return s.repository.Update(ctx, *proj)
 }
 
-func (s *ProjectService) UpdateProjectDesign(ctx context.Context, id string, datas []viewmodel.UpdateProjectDesignRequest) (*viewmodel.ProjectView, error) {
+func (s *ProjectService) UpdateProjectDesign(ctx context.Context, id string, datas []viewmodel.UpdateProjectDesignRequest) error {
 	proj, err := s.repository.FindByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	designes := make([]domain.ProjectDesign, 0)
@@ -138,11 +131,7 @@ func (s *ProjectService) UpdateProjectDesign(ctx context.Context, id string, dat
 	}
 
 	proj.UpdateDesign(designes)
-	if err = s.repository.Update(ctx, *proj); err != nil {
-		return nil, err
-	}
-
-	return convertProjectEntityToViewModel(proj), nil
+	return s.repository.Update(ctx, *proj)
 }
 
 func convertProjectEntityToViewModel(src *domain.Project) *viewmodel.ProjectView {
