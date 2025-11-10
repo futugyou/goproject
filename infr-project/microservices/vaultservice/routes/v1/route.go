@@ -16,6 +16,12 @@ import (
 	"github.com/futugyou/vaultservice/viewmodel"
 )
 
+type Response struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+}
+
 func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/vault/batch", createVaults)
 	v1.POST("/vault", createVault)
@@ -32,25 +38,33 @@ func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodel.CreateVaultsRequest true "Request body"
-// @Success 200 {object} viewmodel.CreateVaultsResponse
+// @Success 200 {object} viewmodel.CreateVaultsResponse "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vault/batch [post]
 func createVaults(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.CreateVaultsRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.CreateVaults(ctx, aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, data)
@@ -62,25 +76,33 @@ func createVaults(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodel.CreateVaultRequest true "Request body"
-// @Success 200 {object} viewmodel.VaultView
+// @Success 200 {object} viewmodel.CreateVaultResponse "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vault [post]
 func createVault(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.CreateVaultRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.CreateVault(ctx, aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, data)
@@ -92,19 +114,25 @@ func createVault(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "vault ID"
-// @Success 200 string string
+// @Success 200 string string "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vault/{id}/show [post]
 func showVaultRawValue(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.ShowVaultRawValue(ctx, c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, data)
@@ -122,26 +150,34 @@ func showVaultRawValue(c *gin.Context) {
 // @Param vault_type query string false "Vault Type"
 // @Param page query int false "Page number" default(1)
 // @Param size query int false "Page size" default(100)
-// @Success 200 {array} viewmodel.VaultView
+// @Success 200 {array} viewmodel.VaultView "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vault [get]
 func getVault(c *gin.Context) {
 	var req viewmodel.SearchVaultsRequest
 
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.SearchVaults(ctx, req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
@@ -155,28 +191,36 @@ func getVault(c *gin.Context) {
 // @Produce json
 // @Param id path string true "vault ID"
 // @Param request body viewmodel.ChangeVaultRequest true "Request body"
-// @Success 200 {object} viewmodel.VaultView
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vault/{id} [put]
 func updateVault(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.ChangeVaultRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	data, err := service.ChangeVault(ctx, c.Param("id"), aux)
+	err = service.ChangeVault(ctx, c.Param("id"), aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary delete vault
@@ -185,22 +229,28 @@ func updateVault(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "vault ID"
-// @Success 200 boolean boolean
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vault/{id} [delete]
 func deleteVault(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	data, err := service.DeleteVault(ctx, c.Param("id"))
+	err = service.DeleteVault(ctx, c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary import vault from provider
@@ -209,25 +259,33 @@ func deleteVault(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodel.ImportVaultsRequest true "Request body"
-// @Success 200 {object} viewmodel.ImportVaultsResponse
+// @Success 200 {object} viewmodel.ImportVaultsResponse "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/import_vault [post]
 func importVault(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createVaultService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.ImportVaultsRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.ImportVaults(ctx, aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, data)

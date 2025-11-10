@@ -1,4 +1,12 @@
 definitions:
+  v1.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
   viewmodel.ChangeVaultItem:
     properties:
       description:
@@ -142,6 +150,11 @@ definitions:
     - key
     - value
     type: object
+  viewmodel.CreateVaultResponse:
+    properties:
+      vault_id:
+        type: string
+    type: object
   viewmodel.CreateVaultsRequest:
     properties:
       force_insert:
@@ -155,9 +168,9 @@ definitions:
     type: object
   viewmodel.CreateVaultsResponse:
     properties:
-      vaults:
+      vault_ids:
         items:
-          $ref: '#/definitions/viewmodel.VaultView'
+          type: string
         type: array
     type: object
   viewmodel.ImportVaultsRequest:
@@ -185,9 +198,9 @@ definitions:
     type: object
   viewmodel.ImportVaultsResponse:
     properties:
-      vaults:
+      vault_ids:
         items:
-          $ref: '#/definitions/viewmodel.VaultView'
+          type: string
         type: array
     type: object
   viewmodel.VaultView:
@@ -234,9 +247,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             $ref: '#/definitions/viewmodel.ImportVaultsResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: import vault from provider
       tags:
       - Vault
@@ -283,11 +304,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             items:
               $ref: '#/definitions/viewmodel.VaultView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: get vault
       tags:
       - Vault
@@ -306,9 +335,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodel.VaultView'
+            $ref: '#/definitions/viewmodel.CreateVaultResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: create vault
       tags:
       - Vault
@@ -327,9 +364,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            type: boolean
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: delete vault
       tags:
       - Vault
@@ -353,9 +398,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodel.VaultView'
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: update vault
       tags:
       - Vault
@@ -374,9 +427,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             type: string
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: show vault value
       tags:
       - Vault
@@ -396,9 +457,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             $ref: '#/definitions/viewmodel.CreateVaultsResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: batch create vault
       tags:
       - Vault

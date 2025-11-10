@@ -31,7 +31,7 @@ type CreateVaultsRequest struct {
 }
 
 type CreateVaultsResponse struct {
-	Vaults []VaultView `json:"vaults"`
+	VaultIDs []string `json:"vault_ids"`
 }
 
 type SearchVaultsRequest struct {
@@ -48,6 +48,10 @@ type SearchVaultsRequest struct {
 type CreateVaultRequest struct {
 	CreateVaultModel `json:",inline"`
 	ForceInsert      bool `json:"force_insert"`
+}
+
+type CreateVaultResponse struct{
+	VaultID string `json:"vault_id"`
 }
 
 type ChangeVaultRequest struct {
@@ -73,7 +77,7 @@ type ImportVaultsRequest struct {
 }
 
 type ImportVaultsResponse struct {
-	Vaults []VaultView `json:"vaults"`
+	VaultIDs []string `json:"vault_ids"`
 }
 
 type CSVList []string

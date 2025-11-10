@@ -160,15 +160,15 @@ func (s *VaultService) CreateVaults(ctx context.Context, aux viewmodel.CreateVau
 	}
 
 	response := viewmodel.CreateVaultsResponse{
-		Vaults: []viewmodel.VaultView{},
+		VaultIDs: []string{},
 	}
 	for _, va := range entities {
-		response.Vaults = append(response.Vaults, convertVaultToVaultView(va))
+		response.VaultIDs = append(response.VaultIDs, (va.ID))
 	}
 	return &response, nil
 }
 
-func (s *VaultService) CreateVault(ctx context.Context, aux viewmodel.CreateVaultRequest) (*viewmodel.VaultView, error) {
+func (s *VaultService) CreateVault(ctx context.Context, aux viewmodel.CreateVaultRequest) (*viewmodel.CreateVaultResponse, error) {
 	createVaultsRequest := viewmodel.CreateVaultsRequest{
 		Vaults:      []viewmodel.CreateVaultModel{aux.CreateVaultModel},
 		ForceInsert: aux.ForceInsert,
@@ -179,29 +179,31 @@ func (s *VaultService) CreateVault(ctx context.Context, aux viewmodel.CreateVaul
 		return nil, err
 	}
 
-	if len(result.Vaults) == 0 {
+	if len(result.VaultIDs) == 0 {
 		return nil, fmt.Errorf("create vault error, check data again")
 	}
 
-	return &result.Vaults[0], nil
+	return &viewmodel.CreateVaultResponse{
+		VaultID: result.VaultIDs[0],
+	}, nil
 }
 
-func (s *VaultService) ChangeVault(ctx context.Context, id string, aux viewmodel.ChangeVaultRequest) (*viewmodel.VaultView, error) {
+func (s *VaultService) ChangeVault(ctx context.Context, id string, aux viewmodel.ChangeVaultRequest) error {
 	if tool.IsAllFieldsNil(aux.Data) {
-		return nil, fmt.Errorf("no data need change")
+		return fmt.Errorf("no data need change")
 	}
 
 	var data *domain.Vault
 	query := generateChangeVaultSearchFilter(aux.Data, id)
 	datas, err := s.repository.SearchVaults(ctx, query)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if len(datas) == 0 || (len(datas) == 1 && id != datas[0].ID) {
-		return nil, fmt.Errorf("id %s are not existed", id)
+		return fmt.Errorf("id %s are not existed", id)
 	}
 	if len(datas) > 1 && !aux.ForceInsert {
-		return nil, fmt.Errorf("vaults with 'key+storage_media+vault_type+type_identity' was already existed, check again")
+		return fmt.Errorf("vaults with 'key+storage_media+vault_type+type_identity' was already existed, check again")
 	}
 	for _, da := range datas {
 		if da.ID == id {
@@ -211,7 +213,7 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux viewmodel
 	}
 
 	if data == nil {
-		return nil, fmt.Errorf("id %s are not existed", id)
+		return fmt.Errorf("id %s are not existed", id)
 	}
 
 	doVaultChange(data, aux.Data)
@@ -231,26 +233,24 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux viewmodel
 
 			return s.upsertVaultInProvider(ctx, data.StorageMedia.String(), map[string]string{data.GetIdentityKey(): data.Value})
 		}); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	model := convertVaultToVaultView(*data)
-
-	return &model, nil
+	return nil
 }
 
-func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, error) {
+func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) error {
 	va, err := s.repository.FindByID(ctx, vaultId)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if va == nil {
-		return false, fmt.Errorf("vault with id: %s is not exist", vaultId)
+		return fmt.Errorf("vault with id: %s is not exist", vaultId)
 	}
 
-	if err := s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		err := s.repository.Delete(ctx, vaultId)
 		if err != nil {
 			return err
@@ -261,11 +261,7 @@ func (s *VaultService) DeleteVault(ctx context.Context, vaultId string) (bool, e
 		}
 
 		return s.deleteVaultInProvider(ctx, va.VaultType.String(), va.GetIdentityKey())
-	}); err != nil {
-		return false, err
-	}
-
-	return true, nil
+	})
 }
 
 func (s *VaultService) ImportVaults(ctx context.Context, aux viewmodel.ImportVaultsRequest) (*viewmodel.ImportVaultsResponse, error) {
@@ -306,10 +302,10 @@ func (s *VaultService) ImportVaults(ctx context.Context, aux viewmodel.ImportVau
 	}
 
 	response := viewmodel.ImportVaultsResponse{
-		Vaults: []viewmodel.VaultView{},
+		VaultIDs: []string{},
 	}
 	for _, va := range entities {
-		response.Vaults = append(response.Vaults, convertVaultToVaultView(va))
+		response.VaultIDs = append(response.VaultIDs, (va.ID))
 	}
 	return &response, nil
 }

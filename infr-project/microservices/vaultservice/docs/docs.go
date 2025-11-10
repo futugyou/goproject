@@ -41,9 +41,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "$ref": "#/definitions/viewmodel.ImportVaultsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -114,12 +126,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/viewmodel.VaultView"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -149,9 +173,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodel.VaultView"
+                            "$ref": "#/definitions/viewmodel.CreateVaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -183,9 +219,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "$ref": "#/definitions/viewmodel.CreateVaultsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -224,9 +272,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodel.VaultView"
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -254,9 +314,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "type": "boolean"
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -286,9 +358,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
                         }
                     }
                 }
@@ -296,6 +380,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "v1.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodel.ChangeVaultItem": {
             "type": "object",
             "properties": {
@@ -488,6 +584,14 @@ const docTemplate = `{
                 }
             }
         },
+        "viewmodel.CreateVaultResponse": {
+            "type": "object",
+            "properties": {
+                "vault_id": {
+                    "type": "string"
+                }
+            }
+        },
         "viewmodel.CreateVaultsRequest": {
             "type": "object",
             "required": [
@@ -508,10 +612,10 @@ const docTemplate = `{
         "viewmodel.CreateVaultsResponse": {
             "type": "object",
             "properties": {
-                "vaults": {
+                "vault_ids": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodel.VaultView"
+                        "type": "string"
                     }
                 }
             }
@@ -549,10 +653,10 @@ const docTemplate = `{
         "viewmodel.ImportVaultsResponse": {
             "type": "object",
             "properties": {
-                "vaults": {
+                "vault_ids": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodel.VaultView"
+                        "type": "string"
                     }
                 }
             }
