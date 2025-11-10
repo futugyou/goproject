@@ -16,6 +16,12 @@ import (
 	"github.com/futugyou/resourceservice/viewmodel"
 )
 
+type Response struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+}
+
 func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 	v1.POST("/resource", createResource)
 	v1.PUT("/resource/:id", updateResource)
@@ -29,21 +35,28 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {array} viewmodel.ResourceView
+// @Success 200 {array} viewmodel.ResourceView "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.AllVersionResource(ctx, c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+
 	c.JSON(http.StatusOK, data)
 }
 
@@ -53,24 +66,29 @@ func getResourceHistory(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Resource ID"
-// @Success 200 {string} string "ok"
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/resource/{id} [delete]
 func deleteResource(c *gin.Context) {
-
 	ctx := c.Request.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	err = service.DeleteResource(ctx, c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, "ok")
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary update resource
@@ -80,28 +98,37 @@ func deleteResource(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Resource ID"
 // @Param request body viewmodel.UpdateResourceRequest true "Request body"
-// @Success 200 {string} string "ok"
+// @Success 200 {object} Response "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/resource/{id} [put]
 func updateResource(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.UpdateResourceRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	err = service.UpdateResource(ctx, c.Param("id"), aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, "ok")
+
+	c.JSON(http.StatusOK, Response{})
 }
 
 // @Summary create resource
@@ -110,27 +137,36 @@ func updateResource(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodel.CreateResourceRequest true "Request body"
-// @Success 200 {object} viewmodel.CreateResourceResponse
+// @Success 200 {object} viewmodel.CreateResourceResponse "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /v1/resource [post]
 func createResource(c *gin.Context) {
 	ctx := c.Request.Context()
 	service, err := createResourceService(ctx)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	aux := viewmodel.CreateResourceRequest{}
 	if err := c.ShouldBind(&aux); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	data, err := service.CreateResource(ctx, aux)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
 		return
 	}
+
 	c.JSON(http.StatusOK, data)
 }
 

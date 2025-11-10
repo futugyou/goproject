@@ -1,4 +1,12 @@
 definitions:
+  v1.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
   viewmodel.CreateResourceRequest:
     properties:
       data:
@@ -93,9 +101,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             $ref: '#/definitions/viewmodel.CreateResourceResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: create resource
       tags:
       - Resource
@@ -114,9 +130,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: Successfully
           schema:
-            type: string
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: delete resource
       tags:
       - Resource
@@ -140,9 +164,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: Successfully
           schema:
-            type: string
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: update resource
       tags:
       - Resource
@@ -161,11 +193,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             items:
               $ref: '#/definitions/viewmodel.ResourceView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
       summary: get resource change history
       tags:
       - Resource
