@@ -323,7 +323,7 @@ func (g *vercelClient) buildVercelDeploymentWithLatest(vercelDeployments []verce
 }
 
 func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
-	team_slug, team_id := "", ""
+	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
 	events := request.Events
 	if len(events) == 0 {
 		events = []string{"deployment.succeeded"}
@@ -356,6 +356,39 @@ func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	}
 
 	return hook, nil
+}
+
+func (g *vercelClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRequest) (*WebHook, error) {
+	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
+
+	req := vercel.ListWebhookParameter{
+		ProjectId: &request.ProjectId,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+
+	hooks, err := g.client.Webhooks.ListWebhook(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, vercelHook := range hooks {
+		if vercelHook.Url == request.Url {
+			paras := map[string]string{}
+			paras["SigningSecret"] = vercelHook.Secret
+			return &WebHook{
+				ID:         vercelHook.Id,
+				Name:       "",
+				Url:        vercelHook.Url,
+				Events:     vercelHook.Events,
+				Parameters: paras,
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("webhook not found")
 }
 
 func (g *vercelClient) getTeamSlugAndId(ctx context.Context, parameters map[string]string) (team_slug string, team_id string, err error) {

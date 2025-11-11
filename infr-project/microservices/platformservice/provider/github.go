@@ -453,6 +453,39 @@ func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	return hook, nil
 }
 
+func (g *githubClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRequest) (*WebHook, error) {
+	if value, ok := request.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
+		g.owner = value
+	}
+	opts := &github.ListOptions{Page: 1, PerPage: 20}
+	hooks, _, err := g.client.Repositories.ListHooks(ctx, g.owner, request.ProjectId, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, githook := range hooks {
+		if githook.GetURL() == request.Url {
+			paras := map[string]string{}
+			githookconfig := githook.Config
+			if githookconfig != nil {
+				paras["ContentType"] = githookconfig.GetContentType()
+				paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
+				paras["SigningSecret"] = githookconfig.GetSecret()
+				paras["URL"] = githookconfig.GetURL()
+			}
+			return &WebHook{
+				ID:         fmt.Sprintf("%d", githook.GetID()),
+				Name:       githook.GetName(),
+				Url:        githook.GetURL(),
+				Events:     githook.Events,
+				Parameters: paras,
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("webhook not found")
+}
+
 // Need GITHUB_OWNER and GITHUB_REPO in DeleteWebHookRequest 'Parameters'
 func (g *githubClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
 	webHookId, err := strconv.ParseInt(request.WebHookId, 10, 64)

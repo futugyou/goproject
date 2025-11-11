@@ -146,6 +146,12 @@ type User struct {
 	ID   string
 }
 
+type GetWebHookRequest struct {
+	ProjectId  string
+	Url        string
+	Parameters map[string]string
+}
+
 // Although the CreateProject method is provided, it is best not to use it.
 // The DeleteProject method is not provided because it is more dangerous.
 // The DeleteWebHook method is provided because it is less dangerous
@@ -159,6 +165,8 @@ type PlatformProvider interface {
 	GetSimpleProjectInfo(ctx context.Context, filter ProjectFilter) (*Project, error)
 	CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error)
 	DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error
+	// Webhook URLs are not unique, so this method is used to check, only find one.
+	GetWebHookByUrl(ctx context.Context, request GetWebHookRequest) (*WebHook, error)
 	GetUser(ctx context.Context) (*User, error)
 }
 

@@ -261,7 +261,6 @@ func (g *circleClient) getWebHook(ctx context.Context, filter ProjectFilter) *We
 	}
 }
 
-// if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
 func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
 	events := request.Events
 	if len(events) == 0 {
@@ -297,6 +296,31 @@ func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	}
 
 	return webHook, nil
+}
+
+func (g *circleClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRequest) (*WebHook, error) {
+	hooks, err := g.client.Webhook.ListWebhook(ctx, request.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, hook := range hooks.Items {
+		if hook.Url == request.Url {
+			paras := map[string]string{}
+			paras["Scope"] = hook.Scope.Type
+			paras["SigningSecret"] = hook.SigningSecret
+			paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
+			return &WebHook{
+				ID:         hook.Id,
+				Name:       hook.Name,
+				Url:        hook.Url,
+				Events:     hook.Events,
+				Parameters: paras,
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("webhook not found")
 }
 
 func (g *circleClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
