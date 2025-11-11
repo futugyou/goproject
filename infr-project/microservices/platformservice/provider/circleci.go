@@ -127,26 +127,7 @@ func (g *circleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 
 	url := g.buildProjectUrl(org_slug, url_format, vcs_full, circleciProject.Name)
 
-	webHooks := []WebHook{}
-	if circleciWebhooks, err := g.client.Webhook.ListWebhook(ctx, circleciProject.ID); err != nil {
-		log.Println(err.Error())
-	} else {
-		for _, hook := range circleciWebhooks.Items {
-			paras := map[string]string{}
-			paras["Scope"] = hook.Scope.Type
-			paras["ScopeId"] = hook.Scope.Id
-			paras["SigningSecret"] = hook.SigningSecret
-			paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
-			webHooks = append(webHooks, WebHook{
-				ID:         hook.Id,
-				Name:       hook.Name,
-				Url:        hook.Url,
-				Events:     hook.Events,
-				Activate:   true,
-				Parameters: paras,
-			})
-		}
-	}
+	webHook := g.getWebHook(ctx, filter)
 
 	envs := map[string]EnvironmentVariable{}
 	if circleciEnvs, err := g.client.Project.GetEnvironmentVariables(ctx, circleciProject.Slug); err != nil {
@@ -203,7 +184,7 @@ func (g *circleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 		Name:                 circleciProject.Name,
 		Url:                  url,
 		Description:          circleciProject.GetMessage(),
-		WebHooks:             webHooks,
+		WebHook:              webHook,
 		Properties:           map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
 		EnvironmentVariables: envs,
 		Environments:         []string{},
@@ -213,6 +194,29 @@ func (g *circleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	return project, nil
+}
+
+func (g *circleClient) getWebHook(ctx context.Context, filter ProjectFilter) *WebHook {
+	hook, err := g.client.Webhook.GetWebhook(ctx, *filter.WebHookID)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+
+	paras := map[string]string{}
+	paras["Scope"] = hook.Scope.Type
+	paras["ScopeId"] = hook.Scope.Id
+	paras["SigningSecret"] = hook.SigningSecret
+	paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
+
+	return &WebHook{
+		ID:         hook.Id,
+		Name:       hook.Name,
+		Url:        hook.Url,
+		Events:     hook.Events,
+		Activate:   true,
+		Parameters: paras,
+	}
 }
 
 // if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'

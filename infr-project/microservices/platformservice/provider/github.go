@@ -187,33 +187,7 @@ func (g *githubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 		}
 	}
 
-	hooks := []WebHook{}
-	if githooks, _, err := g.client.Repositories.ListHooks(ctx, g.owner, filter.Name, opts); err != nil {
-		log.Println(err.Error())
-	} else {
-		for _, hook := range githooks {
-			paras := map[string]string{}
-			paras["TestURL"] = hook.GetTestURL()
-			paras["PingURL"] = hook.GetPingURL()
-			var tls = "true"
-			if hook.GetConfig().GetInsecureSSL() == "1" {
-				tls = "false"
-			}
-			paras["ContentType"] = hook.GetConfig().GetContentType()
-			paras["VerifyTLS"] = tls
-			paras["SigningSecret"] = hook.GetConfig().GetSecret()
-			paras["URL"] = hook.GetConfig().GetURL()
-
-			hooks = append(hooks, WebHook{
-				ID:         fmt.Sprintf("%d", hook.GetID()),
-				Name:       hook.GetName(),
-				Url:        hook.GetURL(),
-				Events:     hook.Events,
-				Activate:   hook.GetActive(),
-				Parameters: paras,
-			})
-		}
-	}
+	webHook := g.getWebHook(ctx, filter)
 
 	envs := map[string]EnvironmentVariable{}
 	if gitSecrets, _, err := g.client.Actions.ListRepoSecrets(ctx, g.owner, filter.Name, opts); err != nil {
@@ -292,7 +266,7 @@ func (g *githubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	readme, _ := g.getGithubReadmeMarkdown(ctx, g.owner, filter.Name, g.branch)
 
 	project := g.buildGithubProject(repository)
-	project.WebHooks = hooks
+	project.WebHook = webHook
 	project.EnvironmentVariables = envs
 	project.Workflows = wfs
 	project.WorkflowRuns = runs
@@ -301,6 +275,45 @@ func (g *githubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	project.Readme = readme
 
 	return &project, nil
+}
+
+func (g *githubClient) getWebHook(ctx context.Context, filter ProjectFilter) *WebHook {
+	if filter.WebHookID == nil {
+		return nil
+	}
+
+	webHookID, err := strconv.ParseInt(*filter.WebHookID, 10, 64)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+
+	hook, _, err := g.client.Repositories.GetHook(ctx, g.owner, filter.Name, webHookID)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+
+	paras := map[string]string{}
+	paras["TestURL"] = hook.GetTestURL()
+	paras["PingURL"] = hook.GetPingURL()
+	var tls = "true"
+	if hook.GetConfig().GetInsecureSSL() == "1" {
+		tls = "false"
+	}
+	paras["ContentType"] = hook.GetConfig().GetContentType()
+	paras["VerifyTLS"] = tls
+	paras["SigningSecret"] = hook.GetConfig().GetSecret()
+	paras["URL"] = hook.GetConfig().GetURL()
+
+	return &WebHook{
+		ID:         fmt.Sprintf("%d", hook.GetID()),
+		Name:       hook.GetName(),
+		Url:        hook.GetURL(),
+		Events:     hook.Events,
+		Activate:   hook.GetActive(),
+		Parameters: paras,
+	}
 }
 
 func (g *githubClient) getGithubReadmeMarkdown(ctx context.Context, owner, repo, branch string) (string, error) {

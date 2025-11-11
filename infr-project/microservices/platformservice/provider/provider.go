@@ -35,7 +35,7 @@ type Project struct {
 	Name                 string
 	Url                  string
 	Description          string
-	WebHooks             []WebHook
+	WebHook              *WebHook
 	Properties           map[string]string
 	EnvironmentVariables map[string]EnvironmentVariable // github use action repositroy secrets
 	Environments         []string                       // circleci don't have
@@ -55,11 +55,11 @@ func (w *Project) GetProperties() map[string]string {
 	return w.Properties
 }
 
-func (w *Project) GetWebhooks() []WebHook {
+func (w *Project) GetWebhook() *WebHook {
 	if w == nil {
-		return []WebHook{}
+		return nil
 	}
-	return w.WebHooks
+	return w.WebHook
 }
 
 type EnvironmentVariable struct {
@@ -119,8 +119,10 @@ func (w *WebHook) GetParameters() map[string]string {
 }
 
 type ProjectFilter struct {
-	Name       string
+	Name string
+	// circelcd: org_slug circleci_project_url hook_id
 	Parameters map[string]string
+	WebHookID  *string
 }
 
 type CreateWebHookRequest struct {

@@ -120,30 +120,7 @@ func (g *vercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 		return nil, err
 	}
 
-	hooks := []WebHook{}
-	req := vercel.ListWebhookParameter{
-		ProjectId: &vercelProject.Id,
-		BaseUrlParameter: vercel.BaseUrlParameter{
-			TeamSlug: &team_slug,
-			TeamId:   &team_id,
-		},
-	}
-	if vercelHooks, err := g.client.Webhooks.ListWebhook(ctx, req); err != nil {
-		log.Println(err.Error())
-	} else {
-		for _, hook := range vercelHooks {
-			paras := map[string]string{}
-			paras["SigningSecret"] = hook.Secret
-			hooks = append(hooks, WebHook{
-				ID:         hook.Id,
-				Name:       hook.Id,
-				Url:        hook.Url,
-				Events:     hook.Events,
-				Activate:   true,
-				Parameters: paras,
-			})
-		}
-	}
+	webHook := g.getWebHook(ctx, filter, team_slug, team_id)
 
 	properties := map[string]string{}
 	environments := []string{}
@@ -185,7 +162,7 @@ func (g *vercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 		ID:                   vercelProject.Id,
 		Name:                 vercelProject.Name,
 		Url:                  url,
-		WebHooks:             hooks,
+		WebHook:              webHook,
 		Properties:           properties,
 		EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
 		Deployments:          deployments, //g.buildVercelDeployment(vercelProject.LatestDeployments, url),
@@ -195,6 +172,33 @@ func (g *vercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	return project, nil
+}
+
+func (g *vercelClient) getWebHook(ctx context.Context, filter ProjectFilter, team_slug string, team_id string) *WebHook {
+	req := vercel.GetWebhookParameter{
+		WebhookId: *filter.WebHookID,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+	
+	hook, err := g.client.Webhooks.GetWebhook(ctx, req)
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+
+	paras := map[string]string{}
+	paras["SigningSecret"] = hook.Secret
+	return &WebHook{
+		ID:         hook.Id,
+		Name:       hook.Id,
+		Url:        hook.Url,
+		Events:     hook.Events,
+		Activate:   true,
+		Parameters: paras,
+	}
 }
 
 func (*vercelClient) buildVercelBadge(lable string, url string, readyState string) (badgeUrl string, badgeMarkDown string) {
