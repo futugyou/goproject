@@ -174,6 +174,54 @@ func (g *vercelClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	return project, nil
 }
 
+func (g *vercelClient) GetSimpleProjectInfo(ctx context.Context, filter ProjectFilter) (*Project, error) {
+	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, filter.Parameters)
+	request := vercel.GetProjectParameter{
+		IdOrName: filter.Name,
+		BaseUrlParameter: vercel.BaseUrlParameter{
+			TeamSlug: &team_slug,
+			TeamId:   &team_id,
+		},
+	}
+	vercelProject, err := g.client.Projects.GetProject(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	properties := map[string]string{}
+	environments := []string{}
+	for key, v := range vercelProject.Targets {
+		environments = append(environments, key)
+		k := strings.ToUpper(fmt.Sprintf("%s_Alias", key))
+		properties[k] = strings.Join(v.Alias, ",")
+	}
+
+	readState := ""
+	if target, ok := vercelProject.Targets["production"]; ok {
+		readState = target.ReadyState
+	}
+
+	url := ""
+	if len(team_slug) > 0 {
+		url = fmt.Sprintf(vercelProjectUrl, team_slug, vercelProject.Name)
+	}
+
+	badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
+	
+	project := &Project{
+		ID:                   vercelProject.Id,
+		Name:                 vercelProject.Name,
+		Url:                  url,
+		Properties:           properties,
+		EnvironmentVariables: g.buildVercelEnv(vercelProject.Env),
+		BadgeURL:             badgeURL,
+		Environments:         environments,
+		BadgeMarkDown:        badgeMarkdown,
+	}
+
+	return project, nil
+}
+
 func (g *vercelClient) getWebHook(ctx context.Context, filter ProjectFilter, team_slug string, team_id string) *WebHook {
 	req := vercel.GetWebhookParameter{
 		WebhookId: *filter.WebHookID,
@@ -182,7 +230,7 @@ func (g *vercelClient) getWebHook(ctx context.Context, filter ProjectFilter, tea
 			TeamId:   &team_id,
 		},
 	}
-	
+
 	hook, err := g.client.Webhooks.GetWebhook(ctx, req)
 	if err != nil {
 		log.Println(err.Error())

@@ -196,6 +196,48 @@ func (g *circleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	return project, nil
 }
 
+func (g *circleClient) GetSimpleProjectInfo(ctx context.Context, filter ProjectFilter) (*Project, error) {
+	org_slug := ""
+	if org, ok := filter.Parameters["org_slug"]; ok {
+		org_slug = org
+	} else {
+		return nil, fmt.Errorf("get project request need 'org_slug' in parameters")
+	}
+
+	circleciProject, err := g.client.Project.GetProject(ctx, org_slug, filter.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	vcs, vcs_full := g.getCircleciVCS(circleciProject.VcsInfo.Provider)
+
+	url_format := circleciProjectUrl
+	if url, ok := filter.Parameters["circleci_project_url"]; ok {
+		url_format = url
+	}
+
+	url := g.buildProjectUrl(org_slug, url_format, vcs_full, circleciProject.Name)
+
+	badgeURL, badgeMarkdown := "", ""
+	vcsurlinfos := strings.Split(circleciProject.VcsInfo.VcsURL, "/")
+	if len(vcsurlinfos) >= 2 {
+		badgeURL, badgeMarkdown = g.buildProjectBadge(vcs, vcsurlinfos[len(vcsurlinfos)-2], vcsurlinfos[len(vcsurlinfos)-1], circleciProject.VcsInfo.DefaultBranch)
+	}
+
+	project := &Project{
+		ID:            circleciProject.ID,
+		Name:          circleciProject.Name,
+		Url:           url,
+		Description:   circleciProject.GetMessage(),
+		Properties:    map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
+		Environments:  []string{},
+		BadgeURL:      badgeURL,
+		BadgeMarkDown: badgeMarkdown,
+	}
+
+	return project, nil
+}
+
 func (g *circleClient) getWebHook(ctx context.Context, filter ProjectFilter) *WebHook {
 	hook, err := g.client.Webhook.GetWebhook(ctx, *filter.WebHookID)
 	if err != nil {

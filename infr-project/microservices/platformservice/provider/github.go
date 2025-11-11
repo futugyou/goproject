@@ -109,12 +109,12 @@ func (g *githubClient) ListProject(ctx context.Context, filter ProjectFilter) ([
 	result := []Project{}
 	for _, repo := range repos {
 		project := g.buildGithubProject(repo)
-		result = append(result, project)
+		result = append(result, *project)
 	}
 	return result, nil
 }
 
-func (g *githubClient) buildGithubProject(repo *github.Repository) Project {
+func (g *githubClient) buildGithubProject(repo *github.Repository) *Project {
 	badgeURL, badgeMarkdown := g.buildGithubProjectBadge(repo.GetArchived(), repo.GetHTMLURL())
 	paras := map[string]string{}
 	paras["GITHUB_REPO"] = repo.GetName()
@@ -122,7 +122,8 @@ func (g *githubClient) buildGithubProject(repo *github.Repository) Project {
 	paras["ISSUES"] = fmt.Sprintf("%d", repo.GetOpenIssuesCount())
 	paras["FORKS"] = fmt.Sprintf("%d", repo.GetForksCount())
 	paras["WATCHS"] = fmt.Sprintf("%d", repo.GetStargazersCount())
-	return Project{
+
+	return &Project{
 		ID:            fmt.Sprintf("%d", repo.GetID()),
 		Name:          repo.GetName(),
 		Url:           repo.GetHTMLURL(),
@@ -274,7 +275,20 @@ func (g *githubClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	project.Environments = environments
 	project.Readme = readme
 
-	return &project, nil
+	return project, nil
+}
+
+func (g *githubClient) GetSimpleProjectInfo(ctx context.Context, filter ProjectFilter) (*Project, error) {
+	if value, ok := filter.Parameters["GITHUB_OWNER"]; ok && len(value) > 0 {
+		g.owner = value
+	}
+
+	repository, _, err := g.client.Repositories.Get(ctx, g.owner, filter.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.buildGithubProject(repository), nil
 }
 
 func (g *githubClient) getWebHook(ctx context.Context, filter ProjectFilter) *WebHook {
