@@ -263,18 +263,7 @@ func (g *circleClient) getWebHook(ctx context.Context, filter ProjectFilter) *We
 
 // if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
 func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
-	secret := ""
-	if s, ok := request.WebHook.Parameters["SigningSecret"]; ok && len(s) > 0 {
-		secret = s
-	}
-	verifyTLS := false
-	if tls, ok := request.WebHook.Parameters["VerifyTLS"]; ok {
-		if value, err := strconv.ParseBool(tls); err != nil {
-			verifyTLS = value
-		}
-	}
-
-	events := request.WebHook.Events
+	events := request.Events
 	if len(events) == 0 {
 		events = circleci.WebhookEvents
 	} else {
@@ -282,11 +271,11 @@ func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	}
 
 	req := circleci.CreateWebhookRequest{
-		Name:          request.WebHook.Name,
+		Name:          request.Name,
 		Events:        events,
-		Url:           request.WebHook.Url,
-		VerifyTLS:     verifyTLS,
-		SigningSecret: secret,
+		Url:           request.Url,
+		VerifyTLS:     request.VerifyTLS,
+		SigningSecret: request.SigningSecret,
 		ScopeId:       request.ProjectId,
 		ScopeType:     "project",
 	}

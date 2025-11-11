@@ -207,7 +207,7 @@ func (g *vercelClient) GetSimpleProjectInfo(ctx context.Context, filter ProjectF
 	}
 
 	badgeURL, badgeMarkdown := g.buildVercelBadge("Deployment", url, readState)
-	
+
 	project := &Project{
 		ID:                   vercelProject.Id,
 		Name:                 vercelProject.Name,
@@ -324,7 +324,7 @@ func (g *vercelClient) buildVercelDeploymentWithLatest(vercelDeployments []verce
 
 func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
 	team_slug, team_id := "", ""
-	events := request.WebHook.Events
+	events := request.Events
 	if len(events) == 0 {
 		events = []string{"deployment.succeeded"}
 	} else {
@@ -333,7 +333,7 @@ func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 
 	req := vercel.CreateWebhookRequest{
 		Events:     events,
-		Url:        request.WebHook.Url,
+		Url:        request.Url,
 		ProjectIds: []string{request.ProjectId},
 		BaseUrlParameter: vercel.BaseUrlParameter{
 			TeamSlug: &team_slug,
@@ -349,7 +349,7 @@ func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	paras["SigningSecret"] = vercelHook.Secret
 	hook := &WebHook{
 		ID:         vercelHook.Id,
-		Name:       request.WebHook.Name,
+		Name:       request.Name,
 		Url:        vercelHook.Url,
 		Events:     vercelHook.Events,
 		Parameters: paras,

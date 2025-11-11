@@ -126,9 +126,14 @@ type ProjectFilter struct {
 }
 
 type CreateWebHookRequest struct {
-	PlatformId string
-	ProjectId  string
-	WebHook    WebHook
+	PlatformId    string
+	ProjectId     string
+	Events        []string
+	SigningSecret string
+	VerifyTLS     bool
+	Name          string
+	Url           string
+	Parameters    map[string]string
 }
 
 type DeleteWebHookRequest struct {

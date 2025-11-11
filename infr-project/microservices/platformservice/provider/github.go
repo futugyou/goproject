@@ -410,21 +410,21 @@ func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	config := &github.HookConfig{
 		ContentType: github.String("json"),
 		InsecureSSL: github.String("1"),
-		URL:         github.String(request.WebHook.Url),
+		URL:         github.String(request.Url),
 	}
 
-	if s, ok := request.WebHook.Parameters["SigningSecret"]; ok && len(s) > 0 {
-		config.Secret = github.String(s)
+	if len(request.SigningSecret) > 0 {
+		config.Secret = github.String(request.SigningSecret)
 	}
 
-	events := request.WebHook.Events
+	events := request.Events
 	if len(events) == 0 {
 		events = []string{"push", "pull_request"}
 	} else {
 		events = Intersect(events, []string{"push", "pull_request"})
 	}
 	hookParam := &github.Hook{
-		Name:   github.String(request.WebHook.Name),
+		Name:   github.String(request.Name),
 		Config: config,
 		Events: events,
 	}
