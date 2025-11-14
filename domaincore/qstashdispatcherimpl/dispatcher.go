@@ -25,40 +25,35 @@ func NewQStashEventDispatcher(token string, destination string) *QStashEventDisp
 }
 
 func (q *QStashEventDispatcher) DispatchDomainEvents(ctx context.Context, events []domain.DomainEvent) error {
-	if len(events) == 0 {
+	return q.dispatch(ctx, buildQStashBatch(q.destination, events))
+}
+
+func (q *QStashEventDispatcher) DispatchIntegrationEvents(ctx context.Context, events []infrastructure.Event) error {
+	return q.dispatch(ctx, buildQStashBatch(q.destination, events))
+}
+
+// QStash natively supports bulk sending.
+func (q *QStashEventDispatcher) dispatch(ctx context.Context, req qstash.BatchRequest) error {
+	if len(req) == 0 {
 		return nil
 	}
-
-	qstashRequest := qstash.BatchRequest{}
-	for _, event := range events {
-		if bodyBytes, err := json.Marshal(event); err == nil {
-			qstashRequest = append(qstashRequest, qstash.BatchRequestItem{
-				Destination: fmt.Sprintf(q.destination, event.EventType()),
-				Body:        string(bodyBytes),
-			})
-		}
-	}
-
-	if len(qstashRequest) == 0 {
-		return nil
-	}
-
-	_, err := q.client.Message.Batch(ctx, qstashRequest)
+	_, err := q.client.Message.Batch(ctx, req)
 	return err
 }
 
-func (q *QStashEventDispatcher) DispatchIntegrationEvent(ctx context.Context, event infrastructure.Event) error {
-	var bodyBytes []byte
-	var err error
-	if bodyBytes, err = json.Marshal(event); err != nil {
-		return err
+func buildQStashBatch[T interface {
+	EventType() string
+}](destinationFormat string, events []T) qstash.BatchRequest {
+	req := qstash.BatchRequest{}
+	for _, event := range events {
+		bodyBytes, err := json.Marshal(event)
+		if err != nil {
+			continue
+		}
+		req = append(req, qstash.BatchRequestItem{
+			Destination: fmt.Sprintf(destinationFormat, event.EventType()),
+			Body:        string(bodyBytes),
+		})
 	}
-
-	qstashRequest := qstash.PublishRequest{
-		Destination: fmt.Sprintf(q.destination, event.EventType()),
-		Body:        string(bodyBytes),
-	}
-
-	_, err = q.client.Message.Publish(ctx, qstashRequest)
-	return err
+	return req
 }

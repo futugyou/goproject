@@ -12,5 +12,5 @@ type Event interface {
 
 type EventDispatcher interface {
 	DispatchDomainEvents(ctx context.Context, events []domain.DomainEvent) error
-	DispatchIntegrationEvent(ctx context.Context, event Event) error
+	DispatchIntegrationEvents(ctx context.Context, events []Event) error
 }

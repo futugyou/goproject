@@ -120,7 +120,7 @@ func (w *WebHook) GetParameters() map[string]string {
 
 type ProjectFilter struct {
 	Name string
-	// circelci: org_slug circleci_project_url hook_id
+	// circelci: org_slug circleci_project_url
 	Parameters map[string]string
 	WebHookID  *string
 }
@@ -157,9 +157,8 @@ type GetWebHookRequest struct {
 // The DeleteWebHook method is provided because it is less dangerous
 type PlatformProvider interface {
 	CreateProject(ctx context.Context, request CreateProjectRequest) (*Project, error)
-	// no webhook info
 	ListProject(ctx context.Context, filter ProjectFilter) ([]Project, error)
-	// include webhook info
+	// include all info
 	GetProject(ctx context.Context, filter ProjectFilter) (*Project, error)
 	// only include project base info
 	GetSimpleProjectInfo(ctx context.Context, filter ProjectFilter) (*Project, error)

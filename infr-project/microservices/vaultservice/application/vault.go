@@ -225,7 +225,7 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux viewmodel
 				return err
 			}
 
-			s.eventPublisher.DispatchIntegrationEvent(ctx, ToVaultChanged(data))
+			s.eventPublisher.DispatchIntegrationEvents(ctx, []coreinfr.Event{ToVaultChanged(data)})
 
 			if data.StorageMedia == domain.StorageMediaLocal {
 				return nil

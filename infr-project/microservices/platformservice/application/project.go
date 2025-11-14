@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 
+	coreinfr "github.com/futugyou/domaincore/infrastructure"
 	tool "github.com/futugyou/extensions"
 
 	"github.com/futugyou/platformservice/assembler"
@@ -152,7 +153,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 			EventName:             "upsert_project",
 			Screenshot:            screenshot,
 		}
-		if err := s.eventPublisher.DispatchIntegrationEvent(ctx, event); err != nil {
+		if err := s.eventPublisher.DispatchIntegrationEvents(ctx, []coreinfr.Event{event}); err != nil {
 			log.Println(err.Error())
 		}
 	}
