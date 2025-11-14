@@ -82,16 +82,16 @@ type Secret struct {
 }
 
 type PlatformProject struct {
-	ID                string                  `json:"id"`
-	Name              string                  `json:"name"`
-	Url               string                  `json:"url"`
-	ImageUrl          string                  `json:"image_url"`
-	Description       string                  `json:"description"`
-	Properties        []Property              `json:"properties"`
-	Secrets           []Secret                `json:"secrets"`
-	Webhook           *Webhook                `json:"webhook"`
-	ProviderProjectID string                  `json:"provider_project_id"`
-	Followed          bool                    `json:"followed"`
+	ID                string                   `json:"id"`
+	Name              string                   `json:"name"`
+	Url               string                   `json:"url"`
+	ImageUrl          string                   `json:"image_url"`
+	Description       string                   `json:"description"`
+	Properties        []Property               `json:"properties"`
+	Secrets           []Secret                 `json:"secrets"`
+	Webhook           *Webhook                 `json:"webhook"`
+	ProviderProjectID string                   `json:"provider_project_id"`
+	Followed          bool                     `json:"followed"`
 	ProviderProject   *PlatformProviderProject `json:"provider_project"`
 }
 
@@ -173,15 +173,23 @@ type SearchPlatformsRequest struct {
 	Size     int      `json:"size"`
 }
 
-type PlatformProjectUpsertEvent struct {
-	PlatformID            string `json:"platform_id"`
-	ProjectID             string `json:"project_id"`
-	CreateProviderProject bool   `json:"create_provider_project"`
-	Screenshot            bool   `json:"screenshot"`
-	ImportWebhooks        bool   `json:"import_webhooks"` // If the provider has a webhook for infr-project, import all of them. If there is none, create one for infr-project.
-	EventName             string `json:"event_name"`
+type CreateProviderProjectRequest struct {
+	PlatformID  string `json:"platform_id"`
+	ProjectID   string `json:"project_id"`
+	ProjectName bool   `json:"project_name"`
+	Provider    bool   `json:"provider"`
 }
 
-func (e *PlatformProjectUpsertEvent) EventType() string {
-	return "upsert_project"
+type CreateProviderWebhookRequest struct {
+	PlatformID        string `json:"platform_id"`
+	ProjectID         string `json:"project_id"`
+	ProjectName       bool   `json:"project_name"`
+	Provider          bool   `json:"provider"`
+	ProviderProjectId string `json:"provider_project_id"`
+}
+
+type ProjectScreenshotRequest struct {
+	PlatformID string `json:"platform_id"`
+	ProjectID  string `json:"project_id"`
+	Url        bool   `json:"url"`
 }

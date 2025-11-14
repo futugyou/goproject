@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"slices"
 	"strings"
 
@@ -234,76 +233,4 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, idOrName strin
 	}
 
 	return projectModel, nil
-}
-
-func (s *PlatformService) HandlePlatformProjectUpsert(ctx context.Context, event *viewmodel.PlatformProjectUpsertEvent) error {
-	plat, err := s.repository.GetPlatformByIdOrNameWithoutProjects(ctx, event.PlatformID)
-	if err != nil {
-		return err
-	}
-
-	project, err := s.repository.GetPlatformProjectByProjectID(ctx, plat.ID, event.ProjectID)
-	if err != nil {
-		return err
-	}
-
-	if event.CreateProviderProject {
-		err1 := s.handleProviderProjectCreate(ctx, plat, project)
-		if err1 != nil {
-			return err1
-		}
-	}
-
-	if event.ImportWebhooks {
-		//TODO:
-	}
-
-	if event.Screenshot {
-		s.handleScreenshot(ctx, project)
-	}
-
-	plat.UpdateProject(*project)
-
-	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
-		return s.repository.Update(ctx, *plat)
-	})
-}
-
-func (s *PlatformService) handleScreenshot(ctx context.Context, project *domain.PlatformProject) error {
-	if len(project.Url) > 0 && os.Getenv("SCREENSHOT_ALLOW") != "false" {
-		imageUrl, err := s.screenshot.Create(ctx, project.Url)
-		if err != nil {
-			return err
-		}
-
-		project.UpdateImageUrl(*imageUrl)
-	}
-
-	return nil
-}
-
-func (s *PlatformService) handleProviderProjectCreate(ctx context.Context, plat *domain.Platform, project *domain.PlatformProject) error {
-	provider, err := s.getPlatformProvider(ctx, *plat)
-	if err != nil {
-		return err
-	}
-
-	parameters := mergePropertiesToMap(project.Properties, plat.Properties)
-	providerProject, err := s.getProviderProject(ctx, provider, project.ProviderProjectID, parameters)
-	if err != nil {
-		return err
-	}
-
-	if providerProject == nil || len(providerProject.ID) == 0 {
-		var err error
-		if providerProject, err = s.createProviderProject(ctx, provider, project.Name, project.Properties); err != nil {
-			return err
-		}
-	}
-
-	if providerProject != nil && len(providerProject.ID) > 0 {
-		project.UpdateProviderProjectID(providerProject.ID)
-	}
-
-	return nil
 }
