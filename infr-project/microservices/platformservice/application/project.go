@@ -144,23 +144,49 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		return err
 	}
 
-	if project.Operate == "sync" || project.ImportWebhooks || screenshot {
-		event := &viewmodel.PlatformProjectUpsertEvent{
-			PlatformID:            plat.ID,
-			ProjectID:             projectID,
-			CreateProviderProject: project.Operate == "sync",
-			ImportWebhooks:        project.ImportWebhooks,
-			EventName:             "upsert_project",
-			Screenshot:            screenshot,
-		}
-		if err := s.eventPublisher.DispatchIntegrationEvents(ctx, []coreinfr.Event{event}); err != nil {
-			log.Println(err.Error())
-		}
-	}
+	s.sendProjectChangeEvent(ctx, project, plat, projectID, screenshot)
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.repository.Update(ctx, *plat)
 	})
+}
+
+func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project viewmodel.UpdatePlatformProjectRequest, plat *domain.Platform, projectID string, screenshot bool) {
+	events := []coreinfr.Event{}
+	if project.Operate == "sync" {
+		events = append(events, &CreateProviderProjectTriggeredEvent{
+			PlatformID:  plat.ID,
+			ProjectID:   projectID,
+			ProjectName: project.Name,
+			Provider:    plat.Provider.String(),
+		})
+	}
+
+	if project.ImportWebhooks {
+		events = append(events, &CreateProviderWebhookTriggeredEvent{
+			PlatformID:        plat.ID,
+			ProjectID:         projectID,
+			ProjectName:       project.Name,
+			Provider:          plat.Provider.String(),
+			ProviderProjectId: project.ProviderProjectID,
+		})
+
+	}
+
+	if screenshot {
+		events = append(events, &ProjectScreenshotTriggeredEvent{
+			PlatformID: plat.ID,
+			ProjectID:  projectID,
+			Url:        domain.GetWebhookUrl(plat.Name, project.Name),
+		})
+	}
+
+	if len(events) > 0 {
+		if err := s.eventPublisher.DispatchIntegrationEvents(ctx, events); err != nil {
+			// Why not just report an error? Because `IntegrationEvents` are not that important.
+			log.Println(err.Error())
+		}
+	}
 }
 
 func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) error {
