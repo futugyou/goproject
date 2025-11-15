@@ -168,6 +168,7 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 			ProjectName:       project.Name,
 			Provider:          plat.Provider.String(),
 			ProviderProjectId: project.ProviderProjectID,
+			Url:               domain.GetWebhookUrl(plat.Name, project.Name),
 		})
 
 	}
@@ -176,7 +177,7 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 		events = append(events, &ProjectScreenshotTriggeredEvent{
 			PlatformID: plat.ID,
 			ProjectID:  projectID,
-			Url:        domain.GetWebhookUrl(plat.Name, project.Name),
+			Url:        project.Url,
 		})
 	}
 

@@ -17,6 +17,7 @@ type CreateProviderWebhookTriggeredEvent struct {
 	ProjectName       string `json:"project_name"`
 	Provider          string `json:"provider"`
 	ProviderProjectId string `json:"provider_project_id"`
+	Url               string `json:"url"`
 }
 
 func (e *CreateProviderWebhookTriggeredEvent) EventType() string {
