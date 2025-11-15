@@ -186,6 +186,7 @@ type CreateProviderWebhookRequest struct {
 	ProjectName       bool   `json:"project_name"`
 	Provider          bool   `json:"provider"`
 	ProviderProjectId string `json:"provider_project_id"`
+	Url               string `json:"url"`
 }
 
 type ProjectScreenshotRequest struct {

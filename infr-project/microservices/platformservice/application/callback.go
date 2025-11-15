@@ -2,9 +2,11 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/futugyou/platformservice/domain"
+	platformprovider "github.com/futugyou/platformservice/provider"
 	"github.com/futugyou/platformservice/viewmodel"
 )
 
@@ -42,7 +44,14 @@ func (s *PlatformService) HandleCreateProviderWebhook(ctx context.Context, event
 		return err
 	}
 
-	//TODO: create or link webhook
+	if project.ProviderProjectID != event.ProviderProjectId {
+		return fmt.Errorf("project provider project id not match")
+	}
+
+	err = s.handleProviderWebhookCreate(ctx, plat, project, event.Url)
+	if err != nil {
+		return err
+	}
 
 	plat.UpdateProject(*project)
 
@@ -109,6 +118,54 @@ func (s *PlatformService) handleProviderProjectCreate(ctx context.Context, plat 
 	if providerProject != nil && len(providerProject.ID) > 0 {
 		project.UpdateProviderProjectID(providerProject.ID)
 	}
+
+	return nil
+}
+
+func (s *PlatformService) handleProviderWebhookCreate(ctx context.Context, plat *domain.Platform, project *domain.PlatformProject, url string) error {
+	provider, err := s.getPlatformProvider(ctx, *plat)
+	if err != nil {
+		return err
+	}
+
+	parameters := mergePropertiesToMap(project.Properties, plat.Properties)
+	hook, err := provider.GetWebHookByUrl(ctx, platformprovider.GetWebHookRequest{
+		Parameters: parameters,
+		Url:        url,
+		ProjectID:  project.ProviderProjectID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if hook != nil {
+		webhook := domain.NewWebhook(hook.Url,
+			domain.WithWebhookEvents(hook.Events),
+			domain.WithWebhookID(hook.ID),
+			domain.WithWebhookSigningSecret(hook.Parameters["SigningSecret"]))
+
+		project.UpdateWebhook(webhook)
+
+		return nil
+	}
+
+	hook, err = provider.CreateWebHook(ctx, platformprovider.CreateWebHookRequest{
+		PlatformID: plat.ID,
+		ProjectID:  project.ProviderProjectID,
+		Name:       project.Name,
+		Url:        url,
+		Parameters: parameters,
+	})
+	if err != nil {
+		return err
+	}
+
+	webhook := domain.NewWebhook(hook.Url,
+		domain.WithWebhookEvents(hook.Events),
+		domain.WithWebhookID(hook.ID),
+		domain.WithWebhookSigningSecret(hook.Parameters["SigningSecret"]))
+
+	project.UpdateWebhook(webhook)
 
 	return nil
 }
