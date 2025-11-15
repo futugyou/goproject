@@ -25,7 +25,7 @@ func buildCommonBadge(lable string, state string, okState string, logo string, u
 }
 
 type CreateProjectRequest struct {
-	PlatformId string
+	PlatformID string
 	Name       string
 	Parameters map[string]string
 }
@@ -126,8 +126,8 @@ type ProjectFilter struct {
 }
 
 type CreateWebHookRequest struct {
-	PlatformId    string
-	ProjectId     string
+	PlatformID    string
+	ProjectID     string
 	Events        []string
 	SigningSecret string
 	VerifyTLS     bool
@@ -138,7 +138,7 @@ type CreateWebHookRequest struct {
 
 type DeleteWebHookRequest struct {
 	Parameters map[string]string
-	WebHookId  string
+	WebHookID  string
 }
 
 type User struct {
@@ -147,7 +147,7 @@ type User struct {
 }
 
 type GetWebHookRequest struct {
-	ProjectId  string
+	ProjectID  string
 	Url        string
 	Parameters map[string]string
 }

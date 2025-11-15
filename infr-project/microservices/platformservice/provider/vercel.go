@@ -334,7 +334,7 @@ func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	req := vercel.CreateWebhookRequest{
 		Events:     events,
 		Url:        request.Url,
-		ProjectIds: []string{request.ProjectId},
+		ProjectIds: []string{request.ProjectID},
 		BaseUrlParameter: vercel.BaseUrlParameter{
 			TeamSlug: &team_slug,
 			TeamId:   &team_id,
@@ -362,7 +362,7 @@ func (g *vercelClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRe
 	team_slug, team_id, _ := g.getTeamSlugAndId(ctx, request.Parameters)
 
 	req := vercel.ListWebhookParameter{
-		ProjectId: &request.ProjectId,
+		ProjectId: &request.ProjectID,
 		BaseUrlParameter: vercel.BaseUrlParameter{
 			TeamSlug: &team_slug,
 			TeamId:   &team_id,
@@ -438,7 +438,7 @@ type VercelTeam struct {
 
 func (g *vercelClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
 	req := vercel.DeleteWebhookRequest{
-		WebhookId: request.WebHookId,
+		WebhookId: request.WebHookID,
 	}
 
 	_, err := g.client.Webhooks.DeleteWebhook(ctx, req)

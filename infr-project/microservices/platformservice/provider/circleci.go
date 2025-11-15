@@ -275,7 +275,7 @@ func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 		Url:           request.Url,
 		VerifyTLS:     request.VerifyTLS,
 		SigningSecret: request.SigningSecret,
-		ScopeId:       request.ProjectId,
+		ScopeId:       request.ProjectID,
 		ScopeType:     "project",
 	}
 	hook, err := g.client.Webhook.CreateWebhook(ctx, req)
@@ -299,7 +299,7 @@ func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 }
 
 func (g *circleClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRequest) (*WebHook, error) {
-	hooks, err := g.client.Webhook.ListWebhook(ctx, request.ProjectId)
+	hooks, err := g.client.Webhook.ListWebhook(ctx, request.ProjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -324,7 +324,7 @@ func (g *circleClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRe
 }
 
 func (g *circleClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
-	_, err := g.client.Webhook.DeleteWebhook(ctx, request.WebHookId)
+	_, err := g.client.Webhook.DeleteWebhook(ctx, request.WebHookID)
 	return err
 }
 

@@ -429,7 +429,7 @@ func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 		Events: events,
 	}
 
-	githook, _, err := g.client.Repositories.CreateHook(ctx, request.PlatformId, request.ProjectId, hookParam)
+	githook, _, err := g.client.Repositories.CreateHook(ctx, request.PlatformID, request.ProjectID, hookParam)
 	if err != nil {
 		return nil, err
 	}
@@ -458,7 +458,7 @@ func (g *githubClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRe
 		g.owner = value
 	}
 	opts := &github.ListOptions{Page: 1, PerPage: 20}
-	hooks, _, err := g.client.Repositories.ListHooks(ctx, g.owner, request.ProjectId, opts)
+	hooks, _, err := g.client.Repositories.ListHooks(ctx, g.owner, request.ProjectID, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -488,7 +488,7 @@ func (g *githubClient) GetWebHookByUrl(ctx context.Context, request GetWebHookRe
 
 // Need GITHUB_OWNER and GITHUB_REPO in DeleteWebHookRequest 'Parameters'
 func (g *githubClient) DeleteWebHook(ctx context.Context, request DeleteWebHookRequest) error {
-	webHookId, err := strconv.ParseInt(request.WebHookId, 10, 64)
+	webHookId, err := strconv.ParseInt(request.WebHookID, 10, 64)
 	if err != nil {
 		return err
 	}
