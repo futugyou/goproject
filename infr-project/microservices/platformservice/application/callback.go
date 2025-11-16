@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	tool "github.com/futugyou/extensions"
+
 	"github.com/futugyou/platformservice/domain"
 	platformprovider "github.com/futugyou/platformservice/provider"
 	"github.com/futugyou/platformservice/viewmodel"
@@ -149,21 +151,25 @@ func (s *PlatformService) handleProviderWebhookCreate(ctx context.Context, plat 
 		return nil
 	}
 
+	secret, _ := tool.GenerateRandomKey(6)
 	hook, err = provider.CreateWebHook(ctx, platformprovider.CreateWebHookRequest{
-		PlatformID: plat.ID,
-		ProjectID:  project.ProviderProjectID,
-		Name:       project.Name,
-		Url:        url,
-		Parameters: parameters,
+		PlatformID:    plat.ID,
+		ProjectID:     project.ProviderProjectID,
+		VerifyTLS:     true,
+		SigningSecret: secret,
+		Name:          project.Name,
+		Url:           url,
+		Parameters:    parameters,
 	})
 	if err != nil {
 		return err
 	}
 
+	// Besides vercel, `hook.SigningSecret should be the same as the `secret`, because the vercel's secret is obtained after creation.
 	webhook := domain.NewWebhook(hook.Url,
 		domain.WithWebhookEvents(hook.Events),
 		domain.WithWebhookID(hook.ID),
-		domain.WithWebhookSigningSecret(hook.Parameters["SigningSecret"]))
+		domain.WithWebhookSigningSecret(hook.SigningSecret))
 
 	project.UpdateWebhook(webhook)
 

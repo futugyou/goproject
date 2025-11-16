@@ -439,15 +439,15 @@ func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 	if githookconfig != nil {
 		paras["ContentType"] = githookconfig.GetContentType()
 		paras["InsecureSSL"] = githookconfig.GetInsecureSSL()
-		paras["SigningSecret"] = githookconfig.GetSecret()
 		paras["URL"] = githookconfig.GetURL()
 	}
 	hook := &WebHook{
-		ID:         fmt.Sprintf("%d", githook.GetID()),
-		Name:       githook.GetName(),
-		Url:        githook.GetURL(),
-		Events:     githook.Events,
-		Parameters: paras,
+		ID:            fmt.Sprintf("%d", githook.GetID()),
+		Name:          githook.GetName(),
+		Url:           githook.GetURL(),
+		Events:        githook.Events,
+		Parameters:    paras,
+		SigningSecret: githookconfig.GetSecret(),
 	}
 
 	return hook, nil

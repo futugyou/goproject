@@ -285,14 +285,14 @@ func (g *circleClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 
 	paras := map[string]string{}
 	paras["Scope"] = hook.Scope.Type
-	paras["SigningSecret"] = hook.SigningSecret
 	paras["VerifyTLS"] = strconv.FormatBool(hook.VerifyTLS)
 	webHook := &WebHook{
-		ID:         hook.Id,
-		Name:       hook.Name,
-		Url:        hook.Url,
-		Events:     hook.Events,
-		Parameters: paras,
+		ID:            hook.Id,
+		Name:          hook.Name,
+		Url:           hook.Url,
+		Events:        hook.Events,
+		Parameters:    paras,
+		SigningSecret: hook.SigningSecret,
 	}
 
 	return webHook, nil

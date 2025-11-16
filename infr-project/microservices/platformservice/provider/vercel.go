@@ -345,14 +345,13 @@ func (g *vercelClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 		return nil, err
 	}
 
-	paras := map[string]string{}
-	paras["SigningSecret"] = vercelHook.Secret
 	hook := &WebHook{
-		ID:         vercelHook.Id,
-		Name:       request.Name,
-		Url:        vercelHook.Url,
-		Events:     vercelHook.Events,
-		Parameters: paras,
+		ID:            vercelHook.Id,
+		Name:          request.Name,
+		Url:           vercelHook.Url,
+		Events:        vercelHook.Events,
+		Parameters:    map[string]string{},
+		SigningSecret: vercelHook.Secret,
 	}
 
 	return hook, nil

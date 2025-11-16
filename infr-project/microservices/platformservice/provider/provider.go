@@ -103,12 +103,13 @@ type Deployment struct {
 }
 
 type WebHook struct {
-	ID         string
-	Name       string
-	Url        string
-	Events     []string
-	Activate   bool
-	Parameters map[string]string
+	ID            string
+	Name          string
+	Url           string
+	Events        []string
+	Activate      bool
+	SigningSecret string
+	Parameters    map[string]string
 }
 
 func (w *WebHook) GetParameters() map[string]string {
