@@ -4,21 +4,23 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/futugyou/platformservice/domain"
+	"github.com/futugyou/platformservice/options"
 	"github.com/futugyou/platformservice/viewmodel"
 )
 
 type WebhookLogService struct {
 	repository domain.WebhookLogRepository
+	opts       *options.Options
 }
 
-func NewWebhookLogService(repository domain.WebhookLogRepository) *WebhookLogService {
+func NewWebhookLogService(repository domain.WebhookLogRepository, opts *options.Options) *WebhookLogService {
 	return &WebhookLogService{
 		repository: repository,
+		opts:       opts,
 	}
 }
 
@@ -28,7 +30,7 @@ func (s *WebhookLogService) ProviderWebhookCallback(ctx context.Context, data vi
 		return err
 	}
 
-	verifyResult, err := webhookLog.Verify(os.Getenv("TRIGGER_AUTH_KEY"))
+	verifyResult, err := webhookLog.Verify(s.opts.TriggerAuthKey)
 	if err != nil {
 		return err
 	}

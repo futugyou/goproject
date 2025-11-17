@@ -2,11 +2,10 @@ package domain
 
 import (
 	"fmt"
-	"os"
 )
 
-func GetWebhookUrl(platform, project string) string {
-	return fmt.Sprintf(os.Getenv("PROJECT_WEBHOOK_URL"), platform, project)
+func GetWebhookUrl(platform, project, url string) string {
+	return fmt.Sprintf(url, platform, project)
 }
 
 // objectvaule, `ID` is just a regular field, the same as `Url`.

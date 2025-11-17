@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/futugyou/platformservice/application/service"
+	"github.com/futugyou/platformservice/options"
 	"github.com/futugyou/platformservice/util"
 )
 
@@ -24,7 +24,7 @@ type VaultService struct {
 	}
 }
 
-func NewVaultService() *VaultService {
+func NewVaultService(opts *options.Options) *VaultService {
 	return &VaultService{
 		client: &http.Client{Timeout: 10 * time.Second},
 		apiURL: struct {
@@ -32,9 +32,9 @@ func NewVaultService() *VaultService {
 			ShowVaultRaw   string
 			CreateVault    string
 		}{
-			GetVaultsByIDs: os.Getenv("VAULT_API_GET_BY_IDS"),
-			ShowVaultRaw:   os.Getenv("VAULT_API_SHOW_RAW"),
-			CreateVault:    os.Getenv("VAULT_API_CREATE"),
+			GetVaultsByIDs: opts.GetVaultsByIDs,
+			ShowVaultRaw:   opts.ShowVaultRaw,
+			CreateVault:    opts.CreateVault,
 		},
 	}
 }
@@ -91,7 +91,7 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 	var data struct {
 		Value string `json:"value"`
 	}
-	err := s.doRequest(ctx, "GET", url, nil, &data)
+	err := s.doRequest(ctx, "POST", url, nil, &data)
 	return data.Value, err
 }
 

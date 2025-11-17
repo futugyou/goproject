@@ -13,6 +13,7 @@ import (
 	"github.com/futugyou/platformservice/application/service"
 	"github.com/futugyou/platformservice/assembler"
 	"github.com/futugyou/platformservice/domain"
+	"github.com/futugyou/platformservice/options"
 	"github.com/futugyou/platformservice/viewmodel"
 )
 
@@ -22,6 +23,7 @@ type PlatformService struct {
 	eventPublisher coreinfr.EventDispatcher
 	vaultService   service.VaultService
 	screenshot     service.Screenshot
+	opts           *options.Options
 }
 
 func NewPlatformService(
@@ -30,6 +32,7 @@ func NewPlatformService(
 	eventPublisher coreinfr.EventDispatcher,
 	vaultService service.VaultService,
 	screenshot service.Screenshot,
+	opts *options.Options,
 ) *PlatformService {
 	return &PlatformService{
 		innerService:   coreapp.NewAppService(unitOfWork),
@@ -37,6 +40,7 @@ func NewPlatformService(
 		eventPublisher: eventPublisher,
 		vaultService:   vaultService,
 		screenshot:     screenshot,
+		opts:           opts,
 	}
 }
 

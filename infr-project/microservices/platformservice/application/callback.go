@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"os"
 
 	tool "github.com/futugyou/extensions"
 
@@ -86,7 +85,7 @@ func (s *PlatformService) HandleProjectScreenshot(ctx context.Context, event *vi
 }
 
 func (s *PlatformService) handleScreenshot(ctx context.Context, project *domain.PlatformProject) error {
-	if len(project.Url) > 0 && os.Getenv("SCREENSHOT_ALLOW") != "false" {
+	if len(project.Url) > 0 && s.opts.ScreenshotAllow == "true" {
 		imageUrl, err := s.screenshot.Create(ctx, project.Url)
 		if err != nil {
 			return err

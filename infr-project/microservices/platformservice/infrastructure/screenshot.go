@@ -4,36 +4,37 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/futugyou/gofile"
+	"github.com/futugyou/platformservice/options"
 	"github.com/futugyou/screenshot"
 )
+
 type Screenshot struct {
 	screenshotClient *screenshot.ScreenshotClient
 	folderID         string
 	server           string
 	fileClient       *gofile.GofileClient
+	opts             *options.Options
 }
 
-func NewScreenshot() *Screenshot {
-	screenshotClient := screenshot.NewClient(os.Getenv("SCREENSHOT_API_KEY"))
-	folderID := os.Getenv("GOFILE_FOLDER")
-	server := os.Getenv("GOFILE_SERVER")
-	fileClient := gofile.NewClient(os.Getenv("GOFILE_TOKEN"))
+func NewScreenshot(opts *options.Options) *Screenshot {
+	screenshotClient := screenshot.NewClient(opts.ScreenshotApiKey)
+	fileClient := gofile.NewClient(opts.GofileToken)
 	return &Screenshot{
 		screenshotClient: screenshotClient,
-		folderID:         folderID,
-		server:           server,
+		folderID:         opts.GofileFolder,
+		server:           opts.GofileServer,
 		fileClient:       fileClient,
+		opts:             opts,
 	}
 }
 
 func (s *Screenshot) Create(ctx context.Context, url string) (*string, error) {
 	var image_data []byte
 	var err error
-	if os.Getenv("SCREENSHOT_TYPE") == "Apiflash" {
+	if s.opts.ScreenshotType == "Apiflash" {
 		image_data, err = s.screenshotClient.Apiflash.GetScreenshot(ctx, url, map[string]string{"wait_until": "page_loaded", "format": "png"})
 	} else {
 		image_data, err = s.screenshotClient.Screenshotmachine.GetScreenshot(ctx, url, map[string]string{"dimension": "320x240", "delay": "2000", "format": "png"})
