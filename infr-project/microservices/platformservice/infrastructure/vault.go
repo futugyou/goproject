@@ -58,6 +58,7 @@ func (s *VaultService) doRequest(ctx context.Context, method, url string, body a
 	if !ok || token == "" {
 		return errors.New("missing jwt token in context")
 	}
+
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -65,6 +66,7 @@ func (s *VaultService) doRequest(ctx context.Context, method, url string, body a
 	if err != nil {
 		return fmt.Errorf("do request: %w", err)
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
@@ -73,10 +75,20 @@ func (s *VaultService) doRequest(ctx context.Context, method, url string, body a
 	}
 
 	if out != nil {
+		if strOut, ok := out.(*string); ok {
+			data, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return fmt.Errorf("read response body: %w", err)
+			}
+			*strOut = string(data)
+			return nil
+		}
+
 		if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
 			return fmt.Errorf("decode response: %w", err)
 		}
 	}
+
 	return nil
 }
 
@@ -88,11 +100,9 @@ func (s *VaultService) GetVaultsByIDs(ctx context.Context, ids []string) ([]serv
 
 func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (string, error) {
 	url := fmt.Sprintf(s.apiURL.ShowVaultRaw, vaultId)
-	var data struct {
-		Value string `json:"value"`
-	}
-	err := s.doRequest(ctx, "POST", url, nil, &data)
-	return data.Value, err
+	var result string
+	err := s.doRequest(ctx, "POST", url, nil, &result)
+	return result, err
 }
 
 func (s *VaultService) CreateVault(ctx context.Context, aux service.CreateVaultRequest) (*service.VaultView, error) {
