@@ -45,12 +45,16 @@ type SearchVaultsRequest struct {
 	Size         int     `json:"size" form:"size,default=100"`
 }
 
+type SearchVaultsByIDsRequest struct {
+	IDs []string `json:"ids" form:"ids"`
+}
+
 type CreateVaultRequest struct {
 	CreateVaultModel `json:",inline"`
 	ForceInsert      bool `json:"force_insert"`
 }
 
-type CreateVaultResponse struct{
+type CreateVaultResponse struct {
 	VaultID string `json:"vault_id"`
 }
 

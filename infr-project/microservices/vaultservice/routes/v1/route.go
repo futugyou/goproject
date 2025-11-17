@@ -30,6 +30,7 @@ func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 	v1.PUT("/vault/:id", updateVault)
 	v1.DELETE("/vault/:id", deleteVault)
 	v1.POST("/import_vault", importVault)
+	v1.POST("/vaults/by_ids", getVaultsByIDs)
 }
 
 // @Summary batch create vault
@@ -291,6 +292,44 @@ func importVault(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+// @Summary get vaults by ids
+// @Description get vaults by ids
+// @Tags Vault
+// @Accept json
+// @Produce json
+// @Param request body viewmodel.SearchVaultsByIDsRequest true "Request body"
+// @Success 200 {array} viewmodel.VaultView "Successfully"
+// @Failure 400 {object} Response "Incorrect request parameters"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /v1/vaults/by_ids [post]
+func getVaultsByIDs(c *gin.Context) {
+	ctx := c.Request.Context()
+	service, err := createVaultService(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	aux := viewmodel.SearchVaultsByIDsRequest{}
+	if err := c.ShouldBind(&aux); err != nil {
+		c.JSON(http.StatusBadRequest, Response{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	data, err := service.GetVaultsByIDs(ctx, aux.IDs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Response{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, data)
+}
+
 func createVaultService(ctx context.Context) (*application.VaultService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
@@ -311,6 +350,5 @@ func createVaultService(ctx context.Context) (*application.VaultService, error) 
 
 	eventPublisher := qstashdispatcherimpl.NewQStashEventDispatcher(option.QstashToken, option.QstashDestination)
 
-	opts := options.New()
-	return application.NewVaultService(unitOfWork, queryRepo, eventPublisher, opts), nil
+	return application.NewVaultService(unitOfWork, queryRepo, eventPublisher, option), nil
 }
