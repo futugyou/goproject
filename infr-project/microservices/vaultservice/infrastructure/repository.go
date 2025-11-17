@@ -43,8 +43,13 @@ func (r *VaultRepository) InsertMultipleVault(ctx context.Context, vaults []doma
 }
 
 func (r *VaultRepository) GetVaultByIds(ctx context.Context, ids []string) ([]domain.Vault, error) {
+	values := make([]any, len(ids))
+	for i, v := range ids {
+		values[i] = v
+	}
+
 	query := domaincore.NewQuery().
-		In("id", ids).
+		In("id", values...).
 		Build()
 	condition := domaincore.NewQueryOptions(nil, nil, nil, query)
 	return r.Find(ctx, condition)
