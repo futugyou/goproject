@@ -1,0 +1,781 @@
+definitions:
+  v1.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  viewmodel.CreatePlatformRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      provider:
+        enum:
+        - vercel
+        - github
+        - circleci
+        - other
+        type: string
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        maxLength: 150
+        minLength: 3
+        type: string
+    required:
+    - name
+    - properties
+    - secrets
+    - tags
+    - url
+    type: object
+  viewmodel.Deployment:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      environment:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      readyState:
+        type: string
+      readySubstate:
+        type: string
+    type: object
+  viewmodel.EnvironmentVariable:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
+    type: object
+  viewmodel.ImportProjectsRequest:
+    properties:
+      platform_id:
+        type: string
+      project_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  viewmodel.PlatformDetailView:
+    properties:
+      activate:
+        type: boolean
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/viewmodel.PlatformProject'
+        type: array
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      provider:
+        type: string
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+    type: object
+  viewmodel.PlatformProject:
+    properties:
+      description:
+        type: string
+      followed:
+        type: boolean
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      provider_project:
+        $ref: '#/definitions/viewmodel.PlatformProviderProject'
+      provider_project_id:
+        type: string
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodel.Secret'
+        type: array
+      url:
+        type: string
+      webhook:
+        $ref: '#/definitions/viewmodel.Webhook'
+    type: object
+  viewmodel.PlatformProviderProject:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      deployments:
+        items:
+          $ref: '#/definitions/viewmodel.Deployment'
+        type: array
+      description:
+        type: string
+      environment_variables:
+        items:
+          $ref: '#/definitions/viewmodel.EnvironmentVariable'
+        type: array
+      environments:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      readme:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+      webhook:
+        $ref: '#/definitions/viewmodel.Webhook'
+      workflow_runs:
+        items:
+          $ref: '#/definitions/viewmodel.WorkflowRun'
+        type: array
+      workflows:
+        items:
+          $ref: '#/definitions/viewmodel.Workflow'
+        type: array
+    type: object
+  viewmodel.PlatformView:
+    properties:
+      activate:
+        type: boolean
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      provider:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+    type: object
+  viewmodel.Property:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  viewmodel.Secret:
+    properties:
+      key:
+        description: vault aliases
+        type: string
+      mask_value:
+        type: string
+      vault_id:
+        type: string
+      vault_key:
+        type: string
+    type: object
+  viewmodel.UpdatePlatformProjectRequest:
+    properties:
+      description:
+        maxLength: 250
+        minLength: 3
+        type: string
+      import_webhooks:
+        type: boolean
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      operate:
+        enum:
+        - upsert
+        - sync
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      provider_project_id:
+        type: string
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        maxLength: 150
+        minLength: 3
+        type: string
+    required:
+    - description
+    - name
+    - properties
+    - secrets
+    - url
+    type: object
+  viewmodel.UpdatePlatformRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      provider:
+        enum:
+        - vercel
+        - github
+        - circleci
+        - other
+        type: string
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        maxLength: 150
+        minLength: 3
+        type: string
+    required:
+    - name
+    - properties
+    - secrets
+    - tags
+    - url
+    type: object
+  viewmodel.Webhook:
+    properties:
+      activate:
+        type: boolean
+      events:
+        items:
+          type: string
+        type: array
+      followed:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/viewmodel.Property'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/viewmodel.Secret'
+        type: array
+      state:
+        type: string
+      url:
+        type: string
+    type: object
+  viewmodel.Workflow:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  viewmodel.WorkflowRun:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/platform:
+    get:
+      consumes:
+      - application/json
+      description: search platforms
+      parameters:
+      - description: name - Fuzzy Search
+        in: query
+        name: name
+        type: string
+      - description: activate
+        in: query
+        name: activate
+        type: boolean
+      - collectionFormat: csv
+        description: Tags
+        in: query
+        items:
+          type: string
+        name: tags
+        type: array
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 100
+        description: Page size
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.PlatformView'
+            type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: search platforms
+      tags:
+      - Platform
+    post:
+      consumes:
+      - application/json
+      description: create platform
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.CreatePlatformRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: create platform
+      tags:
+      - Platform
+  /v1/platform/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete platform
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: delete platform
+      tags:
+      - Platform
+    get:
+      consumes:
+      - application/json
+      description: get platform by id or name
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.PlatformDetailView'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: get platform by id or name
+      tags:
+      - Platform
+    put:
+      consumes:
+      - application/json
+      description: update platform
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.UpdatePlatformRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: update platform
+      tags:
+      - Platform
+  /v1/platform/{id}/import:
+    post:
+      consumes:
+      - application/json
+      description: import platform provider projects by id or name
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.ImportProjectsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: import platform provider projects by id or name
+      tags:
+      - Platform
+  /v1/platform/{id}/project:
+    post:
+      consumes:
+      - application/json
+      description: create platform project
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.UpdatePlatformProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: create platform project
+      tags:
+      - Platform
+  /v1/platform/{id}/project/{project_id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete platform project
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: delete platform project
+      tags:
+      - Platform
+    get:
+      consumes:
+      - application/json
+      description: get platform project by id
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/viewmodel.PlatformProject'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: get platform project by id
+      tags:
+      - Platform
+    put:
+      consumes:
+      - application/json
+      description: update platform project
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Platform Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.UpdatePlatformProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: update platform project
+      tags:
+      - Platform
+  /v1/platform/{id}/provider_projects:
+    get:
+      consumes:
+      - application/json
+      description: get platform provider project list by id or name
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.PlatformProviderProject'
+            type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: get platform provider project list by id or name
+      tags:
+      - Platform
+  /v1/platform/{id}/recovery:
+    post:
+      consumes:
+      - application/json
+      description: recovery platform
+      parameters:
+      - description: Platform ID or Name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: recovery platform
+      tags:
+      - Platform
+swagger: "2.0"
