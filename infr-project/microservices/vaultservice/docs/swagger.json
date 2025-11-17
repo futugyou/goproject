@@ -366,6 +366,55 @@
                     }
                 }
             }
+        },
+        "/v1/vaults/by_ids": {
+            "post": {
+                "description": "get vaults by ids",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Vault"
+                ],
+                "summary": "get vaults by ids",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/viewmodel.SearchVaultsByIDsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/viewmodel.VaultView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -643,6 +692,17 @@
             "type": "object",
             "properties": {
                 "vault_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "viewmodel.SearchVaultsByIDsRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
                     "type": "array",
                     "items": {
                         "type": "string"

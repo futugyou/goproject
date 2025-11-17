@@ -203,6 +203,13 @@ definitions:
           type: string
         type: array
     type: object
+  viewmodel.SearchVaultsByIDsRequest:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    type: object
   viewmodel.VaultView:
     properties:
       description:
@@ -469,6 +476,38 @@ paths:
           schema:
             $ref: '#/definitions/v1.Response'
       summary: batch create vault
+      tags:
+      - Vault
+  /v1/vaults/by_ids:
+    post:
+      consumes:
+      - application/json
+      description: get vaults by ids
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/viewmodel.SearchVaultsByIDsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            items:
+              $ref: '#/definitions/viewmodel.VaultView'
+            type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: get vaults by ids
       tags:
       - Vault
 swagger: "2.0"
