@@ -95,3 +95,8 @@ type Webhook struct {
 	Secrets    []Secret   `json:"secrets"`
 	Followed   bool       `json:"followed"`
 }
+
+type ImportProjectsRequest struct{
+	PlatformID string `json:"platform_id"`
+	ProjectIDs []string `json:"project_ids"`
+}

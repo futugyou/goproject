@@ -1,5 +1,7 @@
 package viewmodel
 
+import "strings"
+
 type Property struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -54,9 +56,25 @@ type Secret struct {
 }
 
 type SearchPlatformsRequest struct {
-	Name     string   `json:"name"`
-	Activate *bool    `json:"activate"`
-	Tags     []string `json:"tags"`
-	Page     int      `json:"page"`
-	Size     int      `json:"size"`
+	Name     string  `json:"name" form:"name"`
+	Activate *bool   `json:"activate" form:"activate"`
+	Tags     CSVList `json:"tags" form:"tags"`
+	Page     int     `json:"page" form:"page"`
+	Size     int     `json:"size" form:"size"`
+}
+
+type CSVList []string
+
+func (c *CSVList) UnmarshalParam(src string) error {
+	if src == "" {
+		*c = nil
+		return nil
+	}
+
+	items := strings.Split(src, ",")
+	for i, s := range items {
+		items[i] = strings.TrimSpace(s)
+	}
+	*c = items
+	return nil
 }
