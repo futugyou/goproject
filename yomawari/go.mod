@@ -1,9 +1,9 @@
 module github.com/futugyou/yomawari
 
-go 1.23.0
+go 1.24.0
 
 require (
-	github.com/PuerkitoBio/goquery v1.9.3
+	github.com/PuerkitoBio/goquery v1.11.0
 	github.com/beevik/etree v1.4.0
 	github.com/google/uuid v1.6.0
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
@@ -13,7 +13,7 @@ require (
 	go.opentelemetry.io/otel v1.23.0
 	go.opentelemetry.io/otel/metric v1.23.0
 	go.opentelemetry.io/otel/trace v1.23.0
-	golang.org/x/net v0.38.0
+	golang.org/x/net v0.47.0
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	github.com/richardlehane/msoleps v1.0.4 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.1 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/crypto v0.44.0 // indirect
 )
 
 require (
@@ -34,6 +34,6 @@ require (
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	golang.org/x/sync v0.14.0
-	golang.org/x/text v0.25.0
+	golang.org/x/sync v0.18.0
+	golang.org/x/text v0.31.0
 )
