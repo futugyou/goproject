@@ -9,9 +9,11 @@ import (
 
 	coreinfr "github.com/futugyou/domaincore/infrastructure"
 	tool "github.com/futugyou/extensions"
+	"github.com/google/uuid"
 
 	"github.com/futugyou/platformservice/assembler"
 	"github.com/futugyou/platformservice/domain"
+	"github.com/futugyou/platformservice/infrastructure"
 	platformprovider "github.com/futugyou/platformservice/provider"
 	"github.com/futugyou/platformservice/viewmodel"
 )
@@ -153,7 +155,8 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project viewmodel.UpdatePlatformProjectRequest, plat *domain.Platform, projectID string, screenshot bool) {
 	events := []coreinfr.Event{}
 	if project.Operate == "sync" {
-		events = append(events, &CreateProviderProjectTriggeredEvent{
+		events = append(events, &infrastructure.CreateProviderProjectTriggeredEvent{
+			ID:          uuid.NewString(),
 			PlatformID:  plat.ID,
 			ProjectID:   projectID,
 			ProjectName: project.Name,
@@ -162,7 +165,8 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 	}
 
 	if project.ImportWebhooks {
-		events = append(events, &CreateProviderWebhookTriggeredEvent{
+		events = append(events, &infrastructure.CreateProviderWebhookTriggeredEvent{
+			ID:                uuid.NewString(),
 			PlatformID:        plat.ID,
 			ProjectID:         projectID,
 			ProjectName:       project.Name,
@@ -174,7 +178,8 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 	}
 
 	if screenshot {
-		events = append(events, &ProjectScreenshotTriggeredEvent{
+		events = append(events, &infrastructure.ProjectScreenshotTriggeredEvent{
+			ID:         uuid.NewString(),
 			PlatformID: plat.ID,
 			ProjectID:  projectID,
 			Url:        project.Url,
@@ -182,7 +187,7 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 	}
 
 	if len(events) > 0 {
-		if err := s.eventPublisher.DispatchIntegrationEvents(ctx, events); err != nil {
+		if err := s.eventHandler.DispatchIntegrationEvents(ctx, events); err != nil {
 			// Why not just report an error? Because `IntegrationEvents` are not that important.
 			log.Println(err.Error())
 		}

@@ -1,6 +1,7 @@
-package application
+package infrastructure
 
 type CreateProviderProjectTriggeredEvent struct {
+	ID          string `json:"id"`
 	PlatformID  string `json:"platform_id"`
 	ProjectID   string `json:"project_id"`
 	ProjectName string `json:"project_name"`
@@ -12,6 +13,7 @@ func (e *CreateProviderProjectTriggeredEvent) EventType() string {
 }
 
 type CreateProviderWebhookTriggeredEvent struct {
+	ID                string `json:"id"`
 	PlatformID        string `json:"platform_id"`
 	ProjectID         string `json:"project_id"`
 	ProjectName       string `json:"project_name"`
@@ -25,6 +27,7 @@ func (e *CreateProviderWebhookTriggeredEvent) EventType() string {
 }
 
 type ProjectScreenshotTriggeredEvent struct {
+	ID         string `json:"id"`
 	PlatformID string `json:"platform_id"`
 	ProjectID  string `json:"project_id"`
 	Url        string `json:"url"`
