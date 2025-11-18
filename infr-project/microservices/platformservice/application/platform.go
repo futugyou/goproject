@@ -23,6 +23,7 @@ type PlatformService struct {
 	eventPublisher coreinfr.EventDispatcher
 	vaultService   service.VaultService
 	screenshot     service.Screenshot
+	eventhandler   service.EventLogService
 	opts           *options.Options
 }
 
@@ -32,6 +33,7 @@ func NewPlatformService(
 	eventPublisher coreinfr.EventDispatcher,
 	vaultService service.VaultService,
 	screenshot service.Screenshot,
+	eventhandler service.EventLogService,
 	opts *options.Options,
 ) *PlatformService {
 	return &PlatformService{
@@ -40,6 +42,7 @@ func NewPlatformService(
 		eventPublisher: eventPublisher,
 		vaultService:   vaultService,
 		screenshot:     screenshot,
+		eventhandler:   eventhandler,
 		opts:           opts,
 	}
 }
