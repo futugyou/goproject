@@ -8,7 +8,6 @@ import (
 
 	coreapp "github.com/futugyou/domaincore/application"
 	coredomain "github.com/futugyou/domaincore/domain"
-	coreinfr "github.com/futugyou/domaincore/infrastructure"
 
 	"github.com/futugyou/platformservice/application/service"
 	"github.com/futugyou/platformservice/assembler"
@@ -18,32 +17,29 @@ import (
 )
 
 type PlatformService struct {
-	innerService   *coreapp.AppService
-	repository     domain.PlatformRepository
-	eventPublisher coreinfr.EventDispatcher
-	vaultService   service.VaultService
-	screenshot     service.Screenshot
-	eventhandler   service.EventLogService
-	opts           *options.Options
+	innerService *coreapp.AppService
+	repository   domain.PlatformRepository
+	eventHandler service.EventHandler
+	vaultService service.VaultService
+	screenshot   service.Screenshot
+	opts         *options.Options
 }
 
 func NewPlatformService(
 	unitOfWork coredomain.UnitOfWork,
 	repository domain.PlatformRepository,
-	eventPublisher coreinfr.EventDispatcher,
+	eventHandler service.EventHandler,
 	vaultService service.VaultService,
 	screenshot service.Screenshot,
-	eventhandler service.EventLogService,
 	opts *options.Options,
 ) *PlatformService {
 	return &PlatformService{
-		innerService:   coreapp.NewAppService(unitOfWork),
-		repository:     repository,
-		eventPublisher: eventPublisher,
-		vaultService:   vaultService,
-		screenshot:     screenshot,
-		eventhandler:   eventhandler,
-		opts:           opts,
+		innerService: coreapp.NewAppService(unitOfWork),
+		repository:   repository,
+		eventHandler: eventHandler,
+		vaultService: vaultService,
+		screenshot:   screenshot,
+		opts:         opts,
 	}
 }
 

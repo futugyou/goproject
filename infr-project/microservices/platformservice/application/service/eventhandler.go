@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"time"
+
+	coreinfr "github.com/futugyou/domaincore/infrastructure"
 )
 
 type EventLog struct {
@@ -14,7 +16,7 @@ type EventLog struct {
 	CreatedAt  time.Time
 }
 
-type EventLogService interface {
-	Create(ctx context.Context, event EventLog) error
+type EventHandler interface {
+	coreinfr.EventDispatcher
 	Get(ctx context.Context, eventID string) (*EventLog, error)
 }

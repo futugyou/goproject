@@ -475,7 +475,7 @@ func createPlatformService(ctx context.Context) (*application.PlatformService, e
 	eventPublisher := qstashdispatcherimpl.NewQStashEventDispatcher(option.QstashToken, option.QstashDestination)
 	vaultService := infrastructure.NewVaultService(option)
 	screenshot := infrastructure.NewScreenshot(option)
-	eventhandler := infrastructure.NewEventLogService(mongoclient, config)
+	eventhandler := infrastructure.NewEventHandler(mongoclient, config, eventPublisher)
 
-	return application.NewPlatformService(unitOfWork, repo, eventPublisher, vaultService, screenshot, eventhandler, option), nil
+	return application.NewPlatformService(unitOfWork, repo, eventhandler, vaultService, screenshot, option), nil
 }
