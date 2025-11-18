@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"context"
+
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/futugyou/domaincore/mongoimpl"
@@ -22,4 +24,15 @@ func NewEventLogDao(client *mongo.Client, config mongoimpl.DBConfig) *EventLogDa
 	return &EventLogDao{
 		BaseCRUD: *mongoimpl.NewBaseCRUD(client, config, getID),
 	}
+}
+
+func (s *EventLogDao) InsertMany(ctx context.Context, entities []entity.EventLogEntity) error {
+	c := s.Client.Database(s.DBName).Collection(s.CollectionName)
+	documents := make([]any, 0, len(entities))
+	for _, entity := range entities {
+		documents = append(documents, entity)
+	}
+
+	_, err := c.InsertMany(ctx, documents)
+	return err
 }
