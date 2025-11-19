@@ -35,6 +35,7 @@ type CreateVaultsResponse struct {
 }
 
 type SearchVaultsRequest struct {
+	ID           string  `json:"id" form:"id"`
 	Key          string  `json:"key" form:"key"`
 	StorageMedia string  `json:"storage_media" form:"storage_media"`
 	VaultType    string  `json:"vault_type" form:"vault_type"`

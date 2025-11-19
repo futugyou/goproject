@@ -44,6 +44,7 @@ func toVaultSearchQuery(aux viewmodel.SearchVaultsRequest) domain.VaultQuery {
 	return domain.VaultQuery{
 		Filters: []domain.VaultFilter{
 			{
+				ID:           aux.ID,
 				Key:          aux.Key,
 				KeyFuzzy:     true,
 				StorageMedia: aux.StorageMedia,
