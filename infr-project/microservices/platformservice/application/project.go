@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"fmt"
-	"log"
 	"slices"
 	"strings"
 
@@ -145,14 +144,17 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		return err
 	}
 
-	s.sendProjectChangeEvent(ctx, project, plat, projectID, screenshot)
-
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+		err := s.sendProjectChangeEvent(ctx, project, plat, projectID, screenshot)
+		if err != nil {
+			return err
+		}
+
 		return s.repository.Update(ctx, *plat)
 	})
 }
 
-func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project viewmodel.UpdatePlatformProjectRequest, plat *domain.Platform, projectID string, screenshot bool) {
+func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project viewmodel.UpdatePlatformProjectRequest, plat *domain.Platform, projectID string, screenshot bool) error {
 	events := []coreinfr.Event{}
 	if project.Operate == "sync" {
 		events = append(events, &infrastructure.CreateProviderProjectTriggeredEvent{
@@ -174,7 +176,6 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 			ProviderProjectId: project.ProviderProjectID,
 			Url:               domain.GetWebhookUrl(plat.Name, project.Name, s.opts.ProjectWebhookUrl),
 		})
-
 	}
 
 	if screenshot {
@@ -187,11 +188,10 @@ func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project vi
 	}
 
 	if len(events) > 0 {
-		if err := s.eventHandler.DispatchIntegrationEvents(ctx, events); err != nil {
-			// Why not just report an error? Because `IntegrationEvents` are not that important.
-			log.Println(err.Error())
-		}
+		return s.eventHandler.DispatchIntegrationEvents(ctx, events)
 	}
+
+	return nil
 }
 
 func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) error {
