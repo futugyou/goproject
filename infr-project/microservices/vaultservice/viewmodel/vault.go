@@ -14,6 +14,14 @@ type VaultView struct {
 	Extension    map[string]string `json:"extension"`
 }
 
+type SampleVaultView struct {
+	ID           string `json:"id"`
+	Key          string `json:"key"`
+	Value        string `json:"value"`
+	VaultType    string `json:"vault_type"`
+	TypeIdentity string `json:"type_identity"`
+}
+
 type CreateVaultModel struct {
 	Key          string            `json:"key" validate:"required,min=3,max=150"`
 	Value        string            `json:"value" validate:"required,min=3,max=150"`

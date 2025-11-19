@@ -30,7 +30,7 @@ func New() *Options {
 		MongoDBURL:        os.Getenv("mongodb_url"),
 		QstashToken:       os.Getenv("QSTASH_TOKEN"),
 		QstashDestination: os.Getenv("QSTASH_DESTINATION"),
-		GetVaultsByIDs:    GetEnvWithDefault(os.Getenv("VAULT_API_GET_BY_IDS"), "/api/v1/vault/batch"),
+		GetVaultsByIDs:    GetEnvWithDefault(os.Getenv("VAULT_API_GET_BY_IDS"), "/api/v1/vaults/by_ids"),
 		ShowVaultRaw:      GetEnvWithDefault(os.Getenv("VAULT_API_SHOW_RAW"), "/api/v1/vault/%s/show"),
 		CreateVault:       GetEnvWithDefault(os.Getenv("VAULT_API_CREATE"), "/api/v1/vault"),
 		TriggerAuthKey:    os.Getenv("TRIGGER_AUTH_KEY"),
