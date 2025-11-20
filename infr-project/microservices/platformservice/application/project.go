@@ -35,6 +35,7 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 		if len(providerProjectIDs) == 0 {
 			return true
 		}
+
 		return slices.Contains(providerProjectIDs, project.ID)
 	})
 
@@ -43,10 +44,13 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	}
 
 	projectMapper := assembler.ProjectAssembler{}
+	events := []coreinfr.Event{}
+
 	if len(plat.Projects) == 0 {
 		plat.Projects = map[string]domain.PlatformProject{}
 		for _, project := range providerProjects {
 			plat.Projects[project.ID] = *projectMapper.ToDomain(&project)
+			events = s.buildProjectChangeEvent(plat.ID, plat.Name, plat.Provider.String(), project.ID, project.Name, project.ID, project.Url, false, true, true)
 		}
 	} else {
 		for _, project := range providerProjects {
@@ -64,11 +68,14 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 					break
 				}
 			}
+
 			if find {
 				continue
 			}
-			newProject := *projectMapper.ToDomain(&project)
-			plat.Projects[project.ID] = newProject
+
+			newPro := *projectMapper.ToDomain(&project)
+			events = s.buildProjectChangeEvent(plat.ID, plat.Name, plat.Provider.String(), newPro.ID, newPro.Name, newPro.ID, newPro.Url, false, true, true)
+			plat.Projects[project.ID] = newPro
 		}
 	}
 
@@ -83,6 +90,11 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	}
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+		err := s.eventHandler.DispatchIntegrationEvents(ctx, events)
+		if err != nil {
+			return err
+		}
+
 		return s.repository.SyncProjects(ctx, plat.ID, projects)
 	})
 }
@@ -145,7 +157,8 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	}
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
-		err := s.sendProjectChangeEvent(ctx, project, plat, projectID, screenshot)
+		events := s.buildProjectChangeEvent(plat.ID, plat.Name, plat.Provider.String(), projectID, project.Name, project.ProviderProjectID, project.Url, project.Operate == "sync", project.ImportWebhooks, screenshot)
+		err := s.eventHandler.DispatchIntegrationEvents(ctx, events)
 		if err != nil {
 			return err
 		}
@@ -154,44 +167,40 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	})
 }
 
-func (s *PlatformService) sendProjectChangeEvent(ctx context.Context, project viewmodel.UpdatePlatformProjectRequest, plat *domain.Platform, projectID string, screenshot bool) error {
+func (s *PlatformService) buildProjectChangeEvent(platID, platName, provider, projectID, projectName, providerProjectID, projectUrl string, createProviderProject, importWebhook, screenshot bool) []coreinfr.Event {
 	events := []coreinfr.Event{}
-	if project.Operate == "sync" {
+	if createProviderProject {
 		events = append(events, &infrastructure.CreateProviderProjectTriggeredEvent{
 			ID:          uuid.NewString(),
-			PlatformID:  plat.ID,
+			PlatformID:  platID,
 			ProjectID:   projectID,
-			ProjectName: project.Name,
-			Provider:    plat.Provider.String(),
+			ProjectName: projectName,
+			Provider:    provider,
 		})
 	}
 
-	if project.ImportWebhooks {
+	if importWebhook {
 		events = append(events, &infrastructure.CreateProviderWebhookTriggeredEvent{
 			ID:                uuid.NewString(),
-			PlatformID:        plat.ID,
+			PlatformID:        platID,
 			ProjectID:         projectID,
-			ProjectName:       project.Name,
-			Provider:          plat.Provider.String(),
-			ProviderProjectId: project.ProviderProjectID,
-			Url:               domain.GetWebhookUrl(plat.Name, project.Name, s.opts.ProjectWebhookUrl),
+			ProjectName:       projectName,
+			Provider:          provider,
+			ProviderProjectId: providerProjectID,
+			Url:               domain.GetWebhookUrl(platName, projectName, s.opts.ProjectWebhookUrl),
 		})
 	}
 
 	if screenshot {
 		events = append(events, &infrastructure.ProjectScreenshotTriggeredEvent{
 			ID:         uuid.NewString(),
-			PlatformID: plat.ID,
+			PlatformID: platID,
 			ProjectID:  projectID,
-			Url:        project.Url,
+			Url:        projectUrl,
 		})
 	}
 
-	if len(events) > 0 {
-		return s.eventHandler.DispatchIntegrationEvents(ctx, events)
-	}
-
-	return nil
+	return events
 }
 
 func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, projectId string) error {

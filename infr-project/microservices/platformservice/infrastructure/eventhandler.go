@@ -31,6 +31,10 @@ func NewEventHandler(client *mongo.Client, config mongoimpl.DBConfig, eventDispa
 }
 
 func (e *EventHandler) DispatchIntegrationEvents(ctx context.Context, events []coreinfr.Event) error {
+	if len(events) == 0 {
+		return nil
+	}
+
 	// TODO: need token exchange
 	token, ok := util.JWTFrom(ctx)
 	if !ok || token == "" {
