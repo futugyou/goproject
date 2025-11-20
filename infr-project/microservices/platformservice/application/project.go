@@ -103,7 +103,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	}
 
 	secretMapper := assembler.SecretAssembler{}
-	secrets, err := secretMapper.ToModel(ctx, s.vaultService, project.Secrets)
+	secrets, err := secretMapper.ToModel(ctx, project.Secrets)
 	if err != nil {
 		return err
 	}

@@ -50,7 +50,7 @@ func (s *PlatformService) CreatePlatform(ctx context.Context, aux viewmodel.Crea
 	}
 
 	secretMapper := assembler.SecretAssembler{}
-	secrets, err := secretMapper.ToModel(ctx, s.vaultService, aux.Secrets)
+	secrets, err := secretMapper.ToModel(ctx, aux.Secrets)
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (s *PlatformService) UpdatePlatform(ctx context.Context, idOrName string, d
 		}
 
 		secretMapper := assembler.SecretAssembler{}
-		newSecrets, err := secretMapper.ToModel(ctx, s.vaultService, data.Secrets)
+		newSecrets, err := secretMapper.ToModel(ctx, data.Secrets)
 		if err != nil {
 			return err
 		}
