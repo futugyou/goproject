@@ -110,6 +110,16 @@ func (w *PlatformProject) UpdateWebhook(hook *Webhook) {
 	w.Webhook = hook
 }
 
+func (w *PlatformProject) AutoFillProperties() {
+	if w.Properties == nil {
+		w.Properties = make(map[string]Property)
+	}
+
+	if _, ok := w.Properties["GITHUB_REPO"]; !ok {
+		w.Properties["GITHUB_REPO"] = Property{Key: "GITHUB_REPO", Value: w.Name}
+	}
+}
+
 func (w *PlatformProject) GetId() string {
 	if w == nil {
 		return ""

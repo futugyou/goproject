@@ -180,9 +180,7 @@ func (w *Platform) UpdateProject(project PlatformProject) (*Platform, error) {
 	}
 
 	if w.Provider == PlatformProviderGithub {
-		if _, ok := project.Properties["GITHUB_REPO"]; !ok {
-			project.Properties["GITHUB_REPO"] = Property{Key: "GITHUB_REPO", Value: project.Name}
-		}
+		(&project).AutoFillProperties()
 	}
 
 	w.Projects[project.ID] = project
