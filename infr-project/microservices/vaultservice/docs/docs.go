@@ -408,7 +408,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodel.VaultView"
+                                "$ref": "#/definitions/viewmodel.SimpleVaultView"
                             }
                         }
                     },
@@ -718,6 +718,26 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "viewmodel.SimpleVaultView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "type_identity": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "vault_type": {
+                    "type": "string"
                 }
             }
         },

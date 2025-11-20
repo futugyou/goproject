@@ -14,7 +14,7 @@ type VaultView struct {
 	Extension    map[string]string `json:"extension"`
 }
 
-type SampleVaultView struct {
+type SimpleVaultView struct {
 	ID           string `json:"id"`
 	Key          string `json:"key"`
 	Value        string `json:"value"`

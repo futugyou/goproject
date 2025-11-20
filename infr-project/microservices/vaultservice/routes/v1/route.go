@@ -298,7 +298,7 @@ func importVault(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body viewmodel.SearchVaultsByIDsRequest true "Request body"
-// @Success 200 {array} viewmodel.VaultView "Successfully"
+// @Success 200 {array} viewmodel.SimpleVaultView "Successfully"
 // @Failure 400 {object} Response "Incorrect request parameters"
 // @Failure 500 {object} Response "Internal server error"
 // @Router /v1/vaults/by_ids [post]

@@ -84,15 +84,15 @@ func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (s
 	return src.Value, nil
 }
 
-func (s *VaultService) GetVaultsByIDs(ctx context.Context, ids []string) ([]viewmodel.SampleVaultView, error) {
+func (s *VaultService) GetVaultsByIDs(ctx context.Context, ids []string) ([]viewmodel.SimpleVaultView, error) {
 	datas, err := s.repository.GetVaultByIds(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]viewmodel.SampleVaultView, len(datas))
+	result := make([]viewmodel.SimpleVaultView, len(datas))
 	for i := range datas {
-		result[i] = viewmodel.SampleVaultView{
+		result[i] = viewmodel.SimpleVaultView{
 			ID:           datas[i].ID,
 			Key:          datas[i].Key,
 			Value:        datas[i].Value,

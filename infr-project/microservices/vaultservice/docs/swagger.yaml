@@ -210,6 +210,19 @@ definitions:
           type: string
         type: array
     type: object
+  viewmodel.SimpleVaultView:
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+      type_identity:
+        type: string
+      value:
+        type: string
+      vault_type:
+        type: string
+    type: object
   viewmodel.VaultView:
     properties:
       description:
@@ -497,7 +510,7 @@ paths:
           description: Successfully
           schema:
             items:
-              $ref: '#/definitions/viewmodel.VaultView'
+              $ref: '#/definitions/viewmodel.SimpleVaultView'
             type: array
         "400":
           description: Incorrect request parameters
