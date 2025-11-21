@@ -12,7 +12,8 @@ import (
 
 	"github.com/futugyou/infr-project/controller"
 	tool "github.com/futugyou/infr-project/extensions"
-	viewmodels "github.com/futugyou/infr-project/view_models"
+
+	"github.com/futugyou/vaultservice/viewmodel"
 )
 
 func VaultDispatch(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +80,7 @@ func getVault(ctrl *controller.VaultController, r *http.Request, w http.Response
 	if err != nil {
 		sizeInt = 100
 	}
-	request := viewmodels.SearchVaultsRequest{
+	request := viewmodel.SearchVaultsRequest{
 		Key:          key,
 		StorageMedia: storageMedia,
 		VaultType:    vaultType,

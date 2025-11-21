@@ -11,6 +11,7 @@ import (
 
 	v1 "github.com/futugyou/infr-project/routes/v1"
 	v2 "github.com/futugyou/infr-project/routes/v2"
+	vaultv1 "github.com/futugyou/vaultservice/routes/v1"
 )
 
 func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
@@ -34,7 +35,7 @@ func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 		// project routes
 		v1.ConfigProjectRoutes(v1api)
 		// vault routes
-		v1.ConfigVaultRoutes(v1api)
+		vaultv1.ConfigVaultRoutes(v1api)
 		// sdk test routes
 		v1.ConfigTestingRoutes(v1api, cqrsRoute)
 	}

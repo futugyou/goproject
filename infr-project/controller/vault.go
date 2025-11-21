@@ -3,16 +3,15 @@ package controller
 import (
 	"context"
 	"net/http"
-	"os"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/futugyou/domaincore/mongoimpl"
+	"github.com/futugyou/domaincore/qstashdispatcherimpl"
 
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
-	"github.com/futugyou/infr-project/vault"
-	models "github.com/futugyou/infr-project/view_models"
+	"github.com/futugyou/vaultservice/application"
+	"github.com/futugyou/vaultservice/infrastructure"
+	"github.com/futugyou/vaultservice/options"
+
+	"github.com/futugyou/vaultservice/viewmodel"
 )
 
 type VaultController struct {
@@ -23,79 +22,66 @@ func NewVaultController() *VaultController {
 }
 
 func (c *VaultController) CreateVaults(w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.CreateVaultsRequest) (interface{}, error) {
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req viewmodel.CreateVaultsRequest) (any, error) {
 		return service.CreateVaults(ctx, req)
 	})
 }
 
 func (c *VaultController) CreateVault(w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.CreateVaultRequest) (interface{}, error) {
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req viewmodel.CreateVaultRequest) (any, error) {
 		return service.CreateVault(ctx, req)
 	})
 }
 
-func (c *VaultController) SearchVaults(w http.ResponseWriter, r *http.Request, aux models.SearchVaultsRequest) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (interface{}, error) {
-		query := application.VaultSearchQuery{
-			Filters: []vault.VaultSearch{
-				{
-					Key:          aux.Key,
-					KeyFuzzy:     true,
-					StorageMedia: aux.StorageMedia,
-					VaultType:    aux.VaultType,
-					TypeIdentity: aux.TypeIdentity,
-					Description:  aux.Description,
-					Tags:         aux.Tags,
-				},
-			},
-			Page: aux.Page,
-			Size: aux.Size,
-		}
-		return service.SearchVaults(ctx, query)
-	})
-}
-
 func (c *VaultController) ShowVaultRawValue(w http.ResponseWriter, r *http.Request, vaultId string) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (interface{}, error) {
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (any, error) {
 		return service.ShowVaultRawValue(ctx, vaultId)
 	})
 }
 
+func (c *VaultController) SearchVaults(w http.ResponseWriter, r *http.Request, aux viewmodel.SearchVaultsRequest) {
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (any, error) {
+		return service.SearchVaults(ctx, aux)
+	})
+}
+
 func (c *VaultController) ChangeVault(w http.ResponseWriter, r *http.Request, vaultId string) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.ChangeVaultRequest) (interface{}, error) {
-		return service.ChangeVault(ctx, vaultId, req)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req viewmodel.ChangeVaultRequest) (any, error) {
+		return nil, service.ChangeVault(ctx, vaultId, req)
 	})
 }
 
 func (c *VaultController) DeleteVault(w http.ResponseWriter, r *http.Request, vaultId string) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (interface{}, error) {
-		return service.DeleteVault(ctx, vaultId)
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, _ struct{}) (any, error) {
+		return nil, service.DeleteVault(ctx, vaultId)
 	})
 }
 
 func (c *VaultController) ImportVaults(w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req models.ImportVaultsRequest) (interface{}, error) {
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req viewmodel.ImportVaultsRequest) (any, error) {
 		return service.ImportVaults(ctx, req)
 	})
 }
 
 func createVaultService(ctx context.Context) (*application.VaultService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
+	option := options.New()
+	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
+	config := mongoimpl.DBConfig{
+		DBName: option.DBName,
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}
 
-	repo := infra.NewVaultRepository(client, config)
-	unitOfWork, err := infra.NewMongoUnitOfWork(client)
+	queryRepo := infrastructure.NewVaultRepository(mongoclient, config)
+
+	unitOfWork, err := mongoimpl.NewMongoUnitOfWork(mongoclient)
 	if err != nil {
 		return nil, err
 	}
 
-	eventPublisher := publisher.NewQStashEventPulisher(os.Getenv("QSTASH_TOKEN"), os.Getenv("QSTASH_DESTINATION"))
-	return application.NewVaultService(unitOfWork, repo, eventPublisher), nil
+	eventPublisher := qstashdispatcherimpl.NewQStashEventDispatcher(option.QstashToken, option.QstashDestination)
+
+	return application.NewVaultService(unitOfWork, queryRepo, eventPublisher, option), nil
 }
