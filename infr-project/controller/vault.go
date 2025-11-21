@@ -63,6 +63,12 @@ func (c *VaultController) ImportVaults(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (c *VaultController) GetVaultsByIDs(w http.ResponseWriter, r *http.Request) {
+	handleRequest(w, r, createVaultService, func(ctx context.Context, service *application.VaultService, req viewmodel.SearchVaultsByIDsRequest) (any, error) {
+		return service.GetVaultsByIDs(ctx, req.IDs)
+	})
+}
+
 func createVaultService(ctx context.Context) (*application.VaultService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)

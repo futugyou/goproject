@@ -46,6 +46,8 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 			deleteVault(ctrl, r, w)
 		case "import":
 			importVault(ctrl, r, w)
+		case "by_ids":
+			getVaultsByIDs(ctrl, r, w)
 		default:
 			w.Write([]byte("page not found"))
 			w.WriteHeader(404)
@@ -57,6 +59,7 @@ func VaultDispatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func getVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
+	id := r.URL.Query().Get("id")
 	key := r.URL.Query().Get("key")
 	storageMedia := r.URL.Query().Get("storage_media")
 	tags := strings.FieldsFunc(r.URL.Query().Get("tags"), func(r rune) bool {
@@ -80,7 +83,9 @@ func getVault(ctrl *controller.VaultController, r *http.Request, w http.Response
 	if err != nil {
 		sizeInt = 100
 	}
+
 	request := viewmodel.SearchVaultsRequest{
+		ID:           id,
 		Key:          key,
 		StorageMedia: storageMedia,
 		VaultType:    vaultType,
@@ -141,4 +146,12 @@ func importVault(ctrl *controller.VaultController, r *http.Request, w http.Respo
 	}
 
 	ctrl.ImportVaults(w, r)
+}
+
+func getVaultsByIDs(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
+	if !tool.AuthForVercel(w, r) {
+		return
+	}
+
+	ctrl.GetVaultsByIDs(w, r)
 }

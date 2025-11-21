@@ -454,6 +454,20 @@
             }
         },
         {
+            "src": "/api/(?<version>[^/]+)/vaults/by_ids",
+            "dest": "/api/vault.go?optype=by_ids&version=$version",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Expose-Headers": "*"
+            }
+        },
+        {
             "src": "/api/(?<version>[^/]+)/vault/(?<id>[^/]+)",
             "dest": "/api/vault.go?id=$id&optype=update&version=$version",
             "methods": [
