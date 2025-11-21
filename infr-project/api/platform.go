@@ -12,7 +12,7 @@ import (
 
 	"github.com/futugyou/infr-project/controller"
 	tool "github.com/futugyou/infr-project/extensions"
-	viewmodels "github.com/futugyou/infr-project/view_models"
+	"github.com/futugyou/platformservice/viewmodel"
 )
 
 func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
@@ -45,10 +45,6 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 			deletePlatform(ctrl, r, w)
 		case "all":
 			allPlatform(ctrl, r, w)
-		case "hook":
-			hookPlatform(ctrl, r, w)
-		case "hook_del":
-			deleteHookPlatform(ctrl, r, w)
 		case "project":
 			createPlatformProject(ctrl, r, w)
 		case "proget":
@@ -102,35 +98,6 @@ func createPlatformProject(ctrl *controller.PlatformController, r *http.Request,
 	ctrl.UpsertPlatformProject(id, "", w, r)
 }
 
-func hookPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
-	if !tool.AuthForVercel(w, r) {
-		return
-	}
-
-	id := r.URL.Query().Get("id")
-	projectId := r.URL.Query().Get("project_id")
-	ctrl.UpdatePlatformHook(id, projectId, w, r)
-}
-
-func deleteHookPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
-	if !tool.AuthForVercel(w, r) {
-		return
-	}
-
-	id := r.URL.Query().Get("id")
-	projectId := r.URL.Query().Get("project_id")
-	hookName := r.URL.Query().Get("hook_name")
-	sync, _ := strconv.ParseBool(r.URL.Query().Get("sync"))
-
-	request := viewmodels.RemoveWebhookRequest{
-		PlatformId: id,
-		ProjectId:  projectId,
-		HookName:   hookName,
-		Sync:       sync,
-	}
-	ctrl.DeletePlatformHook(request, w, r)
-}
-
 func allPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	name := r.URL.Query().Get("name")
 	tags := strings.FieldsFunc(r.URL.Query().Get("tags"), func(r rune) bool {
@@ -150,7 +117,7 @@ func allPlatform(ctrl *controller.PlatformController, r *http.Request, w http.Re
 		sizeInt = 100
 	}
 
-	request := viewmodels.SearchPlatformsRequest{
+	request := viewmodel.SearchPlatformsRequest{
 		Name:     name,
 		Activate: extensions.StringToBoolPtr(r.URL.Query().Get("activate")),
 		Tags:     tags,
@@ -189,8 +156,7 @@ func getProviderProjectList(ctrl *controller.PlatformController, r *http.Request
 }
 
 func importProjects(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
-	id := r.URL.Query().Get("id")
-	ctrl.ImportProjectsFromProvider(id, w, r)
+	ctrl.ImportProjectsFromProvider(w, r)
 }
 
 func getPlatformProject(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {

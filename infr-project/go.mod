@@ -15,8 +15,11 @@ require (
 	github.com/futugyou/domaincore/qstashdispatcherimpl v1.0.0
 	github.com/futugyou/extensions v1.0.0
 	github.com/futugyou/gofile v1.0.0
+	github.com/futugyou/platformservice v1.0.0
 	github.com/futugyou/projectservice v1.0.0
 	github.com/futugyou/qstash v1.0.0
+	github.com/futugyou/resourcequeryservice v1.0.0
+	github.com/futugyou/resourceservice v1.0.0
 	github.com/futugyou/screenshot v1.0.0
 	github.com/futugyou/vaultservice v1.0.0
 	github.com/futugyou/vercel v1.0.0
@@ -132,7 +135,7 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
-	github.com/quic-go/quic-go v0.55.0 // indirect
+	github.com/quic-go/quic-go v0.56.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/sony/gobreaker v0.5.0 // indirect
@@ -159,22 +162,21 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/futugyou/circleci v1.0.0 => ../circleci_sdk
-
-replace github.com/futugyou/vercel v1.0.0 => ../vercel_sdk
-
-replace github.com/futugyou/screenshot v1.0.0 => ../screenshot_sdk
-
-replace github.com/futugyou/gofile v1.0.0 => ../gofile_sdk
-
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
 
 replace (
+	github.com/futugyou/circleci v1.0.0 => ../circleci_sdk
 	github.com/futugyou/domaincore v1.0.0 => ../domaincore
 	github.com/futugyou/domaincore/mongoimpl v1.0.0 => ../domaincore/mongoimpl
 	github.com/futugyou/domaincore/qstashdispatcherimpl v1.0.0 => ../domaincore/qstashdispatcherimpl
 	github.com/futugyou/extensions v1.0.0 => ../extensions
+	github.com/futugyou/gofile v1.0.0 => ../gofile_sdk
+	github.com/futugyou/platformservice v1.0.0 => ./microservices/platformservice
 	github.com/futugyou/projectservice v1.0.0 => ./microservices/projectservice
 	github.com/futugyou/qstash v1.0.0 => ../qstash_sdk
+	github.com/futugyou/resourcequeryservice v1.0.0 => ./microservices/resourcequeryservice
+	github.com/futugyou/resourceservice v1.0.0 => ./microservices/resourceservice
+	github.com/futugyou/screenshot v1.0.0 => ../screenshot_sdk
 	github.com/futugyou/vaultservice v1.0.0 => ./microservices/vaultservice
+	github.com/futugyou/vercel v1.0.0 => ../vercel_sdk
 )

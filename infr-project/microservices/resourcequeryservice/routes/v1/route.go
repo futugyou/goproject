@@ -32,7 +32,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Router /v1/resource/{id} [get]
 func getResource(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createResourceQueryService(ctx)
+	service, err := CreateResourceQueryService(ctx)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -54,7 +54,7 @@ func getResource(c *gin.Context) {
 // @Router /v1/resource [get]
 func getAllResource(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createResourceQueryService(ctx)
+	service, err := CreateResourceQueryService(ctx)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -92,7 +92,7 @@ func CreateRedisClient(url string) (*redis.Client, error) {
 	return redisClient, err
 }
 
-func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
+func CreateResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.QueryMongoDBURL)
 	config := mongoimpl.DBConfig{

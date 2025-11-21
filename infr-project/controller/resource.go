@@ -5,16 +5,15 @@ import (
 
 	"context"
 	"net/http"
-	"os"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/futugyou/domaincore/mongoimpl"
+	"github.com/futugyou/domaincore/qstashdispatcherimpl"
 
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
-	"github.com/futugyou/infr-project/resource"
-	models "github.com/futugyou/infr-project/view_models"
+	"github.com/futugyou/resourceservice/application"
+	"github.com/futugyou/resourceservice/infrastructure"
+	"github.com/futugyou/resourceservice/options"
+
+	"github.com/futugyou/resourceservice/viewmodel"
 )
 
 type ResourceController struct {
@@ -32,40 +31,37 @@ func (c *ResourceController) GetResourceHistory(id string, w http.ResponseWriter
 
 func (c *ResourceController) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
 	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (interface{}, error) {
-		return "ok", service.DeleteResource(ctx, id)
+		return nil, service.DeleteResource(ctx, id)
 	})
 }
 
 func (c *ResourceController) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, req models.UpdateResourceRequest) (interface{}, error) {
-		return "ok", service.UpdateResource(ctx, id, req)
+	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, req viewmodel.UpdateResourceRequest) (interface{}, error) {
+		return nil, service.UpdateResource(ctx, id, req)
 	})
 }
 
 func (c *ResourceController) CreateResource(w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, req models.CreateResourceRequest) (interface{}, error) {
+	handleRequest(w, r, createResourceService, func(ctx context.Context, service *application.ResourceService, req viewmodel.CreateResourceRequest) (interface{}, error) {
 		return service.CreateResource(ctx, req)
 	})
 }
 
 func createResourceService(ctx context.Context) (*application.ResourceService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
+	option := options.New()
+	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
 	if err != nil {
 		return nil, err
 	}
 
-	eventStore := infra.NewMongoEventStore(client, config, "resource_events", resource.CreateEvent)
-	snapshotStore := infra.NewMongoSnapshotStore[*resource.Resource](client, config)
-	unitOfWork, err := infra.NewMongoUnitOfWork(client)
+	eventStore := infrastructure.NewResourceEventStore(mongoclient, option)
+	snapshotStore := infrastructure.NewResourceSnapshotStore(mongoclient, option)
+
+	unitOfWork, err := mongoimpl.NewMongoUnitOfWork(mongoclient)
 	if err != nil {
 		return nil, err
 	}
 
-	eventPublisher := publisher.NewQStashEventPulisher(os.Getenv("QSTASH_TOKEN"), os.Getenv("QSTASH_DESTINATION"))
+	eventPublisher := qstashdispatcherimpl.NewQStashEventDispatcher(option.QstashToken, option.QstashDestination)
 	return application.NewResourceService(eventStore, snapshotStore, unitOfWork, eventPublisher), nil
 }

@@ -10,8 +10,10 @@ import (
 	docs "github.com/futugyou/infr-project/docs"
 
 	v1 "github.com/futugyou/infr-project/routes/v1"
-	v2 "github.com/futugyou/infr-project/routes/v2"
+	platformv1 "github.com/futugyou/platformservice/routes/v1"
 	projectv1 "github.com/futugyou/projectservice/routes/v1"
+	resourcequeryv1 "github.com/futugyou/resourcequeryservice/routes/v1"
+	resourcev1 "github.com/futugyou/resourceservice/routes/v1"
 	vaultv1 "github.com/futugyou/vaultservice/routes/v1"
 )
 
@@ -22,17 +24,13 @@ func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 	docs.SwaggerInfo.Title = "Project Display Swagger Doc"
 	docs.SwaggerInfo.Version = "v1.0.0"
 
-	v2api := router.Group("/api/v2")
-	{
-		v2.ConfigPlatformRoutes(v2api, cqrsRoute)
-	}
-
 	v1api := router.Group("/api/v1")
 	{
 		// resource routes
-		v1.ConfigResourceRoutes(v1api)
+		resourcequeryv1.ConfigResourceRoutes(v1api)
+		resourcev1.ConfigResourceRoutes(v1api)
 		// platform routes
-		v1.ConfigPlatformRoutes(v1api)
+		platformv1.ConfigPlatformRoutes(v1api)
 		// project routes
 		projectv1.ConfigProjectRoutes(v1api)
 		// vault routes

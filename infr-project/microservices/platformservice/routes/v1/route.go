@@ -51,7 +51,7 @@ func ConfigPlatformRoutes(v1 *gin.RouterGroup) {
 // @Router /v1/platform/{id}/project/{project_id} [delete]
 func deletePlatformProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -82,7 +82,7 @@ func deletePlatformProject(c *gin.Context) {
 // @Router /v1/platform/{id}/project/{project_id} [put]
 func updatePlatformProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -121,7 +121,7 @@ func updatePlatformProject(c *gin.Context) {
 // @Router /v1/platform/{id}/project [post]
 func createPlatformProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -159,7 +159,7 @@ func createPlatformProject(c *gin.Context) {
 // @Router /v1/platform/{id}/recovery [post]
 func recoveryPlatform(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -189,7 +189,7 @@ func recoveryPlatform(c *gin.Context) {
 // @Router /v1/platform/{id} [delete]
 func deletePlatform(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -220,7 +220,7 @@ func deletePlatform(c *gin.Context) {
 // @Router /v1/platform/{id} [put]
 func updatePlatform(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -258,7 +258,7 @@ func updatePlatform(c *gin.Context) {
 // @Router /v1/platform [post]
 func createPlatform(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -300,7 +300,7 @@ func createPlatform(c *gin.Context) {
 // @Router /v1/platform [get]
 func searchPlatforms(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -338,7 +338,7 @@ func searchPlatforms(c *gin.Context) {
 // @Router /v1/platform/{id} [get]
 func getPlatform(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -368,7 +368,7 @@ func getPlatform(c *gin.Context) {
 // @Router /v1/platform/{id}/provider_projects [get]
 func getProviderProjectList(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -399,7 +399,7 @@ func getProviderProjectList(c *gin.Context) {
 // @Router /v1/platform/{id}/project/{project_id} [get]
 func getPlatformProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -429,7 +429,7 @@ func getPlatformProject(c *gin.Context) {
 // @Router /v1/platform/{id}/import [post]
 func importProjectsFromProvider(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createPlatformService(ctx)
+	service, err := CreatePlatformService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -455,7 +455,7 @@ func importProjectsFromProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{})
 }
 
-func createPlatformService(ctx context.Context) (*application.PlatformService, error) {
+func CreatePlatformService(ctx context.Context) (*application.PlatformService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
 	config := mongoimpl.DBConfig{

@@ -216,34 +216,6 @@
             }
         },
         {
-            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)/hook",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&optype=hook&version=$version",
-            "methods": [
-                "PUT",
-                "OPTIONS"
-            ],
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Expose-Headers": "*"
-            }
-        },
-        {
-            "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project/(?<project_id>[^/]+)/hook/(?<hookname>[^/]+)",
-            "dest": "/api/platform.go?id=$id&project_id=$project_id&hook_name=$hookname&optype=hook_del&version=$version",
-            "methods": [
-                "DELETE",
-                "OPTIONS"
-            ],
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Expose-Headers": "*"
-            }
-        },
-        {
             "src": "/api/(?<version>[^/]+)/platform/(?<id>[^/]+)/project",
             "dest": "/api/platform.go?id=$id&optype=project&version=$version",
             "methods": [
