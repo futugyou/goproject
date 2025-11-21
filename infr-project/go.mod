@@ -15,6 +15,7 @@ require (
 	github.com/futugyou/domaincore/qstashdispatcherimpl v1.0.0
 	github.com/futugyou/extensions v1.0.0
 	github.com/futugyou/gofile v1.0.0
+	github.com/futugyou/projectservice v1.0.0
 	github.com/futugyou/qstash v1.0.0
 	github.com/futugyou/screenshot v1.0.0
 	github.com/futugyou/vaultservice v1.0.0
@@ -173,6 +174,7 @@ replace (
 	github.com/futugyou/domaincore/mongoimpl v1.0.0 => ../domaincore/mongoimpl
 	github.com/futugyou/domaincore/qstashdispatcherimpl v1.0.0 => ../domaincore/qstashdispatcherimpl
 	github.com/futugyou/extensions v1.0.0 => ../extensions
+	github.com/futugyou/projectservice v1.0.0 => ./microservices/projectservice
 	github.com/futugyou/qstash v1.0.0 => ../qstash_sdk
 	github.com/futugyou/vaultservice v1.0.0 => ./microservices/vaultservice
 )
