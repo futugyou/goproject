@@ -6,13 +6,17 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/futugyou/infr-project/extensions"
+	"github.com/go-playground/validator/v10"
 )
 
-type Controller struct {
+type Response struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
 }
+
+type Controller struct{}
 
 func NewController() *Controller {
 	return &Controller{}
@@ -24,7 +28,7 @@ func handleError(w http.ResponseWriter, err error, statusCode int) {
 	json.NewEncoder(w).Encode(err.Error())
 }
 
-func writeJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
+func writeJSONResponse(w http.ResponseWriter, data any, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	if data != nil {
@@ -36,7 +40,7 @@ func handleRequest[S any, T any](
 	w http.ResponseWriter,
 	r *http.Request,
 	createService func(ctx context.Context) (S, error),
-	handler func(ctx context.Context, service S, req T) (interface{}, error),
+	handler func(ctx context.Context, service S, req T) (any, error),
 ) {
 	handleRequestUseSpecValidate(
 		w,
@@ -54,12 +58,12 @@ func handleRequestUseSpecValidate[S any, T any](
 	r *http.Request,
 	createService func(ctx context.Context) (S, error),
 	validor func(v *validator.Validate, req *T) error,
-	handler func(ctx context.Context, service S, req T) (interface{}, error),
+	handler func(ctx context.Context, service S, req T) (any, error),
 ) {
 	ctx := r.Context()
 	service, err := createService(ctx)
 	if err != nil {
-		handleError(w, err, 500)
+		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -68,7 +72,7 @@ func handleRequestUseSpecValidate[S any, T any](
 		if r.Body != nil {
 			req = new(T)
 			if err := json.NewDecoder(r.Body).Decode(req); err != nil && err != io.EOF {
-				handleError(w, err, 400)
+				handleError(w, err, http.StatusBadRequest)
 				return
 			}
 		}
@@ -79,15 +83,22 @@ func handleRequestUseSpecValidate[S any, T any](
 	}
 
 	if err := validor(extensions.Validate, req); err != nil {
-		handleError(w, err, 400)
+		handleError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	res, err := handler(ctx, service, *req)
 	if err != nil {
-		handleError(w, err, 500)
+		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, res, 200)
+	if res == nil {
+		res = Response{
+			Code:    http.StatusOK,
+			Message: "Success",
+		}
+	}
+
+	writeJSONResponse(w, res, http.StatusOK)
 }
