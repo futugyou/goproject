@@ -4,30 +4,30 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/futugyou/infr-project/infrastructure"
-	"github.com/futugyou/infr-project/options"
+	"github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/infr-project/registry/options"
 )
 
 type Registry struct {
 	Options    *options.Options
-	publishers map[string]func(context.Context, options.Options) infrastructure.IEventPublisher
+	publishers map[string]func(context.Context, options.Options) infrastructure.EventDispatcher
 }
 
 var DefaultRegistry *Registry = NewRegistry()
 
 func NewRegistry() *Registry {
 	return &Registry{
-		publishers: map[string]func(context.Context, options.Options) infrastructure.IEventPublisher{},
+		publishers: map[string]func(context.Context, options.Options) infrastructure.EventDispatcher{},
 	}
 }
 
-func (s *Registry) RegisterComponent(componentFactory func(context.Context, options.Options) infrastructure.IEventPublisher, names ...string) {
+func (s *Registry) RegisterComponent(componentFactory func(context.Context, options.Options) infrastructure.EventDispatcher, names ...string) {
 	for _, name := range names {
 		s.publishers[fmt.Sprintf("event-publisher-%s", name)] = componentFactory
 	}
 }
 
-func (s *Registry) Create(ctx context.Context) (infrastructure.IEventPublisher, error) {
+func (s *Registry) Create(ctx context.Context) (infrastructure.EventDispatcher, error) {
 	if s.Options == nil {
 		return nil, fmt.Errorf("options is nil")
 	}

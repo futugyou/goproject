@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/futugyou/infr-project/domain"
-	"github.com/futugyou/infr-project/options"
+	"github.com/futugyou/domaincore/domain"
+	"github.com/futugyou/infr-project/registry/options"
 )
 
 type Registry struct {
 	Options *options.Options
-	events  map[string]func(context.Context, options.Options) domain.IUnitOfWork
+	events  map[string]func(context.Context, options.Options) domain.UnitOfWork
 }
 
 var DefaultRegistry *Registry = NewRegistry()
@@ -18,12 +18,12 @@ var DefaultRegistry *Registry = NewRegistry()
 func NewRegistry() *Registry {
 	return &Registry{
 		Options: &options.Options{},
-		events:  map[string]func(context.Context, options.Options) domain.IUnitOfWork{},
+		events:  map[string]func(context.Context, options.Options) domain.UnitOfWork{},
 	}
 }
 
 func (s *Registry) RegisterComponent(
-	componentFactory func(context.Context, options.Options) domain.IUnitOfWork,
+	componentFactory func(context.Context, options.Options) domain.UnitOfWork,
 	names ...string,
 ) {
 	for _, name := range names {
@@ -31,7 +31,7 @@ func (s *Registry) RegisterComponent(
 	}
 }
 
-func (s *Registry) Create(ctx context.Context) (domain.IUnitOfWork, error) {
+func (s *Registry) Create(ctx context.Context) (domain.UnitOfWork, error) {
 	if s.Options == nil {
 		return nil, fmt.Errorf("options is nil")
 	}

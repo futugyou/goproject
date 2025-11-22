@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/futugyou/infr-project/domain"
-	"github.com/futugyou/infr-project/infrastructure"
-	"github.com/futugyou/infr-project/options"
+	"github.com/futugyou/domaincore/domain"
+	"github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/infr-project/registry/options"
 )
 
 type Registry struct {
 	Options *options.Options
-	stores  map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]
+	stores  map[string]func(context.Context, options.Options) infrastructure.EventStore[domain.DomainEvent]
 }
 
 var DefaultRegistry *Registry = NewRegistry()
@@ -19,12 +19,12 @@ var DefaultRegistry *Registry = NewRegistry()
 func NewRegistry() *Registry {
 	return &Registry{
 		Options: &options.Options{},
-		stores:  map[string]func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent]{},
+		stores:  map[string]func(context.Context, options.Options) infrastructure.EventStore[domain.DomainEvent]{},
 	}
 }
 
 func (s *Registry) RegisterComponent(
-	componentFactory func(context.Context, options.Options) infrastructure.IEventStore[domain.IDomainEvent],
+	componentFactory func(context.Context, options.Options) infrastructure.EventStore[domain.DomainEvent],
 	names ...string,
 ) {
 	for _, name := range names {
@@ -32,7 +32,7 @@ func (s *Registry) RegisterComponent(
 	}
 }
 
-func (s *Registry) Create(ctx context.Context) (infrastructure.IEventStore[domain.IDomainEvent], error) {
+func (s *Registry) Create(ctx context.Context) (infrastructure.EventStore[domain.DomainEvent], error) {
 	if s.Options == nil {
 		return nil, fmt.Errorf("options is nil")
 	}

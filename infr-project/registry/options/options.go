@@ -1,9 +1,12 @@
 package options
 
 import (
+	"fmt"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
+
+	"github.com/futugyou/domaincore/domain"
 )
 
 type Options struct {
@@ -49,6 +52,7 @@ type Options struct {
 	GoFileFolder            string
 	EventPublisher          string
 	StoreType               string
+	EventFactory            func(eventType string) (domain.DomainEvent, error)
 }
 
 func New(origArgs []string) (*Options, error) {
@@ -95,9 +99,16 @@ func New(origArgs []string) (*Options, error) {
 		GoFileFolder:            os.Getenv("GOFILE_FOLDER"),
 		EventPublisher:          GetEnvWithDefault("EVENT_PUBLISHER", "qstash"),
 		StoreType:               GetEnvWithDefault("STORE_TYPE", "mongo"),
+		EventFactory: func(eventType string) (domain.DomainEvent, error) {
+			return nil, fmt.Errorf("event factory is nil")
+		},
 	}
 
 	return opts, nil
+}
+
+func (o *Options) SetEventFactory(eventFactory func(eventType string) (domain.DomainEvent, error)) {
+	o.EventFactory = eventFactory
 }
 
 func GetEnvWithDefault(key, defaultValue string) string {

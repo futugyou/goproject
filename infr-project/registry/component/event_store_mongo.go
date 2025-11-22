@@ -3,27 +3,26 @@ package component
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	mongo_options "go.mongodb.org/mongo-driver/mongo/options"
+	coredomain "github.com/futugyou/domaincore/domain"
+	coreinfr "github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/domaincore/mongoimpl"
 
-	"github.com/futugyou/infr-project/domain"
-	"github.com/futugyou/infr-project/infrastructure"
-	"github.com/futugyou/infr-project/infrastructure_mongo"
-	"github.com/futugyou/infr-project/options"
 	"github.com/futugyou/infr-project/registry/event_store"
-	"github.com/futugyou/infr-project/resource"
+	"github.com/futugyou/infr-project/registry/options"
 )
 
 func init() {
-	create := func(eventType string) (domain.IDomainEvent, error) {
-		return resource.CreateEvent(eventType)
-	}
-	event_store.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) infrastructure.IEventStore[domain.IDomainEvent] {
-		config := infrastructure_mongo.DBConfig{
-			DBName:        option.DBName,
-			ConnectString: option.MongoDBURL,
+	event_store.DefaultRegistry.RegisterComponent(func(ctx context.Context, option options.Options) coreinfr.EventStore[coredomain.DomainEvent] {
+		mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
+		if err != nil {
+			return nil
 		}
-		client, _ := mongo.Connect(ctx, mongo_options.Client().ApplyURI(config.ConnectString))
-		return infrastructure_mongo.NewMongoEventStore(client, config, "resource_events", create)
+
+		eventStoreConfig := mongoimpl.DBConfig{
+			DBName:         option.DBName,
+			CollectionName: "resource_events",
+		}
+
+		return mongoimpl.NewMongoEventStore(mongoclient, eventStoreConfig, option.EventFactory)
 	}, "mongo")
 }
