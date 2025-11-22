@@ -4,14 +4,12 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"os"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
-	"github.com/futugyou/infr-project/application"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	models "github.com/futugyou/infr-project/view_models"
+	"github.com/futugyou/domaincore/mongoimpl"
+	"github.com/futugyou/platformservice/application"
+	"github.com/futugyou/platformservice/infrastructure"
+	"github.com/futugyou/platformservice/options"
+	"github.com/futugyou/platformservice/viewmodel"
 )
 
 type WebhookController struct {
@@ -26,7 +24,7 @@ func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *ht
 	defer r.Body.Close()
 
 	query := r.URL.Query()
-	reqInfo := models.WebhookRequestInfo{
+	reqInfo := viewmodel.WebhookRequestInfo{
 		Method:     r.Method,
 		URL:        r.URL.String(),
 		Proto:      r.Proto,
@@ -38,34 +36,29 @@ func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *ht
 		UserAgent:  r.UserAgent(),
 	}
 
-	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookService, _ struct{}) (interface{}, error) {
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookLogService, _ struct{}) (interface{}, error) {
 		return nil, service.ProviderWebhookCallback(ctx, reqInfo)
 	})
 }
 
-func (c *WebhookController) VerifyTesting(w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookService, _ struct{}) (interface{}, error) {
-		return service.VerifyTesting(ctx)
-	})
-}
-
-func (c *WebhookController) SearchWebhookLogs(w http.ResponseWriter, r *http.Request, filter models.WebhookSearch) {
-	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookService, _ struct{}) (interface{}, error) {
+func (c *WebhookController) SearchWebhookLogs(w http.ResponseWriter, r *http.Request, filter viewmodel.WebhookSearch) {
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookLogService, _ struct{}) (interface{}, error) {
 		return service.SearchWebhookLogs(ctx, filter)
 	})
 }
 
-func createWebhookService(ctx context.Context) (*application.WebhookService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
+func createWebhookService(ctx context.Context) (*application.WebhookLogService, error) {
+	option := options.New()
+	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
+	config := mongoimpl.DBConfig{
+		DBName: option.DBName,
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
 	if err != nil {
 		return nil, err
 	}
 
-	repo := infra.NewWebhookLogRepository(client, config)
-	return application.NewWebhookService(repo), nil
+	repo := infrastructure.NewWebhookLogRepository(mongoclient, config)
+
+	return application.NewWebhookLogService(repo, option), nil
 }

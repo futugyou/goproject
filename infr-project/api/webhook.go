@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -12,19 +11,15 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
 	"github.com/futugyou/extensions"
+	platv1 "github.com/futugyou/platformservice/routes/v1"
+	platviewmodel "github.com/futugyou/platformservice/viewmodel"
+	v1 "github.com/futugyou/resourcequeryservice/routes/v1"
+	"github.com/futugyou/resourcequeryservice/viewmodel"
 
-	"github.com/futugyou/infr-project/application"
+	resource "github.com/futugyou/resourceservice/domain"
+
 	"github.com/futugyou/infr-project/controller"
-	tool "github.com/futugyou/infr-project/extensions"
-	infra "github.com/futugyou/infr-project/infrastructure_mongo"
-	publisher "github.com/futugyou/infr-project/infrastructure_qstash"
-	screenshot "github.com/futugyou/infr-project/infrastructure_screenshot"
-	"github.com/futugyou/infr-project/resource"
-	models "github.com/futugyou/infr-project/view_models"
 )
 
 func WebhookDispatch(w http.ResponseWriter, r *http.Request) {
@@ -89,13 +84,13 @@ func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 		return
 	}
 
-	var event models.TriggerEvent
+	var event TriggerEvent
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
 		writeInternalServerError(w, "decode error", err)
 		return
 	}
 
-	service, err := createResourceQueryService(ctx)
+	service, err := v1.CreateResourceQueryService(ctx)
 	if err != nil {
 		writeInternalServerError(w, "service creation error", err)
 		return
@@ -115,7 +110,7 @@ func eventHandler(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 		return
 	}
 
-	if resourceData, ok := dataInstance.(*models.ResourceChangeData); ok {
+	if resourceData, ok := dataInstance.(*viewmodel.ResourceChangeData); ok {
 		if err := service.HandleResourceChanged(ctx, *resourceData); err != nil {
 			writeInternalServerError(w, "handle resource changed error", err)
 		}
@@ -149,17 +144,41 @@ func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 
 	// Handle events via typed switch
 	switch event {
-	case "upsert_project":
+	case "create_provider_project":
 		handleEvent(bodyBytes, w, func(data []byte) error {
-			var evt models.PlatformProjectUpsertEvent
+			var evt platviewmodel.CreateProviderProjectRequest
 			if err := json.Unmarshal(data, &evt); err != nil {
 				return err
 			}
-			service, err := createPlatformService(ctx)
+			service, err := platv1.CreatePlatformService(ctx)
 			if err != nil {
 				return err
 			}
-			return service.HandlePlatformProjectUpsert(ctx, evt)
+			return service.HandleCreateProviderProject(ctx, &evt)
+		})
+	case "create_provider_webhook":
+		handleEvent(bodyBytes, w, func(data []byte) error {
+			var evt platviewmodel.CreateProviderWebhookRequest
+			if err := json.Unmarshal(data, &evt); err != nil {
+				return err
+			}
+			service, err := platv1.CreatePlatformService(ctx)
+			if err != nil {
+				return err
+			}
+			return service.HandleCreateProviderWebhook(ctx, &evt)
+		})
+	case "project_screenshot":
+		handleEvent(bodyBytes, w, func(data []byte) error {
+			var evt platviewmodel.ProjectScreenshotRequest
+			if err := json.Unmarshal(data, &evt); err != nil {
+				return err
+			}
+			service, err := platv1.CreatePlatformService(ctx)
+			if err != nil {
+				return err
+			}
+			return service.HandleProjectScreenshot(ctx, &evt)
 		})
 
 	case "ResourceCreated":
@@ -168,11 +187,11 @@ func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 			if err := json.Unmarshal(data, &evt); err != nil {
 				return err
 			}
-			service, err := createResourceQueryService(ctx)
+			service, err := v1.CreateResourceQueryService(ctx)
 			if err != nil {
 				return err
 			}
-			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData, evt.Tags)
+			changeData := convertToChangeData(evt.ID, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData, evt.Tags)
 			return service.HandleResourceChanged(ctx, changeData)
 		})
 
@@ -182,11 +201,11 @@ func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 			if err := json.Unmarshal(data, &evt); err != nil {
 				return err
 			}
-			service, err := createResourceQueryService(ctx)
+			service, err := v1.CreateResourceQueryService(ctx)
 			if err != nil {
 				return err
 			}
-			changeData := convertToChangeData(evt.Id, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData, evt.Tags)
+			changeData := convertToChangeData(evt.ID, evt.ResourceVersion, event, evt.CreatedAt, evt.Name, evt.Type, evt.Data, evt.ImageData, evt.Tags)
 			return service.HandleResourceChanged(ctx, changeData)
 		})
 
@@ -196,12 +215,12 @@ func handleQstash(_ *controller.Controller, r *http.Request, w http.ResponseWrit
 			if err := json.Unmarshal(data, &evt); err != nil {
 				return err
 			}
-			service, err := createResourceQueryService(ctx)
+			service, err := v1.CreateResourceQueryService(ctx)
 			if err != nil {
 				return err
 			}
-			return service.HandleResourceChanged(ctx, models.ResourceChangeData{
-				Id:              evt.Id,
+			return service.HandleResourceChanged(ctx, viewmodel.ResourceChangeData{
+				ID:              evt.ID,
 				ResourceVersion: evt.ResourceVersion,
 				EventType:       event,
 				CreatedAt:       evt.CreatedAt,
@@ -224,45 +243,19 @@ func handleEvent(data []byte, w http.ResponseWriter, handler func([]byte) error)
 	}
 }
 
-// createResourceQueryService constructs ResourceQueryService
-func createResourceQueryService(ctx context.Context) (*application.ResourceQueryService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("query_db_name"),
-		ConnectString: os.Getenv("query_mongodb_url"),
-	}
-
-	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	redisClient, err := tool.RedisClient(os.Getenv("REDIS_URL"))
-	if err != nil {
-		return nil, err
-	}
-
-	queryRepo := infra.NewResourceQueryRepository(mongoClient, config)
-	unitOfWork, err := infra.NewMongoUnitOfWork(mongoClient)
-	if err != nil {
-		return nil, err
-	}
-
-	return application.NewResourceQueryService(queryRepo, redisClient, unitOfWork), nil
-}
-
 func getDataType(tableName string) reflect.Type {
 	switch tableName {
 	case "resource_events":
-		return reflect.TypeOf(models.ResourceChangeData{})
+		return reflect.TypeOf(viewmodel.ResourceChangeData{})
 	default:
 		return nil
 	}
 }
 
 // convertToChangeData creates ResourceChangeData from fields
-func convertToChangeData(id string, version int, eventType string, createdAt time.Time, name, typ, data, imageData string, tags []string) models.ResourceChangeData {
-	return models.ResourceChangeData{
-		Id:              id,
+func convertToChangeData(id string, version int, eventType string, createdAt time.Time, name, typ, data, imageData string, tags []string) viewmodel.ResourceChangeData {
+	return viewmodel.ResourceChangeData{
+		ID:              id,
 		ResourceVersion: version,
 		EventType:       eventType,
 		CreatedAt:       createdAt,
@@ -274,37 +267,10 @@ func convertToChangeData(id string, version int, eventType string, createdAt tim
 	}
 }
 
-// createPlatformService constructs PlatformService
-func createPlatformService(ctx context.Context) (*application.PlatformService, error) {
-	config := infra.DBConfig{
-		DBName:        os.Getenv("db_name"),
-		ConnectString: os.Getenv("mongodb_url"),
-	}
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.ConnectString))
-	if err != nil {
-		return nil, err
-	}
-
-	unitOfWork, err := infra.NewMongoUnitOfWork(client)
-	if err != nil {
-		return nil, err
-	}
-
-	redisClient, err := tool.RedisClient(os.Getenv("REDIS_URL"))
-	if err != nil {
-		return nil, err
-	}
-
-	repo := infra.NewPlatformRepository(client, config)
-	vaultRepo := infra.NewVaultRepository(client, config)
-	eventPublisher := publisher.NewQStashEventPulisher(
-		os.Getenv("QSTASH_TOKEN"),
-		os.Getenv("QSTASH_DESTINATION"),
-	)
-
-	vaultService := application.NewVaultService(unitOfWork, vaultRepo, eventPublisher)
-	ss := screenshot.NewScreenshot()
-
-	return application.NewPlatformService(unitOfWork, repo, vaultService, redisClient, eventPublisher, ss), nil
+type TriggerEvent struct {
+	Platform     string      `json:"platform"`
+	Operate      string      `json:"operate"`
+	DataBaseName string      `json:"db"`
+	TableName    string      `json:"table"`
+	Data         interface{} `json:"data"`
 }
