@@ -35,15 +35,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ImportVaultsRequest"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.ImportVaultsRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ImportVaultsResponse"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.ImportVaultsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
@@ -106,8 +118,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.PlatformView"
+                                "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformView"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -131,7 +155,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreatePlatformRequest"
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.CreatePlatformRequest"
                         }
                     }
                 ],
@@ -139,7 +163,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -171,7 +207,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformDetailView"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -202,7 +250,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdatePlatformRequest"
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.UpdatePlatformRequest"
                         }
                     }
                 ],
@@ -210,7 +258,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -240,7 +300,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -261,14 +333,35 @@ const docTemplate = `{
                 "summary": "import platform provider projects by id or name",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Platform ID or Name",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.ImportProjectsRequest"
+                        }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    }
+                }
             }
         },
         "/v1/platform/{id}/project": {
@@ -298,7 +391,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdatePlatformProjectRequest"
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.UpdatePlatformProjectRequest"
                         }
                     }
                 ],
@@ -306,7 +399,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -345,7 +450,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformProject"
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProject"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -383,7 +500,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdatePlatformProjectRequest"
+                            "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.UpdatePlatformProjectRequest"
                         }
                     }
                 ],
@@ -391,7 +508,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -428,101 +557,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
-                    }
-                }
-            }
-        },
-        "/v1/platform/{id}/project/{project_id}/hook": {
-            "put": {
-                "description": "update platform webhook",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Platform"
-                ],
-                "summary": "update platform webhook",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Platform ID or Name",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     },
-                    {
-                        "type": "string",
-                        "description": "Platform Project ID",
-                        "name": "project_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Request body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
+                    "400": {
+                        "description": "Incorrect request parameters",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdatePlatformWebhookRequest"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/platform/{id}/project/{project_id}/hook/{hook_name}": {
-            "delete": {
-                "description": "delete platform webhook",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Platform"
-                ],
-                "summary": "delete platform webhook",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Platform ID or Name",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     },
-                    {
-                        "type": "string",
-                        "description": "Platform Project ID",
-                        "name": "project_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Webhook Name",
-                        "name": "hook_name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -556,8 +603,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.PlatformProviderProject"
+                                "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProviderProject"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -589,7 +648,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.PlatformDetailView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response"
                         }
                     }
                 }
@@ -614,8 +685,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.ProjectView"
+                                "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectView"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
                         }
                     }
                 }
@@ -639,15 +722,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreateProjectRequest"
+                            "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.CreateProjectRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ProjectView"
+                            "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.CreateProjectResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
                         }
                     }
                 }
@@ -679,7 +774,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ProjectView"
+                            "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectView"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
                         }
                     }
                 }
@@ -710,15 +817,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdateProjectRequest"
+                            "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.UpdateProjectRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ProjectView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
                         }
                     }
                 }
@@ -753,16 +872,28 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.UpdateProjectDesignRequest"
+                                "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.UpdateProjectDesignRequest"
                             }
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ProjectView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
                         }
                     }
                 }
@@ -797,16 +928,28 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.UpdateProjectPlatformRequest"
+                                "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.UpdateProjectPlatformRequest"
                             }
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ProjectView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response"
                         }
                     }
                 }
@@ -831,7 +974,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.ResourceView"
+                                "$ref": "#/definitions/github_com_futugyou_resourcequeryservice_viewmodel.ResourceView"
                             }
                         }
                     }
@@ -856,15 +999,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreateResourceRequest"
+                            "$ref": "#/definitions/github_com_futugyou_resourceservice_viewmodel.CreateResourceRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreateResourceResponse"
+                            "$ref": "#/definitions/github_com_futugyou_resourceservice_viewmodel.CreateResourceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
                         }
                     }
                 }
@@ -896,7 +1051,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ResourceView"
+                            "$ref": "#/definitions/github_com_futugyou_resourcequeryservice_viewmodel.ResourceView"
                         }
                     }
                 }
@@ -927,15 +1082,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.UpdateResourceRequest"
+                            "$ref": "#/definitions/github_com_futugyou_resourceservice_viewmodel.UpdateResourceRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Successfully",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
                         }
                     }
                 }
@@ -963,9 +1130,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Successfully",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
                         }
                     }
                 }
@@ -995,394 +1174,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.ResourceView"
+                                "$ref": "#/definitions/github_com_futugyou_resourceservice_viewmodel.ResourceView"
                             }
                         }
-                    }
-                }
-            }
-        },
-        "/v1/test/circleci": {
-            "get": {
-                "description": "circle CI",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "circle CI",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/circleci/project": {
-            "get": {
-                "description": "circle CI project",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "circle CI project",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "org_slug",
-                        "name": "org_slug",
-                        "in": "query",
-                        "required": true
                     },
-                    {
-                        "type": "string",
-                        "description": "name",
-                        "name": "name",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                    "400": {
+                        "description": "Incorrect request parameters",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
                         }
-                    }
-                }
-            }
-        },
-        "/v1/test/circleci/projects": {
-            "get": {
-                "description": "circle CI project List",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "circle CI project List",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/cqrstest": {
-            "get": {
-                "description": "cqrstest",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "cqrstest",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/ping": {
-            "get": {
-                "description": "ping",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "ping",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/redis": {
-            "get": {
-                "description": "redis",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "redis",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/redishash": {
-            "get": {
-                "description": "redis hash",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "redis hash",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/tf": {
-            "get": {
-                "description": "terraform",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "terraform",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/vault": {
-            "get": {
-                "description": "vault",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "vault",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/v1/test/vercel": {
-            "get": {
-                "description": "vercel",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "vercel",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/webhook": {
-            "get": {
-                "description": "webhook",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "webhook",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/webhooklog": {
-            "get": {
-                "description": "webhook get",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "webhook get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "source",
-                        "name": "source",
-                        "in": "query"
                     },
-                    {
-                        "type": "string",
-                        "description": "event_type",
-                        "name": "event_type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "provider_platform_id",
-                        "name": "provider_platform_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "provider_project_id",
-                        "name": "provider_project_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "provider_webhook_id",
-                        "name": "provider_webhook_id",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.WebhookLogs"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/test/workflow": {
-            "get": {
-                "description": "workflow",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test"
-                ],
-                "summary": "workflow",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "github owner",
-                        "name": "owner",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "github repository",
-                        "name": "repo",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response"
                         }
                     }
                 }
@@ -1453,12 +1262,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/viewmodels.VaultView"
+                                "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.VaultView"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
@@ -1482,15 +1303,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreateVaultRequest"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.VaultView"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
@@ -1516,15 +1349,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreateVaultsRequest"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultsRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.CreateVaultsResponse"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
@@ -1557,15 +1402,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.ChangeVaultRequest"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.ChangeVaultRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/viewmodels.VaultView"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
@@ -1593,9 +1450,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
-                            "type": "boolean"
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
@@ -1625,17 +1494,29 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successfully",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
                         }
                     }
                 }
             }
         },
-        "/v2/platform": {
+        "/v1/vaults/by_ids": {
             "post": {
-                "description": "create platform v2",
+                "description": "get vaults by ids",
                 "consumes": [
                     "application/json"
                 ],
@@ -1643,9 +1524,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Platform v2"
+                    "Vault"
                 ],
-                "summary": "create platform v2",
+                "summary": "get vaults by ids",
                 "parameters": [
                     {
                         "description": "Request body",
@@ -1653,143 +1534,86 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/command.CreatePlatformCommand"
+                            "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.SearchVaultsByIDsRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "Successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.SimpleVaultView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "command.CreatePlatformCommand": {
-            "type": "object",
-            "required": [
-                "name",
-                "rest",
-                "url"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/command.Property"
-                    }
-                },
-                "rest": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "secrets": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/command.Property"
-                    }
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "url": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                }
-            }
-        },
-        "command.Property": {
+        "github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response": {
             "type": "object",
             "properties": {
-                "key": {
-                    "type": "string"
+                "code": {
+                    "type": "integer"
                 },
-                "value": {
+                "data": {},
+                "message": {
                     "type": "string"
                 }
             }
         },
-        "viewmodels.ChangeVaultItem": {
+        "github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 250,
-                    "minLength": 3
+                "code": {
+                    "type": "integer"
                 },
-                "extension": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "key": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "storage_media": {
-                    "type": "string",
-                    "enum": [
-                        "Local",
-                        "AWS",
-                        "HCP",
-                        "AzureVault"
-                    ]
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type_identity": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "value": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "vault_type": {
-                    "type": "string",
-                    "enum": [
-                        "system",
-                        "common",
-                        "project",
-                        "resource",
-                        "platform",
-                        "platform_project",
-                        "platform_webhook"
-                    ]
+                "data": {},
+                "message": {
+                    "type": "string"
                 }
             }
         },
-        "viewmodels.ChangeVaultRequest": {
+        "github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response": {
             "type": "object",
             "properties": {
-                "force_insert": {
-                    "type": "boolean"
+                "code": {
+                    "type": "integer"
                 },
-                "vault_data": {
-                    "$ref": "#/definitions/viewmodels.ChangeVaultItem"
+                "data": {},
+                "message": {
+                    "type": "string"
                 }
             }
         },
-        "viewmodels.CreatePlatformRequest": {
+        "github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.CreatePlatformRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -1807,7 +1631,7 @@ const docTemplate = `{
                 "properties": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
                     }
                 },
                 "provider": {
@@ -1823,7 +1647,7 @@ const docTemplate = `{
                     "description": "only Key and VaultId in request",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Secret"
                     }
                 },
                 "tags": {
@@ -1839,7 +1663,495 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.CreateProjectRequest": {
+        "github_com_futugyou_platformservice_viewmodel.Deployment": {
+            "type": "object",
+            "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "environment": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "readyState": {
+                    "type": "string"
+                },
+                "readySubstate": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.EnvironmentVariable": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.ImportProjectsRequest": {
+            "type": "object",
+            "properties": {
+                "platform_id": {
+                    "type": "string"
+                },
+                "project_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.PlatformDetailView": {
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProject"
+                    }
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
+                    }
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Secret"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.PlatformProject": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "followed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
+                    }
+                },
+                "provider_project": {
+                    "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProviderProject"
+                },
+                "provider_project_id": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Secret"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                },
+                "webhook": {
+                    "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Webhook"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.PlatformProviderProject": {
+            "type": "object",
+            "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
+                "deployments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Deployment"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "environment_variables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.EnvironmentVariable"
+                    }
+                },
+                "environments": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
+                    }
+                },
+                "readme": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                },
+                "webhook": {
+                    "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Webhook"
+                },
+                "workflow_runs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.WorkflowRun"
+                    }
+                },
+                "workflows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Workflow"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.PlatformView": {
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.Property": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.Secret": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "description": "vault aliases",
+                    "type": "string"
+                },
+                "mask_value": {
+                    "type": "string"
+                },
+                "vault_id": {
+                    "type": "string"
+                },
+                "vault_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.UpdatePlatformProjectRequest": {
+            "type": "object",
+            "required": [
+                "description",
+                "name",
+                "properties",
+                "secrets",
+                "url"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 3
+                },
+                "import_webhooks": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "operate": {
+                    "type": "string",
+                    "enum": [
+                        "upsert",
+                        "sync"
+                    ]
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
+                    }
+                },
+                "provider_project_id": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "description": "only Key and VaultId in request",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Secret"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.UpdatePlatformRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "properties",
+                "secrets",
+                "tags",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
+                    }
+                },
+                "provider": {
+                    "type": "string",
+                    "enum": [
+                        "vercel",
+                        "github",
+                        "circleci",
+                        "other"
+                    ]
+                },
+                "secrets": {
+                    "description": "only Key and VaultId in request",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Secret"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "url": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.Webhook": {
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "followed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Property"
+                    }
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_platformservice_viewmodel.Secret"
+                    }
+                },
+                "state": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.Workflow": {
+            "type": "object",
+            "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_platformservice_viewmodel.WorkflowRun": {
+            "type": "object",
+            "properties": {
+                "badge_markdown": {
+                    "type": "string"
+                },
+                "badge_url": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_projectservice_viewmodel.CreateProjectRequest": {
             "type": "object",
             "required": [
                 "description",
@@ -1878,43 +2190,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.CreateResourceRequest": {
-            "type": "object",
-            "required": [
-                "data",
-                "name"
-            ],
-            "properties": {
-                "data": {
-                    "type": "string",
-                    "minLength": 3
-                },
-                "imageData": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "DrawIO",
-                        "Markdown",
-                        "Excalidraw",
-                        "Plate"
-                    ]
-                }
-            }
-        },
-        "viewmodels.CreateResourceResponse": {
+        "github_com_futugyou_projectservice_viewmodel.CreateProjectResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1922,457 +2198,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.CreateVaultModel": {
-            "type": "object",
-            "required": [
-                "key",
-                "value"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "extension": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "key": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "storage_media": {
-                    "type": "string",
-                    "enum": [
-                        "Local",
-                        "AWS",
-                        "HCP",
-                        "AzureVault"
-                    ]
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type_identity": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "value": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "vault_type": {
-                    "type": "string",
-                    "enum": [
-                        "system",
-                        "common",
-                        "project",
-                        "resource",
-                        "platform",
-                        "platform_project",
-                        "platform_webhook"
-                    ]
-                }
-            }
-        },
-        "viewmodels.CreateVaultRequest": {
-            "type": "object",
-            "required": [
-                "key",
-                "value"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "extension": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "force_insert": {
-                    "type": "boolean"
-                },
-                "key": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "storage_media": {
-                    "type": "string",
-                    "enum": [
-                        "Local",
-                        "AWS",
-                        "HCP",
-                        "AzureVault"
-                    ]
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type_identity": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "value": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "vault_type": {
-                    "type": "string",
-                    "enum": [
-                        "system",
-                        "common",
-                        "project",
-                        "resource",
-                        "platform",
-                        "platform_project",
-                        "platform_webhook"
-                    ]
-                }
-            }
-        },
-        "viewmodels.CreateVaultsRequest": {
-            "type": "object",
-            "required": [
-                "vaults"
-            ],
-            "properties": {
-                "force_insert": {
-                    "type": "boolean"
-                },
-                "vaults": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.CreateVaultModel"
-                    }
-                }
-            }
-        },
-        "viewmodels.CreateVaultsResponse": {
-            "type": "object",
-            "properties": {
-                "vaults": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.VaultView"
-                    }
-                }
-            }
-        },
-        "viewmodels.Deployment": {
-            "type": "object",
-            "properties": {
-                "badge_markdown": {
-                    "type": "string"
-                },
-                "badge_url": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "environment": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "readyState": {
-                    "type": "string"
-                },
-                "readySubstate": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.EnvironmentVariable": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.ImportVaultsRequest": {
-            "type": "object",
-            "properties": {
-                "storage_media": {
-                    "type": "string",
-                    "enum": [
-                        "AWS",
-                        "HCP",
-                        "AzureVault"
-                    ]
-                },
-                "type_identity": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                },
-                "vault_type": {
-                    "type": "string",
-                    "enum": [
-                        "system",
-                        "common",
-                        "project",
-                        "resource",
-                        "platform",
-                        "platform_project",
-                        "platform_webhook"
-                    ]
-                }
-            }
-        },
-        "viewmodels.ImportVaultsResponse": {
-            "type": "object",
-            "properties": {
-                "vaults": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.VaultView"
-                    }
-                }
-            }
-        },
-        "viewmodels.PlatformDetailView": {
-            "type": "object",
-            "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "projects": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.PlatformProject"
-                    }
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "secrets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
-                    }
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.PlatformProject": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "followed": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_data": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "image_url": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "provider_project": {
-                    "$ref": "#/definitions/viewmodels.PlatformProviderProject"
-                },
-                "provider_project_id": {
-                    "type": "string"
-                },
-                "secrets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
-                    }
-                },
-                "url": {
-                    "type": "string"
-                },
-                "webhooks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Webhook"
-                    }
-                }
-            }
-        },
-        "viewmodels.PlatformProviderProject": {
-            "type": "object",
-            "properties": {
-                "badge_markdown": {
-                    "type": "string"
-                },
-                "badge_url": {
-                    "type": "string"
-                },
-                "deployments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Deployment"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "environment_variables": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.EnvironmentVariable"
-                    }
-                },
-                "environments": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "readme": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "url": {
-                    "type": "string"
-                },
-                "webhooks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Webhook"
-                    }
-                },
-                "workflow_runs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.WorkflowRun"
-                    }
-                },
-                "workflows": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Workflow"
-                    }
-                }
-            }
-        },
-        "viewmodels.PlatformView": {
-            "type": "object",
-            "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.ProjectDesign": {
+        "github_com_futugyou_projectservice_viewmodel.ProjectDesign": {
             "type": "object",
             "properties": {
                 "description": {
@@ -2389,7 +2215,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.ProjectPlatform": {
+        "github_com_futugyou_projectservice_viewmodel.ProjectPlatform": {
             "type": "object",
             "properties": {
                 "description": {
@@ -2406,7 +2232,7 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.ProjectView": {
+        "github_com_futugyou_projectservice_viewmodel.ProjectView": {
             "type": "object",
             "properties": {
                 "description": {
@@ -2415,7 +2241,7 @@ const docTemplate = `{
                 "designs": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.ProjectDesign"
+                        "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectDesign"
                     }
                 },
                 "end_time": {
@@ -2430,7 +2256,7 @@ const docTemplate = `{
                 "platforms": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/viewmodels.ProjectPlatform"
+                        "$ref": "#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectPlatform"
                     }
                 },
                 "start_time": {
@@ -2447,18 +2273,89 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.Property": {
+        "github_com_futugyou_projectservice_viewmodel.UpdateProjectDesignRequest": {
             "type": "object",
             "properties": {
-                "key": {
+                "description": {
                     "type": "string"
                 },
-                "value": {
+                "name": {
                     "type": "string"
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_version": {
+                    "type": "integer"
                 }
             }
         },
-        "viewmodels.ResourceView": {
+        "github_com_futugyou_projectservice_viewmodel.UpdateProjectPlatformRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "platform_id",
+                "project_id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 3
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "platform_id": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "project_id": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
+        "github_com_futugyou_projectservice_viewmodel.UpdateProjectRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "minLength": 3
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string",
+                    "enum": [
+                        "preparing",
+                        "processing",
+                        "finished"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_resourcequeryservice_viewmodel.ResourceView": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -2496,69 +2393,24 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.Secret": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "description": "vault aliases",
-                    "type": "string"
-                },
-                "mask_value": {
-                    "type": "string"
-                },
-                "vault_id": {
-                    "type": "string"
-                },
-                "vault_key": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.UpdatePlatformProjectRequest": {
+        "github_com_futugyou_resourceservice_viewmodel.CreateResourceRequest": {
             "type": "object",
             "required": [
-                "description",
-                "name",
-                "properties",
-                "secrets",
-                "url"
+                "data",
+                "name"
             ],
             "properties": {
-                "description": {
+                "data": {
                     "type": "string",
-                    "maxLength": 250,
                     "minLength": 3
                 },
-                "import_webhooks": {
-                    "type": "boolean"
+                "imageData": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 3
-                },
-                "operate": {
-                    "type": "string",
-                    "enum": [
-                        "upsert",
-                        "sync"
-                    ]
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "provider_project_id": {
-                    "type": "string"
-                },
-                "secrets": {
-                    "description": "only Key and VaultId in request",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
-                    }
                 },
                 "tags": {
                     "type": "array",
@@ -2566,49 +2418,45 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "url": {
+                "type": {
                     "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
+                    "enum": [
+                        "DrawIO",
+                        "Markdown",
+                        "Excalidraw",
+                        "Plate"
+                    ]
                 }
             }
         },
-        "viewmodels.UpdatePlatformRequest": {
+        "github_com_futugyou_resourceservice_viewmodel.CreateResourceResponse": {
             "type": "object",
-            "required": [
-                "name",
-                "properties",
-                "secrets",
-                "tags",
-                "url"
-            ],
             "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_resourceservice_viewmodel.ResourceView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageData": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
                 "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "provider": {
-                    "type": "string",
-                    "enum": [
-                        "vercel",
-                        "github",
-                        "circleci",
-                        "other"
-                    ]
-                },
-                "secrets": {
-                    "description": "only Key and VaultId in request",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
-                    }
+                    "type": "string"
                 },
                 "tags": {
                     "type": "array",
@@ -2616,138 +2464,18 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "url": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 3
-                }
-            }
-        },
-        "viewmodels.UpdatePlatformWebhookRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "properties",
-                "secrets"
-            ],
-            "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "secrets": {
-                    "description": "only Key and VaultId in request",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
-                    }
-                },
-                "state": {
-                    "type": "string",
-                    "enum": [
-                        "Init",
-                        "Creating",
-                        "Ready"
-                    ]
-                },
-                "sync": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "viewmodels.UpdateProjectDesignRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
+                "type": {
                     "type": "string"
                 },
-                "name": {
+                "updated_at": {
                     "type": "string"
                 },
-                "resource_id": {
-                    "type": "string"
-                },
-                "resource_version": {
+                "version": {
                     "type": "integer"
                 }
             }
         },
-        "viewmodels.UpdateProjectPlatformRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "platform_id",
-                "project_id"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 3
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "platform_id": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "project_id": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                }
-            }
-        },
-        "viewmodels.UpdateProjectRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "minLength": 3
-                },
-                "end_time": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
-                },
-                "start_time": {
-                    "type": "string"
-                },
-                "state": {
-                    "type": "string",
-                    "enum": [
-                        "preparing",
-                        "processing",
-                        "finished"
-                    ]
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "viewmodels.UpdateResourceRequest": {
+        "github_com_futugyou_resourceservice_viewmodel.UpdateResourceRequest": {
             "type": "object",
             "required": [
                 "data",
@@ -2774,7 +2502,307 @@ const docTemplate = `{
                 }
             }
         },
-        "viewmodels.VaultView": {
+        "github_com_futugyou_vaultservice_viewmodel.ChangeVaultItem": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 250,
+                    "minLength": 3
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "key": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "Local",
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
+                    ]
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.ChangeVaultRequest": {
+            "type": "object",
+            "properties": {
+                "force_insert": {
+                    "type": "boolean"
+                },
+                "vault_data": {
+                    "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.ChangeVaultItem"
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.CreateVaultModel": {
+            "type": "object",
+            "required": [
+                "key",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "key": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "Local",
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
+                    ]
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.CreateVaultRequest": {
+            "type": "object",
+            "required": [
+                "key",
+                "value"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "extension": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "force_insert": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "Local",
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
+                    ]
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.CreateVaultResponse": {
+            "type": "object",
+            "properties": {
+                "vault_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.CreateVaultsRequest": {
+            "type": "object",
+            "required": [
+                "vaults"
+            ],
+            "properties": {
+                "force_insert": {
+                    "type": "boolean"
+                },
+                "vaults": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultModel"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.CreateVaultsResponse": {
+            "type": "object",
+            "properties": {
+                "vault_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.ImportVaultsRequest": {
+            "type": "object",
+            "properties": {
+                "storage_media": {
+                    "type": "string",
+                    "enum": [
+                        "AWS",
+                        "HCP",
+                        "AzureVault"
+                    ]
+                },
+                "type_identity": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3
+                },
+                "vault_type": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "common",
+                        "project",
+                        "resource",
+                        "platform",
+                        "platform_project",
+                        "platform_webhook"
+                    ]
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.ImportVaultsResponse": {
+            "type": "object",
+            "properties": {
+                "vault_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.SearchVaultsByIDsRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.SimpleVaultView": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "type_identity": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "vault_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_futugyou_vaultservice_viewmodel.VaultView": {
             "type": "object",
             "properties": {
                 "description": {
@@ -2808,122 +2836,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "vault_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.Webhook": {
-            "type": "object",
-            "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
-                "events": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "followed": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "properties": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Property"
-                    }
-                },
-                "secrets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/viewmodels.Secret"
-                    }
-                },
-                "state": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.WebhookLogs": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "string"
-                },
-                "event_type": {
-                    "type": "string"
-                },
-                "happened_at": {
-                    "type": "string"
-                },
-                "provider_platform_id": {
-                    "type": "string"
-                },
-                "provider_project_id": {
-                    "type": "string"
-                },
-                "provider_webhook_id": {
-                    "type": "string"
-                },
-                "source": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.Workflow": {
-            "type": "object",
-            "properties": {
-                "badge_markdown": {
-                    "type": "string"
-                },
-                "badge_url": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "viewmodels.WorkflowRun": {
-            "type": "object",
-            "properties": {
-                "badge_markdown": {
-                    "type": "string"
-                },
-                "badge_url": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
                     "type": "string"
                 }
             }

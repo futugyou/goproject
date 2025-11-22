@@ -1,94 +1,37 @@
 definitions:
-  command.CreatePlatformCommand:
+  github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response:
     properties:
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      properties:
-        additionalProperties:
-          $ref: '#/definitions/command.Property'
-        type: object
-      rest:
-        maxLength: 50
-        minLength: 3
-        type: string
-      secrets:
-        additionalProperties:
-          $ref: '#/definitions/command.Property'
-        type: object
-      tags:
-        items:
-          type: string
-        type: array
-      url:
-        maxLength: 50
-        minLength: 3
-        type: string
-    required:
-    - name
-    - rest
-    - url
-    type: object
-  command.Property:
-    properties:
-      key:
-        type: string
-      value:
+      code:
+        type: integer
+      data: {}
+      message:
         type: string
     type: object
-  viewmodels.ChangeVaultItem:
+  github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response:
     properties:
-      description:
-        maxLength: 250
-        minLength: 3
-        type: string
-      extension:
-        additionalProperties:
-          type: string
-        type: object
-      key:
-        maxLength: 150
-        minLength: 3
-        type: string
-      storage_media:
-        enum:
-        - Local
-        - AWS
-        - HCP
-        - AzureVault
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      type_identity:
-        maxLength: 150
-        minLength: 3
-        type: string
-      value:
-        maxLength: 150
-        minLength: 3
-        type: string
-      vault_type:
-        enum:
-        - system
-        - common
-        - project
-        - resource
-        - platform
-        - platform_project
-        - platform_webhook
+      code:
+        type: integer
+      data: {}
+      message:
         type: string
     type: object
-  viewmodels.ChangeVaultRequest:
+  github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response:
     properties:
-      force_insert:
-        type: boolean
-      vault_data:
-        $ref: '#/definitions/viewmodels.ChangeVaultItem'
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
     type: object
-  viewmodels.CreatePlatformRequest:
+  github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.CreatePlatformRequest:
     properties:
       name:
         maxLength: 50
@@ -96,7 +39,7 @@ definitions:
         type: string
       properties:
         items:
-          $ref: '#/definitions/viewmodels.Property'
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
         type: array
       provider:
         enum:
@@ -108,7 +51,7 @@ definitions:
       secrets:
         description: only Key and VaultId in request
         items:
-          $ref: '#/definitions/viewmodels.Secret'
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Secret'
         type: array
       tags:
         items:
@@ -125,7 +68,336 @@ definitions:
     - tags
     - url
     type: object
-  viewmodels.CreateProjectRequest:
+  github_com_futugyou_platformservice_viewmodel.Deployment:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      environment:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      readyState:
+        type: string
+      readySubstate:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.EnvironmentVariable:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.ImportProjectsRequest:
+    properties:
+      platform_id:
+        type: string
+      project_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_futugyou_platformservice_viewmodel.PlatformDetailView:
+    properties:
+      activate:
+        type: boolean
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProject'
+        type: array
+      properties:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
+        type: array
+      provider:
+        type: string
+      secrets:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.PlatformProject:
+    properties:
+      description:
+        type: string
+      followed:
+        type: boolean
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
+        type: array
+      provider_project:
+        $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProviderProject'
+      provider_project_id:
+        type: string
+      secrets:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Secret'
+        type: array
+      url:
+        type: string
+      webhook:
+        $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Webhook'
+    type: object
+  github_com_futugyou_platformservice_viewmodel.PlatformProviderProject:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      deployments:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Deployment'
+        type: array
+      description:
+        type: string
+      environment_variables:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.EnvironmentVariable'
+        type: array
+      environments:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
+        type: array
+      readme:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+      webhook:
+        $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Webhook'
+      workflow_runs:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.WorkflowRun'
+        type: array
+      workflows:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Workflow'
+        type: array
+    type: object
+  github_com_futugyou_platformservice_viewmodel.PlatformView:
+    properties:
+      activate:
+        type: boolean
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      provider:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.Property:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.Secret:
+    properties:
+      key:
+        description: vault aliases
+        type: string
+      mask_value:
+        type: string
+      vault_id:
+        type: string
+      vault_key:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.UpdatePlatformProjectRequest:
+    properties:
+      description:
+        maxLength: 250
+        minLength: 3
+        type: string
+      import_webhooks:
+        type: boolean
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      operate:
+        enum:
+        - upsert
+        - sync
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
+        type: array
+      provider_project_id:
+        type: string
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        maxLength: 150
+        minLength: 3
+        type: string
+    required:
+    - description
+    - name
+    - properties
+    - secrets
+    - url
+    type: object
+  github_com_futugyou_platformservice_viewmodel.UpdatePlatformRequest:
+    properties:
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
+        type: array
+      provider:
+        enum:
+        - vercel
+        - github
+        - circleci
+        - other
+        type: string
+      secrets:
+        description: only Key and VaultId in request
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Secret'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      url:
+        maxLength: 150
+        minLength: 3
+        type: string
+    required:
+    - name
+    - properties
+    - secrets
+    - tags
+    - url
+    type: object
+  github_com_futugyou_platformservice_viewmodel.Webhook:
+    properties:
+      activate:
+        type: boolean
+      events:
+        items:
+          type: string
+        type: array
+      followed:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+      properties:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Property'
+        type: array
+      secrets:
+        items:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.Secret'
+        type: array
+      state:
+        type: string
+      url:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.Workflow:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_futugyou_platformservice_viewmodel.WorkflowRun:
+    properties:
+      badge_markdown:
+        type: string
+      badge_url:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_futugyou_projectservice_viewmodel.CreateProjectRequest:
     properties:
       description:
         maxLength: 500
@@ -153,7 +425,145 @@ definitions:
     - description
     - name
     type: object
-  viewmodels.CreateResourceRequest:
+  github_com_futugyou_projectservice_viewmodel.CreateProjectResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  github_com_futugyou_projectservice_viewmodel.ProjectDesign:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      resource_id:
+        type: string
+      resource_version:
+        type: integer
+    type: object
+  github_com_futugyou_projectservice_viewmodel.ProjectPlatform:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      platform_id:
+        type: string
+      project_id:
+        type: string
+    type: object
+  github_com_futugyou_projectservice_viewmodel.ProjectView:
+    properties:
+      description:
+        type: string
+      designs:
+        items:
+          $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectDesign'
+        type: array
+      end_time:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      platforms:
+        items:
+          $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectPlatform'
+        type: array
+      start_time:
+        type: string
+      state:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_futugyou_projectservice_viewmodel.UpdateProjectDesignRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      resource_id:
+        type: string
+      resource_version:
+        type: integer
+    type: object
+  github_com_futugyou_projectservice_viewmodel.UpdateProjectPlatformRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      platform_id:
+        maxLength: 50
+        minLength: 3
+        type: string
+      project_id:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - name
+    - platform_id
+    - project_id
+    type: object
+  github_com_futugyou_projectservice_viewmodel.UpdateProjectRequest:
+    properties:
+      description:
+        maxLength: 500
+        minLength: 3
+        type: string
+      end_time:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+      start_time:
+        type: string
+      state:
+        enum:
+        - preparing
+        - processing
+        - finished
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_futugyou_resourcequeryservice_viewmodel.ResourceView:
+    properties:
+      created_at:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      imageData:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  github_com_futugyou_resourceservice_viewmodel.CreateResourceRequest:
     properties:
       data:
         minLength: 3
@@ -179,378 +589,12 @@ definitions:
     - data
     - name
     type: object
-  viewmodels.CreateResourceResponse:
+  github_com_futugyou_resourceservice_viewmodel.CreateResourceResponse:
     properties:
       id:
         type: string
     type: object
-  viewmodels.CreateVaultModel:
-    properties:
-      description:
-        type: string
-      extension:
-        additionalProperties:
-          type: string
-        type: object
-      key:
-        maxLength: 150
-        minLength: 3
-        type: string
-      storage_media:
-        enum:
-        - Local
-        - AWS
-        - HCP
-        - AzureVault
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      type_identity:
-        maxLength: 150
-        minLength: 3
-        type: string
-      value:
-        maxLength: 150
-        minLength: 3
-        type: string
-      vault_type:
-        enum:
-        - system
-        - common
-        - project
-        - resource
-        - platform
-        - platform_project
-        - platform_webhook
-        type: string
-    required:
-    - key
-    - value
-    type: object
-  viewmodels.CreateVaultRequest:
-    properties:
-      description:
-        type: string
-      extension:
-        additionalProperties:
-          type: string
-        type: object
-      force_insert:
-        type: boolean
-      key:
-        maxLength: 150
-        minLength: 3
-        type: string
-      storage_media:
-        enum:
-        - Local
-        - AWS
-        - HCP
-        - AzureVault
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      type_identity:
-        maxLength: 150
-        minLength: 3
-        type: string
-      value:
-        maxLength: 150
-        minLength: 3
-        type: string
-      vault_type:
-        enum:
-        - system
-        - common
-        - project
-        - resource
-        - platform
-        - platform_project
-        - platform_webhook
-        type: string
-    required:
-    - key
-    - value
-    type: object
-  viewmodels.CreateVaultsRequest:
-    properties:
-      force_insert:
-        type: boolean
-      vaults:
-        items:
-          $ref: '#/definitions/viewmodels.CreateVaultModel'
-        type: array
-    required:
-    - vaults
-    type: object
-  viewmodels.CreateVaultsResponse:
-    properties:
-      vaults:
-        items:
-          $ref: '#/definitions/viewmodels.VaultView'
-        type: array
-    type: object
-  viewmodels.Deployment:
-    properties:
-      badge_markdown:
-        type: string
-      badge_url:
-        type: string
-      createdAt:
-        type: string
-      description:
-        type: string
-      environment:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      readyState:
-        type: string
-      readySubstate:
-        type: string
-    type: object
-  viewmodels.EnvironmentVariable:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: string
-      key:
-        type: string
-      type:
-        type: string
-      updatedAt:
-        type: string
-      value:
-        type: string
-    type: object
-  viewmodels.ImportVaultsRequest:
-    properties:
-      storage_media:
-        enum:
-        - AWS
-        - HCP
-        - AzureVault
-        type: string
-      type_identity:
-        maxLength: 150
-        minLength: 3
-        type: string
-      vault_type:
-        enum:
-        - system
-        - common
-        - project
-        - resource
-        - platform
-        - platform_project
-        - platform_webhook
-        type: string
-    type: object
-  viewmodels.ImportVaultsResponse:
-    properties:
-      vaults:
-        items:
-          $ref: '#/definitions/viewmodels.VaultView'
-        type: array
-    type: object
-  viewmodels.PlatformDetailView:
-    properties:
-      activate:
-        type: boolean
-      id:
-        type: string
-      is_deleted:
-        type: boolean
-      name:
-        type: string
-      projects:
-        items:
-          $ref: '#/definitions/viewmodels.PlatformProject'
-        type: array
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      provider:
-        type: string
-      secrets:
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      tags:
-        items:
-          type: string
-        type: array
-      url:
-        type: string
-    type: object
-  viewmodels.PlatformProject:
-    properties:
-      description:
-        type: string
-      followed:
-        type: boolean
-      id:
-        type: string
-      image_data:
-        items:
-          type: integer
-        type: array
-      image_url:
-        type: string
-      name:
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      provider_project:
-        $ref: '#/definitions/viewmodels.PlatformProviderProject'
-      provider_project_id:
-        type: string
-      secrets:
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      url:
-        type: string
-      webhooks:
-        items:
-          $ref: '#/definitions/viewmodels.Webhook'
-        type: array
-    type: object
-  viewmodels.PlatformProviderProject:
-    properties:
-      badge_markdown:
-        type: string
-      badge_url:
-        type: string
-      deployments:
-        items:
-          $ref: '#/definitions/viewmodels.Deployment'
-        type: array
-      description:
-        type: string
-      environment_variables:
-        items:
-          $ref: '#/definitions/viewmodels.EnvironmentVariable'
-        type: array
-      environments:
-        items:
-          type: string
-        type: array
-      id:
-        type: string
-      name:
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      readme:
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      url:
-        type: string
-      webhooks:
-        items:
-          $ref: '#/definitions/viewmodels.Webhook'
-        type: array
-      workflow_runs:
-        items:
-          $ref: '#/definitions/viewmodels.WorkflowRun'
-        type: array
-      workflows:
-        items:
-          $ref: '#/definitions/viewmodels.Workflow'
-        type: array
-    type: object
-  viewmodels.PlatformView:
-    properties:
-      activate:
-        type: boolean
-      id:
-        type: string
-      is_deleted:
-        type: boolean
-      name:
-        type: string
-      provider:
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      url:
-        type: string
-    type: object
-  viewmodels.ProjectDesign:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      resource_id:
-        type: string
-      resource_version:
-        type: integer
-    type: object
-  viewmodels.ProjectPlatform:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      platform_id:
-        type: string
-      project_id:
-        type: string
-    type: object
-  viewmodels.ProjectView:
-    properties:
-      description:
-        type: string
-      designs:
-        items:
-          $ref: '#/definitions/viewmodels.ProjectDesign'
-        type: array
-      end_time:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      platforms:
-        items:
-          $ref: '#/definitions/viewmodels.ProjectPlatform'
-        type: array
-      start_time:
-        type: string
-      state:
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-    type: object
-  viewmodels.Property:
-    properties:
-      key:
-        type: string
-      value:
-        type: string
-    type: object
-  viewmodels.ResourceView:
+  github_com_futugyou_resourceservice_viewmodel.ResourceView:
     properties:
       created_at:
         type: string
@@ -575,188 +619,7 @@ definitions:
       version:
         type: integer
     type: object
-  viewmodels.Secret:
-    properties:
-      key:
-        description: vault aliases
-        type: string
-      mask_value:
-        type: string
-      vault_id:
-        type: string
-      vault_key:
-        type: string
-    type: object
-  viewmodels.UpdatePlatformProjectRequest:
-    properties:
-      description:
-        maxLength: 250
-        minLength: 3
-        type: string
-      import_webhooks:
-        type: boolean
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      operate:
-        enum:
-        - upsert
-        - sync
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      provider_project_id:
-        type: string
-      secrets:
-        description: only Key and VaultId in request
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      tags:
-        items:
-          type: string
-        type: array
-      url:
-        maxLength: 150
-        minLength: 3
-        type: string
-    required:
-    - description
-    - name
-    - properties
-    - secrets
-    - url
-    type: object
-  viewmodels.UpdatePlatformRequest:
-    properties:
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      provider:
-        enum:
-        - vercel
-        - github
-        - circleci
-        - other
-        type: string
-      secrets:
-        description: only Key and VaultId in request
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      tags:
-        items:
-          type: string
-        type: array
-      url:
-        maxLength: 150
-        minLength: 3
-        type: string
-    required:
-    - name
-    - properties
-    - secrets
-    - tags
-    - url
-    type: object
-  viewmodels.UpdatePlatformWebhookRequest:
-    properties:
-      activate:
-        type: boolean
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      secrets:
-        description: only Key and VaultId in request
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      state:
-        enum:
-        - Init
-        - Creating
-        - Ready
-        type: string
-      sync:
-        type: boolean
-    required:
-    - name
-    - properties
-    - secrets
-    type: object
-  viewmodels.UpdateProjectDesignRequest:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      resource_id:
-        type: string
-      resource_version:
-        type: integer
-    type: object
-  viewmodels.UpdateProjectPlatformRequest:
-    properties:
-      description:
-        maxLength: 500
-        minLength: 3
-        type: string
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      platform_id:
-        maxLength: 50
-        minLength: 3
-        type: string
-      project_id:
-        maxLength: 50
-        minLength: 3
-        type: string
-    required:
-    - name
-    - platform_id
-    - project_id
-    type: object
-  viewmodels.UpdateProjectRequest:
-    properties:
-      description:
-        maxLength: 500
-        minLength: 3
-        type: string
-      end_time:
-        type: string
-      name:
-        maxLength: 50
-        minLength: 3
-        type: string
-      start_time:
-        type: string
-      state:
-        enum:
-        - preparing
-        - processing
-        - finished
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-    type: object
-  viewmodels.UpdateResourceRequest:
+  github_com_futugyou_resourceservice_viewmodel.UpdateResourceRequest:
     properties:
       data:
         minLength: 3
@@ -775,7 +638,223 @@ definitions:
     - data
     - name
     type: object
-  viewmodels.VaultView:
+  github_com_futugyou_vaultservice_viewmodel.ChangeVaultItem:
+    properties:
+      description:
+        maxLength: 250
+        minLength: 3
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.ChangeVaultRequest:
+    properties:
+      force_insert:
+        type: boolean
+      vault_data:
+        $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.ChangeVaultItem'
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.CreateVaultModel:
+    properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    required:
+    - key
+    - value
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.CreateVaultRequest:
+    properties:
+      description:
+        type: string
+      extension:
+        additionalProperties:
+          type: string
+        type: object
+      force_insert:
+        type: boolean
+      key:
+        maxLength: 150
+        minLength: 3
+        type: string
+      storage_media:
+        enum:
+        - Local
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      value:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    required:
+    - key
+    - value
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.CreateVaultResponse:
+    properties:
+      vault_id:
+        type: string
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.CreateVaultsRequest:
+    properties:
+      force_insert:
+        type: boolean
+      vaults:
+        items:
+          $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultModel'
+        type: array
+    required:
+    - vaults
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.CreateVaultsResponse:
+    properties:
+      vault_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.ImportVaultsRequest:
+    properties:
+      storage_media:
+        enum:
+        - AWS
+        - HCP
+        - AzureVault
+        type: string
+      type_identity:
+        maxLength: 150
+        minLength: 3
+        type: string
+      vault_type:
+        enum:
+        - system
+        - common
+        - project
+        - resource
+        - platform
+        - platform_project
+        - platform_webhook
+        type: string
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.ImportVaultsResponse:
+    properties:
+      vault_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.SearchVaultsByIDsRequest:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.SimpleVaultView:
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+      type_identity:
+        type: string
+      value:
+        type: string
+      vault_type:
+        type: string
+    type: object
+  github_com_futugyou_vaultservice_viewmodel.VaultView:
     properties:
       description:
         type: string
@@ -800,82 +879,6 @@ definitions:
       vault_type:
         type: string
     type: object
-  viewmodels.Webhook:
-    properties:
-      activate:
-        type: boolean
-      events:
-        items:
-          type: string
-        type: array
-      followed:
-        type: boolean
-      id:
-        type: string
-      name:
-        type: string
-      properties:
-        items:
-          $ref: '#/definitions/viewmodels.Property'
-        type: array
-      secrets:
-        items:
-          $ref: '#/definitions/viewmodels.Secret'
-        type: array
-      state:
-        type: string
-      url:
-        type: string
-    type: object
-  viewmodels.WebhookLogs:
-    properties:
-      data:
-        type: string
-      event_type:
-        type: string
-      happened_at:
-        type: string
-      provider_platform_id:
-        type: string
-      provider_project_id:
-        type: string
-      provider_webhook_id:
-        type: string
-      source:
-        type: string
-    type: object
-  viewmodels.Workflow:
-    properties:
-      badge_markdown:
-        type: string
-      badge_url:
-        type: string
-      createdAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      status:
-        type: string
-    type: object
-  viewmodels.WorkflowRun:
-    properties:
-      badge_markdown:
-        type: string
-      badge_url:
-        type: string
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      status:
-        type: string
-    type: object
 info:
   contact: {}
 paths:
@@ -890,14 +893,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.ImportVaultsRequest'
+          $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.ImportVaultsRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.ImportVaultsResponse'
+            $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.ImportVaultsResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: import vault from provider
       tags:
       - Vault
@@ -939,8 +950,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/viewmodels.PlatformView'
+              $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: search platforms
       tags:
       - Platform
@@ -954,14 +973,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreatePlatformRequest'
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.CreatePlatformRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: create platform
       tags:
       - Platform
@@ -982,7 +1009,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: delete platform
       tags:
       - Platform
@@ -1002,7 +1037,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformDetailView'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: get platform by id or name
       tags:
       - Platform
@@ -1021,14 +1064,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.UpdatePlatformRequest'
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.UpdatePlatformRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: update platform
       tags:
       - Platform
@@ -1038,14 +1089,27 @@ paths:
       - application/json
       description: import platform provider projects by id or name
       parameters:
-      - description: Platform ID or Name
-        in: path
-        name: id
+      - description: Request body
+        in: body
+        name: request
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.ImportProjectsRequest'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: import platform provider projects by id or name
       tags:
       - Platform
@@ -1065,14 +1129,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.UpdatePlatformProjectRequest'
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.UpdatePlatformProjectRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: create platform project
       tags:
       - Platform
@@ -1098,7 +1170,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: delete platform project
       tags:
       - Platform
@@ -1123,7 +1203,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformProject'
+            $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProject'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: get platform project by id
       tags:
       - Platform
@@ -1147,78 +1235,23 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.UpdatePlatformProjectRequest'
+          $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.UpdatePlatformProjectRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: update platform project
-      tags:
-      - Platform
-  /v1/platform/{id}/project/{project_id}/hook:
-    put:
-      consumes:
-      - application/json
-      description: update platform webhook
-      parameters:
-      - description: Platform ID or Name
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Platform Project ID
-        in: path
-        name: project_id
-        required: true
-        type: string
-      - description: Request body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/viewmodels.UpdatePlatformWebhookRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
-      summary: update platform webhook
-      tags:
-      - Platform
-  /v1/platform/{id}/project/{project_id}/hook/{hook_name}:
-    delete:
-      consumes:
-      - application/json
-      description: delete platform webhook
-      parameters:
-      - description: Platform ID or Name
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Platform Project ID
-        in: path
-        name: project_id
-        required: true
-        type: string
-      - description: Webhook Name
-        in: path
-        name: hook_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
-      summary: delete platform webhook
       tags:
       - Platform
   /v1/platform/{id}/provider_projects:
@@ -1239,8 +1272,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/viewmodels.PlatformProviderProject'
+              $ref: '#/definitions/github_com_futugyou_platformservice_viewmodel.PlatformProviderProject'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: get platform provider project list by id or name
       tags:
       - Platform
@@ -1261,7 +1302,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.PlatformDetailView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_platformservice_routes_v1.Response'
       summary: recovery platform
       tags:
       - Platform
@@ -1277,8 +1326,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/viewmodels.ProjectView'
+              $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
       summary: get all project
       tags:
       - Project
@@ -1292,14 +1349,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreateProjectRequest'
+          $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.CreateProjectRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.ProjectView'
+            $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.CreateProjectResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
       summary: create project
       tags:
       - Project
@@ -1320,7 +1385,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.ProjectView'
+            $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.ProjectView'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
       summary: get project
       tags:
       - Project
@@ -1339,14 +1412,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.UpdateProjectRequest'
+          $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.UpdateProjectRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.ProjectView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
       summary: update project
       tags:
       - Project
@@ -1367,15 +1448,23 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/viewmodels.UpdateProjectDesignRequest'
+            $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.UpdateProjectDesignRequest'
           type: array
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.ProjectView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
       summary: update project design
       tags:
       - Project
@@ -1396,15 +1485,23 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/viewmodels.UpdateProjectPlatformRequest'
+            $ref: '#/definitions/github_com_futugyou_projectservice_viewmodel.UpdateProjectPlatformRequest'
           type: array
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.ProjectView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_projectservice_routes_v1.Response'
       summary: update project platform
       tags:
       - Project
@@ -1420,7 +1517,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/viewmodels.ResourceView'
+              $ref: '#/definitions/github_com_futugyou_resourcequeryservice_viewmodel.ResourceView'
             type: array
       summary: get all resources
       tags:
@@ -1435,14 +1532,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreateResourceRequest'
+          $ref: '#/definitions/github_com_futugyou_resourceservice_viewmodel.CreateResourceRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.CreateResourceResponse'
+            $ref: '#/definitions/github_com_futugyou_resourceservice_viewmodel.CreateResourceResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
       summary: create resource
       tags:
       - Resource
@@ -1461,9 +1566,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: Successfully
           schema:
-            type: string
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
       summary: delete resource
       tags:
       - Resource
@@ -1483,7 +1596,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/viewmodels.ResourceView'
+            $ref: '#/definitions/github_com_futugyou_resourcequeryservice_viewmodel.ResourceView'
       summary: get resource
       tags:
       - Resource
@@ -1502,14 +1615,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.UpdateResourceRequest'
+          $ref: '#/definitions/github_com_futugyou_resourceservice_viewmodel.UpdateResourceRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: ok
+          description: Successfully
           schema:
-            type: string
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
       summary: update resource
       tags:
       - Resource
@@ -1528,265 +1649,22 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             items:
-              $ref: '#/definitions/viewmodels.ResourceView'
+              $ref: '#/definitions/github_com_futugyou_resourceservice_viewmodel.ResourceView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_resourceservice_routes_v1.Response'
       summary: get resource change history
       tags:
       - Resource
-  /v1/test/circleci:
-    get:
-      consumes:
-      - application/json
-      description: circle CI
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: circle CI
-      tags:
-      - Test
-  /v1/test/circleci/project:
-    get:
-      consumes:
-      - application/json
-      description: circle CI project
-      parameters:
-      - description: org_slug
-        in: query
-        name: org_slug
-        required: true
-        type: string
-      - description: name
-        in: query
-        name: name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: circle CI project
-      tags:
-      - Test
-  /v1/test/circleci/projects:
-    get:
-      consumes:
-      - application/json
-      description: circle CI project List
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: circle CI project List
-      tags:
-      - Test
-  /v1/test/cqrstest:
-    get:
-      consumes:
-      - application/json
-      description: cqrstest
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: cqrstest
-      tags:
-      - Test
-  /v1/test/ping:
-    get:
-      consumes:
-      - application/json
-      description: ping
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: ping
-      tags:
-      - Test
-  /v1/test/redis:
-    get:
-      consumes:
-      - application/json
-      description: redis
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: redis
-      tags:
-      - Test
-  /v1/test/redishash:
-    get:
-      consumes:
-      - application/json
-      description: redis hash
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: redis hash
-      tags:
-      - Test
-  /v1/test/tf:
-    get:
-      consumes:
-      - application/json
-      description: terraform
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: terraform
-      tags:
-      - Test
-  /v1/test/vault:
-    get:
-      consumes:
-      - application/json
-      description: vault
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema: {}
-      summary: vault
-      tags:
-      - Test
-  /v1/test/vercel:
-    get:
-      consumes:
-      - application/json
-      description: vercel
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: vercel
-      tags:
-      - Test
-  /v1/test/webhook:
-    get:
-      consumes:
-      - application/json
-      description: webhook
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: webhook
-      tags:
-      - Test
-  /v1/test/webhooklog:
-    get:
-      consumes:
-      - application/json
-      description: webhook get
-      parameters:
-      - description: source
-        in: query
-        name: source
-        type: string
-      - description: event_type
-        in: query
-        name: event_type
-        type: string
-      - description: provider_platform_id
-        in: query
-        name: provider_platform_id
-        type: string
-      - description: provider_project_id
-        in: query
-        name: provider_project_id
-        type: string
-      - description: provider_webhook_id
-        in: query
-        name: provider_webhook_id
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/viewmodels.WebhookLogs'
-      summary: webhook get
-      tags:
-      - Test
-  /v1/test/workflow:
-    get:
-      consumes:
-      - application/json
-      description: workflow
-      parameters:
-      - description: github owner
-        in: query
-        name: owner
-        required: true
-        type: string
-      - description: github repository
-        in: query
-        name: repo
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: workflow
-      tags:
-      - Test
   /v1/vault:
     get:
       consumes:
@@ -1830,11 +1708,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             items:
-              $ref: '#/definitions/viewmodels.VaultView'
+              $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.VaultView'
             type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: get vault
       tags:
       - Vault
@@ -1848,14 +1734,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreateVaultRequest'
+          $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.VaultView'
+            $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: create vault
       tags:
       - Vault
@@ -1874,9 +1768,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            type: boolean
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: delete vault
       tags:
       - Vault
@@ -1895,14 +1797,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.ChangeVaultRequest'
+          $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.ChangeVaultRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.VaultView'
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: update vault
       tags:
       - Vault
@@ -1921,9 +1831,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
             type: string
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: show vault value
       tags:
       - Vault
@@ -1938,35 +1856,55 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/viewmodels.CreateVaultsRequest'
+          $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultsRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully
           schema:
-            $ref: '#/definitions/viewmodels.CreateVaultsResponse'
+            $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.CreateVaultsResponse'
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
       summary: batch create vault
       tags:
       - Vault
-  /v2/platform:
+  /v1/vaults/by_ids:
     post:
       consumes:
       - application/json
-      description: create platform v2
+      description: get vaults by ids
       parameters:
       - description: Request body
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/command.CreatePlatformCommand'
+          $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.SearchVaultsByIDsRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
-      summary: create platform v2
+          description: Successfully
+          schema:
+            items:
+              $ref: '#/definitions/github_com_futugyou_vaultservice_viewmodel.SimpleVaultView'
+            type: array
+        "400":
+          description: Incorrect request parameters
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_futugyou_infr-project_microservices_vaultservice_routes_v1.Response'
+      summary: get vaults by ids
       tags:
-      - Platform v2
+      - Vault
 swagger: "2.0"
