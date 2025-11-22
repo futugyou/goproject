@@ -3,7 +3,7 @@ package service
 import (
 	"time"
 
-	"github.com/futugyou/infr-project/domain"
+	"github.com/futugyou/domaincore/domain"
 )
 
 type Service struct {

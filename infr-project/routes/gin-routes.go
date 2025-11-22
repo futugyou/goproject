@@ -6,10 +6,8 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"github.com/futugyou/infr-project/command"
 	docs "github.com/futugyou/infr-project/docs"
 
-	v1 "github.com/futugyou/infr-project/routes/v1"
 	platformv1 "github.com/futugyou/platformservice/routes/v1"
 	projectv1 "github.com/futugyou/projectservice/routes/v1"
 	resourcequeryv1 "github.com/futugyou/resourcequeryservice/routes/v1"
@@ -17,7 +15,7 @@ import (
 	vaultv1 "github.com/futugyou/vaultservice/routes/v1"
 )
 
-func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
+func NewGinRoute() *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
 	docs.SwaggerInfo.BasePath = "/api"
@@ -35,8 +33,6 @@ func NewGinRoute(cqrsRoute *command.Router) *gin.Engine {
 		projectv1.ConfigProjectRoutes(v1api)
 		// vault routes
 		vaultv1.ConfigVaultRoutes(v1api)
-		// sdk test routes
-		v1.ConfigTestingRoutes(v1api, cqrsRoute)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

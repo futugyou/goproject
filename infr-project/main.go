@@ -11,7 +11,6 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/futugyou/infr-project/command"
 	"github.com/futugyou/infr-project/routes"
 )
 
@@ -29,11 +28,7 @@ func ginServerStart() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	cqrsRoute, err := command.CreateCommandRouter(ctx)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	router := routes.NewGinRoute(cqrsRoute)
+	router := routes.NewGinRoute()
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: router,
