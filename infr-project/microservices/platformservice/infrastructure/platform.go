@@ -37,7 +37,7 @@ func (p *PlatformRepository) Find(ctx context.Context, options *coredomain.Query
 		return nil, err
 	}
 
-	platforms := make([]domain.Platform, 0, len(datas))
+	platforms := make([]domain.Platform, len(datas))
 	mapper := &entity.PlatformMapper{}
 	for i := range datas {
 		platforms[i] = *mapper.ToDomain(&datas[i])
@@ -170,7 +170,7 @@ func (p *PlatformRepository) GetPlatformProjects(ctx context.Context, platformID
 		return nil, err
 	}
 
-	result := make([]domain.PlatformProject, 0, len(datas))
+	result := make([]domain.PlatformProject, len(datas))
 	mapper := &entity.ProjectMapper{}
 	for i := range datas {
 		result[i] = *mapper.ToDomain(&datas[i])
@@ -202,7 +202,7 @@ func (p *PlatformRepository) SearchPlatforms(ctx context.Context, filter domain.
 		return nil, err
 	}
 
-	result := make([]domain.Platform, 0, len(datas))
+	result := make([]domain.Platform, len(datas))
 	mapper := &entity.PlatformMapper{}
 	for i := range datas {
 		result[i] = *mapper.ToDomain(&datas[i])
