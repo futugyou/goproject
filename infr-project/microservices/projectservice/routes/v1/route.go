@@ -43,7 +43,7 @@ func ConfigProjectRoutes(v1 *gin.RouterGroup) {
 // @Router /v1/project/{id}/design [put]
 func updateProjectDesign(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createProjectService(ctx)
+	service, err := CreateProjectService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -83,7 +83,7 @@ func updateProjectDesign(c *gin.Context) {
 // @Router /v1/project/{id}/platform [put]
 func updateProjectPlatform(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createProjectService(ctx)
+	service, err := CreateProjectService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -123,7 +123,7 @@ func updateProjectPlatform(c *gin.Context) {
 // @Router /v1/project/{id} [put]
 func updateProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createProjectService(ctx)
+	service, err := CreateProjectService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -162,7 +162,7 @@ func updateProject(c *gin.Context) {
 // @Router /v1/project [post]
 func createProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createProjectService(ctx)
+	service, err := CreateProjectService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -200,7 +200,7 @@ func createProject(c *gin.Context) {
 // @Router /v1/project [get]
 func getAllProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createProjectService(ctx)
+	service, err := CreateProjectService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -243,7 +243,7 @@ func getAllProject(c *gin.Context) {
 // @Router /v1/project/{id} [get]
 func getProject(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createProjectService(ctx)
+	service, err := CreateProjectService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -262,7 +262,7 @@ func getProject(c *gin.Context) {
 	c.JSON(http.StatusOK, datas)
 }
 
-func createProjectService(ctx context.Context) (*application.ProjectService, error) {
+func CreateProjectService(ctx context.Context) (*application.ProjectService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
 	config := mongoimpl.DBConfig{

@@ -45,7 +45,7 @@ func ConfigVaultRoutes(v1 *gin.RouterGroup) {
 // @Router /v1/vault/batch [post]
 func createVaults(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -83,7 +83,7 @@ func createVaults(c *gin.Context) {
 // @Router /v1/vault [post]
 func createVault(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -121,7 +121,7 @@ func createVault(c *gin.Context) {
 // @Router /v1/vault/{id}/show [post]
 func showVaultRawValue(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -166,7 +166,7 @@ func getVault(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -198,7 +198,7 @@ func getVault(c *gin.Context) {
 // @Router /v1/vault/{id} [put]
 func updateVault(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -236,7 +236,7 @@ func updateVault(c *gin.Context) {
 // @Router /v1/vault/{id} [delete]
 func deleteVault(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -266,7 +266,7 @@ func deleteVault(c *gin.Context) {
 // @Router /v1/import_vault [post]
 func importVault(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -304,7 +304,7 @@ func importVault(c *gin.Context) {
 // @Router /v1/vaults/by_ids [post]
 func getVaultsByIDs(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createVaultService(ctx)
+	service, err := CreateVaultService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -330,7 +330,7 @@ func getVaultsByIDs(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
-func createVaultService(ctx context.Context) (*application.VaultService, error) {
+func CreateVaultService(ctx context.Context) (*application.VaultService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
 	config := mongoimpl.DBConfig{

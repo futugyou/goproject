@@ -41,7 +41,7 @@ func ConfigResourceRoutes(v1 *gin.RouterGroup) {
 // @Router /v1/resource/{id}/history [get]
 func getResourceHistory(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createResourceService(ctx)
+	service, err := CreateResourceService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -72,7 +72,7 @@ func getResourceHistory(c *gin.Context) {
 // @Router /v1/resource/{id} [delete]
 func deleteResource(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createResourceService(ctx)
+	service, err := CreateResourceService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -104,7 +104,7 @@ func deleteResource(c *gin.Context) {
 // @Router /v1/resource/{id} [put]
 func updateResource(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createResourceService(ctx)
+	service, err := CreateResourceService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -143,7 +143,7 @@ func updateResource(c *gin.Context) {
 // @Router /v1/resource [post]
 func createResource(c *gin.Context) {
 	ctx := c.Request.Context()
-	service, err := createResourceService(ctx)
+	service, err := CreateResourceService(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
 			Message: err.Error(),
@@ -170,7 +170,7 @@ func createResource(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
-func createResourceService(ctx context.Context) (*application.ResourceService, error) {
+func CreateResourceService(ctx context.Context) (*application.ResourceService, error) {
 	option := options.New()
 	mongoclient, err := mongoimpl.CreateMongoDBClient(ctx, option.MongoDBURL)
 	if err != nil {
