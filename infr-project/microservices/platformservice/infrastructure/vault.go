@@ -23,6 +23,7 @@ type VaultService struct {
 		ShowVaultRaw   string
 		CreateVault    string
 	}
+	defaultApiKey string
 }
 
 func NewVaultService(opts *options.Options) *VaultService {
@@ -37,6 +38,7 @@ func NewVaultService(opts *options.Options) *VaultService {
 			ShowVaultRaw:   opts.ShowVaultRaw,
 			CreateVault:    opts.CreateVault,
 		},
+		defaultApiKey: opts.VaultApiKey,
 	}
 }
 
@@ -100,6 +102,13 @@ func (s *VaultService) GetVaultsByIDs(ctx context.Context, ids []string) ([]serv
 }
 
 func (s *VaultService) ShowVaultRawValue(ctx context.Context, vaultId string) (string, error) {
+	// This method will be called even when the user is not logged in.
+	// Because IdentityService is not fully functional, a default API key is currently used as the Bearer token.
+	token, ok := extensions.JWTFrom(ctx)
+	if ok && token == "" {
+		ctx = extensions.WithJWT(ctx, s.defaultApiKey)
+	}
+
 	url := fmt.Sprintf(s.apiURL.ShowVaultRaw, vaultId)
 	var result string
 	err := s.doRequest(ctx, "POST", url, nil, &result)

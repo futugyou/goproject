@@ -22,6 +22,7 @@ type Options struct {
 	GofileFolder      string
 	GofileServer      string
 	GofileToken       string
+	VaultApiKey       string
 }
 
 func New() *Options {
@@ -41,6 +42,7 @@ func New() *Options {
 		GofileFolder:      os.Getenv("GOFILE_FOLDER"),
 		GofileServer:      os.Getenv("GOFILE_SERVER"),
 		GofileToken:       os.Getenv("GOFILE_TOKEN"),
+		VaultApiKey:       os.Getenv("VAULT_API_KEY"),
 	}
 
 	return opts
