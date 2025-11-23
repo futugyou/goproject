@@ -8,7 +8,6 @@ import (
 
 	"github.com/futugyou/platformservice/domain"
 	platformprovider "github.com/futugyou/platformservice/provider"
-	"github.com/futugyou/platformservice/util"
 	"github.com/futugyou/platformservice/viewmodel"
 )
 
@@ -28,7 +27,7 @@ func (s *PlatformService) HandleCreateProviderProject(ctx context.Context, event
 		return err
 	}
 
-	ctx = context.WithValue(ctx, util.JWTKey, e.Token)
+	ctx = tool.WithJWT(ctx, e.Token)
 	err = s.handleProviderProjectCreate(ctx, plat, project)
 	if err != nil {
 		return err
@@ -61,7 +60,7 @@ func (s *PlatformService) HandleCreateProviderWebhook(ctx context.Context, event
 		return err
 	}
 
-	ctx = context.WithValue(ctx, util.JWTKey, e.Token)
+	ctx = tool.WithJWT(ctx, e.Token)
 	err = s.handleProviderWebhookCreate(ctx, plat, project, event.Url)
 	if err != nil {
 		return err

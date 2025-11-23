@@ -1,10 +1,10 @@
-package util
+package extensions
 
 import "context"
 
 type ctxKey string
 
-const JWTKey ctxKey = "jwt"
+const JWTKey ctxKey = "internaljwt"
 
 func WithJWT(ctx context.Context, token string) context.Context {
 	return context.WithValue(ctx, JWTKey, token)

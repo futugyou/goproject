@@ -5,13 +5,14 @@ import (
 	"errors"
 	"time"
 
+	
+	"github.com/futugyou/extensions"
 	coreinfr "github.com/futugyou/domaincore/infrastructure"
 	"github.com/futugyou/domaincore/mongoimpl"
 
 	"github.com/futugyou/platformservice/application/service"
 	"github.com/futugyou/platformservice/infrastructure/internal/dao"
-	"github.com/futugyou/platformservice/infrastructure/internal/entity"
-	"github.com/futugyou/platformservice/util"
+	"github.com/futugyou/platformservice/infrastructure/internal/entity" 
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -36,7 +37,7 @@ func (e *EventHandler) DispatchIntegrationEvents(ctx context.Context, events []c
 	}
 
 	// TODO: need token exchange
-	token, ok := util.JWTFrom(ctx)
+	token, ok := extensions.JWTFrom(ctx)
 	if !ok || token == "" {
 		return errors.New("missing jwt token in context")
 	}

@@ -10,9 +10,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/futugyou/extensions"
+
 	"github.com/futugyou/platformservice/application/service"
 	"github.com/futugyou/platformservice/options"
-	"github.com/futugyou/platformservice/util"
 )
 
 type VaultService struct {
@@ -54,7 +55,7 @@ func (s *VaultService) doRequest(ctx context.Context, method, url string, body a
 		return fmt.Errorf("create request: %w", err)
 	}
 
-	token, ok := util.JWTFrom(ctx)
+	token, ok := extensions.JWTFrom(ctx)
 	if !ok || token == "" {
 		return errors.New("missing jwt token in context")
 	}
