@@ -67,7 +67,7 @@ func (c *httpClient) doRequest(ctx context.Context, path, method string, request
 	req, _ := http.NewRequest(method, path, body)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	if c.customeHeader != nil && len(c.customeHeader) > 0 {
+	if len(c.customeHeader) > 0 {
 		for key, value := range c.customeHeader {
 			req.Header.Set(key, value)
 		}
@@ -125,11 +125,12 @@ func (c *httpClient) readHttpResponse(ctx context.Context, req *http.Request, re
 
 func checkResponseStatusCode(resp *http.Response) error {
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
-		_, err := io.ReadAll(resp.Body)
-
+		data, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}
+
+		return fmt.Errorf("circleci service returned %d: %s", resp.StatusCode, string(data))
 	}
 
 	return nil
