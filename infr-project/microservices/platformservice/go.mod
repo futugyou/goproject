@@ -12,7 +12,7 @@ require (
 	github.com/futugyou/screenshot v1.0.0
 	github.com/futugyou/vercel v1.0.0
 	github.com/gin-gonic/gin v1.11.0
-	github.com/google/go-github/v66 v66.0.0
+	github.com/google/go-github/v79 v79.0.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/swaggo/files v1.0.1
