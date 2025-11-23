@@ -15,7 +15,16 @@ import (
 	"github.com/futugyou/platformservice/viewmodel"
 )
 
+func passingToken(r *http.Request) *http.Request {
+	bearer := strings.ReplaceAll(r.Header.Get("Authorization"), "Bearer ", "")
+	ctx := extensions.WithJWT(r.Context(), bearer)
+	r = r.WithContext(ctx)
+	return r
+}
+
 func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
+	r = passingToken(r)
+
 	// cors
 	if extensions.Cors(w, r) {
 		return
@@ -31,30 +40,30 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 	switch version {
 	case "v1":
 		switch op {
-		case "create":
-			createPlatform(ctrl, r, w)
+		case "all":
+			allPlatform(ctrl, r, w)
 		case "get":
 			getPlatform(ctrl, r, w)
-		case "provider_projects":
-			getProviderProjectList(ctrl, r, w)
-		case "import":
-			importProjects(ctrl, r, w)
+		case "create":
+			createPlatform(ctrl, r, w)
 		case "update":
 			updatePlatform(ctrl, r, w)
 		case "delete":
 			deletePlatform(ctrl, r, w)
-		case "all":
-			allPlatform(ctrl, r, w)
-		case "project":
-			createPlatformProject(ctrl, r, w)
+		case "recovery":
+			recoveryPlatform(ctrl, r, w)
 		case "proget":
 			getPlatformProject(ctrl, r, w)
+		case "provider_projects":
+			getProviderProjectList(ctrl, r, w)
+		case "import":
+			importProjects(ctrl, r, w)
+		case "project":
+			createPlatformProject(ctrl, r, w)
 		case "prodel":
 			deletePlatformProject(ctrl, r, w)
 		case "proup":
 			updatePlatformProject(ctrl, r, w)
-		case "recovery":
-			recoveryPlatform(ctrl, r, w)
 		default:
 			w.Write([]byte("page not found"))
 			w.WriteHeader(404)
@@ -64,6 +73,7 @@ func PlatformDispatch(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 	}
 }
+
 func recoveryPlatform(ctrl *controller.PlatformController, r *http.Request, w http.ResponseWriter) {
 	if !tool.AuthForVercel(w, r) {
 		return

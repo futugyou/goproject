@@ -14,6 +14,7 @@ import (
 )
 
 func ProjectDispatch(w http.ResponseWriter, r *http.Request) {
+	r = passingToken(r)
 	// cors
 	if extensions.Cors(w, r) {
 		return
