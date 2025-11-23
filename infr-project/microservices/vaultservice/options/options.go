@@ -30,7 +30,8 @@ type Options struct {
 	AzureClientSecret string
 	AzureVaultURL     string
 
-	EncryptKey string
+	EncryptKey  string
+	VaultApiKey string
 }
 
 func init() {
@@ -62,7 +63,8 @@ func New() *Options {
 		AzureClientSecret: os.Getenv("AZURE_CLIENT_SECRET"),
 		AzureVaultURL:     os.Getenv("AZURE_VAULT_URL"),
 
-		EncryptKey: os.Getenv("Encrypt_Key"),
+		EncryptKey:  os.Getenv("Encrypt_Key"),
+		VaultApiKey: os.Getenv("VAULT_API_KEY"),
 	}
 
 	if GlobalOptions == nil {

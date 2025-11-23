@@ -13,6 +13,7 @@ import (
 	"github.com/futugyou/infr-project/controller"
 	tool "github.com/futugyou/infr-project/extensions"
 
+	"github.com/futugyou/vaultservice/options"
 	"github.com/futugyou/vaultservice/viewmodel"
 )
 
@@ -117,8 +118,12 @@ func updateVault(ctrl *controller.VaultController, r *http.Request, w http.Respo
 }
 
 func showVault(ctrl *controller.VaultController, r *http.Request, w http.ResponseWriter) {
-	if !tool.AuthForVercel(w, r) {
-		return
+	opts := options.New()
+	bearer := strings.ReplaceAll(r.Header.Get("Authorization"), "Bearer ", "")
+	if bearer != opts.VaultApiKey {
+		if !tool.AuthForVercel(w, r) {
+			return
+		}
 	}
 
 	id := r.URL.Query().Get("id")
