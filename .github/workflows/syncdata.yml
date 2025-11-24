@@ -8,7 +8,7 @@ jobs:
   syncdata-action:
     runs-on: ubuntu-latest 
     steps:
-      - uses: actions/checkout@v5 
+      - uses: actions/checkout@v6 
           
       - uses: futugyou/goproject/aws-web@master
         id: syncdata
