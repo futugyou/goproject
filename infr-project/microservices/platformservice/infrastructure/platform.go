@@ -152,8 +152,8 @@ func (p *PlatformRepository) GetPlatformByName(ctx context.Context, name string)
 	return mapper.ToDomain(&datas[0]), nil
 }
 
-func (p *PlatformRepository) GetPlatformProjectByProjectID(ctx context.Context, platformID string, projectID string) (*domain.PlatformProject, error) {
-	data, err := p.ProjectDao.GetPlatformProjectByProjectID(ctx, projectID)
+func (p *PlatformRepository) GetPlatformProjectByIDOrName(ctx context.Context, platformID string, projectID string) (*domain.PlatformProject, error) {
+	data, err := p.ProjectDao.GetPlatformProjectByIDOrName(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}

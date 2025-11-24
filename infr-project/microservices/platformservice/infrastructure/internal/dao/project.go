@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,21 +39,30 @@ func (p *ProjectDao) GetPlatformProjects(ctx context.Context, platformID string)
 	return p.Find(ctx, condition)
 }
 
-func (p *ProjectDao) GetPlatformProjectByProjectID(ctx context.Context, projectID string) (*entity.ProjectEntity, error) {
-	query := coredomain.NewQuery().
-		Eq("id", projectID).
-		Build()
-	condition := coredomain.NewQueryOptions(nil, nil, nil, query)
-	projects, err := p.Find(ctx, condition)
+func (p *ProjectDao) GetPlatformProjectByIDOrName(ctx context.Context, idOrName string) (*entity.ProjectEntity, error) {
+	project, err := p.FindByID(ctx, idOrName)
 	if err != nil {
-		return nil, err
+		if !strings.HasPrefix(err.Error(), coredomain.DATA_NOT_FOUND_MESSAGE) {
+			return nil, err
+		}
+
+		query := coredomain.NewQuery().
+			Eq("name", idOrName).
+			Build()
+		condition := coredomain.NewQueryOptions(nil, nil, nil, query)
+		projects, err := p.Find(ctx, condition)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(projects) == 0 {
+			return nil, fmt.Errorf("%s with Name %s", coredomain.DATA_NOT_FOUND_MESSAGE, idOrName)
+		}
+
+		return &projects[0], nil
 	}
 
-	if len(projects) == 0 {
-		return nil, fmt.Errorf("%s with ID %s", coredomain.DATA_NOT_FOUND_MESSAGE, projectID)
-	}
-
-	return &projects[0], nil
+	return project, nil
 }
 
 func (s *ProjectDao) DeleteByPlatformID(ctx context.Context, platformID string) error {
