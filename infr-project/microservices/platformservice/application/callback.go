@@ -17,7 +17,7 @@ func (s *PlatformService) HandleCreateProviderProject(ctx context.Context, event
 		return err
 	}
 
-	project, err := s.repository.GetPlatformProjectByProjectID(ctx, plat.ID, event.ProjectID)
+	project, err := s.repository.GetPlatformProjectByIDOrName(ctx, plat.ID, event.ProjectID)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (s *PlatformService) HandleCreateProviderWebhook(ctx context.Context, event
 		return err
 	}
 
-	project, err := s.repository.GetPlatformProjectByProjectID(ctx, plat.ID, event.ProjectID)
+	project, err := s.repository.GetPlatformProjectByIDOrName(ctx, plat.ID, event.ProjectID)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (s *PlatformService) HandleProjectScreenshot(ctx context.Context, event *vi
 		return err
 	}
 
-	project, err := s.repository.GetPlatformProjectByProjectID(ctx, plat.ID, event.ProjectID)
+	project, err := s.repository.GetPlatformProjectByIDOrName(ctx, plat.ID, event.ProjectID)
 	if err != nil {
 		return err
 	}

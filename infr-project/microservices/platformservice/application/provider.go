@@ -72,20 +72,47 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, prov provider
 
 	return prov.ListProject(ctx, filter)
 }
-
 func (a *PlatformService) toPlatformDetailViewWithProviderProjects(mapper assembler.PlatformAssembler, d *domain.Platform, projects []provider.Project) *viewmodel.PlatformDetailView {
 	platform := mapper.ToPlatformDetailView(d)
+	projectMap := make(map[string]*viewmodel.PlatformProject)
 	for i := range platform.Projects {
-		for _, v := range projects {
-			if platform.Projects[i].ProviderProjectID == v.ID {
-				platform.Projects[i].Followed = true
-				platform.Projects[i].ProviderProject = a.convertProviderProjectToSimpleModel(&v)
-				break
-			}
+		projectMap[platform.Projects[i].ProviderProjectID] = &platform.Projects[i]
+	}
+
+	unfollowedProjects := []viewmodel.PlatformProject{}
+	for _, v := range projects {
+		if project, exists := projectMap[v.ID]; exists {
+			project.Followed = true
+			project.ProviderProject = a.convertProviderProjectToSimpleModel(&v)
+		} else {
+			unfollowedProjects = append(unfollowedProjects, *convertProviderToViewmodel(&v))
 		}
 	}
 
+	if len(unfollowedProjects) > 0 {
+		platform.Projects = append(platform.Projects, unfollowedProjects...)
+	}
+
 	return platform
+}
+
+func convertProviderToViewmodel(project *provider.Project) *viewmodel.PlatformProject {
+	return &viewmodel.PlatformProject{
+		ID:          project.ID,
+		Name:        project.Name,
+		Url:         project.Url,
+		Description: project.Description,
+		Properties: func() []viewmodel.Property {
+			res := []viewmodel.Property{}
+			for k, v := range project.Properties {
+				res = append(res, viewmodel.Property{
+					Key:   k,
+					Value: v,
+				})
+			}
+			return res
+		}(),
+	}
 }
 
 func (s *PlatformService) convertProviderProjectToModel(providerProject *provider.Project) *viewmodel.PlatformProviderProject {

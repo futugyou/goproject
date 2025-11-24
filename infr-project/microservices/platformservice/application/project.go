@@ -209,10 +209,6 @@ func (s *PlatformService) DeleteProject(ctx context.Context, idOrName string, pr
 		return err
 	}
 
-	if _, err := plat.RemoveProject(projectId); err != nil {
-		return err
-	}
-
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		return s.repository.DeleteProject(ctx, plat.ID, projectId)
 	})
@@ -224,7 +220,7 @@ func (s *PlatformService) GetPlatformProject(ctx context.Context, idOrName strin
 		return nil, err
 	}
 
-	project, err := s.repository.GetPlatformProjectByProjectID(ctx, src.ID, projectId)
+	project, err := s.repository.GetPlatformProjectByIDOrName(ctx, src.ID, projectId)
 	if err != nil {
 		return nil, err
 	}

@@ -54,11 +54,11 @@ func (g *githubClient) CreateProject(ctx context.Context, request CreateProjectR
 		g.owner = value
 	}
 	repo := &github.Repository{
-		Name:          github.String(request.Name),
-		DefaultBranch: github.String(g.branch),
-		MasterBranch:  github.String(g.branch),
-		Private:       github.Bool(g.private),
-		AutoInit:      github.Bool(true),
+		Name:          github.Ptr(request.Name),
+		DefaultBranch: github.Ptr(g.branch),
+		MasterBranch:  github.Ptr(g.branch),
+		Private:       github.Ptr(g.private),
+		AutoInit:      github.Ptr(true),
 	}
 
 	repository, _, err := g.client.Repositories.Create(ctx, g.owner, repo)
@@ -66,7 +66,7 @@ func (g *githubClient) CreateProject(ctx context.Context, request CreateProjectR
 		return nil, err
 	}
 	return &Project{
-		ID:   fmt.Sprintf("%d", repository.GetID()),
+		ID:   repository.GetName(),
 		Name: repository.GetName(),
 		Url:  repository.GetHTMLURL(),
 	}, nil
@@ -124,7 +124,7 @@ func (g *githubClient) buildGithubProject(repo *github.Repository) *Project {
 	paras["WATCHS"] = fmt.Sprintf("%d", repo.GetStargazersCount())
 
 	return &Project{
-		ID:            fmt.Sprintf("%d", repo.GetID()),
+		ID:            repo.GetName(),
 		Name:          repo.GetName(),
 		Url:           repo.GetHTMLURL(),
 		Description:   repo.GetDescription(),
