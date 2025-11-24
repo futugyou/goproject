@@ -83,7 +83,14 @@ func (s *VaultService) doRequest(ctx context.Context, method, url string, body a
 			if err != nil {
 				return fmt.Errorf("read response body: %w", err)
 			}
-			*strOut = string(data)
+
+			var jsonResponse string
+			err = json.Unmarshal(data, &jsonResponse)
+			if err != nil {
+				return err
+			}
+
+			*strOut = jsonResponse
 			return nil
 		}
 
