@@ -408,13 +408,13 @@ func (g *githubClient) buildGithubProjectBadge(archived bool, url string) (badge
 // if need webhook secret, set it in WebHook.Parameters with key 'SigningSecret'
 func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookRequest) (*WebHook, error) {
 	config := &github.HookConfig{
-		ContentType: github.String("json"),
-		InsecureSSL: github.String("1"),
-		URL:         github.String(request.Url),
+		ContentType: github.Ptr("json"),
+		InsecureSSL: github.Ptr("1"),
+		URL:         github.Ptr(request.Url),
 	}
 
 	if len(request.SigningSecret) > 0 {
-		config.Secret = github.String(request.SigningSecret)
+		config.Secret = github.Ptr(request.SigningSecret)
 	}
 
 	events := request.Events
@@ -424,7 +424,7 @@ func (g *githubClient) CreateWebHook(ctx context.Context, request CreateWebHookR
 		events = Intersect(events, []string{"push", "pull_request"})
 	}
 	hookParam := &github.Hook{
-		Name:   github.String(request.Name),
+		Name:   github.Ptr(request.Name),
 		Config: config,
 		Events: events,
 	}

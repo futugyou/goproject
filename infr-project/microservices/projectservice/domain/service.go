@@ -1,4 +1,4 @@
-package service
+package domain
 
 import (
 	"time"
@@ -54,15 +54,6 @@ type ServiceSnapshot struct {
 	Description string            `json:"description"`
 	ArchDiagram *ArchDiagram      `json:"arch_diagram,omitempty"`
 	Documents   []ServiceResource `json:"documents,omitempty"`
-}
-
-// Currently there is only github information.
-// Considering that the services are archived, it may be necessary to find new dimensions.
-type ActivityStats struct {
-	Commits      int `json:"commits"`
-	Pulls        int `json:"pulls"`
-	Releases     int `json:"releases"`
-	Contributors int `json:"contributors"`
 }
 
 type DeploymentEnvironment struct {

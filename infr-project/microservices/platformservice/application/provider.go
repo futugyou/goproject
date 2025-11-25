@@ -72,6 +72,7 @@ func (s *PlatformService) getProviderProjects(ctx context.Context, prov provider
 
 	return prov.ListProject(ctx, filter)
 }
+
 func (a *PlatformService) toPlatformDetailViewWithProviderProjects(mapper assembler.PlatformAssembler, d *domain.Platform, projects []provider.Project) *viewmodel.PlatformDetailView {
 	platform := mapper.ToPlatformDetailView(d)
 	projectMap := make(map[string]*viewmodel.PlatformProject)
@@ -98,10 +99,11 @@ func (a *PlatformService) toPlatformDetailViewWithProviderProjects(mapper assemb
 
 func convertProviderToViewmodel(project *provider.Project) *viewmodel.PlatformProject {
 	return &viewmodel.PlatformProject{
-		ID:          project.ID,
-		Name:        project.Name,
-		Url:         project.Url,
-		Description: project.Description,
+		ID:                project.ID,
+		Name:              project.Name,
+		Url:               project.Url,
+		Description:       project.Description,
+		ProviderProjectID: project.ID,
 		Properties: func() []viewmodel.Property {
 			res := []viewmodel.Property{}
 			for k, v := range project.Properties {

@@ -268,9 +268,9 @@ func convertToChangeData(id string, version int, eventType string, createdAt tim
 }
 
 type TriggerEvent struct {
-	Platform     string      `json:"platform"`
-	Operate      string      `json:"operate"`
-	DataBaseName string      `json:"db"`
-	TableName    string      `json:"table"`
-	Data         interface{} `json:"data"`
+	Platform     string `json:"platform"`
+	Operate      string `json:"operate"`
+	DataBaseName string `json:"db"`
+	TableName    string `json:"table"`
+	Data         any    `json:"data"`
 }

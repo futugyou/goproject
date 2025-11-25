@@ -19,25 +19,25 @@ func NewResourceController() *ResourceController {
 }
 
 func (c *ResourceController) GetResourceHistory(id string, w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (interface{}, error) {
+	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (any, error) {
 		return service.AllVersionResource(ctx, id)
 	})
 }
 
 func (c *ResourceController) DeleteResource(id string, w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (interface{}, error) {
+	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, _ struct{}) (any, error) {
 		return nil, service.DeleteResource(ctx, id)
 	})
 }
 
 func (c *ResourceController) UpdateResource(id string, w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, req viewmodel.UpdateResourceRequest) (interface{}, error) {
+	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, req viewmodel.UpdateResourceRequest) (any, error) {
 		return nil, service.UpdateResource(ctx, id, req)
 	})
 }
 
 func (c *ResourceController) CreateResource(w http.ResponseWriter, r *http.Request) {
-	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, req viewmodel.CreateResourceRequest) (interface{}, error) {
+	handleRequest(w, r, v1.CreateResourceService, func(ctx context.Context, service *application.ResourceService, req viewmodel.CreateResourceRequest) (any, error) {
 		return service.CreateResource(ctx, req)
 	})
 }

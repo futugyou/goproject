@@ -36,13 +36,13 @@ func (c *WebhookController) ProviderWebhookCallback(w http.ResponseWriter, r *ht
 		UserAgent:  r.UserAgent(),
 	}
 
-	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookLogService, _ struct{}) (interface{}, error) {
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookLogService, _ struct{}) (any, error) {
 		return nil, service.ProviderWebhookCallback(ctx, reqInfo)
 	})
 }
 
 func (c *WebhookController) SearchWebhookLogs(w http.ResponseWriter, r *http.Request, filter viewmodel.WebhookSearch) {
-	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookLogService, _ struct{}) (interface{}, error) {
+	handleRequest(w, r, createWebhookService, func(ctx context.Context, service *application.WebhookLogService, _ struct{}) (any, error) {
 		return service.SearchWebhookLogs(ctx, filter)
 	})
 }
