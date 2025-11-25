@@ -1,6 +1,8 @@
 package assembler
 
 import (
+	"sort"
+
 	"github.com/futugyou/platformservice/domain"
 	"github.com/futugyou/platformservice/provider"
 	"github.com/futugyou/platformservice/viewmodel"
@@ -31,6 +33,10 @@ func (s ProjectAssembler) ToViewModel(project *domain.PlatformProject) *viewmode
 					Value: v.Value,
 				})
 			}
+
+			sort.Slice(res, func(i, j int) bool {
+				return res[i].Key < res[j].Key
+			})
 			return res
 		}(),
 		Secrets: func() []viewmodel.Secret {
@@ -43,6 +49,10 @@ func (s ProjectAssembler) ToViewModel(project *domain.PlatformProject) *viewmode
 					MaskValue: v.VaultMaskValue,
 				})
 			}
+
+			sort.Slice(res, func(i, j int) bool {
+				return res[i].Key < res[j].Key
+			})
 			return res
 		}(),
 		Webhook: func() *viewmodel.Webhook {

@@ -1,6 +1,8 @@
 package assembler
 
 import (
+	"sort"
+
 	"github.com/futugyou/platformservice/domain"
 	"github.com/futugyou/platformservice/viewmodel"
 )
@@ -32,6 +34,10 @@ func (a *PlatformAssembler) ToPlatformDetailView(d *domain.Platform) *viewmodel.
 					Value: v.Value,
 				})
 			}
+
+			sort.Slice(res, func(i, j int) bool {
+				return res[i].Key < res[j].Key
+			})
 			return res
 		}(),
 		Tags: d.Tags,
@@ -45,6 +51,10 @@ func (a *PlatformAssembler) ToPlatformDetailView(d *domain.Platform) *viewmodel.
 					MaskValue: v.VaultMaskValue,
 				})
 			}
+
+			sort.Slice(res, func(i, j int) bool {
+				return res[i].Key < res[j].Key
+			})
 			return res
 		}(),
 		Activate:  d.Activate,

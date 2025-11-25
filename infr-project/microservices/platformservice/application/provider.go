@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 
 	tool "github.com/futugyou/extensions"
 
@@ -112,6 +113,10 @@ func convertProviderToViewmodel(project *provider.Project) *viewmodel.PlatformPr
 					Value: v,
 				})
 			}
+
+			sort.Slice(res, func(i, j int) bool {
+				return res[i].Key < res[j].Key
+			})
 			return res
 		}(),
 	}
