@@ -91,6 +91,7 @@ func (p *PlatformRepository) useAggregateSearch(ctx context.Context, filter bson
 	platdata := &entity.PlatformEntity{
 		ID:          out.ID,
 		Name:        out.Name,
+		Activate:    out.Activate,
 		Description: out.Description,
 		Url:         out.Url,
 		Provider:    out.Provider,
