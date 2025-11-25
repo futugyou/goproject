@@ -119,9 +119,6 @@ func (g *githubClient) buildGithubProject(repo *github.Repository) *Project {
 	paras := map[string]string{}
 	paras["GITHUB_REPO"] = repo.GetName()
 	paras["GITHUB_DETAULT_BRANCH"] = repo.GetDefaultBranch()
-	paras["ISSUES"] = fmt.Sprintf("%d", repo.GetOpenIssuesCount())
-	paras["FORKS"] = fmt.Sprintf("%d", repo.GetForksCount())
-	paras["WATCHS"] = fmt.Sprintf("%d", repo.GetStargazersCount())
 
 	return &Project{
 		ID:            repo.GetName(),

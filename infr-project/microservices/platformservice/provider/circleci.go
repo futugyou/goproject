@@ -180,12 +180,17 @@ func (g *circleClient) GetProject(ctx context.Context, filter ProjectFilter) (*P
 	}
 
 	project := &Project{
-		ID:                   circleciProject.Name,
-		Name:                 circleciProject.Name,
-		Url:                  url,
-		Description:          circleciProject.GetMessage(),
-		WebHook:              webHook,
-		Properties:           map[string]string{"VCS_TYPE": vcs_full, "VCS_URL": circleciProject.VcsInfo.VcsURL},
+		ID:          circleciProject.Name,
+		Name:        circleciProject.Name,
+		Url:         url,
+		Description: circleciProject.GetMessage(),
+		WebHook:     webHook,
+		Properties: map[string]string{
+			"VCS_TYPE":    vcs_full,
+			"VCS_URL":     circleciProject.VcsInfo.VcsURL,
+			"ProjectID":   circleciProject.ID,
+			"ProjectSlug": circleciProject.Slug,
+		},
 		EnvironmentVariables: envs,
 		Environments:         []string{},
 		WorkflowRuns:         runs,
