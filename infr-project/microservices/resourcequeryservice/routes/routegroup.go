@@ -16,7 +16,7 @@ func NewGinRoute() *gin.Engine {
 	router.Use(Cors())
 	docs.SwaggerInfo.BasePath = "/api"
 	docs.SwaggerInfo.Title = "Resource Query Swagger Doc"
-	docs.SwaggerInfo.Version = "v1.0.0"
+	docs.SwaggerInfo.Version = "v2.0.0"
 
 	v1api := router.Group("/api/v1")
 	{

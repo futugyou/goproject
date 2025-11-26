@@ -1,26 +1,48 @@
 package routes
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	docs "github.com/futugyou/infr-project/docs"
+	"github.com/futugyou/extensions"
 
 	platformv1 "github.com/futugyou/platformservice/routes/v1"
 	projectv1 "github.com/futugyou/projectservice/routes/v1"
 	resourcequeryv1 "github.com/futugyou/resourcequeryservice/routes/v1"
 	resourcev1 "github.com/futugyou/resourceservice/routes/v1"
 	vaultv1 "github.com/futugyou/vaultservice/routes/v1"
+
+	docs "github.com/futugyou/infr-project/docs"
 )
+
+func AddDefaultTokenToRequestContext() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the current request context
+		reqCtx := c.Request.Context()
+
+		// Add a custom value to the context
+		updatedCtx := extensions.WithJWT(reqCtx, os.Getenv("VAULT_API_KEY"))
+		// Set the updated context back to the request
+		c.Request = c.Request.WithContext(updatedCtx)
+		// Proceed with the request
+		c.Next()
+	}
+}
 
 func NewGinRoute() *gin.Engine {
 	router := gin.Default()
 	router.Use(Cors())
+	if gin.Mode() == gin.DebugMode {
+		router.Use(AddDefaultTokenToRequestContext())
+	}
+
 	docs.SwaggerInfo.BasePath = "/api"
 	docs.SwaggerInfo.Title = "Project Display Swagger Doc"
-	docs.SwaggerInfo.Version = "v1.0.0"
+	docs.SwaggerInfo.Version = "v2.0.0"
 
 	v1api := router.Group("/api/v1")
 	{
