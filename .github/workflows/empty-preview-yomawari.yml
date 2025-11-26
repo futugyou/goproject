@@ -7,7 +7,7 @@ on:
       go-version:
         description: "Go version"
         required: false
-        default: "1.23"
+        default: "1.24.0"
   push:
     branches-ignore:
       - master
@@ -16,7 +16,7 @@ on:
     - '.github/workflows/empty-preview-yomawari.yaml'
 
 env:
-  GO_VERSION: ${{ github.event.inputs.go-version || '1.23' }}
+  GO_VERSION: ${{ github.event.inputs.go-version || '1.24.0' }}
   working-directory: ./yomawari
 
 jobs:

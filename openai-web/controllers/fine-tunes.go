@@ -4,7 +4,7 @@ import (
 	"github.com/futugyousuzu/go-openai-web/services"
 
 	"github.com/beego/beego/v2/server/web"
-	_ "github.com/openai/openai-go"
+	_ "github.com/openai/openai-go/v3"
 )
 
 // Operations about fine tune

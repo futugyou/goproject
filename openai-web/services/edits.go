@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	openai "github.com/openai/openai-go"
+	openai "github.com/openai/openai-go/v3"
 )
 
 // EditService is deprecated.

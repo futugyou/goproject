@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
-	"text/template"
+	"html/template"
 
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/mongo"

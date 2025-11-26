@@ -4,7 +4,8 @@ import (
 	"context"
 	"time"
 
-	openai "github.com/openai/openai-go"
+	"github.com/openai/openai-go/v3/packages/param"
+	openai "github.com/openai/openai-go/v3"
 )
 
 type CreateChatRequest struct {
@@ -83,15 +84,14 @@ func (s *ChatService) CreateChatCompletion(ctx context.Context, req CreateChatRe
 		}
 	}
 
-	messages := openai.F(msg)
 	request := openai.ChatCompletionNewParams{
-		Model:            openai.F(req.Model),
-		Messages:         messages,
-		Temperature:      openai.F(req.Temperature),
-		TopP:             openai.F(req.Top_p),
-		MaxTokens:        openai.F(req.MaxTokens),
-		PresencePenalty:  openai.F(req.PresencePenalty),
-		FrequencyPenalty: openai.F(req.FrequencyPenalty),
+		Model:            req.Model,
+		Messages:         msg,
+		Temperature:      param.NewOpt(req.Temperature),
+		TopP:             param.NewOpt(req.Top_p),
+		MaxTokens:        param.NewOpt(req.MaxTokens),
+		PresencePenalty:  param.NewOpt(req.PresencePenalty),
+		FrequencyPenalty: param.NewOpt(req.FrequencyPenalty),
 		Seed:             openai.Int(1),
 	}
 	response, err := s.client.Chat.Completions.New(ctx, request)
@@ -133,15 +133,14 @@ func (s *ChatService) CreateChatSSE(ctx context.Context, req CreateChatRequest) 
 		}
 	}
 
-	messages := openai.F(msg)
 	request := openai.ChatCompletionNewParams{
-		Model:            openai.F(req.Model),
-		Messages:         messages,
-		Temperature:      openai.F(req.Temperature),
-		TopP:             openai.F(req.Top_p),
-		MaxTokens:        openai.F(req.MaxTokens),
-		PresencePenalty:  openai.F(req.PresencePenalty),
-		FrequencyPenalty: openai.F(req.FrequencyPenalty),
+		Model:            req.Model,
+		Messages:         msg,
+		Temperature:      param.NewOpt(req.Temperature),
+		TopP:             param.NewOpt(req.Top_p),
+		MaxTokens:        param.NewOpt(req.MaxTokens),
+		PresencePenalty:  param.NewOpt(req.PresencePenalty),
+		FrequencyPenalty: param.NewOpt(req.FrequencyPenalty),
 	}
 	stream := s.client.Chat.Completions.NewStreaming(ctx, request)
 

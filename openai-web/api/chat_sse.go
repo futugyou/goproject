@@ -13,8 +13,8 @@ import (
 	"github.com/futugyousuzu/go-openai-web/services"
 	verceltool "github.com/futugyousuzu/go-openai-web/vercel"
 
-	openai "github.com/openai/openai-go"
-	"github.com/openai/openai-go/azure"
+	"github.com/openai/openai-go/v3/azure"
+	openai "github.com/openai/openai-go/v3"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -80,7 +80,7 @@ func createOpenAICLient() *openai.Client {
 		azure.WithAPIKey(openaikey),
 	)
 
-	return client
+	return &client
 }
 
 func createRedisICLient() *redis.Client {

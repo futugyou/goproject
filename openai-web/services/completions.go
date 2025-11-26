@@ -5,7 +5,8 @@ import (
 	"strings"
 	"time"
 
-	openai "github.com/openai/openai-go"
+	"github.com/openai/openai-go/v3/packages/param"
+	openai "github.com/openai/openai-go/v3"
 )
 
 // CompletionService is deprecated.
@@ -58,19 +59,23 @@ func (s *CompletionService) CreateCompletion(ctx context.Context, request Create
 		}
 	}
 
-	prompt := openai.CompletionNewParamsPromptUnion(openai.CompletionNewParamsPromptArrayOfStrings([]string{request.Prompt}))
-	stop := openai.CompletionNewParamsStopUnion(openai.CompletionNewParamsStopArray(request.Stop))
+	prompt := openai.CompletionNewParamsPromptUnion{
+		OfArrayOfStrings: []string{request.Prompt},
+	}
+	stop := openai.CompletionNewParamsStopUnion{
+		OfStringArray: request.Stop,
+	}
 	req := openai.CompletionNewParams{
-		Model:            openai.F(model),
-		Prompt:           openai.F(prompt),
-		BestOf:           openai.F(request.BestOf),
-		FrequencyPenalty: openai.F(request.FrequencyPenalty),
-		MaxTokens:        openai.F(request.MaxTokens),
-		PresencePenalty:  openai.F(request.PresencePenalty),
-		Stop:             openai.F(stop),
-		Suffix:           openai.F(request.Suffix),
-		Temperature:      openai.F(request.Temperature),
-		TopP:             openai.F(request.Top_p),
+		Model:            model,
+		Prompt:           prompt,
+		BestOf:           param.NewOpt(request.BestOf),
+		FrequencyPenalty: param.NewOpt(request.FrequencyPenalty),
+		MaxTokens:        param.NewOpt(request.MaxTokens),
+		PresencePenalty:  param.NewOpt(request.PresencePenalty),
+		Stop:             stop,
+		Suffix:           param.NewOpt(request.Suffix),
+		Temperature:      param.NewOpt(request.Temperature),
+		TopP:             param.NewOpt(request.Top_p),
 		Seed:             openai.Int(1),
 	}
 
@@ -110,19 +115,23 @@ func (s *CompletionService) CreateCompletionSSE(ctx context.Context, request Cre
 		model = openai.CompletionNewParamsModelDavinci002
 	}
 
-	prompt := openai.CompletionNewParamsPromptUnion(openai.CompletionNewParamsPromptArrayOfStrings([]string{request.Prompt}))
-	stop := openai.CompletionNewParamsStopUnion(openai.CompletionNewParamsStopArray(request.Stop))
+	prompt := openai.CompletionNewParamsPromptUnion{
+		OfArrayOfStrings: []string{request.Prompt},
+	}
+	stop := openai.CompletionNewParamsStopUnion{
+		OfStringArray: request.Stop,
+	}
 	req := openai.CompletionNewParams{
-		Model:            openai.F(model),
-		Prompt:           openai.F(prompt),
-		BestOf:           openai.F(request.BestOf),
-		FrequencyPenalty: openai.F(request.FrequencyPenalty),
-		MaxTokens:        openai.F(request.MaxTokens),
-		PresencePenalty:  openai.F(request.PresencePenalty),
-		Stop:             openai.F(stop),
-		Suffix:           openai.F(request.Suffix),
-		Temperature:      openai.F(request.Temperature),
-		TopP:             openai.F(request.Top_p),
+		Model:            model,
+		Prompt:           prompt,
+		BestOf:           param.NewOpt(request.BestOf),
+		FrequencyPenalty: param.NewOpt(request.FrequencyPenalty),
+		MaxTokens:        param.NewOpt(request.MaxTokens),
+		PresencePenalty:  param.NewOpt(request.PresencePenalty),
+		Stop:             stop,
+		Suffix:           param.NewOpt(request.Suffix),
+		Temperature:      param.NewOpt(request.Temperature),
+		TopP:             param.NewOpt(request.Top_p),
 	}
 
 	stream := s.client.Completions.NewStreaming(ctx, req)

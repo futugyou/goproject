@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	openai "github.com/openai/openai-go"
+	openai "github.com/openai/openai-go/v3"
 )
 
 type AudioService struct {
@@ -16,7 +16,7 @@ func NewAudioService(client *openai.Client) *AudioService {
 	}
 }
 
-func (s *AudioService) CreateAudioTranscription(ctx context.Context, request openai.AudioTranscriptionNewParams) (*openai.Transcription, error) {
+func (s *AudioService) CreateAudioTranscription(ctx context.Context, request openai.AudioTranscriptionNewParams) (*openai.AudioTranscriptionNewResponseUnion, error) {
 	return s.client.Audio.Transcriptions.New(ctx, request)
 }
 
