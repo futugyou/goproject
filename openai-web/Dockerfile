@@ -1,4 +1,4 @@
-FROM golang:1.20.0 AS build
+FROM golang:latest AS build
 ARG TARGETOS
 ARG TARGETARCH
 

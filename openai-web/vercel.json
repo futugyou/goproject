@@ -1,9 +1,9 @@
 {
-	"functions": {
-		"api/**/*": {
-			"maxDuration": 30
-		}
-	},
+  "functions": {
+    "api/**/*": {
+      "maxDuration": 30
+    }
+  },
   "routes": [
     {
       "src": "/",
@@ -136,7 +136,8 @@
     "env": {
       "GOOS": "linux",
       "GOARCH": "amd64",
-      "CGO_ENABLED": "1"
+      "CGO_ENABLED": "1",
+      "GO_BUILD_FLAGS": "-ldflags '-s -w -checklinkname=0'"
     }
   }
 }
