@@ -1,4 +1,6 @@
 name: AWS Vercel Production Deployment
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:

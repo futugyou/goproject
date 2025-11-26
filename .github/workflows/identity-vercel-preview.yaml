@@ -1,4 +1,6 @@
 name: Identity Vercel Preview Deployment
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:

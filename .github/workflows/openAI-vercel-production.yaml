@@ -1,4 +1,6 @@
 name: OpenAI Vercel Production Deployment
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:

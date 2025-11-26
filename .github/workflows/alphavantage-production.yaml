@@ -1,4 +1,6 @@
 name: Alphavantage Vercel Production Deployment
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
