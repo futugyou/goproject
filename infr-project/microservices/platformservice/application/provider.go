@@ -78,14 +78,15 @@ func (a *PlatformService) toPlatformDetailViewWithProviderProjects(mapper assemb
 	platform := mapper.ToPlatformDetailView(d)
 	projectMap := make(map[string]*viewmodel.PlatformProject)
 	for i := range platform.Projects {
-		projectMap[platform.Projects[i].ProviderProjectID] = &platform.Projects[i]
+		if platform.Projects[i].ProviderProjectID != "" {
+			projectMap[platform.Projects[i].ProviderProjectID] = &platform.Projects[i]
+		}		
 	}
 
 	unfollowedProjects := []viewmodel.PlatformProject{}
 	for _, v := range projects {
 		if project, exists := projectMap[v.ID]; exists {
 			project.Followed = true
-			project.ProviderProject = a.convertProviderProjectToSimpleModel(&v)
 		} else {
 			unfollowedProjects = append(unfollowedProjects, *convertProviderToViewmodel(&v))
 		}

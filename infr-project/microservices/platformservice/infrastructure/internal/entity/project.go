@@ -41,6 +41,16 @@ func (*ProjectMapper) ToDomain(p *ProjectEntity) *domain.PlatformProject {
 		}
 	}
 
+	var webhook *domain.Webhook
+	if p.WebhookID != "" {
+		webhook = &domain.Webhook{
+			ID:            p.WebhookID,
+			Url:           p.WebhookUrl,
+			Events:        p.WebhookEvents,
+			State:         domain.GetWebhookState(p.WebhookState),
+			SigningSecret: p.WebhookSigningSecret,
+		}
+	}
 	return &domain.PlatformProject{
 		ID:                p.ID,
 		Name:              p.Name,
@@ -51,13 +61,7 @@ func (*ProjectMapper) ToDomain(p *ProjectEntity) *domain.PlatformProject {
 		ImageUrl:          p.ImageUrl,
 		ProviderProjectID: p.ProviderProjectID,
 		Tags:              p.Tags,
-		Webhook: &domain.Webhook{
-			ID:            p.WebhookID,
-			Url:           p.WebhookUrl,
-			Events:        p.WebhookEvents,
-			State:         domain.GetWebhookState(p.WebhookState),
-			SigningSecret: p.WebhookSigningSecret,
-		},
+		Webhook:           webhook,
 	}
 }
 

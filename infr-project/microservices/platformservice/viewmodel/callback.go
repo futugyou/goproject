@@ -9,7 +9,7 @@ type CreateProviderProjectRequest struct {
 }
 
 type CreateProviderWebhookRequest struct {
-	ID          string `json:"id"`
+	ID                string `json:"id"`
 	PlatformID        string `json:"platform_id"`
 	ProjectID         string `json:"project_id"`
 	ProjectName       bool   `json:"project_name"`
@@ -19,7 +19,7 @@ type CreateProviderWebhookRequest struct {
 }
 
 type ProjectScreenshotRequest struct {
-	ID          string `json:"id"`
+	ID         string `json:"id"`
 	PlatformID string `json:"platform_id"`
 	ProjectID  string `json:"project_id"`
 	Url        bool   `json:"url"`

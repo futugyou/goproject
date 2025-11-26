@@ -20,10 +20,10 @@ type PlatformProject struct {
 	Description       string                   `json:"description"`
 	Properties        []Property               `json:"properties"`
 	Secrets           []Secret                 `json:"secrets"`
-	Webhook           *Webhook                 `json:"webhook"`
+	Webhook           *Webhook                 `json:"webhook,omitempty"`
 	ProviderProjectID string                   `json:"provider_project_id"`
 	Followed          bool                     `json:"followed"`
-	ProviderProject   *PlatformProviderProject `json:"provider_project"`
+	ProviderProject   *PlatformProviderProject `json:"provider_project,omitempty"`
 }
 
 type PlatformProviderProject struct {
@@ -96,7 +96,7 @@ type Webhook struct {
 	Followed   bool       `json:"followed"`
 }
 
-type ImportProjectsRequest struct{
-	PlatformID string `json:"platform_id"`
+type ImportProjectsRequest struct {
+	PlatformID string   `json:"platform_id"`
 	ProjectIDs []string `json:"project_ids"`
 }
