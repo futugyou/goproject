@@ -13,7 +13,7 @@ In addition to local database storage, this service provides three additional st
 2. **Aws**: use aws Simple Systems Manager (SSM)
 3. **Hashicorp**: use hashicorp vault
 
-## 3. Deployment Architecture
+## 3. Deployment
 
 - **Vercel**: When deployed on the `Vercel`, this service and other `Projectarium` services will be deployed as a unified whole.
 

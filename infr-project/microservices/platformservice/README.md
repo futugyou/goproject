@@ -1,12 +1,12 @@
-# Resource Query Service
+# Platform Service
 
 ## 1. Overview
 
-This project, part of **`Projectarium`**, is used to display `resources`.
+This project, part of **`Projectarium`**, is used to manage third-party platforms.
 
 ## 2. Description
 
-There are two resource-related services: this service and **`resourceservice`**. This service handles `query` in `CQRS`.
+Currently supports three platforms: github, circleci, and vercel..
 
 ## 3. Deployment
 

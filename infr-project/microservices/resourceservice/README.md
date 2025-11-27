@@ -8,7 +8,7 @@ This project, part of **`Projectarium`**, is used to operate `resources`.
 
 There are two resource-related services: this service and **`resourcequeryservice`**. This service handles `command` in `CQRS`.
 
-## 3. Deployment Architecture
+## 3. Deployment
 
 - **Vercel**: When deployed on the `Vercel`, this service and other `Projectarium` services will be deployed as a unified whole.
 
