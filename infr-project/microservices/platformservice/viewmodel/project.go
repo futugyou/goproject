@@ -9,7 +9,6 @@ type UpdatePlatformProjectRequest struct {
 	Tags              []string   `json:"tags"`
 	ProviderProjectID string     `json:"provider_project_id"`
 	Operate           string     `json:"operate" validate:"oneof=upsert sync"`
-	ImportWebhooks    bool       `json:"import_webhooks"`
 }
 
 type PlatformProject struct {

@@ -1967,9 +1967,6 @@ const docTemplate = `{
                     "maxLength": 250,
                     "minLength": 3
                 },
-                "import_webhooks": {
-                    "type": "boolean"
-                },
                 "name": {
                     "type": "string",
                     "maxLength": 50,

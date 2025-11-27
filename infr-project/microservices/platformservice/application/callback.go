@@ -152,12 +152,7 @@ func (s *PlatformService) handleProviderWebhookCreate(ctx context.Context, plat 
 	}
 
 	if hook != nil {
-		webhook := domain.NewWebhook(hook.Url,
-			domain.WithWebhookEvents(hook.Events),
-			domain.WithWebhookID(hook.ID),
-			domain.WithWebhookSigningSecret(hook.Parameters["SigningSecret"]))
-
-		project.UpdateWebhook(webhook)
+		s.updateProjectWebhook(hook, project,hook.Parameters["SigningSecret"])
 
 		return nil
 	}
@@ -177,12 +172,23 @@ func (s *PlatformService) handleProviderWebhookCreate(ctx context.Context, plat 
 	}
 
 	// Besides vercel, `hook.SigningSecret should be the same as the `secret`, because the vercel's secret is obtained after creation.
-	webhook := domain.NewWebhook(hook.Url,
-		domain.WithWebhookEvents(hook.Events),
-		domain.WithWebhookID(hook.ID),
-		domain.WithWebhookSigningSecret(hook.SigningSecret))
-
-	project.UpdateWebhook(webhook)
+	s.updateProjectWebhook(hook, project,hook.SigningSecret)
 
 	return nil
+}
+
+func (*PlatformService) updateProjectWebhook(hook *platformprovider.WebHook, project *domain.PlatformProject,secret string) {
+	opts := []domain.WebhookOption{
+		domain.WithWebhookEvents(hook.Events),
+		domain.WithWebhookID(hook.ID),
+		domain.WithWebhookState(domain.WebhookReady),
+	}
+
+	if   len(secret) > 0 {
+		opts = append(opts, domain.WithWebhookSigningSecret(secret))
+	}
+
+	webhook := domain.NewWebhook(hook.Url, opts...)
+
+	project.UpdateWebhook(webhook)
 }

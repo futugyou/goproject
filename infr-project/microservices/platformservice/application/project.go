@@ -121,6 +121,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	}
 
 	var projectDb *domain.PlatformProject
+	var importWebhook bool = true
 	screenshot := false
 	if proj, ok := plat.Projects[projectID]; ok {
 		projectDb = &proj
@@ -135,6 +136,10 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 		projectDb.UpdateSecrets(secrets)
 		projectDb.UpdateProviderProjectID(project.ProviderProjectID)
 		projectDb.UpdateTags(project.Tags)
+
+		if projectDb.Webhook == nil || len(projectDb.Webhook.Url) == 0 || len(projectDb.Webhook.ID) == 0 || projectDb.Webhook.State != domain.WebhookReady {
+			importWebhook = true
+		}
 	} else {
 		projectDb = domain.NewPlatformProject(
 			projectID,
@@ -157,7 +162,7 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	}
 
 	return s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
-		events := s.buildProjectChangeEvent(plat.ID, plat.Name, plat.Provider.String(), projectID, project.Name, project.ProviderProjectID, project.Url, project.Operate == "sync", project.ImportWebhooks, screenshot)
+		events := s.buildProjectChangeEvent(plat.ID, plat.Name, plat.Provider.String(), projectID, project.Name, project.ProviderProjectID, project.Url, project.Operate == "sync", importWebhook, screenshot)
 		err := s.eventHandler.DispatchIntegrationEvents(ctx, events)
 		if err != nil {
 			return err
