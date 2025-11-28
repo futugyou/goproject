@@ -5,5 +5,5 @@ import (
 )
 
 type EmailService interface {
-	SendVerifyEmail(ctx context.Context, to string) error
+	SendVerifyEmail(ctx context.Context, to string, url string) error
 }

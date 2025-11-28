@@ -72,7 +72,7 @@ func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUs
 		return nil, fmt.Errorf("email or password is empty")
 	}
 
-	err := u.newMethod(ctx, request)
+	err := u.checkUserExist(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUs
 	}, err
 }
 
-func (u *UserService) newMethod(ctx context.Context, request viewmodel.CreateUserRequest) error {
+func (u *UserService) checkUserExist(ctx context.Context, request viewmodel.CreateUserRequest) error {
 	var orConditions []domaincore.FilterExpr = []domaincore.FilterExpr{
 		domaincore.Eq{
 			Field: "email",
