@@ -10,6 +10,8 @@ import (
 	domaincore "github.com/futugyou/domaincore/domain"
 
 	"github.com/futugyousuzu/identity-server/pkg/domain"
+	"github.com/futugyousuzu/identity-server/pkg/dto"
+	"github.com/futugyousuzu/identity-server/pkg/options"
 	"github.com/futugyousuzu/identity-server/pkg/viewmodel"
 )
 
@@ -17,16 +19,20 @@ type UserService struct {
 	innerService *application.AppService
 	repository   domain.UserRepository
 	emailService EmailService
+	opts         *options.Options
 }
 
 func NewUserService(
 	repository domain.UserRepository,
 	unitOfWork domaincore.UnitOfWork,
-	emailService EmailService) *UserService {
+	emailService EmailService,
+	opts *options.Options,
+) *UserService {
 	return &UserService{
 		repository:   repository,
 		innerService: application.NewAppService(unitOfWork),
 		emailService: emailService,
+		opts:         opts,
 	}
 }
 
@@ -81,7 +87,10 @@ func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUs
 	user := domain.NewUser(request.Name, request.Email, string(hashed))
 
 	err = u.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
-		// TODO: send verify email
+		// TODO: generate a self-verifiable JWT token
+		// or other type of token, but it needs to be persisted.
+		emailDto := u.createEmailDto(user.Email, "")
+		u.emailService.SendEmail(ctx, emailDto)
 		return u.repository.Insert(ctx, *user)
 	})
 	if err != nil {
@@ -91,6 +100,18 @@ func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUs
 	return &viewmodel.CreateUserResponse{
 		ID: user.ID,
 	}, err
+}
+
+func (s *UserService) createEmailDto(email string, token string) dto.EmailDTO {
+	url := fmt.Sprintf("%s/verify/%s?token=%s", s.opts.EmailVerifyUrl, email, token)
+
+	return dto.EmailDTO{
+		From:    s.opts.EmailFromAddress,
+		To:      email,
+		Subject: "Activate your account",
+		Text:    fmt.Sprintf("Hello,\n\nPlease activate your account by clicking the following link: %s\n\nThank you!", url),
+		Html:    fmt.Sprintf("<p>Hello,</p><p>Please activate your account by clicking the following link: <a href='%s'>Activate Account</a></p><p>Thank you!</p>", url),
+	}
 }
 
 func (u *UserService) checkUserExist(ctx context.Context, request viewmodel.CreateUserRequest) error {
