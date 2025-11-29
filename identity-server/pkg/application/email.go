@@ -2,8 +2,10 @@ package application
 
 import (
 	"context"
+
+	"github.com/futugyousuzu/identity-server/pkg/dto"
 )
 
 type EmailService interface {
-	SendVerifyEmail(ctx context.Context, to string, url string) error
+	SendEmail(ctx context.Context, data dto.EmailDTO) error
 }

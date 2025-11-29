@@ -2,8 +2,8 @@ package infrastructure
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/futugyousuzu/identity-server/pkg/dto"
 	"github.com/futugyousuzu/identity-server/pkg/options"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -19,19 +19,11 @@ func NewEmailService(opts *options.Options) *EmailService {
 	}
 }
 
-const (
-	emailsubject = "Activate your account"
-)
-
-func (e *EmailService) SendVerifyEmail(ctx context.Context, to string, url string) error {
-	from := mail.NewEmail(e.opts.EmailFromName, e.opts.EmailFromAddress)
-	newEmail := mail.NewEmail(to, to)
-
-	plainTextContent := fmt.Sprintf("Hello,\n\nPlease activate your account by clicking the following link: %s\n\nThank you!", url)
-	htmlContent := fmt.Sprintf("<p>Hello,</p><p>Please activate your account by clicking the following link: <a href='%s'>Activate Account</a></p><p>Thank you!</p>", url)
-
-	message := mail.NewSingleEmail(from, emailsubject, newEmail, plainTextContent, htmlContent)
+func (e *EmailService) SendEmail(ctx context.Context, data dto.EmailDTO) error {
+	from := mail.NewEmail(data.From, data.From)
+	newEmail := mail.NewEmail(data.To, data.To)
+	message := mail.NewSingleEmail(from, data.Subject, newEmail, data.Text, data.Html)
 	client := sendgrid.NewSendClient(e.opts.SendgridApiKey)
-	_, err := client.Send(message)
+	_, err := client.SendWithContext(ctx, message)
 	return err
 }
