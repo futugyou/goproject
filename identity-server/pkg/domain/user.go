@@ -17,7 +17,6 @@ type User struct {
 }
 
 func NewUser(name, password, email string, scopes []string) *User {
-
 	user := &User{
 		Aggregate: domain.Aggregate{
 			ID: uuid.New().String(),
