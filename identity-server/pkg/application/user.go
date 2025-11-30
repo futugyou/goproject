@@ -88,7 +88,7 @@ func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUs
 	}
 
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
-	user := domain.NewUser(request.Name, request.Email, string(hashed))
+	user := domain.NewUser(request.Name, request.Email, string(hashed), nil)
 
 	err = u.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
 		// TODO: generate a self-verifiable JWT token

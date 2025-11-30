@@ -16,8 +16,9 @@ type User struct {
 	Scopes        []string
 }
 
-func NewUser(name, password, email string) *User {
-	return &User{
+func NewUser(name, password, email string, scopes []string) *User {
+
+	user := &User{
 		Aggregate: domain.Aggregate{
 			ID: uuid.New().String(),
 		},
@@ -25,7 +26,15 @@ func NewUser(name, password, email string) *User {
 		Password:      password,
 		Email:         email,
 		EmailVerified: false,
+		Roles:         []string{},
+		Scopes:        scopes,
 	}
+
+	if len(user.Scopes) == 0 {
+		user.Scopes = defaultScopes
+	}
+
+	return user
 }
 
 func (u *User) GrantRole(roles []string) {

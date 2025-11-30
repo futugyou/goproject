@@ -5,7 +5,7 @@ import (
 	"github.com/futugyousuzu/identity-server/pkg/security"
 )
 
-const defaultScope = "openid profile email offline_access"
+var defaultScopes []string = []string{"openid", "profile", "email", "offline_access"}
 
 type Client struct {
 	domain.Aggregate
@@ -13,14 +13,14 @@ type Client struct {
 	RedirectUris []string
 	Secret       string
 	Public       bool
-	Scope        string
+	Scopes       []string
 }
 
 type ClientOption func(*Client)
 
-func WithScope(scope string) ClientOption {
+func WithScopes(scopes []string) ClientOption {
 	return func(w *Client) {
-		w.Scope = scope
+		w.Scopes = mergeDeduplication(w.Scopes, scopes)
 	}
 }
 
@@ -48,8 +48,8 @@ func NewClient(name string, redirectUris []string, opts ...ClientOption) (*Clien
 		opt(client)
 	}
 
-	if len(client.Scope) == 0 {
-		client.Scope = defaultScope
+	if len(client.Scopes) == 0 {
+		client.Scopes = defaultScopes
 	}
 
 	return client, nil
