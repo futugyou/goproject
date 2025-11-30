@@ -1,5 +1,7 @@
 package viewmodel
 
+import "time"
+
 type UserView struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
@@ -18,5 +20,11 @@ type CreateUserRequest struct {
 }
 
 type CreateUserResponse struct {
-	ID string `json:"id"`   
+	ID string `json:"id"`
+}
+
+type LoginResponse struct {
+	ID      string    `json:"id"`
+	UserID  string    `json:"user_id"`
+	LoginAt time.Time `json:"login_at"`
 }

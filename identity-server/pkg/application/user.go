@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -16,23 +17,26 @@ import (
 )
 
 type UserService struct {
-	innerService *application.AppService
-	repository   domain.UserRepository
-	emailService EmailService
-	opts         *options.Options
+	innerService  *application.AppService
+	repository    domain.UserRepository
+	logrepository domain.UserLoginRepository
+	emailService  EmailService
+	opts          *options.Options
 }
 
 func NewUserService(
-	repository domain.UserRepository,
 	unitOfWork domaincore.UnitOfWork,
+	repository domain.UserRepository,
+	logrepository domain.UserLoginRepository,
 	emailService EmailService,
 	opts *options.Options,
 ) *UserService {
 	return &UserService{
-		repository:   repository,
-		innerService: application.NewAppService(unitOfWork),
-		emailService: emailService,
-		opts:         opts,
+		repository:    repository,
+		logrepository: logrepository,
+		innerService:  application.NewAppService(unitOfWork),
+		emailService:  emailService,
+		opts:          opts,
 	}
 }
 
@@ -99,6 +103,43 @@ func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUs
 
 	return &viewmodel.CreateUserResponse{
 		ID: user.ID,
+	}, err
+}
+
+func (s *UserService) Login(ctx context.Context, name, password string) (*viewmodel.LoginResponse, error) {
+	filter := domaincore.Eq{
+		Field: "name",
+		Value: name,
+	}
+
+	query := domaincore.NewQueryOptions(nil, nil, nil, filter)
+	datas, err := s.repository.Find(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("user not exist")
+	}
+
+	user := datas[0]
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return nil, fmt.Errorf("password not match")
+	}
+
+	userLogin := domain.NewUserLogin(user.ID)
+
+	if err = s.innerService.WithUnitOfWork(ctx, func(ctx context.Context) error {
+		return s.logrepository.Insert(ctx, *userLogin)
+	}); err != nil {
+		return nil, err
+	}
+
+	return &viewmodel.LoginResponse{
+		ID:      userLogin.ID,
+		UserID:  userLogin.UserID,
+		LoginAt: time.Unix(userLogin.Timestamp, 0),
 	}, err
 }
 
