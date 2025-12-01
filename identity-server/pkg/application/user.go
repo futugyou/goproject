@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -69,12 +70,22 @@ func (s *UserService) SearchUser(ctx context.Context, request viewmodel.SearchUs
 	return result, nil
 }
 
-func (s *UserService) CheckName(ctx context.Context, name string) error {
-	return s.checkNameOrEmail(ctx, name, "name")
+func (s *UserService) CheckNameExist(ctx context.Context, name string) error {
+	_, err := s.repository.FindByName(ctx, name)
+	if err != nil && !strings.HasPrefix(err.Error(), domaincore.DATA_NOT_FOUND_MESSAGE) {
+		return err
+	}
+
+	return nil
 }
 
-func (s *UserService) CheckEmail(ctx context.Context, email string) error {
-	return s.checkNameOrEmail(ctx, email, "email")
+func (s *UserService) CheckEmailExist(ctx context.Context, email string) error {
+	_, err := s.repository.FindByEmail(ctx, email)
+	if err != nil && !strings.HasPrefix(err.Error(), domaincore.DATA_NOT_FOUND_MESSAGE) {
+		return err
+	}
+
+	return nil
 }
 
 func (u *UserService) CreateUser(ctx context.Context, request viewmodel.CreateUserRequest) (*viewmodel.CreateUserResponse, error) {
@@ -186,29 +197,6 @@ func (u *UserService) checkUserExist(ctx context.Context, request viewmodel.Crea
 
 	if len(datas) > 0 {
 		return fmt.Errorf("user exist")
-	}
-
-	return nil
-}
-
-func (s *UserService) checkNameOrEmail(ctx context.Context, str, field string) error {
-	if len(str) == 0 {
-		return fmt.Errorf("%s is empty", field)
-	}
-
-	filter := domaincore.Eq{
-		Field: field,
-		Value: str,
-	}
-
-	query := domaincore.NewQueryOptions(nil, nil, nil, filter)
-	datas, err := s.repository.Find(ctx, query)
-	if err != nil {
-		return err
-	}
-
-	if len(datas) > 0 {
-		return fmt.Errorf("%s exist", field)
 	}
 
 	return nil
