@@ -11,4 +11,5 @@ import (
 type UserRepository interface {
 	domain.Repository[User]
 	FindByName(ctx context.Context, name string) (*User, error)
+	FindByEmail(ctx context.Context, email string) (*User, error)
 }

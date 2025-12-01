@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/domaincore v1.0.0
+	github.com/futugyou/domaincore/mongoimpl v1.0.0
 	github.com/futugyou/extensions v1.0.0
 	github.com/go-oauth2/oauth2/v4 v4.5.2
 	github.com/joho/godotenv v1.5.1
