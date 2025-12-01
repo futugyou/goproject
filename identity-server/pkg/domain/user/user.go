@@ -1,4 +1,4 @@
-package domain
+package user
 
 import (
 	"github.com/futugyou/extensions"
