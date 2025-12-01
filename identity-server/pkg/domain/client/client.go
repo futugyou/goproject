@@ -1,7 +1,10 @@
-package domain
+package client
 
 import (
+	"github.com/futugyou/extensions"
+
 	"github.com/futugyou/domaincore/domain"
+
 	"github.com/futugyousuzu/identity-server/pkg/security"
 )
 
@@ -20,7 +23,7 @@ type ClientOption func(*Client)
 
 func WithScopes(scopes []string) ClientOption {
 	return func(w *Client) {
-		w.Scopes = mergeDeduplication(w.Scopes, scopes)
+		w.Scopes = extensions.MergeDeduplication(w.Scopes, scopes)
 	}
 }
 

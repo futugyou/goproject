@@ -1,9 +1,14 @@
 package domain
 
 import (
+	"github.com/futugyou/extensions"
+
 	"github.com/futugyou/domaincore/domain"
+
 	"github.com/google/uuid"
 )
+
+var defaultScopes []string = []string{"openid", "profile", "email", "offline_access"}
 
 //go:generate gotests -w -all .
 type User struct {
@@ -37,19 +42,7 @@ func NewUser(name, password, email string, scopes []string) *User {
 }
 
 func (u *User) GrantRole(roles []string) {
-	u.Roles = mergeDeduplication(u.Roles, roles)
-}
-
-func mergeDeduplication[T comparable](a, b []T) []T {
-	seen := make(map[T]struct{})
-	var result []T
-	for _, item := range append(a, b...) {
-		if _, exists := seen[item]; !exists {
-			seen[item] = struct{}{}
-			result = append(result, item)
-		}
-	}
-	return result
+	u.Roles = extensions.MergeDeduplication(u.Roles, roles)
 }
 
 func (u *User) RevokeRole(role string) {
@@ -67,7 +60,7 @@ func (u *User) RevokeRole(role string) {
 }
 
 func (u *User) GrantAuthorization(scopes []string) {
-	u.Scopes = mergeDeduplication(u.Scopes, scopes)
+	u.Scopes = extensions.MergeDeduplication(u.Scopes, scopes)
 }
 
 func (u *User) RevokeAuthorization(scope string) {

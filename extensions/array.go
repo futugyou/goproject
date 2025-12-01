@@ -6,7 +6,7 @@ func IndexArrayWithOffset[T comparable](array []T, first T, offset int) int {
 	}
 
 	arr := array[offset:]
-	for i := 0; i < len(arr); i++ {
+	for i := range arr {
 		if arr[i] == first {
 			return i + offset
 		}
@@ -26,7 +26,7 @@ func ArrayFilter[T any](raws []T, filter func(T) bool) (ret []T) {
 }
 
 func ArrayFirst[T any](raws []T, filter func(T) bool) *T {
-	for i := 0; i < len(raws); i++ {
+	for i := range raws {
 		if filter(raws[i]) {
 			return &raws[i]
 		}
@@ -47,5 +47,17 @@ func SplitArray[T any](arr []T, size int) [][]T {
 		arr = arr[size:]
 	}
 
+	return result
+}
+
+func MergeDeduplication[T comparable](a, b []T) []T {
+	seen := make(map[T]struct{})
+	var result []T
+	for _, item := range append(a, b...) {
+		if _, exists := seen[item]; !exists {
+			seen[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
 	return result
 }

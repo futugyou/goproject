@@ -10,7 +10,7 @@ import (
 	"github.com/futugyou/domaincore/application"
 	domaincore "github.com/futugyou/domaincore/domain"
 
-	"github.com/futugyousuzu/identity-server/pkg/domain"
+	domain "github.com/futugyousuzu/identity-server/pkg/domain/user"
 	"github.com/futugyousuzu/identity-server/pkg/dto"
 	"github.com/futugyousuzu/identity-server/pkg/options"
 	"github.com/futugyousuzu/identity-server/pkg/viewmodel"
