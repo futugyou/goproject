@@ -11,10 +11,11 @@ import (
 
 type Authorization struct {
 	domain.Aggregate
-	UserID    string
-	ClientID  string
-	Scopes    []string
-	ExpiresAt time.Time
+	AuthorizationCode string
+	UserID            string
+	ClientID          string
+	Scopes            []string
+	ExpiresAt         time.Time
 }
 
 func NewAuthorization(userID, clientID string, scopes []string, expiresAt time.Time) *Authorization {
@@ -25,12 +26,13 @@ func NewAuthorization(userID, clientID string, scopes []string, expiresAt time.T
 
 	return &Authorization{
 		Aggregate: domain.Aggregate{
-			ID: code,
+			ID: uuid.New().String(),
 		},
-		UserID:    userID,
-		ClientID:  clientID,
-		Scopes:    scopes,
-		ExpiresAt: expiresAt,
+		AuthorizationCode: code,
+		UserID:            userID,
+		ClientID:          clientID,
+		Scopes:            scopes,
+		ExpiresAt:         expiresAt,
 	}
 }
 
