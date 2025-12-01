@@ -22,8 +22,23 @@ type Token struct {
 	Status                TokenStatus
 }
 
-func NewToken(code, clientID, userID string, scopes []string, token string, expiresAt time.Time) *Token {
-	return &Token{
+type TokenOption func(*Token)
+
+func WithIDToken(token string) TokenOption {
+	return func(w *Token) {
+		w.IDToken = token
+	}
+}
+
+func WithRefreshToken(token string, expiresAt time.Time) TokenOption {
+	return func(w *Token) {
+		w.RefreshToken = token
+		w.RefreshTokenExpiresAt = expiresAt
+	}
+}
+
+func NewToken(code, clientID, userID string, scopes []string, token string, expiresAt time.Time, opts ...TokenOption) *Token {
+	t := &Token{
 		Aggregate: domain.Aggregate{
 			ID: uuid.New().String(),
 		},
@@ -35,6 +50,12 @@ func NewToken(code, clientID, userID string, scopes []string, token string, expi
 		Scopes:            scopes,
 		Status:            Valid,
 	}
+
+	for _, opt := range opts {
+		opt(t)
+	}
+
+	return t
 }
 
 type TokenStatus string
@@ -45,6 +66,15 @@ var Expired TokenStatus = "Expired"
 
 func (t *Token) IsExpired() bool {
 	return time.Now().After(t.ExpiresAt)
+}
+
+func (t *Token) SetIDToken(token string) {
+	t.IDToken = token
+}
+
+func (t *Token) SetRefreshToken(token string, expiresAt time.Time) {
+	t.RefreshToken = token
+	t.RefreshTokenExpiresAt = expiresAt
 }
 
 func (t *Token) Invalidate() {
