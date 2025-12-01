@@ -3,6 +3,7 @@ package domain
 import (
 	"time"
 
+	"github.com/futugyousuzu/identity-server/pkg/security"
 	"github.com/google/uuid"
 )
 
@@ -18,22 +19,27 @@ type Token struct {
 	Status    TokenStatus
 }
 
-func NewIDToken(value, clientID, userID string, scopes []string, expiresAt time.Time) *Token {
-	return newToken(value, expiresAt, clientID, userID, scopes, IDToken)
+func NewIDToken(token, clientID, userID string, scopes []string, expiresAt time.Time) *Token {
+	return newToken(token, expiresAt, clientID, userID, scopes, IDToken)
 }
 
-func NewAccessToken(value, clientID, userID string, scopes []string, expiresAt time.Time) *Token {
-	return newToken(value, expiresAt, clientID, userID, scopes, AccessToken)
+func NewAccessToken(token, clientID, userID string, scopes []string, expiresAt time.Time) *Token {
+	return newToken(token, expiresAt, clientID, userID, scopes, AccessToken)
 }
 
-func NewRefreshToken(value, clientID, userID string, scopes []string, expiresAt time.Time) *Token {
-	return newToken(value, expiresAt, clientID, userID, scopes, RefreshToken)
+func NewRefreshToken(clientID, userID string, scopes []string, expiresAt time.Time) *Token {
+	token, err := security.GenerateRandomString(24)
+	if err != nil {
+		token = uuid.New().String()
+	}
+
+	return newToken(token, expiresAt, clientID, userID, scopes, RefreshToken)
 }
 
-func newToken(value string, expiresAt time.Time, clientID string, userID string, scopes []string, tokenType TokenType) *Token {
+func newToken(token string, expiresAt time.Time, clientID string, userID string, scopes []string, tokenType TokenType) *Token {
 	return &Token{
 		ID:        uuid.New().String(),
-		Value:     value,
+		Value:     token,
 		IssuedAt:  time.Now(),
 		ExpiresAt: expiresAt,
 		ClientID:  clientID,

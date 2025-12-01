@@ -3,23 +3,34 @@ package domain
 import (
 	"slices"
 	"time"
+
+	"github.com/futugyou/domaincore/domain"
+	"github.com/futugyousuzu/identity-server/pkg/security"
+	"github.com/google/uuid"
 )
 
 type Authorization struct {
-	AuthorizationCode string
-	UserID            string
-	ClientID          string
-	Scopes            []string
-	ExpiresAt         time.Time
+	domain.Aggregate
+	UserID    string
+	ClientID  string
+	Scopes    []string
+	ExpiresAt time.Time
 }
 
-func NewAuthorization(authorizationCode, userID, clientID string, scopes []string, expiresAt time.Time) *Authorization {
+func NewAuthorization(userID, clientID string, scopes []string, expiresAt time.Time) *Authorization {
+	code, err := security.GenerateRandomString(24)
+	if err != nil {
+		code = uuid.New().String()
+	}
+
 	return &Authorization{
-		AuthorizationCode: authorizationCode,
-		UserID:            userID,
-		ClientID:          clientID,
-		Scopes:            scopes,
-		ExpiresAt:         expiresAt,
+		Aggregate: domain.Aggregate{
+			ID: code,
+		},
+		UserID:    userID,
+		ClientID:  clientID,
+		Scopes:    scopes,
+		ExpiresAt: expiresAt,
 	}
 }
 
@@ -40,4 +51,3 @@ func (a *Authorization) ValidateScope(scopes []string) bool {
 func (a *Authorization) RevokeAuthorization() {
 	a.ExpiresAt = time.Now()
 }
- 

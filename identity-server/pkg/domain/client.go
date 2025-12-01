@@ -30,8 +30,22 @@ func WithPublic(public bool) ClientOption {
 	}
 }
 
+func generateClientCredentials() (string, string, error) {
+	clientID, err := security.GenerateRandomString(24)
+	if err != nil {
+		return "", "", err
+	}
+
+	clientSecret, err := security.GenerateRandomString(48)
+	if err != nil {
+		return "", "", err
+	}
+
+	return clientID, clientSecret, nil
+}
+
 func NewClient(name string, redirectUris []string, opts ...ClientOption) (*Client, error) {
-	id, secret, err := security.GenerateClientCredentials()
+	id, secret, err := generateClientCredentials()
 	if err != nil {
 		return nil, err
 	}
