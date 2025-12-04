@@ -13,7 +13,7 @@ require (
 	github.com/go-openapi/loads v0.23.2
 	github.com/go-openapi/spec v0.22.1
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	go.mongodb.org/mongo-driver v1.17.6
 	golang.org/x/text v0.31.0
 )
