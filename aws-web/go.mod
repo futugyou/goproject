@@ -11,9 +11,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.53.3
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.275.1
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.54.2
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.69.2
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.69.3
 	github.com/aws/aws-sdk-go-v2/service/efs v1.41.7
-	github.com/aws/aws-sdk-go-v2/service/iam v1.52.3
+	github.com/aws/aws-sdk-go-v2/service/iam v1.53.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.93.0
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.19
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.67.5
