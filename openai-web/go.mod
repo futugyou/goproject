@@ -1,10 +1,11 @@
 module github.com/futugyousuzu/go-openai-web
 
-go 1.24.0
+go 1.24.4
 
 require github.com/beego/beego/v2 v2.3.8
 
 require (
+	github.com/ag-ui-protocol/ag-ui/sdks/community/go v0.0.0-20251223201359-3c276853e9f9
 	github.com/amikos-tech/chroma-go v0.2.5
 	github.com/cloudwego/eino v0.7.0
 	github.com/cloudwego/eino-ext/components/document/loader/url v0.0.0-20251126024534-134208f85815
@@ -150,7 +151,7 @@ require (
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sync v0.18.0
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect

@@ -6,6 +6,20 @@
   },
   "routes": [
     {
+      "src": "/api/v1/agui",
+      "dest": "/api/agui",
+      "methods": [
+        "POST",
+        "OPTIONS"
+      ],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Expose-Headers": "*"
+      }
+    },
+    {
       "src": "/",
       "dest": "/api/examples",
       "methods": [
