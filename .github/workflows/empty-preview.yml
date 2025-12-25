@@ -9,7 +9,6 @@ on:
     paths: 
     - 'tour/**'
     - 'k8sbuilder/**'
-    - 'container/**'
     - 'alphavantage-server/**'
     - 'aws-web/**'
     - 'identity-center/**'
@@ -33,9 +32,6 @@ jobs:
               - '.github/workflows/empty-preview.yaml'
             k8sbuilder:
               - 'k8sbuilder/**'
-              - '.github/workflows/empty-preview.yaml'
-            container:
-              - 'container/**'
               - '.github/workflows/empty-preview.yaml'
             alphavantage:
               - 'alphavantage-server/**'
@@ -62,11 +58,6 @@ jobs:
         if: steps.changes.outputs.k8sbuilder == 'true'
         run: go mod tidy && go build ./cmd/main.go
         working-directory: ./k8sbuilder
-
-      - name: container
-        if: steps.changes.outputs.container == 'true'
-        run: go mod tidy && go build -o mindocker .
-        working-directory: ./container
 
       - name: alphavantage
         if: steps.changes.outputs.alphavantage == 'true'

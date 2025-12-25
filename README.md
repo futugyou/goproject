@@ -22,10 +22,6 @@ Older projects have been moved to [goproject-archived](https://github.com/futugy
 
 ### 2.2 Other Projects
 
-- **`algorithm` / `design-pattern`**: Early works on `algorithm` problems and `design patterns`; mostly not updated currently.
-
-- **`container`**: A `container` written in Go; the original link is not remembered.
-
 - **`identity-mongo`**: Stores data for `identity-center` using **MongoDB**.
 
 - **`k8sbuilder`**: Example project for `k8sbuilder`; not updated yet.
