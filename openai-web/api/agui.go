@@ -70,13 +70,13 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type AgenticInput struct {
-	ThreadID       string                   `json:"thread_id"`
-	RunID          string                   `json:"run_id"`
-	State          interface{}              `json:"state"`
-	Messages       []map[string]interface{} `json:"messages"`
-	Tools          []interface{}            `json:"tools"`
-	Context        []interface{}            `json:"context"`
-	ForwardedProps interface{}              `json:"forwarded_props"`
+	ThreadID       string           `json:"thread_id"`
+	RunID          string           `json:"run_id"`
+	State          any              `json:"state"`
+	Messages       []map[string]any `json:"messages"`
+	Tools          []any            `json:"tools"`
+	Context        []any            `json:"context"`
+	ForwardedProps any              `json:"forwarded_props"`
 }
 
 // streamAgenticEvents implements the tool-based generative UI event sequence
@@ -107,7 +107,7 @@ func streamAgenticEvents(reqCtx context.Context, w *bufio.Writer, sseWriter *sse
 	}
 
 	// Grab last message from input, will be a user message
-	var lastMessage map[string]interface{}
+	var lastMessage map[string]any
 	if len(input.Messages) > 0 {
 		lastMessage = input.Messages[len(input.Messages)-1]
 	}

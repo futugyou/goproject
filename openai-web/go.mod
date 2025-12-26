@@ -7,28 +7,29 @@ require github.com/beego/beego/v2 v2.3.8
 require (
 	github.com/ag-ui-protocol/ag-ui/sdks/community/go v0.0.0-20251223201359-3c276853e9f9
 	github.com/amikos-tech/chroma-go v0.2.5
-	github.com/cloudwego/eino v0.7.0
-	github.com/cloudwego/eino-ext/components/document/loader/url v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/document/parser/docx v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/document/parser/pdf v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/document/parser/xlsx v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/document/transformer/splitter/recursive v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/model/gemini v0.1.14
-	github.com/cloudwego/eino-ext/components/tool/duckduckgo/v2 v2.0.0-20251126024534-134208f85815
-	github.com/cloudwego/eino-ext/components/tool/googlesearch v0.0.0-20251126024534-134208f85815
+	github.com/cloudwego/eino v0.7.14
+	github.com/cloudwego/eino-ext/components/document/loader/url v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/document/parser/docx v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/document/parser/pdf v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/document/parser/xlsx v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/recursive v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/embedding/gemini v0.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/model/gemini v0.1.21
+	github.com/cloudwego/eino-ext/components/tool/duckduckgo/v2 v2.0.0-20251226123311-1d93d527c144
+	github.com/cloudwego/eino-ext/components/tool/googlesearch v0.0.0-20251226123311-1d93d527c144
 	github.com/cloudwego/eino-ext/components/tool/mcp v0.0.7
 	github.com/devfeel/mapper v0.7.14
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/client v0.0.0
 	github.com/google/uuid v1.6.0
 	github.com/mark3labs/mcp-go v0.43.1
-	github.com/openai/openai-go/v3 v3.8.1
-	github.com/redis/go-redis/v9 v9.17.1
+	github.com/openai/openai-go/v3 v3.15.0
+	github.com/redis/go-redis/v9 v9.17.2
 	github.com/smartystreets/goconvey v1.8.1
-	google.golang.org/genai v1.36.0
+	google.golang.org/adk v0.3.0
+	google.golang.org/genai v1.40.0
 )
 
 require (
@@ -39,7 +40,9 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.20.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.2 // indirect
 	github.com/PuerkitoBio/goquery v1.11.0 // indirect
+	github.com/a2aproject/a2a-go v0.3.3 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/awalterschulze/gographviz v2.0.3+incompatible // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
@@ -49,13 +52,13 @@ require (
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
-	github.com/cloudwego/eino-ext/components/document/parser/html v0.0.0-20251126024534-134208f85815 // indirect
+	github.com/cloudwego/eino-ext/components/document/parser/html v0.0.0-20251226123311-1d93d527c144 // indirect
 	github.com/corpix/uarand v0.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dslipak/pdf v0.0.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/eino-contrib/docx2md v0.0.1 // indirect
-	github.com/eino-contrib/jsonschema v1.0.2 // indirect
+	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -63,10 +66,12 @@ require (
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
+	github.com/google/safehtml v0.1.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
+	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/invopop/jsonschema v0.13.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -98,27 +103,30 @@ require (
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	github.com/tiendc/go-deepcopy v1.7.1 // indirect
+	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/excelize/v2 v2.10.0 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
-	github.com/yalue/onnxruntime_go v1.22.0 // indirect
+	github.com/yalue/onnxruntime_go v1.25.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	golang.org/x/arch v0.23.0 // indirect
-	golang.org/x/exp v0.0.0-20251125195548-87e1e737ad39 // indirect
-	golang.org/x/mod v0.30.0 // indirect
+	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
+	golang.org/x/mod v0.31.0 // indirect
 	google.golang.org/api v0.256.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251124214823-79d6a2a48846 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/grpc v1.77.0 // indirect
+	rsc.io/omap v1.2.0 // indirect
+	rsc.io/ordered v1.1.1 // indirect
 )
 
 replace github.com/futugyousuzu/identity/client v0.0.0 => github.com/futugyou/goproject/identity-client v0.0.0-20230713085205-834db99b0998
@@ -135,7 +143,7 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
-	github.com/klauspost/compress v1.18.1 // indirect
+	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
@@ -151,9 +159,9 @@ require (
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
-	golang.org/x/sync v0.18.0
+	golang.org/x/sync v0.19.0
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
