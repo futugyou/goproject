@@ -22,10 +22,10 @@ func TimeAgent(ctx context.Context) (agent.Agent, error) {
 	}
 
 	return llmagent.New(llmagent.Config{
-		Name:        "weather_time_agent",
+		Name:        "time_agent",
 		Model:       model,
-		Description: "Agent to answer questions about the time and weather in a city.",
-		Instruction: "Your SOLE purpose is to answer questions about the current time and weather in a specific city. You MUST refuse to answer any questions unrelated to time or weather.",
+		Description: "Agent to answer questions about the time in a city.",
+		Instruction: "Your SOLE purpose is to answer questions about the current time in a specific city. You MUST refuse to answer any questions unrelated to time.",
 		Tools: []tool.Tool{
 			geminitool.GoogleSearch{},
 		},

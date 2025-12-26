@@ -6,7 +6,7 @@ import (
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
-	
+
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/cmd/launcher"
 	"google.golang.org/adk/cmd/launcher/full"
@@ -14,6 +14,7 @@ import (
 	"github.com/futugyousuzu/go-openai-web/agentic/agents"
 )
 
+// go run ./cmd/time/main.go web api webui
 func main() {
 	ctx := context.Background()
 
