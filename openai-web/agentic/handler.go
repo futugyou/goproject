@@ -97,11 +97,24 @@ func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map
 }
 
 func (h *Handler) OnAfterModel(ctx agent.CallbackContext, llmResponse *model.LLMResponse, llmResponseError error) (*model.LLMResponse, error) {
+	if h.hasStartedThinking && h.currentMode == "thinking" {
+		ev := events.NewThinkingEndEvent()
+		h.handleEvent(ev)
+	}
+
+	if h.hasStartedMessage {
+		ev := events.NewTextMessageEndEvent(h.messageID)
+		h.handleEvent(ev)
+	}
+
 	if h.stepID != "" {
 		stepFinishedEvent := events.NewStepFinishedEvent(h.stepID)
 		h.handleEvent(stepFinishedEvent)
 		h.stepID = ""
 	}
+
+	h.hasStartedThinking = false
+	h.hasStartedMessage = false
 
 	return nil, nil
 }
