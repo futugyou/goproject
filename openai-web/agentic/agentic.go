@@ -41,8 +41,3 @@ func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter
 
 	return nil
 }
-
-func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- string) error {
-	// TODO: use https://github.com/google/adk-go
-	return nil
-}
