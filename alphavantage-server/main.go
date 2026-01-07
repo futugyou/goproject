@@ -45,22 +45,30 @@ func ProcessToRun() {
 	// This will consume 17 tokens, so return.
 	if d == 2 {
 		commodities.SyncMonthlyCommoditiesData(ctx)
+		time.Sleep(1 * time.Second) // Adding a simulated delay only in the `main.go` function might not be enough, but let's try it this way first.
 		commodities.SyncMonthlyEconomicData(ctx)
+		time.Sleep(1 * time.Second)
 		commodities.SyncQuarterlyEconomicData(ctx)
+		time.Sleep(1 * time.Second)
 		commodities.SyncAnnualEconomicData(ctx)
 		return
 	}
 
 	// Runs monthly stock sync from 3 to 3+len(StockList)
 	// This will consume 5 tokens, so go on.
-	for i := 0; i < len(stockList); i++ {
+	for i := range stockList {
 		if d == i+3 {
 			symbol := stockList[i]
 			income.SyncIncomeStatementData(ctx, symbol)
+			time.Sleep(1 * time.Second)
 			balance.SyncBalanceSheetData(ctx, symbol)
+			time.Sleep(1 * time.Second)
 			cash.SyncCashSheetData(ctx, symbol)
+			time.Sleep(1 * time.Second)
 			earnings.SyncEarningsData(ctx, symbol)
+			time.Sleep(1 * time.Second)
 			expected.SyncExpectedData(ctx, symbol)
+			time.Sleep(1 * time.Second)
 			count += 5
 		}
 	}
@@ -69,7 +77,9 @@ func ProcessToRun() {
 	// This will consume 5 tokens, so go on.
 	if w == time.Saturday || (w == time.Sunday && d == 3) {
 		commodities.SyncDailyCommoditiesData(ctx)
+		time.Sleep(1 * time.Second)
 		commodities.SyncDailyEconomicData(ctx)
+		time.Sleep(1 * time.Second)
 		count += 5
 	}
 
@@ -81,14 +91,17 @@ func ProcessToRun() {
 
 	// This will consume 2 tokens
 	stock.SyncStockSymbolData(ctx, symbol)
+	time.Sleep(1 * time.Second)
 	// This will consume 1 tokens
 	news.SyncNewsSentimentData(ctx, symbol)
+	time.Sleep(1 * time.Second)
 	count += 3
 
 	for i := count; i < totalCount; i++ {
 		if stockSeries.SyncStockSeriesData(ctx, symbol) {
 			break
 		}
+		time.Sleep(1 * time.Second)
 	}
 
 	base.UpdateStockRunningData(ctx, symbol)
