@@ -9,28 +9,28 @@ import (
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
-	"github.com/futugyou/alphavantage/enums"
 )
 
 func SyncStockSeriesData(ctx context.Context, symbol string) bool {
 	log.Println("stock series data sync start.")
 	// get sync month
-	month := GetStaockMonth(ctx, symbol)
+	month := GetStockMonth(ctx, symbol)
 
 	log.Printf("start to get %s data, month %s \n", symbol, month)
 
 	// get data from alphavantage
 	apikey := os.Getenv("ALPHAVANTAGE_API_KEY")
+	// The intraday API is now a Premium API, so switched to the free daily API.
 	client := alphavantage.NewTimeSeriesClient(apikey)
-	p := alphavantage.TimeSeriesIntradayParameter{
-		Symbol:   symbol,
-		Interval: enums.T60min,
-		Dictionary: map[string]string{
-			"outputsize": "full",
-			"month":      month,
-		},
+	p := alphavantage.TimeSeriesDailyParameter{
+		Symbol: symbol,
+		// "outputsize": "full", is Premium option, month is no need, so remove it
+		// Dictionary: map[string]string{
+		// 	"outputsize": "full",
+		// 	"month":      month,
+		// },
 	}
-	s, err := client.TimeSeriesIntraday(p)
+	s, err := client.TimeSeriesDaily(p)
 	// alphavantage will throw 'Invalid API call' when no data, there is no way to distinguish 'no data' error from other errors.
 	if err != nil {
 		log.Println(err)
@@ -44,7 +44,7 @@ func SyncStockSeriesData(ctx context.Context, symbol string) bool {
 	if len(s) > 0 {
 		// create insert data
 		data := make([]StockSeriesEntity, 0)
-		for ii := 0; ii < len(s); ii++ {
+		for ii := range s {
 			e := StockSeriesEntity{
 				Id:     s[ii].Symbol + s[ii].Time.Format("2006-01-02 15:04:05"),
 				Symbol: s[ii].Symbol,
@@ -77,7 +77,7 @@ func SyncStockSeriesData(ctx context.Context, symbol string) bool {
 	// update month
 	needUpdate := checkTime(month)
 	if needUpdate {
-		UpdateStaockMonth(ctx, month, symbol)
+		UpdateStockMonth(ctx, month, symbol)
 	}
 
 	log.Println("stock series data sync finish")
@@ -108,6 +108,6 @@ func StockSeriesData(ctx context.Context, symbol string, year string) ([]StockSe
 		Value: symbol,
 	}, {
 		Key:   "time",
-		Value: map[string]interface{}{"$gte": start, "$lt": end},
+		Value: map[string]any{"$gte": start, "$lt": end},
 	}})
 }

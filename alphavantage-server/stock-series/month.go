@@ -8,7 +8,7 @@ import (
 	"github.com/futugyou/alphavantage-server/core"
 )
 
-func GetStaockMonth(ctx context.Context, symbol string) string {
+func GetStockMonth(ctx context.Context, symbol string) string {
 	month := "2000-01"
 
 	config := core.DBConfig{
@@ -25,7 +25,7 @@ func GetStaockMonth(ctx context.Context, symbol string) string {
 	return month
 }
 
-func UpdateStaockMonth(ctx context.Context, month string, symbol string) {
+func UpdateStockMonth(ctx context.Context, month string, symbol string) {
 	config := core.DBConfig{
 		DBName:        os.Getenv("db_name"),
 		ConnectString: os.Getenv("mongodb_url"),
