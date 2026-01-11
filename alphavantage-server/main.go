@@ -45,7 +45,7 @@ func ProcessToRun() {
 	// This will consume 17 tokens, so return.
 	if d == 2 {
 		commodities.SyncMonthlyCommoditiesData(ctx)
-		time.Sleep(1 * time.Second) // Adding a simulated delay only in the `main.go` function might not be enough, but let's try it this way first.
+		time.Sleep(1 * time.Second) // Adding a simulated delay
 		commodities.SyncMonthlyEconomicData(ctx)
 		time.Sleep(1 * time.Second)
 		commodities.SyncQuarterlyEconomicData(ctx)
