@@ -6,19 +6,60 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/jszwec/csvutil"
+	"golang.org/x/time/rate"
 )
+
+var GlobalApiLimiter = rate.NewLimiter(rate.Limit(1), 1)
+
+type GlobalRateLimitTransport struct {
+	Transport http.RoundTripper
+}
+
+func (t *GlobalRateLimitTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// Apply rate limiting when running in GitHub Workflow
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		err := GlobalApiLimiter.Wait(req.Context())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	trans := t.Transport
+	if trans == nil {
+		trans = http.DefaultTransport
+	}
+	return trans.RoundTrip(req)
+}
 
 type httpClient struct {
 	http *http.Client
 }
 
+type DelayedTransport struct {
+	Transport http.RoundTripper
+	Delay     time.Duration
+}
+
+func (d *DelayedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	time.Sleep(d.Delay)
+	return d.Transport.RoundTrip(req)
+}
+
 func newHttpClient() *httpClient {
 	return &httpClient{
-		http: &http.Client{},
+		http: &http.Client{
+			Transport: &GlobalRateLimitTransport{
+				Transport: &http.Transport{
+					MaxIdleConns: 10,
+				},
+			},
+		},
 	}
 }
 

@@ -3,7 +3,6 @@ package stock
 import (
 	"context"
 	"os"
-	"time"
 
 	"log"
 
@@ -56,7 +55,6 @@ func SyncStockSymbolData(ctx context.Context, symbol string) {
 		stock = &StockEntity{}
 	}
 
-	time.Sleep(1 * time.Second)
 	// get data from CompanyOverview API
 	client := alphavantage.NewFundamentalsClient(apikey)
 	pp := alphavantage.CompanyOverviewParameter{

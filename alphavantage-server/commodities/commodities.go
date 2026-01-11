@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"os"
-	"time"
 
 	"github.com/futugyou/alphavantage"
 	"github.com/futugyou/alphavantage-server/core"
@@ -31,9 +30,7 @@ func SyncDailyCommoditiesData(ctx context.Context) {
 
 	// get daily commodities data
 	data := wti(client)
-	time.Sleep(1 * time.Second)
 	data = append(data, brent(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, gas(client)...)
 
 	// insert data
@@ -61,19 +58,12 @@ func SyncMonthlyCommoditiesData(ctx context.Context) {
 
 	// get monthly commodities data
 	data := copper(client)
-	time.Sleep(1 * time.Second)
 	data = append(data, aluminum(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, wheat(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, corn(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, cotton(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, sugar(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, coffee(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, all(client)...)
 
 	// insert data
@@ -261,7 +251,6 @@ func SyncDailyEconomicData(ctx context.Context) {
 
 	// get daily economic data
 	data := treasury(client)
-	time.Sleep(1 * time.Second)
 	data = append(data, interest(client)...)
 
 	// insert data
@@ -289,13 +278,9 @@ func SyncMonthlyEconomicData(ctx context.Context) {
 
 	// get monthly economic data
 	data := cpi(client)
-	time.Sleep(1 * time.Second)
 	data = append(data, retail(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, durable(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, unemployment(client)...)
-	time.Sleep(1 * time.Second)
 	data = append(data, payroll(client)...)
 
 	// insert data
@@ -323,7 +308,6 @@ func SyncQuarterlyEconomicData(ctx context.Context) {
 
 	// get quarterly economic data
 	data := realgdp(client)
-	time.Sleep(1 * time.Second)
 	data = append(data, realgdpcapita(client)...)
 
 	// insert data
