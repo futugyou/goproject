@@ -15,7 +15,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/spf13/cobra v1.10.2
 	go.mongodb.org/mongo-driver v1.17.6
-	golang.org/x/text v0.32.0
+	golang.org/x/text v0.33.0
 )
 
 require (
@@ -63,7 +63,7 @@ require (
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/swaggest/refl v1.4.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.30.0 // indirect
+	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
