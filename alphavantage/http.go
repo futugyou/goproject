@@ -3,6 +3,7 @@ package alphavantage
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,6 +20,15 @@ var GlobalApiLimiter = rate.NewLimiter(rate.Limit(1), 1)
 
 type GlobalRateLimitTransport struct {
 	Transport http.RoundTripper
+}
+
+var sharedTransport = &http.Transport{
+	MaxIdleConns:    100,
+	IdleConnTimeout: 90 * time.Second,
+}
+
+var globalLimiterTransport = &GlobalRateLimitTransport{
+	Transport: sharedTransport,
 }
 
 func (t *GlobalRateLimitTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -41,24 +51,10 @@ type httpClient struct {
 	http *http.Client
 }
 
-type DelayedTransport struct {
-	Transport http.RoundTripper
-	Delay     time.Duration
-}
-
-func (d *DelayedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	time.Sleep(d.Delay)
-	return d.Transport.RoundTrip(req)
-}
-
 func newHttpClient() *httpClient {
 	return &httpClient{
 		http: &http.Client{
-			Transport: &GlobalRateLimitTransport{
-				Transport: &http.Transport{
-					MaxIdleConns: 10,
-				},
-			},
+			Transport: globalLimiterTransport,
 		},
 	}
 }
@@ -124,7 +120,7 @@ func (c *httpClient) getCsv(path string) ([][]string, error) {
 	if len(result) == 2 && len(result[0]) == 1 {
 		for _, field := range errorFeilds {
 			if message, ok := strings.CutPrefix(result[0][0], fmt.Sprintf("%s\": \"", field)); ok {
-				return nil, fmt.Errorf(message)
+				return nil, errors.New(message)
 			}
 		}
 	}
@@ -197,7 +193,7 @@ func (c *httpClient) getJson(path string, response interface{}) error {
 		for _, field := range errorFeilds {
 			msg := ps.FieldByName(field).String()
 			if len(msg) > 0 && msg != "<invalid Value>" {
-				return fmt.Errorf(msg)
+				return errors.New(msg)
 			}
 		}
 	}
