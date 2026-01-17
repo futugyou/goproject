@@ -7,8 +7,8 @@ import (
 
 	"github.com/futugyou/qstash"
 
-	"github.com/futugyou/domaincore/domain"
-	"github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/domaincore/domain" 
+	"github.com/futugyou/domaincore/application" 
 )
 
 type QStashEventDispatcher struct {
@@ -28,7 +28,7 @@ func (q *QStashEventDispatcher) DispatchDomainEvents(ctx context.Context, events
 	return q.dispatch(ctx, buildQStashBatch(q.destination, events))
 }
 
-func (q *QStashEventDispatcher) DispatchIntegrationEvents(ctx context.Context, events []infrastructure.Event) error {
+func (q *QStashEventDispatcher) DispatchIntegrationEvents(ctx context.Context, events []application.Event) error {
 	return q.dispatch(ctx, buildQStashBatch(q.destination, events))
 }
 

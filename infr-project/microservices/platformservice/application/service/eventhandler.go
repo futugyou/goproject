@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	coreinfr "github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/domaincore/application"
 )
 
 type EventLog struct {
@@ -17,6 +17,6 @@ type EventLog struct {
 }
 
 type EventHandler interface {
-	coreinfr.EventDispatcher
+	application.EventDispatcher
 	Get(ctx context.Context, eventID string) (*EventLog, error)
 }

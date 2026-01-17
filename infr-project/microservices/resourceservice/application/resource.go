@@ -6,7 +6,6 @@ import (
 
 	coreapp "github.com/futugyou/domaincore/application"
 	coredomain "github.com/futugyou/domaincore/domain"
-	coreinfr "github.com/futugyou/domaincore/infrastructure"
 
 	"github.com/futugyou/resourceservice/domain"
 	models "github.com/futugyou/resourceservice/viewmodel"
@@ -22,10 +21,10 @@ func needStoreSnapshot(aggregate *domain.Resource) bool {
 }
 
 func NewResourceService(
-	eventStore coreinfr.EventStore[domain.ResourceEvent],
-	snapshotStore coreinfr.SnapshotStore[*domain.Resource],
+	eventStore coredomain.EventStore[domain.ResourceEvent],
+	snapshotStore coredomain.SnapshotStore[*domain.Resource],
 	unitOfWork coredomain.UnitOfWork,
-	eventPublisher coreinfr.EventDispatcher,
+	eventPublisher coreapp.EventDispatcher,
 ) *ResourceService {
 	return &ResourceService{
 		service:    coreapp.NewApplicationService(eventStore, snapshotStore, unitOfWork, domain.ResourceFactory, needStoreSnapshot, eventPublisher),

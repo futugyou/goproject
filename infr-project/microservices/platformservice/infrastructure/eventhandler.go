@@ -5,24 +5,23 @@ import (
 	"errors"
 	"time"
 
-	
-	"github.com/futugyou/extensions"
-	coreinfr "github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/domaincore/application"
 	"github.com/futugyou/domaincore/mongoimpl"
+	"github.com/futugyou/extensions"
 
 	"github.com/futugyou/platformservice/application/service"
 	"github.com/futugyou/platformservice/infrastructure/internal/dao"
-	"github.com/futugyou/platformservice/infrastructure/internal/entity" 
+	"github.com/futugyou/platformservice/infrastructure/internal/entity"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type EventHandler struct {
 	log *dao.EventLogDao
-	coreinfr.EventDispatcher
+	application.EventDispatcher
 }
 
-func NewEventHandler(client *mongo.Client, config mongoimpl.DBConfig, eventDispatcher coreinfr.EventDispatcher) *EventHandler {
+func NewEventHandler(client *mongo.Client, config mongoimpl.DBConfig, eventDispatcher application.EventDispatcher) *EventHandler {
 	log := dao.NewEventLogDao(client, config)
 
 	return &EventHandler{
@@ -31,7 +30,7 @@ func NewEventHandler(client *mongo.Client, config mongoimpl.DBConfig, eventDispa
 	}
 }
 
-func (e *EventHandler) DispatchIntegrationEvents(ctx context.Context, events []coreinfr.Event) error {
+func (e *EventHandler) DispatchIntegrationEvents(ctx context.Context, events []application.Event) error {
 	if len(events) == 0 {
 		return nil
 	}

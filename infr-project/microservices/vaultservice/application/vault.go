@@ -7,7 +7,6 @@ import (
 
 	coreapp "github.com/futugyou/domaincore/application"
 	coredomain "github.com/futugyou/domaincore/domain"
-	coreinfr "github.com/futugyou/domaincore/infrastructure"
 
 	tool "github.com/futugyou/extensions"
 
@@ -20,14 +19,14 @@ import (
 type VaultService struct {
 	innerService   *coreapp.AppService
 	repository     domain.VaultRepository
-	eventPublisher coreinfr.EventDispatcher
+	eventPublisher coreapp.EventDispatcher
 	opts           *options.Options
 }
 
 func NewVaultService(
 	unitOfWork coredomain.UnitOfWork,
 	repository domain.VaultRepository,
-	eventPublisher coreinfr.EventDispatcher,
+	eventPublisher coreapp.EventDispatcher,
 	opts *options.Options,
 ) *VaultService {
 	return &VaultService{
@@ -246,7 +245,7 @@ func (s *VaultService) ChangeVault(ctx context.Context, id string, aux viewmodel
 				return err
 			}
 
-			s.eventPublisher.DispatchIntegrationEvents(ctx, []coreinfr.Event{ToVaultChanged(data)})
+			s.eventPublisher.DispatchIntegrationEvents(ctx, []coreapp.Event{ToVaultChanged(data)})
 
 			if data.StorageMedia == domain.StorageMediaLocal {
 				return nil

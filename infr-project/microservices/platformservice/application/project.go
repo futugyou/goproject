@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	coreinfr "github.com/futugyou/domaincore/infrastructure"
+	"github.com/futugyou/domaincore/application"
 	tool "github.com/futugyou/extensions"
 	"github.com/google/uuid"
 
@@ -44,7 +44,7 @@ func (s *PlatformService) ImportProjectsFromProvider(ctx context.Context, idOrNa
 	}
 
 	projectMapper := assembler.ProjectAssembler{}
-	events := []coreinfr.Event{}
+	events := []application.Event{}
 
 	if len(plat.Projects) == 0 {
 		plat.Projects = map[string]domain.PlatformProject{}
@@ -172,8 +172,8 @@ func (s *PlatformService) UpsertProject(ctx context.Context, idOrName string, pr
 	})
 }
 
-func (s *PlatformService) buildProjectChangeEvent(platID, platName, provider, projectID, projectName, providerProjectID, projectUrl string, createProviderProject, importWebhook, screenshot bool) []coreinfr.Event {
-	events := []coreinfr.Event{}
+func (s *PlatformService) buildProjectChangeEvent(platID, platName, provider, projectID, projectName, providerProjectID, projectUrl string, createProviderProject, importWebhook, screenshot bool) []application.Event {
+	events := []application.Event{}
 	if createProviderProject {
 		events = append(events, &infrastructure.CreateProviderProjectTriggeredEvent{
 			ID:          uuid.NewString(),
