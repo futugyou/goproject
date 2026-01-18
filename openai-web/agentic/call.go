@@ -4,22 +4,19 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	_ "github.com/joho/godotenv/autoload"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
-	"google.golang.org/adk/model/gemini"
 	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
 	"google.golang.org/genai"
 )
 
 func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- string) error {
-	geminiModel, err := gemini.NewModel(ctx, os.Getenv("GEMINI_MODEL_ID"), &genai.ClientConfig{
-		APIKey: os.Getenv("GEMINI_API_KEY"),
-	})
+	geminiModel, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
 	}
@@ -31,12 +28,12 @@ func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- s
 		Instruction: "You are a helpful assistant with tool-calling abilities.",
 		Model:       geminiModel,
 
-		BeforeAgentCallbacks: []agent.BeforeAgentCallback{hander.OnBeforeAgent},		
+		BeforeAgentCallbacks: []agent.BeforeAgentCallback{hander.OnBeforeAgent},
 		BeforeModelCallbacks: []llmagent.BeforeModelCallback{hander.OnBeforeModel},
 		BeforeToolCallbacks:  []llmagent.BeforeToolCallback{hander.OnBeforeTool},
 		AfterToolCallbacks:   []llmagent.AfterToolCallback{hander.OnAfterTool},
 		AfterModelCallbacks:  []llmagent.AfterModelCallback{hander.OnAfterModel},
-		AfterAgentCallbacks: []agent.AfterAgentCallback{hander.OnAfterAgent},
+		AfterAgentCallbacks:  []agent.AfterAgentCallback{hander.OnAfterAgent},
 	}
 
 	adkAgent, err := llmagent.New(llmCfg)

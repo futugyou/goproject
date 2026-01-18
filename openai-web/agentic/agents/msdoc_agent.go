@@ -4,15 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
-	"google.golang.org/adk/model/gemini"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/mcptoolset"
-	"google.golang.org/genai"
 )
 
 func mslearnMCPTransport(ctx context.Context) mcp.Transport {
@@ -23,9 +21,7 @@ func mslearnMCPTransport(ctx context.Context) mcp.Transport {
 }
 
 func MsDocAgent(ctx context.Context) (agent.Agent, error) {
-	model, err := gemini.NewModel(ctx, os.Getenv("GEMINI_MODEL_ID"), &genai.ClientConfig{
-		APIKey: os.Getenv("GEMINI_API_KEY"),
-	})
+	model, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
 	}
