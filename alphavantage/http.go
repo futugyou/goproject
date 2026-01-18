@@ -16,7 +16,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-var GlobalApiLimiter = rate.NewLimiter(rate.Limit(1), 1)
+var GlobalApiLimiter = rate.NewLimiter(rate.Limit(0.7), 1)
 
 type GlobalRateLimitTransport struct {
 	Transport http.RoundTripper
@@ -32,19 +32,38 @@ var globalLimiterTransport = &GlobalRateLimitTransport{
 }
 
 func (t *GlobalRateLimitTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	// Apply rate limiting when running in GitHub Workflow
-	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		err := GlobalApiLimiter.Wait(req.Context())
-		if err != nil {
-			return nil, err
+	maxRetries := 2
+
+	for i := range maxRetries {
+		if os.Getenv("GITHUB_ACTIONS") == "true" {
+			if err := GlobalApiLimiter.Wait(req.Context()); err != nil {
+				return nil, err
+			}
 		}
+
+		trans := t.Transport
+		if trans == nil {
+			trans = http.DefaultTransport
+		}
+		resp, err := trans.RoundTrip(req)
+
+		// In reality, Alphavantage returns a 200 status code when the request limit is reached, just like code in getCsv();
+		// This is merely a demonstration of the standard procedure.
+		if err == nil && resp.StatusCode == 429 {
+			fmt.Printf("Triggered 429, retrying (%d/%d)...\n", i+1, maxRetries)
+
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+
+			waitTime := time.Duration(i+1) * 2 * time.Second
+			time.Sleep(waitTime)
+			continue
+		}
+
+		return resp, err
 	}
 
-	trans := t.Transport
-	if trans == nil {
-		trans = http.DefaultTransport
-	}
-	return trans.RoundTrip(req)
+	return nil, fmt.Errorf("max retries exceeded for rate limit")
 }
 
 type httpClient struct {
