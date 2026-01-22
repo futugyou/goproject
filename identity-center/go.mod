@@ -12,7 +12,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/lestrrat-go/jwx/v2 v2.1.6
 	github.com/robfig/cron v1.2.0
-	go.mongodb.org/mongo-driver v1.17.6
+	go.mongodb.org/mongo-driver v1.17.7
 	golang.org/x/crypto v0.47.0
 )
 
