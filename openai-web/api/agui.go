@@ -25,6 +25,12 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+		return
+	}
+
 	logger := slog.Default()
 	sseWriter := sse.NewSSEWriter().WithLogger(logger)
 
@@ -52,21 +58,20 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Cache-Control")
+	w.Header().Set("X-Accel-Buffering", "no")
 
 	logger.Info("Tool-based generative UI SSE connection established:", logCtx...)
 
 	writer := bufio.NewWriter(w)
+	ctx := context.WithValue(r.Context(), "flusher", flusher)
+	err = streamAgenticEvents(ctx, writer, sseWriter, &input, logger, logCtx)
 
-	ctx := r.Context()
+	writer.Flush()
+	flusher.Flush()
 
-	go func() {
-		defer writer.Flush()
-		if err := streamAgenticEvents(ctx, writer, sseWriter, &input, logger, logCtx); err != nil {
-			logger.Error("Error streaming tool-based generative UI events:", "err", err.Error())
-		}
-	}()
-
-	<-ctx.Done()
+	if err != nil {
+		logger.Error("Streaming failed", "error", err)
+	}
 }
 
 type AgenticInput struct {
@@ -95,10 +100,10 @@ func streamAgenticEvents(reqCtx context.Context, w *bufio.Writer, sseWriter *sse
 	ctx := context.Background()
 
 	// Send RUN_STARTED event
-	runStarted := events.NewRunStartedEvent(threadID, runID)
-	if err := sseWriter.WriteEvent(ctx, w, runStarted); err != nil {
-		return fmt.Errorf("failed to write RUN_STARTED event: %w", err)
-	}
+	// runStarted := events.NewRunStartedEvent(threadID, runID)
+	// if err := sseWriter.WriteEvent(ctx, w, runStarted); err != nil {
+	// 	return fmt.Errorf("failed to write RUN_STARTED event: %w", err)
+	// }
 
 	// Check for cancellation
 	if err := reqCtx.Err(); err != nil {
@@ -129,10 +134,10 @@ func streamAgenticEvents(reqCtx context.Context, w *bufio.Writer, sseWriter *sse
 	}
 
 	// Send RUN_FINISHED event
-	runFinished := events.NewRunFinishedEvent(threadID, runID)
-	if err := sseWriter.WriteEvent(ctx, w, runFinished); err != nil {
-		return fmt.Errorf("failed to write RUN_FINISHED event: %w", err)
-	}
+	// runFinished := events.NewRunFinishedEvent(threadID, runID)
+	// if err := sseWriter.WriteEvent(ctx, w, runFinished); err != nil {
+	// 	return fmt.Errorf("failed to write RUN_FINISHED event: %w", err)
+	// }
 
 	return nil
 }

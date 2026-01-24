@@ -39,5 +39,5 @@ func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter
 		return callLLMErr
 	})
 
-	return nil
+	return g.Wait()
 }

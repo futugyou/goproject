@@ -51,7 +51,7 @@ func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- s
 		log.Fatalf("failed to create the session service: %v", err)
 	}
 
-	r, err := runner.New(runner.Config{AppName: "appName", Agent: adkAgent, SessionService: sessionService})
+	r, err := runner.New(runner.Config{AppName: appName, Agent: adkAgent, SessionService: sessionService})
 	if err != nil {
 		log.Fatalf("FATAL: Failed to create runner: %v", err)
 	}
