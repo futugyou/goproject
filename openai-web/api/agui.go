@@ -53,7 +53,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Cache-Control")
 
-	logger.Info("Tool-based generative UI SSE connection established: %v", logCtx)
+	logger.Info("Tool-based generative UI SSE connection established:", logCtx...)
 
 	writer := bufio.NewWriter(w)
 
@@ -62,7 +62,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer writer.Flush()
 		if err := streamAgenticEvents(ctx, writer, sseWriter, &input, logger, logCtx); err != nil {
-			logger.Error("Error streaming tool-based generative UI events: %v", err)
+			logger.Error("Error streaming tool-based generative UI events:", "err", err.Error())
 		}
 	}()
 

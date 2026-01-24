@@ -3,7 +3,6 @@
 bolg-service/storage/*
 *.exe
 *.env
-*/*/app.conf
 openai/static/*
 aws-web/data/*
 go.work
