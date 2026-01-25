@@ -80,15 +80,24 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		}
 
 		if !h.hasStartedMessage {
-			h.handleEvent(events.NewTextMessageStartEvent(h.messageID, events.WithRole("assistant")))
+			// h.handleEvent(events.NewTextMessageStartEvent(h.messageID, events.WithRole("assistant")))
 			h.hasStartedMessage = true
 		}
-		h.currentMode = "messaging"
 
-		h.handleEvent(events.NewTextMessageChunkEvent(&h.messageID, toPtr("assistant"), &part.Text))
+		h.currentMode = "messaging"
+		// use stream(sse)
+		// eg. user: hello
+		// llm response: Hello! How can, (partial is true)
+		// llm response: I help you today?\n (partial is true)
+		// llm response: Hello! How can I help you today?\n (partial is false)
+		// so, if partial is false, do not send chunk event
+		if partial {
+			// TextMessage start+content(*)+end === chunks
+			h.handleEvent(events.NewTextMessageChunkEvent(&h.messageID, toPtr("assistant"), &part.Text))
+		}
 
 		if !partial {
-			h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
+			// h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
 			h.hasStartedMessage = false
 			h.currentMode = "none"
 		}
@@ -127,7 +136,7 @@ func (h *Handler) cleanupLifecycle() {
 		h.hasStartedThinking = false
 	}
 	if h.hasStartedMessage {
-		h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
+		// h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
 		h.hasStartedMessage = false
 	}
 	if h.stepID != "" {
