@@ -109,6 +109,14 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 }
 
 func (h *Handler) OnAfterModel(ctx agent.CallbackContext, llmResponse *model.LLMResponse, llmResponseError error) (*model.LLMResponse, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if llmResponseError != nil {
+		h.HandleRunError(llmResponseError.Error())
+		return nil, llmResponseError
+	}
+
 	return nil, nil
 }
 
@@ -164,6 +172,15 @@ func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string
 func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
+
+	if err != nil {
+        h.toolCallID = ""
+        h.toolName = ""
+        
+        h.HandleRunError(err.Error())
+        return nil, err
+    }
+
 	if h.toolCallID != "" {
 		// TOOL_CALL_RESULT must be sent separately (not covered by CHUNK)
 		output, _ := json.Marshal(result)
@@ -171,6 +188,7 @@ func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map
 		h.toolCallID = ""
 		h.toolName = ""
 	}
+
 	return nil, nil
 }
 
@@ -178,6 +196,15 @@ func (h *Handler) handleEvent(ev events.Event) {
 	if jsonData, err := ev.ToJSON(); err == nil {
 		h.returnChan <- string(jsonData)
 	}
+}
+
+func (h *Handler) HandleRunError(message string) {
+	h.cleanupLifecycle()
+
+	options := []events.RunErrorOption{events.WithRunID(h.runID)}
+	runError := events.NewRunErrorEvent(message, options...)
+
+	h.handleEvent(runError)
 }
 
 func toPtr[T any](v T) *T { return &v }

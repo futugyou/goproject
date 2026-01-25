@@ -61,9 +61,9 @@ func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- s
 		StreamingMode: agent.StreamingModeSSE,
 	}) {
 		if err != nil {
-			fmt.Printf("\nAGENT_ERROR: %v\n", err)
+			hander.HandleRunError(err.Error())
 		} else {
-			if event.LLMResponse.Content == nil {
+			if event.Content == nil {
 				continue
 			}
 
