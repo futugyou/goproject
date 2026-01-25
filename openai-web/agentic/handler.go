@@ -2,6 +2,7 @@ package agentic
 
 import (
 	"encoding/json"
+	"sync"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -14,7 +15,8 @@ import (
 
 type Handler struct {
 	returnChan chan<- string
-	// ID tracking for event correlation
+	mu         sync.Mutex
+
 	threadID           string
 	runID              string
 	messageID          string
@@ -36,86 +38,137 @@ func NewHandler(returnChan chan<- string) *Handler {
 }
 
 func (h *Handler) OnBeforeAgent(ctx agent.CallbackContext) (*genai.Content, error) {
-	// Generate new message ID for this LLM interaction
-	h.messageID = events.GenerateMessageID()
-
-	// Send run started event
-	runStartedEvent := events.NewRunStartedEvent(h.threadID, h.runID)
-	h.handleEvent(runStartedEvent)
-
+	h.handleEvent(events.NewRunStartedEvent(h.threadID, h.runID))
 	return nil, nil
 }
 
 func (h *Handler) OnBeforeModel(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.cleanupLifecycle()
+
 	h.stepID = events.GenerateStepID()
+	h.messageID = events.GenerateMessageID()
 
-	// Send step started event with step name
-	stepStartedEvent := events.NewStepStartedEvent(h.stepID)
-	h.handleEvent(stepStartedEvent)
-
+	h.handleEvent(events.NewStepStartedEvent(h.stepID))
 	return nil, nil
 }
 
-func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string]any) (map[string]any, error) {
-	// Generate tool call ID
-	h.toolCallID = events.GenerateToolCallID()
+func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
-	// Extract tool name from input if possible
-	h.toolName = tool.Name()
+	isThinking := part.Thought && part.Text != ""
+	isNormalText := !part.Thought && part.Text != ""
+	isTool := part.FunctionCall != nil || part.ExecutableCode != nil
 
-	// Send tool call start event
-	toolStartEvent := events.NewToolCallStartEvent(h.toolCallID, h.toolName)
-	if h.messageID != "" {
-		toolStartEvent = events.NewToolCallStartEvent(h.toolCallID, h.toolName, events.WithParentMessageID(h.messageID))
+	if isThinking {
+		if h.currentMode != "thinking" {
+			h.closeActiveTextContainersInternal()
+			h.handleEvent(events.NewThinkingStartEvent().WithTitle("Thinking..."))
+			h.hasStartedThinking = true
+			h.currentMode = "thinking"
+		}
+		h.handleEvent(events.NewThinkingTextMessageContentEvent(part.Text))
 	}
-	h.handleEvent(toolStartEvent)
 
+	if isNormalText {
+		if h.currentMode == "thinking" {
+			h.handleEvent(events.NewThinkingEndEvent())
+			h.hasStartedThinking = false
+		}
+
+		if !h.hasStartedMessage {
+			h.handleEvent(events.NewTextMessageStartEvent(h.messageID, events.WithRole("assistant")))
+			h.hasStartedMessage = true
+		}
+		h.currentMode = "messaging"
+
+		h.handleEvent(events.NewTextMessageChunkEvent(&h.messageID, toPtr("assistant"), &part.Text))
+
+		if !partial {
+			h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
+			h.hasStartedMessage = false
+			h.currentMode = "none"
+		}
+	}
+
+	if isTool {
+		h.closeActiveTextContainersInternal()
+		evv := events.NewToolCallChunkEvent()
+		if len(part.Text) > 0 {
+			evv.WithToolCallChunkDelta(part.Text)
+		}
+		h.handleEvent(evv)
+		h.currentMode = "tool"
+	}
+
+	return nil
+}
+
+func (h *Handler) OnAfterModel(ctx agent.CallbackContext, llmResponse *model.LLMResponse, llmResponseError error) (*model.LLMResponse, error) {
+	return nil, nil
+}
+
+func (h *Handler) OnAfterAgent(ctx agent.CallbackContext) (*genai.Content, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.cleanupLifecycle()
+
+	h.handleEvent(events.NewRunFinishedEvent(h.threadID, h.runID))
+	return nil, nil
+}
+
+func (h *Handler) cleanupLifecycle() {
+	if h.hasStartedThinking {
+		h.handleEvent(events.NewThinkingEndEvent())
+		h.hasStartedThinking = false
+	}
+	if h.hasStartedMessage {
+		h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
+		h.hasStartedMessage = false
+	}
+	if h.stepID != "" {
+		h.handleEvent(events.NewStepFinishedEvent(h.stepID))
+		h.stepID = ""
+	}
+	h.currentMode = "none"
+}
+
+func (h *Handler) closeActiveTextContainersInternal() {
+	if h.currentMode == "thinking" {
+		h.handleEvent(events.NewThinkingEndEvent())
+		h.hasStartedThinking = false
+	}
+}
+
+func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string]any) (map[string]any, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.toolCallID = events.GenerateToolCallID()
+	h.toolName = tool.Name()
+	startEv := events.NewToolCallStartEvent(h.toolCallID, h.toolName)
+	if h.messageID != "" {
+		startEv = events.NewToolCallStartEvent(h.toolCallID, h.toolName, events.WithParentMessageID(h.messageID))
+	}
+	h.handleEvent(startEv)
 	input, _ := json.Marshal(args)
-	// Send tool arguments
-	toolArgsEvent := events.NewToolCallArgsEvent(h.toolCallID, string(input))
-	h.handleEvent(toolArgsEvent)
-
+	h.handleEvent(events.NewToolCallArgsEvent(h.toolCallID, string(input)))
 	return nil, nil
 }
 
 func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map[string]any, err error) (map[string]any, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
 	if h.toolCallID != "" {
-		// Send tool call end event
-		toolEndEvent := events.NewToolCallEndEvent(h.toolCallID)
-		h.handleEvent(toolEndEvent)
-
+		h.handleEvent(events.NewToolCallEndEvent(h.toolCallID))
 		output, _ := json.Marshal(result)
-		// Send tool call result event
-		resultMessageID := events.GenerateMessageID()
-		toolResultEvent := events.NewToolCallResultEvent(resultMessageID, h.toolCallID, string(output))
-		h.handleEvent(toolResultEvent)
-
+		h.handleEvent(events.NewToolCallResultEvent(events.GenerateMessageID(), h.toolCallID, string(output)))
 		h.toolCallID = ""
 		h.toolName = ""
 	}
-	return nil, nil
-}
-
-func (h *Handler) OnAfterModel(ctx agent.CallbackContext, llmResponse *model.LLMResponse, llmResponseError error) (*model.LLMResponse, error) {
-	if h.hasStartedThinking && h.currentMode == "thinking" {
-		ev := events.NewThinkingEndEvent()
-		h.handleEvent(ev)
-	}
-
-	if h.hasStartedMessage {
-		ev := events.NewTextMessageEndEvent(h.messageID)
-		h.handleEvent(ev)
-	}
-
-	if h.stepID != "" {
-		stepFinishedEvent := events.NewStepFinishedEvent(h.stepID)
-		h.handleEvent(stepFinishedEvent)
-		h.stepID = ""
-	}
-
-	h.hasStartedThinking = false
-	h.hasStartedMessage = false
-
 	return nil, nil
 }
 
@@ -125,76 +178,4 @@ func (h *Handler) handleEvent(ev events.Event) {
 	}
 }
 
-func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
-	isThinking := part.Thought && part.Text != ""
-	isNormalText := !part.Thought && part.Text != ""
-	isTool := part.FunctionCall != nil || part.ExecutableCode != nil
-	var ev events.Event
-
-	if isThinking {
-		if !h.hasStartedThinking {
-			evv := events.NewThinkingStartEvent()
-			title := "Thinking..."
-			if len(part.Text) > 0 {
-				title = part.Text
-			}
-			evv.WithTitle(title)
-			h.handleEvent(evv)
-			h.hasStartedThinking = true
-			h.currentMode = "thinking"
-		}
-
-		ev = events.NewThinkingTextMessageContentEvent(part.Text)
-		h.handleEvent(ev)
-	}
-
-	if isNormalText {
-		if h.currentMode == "thinking" {
-			ev = events.NewThinkingEndEvent()
-			h.handleEvent(ev)
-			h.currentMode = "none"
-		}
-
-		if !h.hasStartedMessage {
-			// Send text message start event
-			ev = events.NewTextMessageStartEvent(h.messageID, events.WithRole("assistant"))
-			h.handleEvent(ev)
-			h.hasStartedMessage = true
-			h.currentMode = "messaging"
-		}
-
-		ev = events.NewTextMessageChunkEvent(toPtr(h.messageID), toPtr("assistant"), toPtr(part.Text))
-		h.handleEvent(ev)
-	}
-
-	if isTool {
-		h.closeActiveTextContainers()
-		evv := events.NewToolCallChunkEvent()
-		if len(part.Text) > 0 {
-			evv.WithToolCallChunkDelta(part.Text)
-		}
-
-		h.handleEvent(evv)
-	}
-
-	return nil
-}
-
-func (h *Handler) closeActiveTextContainers() {
-	if h.currentMode == "thinking" {
-		ev := events.NewThinkingEndEvent()
-		h.handleEvent(ev)
-	}
-	h.currentMode = "none"
-}
-
-func (h *Handler) OnAfterAgent(ctx agent.CallbackContext) (*genai.Content, error) {
-	runFinishedEvent := events.NewRunFinishedEvent(h.threadID, h.runID)
-	h.handleEvent(runFinishedEvent)
-
-	return nil, nil
-}
-
-func toPtr[T any](v T) *T {
-	return &v
-}
+func toPtr[T any](v T) *T { return &v }
