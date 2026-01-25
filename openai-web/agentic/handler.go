@@ -24,7 +24,6 @@ type Handler struct {
 	toolName           string
 	stepID             string
 	hasStartedThinking bool
-	hasStartedMessage  bool
 	currentMode        string // "thinking", "messaging", "none"
 }
 
@@ -79,11 +78,6 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 			h.hasStartedThinking = false
 		}
 
-		if !h.hasStartedMessage {
-			// h.handleEvent(events.NewTextMessageStartEvent(h.messageID, events.WithRole("assistant")))
-			h.hasStartedMessage = true
-		}
-
 		h.currentMode = "messaging"
 		// use stream(sse)
 		// eg. user: hello
@@ -97,8 +91,6 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		}
 
 		if !partial {
-			// h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
-			h.hasStartedMessage = false
 			h.currentMode = "none"
 		}
 	}
@@ -135,14 +127,12 @@ func (h *Handler) cleanupLifecycle() {
 		h.handleEvent(events.NewThinkingEndEvent())
 		h.hasStartedThinking = false
 	}
-	if h.hasStartedMessage {
-		// h.handleEvent(events.NewTextMessageEndEvent(h.messageID))
-		h.hasStartedMessage = false
-	}
+
 	if h.stepID != "" {
 		h.handleEvent(events.NewStepFinishedEvent(h.stepID))
 		h.stepID = ""
 	}
+
 	h.currentMode = "none"
 }
 
@@ -158,13 +148,16 @@ func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string
 	defer h.mu.Unlock()
 	h.toolCallID = events.GenerateToolCallID()
 	h.toolName = tool.Name()
-	startEv := events.NewToolCallStartEvent(h.toolCallID, h.toolName)
-	if h.messageID != "" {
-		startEv = events.NewToolCallStartEvent(h.toolCallID, h.toolName, events.WithParentMessageID(h.messageID))
-	}
-	h.handleEvent(startEv)
+	// Use TOOL_CALL_CHUNK (streaming mode) instead of START/ARGS/END
 	input, _ := json.Marshal(args)
-	h.handleEvent(events.NewToolCallArgsEvent(h.toolCallID, string(input)))
+	chunkEv := events.NewToolCallChunkEvent()
+	chunkEv.WithToolCallChunkID(h.toolCallID)
+	chunkEv.WithToolCallChunkName(h.toolName)
+	if h.messageID != "" {
+		chunkEv.WithToolCallChunkParentMessageID(h.messageID)
+	}
+	chunkEv.WithToolCallChunkDelta(string(input))
+	h.handleEvent(chunkEv)
 	return nil, nil
 }
 
@@ -172,7 +165,7 @@ func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	if h.toolCallID != "" {
-		h.handleEvent(events.NewToolCallEndEvent(h.toolCallID))
+		// TOOL_CALL_RESULT must be sent separately (not covered by CHUNK)
 		output, _ := json.Marshal(result)
 		h.handleEvent(events.NewToolCallResultEvent(events.GenerateMessageID(), h.toolCallID, string(output)))
 		h.toolCallID = ""
