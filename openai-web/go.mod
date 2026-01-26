@@ -5,7 +5,7 @@ go 1.24.4
 require github.com/beego/beego/v2 v2.3.8
 
 require (
-	github.com/ag-ui-protocol/ag-ui/sdks/community/go v0.0.0-20251223201359-3c276853e9f9
+	github.com/ag-ui-protocol/ag-ui/sdks/community/go v0.0.0-20260123192903-dbc09702ffbb
 	github.com/amikos-tech/chroma-go v0.2.5
 	github.com/cloudwego/eino v0.7.14
 	github.com/cloudwego/eino-ext/components/document/loader/url v0.0.0-20251226123311-1d93d527c144

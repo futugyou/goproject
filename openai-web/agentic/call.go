@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/types"
 	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	_ "github.com/joho/godotenv/autoload"
 
@@ -15,7 +16,7 @@ import (
 	"google.golang.org/genai"
 )
 
-func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- string) error {
+func CallLLM(ctx context.Context, input *AgenticInput, returnChan chan<- string) error {
 	geminiModel, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
@@ -56,7 +57,19 @@ func CallLLM(ctx context.Context, input string, tools []any, returnChan chan<- s
 		log.Fatalf("FATAL: Failed to create runner: %v", err)
 	}
 
-	userMsg := genai.NewContentFromText(input, genai.RoleUser)
+	// Grab last message from input, will be a user message
+	var lastMessage types.Message
+	if len(input.Messages) > 0 {
+		lastMessage = input.Messages[len(input.Messages)-1]
+	}
+
+	// grab "content" field if it exists
+	content, ok := lastMessage.Content.(string)
+	if !ok {
+		return fmt.Errorf("last message does not have content")
+	}
+
+	userMsg := genai.NewContentFromText(content, genai.RoleUser)
 	for event, err := range r.Run(ctx, resp.Session.UserID(), resp.Session.ID(), userMsg, agent.RunConfig{
 		StreamingMode: agent.StreamingModeSSE,
 	}) {

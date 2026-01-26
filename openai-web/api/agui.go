@@ -46,7 +46,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 		requestID = "unknown"
 	}
 
-	var input AgenticInput
+	var input agentic.AgenticInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		sendSSEError(w, logger, fmt.Sprintf("Invalid request body: %v", err))
@@ -54,7 +54,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	input.RequestID = requestID
-	fmt.Println(input.RunID)
+
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -74,19 +74,8 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type AgenticInput struct {
-	RequestID      string           `json:"requestId"`
-	ThreadID       string           `json:"threadId"`
-	RunID          string           `json:"runId"`
-	State          any              `json:"state"`
-	Messages       []map[string]any `json:"messages"`
-	Tools          []any            `json:"tools"`
-	Context        []any            `json:"context"`
-	ForwardedProps any              `json:"forwardedProps"`
-}
-
 // streamAgenticEvents implements the tool-based generative UI event sequence
-func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput, logger *slog.Logger) error {
+func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *agentic.AgenticInput, logger *slog.Logger) error {
 	// Use IDs from input or generate new ones if not provided
 	threadID := input.ThreadID
 	if threadID == "" {
@@ -103,20 +92,7 @@ func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SS
 		logger.Debug("Client disconnected during RUN_STARTED", "RequestID", input.RequestID, "reason", "context_canceled")
 		return nil
 	}
-
-	// Grab last message from input, will be a user message
-	var lastMessage map[string]any
-	if len(input.Messages) > 0 {
-		lastMessage = input.Messages[len(input.Messages)-1]
-	}
-
-	// grab "content" field if it exists
-	content, ok := lastMessage["content"].(string)
-	if !ok {
-		return fmt.Errorf("last message does not have content")
-	}
-
-	return agentic.ProcessInput(ctx, w, sseWriter, content)
+	return agentic.ProcessInput(ctx, w, sseWriter, input)
 }
 
 func sendSSEError(w http.ResponseWriter, logger *slog.Logger, message string) {

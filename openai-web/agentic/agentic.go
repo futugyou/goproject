@@ -10,7 +10,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input string) error {
+func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput) error {
 	resultChan := make(chan string)
 	g, groupCtx := errgroup.WithContext(ctx)
 
@@ -24,6 +24,7 @@ func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter
 
 				// All messages from the handler should now be proper JSON events
 				// WriteBytes will format them as SSE frames with "data: " prefix
+				fmt.Println(result)
 				if err := sseWriter.WriteBytes(ctx, w, []byte(result)); err != nil {
 					return fmt.Errorf("failed to write event: %w", err)
 				}
@@ -34,7 +35,7 @@ func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter
 	})
 
 	g.Go(func() error {
-		callLLMErr := CallLLM(groupCtx, input, nil, resultChan)
+		callLLMErr := CallLLM(groupCtx, input, resultChan)
 		close(resultChan)
 		return callLLMErr
 	})
