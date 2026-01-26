@@ -17,6 +17,13 @@ import (
 )
 
 func AguiHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger := slog.Default()
+			sendSSEError(w, logger, fmt.Sprintf("Panic: %v", r))
+		}
+	}()
+
 	if extensions.Cors(w, r) {
 		return
 	}
@@ -39,20 +46,15 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 		requestID = "unknown"
 	}
 
-	logCtx := []any{
-		"request_id", requestID,
-		"route", r.URL.Path,
-		"method", r.Method,
-	}
-
 	var input AgenticInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		logger.Error("Failed to parse request body", append(logCtx, "error", err)...)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		sendSSEError(w, logger, fmt.Sprintf("Invalid request body: %v", err))
 		return
 	}
 
+	input.RequestID = requestID
+	fmt.Println(input.RunID)
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -60,30 +62,31 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Cache-Control")
 	w.Header().Set("X-Accel-Buffering", "no")
 
-	logger.Info("Tool-based generative UI SSE connection established:", logCtx...)
+	logger.Info("Tool-based generative UI SSE connection established", "RequestID", requestID)
 
 	writer := bufio.NewWriter(w)
-	err = streamAgenticEvents(r.Context(), writer, sseWriter, &input, logger, logCtx)
+	err = streamAgenticEvents(r.Context(), writer, sseWriter, &input, logger)
 
 	writer.Flush()
 
 	if err != nil {
-		logger.Error("Streaming failed", append(logCtx, "error", err)...)
+		sendSSEError(w, logger, fmt.Sprintf("Streaming failed: %v", err))
 	}
 }
 
 type AgenticInput struct {
-	ThreadID       string           `json:"thread_id"`
-	RunID          string           `json:"run_id"`
+	RequestID      string           `json:"requestId"`
+	ThreadID       string           `json:"threadId"`
+	RunID          string           `json:"runId"`
 	State          any              `json:"state"`
 	Messages       []map[string]any `json:"messages"`
 	Tools          []any            `json:"tools"`
 	Context        []any            `json:"context"`
-	ForwardedProps any              `json:"forwarded_props"`
+	ForwardedProps any              `json:"forwardedProps"`
 }
 
 // streamAgenticEvents implements the tool-based generative UI event sequence
-func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput, logger *slog.Logger, logCtx []any) error {
+func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput, logger *slog.Logger) error {
 	// Use IDs from input or generate new ones if not provided
 	threadID := input.ThreadID
 	if threadID == "" {
@@ -97,7 +100,7 @@ func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SS
 
 	// Check for cancellation
 	if err := ctx.Err(); err != nil {
-		logger.Debug("Client disconnected during RUN_STARTED", append(logCtx, "reason", "context_canceled")...)
+		logger.Debug("Client disconnected during RUN_STARTED", "RequestID", input.RequestID, "reason", "context_canceled")
 		return nil
 	}
 
@@ -113,15 +116,30 @@ func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SS
 		return fmt.Errorf("last message does not have content")
 	}
 
-	err := agentic.ProcessInput(ctx, w, sseWriter, content)
+	return agentic.ProcessInput(ctx, w, sseWriter, content)
+}
+
+func sendSSEError(w http.ResponseWriter, logger *slog.Logger, message string) {
+	runError := map[string]any{
+		"type": "RUN_ERROR",
+		"data": map[string]any{
+			"message": message,
+		},
+	}
+
+	jsonData, err := json.Marshal(runError)
 	if err != nil {
-		return fmt.Errorf("failed to process input: %w", err)
+		logger.Error("Failed to marshal error event", "error", err)
+		return
 	}
 
-	// Check for cancellation before final event
-	if err = ctx.Err(); err != nil {
-		return fmt.Errorf("client disconnected before RUN_FINISHED: %w", err)
+	_, err = fmt.Fprintf(w, "data: %s\n\n", jsonData)
+	if err != nil {
+		logger.Error("Failed to write error to SSE stream", "error", err)
+		return
 	}
 
-	return nil
+	if flusher, ok := w.(http.Flusher); ok {
+		flusher.Flush()
+	}
 }
