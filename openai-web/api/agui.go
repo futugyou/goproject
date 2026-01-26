@@ -25,7 +25,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flusher, ok := w.(http.Flusher)
+	_, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
 		return
@@ -63,14 +63,12 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Tool-based generative UI SSE connection established:", logCtx...)
 
 	writer := bufio.NewWriter(w)
-	ctx := context.WithValue(r.Context(), "flusher", flusher)
-	err = streamAgenticEvents(ctx, writer, sseWriter, &input, logger, logCtx)
+	err = streamAgenticEvents(r.Context(), writer, sseWriter, &input, logger, logCtx)
 
 	writer.Flush()
-	flusher.Flush()
 
 	if err != nil {
-		logger.Error("Streaming failed", "error", err)
+		logger.Error("Streaming failed", append(logCtx, "error", err)...)
 	}
 }
 
@@ -85,28 +83,20 @@ type AgenticInput struct {
 }
 
 // streamAgenticEvents implements the tool-based generative UI event sequence
-func streamAgenticEvents(reqCtx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput, logger *slog.Logger, logCtx []any) error {
+func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput, logger *slog.Logger, logCtx []any) error {
 	// Use IDs from input or generate new ones if not provided
 	threadID := input.ThreadID
 	if threadID == "" {
 		threadID = events.GenerateThreadID()
 	}
+
 	runID := input.RunID
 	if runID == "" {
 		runID = events.GenerateRunID()
 	}
 
-	// Create a wrapped context for our operations
-	ctx := context.Background()
-
-	// Send RUN_STARTED event
-	// runStarted := events.NewRunStartedEvent(threadID, runID)
-	// if err := sseWriter.WriteEvent(ctx, w, runStarted); err != nil {
-	// 	return fmt.Errorf("failed to write RUN_STARTED event: %w", err)
-	// }
-
 	// Check for cancellation
-	if err := reqCtx.Err(); err != nil {
+	if err := ctx.Err(); err != nil {
 		logger.Debug("Client disconnected during RUN_STARTED", append(logCtx, "reason", "context_canceled")...)
 		return nil
 	}
@@ -116,6 +106,7 @@ func streamAgenticEvents(reqCtx context.Context, w *bufio.Writer, sseWriter *sse
 	if len(input.Messages) > 0 {
 		lastMessage = input.Messages[len(input.Messages)-1]
 	}
+
 	// grab "content" field if it exists
 	content, ok := lastMessage["content"].(string)
 	if !ok {
@@ -125,19 +116,12 @@ func streamAgenticEvents(reqCtx context.Context, w *bufio.Writer, sseWriter *sse
 	err := agentic.ProcessInput(ctx, w, sseWriter, content)
 	if err != nil {
 		return fmt.Errorf("failed to process input: %w", err)
-
 	}
 
 	// Check for cancellation before final event
-	if err = reqCtx.Err(); err != nil {
+	if err = ctx.Err(); err != nil {
 		return fmt.Errorf("client disconnected before RUN_FINISHED: %w", err)
 	}
-
-	// Send RUN_FINISHED event
-	// runFinished := events.NewRunFinishedEvent(threadID, runID)
-	// if err := sseWriter.WriteEvent(ctx, w, runFinished); err != nil {
-	// 	return fmt.Errorf("failed to write RUN_FINISHED event: %w", err)
-	// }
 
 	return nil
 }
