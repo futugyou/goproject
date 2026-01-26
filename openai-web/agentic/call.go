@@ -22,7 +22,7 @@ func CallLLM(ctx context.Context, input *AgenticInput, returnChan chan<- string)
 		log.Fatalf("Failed to create model: %v", err)
 	}
 
-	hander := NewHandler(returnChan)
+	hander := NewHandler(input, returnChan)
 
 	llmCfg := llmagent.Config{
 		Name:        "AgUIAgent",

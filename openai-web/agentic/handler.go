@@ -27,11 +27,21 @@ type Handler struct {
 	currentMode        string // "thinking", "messaging", "none"
 }
 
-func NewHandler(returnChan chan<- string) *Handler {
+func NewHandler(input *AgenticInput, returnChan chan<- string) *Handler {
+	threadID := input.ThreadID
+	if threadID == "" {
+		threadID = events.GenerateThreadID()
+	}
+
+	runID := input.RunID
+	if runID == "" {
+		runID = events.GenerateRunID()
+	}
+
 	return &Handler{
 		returnChan:  returnChan,
-		threadID:    events.GenerateThreadID(),
-		runID:       events.GenerateRunID(),
+		threadID:    threadID,
+		runID:       runID,
 		currentMode: "none",
 	}
 }
@@ -174,12 +184,12 @@ func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map
 	defer h.mu.Unlock()
 
 	if err != nil {
-        h.toolCallID = ""
-        h.toolName = ""
-        
-        h.HandleRunError(err.Error())
-        return nil, err
-    }
+		h.toolCallID = ""
+		h.toolName = ""
+
+		h.HandleRunError(err.Error())
+		return nil, err
+	}
 
 	if h.toolCallID != "" {
 		// TOOL_CALL_RESULT must be sent separately (not covered by CHUNK)
