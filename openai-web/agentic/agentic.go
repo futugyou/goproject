@@ -5,12 +5,15 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"log/slog"
 
 	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/encoding/sse"
 	"golang.org/x/sync/errgroup"
 )
 
-func ProcessInput(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *AgenticInput) error {
+func ProcessInput(ctx context.Context, w *bufio.Writer, input *AgenticInput, logger *slog.Logger) error {
+	sseWriter := sse.NewSSEWriter().WithLogger(logger)
+
 	resultChan := make(chan string)
 	g, groupCtx := errgroup.WithContext(ctx)
 

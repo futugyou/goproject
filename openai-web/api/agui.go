@@ -11,9 +11,6 @@ import (
 	"github.com/futugyou/extensions"
 	"github.com/futugyousuzu/go-openai-web/agentic"
 	verceltool "github.com/futugyousuzu/go-openai-web/vercel"
-
-	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
-	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/encoding/sse"
 )
 
 func AguiHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +36,6 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger := slog.Default()
-	sseWriter := sse.NewSSEWriter().WithLogger(logger)
 
 	requestID := r.Header.Get("X-Request-ID")
 	if requestID == "" {
@@ -65,7 +61,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Tool-based generative UI SSE connection established", "RequestID", requestID)
 
 	writer := bufio.NewWriter(w)
-	err = streamAgenticEvents(r.Context(), writer, sseWriter, &input, logger)
+	err = streamAgenticEvents(r.Context(), writer, &input, logger)
 
 	writer.Flush()
 
@@ -75,24 +71,13 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // streamAgenticEvents implements the tool-based generative UI event sequence
-func streamAgenticEvents(ctx context.Context, w *bufio.Writer, sseWriter *sse.SSEWriter, input *agentic.AgenticInput, logger *slog.Logger) error {
-	// Use IDs from input or generate new ones if not provided
-	threadID := input.ThreadID
-	if threadID == "" {
-		threadID = events.GenerateThreadID()
-	}
-
-	runID := input.RunID
-	if runID == "" {
-		runID = events.GenerateRunID()
-	}
-
+func streamAgenticEvents(ctx context.Context, w *bufio.Writer, input *agentic.AgenticInput, logger *slog.Logger) error {
 	// Check for cancellation
 	if err := ctx.Err(); err != nil {
 		logger.Debug("Client disconnected during RUN_STARTED", "RequestID", input.RequestID, "reason", "context_canceled")
 		return nil
 	}
-	return agentic.ProcessInput(ctx, w, sseWriter, input)
+	return agentic.ProcessInput(ctx, w, input, logger)
 }
 
 func sendSSEError(w http.ResponseWriter, logger *slog.Logger, message string) {
