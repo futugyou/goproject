@@ -27,12 +27,17 @@ type Handler struct {
 }
 
 func NewHandler(input *types.RunAgentInput, returnChan chan<- string) *Handler {
-	threadID := input.ThreadID
+	threadID := ""
+	runID := ""
+	if input != nil {
+		threadID = input.ThreadID
+		runID = input.RunID
+	}
+
 	if threadID == "" {
 		threadID = events.GenerateThreadID()
 	}
 
-	runID := input.RunID
 	if runID == "" {
 		runID = events.GenerateRunID()
 	}
