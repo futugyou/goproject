@@ -11,19 +11,23 @@ import (
 	"google.golang.org/adk/tool/geminitool"
 )
 
-func TimeAgent(ctx context.Context) (agent.Agent, error) {
+func TimeAgent(ctx context.Context, handler *Handler) (agent.Agent, error) {
 	model, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
 	}
 
-	return llmagent.New(llmagent.Config{
-		Name:        "time_agent",
-		Model:       model,
-		Description: "Agent to answer questions about the time in a city.",
-		Instruction: "Your SOLE purpose is to answer questions about the current time in a specific city. You MUST refuse to answer any questions unrelated to time.",
-		Tools: []tool.Tool{
+	config := NewLLMAgentConfig(
+		"time",
+		"Your SOLE purpose is to answer questions about the current time in a specific city. You MUST refuse to answer any questions unrelated to time.",
+		"Agent to answer questions about the time in a city.",
+		model,
+		[]tool.Tool{
 			geminitool.GoogleSearch{},
 		},
-	})
+		nil,
+		handler, 
+	)
+
+	return llmagent.New(config)
 }

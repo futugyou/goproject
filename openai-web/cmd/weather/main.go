@@ -19,7 +19,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	a, err := agents.WeatherAgent(ctx)
+	a, err := agents.WeatherAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

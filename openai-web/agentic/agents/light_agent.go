@@ -11,7 +11,7 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 )
 
-func LightAgent(ctx context.Context) (agent.Agent, error) {
+func LightAgent(ctx context.Context, handler *Handler) (agent.Agent, error) {
 	model, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
@@ -37,15 +37,19 @@ func LightAgent(ctx context.Context) (agent.Agent, error) {
 		log.Fatalf("Failed to create change lights state tool: %v", err)
 	}
 
-	return llmagent.New(llmagent.Config{
-		Name:        "light_agent",
-		Model:       model,
-		Description: "Agent to control light's status.",
-		Instruction: "You are a useful light assistant. can tall user the status of the lights and can help user control the lights on and off.",
-		Tools: []tool.Tool{
+	config := NewLLMAgentConfig(
+		"light",
+		"You are a useful light assistant. can tall user the status of the lights and can help user control the lights on and off.",
+		"Agent to control light's status.",
+		model,
+		[]tool.Tool{
 			getLightStatusTool, changeLightStatusTool,
 		},
-	})
+		nil,
+		handler,
+	)
+
+	return llmagent.New(config)
 }
 
 type getLightStatusInput struct{}

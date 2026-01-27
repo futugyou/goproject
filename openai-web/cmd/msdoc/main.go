@@ -17,7 +17,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	a, err := agents.MsDocAgent(ctx)
+	a, err := agents.MsDocAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

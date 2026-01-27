@@ -24,12 +24,12 @@ import (
 func main() {
 	ctx := context.Background()
 
-	weatherAgent, err := agents.WeatherAgent(ctx)
+	weatherAgent, err := agents.WeatherAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}
 
-	timeAgent, err := agents.TimeAgent(ctx)
+	timeAgent, err := agents.TimeAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

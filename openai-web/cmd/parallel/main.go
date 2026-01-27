@@ -20,12 +20,12 @@ import (
 func main() {
 	ctx := context.Background()
 
-	weatherAgent, err := agents.WeatherAgent(ctx)
+	weatherAgent, err := agents.WeatherAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}
 
-	docAgent, err := agents.MsDocAgent(ctx)
+	docAgent, err := agents.MsDocAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

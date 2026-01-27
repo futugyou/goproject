@@ -11,7 +11,7 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 )
 
-func WeatherAgent(ctx context.Context) (agent.Agent, error) {
+func WeatherAgent(ctx context.Context, handler *Handler) (agent.Agent, error) {
 	model, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
@@ -27,15 +27,19 @@ func WeatherAgent(ctx context.Context) (agent.Agent, error) {
 		log.Fatalf("Failed to create check weather tool: %v", err)
 	}
 
-	return llmagent.New(llmagent.Config{
-		Name:        "weather_agent",
-		Model:       model,
-		Description: "Agent to answer questions about the weather in a city.",
-		Instruction: "Your SOLE purpose is to answer questions about the current weather in a specific city. You MUST refuse to answer any questions unrelated to weather.",
-		Tools: []tool.Tool{
+	config := NewLLMAgentConfig(
+		"weather",
+		"Your SOLE purpose is to answer questions about the current weather in a specific city. You MUST refuse to answer any questions unrelated to weather.",
+		"Agent to answer questions about the weather in a city.",
+		model,
+		[]tool.Tool{
 			checkWeatherTool,
 		},
-	})
+		nil,
+		handler,
+	)
+
+	return llmagent.New(config)
 }
 
 func checkWeather(ctx tool.Context, input checkWeatherInput) (checkWeatherResult, error) {

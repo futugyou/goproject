@@ -20,7 +20,7 @@ func mslearnMCPTransport(ctx context.Context) mcp.Transport {
 	}
 }
 
-func MsDocAgent(ctx context.Context) (agent.Agent, error) {
+func MsDocAgent(ctx context.Context, handler *Handler) (agent.Agent, error) {
 	model, err := models.GetModel(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create model: %v", err)
@@ -34,13 +34,17 @@ func MsDocAgent(ctx context.Context) (agent.Agent, error) {
 		log.Fatalf("Failed to create MCP tool set: %v", err)
 	}
 
-	return llmagent.New(llmagent.Config{
-		Name:        "msdoc_agent",
-		Model:       model,
-		Description: "You help with Microsoft documentation questions.",
-		Instruction: "You help with Microsoft documentation questions. All questions related to Microsoft documentation must first be addressed by using the mcp_tool to obtain the answer before providing a response.",
-		Toolsets: []tool.Toolset{
+	config := NewLLMAgentConfig(
+		"msdoc",
+		"You help with Microsoft documentation questions. All questions related to Microsoft documentation must first be addressed by using the mcp_tool to obtain the answer before providing a response.",
+		"Agent to assist with Microsoft documentation using MCP toolset.",
+		model,
+		nil,
+		[]tool.Toolset{
 			mcpToolSet,
 		},
-	})
+		handler, 
+	)
+
+	return llmagent.New(config)
 }

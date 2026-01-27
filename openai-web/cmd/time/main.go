@@ -18,7 +18,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	a, err := agents.TimeAgent(ctx)
+	a, err := agents.TimeAgent(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}
