@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/types"
+	"github.com/futugyousuzu/go-openai-web/agentic/agents"
 	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	_ "github.com/joho/godotenv/autoload"
 
@@ -22,7 +23,7 @@ func CallLLM(ctx context.Context, input *AgenticInput, returnChan chan<- string)
 		log.Fatalf("Failed to create model: %v", err)
 	}
 
-	hander := NewHandler(input, returnChan)
+	hander := agents.NewHandler(&input.RunAgentInput, returnChan)
 
 	llmCfg := llmagent.Config{
 		Name:        "AgUIAgent",

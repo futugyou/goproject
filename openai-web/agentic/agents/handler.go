@@ -1,12 +1,11 @@
-package agentic
+package agents
 
 import (
 	"encoding/json"
 	"sync"
 
-	_ "github.com/joho/godotenv/autoload"
-
 	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
+	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/types"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/tool"
@@ -27,7 +26,7 @@ type Handler struct {
 	currentMode        string // "thinking", "messaging", "none"
 }
 
-func NewHandler(input *AgenticInput, returnChan chan<- string) *Handler {
+func NewHandler(input *types.RunAgentInput, returnChan chan<- string) *Handler {
 	threadID := input.ThreadID
 	if threadID == "" {
 		threadID = events.GenerateThreadID()
