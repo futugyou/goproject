@@ -116,10 +116,10 @@
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Expose-Headers": "*"
       }
-    },    
+    },
     {
-      "src": "/(.*)",
-      "dest": "/api/agui",
+      "src": "/(?<agentid>[^/]+)",
+      "dest": "/api/agui?agentid=$agentid",
       "methods": [
         "POST",
         "OPTIONS"

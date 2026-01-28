@@ -6,5 +6,6 @@ import (
 
 type AgenticInput struct {
 	RequestID string `json:"requestId"`
+	AgentID   string `json:"agentId"`
 	types.RunAgentInput
 }

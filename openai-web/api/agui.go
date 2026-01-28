@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"path"
 
 	"github.com/futugyou/extensions"
 	"github.com/futugyousuzu/go-openai-web/agentic"
@@ -42,6 +43,11 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 		requestID = "unknown"
 	}
 
+	agentid := r.URL.Query().Get("agentid")
+	if len(agentid) == 0 {
+		agentid = path.Base(r.URL.Path)
+	}
+
 	var input agentic.AgenticInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
@@ -50,6 +56,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	input.RequestID = requestID
+	input.AgentID = agentid
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")

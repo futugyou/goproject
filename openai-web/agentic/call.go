@@ -7,38 +7,18 @@ import (
 
 	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/types"
 	"github.com/futugyousuzu/go-openai-web/agentic/agents"
-	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	_ "github.com/joho/godotenv/autoload"
 
 	"google.golang.org/adk/agent"
-	"google.golang.org/adk/agent/llmagent"
 	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
 	"google.golang.org/genai"
 )
 
 func CallLLM(ctx context.Context, input *AgenticInput, returnChan chan<- string) error {
-	geminiModel, err := models.GetModel(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create model: %v", err)
-	}
-
 	hander := agents.NewHandler(&input.RunAgentInput, returnChan)
 
-	llmCfg := llmagent.Config{
-		Name:        "AgUIAgent",
-		Instruction: "You are a helpful assistant with tool-calling abilities.",
-		Model:       geminiModel,
-
-		BeforeAgentCallbacks: []agent.BeforeAgentCallback{hander.OnBeforeAgent},
-		BeforeModelCallbacks: []llmagent.BeforeModelCallback{hander.OnBeforeModel},
-		BeforeToolCallbacks:  []llmagent.BeforeToolCallback{hander.OnBeforeTool},
-		AfterToolCallbacks:   []llmagent.AfterToolCallback{hander.OnAfterTool},
-		AfterModelCallbacks:  []llmagent.AfterModelCallback{hander.OnAfterModel},
-		AfterAgentCallbacks:  []agent.AfterAgentCallback{hander.OnAfterAgent},
-	}
-
-	adkAgent, err := llmagent.New(llmCfg)
+	adkAgent, err := agents.GetAgentByName(ctx, input.AgentID, hander)
 	if err != nil {
 		return fmt.Errorf("failed to create agent: %w", err)
 	}
