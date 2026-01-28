@@ -230,6 +230,20 @@
 			}
 		},
 		{
+			"src": "/api/v1/newconfig",
+			"dest": "/api/keyvalue.go?type=newconfig",
+			"methods": [
+				"GET",
+				"OPTIONS"
+			],
+			"headers": {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "*",
+				"Access-Control-Allow-Headers": "*",
+				"Access-Control-Expose-Headers": "*"
+			}
+		},
+		{
 			"src": "/api/v1/s3",
 			"dest": "/api/s3bucket.go?type=getBucket",
 			"methods": [
