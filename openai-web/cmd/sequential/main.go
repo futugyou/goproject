@@ -13,6 +13,7 @@ import (
 	"google.golang.org/adk/cmd/launcher/full"
 
 	"github.com/futugyousuzu/go-openai-web/agentic/agents"
+	"github.com/futugyousuzu/go-openai-web/agentic/models"
 )
 
 // It's quite interesting. When I asked "What are the current time and weather in Shanghai?", the agent replied,
@@ -24,12 +25,17 @@ import (
 func main() {
 	ctx := context.Background()
 
-	weatherAgent, err := agents.WeatherAgent(ctx, nil)
+	model, err := models.GetModel(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create model: %v", err)
+	}
+
+	weatherAgent, err := agents.WeatherAgent(ctx, model, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}
 
-	timeAgent, err := agents.TimeAgent(ctx, nil)
+	timeAgent, err := agents.TimeAgent(ctx, model, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

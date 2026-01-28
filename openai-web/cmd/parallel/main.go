@@ -13,6 +13,7 @@ import (
 	"google.golang.org/adk/cmd/launcher/full"
 
 	"github.com/futugyousuzu/go-openai-web/agentic/agents"
+	"github.com/futugyousuzu/go-openai-web/agentic/models"
 )
 
 // AGENT_ERROR: Error 400, Message: Please ensure that function call turn comes immediately after a user turn or after a function response turn.
@@ -20,12 +21,17 @@ import (
 func main() {
 	ctx := context.Background()
 
-	weatherAgent, err := agents.WeatherAgent(ctx, nil)
+	model, err := models.GetModel(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create model: %v", err)
+	}
+
+	weatherAgent, err := agents.WeatherAgent(ctx, model, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}
 
-	docAgent, err := agents.MsDocAgent(ctx, nil)
+	docAgent, err := agents.MsDocAgent(ctx, model, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

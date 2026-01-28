@@ -13,13 +13,19 @@ import (
 	"google.golang.org/genai"
 
 	"github.com/futugyousuzu/go-openai-web/agentic/agents"
+	"github.com/futugyousuzu/go-openai-web/agentic/models"
 )
 
 // go run ./cmd/weather/main.go
 func main() {
 	ctx := context.Background()
 
-	a, err := agents.WeatherAgent(ctx, nil)
+	model, err := models.GetModel(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create model: %v", err)
+	}
+
+	a, err := agents.WeatherAgent(ctx, model, nil)
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
 	}

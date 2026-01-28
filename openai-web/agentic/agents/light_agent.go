@@ -4,19 +4,14 @@ import (
 	"context"
 	"log"
 
-	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
+	"google.golang.org/adk/model"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/functiontool"
 )
 
-func LightAgent(ctx context.Context, handler *Handler) (agent.Agent, error) {
-	model, err := models.GetModel(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create model: %v", err)
-	}
-
+func LightAgent(ctx context.Context, model model.LLM, handler *Handler) (agent.Agent, error) {
 	getLightStatusTool, err := functiontool.New(
 		functiontool.Config{
 			Name:        "get_lights",

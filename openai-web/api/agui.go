@@ -65,7 +65,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Cache-Control")
 	w.Header().Set("X-Accel-Buffering", "no")
 
-	logger.Info("Tool-based generative UI SSE connection established", "RequestID", requestID)
+	logger.Info("Tool-based generative UI SSE connection established", "AgentID", agentid, "RequestID", requestID)
 
 	writer := bufio.NewWriter(w)
 	err = streamAgenticEvents(r.Context(), writer, &input, logger)
@@ -81,7 +81,7 @@ func AguiHandler(w http.ResponseWriter, r *http.Request) {
 func streamAgenticEvents(ctx context.Context, w *bufio.Writer, input *agentic.AgenticInput, logger *slog.Logger) error {
 	// Check for cancellation
 	if err := ctx.Err(); err != nil {
-		logger.Debug("Client disconnected during RUN_STARTED", "RequestID", input.RequestID, "reason", "context_canceled")
+		logger.Debug("Client disconnected during RUN_STARTED", "AgentID", input.AgentID, "RequestID", input.RequestID, "reason", "context_canceled")
 		return nil
 	}
 	return agentic.ProcessInput(ctx, w, input, logger)

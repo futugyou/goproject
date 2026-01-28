@@ -4,19 +4,14 @@ import (
 	"context"
 	"log"
 
-	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
+	"google.golang.org/adk/model"
 	"google.golang.org/adk/tool"
 	"google.golang.org/adk/tool/functiontool"
 )
 
-func WeatherAgent(ctx context.Context, handler *Handler) (agent.Agent, error) {
-	model, err := models.GetModel(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create model: %v", err)
-	}
-
+func WeatherAgent(ctx context.Context, model model.LLM, handler *Handler) (agent.Agent, error) {
 	checkWeatherTool, err := functiontool.New(
 		functiontool.Config{
 			Name:        "check_weather",

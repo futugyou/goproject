@@ -7,6 +7,7 @@ import (
 
 	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/types"
 	"github.com/futugyousuzu/go-openai-web/agentic/agents"
+	"github.com/futugyousuzu/go-openai-web/agentic/models"
 	_ "github.com/joho/godotenv/autoload"
 
 	"google.golang.org/adk/agent"
@@ -16,9 +17,14 @@ import (
 )
 
 func CallLLM(ctx context.Context, input *AgenticInput, returnChan chan<- string) error {
+	model, err := models.GetModel(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create model: %w", err)
+	}
+
 	hander := agents.NewHandler(&input.RunAgentInput, returnChan)
 
-	adkAgent, err := agents.GetAgentByName(ctx, input.AgentID, hander)
+	adkAgent, err := agents.CreateADKAgent(ctx, input.AgentID, model, hander)
 	if err != nil {
 		return fmt.Errorf("failed to create agent: %w", err)
 	}

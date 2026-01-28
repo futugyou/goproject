@@ -5,18 +5,19 @@ import (
 	"errors"
 
 	"google.golang.org/adk/agent"
+	"google.golang.org/adk/model"
 )
 
-func GetAgentByName(ctx context.Context, name string, handler *Handler) (agent.Agent, error) {
+func CreateADKAgent(ctx context.Context, name string, model model.LLM, handler *Handler) (agent.Agent, error) {
 	switch name {
 	case "light":
-		return WeatherAgent(ctx, handler)
+		return LightAgent(ctx, model, handler)
 	case "mddoc":
-		return MsDocAgent(ctx, handler)
+		return MsDocAgent(ctx, model, handler)
 	case "time":
-		return TimeAgent(ctx, handler)
+		return TimeAgent(ctx, model, handler)
 	case "weather":
-		return WeatherAgent(ctx, handler)
+		return WeatherAgent(ctx, model, handler)
 	}
 
 	return nil, errors.New("can not find agent with name: " + name)
