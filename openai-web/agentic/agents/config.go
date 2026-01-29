@@ -5,6 +5,7 @@ import (
 	"google.golang.org/adk/agent/llmagent"
 	"google.golang.org/adk/model"
 	"google.golang.org/adk/tool"
+	"google.golang.org/genai"
 )
 
 func NewLLMAgentConfig(name string, instruction string, description string, geminiModel model.LLM, tools []tool.Tool, toolsets []tool.Toolset, handler *Handler) llmagent.Config {
@@ -13,6 +14,12 @@ func NewLLMAgentConfig(name string, instruction string, description string, gemi
 		Instruction: instruction,
 		Model:       geminiModel,
 		Description: description,
+		GenerateContentConfig: &genai.GenerateContentConfig{
+			ThinkingConfig: &genai.ThinkingConfig{
+				IncludeThoughts: true,
+				ThinkingLevel:   genai.ThinkingLevelMedium,
+			},
+		},
 	}
 
 	if handler != nil {
