@@ -2,6 +2,8 @@ package agents
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
@@ -72,9 +74,10 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	fmt.Println(h.runID + " " + strconv.FormatBool(part.Thought) + "  " + part.Text)
 	isThinking := part.Thought && part.Text != ""
 	isNormalText := !part.Thought && part.Text != ""
-	isTool := part.FunctionCall != nil || part.ExecutableCode != nil
+	// isTool := part.FunctionCall != nil || part.ExecutableCode != nil
 
 	if isThinking {
 		if h.currentMode != "thinking" {
@@ -109,15 +112,15 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		}
 	}
 
-	if isTool {
-		h.closeActiveTextContainersInternal()
-		evv := events.NewToolCallChunkEvent()
-		if len(part.Text) > 0 {
-			evv.WithToolCallChunkDelta(part.Text)
-		}
-		h.handleEvent(evv)
-		h.currentMode = "tool"
-	}
+	// if isTool {
+	// 	h.closeActiveTextContainersInternal()
+	// 	evv := events.NewToolCallChunkEvent()
+	// 	if len(part.Text) > 0 {
+	// 		evv.WithToolCallChunkDelta(part.Text)
+	// 	}
+	// 	h.handleEvent(evv)
+	// 	h.currentMode = "tool"
+	// }
 
 	return nil
 }
@@ -180,6 +183,7 @@ func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string
 	}
 	chunkEv.WithToolCallChunkDelta(string(input))
 	h.handleEvent(chunkEv)
+	h.currentMode = "tool"
 	return nil, nil
 }
 
@@ -190,6 +194,7 @@ func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map
 	if err != nil {
 		h.toolCallID = ""
 		h.toolName = ""
+		h.currentMode = "none"
 
 		h.HandleRunError(err.Error())
 		return nil, err
@@ -201,6 +206,7 @@ func (h *Handler) OnAfterTool(ctx tool.Context, tool tool.Tool, args, result map
 		h.handleEvent(events.NewToolCallResultEvent(events.GenerateMessageID(), h.toolCallID, string(output)))
 		h.toolCallID = ""
 		h.toolName = ""
+		h.currentMode = "none"
 	}
 
 	return nil, nil
