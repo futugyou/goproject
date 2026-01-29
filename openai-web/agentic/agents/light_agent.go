@@ -3,6 +3,7 @@ package agents
 import (
 	"context"
 	"log"
+	"strings"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
@@ -32,9 +33,19 @@ func LightAgent(ctx context.Context, model model.LLM, handler *Handler) (agent.A
 		log.Fatalf("Failed to create change lights state tool: %v", err)
 	}
 
+	parts := []string{
+		"You are a useful light assistant. can tall user the status of the lights and can help user control the lights on and off.",
+		"You MUST use the tools to handle user requests regarding light control and status inquiries.",
+		"",
+		"- The `get_lights` tool is used to query the status of the lights.",
+		"- The `change_state` tool is used to change the state of the light.",
+		"When calling a tool, the tool's return value MUST be used as the response to the user. This value is typically in JSON format.",
+	}
+	prompt := strings.Join(parts, "\n\n")
+
 	config := NewLLMAgentConfig(
 		"light",
-		"You are a useful light assistant. can tall user the status of the lights and can help user control the lights on and off.",
+		prompt,
 		"Agent to control light's status.",
 		model,
 		[]tool.Tool{
