@@ -24,11 +24,11 @@ func NewLLMAgentConfig(name string, instruction string, description string, gemi
 		llmCfg.AfterAgentCallbacks = []agent.AfterAgentCallback{handler.OnAfterAgent}
 	}
 
-	if len(toolsets) > 0 {
+	if len(tools) > 0 {
 		llmCfg.Tools = tools
 	}
 
-	if len(tools) > 0 {
+	if len(toolsets) > 0 {
 		llmCfg.Toolsets = toolsets
 	}
 
