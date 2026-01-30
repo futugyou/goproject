@@ -13,10 +13,14 @@ import (
 
 // Defines lighting information with power specifications
 type ComplexLightInfo struct {
+	Items []ComplexLightItems `json:"items"`
+}
+
+type ComplexLightItems struct {
 	Id      string  `json:"id"`
 	Name    string  `json:"name"`
 	IsOn    bool    `json:"is_on"`
-	Wattage float64 `json:"wattage"` // 功率
+	Wattage float64 `json:"wattage"`
 }
 
 // Prompt 1: Based on the current energy consumption, how can I reduce the total power consumption by half? Please thoroughly assess the status of all lights before taking any action.
@@ -26,12 +30,14 @@ func EnergySavingAgent(ctx context.Context, model model.LLM, handler *Handler) (
 	getLightsTool, _ := functiontool.New(functiontool.Config{
 		Name:        "get_energy_usage",
 		Description: "Obtain the specific status of all lights and the power consumption (in watts) of each light.",
-	}, func(_ tool.Context, _ struct{}) ([]ComplexLightInfo, error) {
-		return []ComplexLightInfo{
-			{"1", "Living room crystal chandelier", true, 200.0},
-			{"2", "Study desk lamp", true, 15.0},
-			{"3", "Hallway light", true, 40.0},
-			{"4", "Kitchen ceiling light", true, 60.0},
+	}, func(_ tool.Context, _ struct{}) (ComplexLightInfo, error) {
+		return ComplexLightInfo{
+			Items: []ComplexLightItems{
+				{"1", "Living room crystal chandelier", true, 200.0},
+				{"2", "Study desk lamp", true, 15.0},
+				{"3", "Hallway light", true, 40.0},
+				{"4", "Kitchen ceiling light", true, 60.0},
+			},
 		}, nil
 	})
 
