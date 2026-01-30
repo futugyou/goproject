@@ -26,6 +26,7 @@ type Handler struct {
 	stepID             string
 	hasStartedThinking bool
 	currentMode        string // "thinking", "messaging", "none"
+	hasError           bool
 }
 
 func NewHandler(input *types.RunAgentInput, returnChan chan<- string) *Handler {
@@ -178,6 +179,7 @@ func (h *Handler) closeActiveTextContainersInternal() {
 func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string]any) (map[string]any, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
+
 	h.toolCallID = events.GenerateToolCallID()
 	h.toolName = tool.Name()
 	// Use TOOL_CALL_CHUNK (streaming mode) instead of START/ARGS/END
@@ -185,12 +187,15 @@ func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string
 	chunkEv := events.NewToolCallChunkEvent()
 	chunkEv.WithToolCallChunkID(h.toolCallID)
 	chunkEv.WithToolCallChunkName(h.toolName)
+
 	if h.messageID != "" {
 		chunkEv.WithToolCallChunkParentMessageID(h.messageID)
 	}
+
 	chunkEv.WithToolCallChunkDelta(string(input))
 	h.handleEvent(chunkEv)
 	h.currentMode = "tool"
+
 	return nil, nil
 }
 
@@ -226,8 +231,13 @@ func (h *Handler) handleEvent(ev events.Event) {
 }
 
 func (h *Handler) HandleRunError(message string) {
-	h.cleanupLifecycle()
+	// Prevent multiple RunErrorEvents from being emitted.
+	if h.hasError {
+		return
+	}
 
+	h.hasError = true
+	h.cleanupLifecycle()
 	options := []events.RunErrorOption{events.WithRunID(h.runID)}
 	runError := events.NewRunErrorEvent(message, options...)
 
