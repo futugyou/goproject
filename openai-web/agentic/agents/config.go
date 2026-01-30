@@ -17,7 +17,7 @@ func NewLLMAgentConfig(name string, instruction string, description string, gemi
 		GenerateContentConfig: &genai.GenerateContentConfig{
 			ThinkingConfig: &genai.ThinkingConfig{
 				IncludeThoughts: true,
-				ThinkingLevel:   genai.ThinkingLevelMedium,
+				ThinkingLevel:   genai.ThinkingLevelHigh,
 			},
 		},
 	}

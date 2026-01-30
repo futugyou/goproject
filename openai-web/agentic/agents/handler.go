@@ -74,7 +74,7 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	fmt.Println(h.runID + " " + strconv.FormatBool(part.Thought) + "  " + part.Text)
+	fmt.Println(h.runID + " " + strconv.FormatBool(part.Thought) + " " + strconv.FormatBool(partial) + "  " + part.Text)
 	isThinking := part.Thought && part.Text != ""
 	isNormalText := !part.Thought && part.Text != ""
 	// isTool := part.FunctionCall != nil || part.ExecutableCode != nil
@@ -86,7 +86,14 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 			h.hasStartedThinking = true
 			h.currentMode = "thinking"
 		}
-		h.handleEvent(events.NewThinkingTextMessageContentEvent(part.Text))
+
+		// The specifications for ThinkingText are currently being redefined, and it may be replaced by Reason in the future.
+		// According to the logs, the event sequence is correct, but the frontend is still showing an error.
+		// Agent execution failed: Error: Cannot send 'THINKING_TEXT_MESSAGE_CONTENT' event: No active thinking message found. Start a message with 'THINKING_TEXT_MESSAGE_START' first.
+		// Once the protocol is updated, simply use chunkevent.
+		if partial {
+			h.handleEvent(events.NewThinkingTextMessageContentEvent(part.Text))
+		}
 	}
 
 	if isNormalText {
