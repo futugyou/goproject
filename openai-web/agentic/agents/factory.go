@@ -18,6 +18,8 @@ func CreateADKAgent(ctx context.Context, name string, model model.LLM, handler *
 		return TimeAgent(ctx, model, handler)
 	case "weather":
 		return WeatherAgent(ctx, model, handler)
+	case "energy_saver":
+		return EnergySavingAgent(ctx, model, handler)
 	}
 
 	return nil, errors.New("can not find agent with name: " + name)
