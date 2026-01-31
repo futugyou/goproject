@@ -76,6 +76,10 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 	defer h.mu.Unlock()
 
 	fmt.Println(h.runID + " " + strconv.FormatBool(part.Thought) + " " + strconv.FormatBool(partial) + "  " + part.Text)
+
+	// The Google ADK will first return messages in a streaming message(partial is true), and then return a complete message at the end(partial = false).
+	// The program only uses the streaming message(partial is true).
+	// TODO: Maybe the non-streaming message(partial = false) can be used later for insertion into a database.
 	if !partial {
 		return nil
 	}
@@ -94,8 +98,6 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		}
 
 		// The specifications for ThinkingText are currently being redefined, and it may be replaced by Reason in the future.
-		// According to the logs, the event sequence is correct, but the frontend is still showing an error.
-		// Agent execution failed: Error: Cannot send 'THINKING_TEXT_MESSAGE_CONTENT' event: No active thinking message found. Start a message with 'THINKING_TEXT_MESSAGE_START' first.
 		// Once the protocol is updated, simply use chunkevent.
 		h.handleEvent(events.NewThinkingTextMessageContentEvent(part.Text))
 	}
@@ -108,17 +110,15 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		}
 
 		h.currentMode = "messaging"
+
 		// use stream(sse)
 		// eg. user: hello
 		// llm response: Hello! How can, (partial is true)
 		// llm response: I help you today?\n (partial is true)
 		// llm response: Hello! How can I help you today?\n (partial is false)
-		// so, if partial is false, do not send chunk event
-		if partial {
-			// TextMessage start+content(*)+end === chunks
-			h.handleEvent(events.NewTextMessageChunkEvent(&h.messageID, toPtr("assistant"), &part.Text))
-		}
 
+		// TextMessage start+content(*)+end === chunks
+		h.handleEvent(events.NewTextMessageChunkEvent(&h.messageID, toPtr("assistant"), &part.Text))
 	}
 
 	// if isTool {
