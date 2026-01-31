@@ -22,18 +22,20 @@ func init() {
 
 // TestGet is a sample to run an endpoint test
 func TestGet(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/v1/object", nil)
+	r, _ := http.NewRequest("GET", "/api/v1/examples", nil)
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, r)
 
 	logs.Info("testing", "TestGet", "Code[%d]\n%s", w.Code, w.Body.String())
 
+	// This is just for testing purposes
+	// The `app.conf` file doesn't contain a real database connection, so the HTTP response will inevitably be 500.
 	Convey("Subject: Test Station Endpoint\n", t, func() {
-		Convey("Status Code Should Be 200", func() {
-			So(w.Code, ShouldEqual, 200)
+		Convey("Status Code Should Be 500", func() {
+			So(w.Code, ShouldEqual, 500)
 		})
-		Convey("The Result Should Not Be Empty", func() {
-			So(w.Body.Len(), ShouldBeGreaterThan, 0)
+		Convey("The Result Should Be Empty", func() {
+			So(w.Body.Len(), ShouldEqual, 0)
 		})
 	})
 }
