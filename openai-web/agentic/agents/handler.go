@@ -76,6 +76,10 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 	defer h.mu.Unlock()
 
 	fmt.Println(h.runID + " " + strconv.FormatBool(part.Thought) + " " + strconv.FormatBool(partial) + "  " + part.Text)
+	if !partial {
+		return nil
+	}
+
 	isThinking := part.Thought && part.Text != ""
 	isNormalText := !part.Thought && part.Text != ""
 	// isTool := part.FunctionCall != nil || part.ExecutableCode != nil
@@ -84,6 +88,7 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		if h.currentMode != "thinking" {
 			h.closeActiveTextContainersInternal()
 			h.handleEvent(events.NewThinkingStartEvent().WithTitle("Thinking..."))
+			h.handleEvent(events.NewThinkingTextMessageStartEvent())
 			h.hasStartedThinking = true
 			h.currentMode = "thinking"
 		}
@@ -92,13 +97,12 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 		// According to the logs, the event sequence is correct, but the frontend is still showing an error.
 		// Agent execution failed: Error: Cannot send 'THINKING_TEXT_MESSAGE_CONTENT' event: No active thinking message found. Start a message with 'THINKING_TEXT_MESSAGE_START' first.
 		// Once the protocol is updated, simply use chunkevent.
-		if partial {
-			h.handleEvent(events.NewThinkingTextMessageContentEvent(part.Text))
-		}
+		h.handleEvent(events.NewThinkingTextMessageContentEvent(part.Text))
 	}
 
 	if isNormalText {
 		if h.currentMode == "thinking" {
+			h.handleEvent(events.NewThinkingTextMessageEndEvent())
 			h.handleEvent(events.NewThinkingEndEvent())
 			h.hasStartedThinking = false
 		}
@@ -115,9 +119,6 @@ func (h *Handler) OnTextMessaging(part *genai.Part, partial bool) error {
 			h.handleEvent(events.NewTextMessageChunkEvent(&h.messageID, toPtr("assistant"), &part.Text))
 		}
 
-		if !partial {
-			h.currentMode = "none"
-		}
 	}
 
 	// if isTool {
@@ -157,6 +158,7 @@ func (h *Handler) OnAfterAgent(ctx agent.CallbackContext) (*genai.Content, error
 
 func (h *Handler) cleanupLifecycle() {
 	if h.hasStartedThinking {
+		h.handleEvent(events.NewThinkingTextMessageEndEvent())
 		h.handleEvent(events.NewThinkingEndEvent())
 		h.hasStartedThinking = false
 	}
@@ -171,6 +173,7 @@ func (h *Handler) cleanupLifecycle() {
 
 func (h *Handler) closeActiveTextContainersInternal() {
 	if h.currentMode == "thinking" {
+		h.handleEvent(events.NewThinkingEndEvent())
 		h.handleEvent(events.NewThinkingEndEvent())
 		h.hasStartedThinking = false
 	}
