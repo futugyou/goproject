@@ -3,12 +3,14 @@ package agents
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/model"
 )
 
 func CreateADKAgent(ctx context.Context, name string, model model.LLM, handler *Handler) (agent.Agent, error) {
+	fmt.Println(name)
 	switch name {
 	case "light":
 		return LightAgent(ctx, model, handler)

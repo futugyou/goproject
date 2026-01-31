@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/light", api.AguiHandler)
+	http.HandleFunc("/", api.AguiHandler)
 
 	fmt.Println("server started, address: http://localhost:8080/")
 	err := http.ListenAndServe(":8080", nil)
