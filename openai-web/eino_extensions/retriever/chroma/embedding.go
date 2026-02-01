@@ -12,6 +12,26 @@ type EinoEmbedderAdapter struct {
 	embedder embedding.Embedder
 }
 
+// DefaultSpace implements embeddings.EmbeddingFunction.
+func (e *EinoEmbedderAdapter) DefaultSpace() embeddings.DistanceMetric {
+	return embeddings.L2
+}
+
+// GetConfig implements embeddings.EmbeddingFunction.
+func (e *EinoEmbedderAdapter) GetConfig() embeddings.EmbeddingFunctionConfig {
+	return nil
+}
+
+// Name implements embeddings.EmbeddingFunction.
+func (e *EinoEmbedderAdapter) Name() string {
+	return "chroma_retriever"
+}
+
+// SupportedSpaces implements embeddings.EmbeddingFunction.
+func (e *EinoEmbedderAdapter) SupportedSpaces() []embeddings.DistanceMetric {
+	return []embeddings.DistanceMetric{embeddings.L2, embeddings.COSINE, embeddings.IP}
+}
+
 func (e *EinoEmbedderAdapter) EmbedDocuments(ctx context.Context, documents []string) ([]embeddings.Embedding, error) {
 	if len(documents) == 0 {
 		return embeddings.NewEmptyEmbeddings(), nil
@@ -56,3 +76,5 @@ func float64ToFloat32(vectors [][]float64) [][]float32 {
 	}
 	return result
 }
+
+var _ embeddings.EmbeddingFunction = &EinoEmbedderAdapter{}
