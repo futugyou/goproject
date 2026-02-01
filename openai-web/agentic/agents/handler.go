@@ -183,7 +183,13 @@ func (h *Handler) OnBeforeTool(ctx tool.Context, tool tool.Tool, args map[string
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	h.toolCallID = events.GenerateToolCallID()
+	toolCallID := ctx.FunctionCallID()
+
+	if len(toolCallID) == 0 {
+		toolCallID = events.GenerateToolCallID()
+	}
+
+	h.toolCallID = toolCallID
 	h.toolName = tool.Name()
 	// Use TOOL_CALL_CHUNK (streaming mode) instead of START/ARGS/END
 	input, _ := json.Marshal(args)
