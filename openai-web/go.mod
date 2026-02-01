@@ -32,6 +32,7 @@ require (
 	google.golang.org/adk v0.3.0
 	google.golang.org/genai v1.44.0
 	gorm.io/datatypes v1.2.7
+	gorm.io/gorm v1.31.1
 )
 
 require (
@@ -146,7 +147,6 @@ require (
 	google.golang.org/grpc v1.78.0 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
-	gorm.io/gorm v1.31.1 // indirect
 	rsc.io/omap v1.2.0 // indirect
 	rsc.io/ordered v1.1.1 // indirect
 )
