@@ -16,7 +16,7 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/hashicorp/go-slug v0.16.8
-	github.com/hashicorp/go-tfe v1.99.0
+	github.com/hashicorp/go-tfe v1.100.0
 	github.com/hashicorp/hcp-sdk-go v0.163.0 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.17.3
