@@ -47,10 +47,10 @@ github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.21 h1:c31//R3x
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.21/go.mod h1:r6+pf23ouCB718FUxaqzZdbpYFyDtehyZcmP5KL9FkA=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.21 h1:ZlvrNcHSFFWURB8avufQq9gFsheUgjVD9536obIknfM=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.21/go.mod h1:cv3TNhVrssKR0O/xxLJVRfd2oazSnZnkUeTf6ctUwfQ=
-github.com/aws/aws-sdk-go-v2/service/iot v1.72.5 h1:l/+ehZvGQ/iLapA+rBkUc5vIBUYpfG7/ejLvOHyX2hs=
-github.com/aws/aws-sdk-go-v2/service/iot v1.72.5/go.mod h1:1O16K3C+aCR4Vmn9/9bvxmXjPDIklab7S7Ete6AkaWc=
-github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.32.21 h1:zWc6/Af69bA4vqZLV6jBU03BnQ5qylo2MRo6dELvCF4=
-github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.32.21/go.mod h1:V0NSs5Sf5yDVQN5CrLoZKx/uxmMaQdBhAyE0hoPADkY=
+github.com/aws/aws-sdk-go-v2/service/iot v1.72.6 h1:6V+P80klMtguHT/n56LVFLjwwgfyF88IHeF9TdUnEns=
+github.com/aws/aws-sdk-go-v2/service/iot v1.72.6/go.mod h1:1O16K3C+aCR4Vmn9/9bvxmXjPDIklab7S7Ete6AkaWc=
+github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.32.22 h1:B9MaMzCZMxxRh/CGTEpzHMGD9YNBIHNe7/zZ6AAkqWo=
+github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.32.22/go.mod h1:V0NSs5Sf5yDVQN5CrLoZKx/uxmMaQdBhAyE0hoPADkY=
 github.com/aws/aws-sdk-go-v2/service/route53 v1.62.5 h1:Z+/OLsb85Kpq7TVLCspskqePaf68Tdv6GfmJP4kH6i0=
 github.com/aws/aws-sdk-go-v2/service/route53 v1.62.5/go.mod h1:TmxGowuBYwjmHFOsEDxaZdsQE62JJzOmtiWafTi/czg=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.99.0 h1:hlSuz394kV0vhv9drL5lhuEFbEOEP1VyQpy15qWh1Pk=
