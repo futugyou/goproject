@@ -15,6 +15,9 @@ on:
     - 'openai-web/**'
     - 'infr-project/**'
     - '.github/workflows/empty-preview.yaml'
+    - '.github/workflows/dependabot-auto.yml'
+    - '.github/workflows/markdownlint.yml'
+    - '.github/workflows/codeql.yml'
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
