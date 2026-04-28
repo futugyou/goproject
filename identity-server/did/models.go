@@ -1,6 +1,10 @@
 package did
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/lestrrat-go/jwx/v4/jwk"
+)
 
 type DecentralizedIdentifier struct {
 	Scheme     string
@@ -50,8 +54,8 @@ type DidDocumentVerificationMethod struct {
 	ID                   string                  `json:"id"`
 	Type                 string                  `json:"type"`
 	Controller           string                  `json:"controller"`
-	PublicKeyJwk         string                  `json:"publicKeyJwk"`
-	PrivateKeyJwk        string                  `json:"privateKeyJwk"`
+	PublicKeyJwk         json.RawMessage         `json:"publicKeyJwk"`
+	PrivateKeyJwk        json.RawMessage         `json:"privateKeyJwk"`
 	PublicKeyMultibase   string                  `json:"publicKeyMultibase"`
 	SecretKeyMultibase   string                  `json:"secretKeyMultibase"`
 	BlockChainAccountId  string                  `json:"blockchainAccountId"`
@@ -65,6 +69,14 @@ type DidDocumentVerificationMethod struct {
 	Usage                VerificationMethodUsage `json:"-"`
 	AdditionalParameters map[string]string       `json:"-"`
 	JsonLdContext        string                  `json:"-"`
+}
+
+func (v *DidDocumentVerificationMethod) GetPublicKeyJwk() (jwk.Key, error) {
+	return jwk.ParseKey(v.PublicKeyJwk)
+}
+
+func (v *DidDocumentVerificationMethod) GetPrivateKeyJwk() (jwk.Key, error) {
+	return jwk.ParseKey(v.PrivateKeyJwk)
 }
 
 type IdentityDocumentIdentifier struct {
