@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	jwk "github.com/lestrrat-go/jwx/v2/jwk"
+	jwk "github.com/lestrrat-go/jwx/v4/jwk"
 	gomock "go.uber.org/mock/gomock"
 )
 

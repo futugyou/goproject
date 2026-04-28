@@ -10,8 +10,8 @@ import (
 	"github.com/futugyousuzu/identity-server/operate"
 	"github.com/futugyousuzu/identity-server/token"
 
-	"github.com/lestrrat-go/jwx/v2/jwa"
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwa"
+	"github.com/lestrrat-go/jwx/v4/jwk"
 )
 
 type JwksService struct {

@@ -3,7 +3,7 @@ package token
 import (
 	"context"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v4/jwk"
 )
 
 //go:generate gomockhandler -config=../gomockhandler.json  -destination mock_jwks_service_test.go -package=token_test github.com/futugyousuzu/identity-server/token IJwksService
