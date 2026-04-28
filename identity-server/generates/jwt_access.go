@@ -26,7 +26,8 @@ type JWTAccessClaims struct {
 
 // Valid claims verification
 func (a *JWTAccessClaims) Valid() error {
-	if time.Unix(a.Expiration().Unix(), 0).Before(time.Now()) {
+	expiration, _ := a.Expiration()
+	if time.Unix(expiration.Unix(), 0).Before(time.Now()) {
 		return errors.ErrInvalidAccessToken
 	}
 	return nil

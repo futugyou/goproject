@@ -60,12 +60,9 @@ func (u *JwksService) CreateJwks(ctx context.Context, signed_key_id string) erro
 		return fmt.Errorf("failed to generate new rsa private key: %s", err)
 	}
 
-	key, err := jwk.FromRaw(raw)
+	key, err := jwk.Import[jwk.RSAPrivateKey](raw)
 	if err != nil {
 		return fmt.Errorf("failed to create RSA key: %s", err)
-	}
-	if _, ok := key.(jwk.RSAPrivateKey); !ok {
-		return fmt.Errorf("expected jwk.RSAPrivateKey, got %T", err)
 	}
 
 	key.Set(jwk.KeyIDKey, signed_key_id)

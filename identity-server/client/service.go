@@ -13,7 +13,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/v4/jwk"
+	"github.com/jwx-go/jwkfetch/v4"
 	"github.com/lestrrat-go/jwx/v4/jws"
 	"github.com/lestrrat-go/jwx/v4/jwt"
 )
@@ -145,7 +145,8 @@ func (a *AuthService) VerifyToken(w http.ResponseWriter, r *http.Request, token 
 }
 
 func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, authorization string) bool {
-	set, err := jwk.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
+	client := jwkfetch.NewClient()
+	set, err := client.Fetch(r.Context(), a.Options.AuthServerURL+".well-known/jwks.json")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return false
@@ -157,14 +158,13 @@ func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, 
 		return false
 	}
 
-	// "scope" can get from tok.PrivateClaims() or directly
-	scope, _ := tok.Get("scope")
+	scope, _ := tok.Field("scope")
 	fmt.Println(scope)
 
 	fmt.Println(tok.Issuer())
 	fmt.Println(tok.JwtID())
 	fmt.Println(tok.Subject())
-	for k, v := range tok.PrivateClaims() {
+	for k, v := range tok.Claims() {
 		fmt.Println(k, v)
 	}
 
@@ -173,7 +173,7 @@ func (a *AuthService) VerifyTokenString(w http.ResponseWriter, r *http.Request, 
 	for _, v := range msg.Signatures() {
 		fmt.Println(v.ProtectedHeaders().KeyID())
 		fmt.Println(v.ProtectedHeaders().Algorithm())
-		fmt.Println(v.ProtectedHeaders().Get("x-example"))
+		fmt.Println(v.ProtectedHeaders().Field("x-example"))
 	}
 
 	return true
