@@ -19,7 +19,7 @@ require (
 	github.com/hashicorp/go-tfe v1.103.0
 	github.com/hashicorp/hcp-sdk-go v0.163.0 // indirect
 	github.com/joho/godotenv v1.5.1
-	github.com/redis/go-redis/v9 v9.18.0
+	github.com/redis/go-redis/v9 v9.19.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
@@ -55,7 +55,6 @@ require (
 	github.com/chidiwilliams/flatbson v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/futugyou/circleci v1.0.0 // indirect
 	github.com/futugyou/gofile v1.0.0 // indirect
