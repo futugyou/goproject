@@ -153,3 +153,287 @@ func (v *VerificationMethodEncoding) Decode(verificationMethod DidDocumentVerifi
 func (v *VerificationMethodEncoding) GetStandards() []IVerificationMethodStandard {
 	return v.standards
 }
+
+func GetAllVerificationMethodStandards() []IVerificationMethodStandard {
+	return []IVerificationMethodStandard{
+		&EcdsaSecp256k1RecoveryMethod2020Standard{},
+		&EcdsaSecp256k1VerificationKey2019Standard{},
+		// NewEd25519VerificationKey2018Standard(),
+		&Ed25519VerificationKey2020Standard{},
+		&JsonWebKey2020Standard{},
+		// NewX25519KeyAgreementKey2019Standard(),
+		&X25519KeyAgreementKey2020Standard{},
+	}
+}
+
+var _ IVerificationMethodStandard = (*Ed25519VerificationKey2020Standard)(nil)
+
+type Ed25519VerificationKey2020Standard struct {
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2020Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	return verificationMethod.PublicKeyMultibase
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2020Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return MULTIBASE
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2020Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/ed25519-2020/v1"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2020Standard) GetSupportedCurves() []string {
+	return []string{"Ed25519"}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2020Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return MULTIBASE
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2020Standard) GetType() string {
+	return "Ed25519VerificationKey2020"
+}
+
+var _ IVerificationMethodStandard = (*EcdsaSecp256k1RecoveryMethod2020Standard)(nil)
+
+type EcdsaSecp256k1RecoveryMethod2020Standard struct {
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1RecoveryMethod2020Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	return ""
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1RecoveryMethod2020Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return JWK
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1RecoveryMethod2020Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/secp256k1recovery-2020/v2"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1RecoveryMethod2020Standard) GetSupportedCurves() []string {
+	return []string{"secp256k1"}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1RecoveryMethod2020Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return HEX | JWK
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1RecoveryMethod2020Standard) GetType() string {
+	return "EcdsaSecp256k1RecoveryMethod2020"
+}
+
+var _ IVerificationMethodStandard = (*EcdsaSecp256k1VerificationKey2019Standard)(nil)
+
+type EcdsaSecp256k1VerificationKey2019Standard struct {
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1VerificationKey2019Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	return ""
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1VerificationKey2019Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return JWK
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1VerificationKey2019Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/secp256k1-2019/v1"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1VerificationKey2019Standard) GetSupportedCurves() []string {
+	return []string{"secp256k1"}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1VerificationKey2019Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return JWK | BASE58 | MULTIBASE | HEX
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (e *EcdsaSecp256k1VerificationKey2019Standard) GetType() string {
+	return "EcdsaSecp256k1VerificationKey2019"
+}
+
+var _ IVerificationMethodStandard = (*Ed25519VerificationKey2018Standard)(nil)
+
+type Ed25519VerificationKey2018Standard struct {
+	multicodecSerializer IMulticodecSerializer
+}
+
+func NewEd25519VerificationKey2018Standard(multicodecSerializer IMulticodecSerializer) *Ed25519VerificationKey2018Standard {
+	return &Ed25519VerificationKey2018Standard{multicodecSerializer: multicodecSerializer}
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2018Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	return e.multicodecSerializer.SerializePublicKey(asymmKey)
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2018Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return BASE58
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2018Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/ed25519-2018/v1"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2018Standard) GetSupportedCurves() []string {
+	return []string{"Ed25519"}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2018Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return BASE58
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (e *Ed25519VerificationKey2018Standard) GetType() string {
+	return "Ed25519VerificationKey2018"
+}
+
+var _ IVerificationMethodStandard = (*JsonWebKey2020Standard)(nil)
+
+type JsonWebKey2020Standard struct {
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (j *JsonWebKey2020Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	publicJWK, err := asymmKey.GetPublicJwk()
+	if err != nil {
+		return ""
+	}
+
+	if asymmKey.GetKty() == "OKP" {
+		s, err := ComputeOKPThumbprint(publicJWK)
+		if err != nil {
+			return ""
+		}
+		return ToHex(s, false)
+	}
+
+	s, err := ComputeJWKThumbprint(publicJWK)
+	if err != nil {
+		return ""
+	}
+	return ToHex(s, false)
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (j *JsonWebKey2020Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return JWK
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (j *JsonWebKey2020Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/jws-2020/v1"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (j *JsonWebKey2020Standard) GetSupportedCurves() []string {
+	return []string{}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (j *JsonWebKey2020Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return JWK
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (j *JsonWebKey2020Standard) GetType() string {
+	return "JsonWebKey2020"
+}
+
+var _ IVerificationMethodStandard = (*X25519KeyAgreementKey2019Standard)(nil)
+
+type X25519KeyAgreementKey2019Standard struct {
+	multicodecSerializer IMulticodecSerializer
+}
+
+func NewX25519KeyAgreementKey2019Standard(multicodecSerializer IMulticodecSerializer) *X25519KeyAgreementKey2019Standard {
+	return &X25519KeyAgreementKey2019Standard{multicodecSerializer: multicodecSerializer}
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2019Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	return x.multicodecSerializer.SerializePublicKey(asymmKey)
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2019Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return BASE58
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2019Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/x25519-2019/v1"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2019Standard) GetSupportedCurves() []string {
+	return []string{"X25519"}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2019Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return BASE58
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2019Standard) GetType() string {
+	return "X25519KeyAgreementKey2019"
+}
+
+var _ IVerificationMethodStandard = (*X25519KeyAgreementKey2020Standard)(nil)
+
+type X25519KeyAgreementKey2020Standard struct {
+}
+
+// BuildId implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2020Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
+	return verificationMethod.PublicKeyMultibase
+}
+
+// GetDefaultEncoding implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2020Standard) GetDefaultEncoding() SignatureKeyEncodingTypes {
+	return MULTIBASE
+}
+
+// GetJSONLDContext implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2020Standard) GetJSONLDContext() string {
+	return "https://w3id.org/security/suites/x25519-2020/v1"
+}
+
+// GetSupportedCurves implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2020Standard) GetSupportedCurves() []string {
+	return []string{"X25519"}
+}
+
+// GetSupportedEncoding implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2020Standard) GetSupportedEncoding() SignatureKeyEncodingTypes {
+	return MULTIBASE
+}
+
+// GetType implements [IVerificationMethodStandard].
+func (x *X25519KeyAgreementKey2020Standard) GetType() string {
+	return "X25519KeyAgreementKey2020"
+}
