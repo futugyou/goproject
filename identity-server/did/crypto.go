@@ -3,14 +3,20 @@ package did
 import (
 	"crypto"
 	"crypto/ecdh"
+	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"github.com/lestrrat-go/jwx/v4/jwa"
 	"github.com/lestrrat-go/jwx/v4/jwk"
 )
@@ -330,4 +336,154 @@ func (k *X25519AgreementKey) SignHash(content []byte, alg jwa.SignatureAlgorithm
 
 func (k *X25519AgreementKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
 	return false
+}
+
+var _ IAsymmetricKey = (*ECDSASignatureKey)(nil)
+
+type ECDSASignatureKey struct {
+	priv *ecdsa.PrivateKey
+	pub  *ecdsa.PublicKey
+	alg  jwa.SignatureAlgorithm
+	crv  string
+}
+
+func NewGenericECDSAKey(algName string) (*ECDSASignatureKey, error) {
+	var curve elliptic.Curve
+	var crvName string
+	alg := jwa.NewSignatureAlgorithm(algName)
+
+	switch algName {
+	case "ES256":
+		curve = elliptic.P256()
+		crvName = "P-256"
+	case "ES256K":
+		curve = secp256k1.S256()
+		crvName = "secp256k1"
+	case "ES384":
+		curve = elliptic.P384()
+		crvName = "P-384"
+	case "ES512":
+		curve = elliptic.P521()
+		crvName = "P-521"
+	default:
+		return nil, fmt.Errorf("unsupported algorithm: %s", algName)
+	}
+
+	priv, err := ecdsa.GenerateKey(curve, rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ECDSASignatureKey{
+		priv: priv,
+		pub:  &priv.PublicKey,
+		alg:  alg,
+		crv:  crvName,
+	}, nil
+}
+
+func (k *ECDSASignatureKey) GetKty() string       { return "EC" }
+func (k *ECDSASignatureKey) GetCrvOrSize() string { return k.crv }
+func (k *ECDSASignatureKey) GetJwtAlg() string    { return k.alg.String() }
+
+func (k *ECDSASignatureKey) GetPublicKey(compressed bool) []byte {
+	if k.pub == nil {
+		return nil
+	}
+	return elliptic.Marshal(k.pub.Curve, k.pub.X, k.pub.Y)
+}
+
+func (k *ECDSASignatureKey) GetPrivateKey() []byte {
+	if k.priv == nil {
+		return nil
+	}
+	b, err := x509.MarshalPKCS8PrivateKey(k.priv)
+	if err != nil {
+		return nil
+	}
+	return b
+}
+
+func (k *ECDSASignatureKey) GetPublicJwk() (jwk.Key, error) {
+	key, err := jwk.Import[jwk.ECDSAPublicKey](k.pub)
+	if err != nil {
+		return nil, err
+	}
+	_ = key.Set(jwk.AlgorithmKey, k.alg)
+	return key, nil
+}
+
+func (k *ECDSASignatureKey) GetPrivateJwk() (jwk.Key, error) {
+	key, err := jwk.Import[jwk.ECDSAPrivateKey](k.priv)
+	if err != nil {
+		return nil, err
+	}
+	_ = key.Set(jwk.AlgorithmKey, k.alg)
+	return key, nil
+}
+
+func (k *ECDSASignatureKey) SignHash(content []byte, alg jwa.SignatureAlgorithm) ([]byte, error) {
+	if k.priv == nil {
+		return nil, errors.New("missing private key")
+	}
+
+	var hash []byte
+	switch alg.String() {
+	case "ES256", "ES256K":
+		digest := sha256.Sum256(content)
+		hash = digest[:]
+	case "ES384":
+		digest := sha512.Sum384(content)
+		hash = digest[:]
+	case "ES512":
+		digest := sha512.Sum512(content)
+		hash = digest[:]
+	default:
+		return nil, fmt.Errorf("unsupported algorithm for signing: %s", alg)
+	}
+
+	r, s, err := ecdsa.Sign(rand.Reader, k.priv, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	curveOrderBytes := (k.priv.Curve.Params().BitSize + 7) / 8
+	signature := make([]byte, curveOrderBytes*2)
+
+	r.FillBytes(signature[0:curveOrderBytes])
+	s.FillBytes(signature[curveOrderBytes:])
+
+	return signature, nil
+}
+
+func (k *ECDSASignatureKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
+	if k.pub == nil || len(signature) == 0 {
+		return false
+	}
+
+	curveOrderBytes := (k.pub.Curve.Params().BitSize + 7) / 8
+	if len(signature) != curveOrderBytes*2 {
+		return false
+	}
+
+	var hash []byte
+	switch k.alg.String() {
+	case "ES256", "ES256K":
+		h := sha256.Sum256(content)
+		hash = h[:]
+	case "ES384":
+		h := sha512.Sum384(content)
+		hash = h[:]
+	default:
+		return false
+	}
+
+	r := new(big.Int).SetBytes(signature[:curveOrderBytes])
+	s := new(big.Int).SetBytes(signature[curveOrderBytes:])
+
+	return ecdsa.Verify(k.pub, hash, r, s)
+}
+
+func (k *ECDSASignatureKey) Import(publicKey []byte, privateKey []byte) error {
+	return errors.New("use jwk.Import for complex ECDSA imports")
 }
