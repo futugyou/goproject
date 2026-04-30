@@ -3,6 +3,7 @@ package did
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -133,4 +134,68 @@ func (k *Ed25519SignatureKey) CheckHash(content []byte, signature []byte, alg jw
 		return false
 	}
 	return ed25519.Verify(k.publicKey, content, signature)
+}
+
+var _ IAsymmetricKey = (*JsonWebKeySecurityKey)(nil)
+
+type JsonWebKeySecurityKey struct {
+	innerKey jwk.Key
+}
+
+func NewJsonWebKeySecurityKey(key jwk.Key) *JsonWebKeySecurityKey {
+	return &JsonWebKeySecurityKey{
+		innerKey: key,
+	}
+}
+
+func (k *JsonWebKeySecurityKey) GetKty() string {
+	return k.innerKey.KeyType().String()
+}
+
+func (k *JsonWebKeySecurityKey) GetCrvOrSize() string {
+	var crv string
+	crv, err := jwk.Get[string](k.innerKey, "crv")
+	if err == nil {
+		return crv
+	}
+	return ""
+}
+
+func (k *JsonWebKeySecurityKey) GetJwtAlg() string {
+	alg, ok := k.innerKey.Algorithm()
+	if ok {
+		return alg.String()
+	}
+	return ""
+}
+
+func (k *JsonWebKeySecurityKey) GetPublicJwk() (jwk.Key, error) {
+	return jwk.PublicKeyOf(k.innerKey)
+}
+
+func (k *JsonWebKeySecurityKey) GetPrivateJwk() (jwk.Key, error) {
+	return k.innerKey, nil
+}
+
+func (k *JsonWebKeySecurityKey) GetPublicKey(compressed bool) []byte {
+	pub, _ := jwk.PublicKeyOf(k.innerKey)
+	buf, _ := json.Marshal(pub)
+	return buf
+}
+
+func (k *JsonWebKeySecurityKey) GetPrivateKey() []byte {
+	buf, _ := json.Marshal(k.innerKey)
+	return buf
+}
+
+func (k *JsonWebKeySecurityKey) Import(publicKey []byte, privateKey []byte) error {
+	return errors.New("import not supported in JsonWebKeySecurityKey")
+}
+
+func (k *JsonWebKeySecurityKey) SignHash(content []byte, alg jwa.SignatureAlgorithm) ([]byte, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (k *JsonWebKeySecurityKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
+	return false
 }
