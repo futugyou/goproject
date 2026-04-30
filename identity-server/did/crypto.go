@@ -2,6 +2,7 @@ package did
 
 import (
 	"crypto"
+	"crypto/ecdh"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/rsa"
@@ -219,7 +220,7 @@ func NewRSASignatureKey() (*RSASignatureKey, error) {
 }
 
 func (k *RSASignatureKey) GetKty() string       { return "RSA" }
-func (k *RSASignatureKey) GetCrvOrSize() string { return "2048" }
+func (k *RSASignatureKey) GetCrvOrSize() string { return "2048+" }
 func (k *RSASignatureKey) GetJwtAlg() string    { return "RS256" }
 
 func (k *RSASignatureKey) Import(publicKey []byte, privateKey []byte) error {
@@ -267,4 +268,66 @@ func (k *RSASignatureKey) SignHash(content []byte, alg jwa.SignatureAlgorithm) (
 func (k *RSASignatureKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
 	err := rsa.VerifyPKCS1v15(k.pub, crypto.SHA256, content, signature)
 	return err == nil
+}
+
+var _ IAsymmetricKey = (*X25519AgreementKey)(nil)
+
+type X25519AgreementKey struct {
+	priv *ecdh.PrivateKey
+	pub  *ecdh.PublicKey
+}
+
+func NewX25519AgreementKey() (*X25519AgreementKey, error) {
+	priv, err := ecdh.X25519().GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+	return &X25519AgreementKey{priv: priv, pub: priv.PublicKey()}, nil
+}
+
+func (k *X25519AgreementKey) GetKty() string       { return "OKP" }
+func (k *X25519AgreementKey) GetCrvOrSize() string { return "X25519" }
+func (k *X25519AgreementKey) GetJwtAlg() string    { return "X25519" }
+
+func (k *X25519AgreementKey) Import(publicKey []byte, privateKey []byte) error {
+	if publicKey != nil {
+		p, err := ecdh.X25519().NewPublicKey(publicKey)
+		if err != nil {
+			return err
+		}
+		k.pub = p
+	}
+	if privateKey != nil {
+		p, err := ecdh.X25519().NewPrivateKey(privateKey)
+		if err != nil {
+			return err
+		}
+		k.priv = p
+		k.pub = p.PublicKey()
+	}
+	return nil
+}
+
+func (k *X25519AgreementKey) GetPublicKey(compressed bool) []byte {
+	return k.pub.Bytes()
+}
+
+func (k *X25519AgreementKey) GetPrivateKey() []byte {
+	return k.priv.Bytes()
+}
+
+func (k *X25519AgreementKey) GetPublicJwk() (jwk.Key, error) {
+	return jwk.Import[jwk.OKPPublicKey](k.pub)
+}
+
+func (k *X25519AgreementKey) GetPrivateJwk() (jwk.Key, error) {
+	return jwk.Import[jwk.OKPPrivateKey](k.priv)
+}
+
+func (k *X25519AgreementKey) SignHash(content []byte, alg jwa.SignatureAlgorithm) ([]byte, error) {
+	return nil, errors.New("X25519 does not support signing")
+}
+
+func (k *X25519AgreementKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
+	return false
 }
