@@ -1,8 +1,11 @@
 package did
 
 import (
+	"crypto"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -198,4 +201,70 @@ func (k *JsonWebKeySecurityKey) SignHash(content []byte, alg jwa.SignatureAlgori
 
 func (k *JsonWebKeySecurityKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
 	return false
+}
+
+var _ IAsymmetricKey = (*RSASignatureKey)(nil)
+
+type RSASignatureKey struct {
+	priv *rsa.PrivateKey
+	pub  *rsa.PublicKey
+}
+
+func NewRSASignatureKey() (*RSASignatureKey, error) {
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, err
+	}
+	return &RSASignatureKey{priv: priv, pub: &priv.PublicKey}, nil
+}
+
+func (k *RSASignatureKey) GetKty() string       { return "RSA" }
+func (k *RSASignatureKey) GetCrvOrSize() string { return "2048" }
+func (k *RSASignatureKey) GetJwtAlg() string    { return "RS256" }
+
+func (k *RSASignatureKey) Import(publicKey []byte, privateKey []byte) error {
+	if publicKey != nil {
+		p, err := x509.ParsePKCS1PublicKey(publicKey)
+		if err != nil {
+			return err
+		}
+		k.pub = p
+	}
+	if privateKey != nil {
+		p, err := x509.ParsePKCS1PrivateKey(privateKey)
+		if err != nil {
+			return err
+		}
+		k.priv = p
+		k.pub = &p.PublicKey
+	}
+	return nil
+}
+
+func (k *RSASignatureKey) GetPublicKey(compressed bool) []byte {
+	return x509.MarshalPKCS1PublicKey(k.pub)
+}
+
+func (k *RSASignatureKey) GetPrivateKey() []byte {
+	if k.priv == nil {
+		return nil
+	}
+	return x509.MarshalPKCS1PrivateKey(k.priv)
+}
+
+func (k *RSASignatureKey) GetPublicJwk() (jwk.Key, error) {
+	return jwk.Import[jwk.RSAPublicKey](k.pub)
+}
+
+func (k *RSASignatureKey) GetPrivateJwk() (jwk.Key, error) {
+	return jwk.Import[jwk.RSAPrivateKey](k.priv)
+}
+
+func (k *RSASignatureKey) SignHash(content []byte, alg jwa.SignatureAlgorithm) ([]byte, error) {
+	return rsa.SignPKCS1v15(rand.Reader, k.priv, crypto.SHA256, content)
+}
+
+func (k *RSASignatureKey) CheckHash(content []byte, signature []byte, alg jwa.SignatureAlgorithm) bool {
+	err := rsa.VerifyPKCS1v15(k.pub, crypto.SHA256, content, signature)
+	return err == nil
 }
