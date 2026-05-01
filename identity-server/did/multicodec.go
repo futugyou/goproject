@@ -94,3 +94,81 @@ func (e *Ec256VerificationMethod) GetMulticodecPrivateKeyHexValue() string {
 func (e *Ec256VerificationMethod) GetMulticodecPublicKeyHexValue() string {
 	return ""
 }
+
+var _ IVerificationMethod = (*Ed25519VerificationMethod)(nil)
+
+type Ed25519VerificationMethod struct {
+}
+
+// Build implements [IVerificationMethod].
+func (e *Ed25519VerificationMethod) Build(publicKey []byte, privateKey []byte) (IAsymmetricKey, error) {
+	return Ed25519SignatureKeyFrom(publicKey, privateKey)
+}
+
+// GetCrvOrSize implements [IVerificationMethod].
+func (e *Ed25519VerificationMethod) GetCrvOrSize() string {
+	return "Ed25519"
+}
+
+// GetKeySize implements [IVerificationMethod].
+func (e *Ed25519VerificationMethod) GetKeySize() int {
+	return 32
+}
+
+// GetKty implements [IVerificationMethod].
+func (e *Ed25519VerificationMethod) GetKty() string {
+	return "OKP"
+}
+
+// GetMulticodecPrivateKeyHexValue implements [IVerificationMethod].
+func (e *Ed25519VerificationMethod) GetMulticodecPrivateKeyHexValue() string {
+	return "0x8026"
+}
+
+// GetMulticodecPublicKeyHexValue implements [IVerificationMethod].
+func (e *Ed25519VerificationMethod) GetMulticodecPublicKeyHexValue() string {
+	return "0xed01"
+}
+
+var _ IVerificationMethod = (*Es256KVerificationMethod)(nil)
+
+type Es256KVerificationMethod struct {
+}
+
+// Build implements [IVerificationMethod].
+func (e *Es256KVerificationMethod) Build(publicKey []byte, privateKey []byte) (IAsymmetricKey, error) {
+	s, err := NewGenericECDSAKey("EC")
+	if err != nil {
+		return nil, err
+	}
+	err = s.Import(publicKey, privateKey)
+	if err != nil {
+		return nil, err
+	}
+	return s, err
+}
+
+// GetCrvOrSize implements [IVerificationMethod].
+func (e *Es256KVerificationMethod) GetCrvOrSize() string {
+	return "secp256k1"
+}
+
+// GetKeySize implements [IVerificationMethod].
+func (e *Es256KVerificationMethod) GetKeySize() int {
+	return 33
+}
+
+// GetKty implements [IVerificationMethod].
+func (e *Es256KVerificationMethod) GetKty() string {
+	return "EC"
+}
+
+// GetMulticodecPrivateKeyHexValue implements [IVerificationMethod].
+func (e *Es256KVerificationMethod) GetMulticodecPrivateKeyHexValue() string {
+	return "0x1301"
+}
+
+// GetMulticodecPublicKeyHexValue implements [IVerificationMethod].
+func (e *Es256KVerificationMethod) GetMulticodecPublicKeyHexValue() string {
+	return "0xe7"
+}
