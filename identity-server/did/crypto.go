@@ -390,7 +390,11 @@ func (k *ECDSASignatureKey) GetPublicKey(compressed bool) []byte {
 	if k.pub == nil {
 		return nil
 	}
-	return elliptic.Marshal(k.pub.Curve, k.pub.X, k.pub.Y)
+	ecdhPub, err := k.pub.ECDH()
+	if err != nil {
+		return nil
+	}
+	return ecdhPub.Bytes()
 }
 
 func (k *ECDSASignatureKey) GetPrivateKey() []byte {
@@ -485,5 +489,101 @@ func (k *ECDSASignatureKey) CheckHash(content []byte, signature []byte, alg jwa.
 }
 
 func (k *ECDSASignatureKey) Import(publicKey []byte, privateKey []byte) error {
-	return errors.New("use jwk.Import for complex ECDSA imports")
+	var ecdhCurve ecdh.Curve
+	switch k.alg.String() {
+	case "ES256":
+		ecdhCurve = ecdh.P256()
+	case "ES384":
+		ecdhCurve = ecdh.P384()
+	case "ES512":
+		ecdhCurve = ecdh.P521()
+	case "ES256K":
+		return k.importSecp256k1(publicKey, privateKey)
+	default:
+		return fmt.Errorf("unsupported alg: %s", k.alg)
+	}
+
+	if privateKey != nil {
+		priv, err := ecdhCurve.NewPrivateKey(privateKey)
+		if err != nil {
+			return err
+		}
+		k.priv, err = decodeToECDSA(priv)
+		if err != nil {
+			return err
+		}
+		k.pub = &k.priv.PublicKey
+	}
+
+	if publicKey != nil && k.pub == nil {
+		pub, err := ecdhCurve.NewPublicKey(publicKey)
+		if err != nil {
+			return err
+		}
+		p, err := decodeToECDSAFromPub(pub)
+		if err != nil {
+			return err
+		}
+
+		k.pub = p
+	}
+
+	return nil
+}
+
+func decodeToECDSA(priv *ecdh.PrivateKey) (*ecdsa.PrivateKey, error) {
+	pkcs8, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		return nil, err
+	}
+	p, err := x509.ParsePKCS8PrivateKey(pkcs8)
+	if err != nil {
+		return nil, err
+	}
+	return p.(*ecdsa.PrivateKey), nil
+}
+
+func decodeToECDSAFromPub(pub *ecdh.PublicKey) (*ecdsa.PublicKey, error) {
+	pkix, err := x509.MarshalPKIXPublicKey(pub)
+	if err != nil {
+		return nil, err
+	}
+	p, err := x509.ParsePKIXPublicKey(pkix)
+	if err != nil {
+		return nil, err
+	}
+	return p.(*ecdsa.PublicKey), nil
+}
+
+func (k *ECDSASignatureKey) importSecp256k1(pubBytes, privBytes []byte) error {
+	curve := secp256k1.S256()
+
+	if privBytes != nil {
+		secpPriv := secp256k1.PrivKeyFromBytes(privBytes)
+
+		secpPub := secpPriv.PubKey()
+		k.priv = &ecdsa.PrivateKey{
+			PublicKey: ecdsa.PublicKey{
+				Curve: curve,
+				X:     secpPub.X(),
+				Y:     secpPub.Y(),
+			},
+			D: new(big.Int).SetBytes(secpPriv.Serialize()),
+		}
+		k.pub = &k.priv.PublicKey
+	}
+
+	if pubBytes != nil && k.pub == nil {
+		secpPub, err := secp256k1.ParsePubKey(pubBytes)
+		if err != nil {
+			return err
+		}
+		k.pub = &ecdsa.PublicKey{
+			Curve: curve,
+			X:     secpPub.X(),
+			Y:     secpPub.Y(),
+		}
+	}
+
+	return nil
 }
