@@ -5,12 +5,6 @@ import (
 	"github.com/lestrrat-go/jwx/v4/jwk"
 )
 
-type IMulticodecSerializer interface {
-	Deserialize(publicKey string, privateKey string) (IAsymmetricKey, error)
-	SerializePublicKey(signatureKey IAsymmetricKey) string
-	SerializePrivateKey(signatureKey IAsymmetricKey) string
-}
-
 type IVerificationMethod interface {
 	GetMulticodecPublicKeyHexValue() string
 	GetMulticodecPrivateKeyHexValue() string

@@ -77,9 +77,9 @@ func (v *VerificationMethodEncoding) Encode(encodeType string, did string, contr
 			result.PrivateKeyHex = ToHex(key.GetPrivateKey(), false)
 		}
 	case MULTIBASE:
-		result.PublicKeyMultibase = v.multicodecSerializer.SerializePublicKey(key)
+		result.PublicKeyMultibase, _ = v.multicodecSerializer.SerializePublicKey(key)
 		if includePrivateKey {
-			result.SecretKeyMultibase = v.multicodecSerializer.SerializePrivateKey(key)
+			result.SecretKeyMultibase, _ = v.multicodecSerializer.SerializePrivateKey(key)
 		}
 	case JWK:
 		publicKey, err := key.GetPublicJwk()
@@ -283,7 +283,8 @@ func NewEd25519VerificationKey2018Standard(multicodecSerializer IMulticodecSeria
 
 // BuildId implements [IVerificationMethodStandard].
 func (e *Ed25519VerificationKey2018Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
-	return e.multicodecSerializer.SerializePublicKey(asymmKey)
+	r, _ := e.multicodecSerializer.SerializePublicKey(asymmKey)
+	return r
 }
 
 // GetDefaultEncoding implements [IVerificationMethodStandard].
@@ -375,7 +376,8 @@ func NewX25519KeyAgreementKey2019Standard(multicodecSerializer IMulticodecSerial
 
 // BuildId implements [IVerificationMethodStandard].
 func (x *X25519KeyAgreementKey2019Standard) BuildId(verificationMethod DidDocumentVerificationMethod, asymmKey IAsymmetricKey) string {
-	return x.multicodecSerializer.SerializePublicKey(asymmKey)
+	r, _ := x.multicodecSerializer.SerializePublicKey(asymmKey)
+	return r
 }
 
 // GetDefaultEncoding implements [IVerificationMethodStandard].

@@ -18,7 +18,6 @@ require (
 
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
@@ -35,6 +34,9 @@ require (
 	github.com/lestrrat-go/option/v2 v2.0.0 // indirect
 	github.com/lestrrat-go/option/v3 v3.0.0-alpha1 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
+	github.com/mr-tron/base58 v1.3.0 // indirect
+	github.com/multiformats/go-base32 v0.1.0 // indirect
+	github.com/multiformats/go-base36 v0.2.0 // indirect
 	github.com/redis/go-redis/v9 v9.17.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
@@ -50,9 +52,12 @@ require (
 )
 
 require (
+	github.com/btcsuite/btcd/btcutil v1.1.6
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0
 	github.com/google/uuid v1.6.0
 	github.com/jwx-go/jwkfetch/v4 v4.0.1
 	github.com/lestrrat-go/jwx/v4 v4.0.0
+	github.com/multiformats/go-multibase v0.3.0
 )
 
 replace (
