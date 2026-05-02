@@ -32,6 +32,19 @@ func NewMulticodecSerializer(methods []IVerificationMethod) *MulticodecSerialize
 	return &MulticodecSerializer{verificationMethods: methods}
 }
 
+func FullMulticodecSerializer() *MulticodecSerializer {
+	methods := []IVerificationMethod{
+		&Ed25519VerificationMethod{},
+		&Es256KVerificationMethod{},
+		&Es256VerificationMethod{},
+		&Es384VerificationMethod{},
+		&X25519VerificationMethod{},
+		&RSAVerificationMethod{},
+		&JwkJcsPubVerificationMethod{},
+	}
+	return &MulticodecSerializer{verificationMethods: methods}
+}
+
 // Deserialize string keys
 func (m *MulticodecSerializer) Deserialize(publicKey string, privateKey string) (IAsymmetricKey, error) {
 	publicKeyPayload, err := Decode(publicKey)

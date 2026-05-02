@@ -210,13 +210,13 @@ func (e *Es256VerificationMethod) GetMulticodecPublicKeyHexValue() string {
 	return "0x1200"
 }
 
-var _ IVerificationMethod = (*ES384SignatureKey)(nil)
+var _ IVerificationMethod = (*Es384VerificationMethod)(nil)
 
-type ES384SignatureKey struct {
+type Es384VerificationMethod struct {
 }
 
 // Build implements [IVerificationMethod].
-func (e *ES384SignatureKey) Build(publicKey []byte, privateKey []byte) (IAsymmetricKey, error) {
+func (e *Es384VerificationMethod) Build(publicKey []byte, privateKey []byte) (IAsymmetricKey, error) {
 	s, err := NewGenericECDSAKey("ES384")
 	if err != nil {
 		return nil, err
@@ -229,27 +229,27 @@ func (e *ES384SignatureKey) Build(publicKey []byte, privateKey []byte) (IAsymmet
 }
 
 // GetCrvOrSize implements [IVerificationMethod].
-func (e *ES384SignatureKey) GetCrvOrSize() string {
+func (e *Es384VerificationMethod) GetCrvOrSize() string {
 	return "P-384"
 }
 
 // GetKeySize implements [IVerificationMethod].
-func (e *ES384SignatureKey) GetKeySize() int {
+func (e *Es384VerificationMethod) GetKeySize() int {
 	return 49
 }
 
 // GetKty implements [IVerificationMethod].
-func (e *ES384SignatureKey) GetKty() string {
+func (e *Es384VerificationMethod) GetKty() string {
 	return "EC"
 }
 
 // GetMulticodecPrivateKeyHexValue implements [IVerificationMethod].
-func (e *ES384SignatureKey) GetMulticodecPrivateKeyHexValue() string {
+func (e *Es384VerificationMethod) GetMulticodecPrivateKeyHexValue() string {
 	return "0x1307"
 }
 
 // GetMulticodecPublicKeyHexValue implements [IVerificationMethod].
-func (e *ES384SignatureKey) GetMulticodecPublicKeyHexValue() string {
+func (e *Es384VerificationMethod) GetMulticodecPublicKeyHexValue() string {
 	return "0x1201"
 }
 
