@@ -2,6 +2,7 @@ package did
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/lestrrat-go/jwx/v4/jwk"
 )
@@ -114,4 +115,38 @@ func (d *DidDocument) AddVerificationMethod(verificationMethod DidDocumentVerifi
 
 func (d *DidDocument) AddService(service DidDocumentService, isStandard bool) {
 	d.Service = append(d.Service, service)
+}
+
+type W3CVerifiableCredential struct {
+	Proof             json.RawMessage               `json:"proof"`
+	Context           []string                      `json:"@context"`
+	Id                string                        `json:"id"`
+	Types             []string                      `json:"type"`
+	Issuer            string                        `json:"issuer"`
+	IssuanceDate      time.Time                     `json:"issuanceDate"`
+	ValidFrom         *time.Time                    `json:"validFrom,omitempty"`
+	ValidUntil        *time.Time                    `json:"validUntil,omitempty"`
+	Issued            time.Time                     `json:"issued"`
+	CredentialSubject json.RawMessage               `json:"credentialSubject"`
+	Schema            W3CVerifiableCredentialSchema `json:"credentialSchema"`
+}
+
+type W3CVerifiableCredentialSchema struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+}
+
+type DataIntegrityProof struct {
+	ID                 string     `json:"id"`
+	Type               string     `json:"type"`
+	Created            *time.Time `json:"created,omitempty"`
+	VerificationMethod string     `json:"verificationMethod"`
+	ProofPurpose       string     `json:"proofPurpose"`
+	Expires            *time.Time `json:"expires,omitempty"`
+	Domain             []string   `json:"domain"`
+	Challenge          string     `json:"challenge"`
+	ProofValue         string     `json:"proofValue"`
+	PreviousProof      []string   `json:"previousProof"`
+	Nonce              string     `json:"nonce"`
+	Jws                string     `json:"jws"`
 }
