@@ -127,8 +127,33 @@ type W3CVerifiableCredential struct {
 	ValidFrom         *time.Time                    `json:"validFrom,omitempty"`
 	ValidUntil        *time.Time                    `json:"validUntil,omitempty"`
 	Issued            time.Time                     `json:"issued"`
-	CredentialSubject json.RawMessage               `json:"credentialSubject"`
+	CredentialSubject any                           `json:"credentialSubject"`
 	Schema            W3CVerifiableCredentialSchema `json:"credentialSchema"`
+}
+
+func (vc *W3CVerifiableCredential) AddSubjectRecord(record map[string]any) error {
+	if vc.CredentialSubject == nil {
+		vc.CredentialSubject = record
+		return nil
+	}
+
+	switch existing := vc.CredentialSubject.(type) {
+	case map[string]any:
+		vc.CredentialSubject = []any{existing, record}
+	case []any:
+		vc.CredentialSubject = append(existing, record)
+	case json.RawMessage:
+		var temp any
+		if err := json.Unmarshal(existing, &temp); err != nil {
+			return err
+		}
+		vc.CredentialSubject = temp
+		return vc.AddSubjectRecord(record)
+	default:
+		vc.CredentialSubject = []any{record}
+	}
+
+	return nil
 }
 
 type W3CVerifiableCredentialSchema struct {
