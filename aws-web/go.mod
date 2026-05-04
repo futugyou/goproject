@@ -6,14 +6,14 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.41.7
 	github.com/aws/aws-sdk-go-v2/config v1.32.17
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.16
-	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.56.3
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.71.1
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.57.0
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.72.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.57.3
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.299.1
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.57.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.79.1
 	github.com/aws/aws-sdk-go-v2/service/efs v1.41.16
-	github.com/aws/aws-sdk-go-v2/service/iam v1.53.9
+	github.com/aws/aws-sdk-go-v2/service/iam v1.53.10
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.100.1
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.28
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.68.6
@@ -31,7 +31,7 @@ require github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.41.7
 
 require github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.54.12
 
-require github.com/aws/aws-sdk-go-v2/service/iot v1.72.8
+require github.com/aws/aws-sdk-go-v2/service/iot v1.73.0
 
 require (
 	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.32.24
