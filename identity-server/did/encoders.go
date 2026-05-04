@@ -155,13 +155,24 @@ func (v *VerificationMethodEncoding) GetStandards() []IVerificationMethodStandar
 }
 
 func GetAllVerificationMethodStandards() []IVerificationMethodStandard {
+	methods := []IVerificationMethod{
+		&Ed25519VerificationMethod{},
+		&Es256KVerificationMethod{},
+		&Es256VerificationMethod{},
+		&Es384VerificationMethod{},
+		&X25519VerificationMethod{},
+		&RSAVerificationMethod{},
+		&JwkJcsPubVerificationMethod{},
+	}
+	multicodecSerializer := NewMulticodecSerializer(methods)
+
 	return []IVerificationMethodStandard{
 		&EcdsaSecp256k1RecoveryMethod2020Standard{},
 		&EcdsaSecp256k1VerificationKey2019Standard{},
-		// NewEd25519VerificationKey2018Standard(),
+		NewEd25519VerificationKey2018Standard(multicodecSerializer),
 		&Ed25519VerificationKey2020Standard{},
 		&JsonWebKey2020Standard{},
-		// NewX25519KeyAgreementKey2019Standard(),
+		NewX25519KeyAgreementKey2019Standard(multicodecSerializer),
 		&X25519KeyAgreementKey2020Standard{},
 	}
 }
