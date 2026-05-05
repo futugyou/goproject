@@ -12,6 +12,50 @@ import (
 	"github.com/lestrrat-go/jwx/v4/jwk"
 )
 
+type W3CVerifiableCredential struct {
+	Proof             json.RawMessage               `json:"proof"`
+	Context           []string                      `json:"@context"`
+	Id                string                        `json:"id"`
+	Types             []string                      `json:"type"`
+	Issuer            string                        `json:"issuer"`
+	IssuanceDate      time.Time                     `json:"issuanceDate"`
+	ValidFrom         *time.Time                    `json:"validFrom,omitempty"`
+	ValidUntil        *time.Time                    `json:"validUntil,omitempty"`
+	Issued            time.Time                     `json:"issued"`
+	CredentialSubject any                           `json:"credentialSubject"`
+	Schema            W3CVerifiableCredentialSchema `json:"credentialSchema"`
+}
+
+func (vc *W3CVerifiableCredential) AddSubjectRecord(record map[string]any) error {
+	if vc.CredentialSubject == nil {
+		vc.CredentialSubject = record
+		return nil
+	}
+
+	switch existing := vc.CredentialSubject.(type) {
+	case map[string]any:
+		vc.CredentialSubject = []any{existing, record}
+	case []any:
+		vc.CredentialSubject = append(existing, record)
+	case json.RawMessage:
+		var temp any
+		if err := json.Unmarshal(existing, &temp); err != nil {
+			return err
+		}
+		vc.CredentialSubject = temp
+		return vc.AddSubjectRecord(record)
+	default:
+		vc.CredentialSubject = []any{record}
+	}
+
+	return nil
+}
+
+type W3CVerifiableCredentialSchema struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+}
+
 type DataIntegrityProof struct {
 	ID                 string     `json:"id"`
 	Type               string     `json:"type"`
