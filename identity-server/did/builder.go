@@ -65,6 +65,26 @@ func NewDidDocumentBuilder(identityDocument DidDocument, verificationMethodEncod
 	}
 }
 
+func NewDidDocumentBuilderWithID(id string) *DidDocumentBuilder {
+	methods := []IVerificationMethod{
+		&Ed25519VerificationMethod{},
+		&Es256KVerificationMethod{},
+		&Es256VerificationMethod{},
+		&Es384VerificationMethod{},
+		&X25519VerificationMethod{},
+		&RSAVerificationMethod{},
+		&JwkJcsPubVerificationMethod{},
+	}
+	return &DidDocumentBuilder{
+		identityDocument: &DidDocument{Id: id},
+		verificationMethodEncoding: &VerificationMethodEncoding{
+			standards:            GetAllVerificationMethodStandards(),
+			multicodecSerializer: NewMulticodecSerializer(methods),
+			verificationMethods:  methods,
+		},
+	}
+}
+
 func (b *DidDocumentBuilder) AddContext(callback func(*ContextBuilder)) *DidDocumentBuilder {
 	builder := &ContextBuilder{}
 	callback(builder)
