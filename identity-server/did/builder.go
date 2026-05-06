@@ -122,11 +122,15 @@ func (b *DidDocumentBuilder) AddVerificationMethod(verificationMethodStandard st
 	asymmKey IAsymmetricKey,
 	controller string,
 	usage VerificationMethodUsage,
-	isReference bool,
-	includePrivateKey bool,
-	encoding SignatureKeyEncodingTypes,
+	isReference *bool,
+	includePrivateKey *bool,
+	encoding *SignatureKeyEncodingTypes,
 	callback func(*DidDocumentVerificationMethod),
 ) *DidDocumentBuilder {
+	if isReference == nil {
+		t := true
+		isReference = &t
+	}
 	verificationMethod, _ := b.verificationMethodEncoding.Encode(
 		verificationMethodStandard,
 		b.identityDocument.Id,
@@ -160,7 +164,7 @@ func (b *DidDocumentBuilder) AddVerificationMethod(verificationMethodStandard st
 		verificationMethod.ID = verificationMethod.Controller + "#keys-" + string(rune(index))
 	}
 
-	if isReference {
+	if *isReference {
 		b.identityDocument.AddVerificationMethod(*verificationMethod, true)
 	} else {
 		b.innerVerificationMethods = append(b.innerVerificationMethods, *verificationMethod)

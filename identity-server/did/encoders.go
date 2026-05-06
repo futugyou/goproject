@@ -19,7 +19,7 @@ const (
 )
 
 type IVerificationMethodEncoding interface {
-	Encode(encodeType string, did string, controller string, key IAsymmetricKey, encoding SignatureKeyEncodingTypes, includePrivateKey bool) (*DidDocumentVerificationMethod, error)
+	Encode(encodeType string, did string, controller string, key IAsymmetricKey, encoding *SignatureKeyEncodingTypes, includePrivateKey *bool) (*DidDocumentVerificationMethod, error)
 	Decode(verificationMethod DidDocumentVerificationMethod) (IAsymmetricKey, error)
 	GetStandards() []IVerificationMethodStandard
 }
@@ -47,9 +47,13 @@ func NewVerificationMethodEncoding(standards []IVerificationMethodStandard, mult
 	}
 }
 
-func (v *VerificationMethodEncoding) Encode(encodeType string, did string, controller string, key IAsymmetricKey, encoding SignatureKeyEncodingTypes, includePrivateKey bool) (*DidDocumentVerificationMethod, error) {
+func (v *VerificationMethodEncoding) Encode(encodeType string, did string, controller string, key IAsymmetricKey, encoding *SignatureKeyEncodingTypes, includePrivateKey *bool) (*DidDocumentVerificationMethod, error) {
 	var privateKey []byte
-	if includePrivateKey {
+	if includePrivateKey != nil {
+		s := false
+		includePrivateKey = &s
+	}
+	if *includePrivateKey {
 		privateKey = key.GetPrivateKey()
 		if len(privateKey) == 0 {
 			return nil, fmt.Errorf("private key is required but not provided")
@@ -65,20 +69,24 @@ func (v *VerificationMethodEncoding) Encode(encodeType string, did string, contr
 		Controller: controller,
 	}
 
-	switch encoding {
+	e := standard.GetDefaultEncoding()
+	if encoding != nil {
+		e = *encoding
+	}
+	switch e {
 	case BASE58:
 		result.PublicKeyBase58 = base58.Encode(key.GetPublicKey(false))
-		if includePrivateKey {
+		if *includePrivateKey {
 			result.PrivateKeyBase58 = base58.Encode(privateKey)
 		}
 	case HEX:
 		result.PublicKeyHex = ToHex(key.GetPublicKey(true), false)
-		if includePrivateKey {
+		if *includePrivateKey {
 			result.PrivateKeyHex = ToHex(key.GetPrivateKey(), false)
 		}
 	case MULTIBASE:
 		result.PublicKeyMultibase, _ = v.multicodecSerializer.SerializePublicKey(key)
-		if includePrivateKey {
+		if *includePrivateKey {
 			result.SecretKeyMultibase, _ = v.multicodecSerializer.SerializePrivateKey(key)
 		}
 	case JWK:
@@ -93,7 +101,7 @@ func (v *VerificationMethodEncoding) Encode(encodeType string, did string, contr
 		}
 
 		result.PublicKeyJwk = keyBytes
-		if includePrivateKey {
+		if *includePrivateKey {
 			privateKey, err := key.GetPrivateJwk()
 			if err != nil {
 				return nil, err
