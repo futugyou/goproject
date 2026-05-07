@@ -1,6 +1,8 @@
 package did
 
-import "time"
+import (
+	"time"
+)
 
 type DecentralizedIdentifierEthr struct {
 	Scheme     string
@@ -51,4 +53,26 @@ type NetworkConfiguration struct {
 	ContractAdr    string
 	CreateDateTime time.Time
 	UpdateDateTime time.Time
+}
+
+type CAIP10BlockChainAccount struct {
+	Namespace      string
+	Reference      string
+	AccountAddress string
+}
+
+func BuildEthereumMainet(accountAddress string) *CAIP10BlockChainAccount {
+	return &CAIP10BlockChainAccount{
+		AccountAddress: accountAddress,
+		Namespace:      "eip155",
+		Reference:      "1",
+	}
+}
+
+func (c CAIP10BlockChainAccount) Format() string {
+	if len(c.Reference) > 0 {
+		return c.Namespace + ":" + c.Reference + ":" + c.AccountAddress
+	}
+
+	return c.Namespace + ":" + c.AccountAddress
 }
