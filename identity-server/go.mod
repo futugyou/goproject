@@ -17,12 +17,14 @@ require (
 )
 
 require (
+	github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime v0.0.0-20251001021608-1fe7b43fc4d6 // indirect
 	github.com/cayleygraph/quad v1.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
+	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.4 // indirect
 	github.com/lestrrat-go/dsig v1.3.0 // indirect
@@ -59,6 +61,7 @@ require (
 require (
 	github.com/btcsuite/btcd/btcutil v1.1.6
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0
+	github.com/ethereum/go-ethereum v1.17.2
 	github.com/google/uuid v1.6.0
 	github.com/jwx-go/jwkfetch/v4 v4.0.1
 	github.com/lestrrat-go/jwx/v2 v2.1.6

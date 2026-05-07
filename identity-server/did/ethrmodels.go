@@ -1,7 +1,13 @@
 package did
 
 import (
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
+
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type DecentralizedIdentifierEthr struct {
@@ -75,4 +81,67 @@ func (c CAIP10BlockChainAccount) Format() string {
 	}
 
 	return c.Namespace + ":" + c.AccountAddress
+}
+
+func DidEthrExtractor(did string) (*DecentralizedIdentifierEthr, error) {
+	decentralizedIdentifier, err := DidExtractor(did)
+	if err != nil {
+		return nil, err
+	}
+
+	if decentralizedIdentifier.Method != "ethr" {
+		return nil, fmt.Errorf("method must be equals to ethr")
+	}
+
+	splittedIdentifier := strings.Split(decentralizedIdentifier.Identifier, ":")
+	if len(splittedIdentifier) > 2 {
+		return nil, fmt.Errorf("The did identifier cannot contains more than 2 parts")
+	}
+	network := ""
+	address := splittedIdentifier[0]
+	if len(splittedIdentifier) == 2 {
+		network = splittedIdentifier[0]
+		address = splittedIdentifier[1]
+	}
+	version := 0
+	re := regexp.MustCompile(`(\w|\d)*\?versionId=(\d)*`)
+
+	if re.MatchString(address) {
+		splittedAdr := strings.Split(address, "?")
+		lastPart := splittedAdr[len(splittedAdr)-1]
+		versionIdStr := strings.Replace(lastPart, "versionId=", "", 1)
+		version, err = strconv.Atoi(versionIdStr)
+		if err != nil {
+			return nil, err
+		}
+
+		address = splittedAdr[0]
+		decentralizedIdentifier.Identifier = strings.Split(decentralizedIdentifier.Identifier, "?")[0]
+	}
+
+	identifierPayload, err := HexToByteArray(address)
+	if err != nil {
+		return nil, err
+	}
+
+	pk := ""
+	if len(address) > 42 {
+		publicKey, err := crypto.UnmarshalPubkey(identifierPayload)
+		if err != nil {
+			return nil, err
+		}
+		pk = strings.Replace(address, "0x", "", 0)
+		address = crypto.PubkeyToAddress(*publicKey).String()
+	}
+
+	return &DecentralizedIdentifierEthr{
+		Scheme:     decentralizedIdentifier.Scheme,
+		Method:     decentralizedIdentifier.Method,
+		Identifier: decentralizedIdentifier.Identifier,
+		Fragment:   decentralizedIdentifier.Fragment,
+		Address:    address,
+		Network:    network,
+		PublicKey:  pk,
+		Version:    version,
+	}, nil
 }
