@@ -67,3 +67,20 @@ func ComputeOKPThumbprint(key jwk.Key) ([]byte, error) {
 	h := sha256.Sum256(canonicalJwk)
 	return h[:], nil
 }
+
+func containsValue(m map[string]string, val string) bool {
+	for _, v := range m {
+		if v == val {
+			return true
+		}
+	}
+	return false
+}
+
+func decodeString32(b [32]byte) string {
+	n := 0
+	for n < 32 && b[n] != 0 {
+		n++
+	}
+	return string(b[:n])
+}
