@@ -2,6 +2,7 @@ package did
 
 import (
 	"fmt"
+	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,7 +19,7 @@ type DecentralizedIdentifierEthr struct {
 	Network    string
 	Address    string
 	PublicKey  string
-	Version    int
+	Version    *int
 }
 
 func (d DecentralizedIdentifierEthr) GetDidWithoutFragment() string {
@@ -40,9 +41,10 @@ type ERC1056Event struct {
 	Owner          string
 	Delegate       string
 	DelegateType   string
-	ValidTo        int64
-	PreviousChange int64
-	BlockNumber    int64
+	ValidTo        *big.Int
+	PreviousChange *big.Int
+	BlockNumber    *big.Int
+	Type           ERC1056EventType
 }
 
 type ERC1056EventType uint32
@@ -52,6 +54,18 @@ const (
 	DIDOwnerChanged
 	DIDDelegateChanged
 )
+
+func (t ERC1056EventType) Name() string {
+	switch t {
+	case DIDAttributeChanged:
+		return "DIDAttributeChanged"
+	case DIDOwnerChanged:
+		return "DIDOwnerChanged"
+	case DIDDelegateChanged:
+		return "DIDDelegateChanged"
+	}
+	return ""
+}
 
 type NetworkConfiguration struct {
 	Name           string
@@ -142,6 +156,6 @@ func DidEthrExtractor(did string) (*DecentralizedIdentifierEthr, error) {
 		Address:    address,
 		Network:    network,
 		PublicKey:  pk,
-		Version:    version,
+		Version:    &version,
 	}, nil
 }
