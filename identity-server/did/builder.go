@@ -173,6 +173,43 @@ func (b *DidDocumentBuilder) AddVerificationMethod(verificationMethodStandard st
 	return b
 }
 
+func (b *DidDocumentBuilder) AddVerificationMethodSimple(
+	verificationMethod DidDocumentVerificationMethod,
+	usage VerificationMethodUsage,
+	isReference *bool,
+) *DidDocumentBuilder {
+	if isReference == nil {
+		t := true
+		isReference = &t
+	}
+
+	standards := b.verificationMethodEncoding.GetStandards()
+	index := slices.IndexFunc(standards, func(stn IVerificationMethodStandard) bool {
+		return stn.GetType() == verificationMethod.Type
+	})
+
+	standard := standards[index]
+
+	jsonld := standard.GetJSONLDContext()
+	if len(jsonld) > 0 {
+		b.AddContextUrls([]string{jsonld})
+	}
+
+	verificationMethod.Usage = usage
+	if len(verificationMethod.ID) == 0 {
+		index := len(b.identityDocument.VerificationMethod) + len(b.innerVerificationMethods) + 1
+		verificationMethod.ID = verificationMethod.Controller + "#keys-" + string(rune(index))
+	}
+
+	if *isReference {
+		b.identityDocument.AddVerificationMethod(verificationMethod, true)
+	} else {
+		b.innerVerificationMethods = append(b.innerVerificationMethods, verificationMethod)
+	}
+
+	return b
+}
+
 func (b *DidDocumentBuilder) AddServiceEndpoint(serviceType string, serviceEndpoint string) *DidDocumentBuilder {
 	if b.identityDocument == nil {
 		b.identityDocument = &DidDocument{}
