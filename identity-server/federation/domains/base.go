@@ -1,6 +1,8 @@
 package domains
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ProviderContactInformation struct {
 	Organization string `json:"organization"`
@@ -55,17 +57,15 @@ func (p Capabilities) Validate() []string {
 	return result
 }
 
-type IdentityProviderMetadata struct {
-	JwksUri                  string                     `json:"jwks_uri"`
-	FastFedHandshakeStartUri string                     `json:"fastfed_handshake_start_uri"`
-	EntityId                 string                     `json:"entity_id"`
-	ProviderDomain           string                     `json:"provider_domain"`
-	ContactInformation       ProviderContactInformation `json:"provider_contact_information"`
-	DisplaySettings          DisplaySettings            `json:"display_settings"`
-	Capabilities             Capabilities               `json:"capabilities"`
+type BaseProviderMetadata struct {
+	EntityId           string                     `json:"entity_id"`
+	ProviderDomain     string                     `json:"provider_domain"`
+	ContactInformation ProviderContactInformation `json:"provider_contact_information"`
+	DisplaySettings    DisplaySettings            `json:"display_settings"`
+	Capabilities       Capabilities               `json:"capabilities"`
 }
 
-func (p IdentityProviderMetadata) Validate() []string {
+func (p *BaseProviderMetadata) Validate() []string {
 	result := []string{}
 	if len(p.EntityId) == 0 {
 		result = append(result, fmt.Sprintf("Parameter '%s' is missing from the metadata", "entity_id"))
@@ -79,7 +79,7 @@ func (p IdentityProviderMetadata) Validate() []string {
 	return result
 }
 
-func (p IdentityProviderMetadata) CheckCompatibility(cap Capabilities) []string {
+func (p BaseProviderMetadata) CheckCompatibility(cap Capabilities) []string {
 	var result []string
 
 	check := func(src, target []string, format string) {
@@ -105,19 +105,4 @@ func (p IdentityProviderMetadata) CheckCompatibility(cap Capabilities) []string 
 	check(cap.SigningAlgorithms, p.Capabilities.SigningAlgorithms, "Signing Algorithm %s is not compatible")
 
 	return result
-}
-
-func (p IdentityProviderMetadata) InternalValidate() []string {
-	result := []string{}
-	if len(p.JwksUri) == 0 {
-		result = append(result, fmt.Sprintf("Parameter '%s' is missing from the metadata", "jwks_uri"))
-	}
-	if len(p.FastFedHandshakeStartUri) == 0 {
-		result = append(result, fmt.Sprintf("Parameter '%s' is missing from the metadata", "fastfed_handshake_start_uri"))
-	}
-	return result
-}
-
-type ProviderMetadata struct {
-	IdentityProvider *IdentityProviderMetadata `json:"identity_provider,omitempty"`
 }
