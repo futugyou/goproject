@@ -82,7 +82,7 @@ func (r *DidEthrResolver) Resolve(ctx context.Context, did string) (*DidDocument
 	}
 
 	// load events
-	evts, err := r.readEvents(ctx, client, registry, decID, netCfg, decID.Version)
+	evts, err := r.readEvents(ctx, client, registry, decID, netCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -128,12 +128,12 @@ func (r *DidEthrResolver) Resolve(ctx context.Context, did string) (*DidDocument
 	return builder.Build(), nil
 }
 
-func (r *DidEthrResolver) readEvents(ctx context.Context, client *ethclient.Client, registry *EthereumDIDRegistry, decID *DecentralizedIdentifierEthr, netCfg *NetworkConfiguration, version *int) ([]ERC1056Event, error) {
+func (r *DidEthrResolver) readEvents(ctx context.Context, client *ethclient.Client, registry *EthereumDIDRegistry, decID *DecentralizedIdentifierEthr, netCfg *NetworkConfiguration) ([]ERC1056Event, error) {
 	var result []ERC1056Event
 
 	blockNumber := big.NewInt(0)
-	if version != nil {
-		blockNumber = big.NewInt(int64(*version))
+	if decID.Version != nil {
+		blockNumber = big.NewInt(int64(*decID.Version))
 	}
 
 	query := ethereum.FilterQuery{
@@ -148,7 +148,7 @@ func (r *DidEthrResolver) readEvents(ctx context.Context, client *ethclient.Clie
 	}
 
 	for len(logs) > 0 {
-		evt := r.extractEvent(logs, registry, client)
+		evt := r.extractEvent(logs, registry)
 		if evt == nil {
 			break
 		}
@@ -171,7 +171,7 @@ func (r *DidEthrResolver) readEvents(ctx context.Context, client *ethclient.Clie
 	return result, nil
 }
 
-func (r *DidEthrResolver) extractEvent(logs []types.Log, registry *EthereumDIDRegistry, client *ethclient.Client) *ERC1056Event {
+func (r *DidEthrResolver) extractEvent(logs []types.Log, registry *EthereumDIDRegistry) *ERC1056Event {
 	for _, lg := range logs {
 		// 1️⃣ try AttributeChanged
 		itAttr, err := registry.FilterDIDAttributeChanged(&bind.FilterOpts{
@@ -255,11 +255,12 @@ func (r *DidEthrResolver) consume(builder *DidDocumentBuilder, decID *Decentrali
 
 		eventName := evt.Type.Name()
 		eventIndex := ""
-		if evt.Type == DIDDelegateChanged {
+		switch evt.Type {
+		case DIDDelegateChanged:
 			eventIndex = eventName + "-" + evt.DelegateType + "-" + evt.Delegate
-		} else if evt.Type == DIDAttributeChanged {
+		case DIDAttributeChanged:
 			eventIndex = eventName + "-" + evt.Identity + "-" + evt.Value
-		} else {
+		default:
 			eventIndex = eventName
 		}
 
