@@ -13,7 +13,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.1.6
 	github.com/robfig/cron v1.2.0
 	go.mongodb.org/mongo-driver v1.17.9
-	golang.org/x/crypto v0.51.0
+	golang.org/x/crypto v0.52.0
 )
 
 require (
@@ -47,7 +47,7 @@ require (
 	golang.org/x/mod v0.35.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 )
 
