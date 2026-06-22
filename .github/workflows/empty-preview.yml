@@ -25,7 +25,7 @@ jobs:
       name: Preview – fake
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: changes
         with:
