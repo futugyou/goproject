@@ -1,4 +1,4 @@
-### did
+# did
 
 [ethr-did-registry](https://github.com/uport-project/ethr-did-registry/)
 
