@@ -23,7 +23,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/configservice v1.64.3
+require github.com/aws/aws-sdk-go-v2/service/configservice v1.65.0
 
 require github.com/aws/aws-sdk-go-v2/service/route53 v1.63.5
 
