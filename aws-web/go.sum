@@ -19,12 +19,12 @@ github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.62.0 h1:wvV1Dd0OGEMYsLkDrFVxk
 github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.62.0/go.mod h1:lipiF9DI3EmTTkEn2sgLug3iEO1dXM50FDFooey6vYU=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.79.0 h1:5W/KOwsnZrdi7RD97G5Vto3XEuM70FAavWScfsli7gA=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.79.0/go.mod h1:h1Iw2nkdpmAUJaa89RvX3cg/HGLgdSkCWpMNgKvBSHA=
-github.com/aws/aws-sdk-go-v2/service/configservice v1.66.0 h1:UrKgZUsb0fMdOVbvKwIl9sLXJ0BZG/5PNquSqdOvDO4=
-github.com/aws/aws-sdk-go-v2/service/configservice v1.66.0/go.mod h1:uLtMQIAG1/lzhORRBDFT44lFL2QuGh9rWO3oMru+OW0=
+github.com/aws/aws-sdk-go-v2/service/configservice v1.67.0 h1:2JoUSqw/3rCR7kLUjYYI+YhhuyWJ7XOL1X98ioMZ9tM=
+github.com/aws/aws-sdk-go-v2/service/configservice v1.67.0/go.mod h1:uLtMQIAG1/lzhORRBDFT44lFL2QuGh9rWO3oMru+OW0=
 github.com/aws/aws-sdk-go-v2/service/dynamodb v1.60.0 h1:wnyC01GGkqvRvVI73+xRTr8qDyIZMzqjHlsFqWUUVSo=
 github.com/aws/aws-sdk-go-v2/service/dynamodb v1.60.0/go.mod h1:HnWoC3m6VmjUSg+kBL6OgQsXdyRAGzBYWb7B3J2f+JM=
-github.com/aws/aws-sdk-go-v2/service/ec2 v1.312.0 h1:w7A3oil4Im9VOV6fmodiBB0UyIAC/F0pu+oaYpyHkPs=
-github.com/aws/aws-sdk-go-v2/service/ec2 v1.312.0/go.mod h1:eoF0SIRbTgKWnTcTPYckiURPba/7ilfEkvwL4V1iHK4=
+github.com/aws/aws-sdk-go-v2/service/ec2 v1.313.0 h1:IkVPFiv4v1tSMfhtzxeO/qYa47lJhRuBHFC6g3vHJdo=
+github.com/aws/aws-sdk-go-v2/service/ec2 v1.313.0/go.mod h1:eoF0SIRbTgKWnTcTPYckiURPba/7ilfEkvwL4V1iHK4=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.59.0 h1:H1dHU54MQVblAmsvlIfMdJmXyDKFSKnHrCmaWqwQ0Vs=
 github.com/aws/aws-sdk-go-v2/service/ecr v1.59.0/go.mod h1:UzfjIuiQOpusteIHBCLIikQpxh8ctmdQCvSWWzbcYYI=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.87.0 h1:K9vwX43Pmd88cOQDG54Ir1qVNWxZhjFUlwPemv60cis=
@@ -59,8 +59,8 @@ github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.41.0 h1:dQIStKXDBPAi3dG
 github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.41.0/go.mod h1:1cOD7cpm7/QbBlqQlHz4rf/Xq3CHnogYfe7vOeVIBL4=
 github.com/aws/aws-sdk-go-v2/service/signin v1.3.0 h1:i0+tbB9QBnzL5NrF2WR/zk8q2s+1N+RaDYr2627E8UI=
 github.com/aws/aws-sdk-go-v2/service/signin v1.3.0/go.mod h1:mxC0nT/C8wMMS97DemZPzvUZxvIt+2Iq+eS3JdFZGgg=
-github.com/aws/aws-sdk-go-v2/service/ssm v1.70.0 h1:JKxM6AmSmPqcsGXX/urJRBUi9r5Ha54wvGDFKgO4+e4=
-github.com/aws/aws-sdk-go-v2/service/ssm v1.70.0/go.mod h1:xabzRvdbMs3FG9kU5M6RUOuCW6wXDkpdIqoXXNzA1nQ=
+github.com/aws/aws-sdk-go-v2/service/ssm v1.71.0 h1:Z5oWeBPXlKfYMctLgbnD0bXbhuqpxsV/KnZpsLLEMLQ=
+github.com/aws/aws-sdk-go-v2/service/ssm v1.71.0/go.mod h1:xabzRvdbMs3FG9kU5M6RUOuCW6wXDkpdIqoXXNzA1nQ=
 github.com/aws/aws-sdk-go-v2/service/sso v1.32.0 h1:qjMmry/cBDee1E/2gyvel0uRYCi3mwRZ2hf6N+GAodo=
 github.com/aws/aws-sdk-go-v2/service/sso v1.32.0/go.mod h1:u8af9Nqkmqnr96f7v9nHqzZT9XBwbXEkTiqT4ROuJSE=
 github.com/aws/aws-sdk-go-v2/service/ssooidc v1.37.0 h1:fpOlDPI55HdszaxapEGk6HsGosOUaM2YPWJpjMgp8UI=
