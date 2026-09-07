@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/futugyousuzu/identity/mongo v0.0.0
-	github.com/go-oauth2/oauth2/v4 v4.5.4
+	github.com/go-oauth2/oauth2/v4 v4.6.0
 	github.com/go-session/session/v3 v3.2.1
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
