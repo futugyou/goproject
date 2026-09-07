@@ -1,6 +1,6 @@
 module github.com/futugyousuzu/identity
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
@@ -13,7 +13,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.1.7
 	github.com/robfig/cron v1.2.0
 	go.mongodb.org/mongo-driver v1.17.9
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 )
 
 require (
