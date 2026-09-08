@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.3
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.67.0
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
-	github.com/go-openapi/loads v0.25.2
+	github.com/go-openapi/loads v0.25.3
 	github.com/go-openapi/spec v1.0.1
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/spf13/cobra v1.10.2
@@ -34,11 +34,11 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
-	github.com/go-openapi/analysis v0.26.2 // indirect
+	github.com/go-openapi/analysis v1.0.0 // indirect
 	github.com/go-openapi/errors v0.22.8 // indirect
-	github.com/go-openapi/jsonpointer v1.0.0 // indirect
-	github.com/go-openapi/jsonreference v1.0.1 // indirect
-	github.com/go-openapi/strfmt v0.27.0 // indirect
+	github.com/go-openapi/jsonpointer v1.0.1 // indirect
+	github.com/go-openapi/jsonreference v1.0.2 // indirect
+	github.com/go-openapi/strfmt v0.27.2 // indirect
 	github.com/go-openapi/swag/conv v0.29.1 // indirect
 	github.com/go-openapi/swag/jsonutils v0.29.1 // indirect
 	github.com/go-openapi/swag/loading v0.29.1 // indirect
