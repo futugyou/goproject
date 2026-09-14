@@ -12,7 +12,7 @@ require (
 	github.com/go-openapi/spec v1.0.1
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/spf13/cobra v1.10.2
-	go.mongodb.org/mongo-driver v1.17.9
+	go.mongodb.org/mongo-driver v1.17.10
 	golang.org/x/text v0.41.0
 )
 
