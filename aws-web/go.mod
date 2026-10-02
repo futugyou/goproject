@@ -9,14 +9,14 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.73.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.88.1
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.69.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.336.1
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.337.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.66.1
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.99.1
 	github.com/aws/aws-sdk-go-v2/service/efs v1.49.1
 	github.com/aws/aws-sdk-go-v2/service/iam v1.64.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.4
 	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.49.1
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.78.1
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.79.0
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/futugyou/extensions v0.0.0-00010101000000-000000000000
 	github.com/google/uuid v1.6.0
