@@ -3,7 +3,7 @@ module github.com/futugyousuzu/k8sbuilder
 go 1.26.0
 
 require (
-	github.com/onsi/ginkgo/v2 v2.33.0
+	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
 	github.com/robfig/cron v1.2.0
 	k8s.io/api v0.37.1
