@@ -71,7 +71,7 @@ require (
 require (
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/klauspost/compress v1.18.1 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/jsonschema-go v0.3.79
