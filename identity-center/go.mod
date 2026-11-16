@@ -13,7 +13,7 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.1.7
 	github.com/robfig/cron v1.2.0
 	go.mongodb.org/mongo-driver v1.17.10
-	golang.org/x/crypto v0.58.0
+	golang.org/x/crypto v0.59.0
 )
 
 require (
@@ -44,11 +44,11 @@ require (
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
 )
 
 replace github.com/futugyousuzu/identity/mongo v0.0.0 => github.com/futugyou/goproject/identity-mongo v0.0.0-20230605025133-670abd240497
